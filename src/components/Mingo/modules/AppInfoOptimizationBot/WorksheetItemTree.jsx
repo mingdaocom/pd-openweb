@@ -94,6 +94,16 @@ const TreeWrap = styled.div`
   }
 `;
 
+const buildIconFileNameByStyle = (iconName, isLineStyle) => {
+  if (!iconName) return iconName;
+  if (isLineStyle) {
+    return iconName.endsWith('_line') ? iconName : `${iconName}_line`;
+  }
+
+  return iconName.endsWith('_line') ? iconName.replace(/_line$/, '') : iconName;
+};
+const buildCustomIconUrl = iconName => (iconName ? `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg` : undefined);
+
 export default function WorksheetItemTree({
   appInfo,
   treeData,
@@ -126,18 +136,6 @@ export default function WorksheetItemTree({
   }, [treeData]);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
-
-  const buildIconFileNameByStyle = (iconName, isLineStyle) => {
-    if (!iconName) return iconName;
-    if (isLineStyle) {
-      return iconName.endsWith('_line') ? iconName : `${iconName}_line`;
-    }
-
-    return iconName.endsWith('_line') ? iconName.replace(/_line$/, '') : iconName;
-  };
-
-  const buildCustomIconUrl = iconName =>
-    iconName ? `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg` : undefined;
 
   const mergedTreeData = useMemo(
     () =>

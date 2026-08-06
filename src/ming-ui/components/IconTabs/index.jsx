@@ -31,6 +31,23 @@ const TABS = [
 
 const isCustomIcon = icon => !icon.startsWith('sys_');
 
+const getSystemTypeScrollTop = () => {
+  SYSTEM_TYLE.forEach((item, index) => {
+    const el = document.getElementById(item.key);
+    SYSTEM_TYLE[index].offsetTop = el ? el.offsetTop : 0;
+  });
+};
+const getIconName = (l, isLine) => {
+  const isCustom = isCustomIcon(l);
+  const name = isCustom || l.startsWith('sys_') ? l : 'sys_' + l;
+
+  if (isCustom || (isLine && l.endsWith('_line'))) return name;
+
+  if (isLine) return name + '_line';
+
+  return name.replace('_line', '');
+};
+
 function IconTabs(props) {
   const { iconColor, hideCustom, icon, projectId, handleClick, navColor, onClearIcon } = props;
   const commonData = safeParse(localStorage.getItem('md_common_icons'), 'array');
@@ -105,13 +122,6 @@ function IconTabs(props) {
       });
   };
 
-  const getSystemTypeScrollTop = () => {
-    SYSTEM_TYLE.forEach((item, index) => {
-      const el = document.getElementById(item.key);
-      SYSTEM_TYLE[index].offsetTop = el ? el.offsetTop : 0;
-    });
-  };
-
   const onScroll = _.debounce(({ scrollTop }) => {
     if (!_.has(SYSTEM_TYLE[0], 'offsetTop')) {
       getSystemTypeScrollTop();
@@ -166,17 +176,6 @@ function IconTabs(props) {
       iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/${iconName}.svg`,
       closeTrigger: false,
     });
-  };
-
-  const getIconName = (l, isLine) => {
-    const isCustom = isCustomIcon(l);
-    const name = isCustom || l.startsWith('sys_') ? l : 'sys_' + l;
-
-    if (isCustom || (isLine && l.endsWith('_line'))) return name;
-
-    if (isLine) return name + '_line';
-
-    return name.replace('_line', '');
   };
 
   const renderCommonIcon = () => {

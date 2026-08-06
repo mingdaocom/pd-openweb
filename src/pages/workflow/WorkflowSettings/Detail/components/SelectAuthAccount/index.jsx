@@ -139,7 +139,10 @@ export default props => {
         />
 
         {hasMore && (
-          <div className={cx('actionControlMore', { ThemeColor3: fromType !== 2 })} onClick={() => setShowDialog(true)}>
+          <div
+            className={cx('actionControlMore', { colorPrimary: fromType !== 2 })}
+            onClick={() => setShowDialog(true)}
+          >
             <i className="icon-lookup" />
           </div>
         )}
@@ -149,7 +152,7 @@ export default props => {
             <i className="icon-lookup Font18 mRight10" />
             <span className="flex">{_l('查询账户')}</span>
             <i
-              className="icon-cancel Font16 textSecondary ThemeHoverColor3 pointer"
+              className="icon-cancel Font16 textSecondary hoverColorPrimary pointer"
               onClick={() => onChange({ authIdAccounts: [], authIdKeywords: '' })}
             />
           </Message>
@@ -193,7 +196,7 @@ export default props => {
 
             <i
               className={cx(
-                'Font26 textSecondary ThemeHoverColor3 pointer',
+                'Font26 textSecondary hoverColorPrimary pointer',
                 users.length ? 'icon-task-folder-charge' : 'icon-task-add-member-circle',
               )}
               onClick={selectUser}

@@ -244,7 +244,7 @@ export default class UpdateFields extends Component {
                   i={i}
                   moreNodesMenuStyle={{ marginLeft: item.nodeId ? 0 : -565, width: 701 }}
                 />
-                <i className="icon-trash Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
+                <i className="icon-trash Font16 colorPrimary actionItemDel" onClick={() => this.delFields(i)} />
               </div>
               {(item.desc || singleControl?.desc) && (
                 <div className="Font13 textSecondary mTop5">{item.desc || singleControl?.desc}</div>
@@ -254,7 +254,7 @@ export default class UpdateFields extends Component {
           );
         })}
         <div className="addActionBtn mTop20">
-          <span className="ThemeBorderColor3" onClick={this.addFields}>
+          <span className="borderColorPrimary" onClick={this.addFields}>
             <i className="icon-add Font16" />
             {type === 1 ? _l('添加字段') : _l('添加参数')}
           </span>

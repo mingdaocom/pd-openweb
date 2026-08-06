@@ -1,8 +1,7 @@
 import _ from 'lodash';
 import filterXSS from 'xss';
-import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/intlTelInput';
+import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/PhoneNumberInput/util';
 import { getRequest } from 'src/utils/common';
-import { browserIsMobile } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { mdAppResponse } from 'src/utils/project';
 
@@ -43,6 +42,65 @@ export const getDataByFilterXSS = url => {
   }
 };
 
+const isMingoAnonymousUrl = url => {
+  try {
+    const target = typeof url === 'string' ? new URL(url) : url;
+
+    return (
+      (/\/mingo\/chat\/[^/]+\/?$/i.test(target.pathname) ||
+        /\/mobile\/mingo\/create-app\/[^/]+\/?$/i.test(target.pathname)) &&
+      target.searchParams.get('anon') === '1'
+    );
+  } catch {
+    return false;
+  }
+};
+
+const getSafeReturnUrlObject = rawUrl => {
+  if (!rawUrl) return null;
+
+  const urlList = [rawUrl];
+
+  try {
+    const decodedUrl = decodeURIComponent(rawUrl);
+
+    if (decodedUrl !== rawUrl) urlList.push(decodedUrl);
+  } catch {
+    // ignore
+  }
+
+  for (const item of urlList) {
+    try {
+      const decodedItem = decodeURIComponent(item);
+
+      if (decodedItem.toLowerCase().indexOf('javascript:') >= 0) continue;
+    } catch {
+      if (String(item).toLowerCase().indexOf('javascript:') >= 0) continue;
+    }
+
+    try {
+      const url = /^\/(?!\/)/.test(item) ? new URL(item, location.origin) : new URL(item);
+      const domain = url.hostname;
+
+      if (domain.indexOf('mingdao') < 0 && domain !== location.hostname) continue;
+
+      return url;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+};
+
+export const getMingoAnonymousReturnUrl = () => {
+  const request = getRequest();
+  const returnUrl = getSafeReturnUrlObject(request.ReturnUrl || request.returnUrl || '');
+
+  if (!isMingoAnonymousUrl(returnUrl)) return '';
+  return filterXSS(returnUrl.href);
+};
+
 export const cacheDefaultCountry = ({ emailOrTel = '', dialCode = '' } = {}) => {
   if (!emailOrTel || emailOrTel.indexOf('@') > -1 || !dialCode) return;
 
@@ -60,14 +118,20 @@ export const registerSuc = (registerData, action) => {
   const { emailOrTel, dialCode, password } = registerData;
   let request = getRequest();
   let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+  const mingoAnonymousReturnUrl = getMingoAnonymousReturnUrl();
 
   if (emailOrTel) {
     safeLocalStorageSetItem('LoginName', emailOrTel);
   }
+
   cacheDefaultCountry({ emailOrTel, dialCode });
 
-  if (returnUrl.indexOf('type=privatekey') > -1 || returnUrl.indexOf('oauth/authorize') > -1) {
-    location.href = returnUrl;
+  if (
+    returnUrl.indexOf('type=privatekey') > -1 ||
+    returnUrl.indexOf('oauth/authorize') > -1 ||
+    mingoAnonymousReturnUrl
+  ) {
+    location.href = mingoAnonymousReturnUrl || returnUrl;
   } else {
     toMDPage();
   }
@@ -86,11 +150,13 @@ export const toMDPage = () => {
     location.href = md.global.Config.WebUrl + md.global.SysSettings.loginGotoUrl;
     return;
   }
+
   if (_.get(md, 'global.SysSettings.loginGotoAppId')) {
-    window.location.replace(`/app/${md.global.SysSettings.loginGotoAppId}`);
+    window.location.replace(md.global.Config.WebUrl + `app/${md.global.SysSettings.loginGotoAppId}`);
     return;
   }
-  window.location.replace('/dashboard');
+
+  window.location.replace(md.global.Config.WebUrl + 'dashboard');
 };
 
 export const toMDApp = ({ emailOrTel = '', dialCode = '' }) => {
@@ -158,8 +224,13 @@ export const checkReturnUrl = url => {
 // 登录成功后跳转
 export const loginSuccessRedirect = () => {
   const request = getRequest();
+  const mingoAnonymousReturnUrl = getMingoAnonymousReturnUrl();
 
-  if (request.ReturnUrl) {
+  if (mingoAnonymousReturnUrl) {
+    checkReturnUrl(request.ReturnUrl || request.returnUrl || '');
+    location.replace(mingoAnonymousReturnUrl);
+    return;
+  } else if (request.ReturnUrl) {
     checkReturnUrl(request.ReturnUrl);
     const safeUrl = getDataByFilterXSS(request.ReturnUrl);
     location.replace(safeUrl);

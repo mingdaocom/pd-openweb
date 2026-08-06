@@ -1,11 +1,11 @@
 import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
-import DocumentTitle from 'react-document-title';
 import { Collapse, Dialog, List, SpinLoading, TabBar } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
 import { Chatbot } from 'mobile/Chatbot';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import CustomPage from 'mobile/CustomPage';
 import RecordList from 'mobile/RecordList';
 import WorksheetUnNormal from 'mobile/RecordList/State';
@@ -16,7 +16,7 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import { addBehaviorLog } from 'src/utils/project';
 import { AppPermissionsInfo } from '../components/AppPermissions';
 import Back from '../components/Back';
@@ -102,45 +102,10 @@ class App extends Component {
     window.addEventListener('popstate', this.backDashboard);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const nextWorksheetId = nextProps.match.params.worksheetId;
-    const appNaviStyle = _.get(nextProps, 'appDetail.detail.appNaviStyle');
-
-    if (nextWorksheetId !== this.props.match.params.worksheetId) {
-      this.setState({
-        selectedTab: nextWorksheetId ? nextWorksheetId : 'more',
-      });
-      if (appNaviStyle === 2 && nextWorksheetId) {
-        safeLocalStorageSetItem('currentNavWorksheetId', nextWorksheetId);
-      }
-    }
-
-    if (!_.isEqual(this.props.appDetail, nextProps.appDetail)) {
-      const { appSection = [], detail = {} } = _.get(nextProps, 'appDetail') || {};
-      const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
-      const appExpandGroupInfo =
-        (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-          JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
-        {};
-
-      const expandGroupKeys = appExpandGroupInfo.expandGroupKeys
-        ? appExpandGroupInfo.expandGroupKeys
-        : detail.appNaviDisplayType === 1
-          ? []
-          : detail.appNaviDisplayType === 2
-            ? [appSection[0].appSectionId]
-            : appSection.map(item => item.appSectionId);
-
-      this.setState({
-        expandGroupKeys,
-        viewHideNavi,
-        level2ExpandKeys: appExpandGroupInfo.level2ExpandKeys || [],
-      });
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const { appSection } = this.props.appDetail;
+    const nextWorksheetId = this.props.match.params.worksheetId;
+    const prevWorksheetId = prevProps.match.params.worksheetId;
 
     if (
       !this.isSetScrollTop &&
@@ -153,8 +118,35 @@ class App extends Component {
       this.isSetScrollTop = true;
     }
 
+    if (nextWorksheetId !== prevWorksheetId) {
+      const appNaviStyle = _.get(this.props, 'appDetail.detail.appNaviStyle');
+      this.setState({ selectedTab: nextWorksheetId || 'more' });
+      if (appNaviStyle === 2 && nextWorksheetId) {
+        safeLocalStorageSetItem('currentNavWorksheetId', nextWorksheetId);
+      }
+    }
+
+    if (!_.isEqual(prevProps.appDetail, this.props.appDetail)) {
+      const { appSection: sections = [], detail = {} } = this.props.appDetail || {};
+      const { viewHideNavi } = detail;
+      const appExpandGroupInfo = safeParse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`), {});
+      const expandGroupKeys = appExpandGroupInfo.expandGroupKeys
+        ? appExpandGroupInfo.expandGroupKeys
+        : detail.appNaviDisplayType === 1
+          ? []
+          : detail.appNaviDisplayType === 2
+            ? [sections[0] && sections[0].appSectionId]
+            : sections.map(item => item.appSectionId);
+
+      this.setState({
+        expandGroupKeys,
+        viewHideNavi,
+        level2ExpandKeys: appExpandGroupInfo.level2ExpandKeys || [],
+      });
+    }
+
     if (
-      prevProps.match.params.worksheetId !== this.props.match.params.worksheetId ||
+      prevWorksheetId !== nextWorksheetId ||
       !_.isEqual(prevProps.appDetail, this.props.appDetail) ||
       prevState.viewHideNavi !== this.state.viewHideNavi
     ) {
@@ -167,12 +159,10 @@ class App extends Component {
     sessionStorage.removeItem('detectionUrl');
     if (modal) {
       modal.close();
-    } else {
       modal = null;
     }
 
-    this.setState({ appMoreActionVisible: false });
-    window.removeEventListener('popstate', this.handleSetScrollTop);
+    window.removeEventListener('popstate', this.backDashboard);
   }
 
   backDashboard = () => {
@@ -208,13 +198,7 @@ class App extends Component {
   };
 
   navigateTo(url) {
-    url = (window.subPath || '') + url;
-
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-
-    this.props.history.push(url);
+    window.mobileNavigateTo(url);
   }
 
   detectionUrl = ({ permissionType, isLock, appNaviStyle, sections, appNavItemIds = [] }) => {
@@ -295,7 +279,7 @@ class App extends Component {
   };
 
   handleOpenSheet = (data, item) => {
-    addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
+    addBehaviorLog(item.type === 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
     const { params } = this.props.match;
     localStorage.removeItem('currentNavWorksheetId');
     const { appNaviStyle } = _.get(this.props, 'appDetail.detail') || {};
@@ -360,6 +344,7 @@ class App extends Component {
     const { detail } = appDetail;
     const { childSections = [], workSheetInfo = [] } = data;
     const isCharge = canEditApp(detail.permissionType, detail.isLock);
+    const appExpandGroupInfo = safeParse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`), {});
 
     return workSheetInfo
       .filter(item => (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide))
@@ -388,13 +373,10 @@ class App extends Component {
         }
 
         const groupItem = _.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {});
-        const appExpandGroupInfo =
-          (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-            JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
-          {};
 
         return (
           <Collapse
+            key={groupItem.appSectionId || groupItem.workSheetId}
             arrow={null}
             className="level2Collapse"
             activeKey={this.state.level2ExpandKeys}
@@ -495,7 +477,7 @@ class App extends Component {
     const { expandGroupKeys = [], level2ExpandKeys = [] } = this.state;
     const name = getTranslateInfo(id, null, data.appSectionId).name || data.name;
 
-    if (level == 'level1') {
+    if (level === 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
           <div className="Bold flex ellipsis textPrimary">{name || _l('未命名分组')}</div>
@@ -713,10 +695,7 @@ class App extends Component {
     const hasNoLevel1 = appSection.length === 1 && !_.get(appSection, '[0].name');
     const { isHideTabBar, appMoreActionVisible, viewHideNavi, expandGroupKeys } = this.state;
     const { params } = match;
-    const appExpandGroupInfo =
-      (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-        JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
-      {};
+    const appExpandGroupInfo = safeParse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`), {});
     const accordionExtraParam =
       appNaviDisplayType === 2
         ? { activeKey: expandGroupKeys }
@@ -776,7 +755,7 @@ class App extends Component {
                     <Fragment>
                       {appSection.map(item => {
                         return (
-                          <List>
+                          <List key={item.appSectionId}>
                             {[0, 2].includes(appNaviStyle) && this.renderList(item, 'level1')}
                             {appNaviStyle === 1 && (
                               <div className="sudokuSectionWrap">{this.renderSudoku(item, 'level1')}</div>
@@ -911,8 +890,7 @@ class App extends Component {
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
     const { selectedTab, viewHideNavi } = this.state;
-    let sheetList = getWorksheetList(appSection, viewHideNavi, isAuthorityApp);
-    const { bottomNavSheetId } = getBottomTabSheetList({
+    const { sheetList, bottomNavSheetId } = getBottomTabSheetList({
       appSection,
       detail,
       viewHideNavi,
@@ -932,13 +910,6 @@ class App extends Component {
       return this.renderContent();
     }
 
-    sheetList = getBottomTabSheetList({
-      appSection,
-      detail,
-      viewHideNavi,
-      isAuthorityApp,
-    }).sheetList;
-
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
     return (
@@ -956,13 +927,14 @@ class App extends Component {
             hidden={isHideNav}
             activeKey={selectedTab}
             onChange={key => {
+              this.setState({ selectedTab: key });
               if (key === 'more') {
                 const { params } = this.props.match;
                 this.navigateTo(`/mobile/app/${params.appId}`);
                 sessionStorage.setItem('detectionUrl', 1);
               } else {
                 const item = _.find(sheetList, { workSheetId: key });
-                addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
+                addBehaviorLog(item.type === 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
                 this.handleSwitchSheet(item, data);
               }
             }}

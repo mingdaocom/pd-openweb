@@ -6,8 +6,16 @@ import { AI_MODEL_MODE } from '../config';
 import { getDeveloperInfo } from '../util';
 import EditableTable from './EditableTable';
 
+const PRICE_COLUMNS = [
+  { type: 'inputToken', label: _l('输入价格') },
+  { type: 'outputToken', label: _l('输出价格') },
+  { type: 'inputCachedToken', label: _l('缓存命中') },
+];
+
 const AITableWrap = styled.div`
   .aiTable {
+    table-layout: fixed;
+
     .providerCell {
       background-color: var(--color-background-secondary);
       font-weight: 500;
@@ -15,7 +23,7 @@ const AITableWrap = styled.div`
       border-right: 1px solid var(--color-border-secondary);
       vertical-align: middle;
       text-align: left;
-      width: 20%;
+      width: 18%;
 
       &:first-child {
         border-left: 1px solid var(--color-border-secondary);
@@ -37,11 +45,11 @@ const AITableWrap = styled.div`
     }
 
     .modelCell {
-      width: 15%;
+      width: 22%;
     }
 
     .priceCell {
-      width: 17%;
+      width: 20%;
       text-align: left;
     }
 
@@ -75,32 +83,33 @@ const AITableWrap = styled.div`
   }
 `;
 
+const getVendorInfo = developer => {
+  if (!developer || !developer.type) {
+    return { name: _l('未命名'), description: '' };
+  }
+
+  // 对于自定义开发商(type 100)，使用developer的name
+  if (developer.type === 100) {
+    return {
+      name: developer.name || _l('未命名'),
+      description: developer.remark || '',
+    };
+  }
+
+  // 对于其他开发商，使用getDeveloperInfo获取名称
+  const developerInfo = getDeveloperInfo(developer.type);
+  return {
+    name: developerInfo.name,
+    description: developer.remark || '',
+  };
+};
+
 const AI = () => {
   const [aiModelData, setAiModelData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [useMillionUnit, setUseMillionUnit] = useState(false);
 
   // 获取vendor名称和描述
-  const getVendorInfo = developer => {
-    if (!developer || !developer.type) {
-      return { name: _l('未命名'), description: '' };
-    }
-
-    // 对于自定义开发商(type 100)，使用developer的name
-    if (developer.type === 100) {
-      return {
-        name: developer.name || _l('未命名'),
-        description: developer.remark || '',
-      };
-    }
-
-    // 对于其他开发商，使用getDeveloperInfo获取名称
-    const developerInfo = getDeveloperInfo(developer.type);
-    return {
-      name: developerInfo.name,
-      description: developer.remark || '',
-    };
-  };
 
   const getAIPricingPolicyDetail = () => {
     setLoading(true);
@@ -137,12 +146,17 @@ const AI = () => {
   const hasAnyData = embeddingData.length > 0 || languageData.length > 0;
 
   // 渲染价格单元格
-  const renderPriceCell = (developer, model, priceType) => {
-    const value = model.price?.[priceType];
+  const renderPriceCell = (model, priceColumn) => {
+    const { type } = priceColumn;
+    const value = model.price?.[type];
     const hasValue = value !== null && value !== undefined;
 
     if (!hasValue) {
-      return <td className="flex4 emptyCell">-</td>;
+      return (
+        <td key={type} className="priceCell emptyCell">
+          -
+        </td>
+      );
     }
 
     // 根据 useMillionUnit 进行显示转换
@@ -161,7 +175,7 @@ const AI = () => {
     const displayValue = getDisplayValue();
 
     return (
-      <td className="flex4 priceCell">
+      <td key={type} className="priceCell">
         <span>{displayValue}</span>
       </td>
     );
@@ -172,11 +186,13 @@ const AI = () => {
     <table className="editableTable aiTable">
       <thead>
         <tr>
-          <th className="flex1">{_l('开发商')}</th>
-          <th className="flex1">{_l('模型名称')}</th>
-          <th className="flex4">
-            {useMillionUnit ? _l('价格 (信用点 / 百万 tokens)') : _l('价格 (信用点 / 千 tokens)')}
-          </th>
+          <th className="providerCell">{_l('开发商')}</th>
+          <th className="modelCell">{_l('模型名称')}</th>
+          {PRICE_COLUMNS.map(({ type, label }) => (
+            <th key={type} className="priceCell">
+              {useMillionUnit ? _l('%0 (信用点 / 百万 tokens)', label) : _l('%0 (信用点 / 千 tokens)', label)}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -186,7 +202,7 @@ const AI = () => {
             return (
               <tr key={`${item.developer.id}-${model.id}`}>
                 {modelIndex === 0 && (
-                  <td className="flex1 providerCell" rowSpan={item.models.length}>
+                  <td className="providerCell" rowSpan={item.models.length}>
                     <div className="providerName">
                       <div className="Font14 FontWeight400 WordBreak">{vendorInfo.name}</div>
                       {vendorInfo.description && (
@@ -195,8 +211,8 @@ const AI = () => {
                     </div>
                   </td>
                 )}
-                <td className="flex1 WordBreak">{model.alias || model.name}</td>
-                {renderPriceCell(item.developer, model, 'outputToken')}
+                <td className="modelCell WordBreak">{model.alias || model.name}</td>
+                {PRICE_COLUMNS.map(priceColumn => renderPriceCell(model, priceColumn))}
               </tr>
             );
           }),
@@ -219,7 +235,7 @@ const AI = () => {
           </div>
           <div>
             <span
-              className="Font13 ThemeColor3 Hand InlineFlex alignItemsCenter mTop8"
+              className="Font13 colorPrimary Hand InlineFlex alignItemsCenter mTop8"
               onClick={() => setUseMillionUnit(prev => !prev)}
             >
               <Icon icon="sync1" />

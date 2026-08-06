@@ -12,7 +12,7 @@ import RadioGroup from 'ming-ui/components/RadioGroup';
 import projectAjax from 'src/api/projectSetting';
 import postAjax from 'src/api/taskCenter';
 import sheetAjax from 'src/api/worksheet';
-import { accAdd, accDiv, accMul, htmlDecodeReg } from 'src/utils/common';
+import { accAdd, accDiv, accMul, htmlDecodeReg, pathCompletion } from 'src/utils/common';
 import { formatFormulaDate, renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import model from './model';
@@ -103,7 +103,7 @@ export default class Print extends Component {
       workflow: [],
     };
   }
-  componentWillMount = () => {
+  componentDidMount = () => {
     const { params } = this.props.match;
 
     if (params.printType === 'worksheet') {
@@ -215,7 +215,7 @@ export default class Print extends Component {
         const { data } = source;
         const controlData = _.groupBy(data.controls, 'row');
         const url = `${md.global.Config.AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(
-          `${md.global.Config.WebUrl}apps/task/task_${this.state.reqId}`,
+          pathCompletion(`/apps/task/task_${this.state.reqId}`),
         )}`;
         this.setState({
           task: allocationTask(data),
@@ -844,7 +844,7 @@ export default class Print extends Component {
       this.state.reqWorks.manageList.forEach(manageItem => {
         manageItem.workType = 2;
       });
-      const newWorkList = JSON.parse(JSON.stringify(this.state.reqWorks));
+      const newWorkList = _.cloneDeep(this.state.reqWorks);
 
       if (processOption === 'some') {
         newWorkList.taskList.forEach(taskItem => {

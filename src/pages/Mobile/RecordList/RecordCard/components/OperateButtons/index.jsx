@@ -36,6 +36,7 @@ const OperateButtons = props => {
     controls,
     worksheetInfo,
     buttonsCheckStatus = {},
+    appDetail,
   } = context || {};
 
   const { viewId, viewType, advancedSetting = {}, coverCid } = view;
@@ -43,7 +44,7 @@ const OperateButtons = props => {
   const isGroupView = viewType === 1 || advancedSetting.groupsetting;
   const [btnDisable, setBtnDisable] = useState({});
 
-  if (_.isEmpty(context) || !sheetButtons?.length) return null;
+  if (_.isEmpty(context)) return null;
 
   let buttons = getSheetOperatesButtons(view, {
     buttons: sheetButtons,
@@ -51,10 +52,21 @@ const OperateButtons = props => {
   });
   buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId, row);
   if (_.isObject(buttonsCheckStatus)) {
-    buttons = buttons.map(button => ({
-      ...button,
-      disabled: button.type === 'custom_button' && !buttonsCheckStatus[`${row.rowid}-${button.btnId}`],
-    }));
+    const applyButtonCheckStatus = button => {
+      if (button.type === 'group_ref') {
+        return {
+          ...button,
+          buttons: (button.buttons || []).map(applyButtonCheckStatus),
+        };
+      }
+
+      return {
+        ...button,
+        disabled: button.type === 'custom_button' && !buttonsCheckStatus[`${row.rowid}-${button.btnId}`],
+      };
+    };
+
+    buttons = buttons.map(applyButtonCheckStatus);
   }
 
   buttons = filterPrintButton(buttons);
@@ -72,7 +84,9 @@ const OperateButtons = props => {
     context,
     onDeleteSuccess,
     disableCustomButton,
+    appDetail,
   });
+  buttons = buttons.filter(button => button.type !== 'group_ref' || !_.isEmpty(button.buttons));
   const showMore = visibleNum < buttons.length;
   // 没有按钮，不显示
   if (!buttons.length) return null;

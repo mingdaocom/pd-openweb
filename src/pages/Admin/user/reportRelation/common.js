@@ -51,7 +51,7 @@ export function selectUser({ accountId, unique, isSetParent, callback }) {
       extraTabs: [
         {
           id: 'structureUsers',
-          name: '所有人',
+          name: _l('所有人'),
           type: 4,
           page: true,
           actions: {

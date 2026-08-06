@@ -97,12 +97,13 @@ export function getRecorderAuthConfig() {
           appId: data.appId,
           expiredTime: data.expiredTime * 1000,
         };
-        localStorage.setItem('RECORDER_AUTH_CONFIG', JSON.stringify(authConfig));
+        safeLocalStorageSetItem('RECORDER_AUTH_CONFIG', JSON.stringify(authConfig));
         return authConfig;
       } else {
         if (data.code === 10004) {
           throw new Error(_l('服务调用失败'));
         }
+
         throw new Error(_l('发生错误，请稍后重试'));
       }
     })
@@ -111,78 +112,107 @@ export function getRecorderAuthConfig() {
     });
 }
 
-const Recorder = forwardRef(({ onRecognize = () => {}, onStart = () => {}, onStop = () => {} }, ref) => {
-  const [loading, setLoading] = useState(true);
-  const [authConfig, setAuthConfig] = useState({});
-  const [status, setStatus] = useState('');
-  const [error, setError] = useState();
-  const [recognizedText, setRecognizedText] = useState('');
-  const coreRef = useRef(null);
-  useEffect(() => {
-    onRecognize(recognizedText);
-  }, [recognizedText, onRecognize]);
-  useEffect(() => {
-    if (status === 'recording') {
-      onStart();
-    } else if (status === 'error') {
-      setError(_l('录音失败，请重试'));
-    }
-  }, [status, onStart]);
-  useEffect(() => {
-    if (!_.isEmpty(authConfig)) {
-      return;
-    }
+const Recorder = forwardRef(
+  (
+    {
+      getAuthConfig = getRecorderAuthConfig,
+      onRecognize = () => {},
+      onStart = () => {},
+      onStop = () => {},
+      onUnavailable = () => {},
+    },
+    ref,
+  ) => {
+    const [loading, setLoading] = useState(true);
+    const [authConfig, setAuthConfig] = useState({});
+    const [status, setStatus] = useState('');
+    const [error, setError] = useState();
+    const [recognizedText, setRecognizedText] = useState('');
+    const coreRef = useRef(null);
+    const callbacksRef = useRef({ onStop, onUnavailable });
 
-    getRecorderAuthConfig()
-      .then(data => {
-        setAuthConfig(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError(_l('发生错误，请稍后重试'));
-        setLoading(false);
-      });
-  }, [authConfig]);
-  useImperativeHandle(ref, () => ({
-    start: (...args) => {
-      coreRef.current?.start(...args);
-    },
-    stop: (...args) => {
-      coreRef.current?.stop(...args);
-    },
-  }));
-  return (
-    <Con>
-      <RecorderContent className={cx('t-flex t-flex-row t-items-center', { 'error-status': error })}>
-        {!error && !loading && (
-          <Core
-            ref={coreRef}
-            authConfig={authConfig}
-            onStop={onStop}
-            updateStatus={setStatus}
-            updateRecognizedText={setRecognizedText}
-          />
-        )}
-        {!error && loading && (
-          <div className="recorderIcon t-flex t-content-center t-items-center">
-            <i className="icon icon-microphone"></i>
-          </div>
-        )}
-        {!!error && (
-          <Fragment>
-            <div className="error t-flex t-flex-row t-items-center t-flex-1">
-              <i className="icon icon-error1"></i>
-              {error}
+    useEffect(() => {
+      callbacksRef.current = { onStop, onUnavailable };
+    }, [onStop, onUnavailable]);
+
+    useEffect(() => {
+      onRecognize(recognizedText);
+    }, [recognizedText, onRecognize]);
+    useEffect(() => {
+      if (status === 'recording') {
+        onStart();
+      } else if (status === 'error') {
+        setError(_l('录音失败，请重试'));
+      }
+    }, [status, onStart]);
+    useEffect(() => {
+      if (!_.isEmpty(authConfig)) {
+        return;
+      }
+
+      getAuthConfig()
+        .then(data => {
+          setAuthConfig(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          if (err && err.disableVoice) callbacksRef.current.onUnavailable(err);
+
+          if (err && err.silentVoice) {
+            callbacksRef.current.onStop();
+            return;
+          }
+
+          if (err && err.message === 'captcha_cancelled') {
+            callbacksRef.current.onStop();
+            return;
+          }
+
+          setError((err && err.message) || _l('发生错误，请稍后重试'));
+          setLoading(false);
+        });
+    }, [authConfig, getAuthConfig]);
+    useImperativeHandle(ref, () => ({
+      start: (...args) => {
+        coreRef.current?.start(...args);
+      },
+      stop: (...args) => {
+        coreRef.current?.stop(...args);
+      },
+    }));
+    return (
+      <Con>
+        <RecorderContent className={cx('t-flex t-flex-row t-items-center', { 'error-status': error })}>
+          {!error && !loading && (
+            <Core
+              ref={coreRef}
+              authConfig={authConfig}
+              onStop={onStop}
+              updateStatus={setStatus}
+              updateRecognizedText={setRecognizedText}
+            />
+          )}
+          {!error && loading && (
+            <div className="recorderIcon t-flex t-content-center t-items-center">
+              <i className="icon icon-microphone"></i>
             </div>
-            <div className="recorderClose t-flex t-content-center t-items-center">
-              <i className="icon icon-close" onClick={onStop}></i>
-            </div>
-          </Fragment>
-        )}
-      </RecorderContent>
-    </Con>
-  );
-});
+          )}
+          {!!error && (
+            <Fragment>
+              <div className="error t-flex t-flex-row t-items-center t-flex-1">
+                <i className="icon icon-error1"></i>
+                {error}
+              </div>
+              <div className="recorderClose t-flex t-content-center t-items-center">
+                <i className="icon icon-close" onClick={onStop}></i>
+              </div>
+            </Fragment>
+          )}
+        </RecorderContent>
+      </Con>
+    );
+  },
+);
 
 Recorder.displayName = 'Recorder';
 

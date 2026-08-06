@@ -76,7 +76,7 @@ function OtherOptionTextInput(props) {
       <div className="header">
         <span className="usage">{`${value.length}/200`}</span>
         <div className="flex"></div>
-        <span className="reSelect ThemeColor3 ThemeHoverColor2" onClick={() => onSave('')}>
+        <span className="reSelect colorPrimary hoverColorPrimaryDark" onClick={() => onSave('')}>
           {_l('重新选择')}
         </span>
       </div>
@@ -202,11 +202,17 @@ export default class Options extends React.Component {
     this.popupSpecialFilterClassName = `specialFilter${Math.random()}`.replace(/\./g, '');
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value && !nextProps.isediting) {
-      this.setState({ value: nextProps.cell.value });
-    } else if (this.props.isediting && !nextProps.isediting && this.state.value !== nextProps.cell.value) {
-      this.setState({ value: nextProps.cell.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value && !this.props.isediting) {
+        this.setState({
+          value: this.props.cell.value,
+        });
+      } else if (prevProps.isediting && !this.props.isediting && this.state.value !== this.props.cell.value) {
+        this.setState({
+          value: this.props.cell.value,
+        });
+      }
     }
   }
 
@@ -317,19 +323,26 @@ export default class Options extends React.Component {
     const { value } = this.state;
     const isMultiple = cell.type === 10;
 
+    // 子表多选：失焦保留当前选择并写入，即使不满足"限制选中个数"等校验也不清空/回退，
+    // 统一延迟到保存时校验，避免选中后失焦数据被清空。
+    if (isMultiple && this.isSubList) {
+      updateEditingStatus(false);
+
+      if (value !== this.props.cell.value) {
+        updateCell({
+          value: formatControlToServer(Object.assign({}, cell, { value })).value,
+        });
+      }
+
+      return;
+    }
+
     if (!isMultiple || !error || this.ignoreErrorMessage) {
       updateEditingStatus(false);
     } else if (error) {
       updateEditingStatus(false);
       this.setState({
         value: this.state.oldValue,
-      });
-      return;
-    }
-
-    if (isMultiple && this.isSubList && value !== this.props.cell.value) {
-      updateCell({
-        value: formatControlToServer(Object.assign({}, cell, { value })).value,
       });
     }
   };
@@ -538,7 +551,7 @@ export default class Options extends React.Component {
             <div className={cx('cellOptions cellControl', { singleLine })}>
               {selectedOptions.map((option, index) => {
                 if (showAsText || showAsTextWithBg) {
-                  return <div>{this.getShowValue(option)}</div>;
+                  return <div key={index}>{this.getShowValue(option)}</div>;
                 }
 
                 return (

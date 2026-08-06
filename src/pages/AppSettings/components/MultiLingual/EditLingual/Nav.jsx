@@ -136,6 +136,14 @@ const customPageConfig = [
     title: _l('富文本'),
     type: 'pageRichText',
   },
+  {
+    title: _l('标签页'),
+    type: 'pageTabs',
+  },
+  {
+    title: _l('卡片'),
+    type: 'pageCard',
+  },
 ];
 
 const getTreeData = (appId, { sections, collections, workflows, searchValue }) => {
@@ -165,6 +173,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
     if (appItem.type === 2) {
       const subChildren = _.get(_.find(childSections, { appSectionId: appItem.workSheetId }), 'workSheetInfo') || [];
       return subChildren
+        .filter(subAppItem => subAppItem.type !== 3)
         .map(subAppItem => {
           return {
             title: getTranslateInfo(appId, null, subAppItem.workSheetId).name || subAppItem.workSheetName,
@@ -203,6 +212,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
         type: 2,
         icon: <Icon className="Font17 textTertiary" icon="gourup_default" />,
         children: gourup.workSheetInfo
+          .filter(appItem => appItem.type !== 3)
           .map(appItem => {
             return {
               title: getTranslateInfo(appId, null, appItem.workSheetId).name || appItem.workSheetName,
@@ -231,6 +241,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
       };
     })
     .filter(n => (searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true));
+
   const appEntrance = [
     {
       key: 'appItemEntrance',
@@ -274,6 +285,23 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
           };
         })
         .filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true)),
+    },
+    {
+      key: 'appRoleEntrance',
+      title: _l('应用角色'),
+      selectable: false,
+      children: [
+        {
+          key: 'appRole',
+          title: _l('常规角色'),
+          type: 'appRole',
+        },
+        {
+          key: 'externalPortalRole',
+          title: _l('外部门户角色'),
+          type: 'externalPortalRole',
+        },
+      ],
     },
   ];
   return appEntrance;

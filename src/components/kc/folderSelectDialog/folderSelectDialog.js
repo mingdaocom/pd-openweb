@@ -109,7 +109,7 @@ $.extend(FolderSelect.prototype, {
         <div className="folderContent">
           <div className="folderUrl flexRow">
             <div className="positionUrl flexRow flex" style={{ minWidth: 0 }}>
-              <span className="levelName ThemeColor3 startTag">{_l('全部文件')}</span>
+              <span className="levelName colorPrimary startTag">{_l('全部文件')}</span>
             </div>
             <div className="operation">
               <span className="folderSearch">
@@ -122,7 +122,9 @@ $.extend(FolderSelect.prototype, {
           <div className="folderNode" dangerouslySetInnerHTML={{ __html: loading }}></div>
           <div className="selectedHint">
             <div className="selectedItem Hidden">
-              已选中<span className="selectedNum"></span>个文件
+              {_l('已选中')}
+              <span className="selectedNum"></span>
+              {_l('个文件')}
             </div>
             <div className="radioItem Hidden ellipsis"></div>
           </div>
@@ -141,7 +143,7 @@ $.extend(FolderSelect.prototype, {
         //有选择当前目录下的文件夹
         $nodeItem.each(function () {
           var $this = $(this);
-          if ($this.hasClass('ThemeBGColor5')) {
+          if ($this.hasClass('bgColorPrimaryTransparent')) {
             if ($this.data('rootType')) {
               isRoot = $this.data('rootType');
               selectedNode.push({
@@ -161,12 +163,12 @@ $.extend(FolderSelect.prototype, {
             if (isRoot) {
               if (isRoot == PICK_TYPE.MYFILE) {
                 resultType = PICK_TYPE.MYFILE;
-                resultNode = { id: null, name: '我的文件' };
+                resultNode = { id: null, name: _l('我的文件') };
               } else {
                 resultType = PICK_TYPE.ROOT;
                 resultNode = selectedNode[0];
                 expireDialogAsync(resultNode.projectId).catch(function () {
-                  var msg = '网络已过期';
+                  var msg = _l('网络已过期');
                   throw msg;
                 });
               }
@@ -379,7 +381,7 @@ $.extend(FolderSelect.prototype, {
             .each(function (i, v) {
               prevWidth += $(v).width();
             });
-          $positionUrl.css({ 'margin-left': '-' + eval(prevWidth) + 'px' });
+          $positionUrl.css({ 'margin-left': '-' + prevWidth + 'px' });
           setTimeout(function () {
             $searchFolder.focus();
           }, 300);
@@ -420,7 +422,7 @@ $.extend(FolderSelect.prototype, {
                 return false;
               }
 
-              if ($this.hasClass('ThemeColor3')) {
+              if ($this.hasClass('colorPrimary')) {
                 return false;
               }
 
@@ -435,7 +437,7 @@ $.extend(FolderSelect.prototype, {
                   nodeData.visibleType = visibleId;
                   var $selectedNode = $folderContent
                     .find('.nodeItem')
-                    .filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
+                    .filter('.bgColorPrimaryTransparent[nodeType="' + NODE_TYPE.FILE + '"]');
                   $selectedNode
                     .find('.statusIcon i')
                     .removeClass()
@@ -482,7 +484,7 @@ $.extend(FolderSelect.prototype, {
 
     $folderContent
       .find('.folderUrl .positionUrl .startTag')
-      .removeClass('ThemeColor3')
+      .removeClass('colorPrimary')
       .end()
       .find('.folderUrl .operation')
       .hide()
@@ -563,7 +565,7 @@ $.extend(FolderSelect.prototype, {
     // 判断付费版是否到期
     if (this.settings.isFolderNode == SELECT_TYPE.FOLDER && type === PICK_TYPE.ROOT && !isScroll) {
       expireDialogAsync(rootNode.projectId || '').catch(function () {
-        var msg = '网络已过期';
+        var msg = _l('网络已过期');
         throw msg;
       });
     }
@@ -589,7 +591,7 @@ $.extend(FolderSelect.prototype, {
     }
 
     if (!settings.appointRoot) {
-      $folderUrl.find('.positionUrl .startTag').addClass('ThemeColor3');
+      $folderUrl.find('.positionUrl .startTag').addClass('colorPrimary');
     }
 
     if (!$folderContent) {
@@ -786,7 +788,7 @@ $.extend(FolderSelect.prototype, {
 
         if (!isClickPath) {
           var pathTmp = doT.template(
-            '<span class="levelBar">/</span><span class="levelName ellipsis ThemeColor3 flex"  title="{{!it.name}}">{{!it.name}}</span>',
+            '<span class="levelBar">/</span><span class="levelName ellipsis colorPrimary flex"  title="{{!it.name}}">{{!it.name}}</span>',
           );
           if (type == PICK_TYPE.MYFILE || type == PICK_TYPE.ROOT) {
             var $pathHtml = $(pathTmp(rootNode));
@@ -814,7 +816,7 @@ $.extend(FolderSelect.prototype, {
             $folderPath.append($pathHtml);
             if (settings.appointRoot) {
               // $folderPath.find('.startTag').remove().end().find('.levelBar:first').remove();
-              $folderPath.find('.startTag').addClass('disable').removeClass('ThemeColor3');
+              $folderPath.find('.startTag').addClass('disable').removeClass('colorPrimary');
             }
 
             if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
@@ -827,7 +829,7 @@ $.extend(FolderSelect.prototype, {
             var path = null,
               isOmit = false;
             var pathItmeTpl = doT.template(
-              '<span class="levelBar">/</span><span class="levelName childNode ellipsis ThemeColor3 {{!it.flex}}" title="{{!it.name}}">{{!it.name}}</span>',
+              '<span class="levelBar">/</span><span class="levelName childNode ellipsis colorPrimary {{!it.flex}}" title="{{!it.name}}">{{!it.name}}</span>',
             );
             positionArr.forEach(function (part, i) {
               if (i > 1) {
@@ -904,7 +906,7 @@ $.extend(FolderSelect.prototype, {
         $folderPath.attr('title', html);
 
         if (settings.appointRoot) {
-          $folderPath.find('.startTag').removeClass('ThemeColor3');
+          $folderPath.find('.startTag').removeClass('colorPrimary');
         }
       })
       .catch(function () {
@@ -984,8 +986,10 @@ $.extend(FolderSelect.prototype, {
               // ctrl + click
               if ((evt.ctrlKey || evt.metaKey) && !isRoot) {
                 $nodeVisibleType.fadeOut();
-                $this.hasClass('ThemeBGColor5') ? $this.removeClass('ThemeBGColor5') : $this.addClass('ThemeBGColor5');
-                var $selectedNode = $nodeItem.filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
+                $this.hasClass('bgColorPrimaryTransparent')
+                  ? $this.removeClass('bgColorPrimaryTransparent')
+                  : $this.addClass('bgColorPrimaryTransparent');
+                var $selectedNode = $nodeItem.filter('.bgColorPrimaryTransparent[nodeType="' + NODE_TYPE.FILE + '"]');
                 if ($selectedNode.length == 1) {
                   $selectedItem.fadeOut();
                   $radioItem.html($selectedNode.find('.nodeName').html()).fadeIn();
@@ -999,9 +1003,12 @@ $.extend(FolderSelect.prototype, {
                 }
               } else {
                 $nodeItem.each(function () {
-                  $(this).removeClass('ThemeBGColor5').find('.sharePer > i.icon-shareLink').addClass('ThemeColor3');
+                  $(this)
+                    .removeClass('bgColorPrimaryTransparent')
+                    .find('.sharePer > i.icon-shareLink')
+                    .addClass('colorPrimary');
                 });
-                $this.addClass('ThemeBGColor5');
+                $this.addClass('bgColorPrimaryTransparent');
                 $selectedItem.fadeOut();
                 if ($this.attr('nodetype') == NODE_TYPE.FILE) {
                   $radioItem.html(nodeName).fadeIn();
@@ -1017,16 +1024,16 @@ $.extend(FolderSelect.prototype, {
               }
             } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
               $nodeItem.each(function () {
-                $(this).removeClass('ThemeBGColor5').find('.sharePer > i').addClass('ThemeColor3');
+                $(this).removeClass('bgColorPrimaryTransparent').find('.sharePer > i').addClass('colorPrimary');
               });
-              $this.addClass('ThemeBGColor5');
+              $this.addClass('bgColorPrimaryTransparent');
               $selectedItem.html(nodeName);
             }
 
             //分享Icon
-            $this.hasClass('ThemeBGColor5')
-              ? $this.find('.sharePer > i').removeClass('ThemeColor3')
-              : $this.find('.sharePer > i').addClass('ThemeColor3');
+            $this.hasClass('bgColorPrimaryTransparent')
+              ? $this.find('.sharePer > i').removeClass('colorPrimary')
+              : $this.find('.sharePer > i').addClass('colorPrimary');
           },
           dblclick: function () {
             var $this = $(this);
@@ -1199,7 +1206,7 @@ $.extend(FolderSelect.prototype, {
       .find('.startTag')
       .off()
       .on('click', function () {
-        if (!$(this).hasClass('ThemeColor3')) {
+        if (!$(this).hasClass('colorPrimary')) {
           return;
         }
 
@@ -1305,7 +1312,7 @@ $.extend(FolderSelect.prototype, {
       '</span>';
     if (node.canChangeSharable) {
       shareHtml +=
-        '<a class="updateTypeBtn ThemeColor3">' + (node.visibleType === 1 ? _l('开启') : _l('更改')) + '</a>';
+        '<a class="updateTypeBtn colorPrimary">' + (node.visibleType === 1 ? _l('开启') : _l('更改')) + '</a>';
       shareHtml += this.renderSharePermisionItem(node.visibleType, isBelongAccount);
     }
 

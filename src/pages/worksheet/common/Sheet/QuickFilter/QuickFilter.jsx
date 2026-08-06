@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import Conditions from './Conditions';
 
@@ -52,6 +52,7 @@ function QuickFilter(props) {
     refreshSheet = () => {},
     updateQuickFilter = () => {},
     resetQuickFilter = () => {},
+    fireWhenViewLoaded = () => {},
     onFilterClick = () => {},
   } = props;
   const { worksheetId } = base;
@@ -121,6 +122,8 @@ function QuickFilter(props) {
   }, [filters.length]);
   useEffect(() => {
     if (needClickSearch.current === '1' && _.get(view, 'advancedSetting.clicksearch') === '0') {
+      // clicksearch=1 时默认值只回填到 quickFilterWithDefault，未写入 quickFilter；取消勾选后需先把默认条件写回 quickFilter 再刷新，否则刷新会用空条件查询导致默认条件不生效。
+      fireWhenViewLoaded(view, { forceUpdate: true });
       refreshSheet(view);
     }
 

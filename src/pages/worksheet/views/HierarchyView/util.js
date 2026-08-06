@@ -124,9 +124,10 @@ export const hierarchyViewCanSelectFields = ({ controls, worksheetId }) => {
 
 export const getRelateSheetId = (view = {}, pathId) => {
   const { viewControls, childType } = view;
+  const configIndex = pathId.length - 1;
+
   if (String(childType) !== '2' || configIndex === 0 || viewControls.length === 1) return undefined;
 
-  const configIndex = pathId.length - 1;
   const currentViewControl =
     viewControls && viewControls.length && configIndex > 0 ? viewControls[configIndex - 1] || {} : {};
 

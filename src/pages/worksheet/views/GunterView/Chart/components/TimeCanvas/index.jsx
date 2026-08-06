@@ -4,45 +4,40 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { isWeekEndDay } from 'worksheet/views/GunterView/util';
 
-@connect(state => ({
-  ..._.pick(state.sheet.gunterView, [
-    'grouping',
-    'periodList',
-    'periodType',
-    'viewConfig',
-    'withoutArrangementVisible',
-    'chartScroll',
-    'groupingScroll',
-  ]),
-  ..._.pick(state.sheet, ['base']),
-}))
-export default class TimeCanvas extends Component {
+let TimeCanvas = class TimeCanvas extends Component {
   constructor(props) {
     super(props);
     this.$ref = createRef(null);
     this.debounceUpdateHeight = _.debounce(this.updateHeight, 500);
   }
-  componentWillReceiveProps(nextProps) {
-    if (
-      !_.isEqual(nextProps.grouping, this.props.grouping) ||
-      nextProps.withoutArrangementVisible !== this.props.withoutArrangementVisible
-    ) {
-      this.updateHeight(null, nextProps);
-      setTimeout(() => {
-        const { chartScroll, groupingScroll } = nextProps;
-        chartScroll.refresh();
-        groupingScroll && groupingScroll.refresh();
-        chartScroll._execEvent('scroll');
-      }, 0);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(this.props.grouping, prevProps.grouping) ||
+        this.props.withoutArrangementVisible !== prevProps.withoutArrangementVisible
+      ) {
+        this.updateHeight(null, this.props);
+        setTimeout(() => {
+          const { chartScroll, groupingScroll } = this.props;
+          chartScroll.refresh();
+          groupingScroll && groupingScroll.refresh();
+
+          chartScroll._execEvent('scroll');
+        }, 0);
+      }
     }
   }
+
   componentDidMount() {
     this.updateHeight();
     window.addEventListener('resize', this.debounceUpdateHeight);
   }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.debounceUpdateHeight);
   }
+
   updateHeight = (event, props) => {
     const { grouping, chartScroll, groupingScroll, base } = props || this.props;
     const gunterChartWrapperEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
@@ -52,7 +47,9 @@ export default class TimeCanvas extends Component {
     const maxHeight = grouping.length ? grouping[grouping.length - 1].openCount * 32 : 0;
     const isScroll = maxHeight >= height;
     const marginBottom = 80;
+    if (!this.$ref.current) return;
     this.$ref.current.style.height = `${isScroll ? maxHeight + marginBottom : height}px`;
+
     if (gunterGroupingScrollerEl) {
       if (isScroll) {
         gunterGroupingScrollerEl.classList.add('gunterGroupingLastMarginBottom');
@@ -66,6 +63,7 @@ export default class TimeCanvas extends Component {
       groupingScroll && groupingScroll.refresh();
     }
   };
+
   render() {
     const { periodType, periodList, viewConfig } = this.props;
     return (
@@ -77,12 +75,34 @@ export default class TimeCanvas extends Component {
               Relative: item.isToday,
               weekEndDay: isWeekEndDay(item.time, periodType, viewConfig),
             })}
-            style={{ width: item.width }}
+            style={{
+              width: item.width,
+            }}
           >
-            {item.isToday && <div className="today" style={{ left: item.left }}></div>}
+            {item.isToday && (
+              <div
+                className="today"
+                style={{
+                  left: item.left,
+                }}
+              ></div>
+            )}
           </div>
         ))}
       </div>
     );
   }
-}
+};
+TimeCanvas = connect(state => ({
+  ..._.pick(state.sheet.gunterView, [
+    'grouping',
+    'periodList',
+    'periodType',
+    'viewConfig',
+    'withoutArrangementVisible',
+    'chartScroll',
+    'groupingScroll',
+  ]),
+  ..._.pick(state.sheet, ['base']),
+}))(TimeCanvas);
+export default TimeCanvas;

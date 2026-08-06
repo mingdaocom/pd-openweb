@@ -4,6 +4,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/utils/control';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
@@ -118,7 +119,11 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     getTemplate: true,
     relationWorksheetId: worksheetId,
   });
-  relationControls = _.get(resWorksheetInfo, 'template.controls') || [];
+  relationControls = replaceControlsTranslateInfo(
+    base.appId,
+    control.dataSource,
+    _.get(resWorksheetInfo, 'template.controls') || [],
+  );
   const filterControls = getFilter({
     control: { ...control, relationControls, recordId: rowId },
     formData: control.formData || rowInfo.templateControls,

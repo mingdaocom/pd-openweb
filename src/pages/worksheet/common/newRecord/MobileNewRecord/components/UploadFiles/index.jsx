@@ -1,6 +1,19 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { QiniuUpload } from 'ming-ui';
 
+const formatUploadFile = (file = {}, status = 'added') => ({
+  id: file.id,
+  size: file.size,
+  type: file.type,
+  name: file.name,
+  url: file.url,
+  status,
+  file: {
+    id: file.id,
+    url: file.url,
+  },
+});
+
 function UploadFiles(
   {
     maxFilesLength = 5,
@@ -19,16 +32,51 @@ function UploadFiles(
 ) {
   const uploaderRef = useRef(null);
   const cache = useRef({});
+  const suppressRemoveCallbackRef = useRef(false);
+  const getUploader = useCallback(() => uploaderRef.current?.uploader, []);
   const handleClear = useCallback(() => {
     try {
-      uploaderRef.current.uploader.disableBrowse(false);
+      getUploader()?.disableBrowse(false);
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [getUploader]);
+
+  const removeUploadFile = useCallback(
+    (file, options = {}) => {
+      const uploader = getUploader();
+
+      if (!uploader || !file?.id) return;
+
+      try {
+        suppressRemoveCallbackRef.current = !!options.silent;
+        uploader.removeFile(file);
+      } finally {
+        suppressRemoveCallbackRef.current = false;
+      }
+    },
+    [getUploader],
+  );
+
+  const clearUploadFiles = useCallback(() => {
+    const uploader = getUploader();
+
+    if (!uploader?.files?.length) return;
+
+    try {
+      suppressRemoveCallbackRef.current = true;
+      uploader.files.slice().forEach(file => {
+        uploader.removeFile(file);
+      });
+    } finally {
+      suppressRemoveCallbackRef.current = false;
+    }
+  }, [getUploader]);
 
   useImperativeHandle(ref, () => ({
     uploader: uploaderRef.current,
+    clearUploadFiles,
+    removeUploadFile,
   }));
 
   useEffect(() => {
@@ -50,7 +98,8 @@ function UploadFiles(
           return;
         },
         remove_files_callback: (up, files) => {
-          console.log('执行了 callback');
+          if (suppressRemoveCallbackRef.current) return;
+
           files.forEach(file => {
             up.removeFile(file);
             removeFile(file);
@@ -66,16 +115,7 @@ function UploadFiles(
           return;
         }
 
-        setFiles([
-          ...files.map(f => ({
-            id: f.id,
-            size: f.size,
-            type: f.type,
-            name: f.name,
-            status: 'added',
-            file: f,
-          })),
-        ]);
+        setFiles(files.map(file => formatUploadFile(file)));
         onAdd(up, files);
       }}
       onUploadProgress={(up, file) => {
@@ -83,6 +123,7 @@ function UploadFiles(
       }}
       onUploaded={(up, file, response) => {
         onUploaded(up, file, response);
+        removeUploadFile(file, { silent: true });
       }}
       onError={(up, err, errorTip) => {
         alert(errorTip || _l('上传失败'), 2);

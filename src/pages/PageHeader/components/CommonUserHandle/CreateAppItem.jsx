@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -8,11 +8,18 @@ import chatbotIcon from 'worksheet/common/WorkSheetLeft/assets/chatbot.png';
 import customPageIcon from 'worksheet/common/WorkSheetLeft/assets/dashboard.png';
 import worksheetIcon from 'worksheet/common/WorkSheetLeft/assets/worksheet.png';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
-import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import { addFirstAppSection, createAppItem, getSheetList } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { CREATE_ITEM_LIST } from 'src/pages/worksheet/common/WorkSheetLeft/enum';
 import { findSheet } from 'src/utils/worksheet';
+
+const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
+
+const iconMaps = {
+  worksheet: worksheetIcon,
+  customPage: customPageIcon,
+  chatbot: chatbotIcon,
+};
 
 function CreateAppItem(props) {
   const { isCharge, projectId, appId, groupId, worksheetId, children, appPkg } = props;
@@ -24,11 +31,6 @@ function CreateAppItem(props) {
   const [dialogImportExcel, setDialogImportExcel] = useState(false);
   const singleRef = getAppSectionRef(groupId);
   const appItem = findSheet(worksheetId, appSectionDetail);
-  const iconMaps = {
-    worksheet: worksheetIcon,
-    customPage: customPageIcon,
-    chatbot: chatbotIcon,
-  };
 
   useEffect(() => {
     window.__worksheetLeftReLoad = () => {
@@ -149,18 +151,20 @@ function CreateAppItem(props) {
         />
       )}
       {dialogImportExcel && (
-        <DialogImportExcelCreate
-          projectId={projectId}
-          appId={appId}
-          groupId={appItem ? appItem.parentGroupId || appItem.parentId : groupId}
-          onCancel={() => setDialogImportExcel(false)}
-          createType="worksheet"
-          refreshPage={() => {
-            singleRef.dispatch(
-              getSheetList({ appId, appSectionId: appItem ? appItem.parentGroupId || appItem.parentId : groupId }),
-            );
-          }}
-        />
+        <Suspense fallback={null}>
+          <LoadableDialogImportExcelCreate
+            projectId={projectId}
+            appId={appId}
+            groupId={appItem ? appItem.parentGroupId || appItem.parentId : groupId}
+            onCancel={() => setDialogImportExcel(false)}
+            createType="worksheet"
+            refreshPage={() => {
+              singleRef.dispatch(
+                getSheetList({ appId, appSectionId: appItem ? appItem.parentGroupId || appItem.parentId : groupId }),
+              );
+            }}
+          />
+        </Suspense>
       )}
     </Fragment>
   );

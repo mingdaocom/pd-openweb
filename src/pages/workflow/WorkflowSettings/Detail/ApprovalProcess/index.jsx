@@ -29,18 +29,26 @@ export default class ApprovalProcess extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -187,7 +195,7 @@ export default class ApprovalProcess extends Component {
               />
             ) : (
               <div
-                className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
+                className="mTop12 flexRow colorPrimary workflowDetailAddBtn"
                 onClick={() => this.setState({ showSelectUserDialog: true })}
               >
                 <i className="Font28 icon-task-add-member-circle mRight10" />

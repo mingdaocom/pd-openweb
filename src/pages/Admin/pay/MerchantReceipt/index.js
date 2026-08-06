@@ -4,7 +4,6 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import paymentAjax from 'src/api/payment';
-import webCacheAjax from 'src/api/webCache';
 import preall from 'src/common/preall';
 import { getRequest } from 'src/utils/common';
 
@@ -47,45 +46,24 @@ export default function MerchantReceipt() {
   const [data, setData] = useSetState({});
   const wxUrl = 'https://payapp.weixin.qq.com';
 
-  const showCustomPage = () => {
-    let mchData = { action: 'onIframeReady', displayStyle: 'SHOW_CUSTOM_PAGE' };
-    let postData = JSON.stringify(mchData);
+  useEffect(() => {
+    const mchData = { action: 'onIframeReady', displayStyle: 'SHOW_CUSTOM_PAGE' };
+    const postData = JSON.stringify(mchData);
     parent.postMessage(postData, wxUrl);
 
-    getOrderInfo();
-  };
-
-  const getOrderInfo = () => {
     const params = getRequest(window.location.search) || {};
-    if (_.isEmpty(params)) return window.alert(_l('没有订单号，请联系管理员'), 2);
+
+    if (_.isEmpty(params)) {
+      window.alert(_l('没有订单号，请联系管理员'), 2);
+      return;
+    }
 
     paymentAjax
       .getPayOrderForTicket({
         paymentPlatformOrderId: params.out_trade_no,
       })
-      .then(res => {
-        setData(res);
-        getUrl(res.orderId, res.sourceInfo);
-      });
-  };
-
-  const getUrl = (orderId, sourceInfo = {}) => {
-    if (!orderId) return;
-    webCacheAjax
-      .get({
-        key: `${orderId}`,
-      })
-      .then(res => {
-        const backUrl = res.data
-          ? `${res.data}/mobile/record/${sourceInfo.appId}/${sourceInfo.worksheetId}/${sourceInfo.rowId}`
-          : undefined;
-        setData({ backUrl });
-      });
-  };
-
-  useEffect(() => {
-    showCustomPage();
-  }, []);
+      .then(setData);
+  }, [setData]);
 
   return (
     <Wrap>
@@ -110,13 +88,13 @@ export default function MerchantReceipt() {
         </div>
 
         {/* 在微信内创建订单并支付&非公开表单支付时显示返回商家 */}
-        {data.sourceType !== 1 && data.backUrl && (
+        {data.sourceType !== 1 && data.backUrlForTicket && (
           <div
             className="backBtn Font14 bold TxtCenter Hand"
             onClick={() => {
               let mchData = {
                 action: 'jumpOut',
-                jumpOutUrl: data.backUrl,
+                jumpOutUrl: data.backUrlForTicket,
               };
               let postData = JSON.stringify(mchData);
               parent.postMessage(postData, wxUrl);

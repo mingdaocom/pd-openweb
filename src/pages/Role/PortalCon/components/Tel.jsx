@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import intlTelInput from 'ming-ui/components/intlTelInput';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 
 export default class Tel extends Component {
   componentDidMount() {
@@ -9,10 +9,11 @@ export default class Tel extends Component {
       data: { value },
     } = this.props;
 
-    this.iti = intlTelInput(this.input, {
+    this.iti = createIntlTelInput(this.input, {
       customPlaceholder: '',
       separateDialCode: true,
       showSelectedDialCode: true,
+      showDialCodeInput: true,
       initialCountry: this.props.allowDropdown ? _.get(md, 'global.Config.DefaultRegion') || 'cn' : 'cn',
       onlyCountries: this.props.allowDropdown ? [] : ['cn'], //只支持大陆号码
       allowDropdown: this.props.allowDropdown || false, //不下拉
@@ -29,13 +30,15 @@ export default class Tel extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      (nextProps.data || {}).value !== (this.props.data || {}).value &&
-      (nextProps.value || (this.props.data || {}).value !== undefined) &&
-      this.input
-    ) {
-      this.setValue((nextProps.data || {}).value);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        (this.props.data || {}).value !== (prevProps.data || {}).value &&
+        (this.props.value || (prevProps.data || {}).value !== undefined) &&
+        this.input
+      ) {
+        this.setValue((this.props.data || {}).value);
+      }
     }
   }
 

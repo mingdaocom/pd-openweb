@@ -1,9 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Modal, RadioGroup } from 'ming-ui';
+import { LoadDiv, Modal, RadioGroup } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { DisplayTabs, SettingItem } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
@@ -69,7 +69,25 @@ const getTabsDisplay = isDropdown => {
 };
 
 function SelectConfig(props) {
-  const { data, onClose = () => {}, onChange } = props;
+  const {
+    data,
+    relationSheetConfig: initialRelationSheetConfig = {},
+    relationSheetLoading = false,
+    subscribeRelationSheetConfig,
+    onClose = () => {},
+    onChange,
+  } = props;
+  const [relationSheetLoadState, setRelationSheetLoadState] = useState(() => {
+    const cacheConfig = window.subListSheetConfig[data.controlId];
+    const relationSheetConfig =
+      _.get(cacheConfig, 'sheetInfo.worksheetId') === data.dataSource ? cacheConfig : initialRelationSheetConfig;
+    const isReady = !relationSheetLoading && _.get(relationSheetConfig, 'sheetInfo.worksheetId') === data.dataSource;
+
+    return {
+      status: isReady || !_.isFunction(subscribeRelationSheetConfig) ? 'success' : 'loading',
+      data: relationSheetConfig,
+    };
+  });
   const { showtype } = getAdvanceSetting(data);
   const [{ showTab, configData }, setData] = useSetState({
     showTab: 0,
@@ -77,7 +95,13 @@ function SelectConfig(props) {
   });
   const isDropdown = showtype === '3';
   const chooselisttype = _.get(configData, 'advancedSetting.chooselisttype') || '1';
-  const { controls = [], views = [], sheetInfo = {} } = window.subListSheetConfig[data.controlId] || {};
+  const { controls = [], views = [], sheetInfo = {} } = relationSheetLoadState.data || {};
+  const isRelationSheetLoading = relationSheetLoadState.status === 'loading';
+
+  useEffect(() => {
+    if (!isRelationSheetLoading || !_.isFunction(subscribeRelationSheetConfig)) return;
+    return subscribeRelationSheetConfig(setRelationSheetLoadState);
+  }, [isRelationSheetLoading, subscribeRelationSheetConfig]);
 
   const renderDesc = () => {
     switch (showTab) {
@@ -147,33 +171,39 @@ function SelectConfig(props) {
       destroyOnClose={true}
       title={<span className="Bold">{_l('关联选择设置')}</span>}
       className="filterDialog selectConfigDialog"
+      okDisabled={isRelationSheetLoading}
       onCancel={onClose}
       onOk={() => {
+        if (isRelationSheetLoading) return;
         onChange(configData);
         onClose();
       }}
     >
-      <SelectConfigWrap>
-        <DisplayTabs>
-          {getTabsDisplay(isDropdown).map(item => {
-            const active = showTab === item.value;
-            if (_.includes([3, 4], item.value) && (data.enumDefault === 1 || showtype === '3')) return null;
-            return (
-              <div
-                className={cx('tabItem', { active })}
-                onClick={() => {
-                  if (active) return;
-                  setData({ showTab: item.value });
-                }}
-              >
-                {item.text}
-              </div>
-            );
-          })}
-        </DisplayTabs>
-        <div className="mTop12 textSecondary">{renderDesc()}</div>
-        {renderContent()}
-      </SelectConfigWrap>
+      {isRelationSheetLoading ? (
+        <LoadDiv className="mTop20" />
+      ) : (
+        <SelectConfigWrap>
+          <DisplayTabs>
+            {getTabsDisplay(isDropdown).map(item => {
+              const active = showTab === item.value;
+              if (_.includes([3, 4], item.value) && (data.enumDefault === 1 || showtype === '3')) return null;
+              return (
+                <div
+                  className={cx('tabItem', { active })}
+                  onClick={() => {
+                    if (active) return;
+                    setData({ showTab: item.value });
+                  }}
+                >
+                  {item.text}
+                </div>
+              );
+            })}
+          </DisplayTabs>
+          <div className="mTop12 textSecondary">{renderDesc()}</div>
+          {renderContent()}
+        </SelectConfigWrap>
+      )}
     </Modal>
   );
 }

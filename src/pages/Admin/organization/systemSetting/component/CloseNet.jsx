@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Button, Icon, LoadDiv } from 'ming-ui';
 import projectController from 'src/api/project';
 import { formatValue } from 'src/pages/Admin/homePage/utils';
+import { pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 
@@ -58,7 +59,7 @@ export default class CloseNet extends Component {
           alert({
             msg: _l('组织已关闭'),
             onClose: function () {
-              window.location.href = '/dashboard';
+              window.location.href = pathCompletion('/dashboard');
             },
           });
         } else {

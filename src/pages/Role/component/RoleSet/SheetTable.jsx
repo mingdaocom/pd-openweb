@@ -93,11 +93,13 @@ export default class extends PureComponent {
     });
   }
 
-  componentWillReceiveProps(prevProps) {
-    if (this.props.isShow !== prevProps.isShow) {
-      this.setState({
-        show: prevProps.isShow,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.isShow !== this.props.isShow) {
+        this.setState({
+          show: this.props.isShow,
+        });
+      }
     }
   }
 
@@ -182,7 +184,7 @@ export default class extends PureComponent {
               <span className="mRight6 InlineBlock">
                 <SvgIcon url={sheet.iconUrl} fill={'var(--color-text-secondary)'} size={18} />
               </span>
-              <span className="flex overflow_ellipsis ThemeHoverColor3 InlineBlock">
+              <span className="flex overflow_ellipsis hoverColorPrimary InlineBlock">
                 {sheet.sheetName || sheet.name}
               </span>
               <Tooltip title={!(sheet.checked || readSize > 0) ? '' : <span>{_l('在导航中隐藏')}</span>}>
@@ -316,7 +318,7 @@ export default class extends PureComponent {
         </div>
         <div className={classNames('settingGroup', { showSet: showToolTipSetting })}>
           {showToolTipSetting ? (
-            <span className="ThemeColor3 ThemeHoverColor2 Hand" onClick={this.setShowRole}>
+            <span className="colorPrimary hoverColorPrimaryDark Hand" onClick={this.setShowRole}>
               {_l('设置')}
             </span>
           ) : (

@@ -77,7 +77,7 @@ class DateDropdDown extends Component {
   static defaultProps = {
     data: [],
     onChange: () => {},
-    children: <span>请选择</span>,
+    children: <span>{_l('请选择')}</span>,
     calendarProps: { locale, onOk: () => {}, onSelect: () => {}, onClear: () => {}, timePicker: false },
   };
 
@@ -129,7 +129,7 @@ class DateDropdDown extends Component {
         onClick={this.handleSelectRange}
         className={classNames({ active: state.activeKey === 'customDate' })}
       >
-        自定义日期
+        {_l('自定义日期')}
       </MenuItem>,
     );
 

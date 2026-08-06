@@ -1,10 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import moment from 'moment';
-import createCalendar from 'src/components/createCalendar/createCalendar';
-import 'src/components/createTask/createTask';
+import createCalendar from 'src/components/createCalendar/load';
+import createTask from 'src/components/createTask/load';
 import RelationControl from 'src/components/relationControl/relationControl';
-import createFeed from 'src/pages/feed/components/createFeed';
+import createFeed from 'src/pages/feed/components/createFeed/load';
+import { pathCompletion } from 'src/utils/common';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 import Constant from './constant';
 
@@ -24,7 +25,7 @@ const _initPost = function (acceptor, options, callback) {
         card: {
           md: post.postType === '7' ? 'vote' : 'post',
           entityid: post.postID,
-          url: md.global.Config.WebUrl + 'feeddetail?itemID=' + post.postID,
+          url: pathCompletion('/feeddetail?itemID=' + post.postID),
           title: createLinksForMessage({
             message: post.message,
             rUserList: post.rUserList,
@@ -61,7 +62,7 @@ export const newTask = (acceptor, options = {}) => {
       ];
     }
 
-    $.CreateTask({
+    createTask({
       MemberArray: members,
       ProjectID: acceptor.isGroup ? acceptor.projectId : '',
       Description: options.description || '',
@@ -78,14 +79,14 @@ export const newTask = (acceptor, options = {}) => {
           card: {
             md: 'task',
             entityid: task.taskID,
-            url: md.global.Config.WebUrl + 'apps/task/task_' + task.taskID,
+            url: pathCompletion('/apps/task/task_' + task.taskID),
             title: task.taskName,
             text: '',
           },
         };
         resolve(message);
       },
-    });
+    }).catch(reject);
   });
 };
 
@@ -103,7 +104,7 @@ export const selectTask = () => {
         card: {
           md: 'task',
           entityid: sid,
-          url: md.global.Config.WebUrl + 'apps/task/task_' + sid,
+          url: pathCompletion('/apps/task/task_' + sid),
           title: name,
           text: '',
         },
@@ -123,7 +124,7 @@ export const selectTask = () => {
  * @param {*} options
  */
 export const newSchedule = (acceptor, options = {}) => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     let members = [];
 
     if (acceptor.type === Constant.SESSIONTYPE_USER && acceptor.id !== Constant.FILE_TRANSFER.id) {
@@ -146,14 +147,14 @@ export const newSchedule = (acceptor, options = {}) => {
           card: {
             md: 'calendar',
             entityid: calendar.calendarID,
-            url: md.global.Config.WebUrl + 'apps/calendar/detail_' + calendar.calendarID,
+            url: pathCompletion('/apps/calendar/detail_' + calendar.calendarID),
             title: calendar.name,
             text: '',
           },
         };
         resolve(message);
       },
-    });
+    }).catch(reject);
   });
 };
 
@@ -170,7 +171,7 @@ export const selectSchedule = () => {
         card: {
           md: 'calendar',
           entityid: sid,
-          url: md.global.Config.WebUrl + 'apps/calendar/detail_' + sid,
+          url: pathCompletion('/apps/calendar/detail_' + sid),
           title: name,
           text: '',
         },

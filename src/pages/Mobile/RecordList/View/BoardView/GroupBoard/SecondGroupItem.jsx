@@ -24,7 +24,6 @@ const SecondGroupItem = props => {
     viewData,
     allowOperation,
     viewRootEl,
-    updateViewCard,
     delBoardViewRecord,
   } = props;
 
@@ -43,7 +42,6 @@ const SecondGroupItem = props => {
             allowAdd={worksheetInfo.allowAdd}
             sheetSwitchPermit={sheetSwitchPermit}
             viewRootEl={viewRootEl}
-            updateViewCard={updateViewCard}
             onDeleteSuccess={() => delBoardViewRecord({ key: groupKey, rowId: _row.rowid })}
             onClick={() =>
               openRecord(

@@ -172,6 +172,7 @@ export default class DialogBatchEdit extends Component {
     const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
     let { password } = this.state;
     const { passwordRegexTip, passwordRegex } = _.get(md, ['global', 'SysSettings']) || {};
+
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
@@ -179,6 +180,7 @@ export default class DialogBatchEdit extends Component {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
+
     userAjax
       .batchResetPassword({
         projectId,
@@ -192,6 +194,7 @@ export default class DialogBatchEdit extends Component {
         } else {
           alert(_l('修改失败'), 2);
         }
+
         emptyUserSet();
       });
   };

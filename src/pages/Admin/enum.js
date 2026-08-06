@@ -68,6 +68,13 @@ export const PERMISSION_ENUM = {
   CAN_PURCHASE: 'CAN_PURCHASE', //可以购买
 };
 
+export const CLEAR_CACHE_PROCESS_TYPE = {
+  ORG_ROLE: 101,
+  DEPARTMENT: 102,
+  ALL_DEPARTMENT: 1303,
+  ALL_ORG_ROLE: 1305,
+};
+
 export const ROUTE_CONFIG = {
   SHOW_MANAGER: ['sysroles'],
   CAN_PURCHASE: [
@@ -93,7 +100,7 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.SSO_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.PLATFORM_ACCOUNT_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.OPEN_INTERFACE]: ['integrationothers'],
-  [PERMISSION_ENUM.BASIC_SETTING]: ['sysinfo', 'certinfo', 'orgothers'],
+  [PERMISSION_ENUM.BASIC_SETTING]: ['sysinfo', 'certinfo', 'cloudservice', 'orgothers'],
   [PERMISSION_ENUM.FINANCE]: ['home', 'billinfo'],
   [PERMISSION_ENUM.SECURITY]: ['security', 'addressBook', 'dataAccess', 'function'],
   [PERMISSION_ENUM.APP_RESOURCE_SERVICE]: [
@@ -122,4 +129,19 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],
   [PERMISSION_ENUM.THIRD_APP]: ['thirdapp'], //第三方应用
+};
+
+export const PRODUCT_TYPE_ENUM = {
+  STANDARD_MONTHLY: 1,
+  STANDARD_YEARLY: 2,
+  PROFESSIONAL_MONTHLY: 3,
+  PROFESSIONAL_YEARLY: 4,
+
+  DATASYNC_MONTHLY: 5,
+  WORKFLOW_EXECUTION_MONTHLY: 6,
+  ATTACHMENT_UPLOAD_YEARLY: 7,
+  EXTERNAL_MONTHLY: 8,
+  EXTERNAL_YEARLY: 9,
+  AGGREGATED_TABLE_MONTHLY: 10,
+  RECHARGE: 11,
 };

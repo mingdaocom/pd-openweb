@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
@@ -101,18 +101,26 @@ export default class JSONParse extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -129,6 +137,10 @@ export default class JSONParse extends Component {
         { isIntegration },
       )
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.selectNodeId && !result.outputs.length && (!result.appId || sId)) {
           result.outputs = [getDefaultParameters()];
         }
@@ -179,7 +191,7 @@ export default class JSONParse extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -426,7 +438,7 @@ export default class JSONParse extends Component {
           </div>
           <div className="width100 mRight10">{FIELD_TYPE_LIST.find(o => o.value === item.type).en}</div>
           <div
-            className={cx('flex mRight10 ellipsis', { 'pointer ThemeHoverColor3': hasFold })}
+            className={cx('flex mRight10 ellipsis', { 'pointer hoverColorPrimary': hasFold })}
             onClick={() => hasFold && this.previewJSON(JSON.parse(item.value))}
           >
             {item.value}
@@ -434,12 +446,12 @@ export default class JSONParse extends Component {
           <div className="width190 mRight10 ellipsis">{item.jsonPath}</div>
           <div className="width150 relative hideOperation">
             <Icon type="output" className="textSecondary" />
-            <span className="mLeft5 ThemeHoverColor3 pointer" onClick={() => this.onGenerationParameters(item)}>
+            <span className="mLeft5 hoverColorPrimary pointer" onClick={() => this.onGenerationParameters(item)}>
               {_l('生成参数')}
             </span>
             <Icon type="copy" className="textSecondary mLeft15" />
             <span
-              className="mLeft5 ThemeHoverColor3 pointer"
+              className="mLeft5 hoverColorPrimary pointer"
               onClick={() => {
                 if (isObjectOptions) {
                   this.setState({ selectFiledId: item.jsonPath });
@@ -510,9 +522,7 @@ export default class JSONParse extends Component {
     Dialog.confirm({
       width: 720,
       title: _l('查看'),
-      description: (
-        <JsonView src={json} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
-      ),
+      description: <JsonView data={json} />,
       noFooter: true,
     });
   }
@@ -604,7 +614,11 @@ export default class JSONParse extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.selectNodeId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.selectNodeId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

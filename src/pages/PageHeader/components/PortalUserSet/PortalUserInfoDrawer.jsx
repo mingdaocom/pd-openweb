@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useState } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -6,18 +6,24 @@ import { Dialog, Dropdown, Icon, Menu } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import accountSetting from 'src/api/accountSetting';
 import externalPortalAjax from 'src/api/externalPortal';
-import langConfig from 'src/common/langConfig';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
-import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
 import { formatDataForPortalControl, renderText } from 'src/pages/Role/PortalCon/tabCon/util';
-import { browserIsMobile, emitter, setBodyThemeMode } from 'src/utils/common';
+import { browserIsMobile, emitter, getDefaultThemeMode, setBodyThemeMode } from 'src/utils/common';
 import BindContactDialog from './BindContactDialog';
 import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
 import { ModalWrap, RedMenuItemWrap, Wrap } from './style';
 import './index.less';
+
+const LoadableUserInfoDialog = lazy(() => import('src/pages/Role/PortalCon/components/UserInfoDialog'));
+
+const themeModes = [
+  { value: 'light', name: _l('浅色'), icon: 'light_mode' },
+  { value: 'dark', name: _l('深色'), icon: 'dark_mode' },
+  { value: 'system', name: _l('跟随设备'), icon: 'computer' },
+];
 
 export default function PortalUserInfoDrawer(props) {
   const {
@@ -50,7 +56,7 @@ export default function PortalUserInfoDrawer(props) {
   const handleUploadImg = useCallback(() => {
     Dialog.confirm({
       dialogClasses: 'uploadAvatorDialogId',
-      width: browserIsMobile() ? '335px' : '460px',
+      width: browserIsMobile() ? '335px' : '980px',
       title: _l('上传头像'),
       noFooter: true,
       children: (
@@ -92,15 +98,9 @@ export default function PortalUserInfoDrawer(props) {
       ),
   );
 
-  const currentLangKey = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-  const langDropdownData = langConfig.map(item => ({ text: item.value, value: item.key }));
-  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('themeMode') || 'light');
-
-  const themeModes = [
-    { value: 'light', name: _l('浅色'), icon: 'light_mode' },
-    { value: 'dark', name: _l('深色'), icon: 'dark_mode' },
-    { value: 'system', name: _l('跟随设备'), icon: 'computer' },
-  ];
+  const currentLangKey = getCookie('i18n_langtag') || window.getDefaultLangKey();
+  const langDropdownData = window.getAllowLangConfig().map(item => ({ text: item.value, value: item.key }));
+  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('themeMode') || getDefaultThemeMode());
 
   const handleThemeChange = useCallback(value => {
     setThemeMode(value);
@@ -183,7 +183,7 @@ export default function PortalUserInfoDrawer(props) {
                   {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
                   {baseInfo?.portalSetResult?.editPersonalInfo && (
                     <span
-                      className={cx('edit ThemeColor3 Hand InlineBlock', {
+                      className={cx('edit colorPrimary Hand InlineBlock', {
                         mLeft10: (currentData.find(o => o.alias === 'mobilephone') || {}).value,
                       })}
                       onClick={() => {
@@ -204,7 +204,7 @@ export default function PortalUserInfoDrawer(props) {
                   {(currentData.find(o => o.controlId === 'portal_email') || {}).value}
                   {baseInfo?.portalSetResult?.editPersonalInfo && (
                     <span
-                      className={cx('edit ThemeColor3 Hand InlineBlock', {
+                      className={cx('edit colorPrimary Hand InlineBlock', {
                         mLeft10: (currentData.find(o => o.controlId === 'portal_email') || {}).value,
                       })}
                       onClick={() => {
@@ -224,7 +224,7 @@ export default function PortalUserInfoDrawer(props) {
                 <span className={cx('telNumber Block', { textDisabled: !hasPassword })}>
                   {hasPassword ? _l('已设置') : _l('未设置')}
                   {baseInfo?.portalSetResult?.editPersonalInfo && (
-                    <span className="edit ThemeColor3 Hand mLeft10 InlineBlock" onClick={() => setShowChangePwd(true)}>
+                    <span className="edit colorPrimary Hand mLeft10 InlineBlock" onClick={() => setShowChangePwd(true)}>
                       {_l('修改')}
                     </span>
                   )}
@@ -297,7 +297,7 @@ export default function PortalUserInfoDrawer(props) {
                   ))}
                 {baseInfo?.portalSetResult?.editPersonalExtInfo && (
                   <span
-                    className="edit ThemeColor3 Hand mTop12 InlineBlock"
+                    className="edit colorPrimary Hand mTop12 InlineBlock"
                     onClick={() => setShowUserInfoDialog(true)}
                   >
                     {_l('修改')}
@@ -382,33 +382,35 @@ export default function PortalUserInfoDrawer(props) {
         </ModalWrap>
       )}
       {showUserInfoDialog && (
-        <UserInfoDialog
-          appId={appId}
-          classNames={browserIsMobile() ? 'forMobilePortal' : ''}
-          show={showUserInfoDialog}
-          currentData={currentData
-            .filter(
-              o =>
-                !['avatar', 'firstLoginTime', 'portal_logintime', 'roleid', 'status'].includes(o.alias) &&
-                o?.fieldPermission?.[2] !== '1',
-            )
-            .map(o => (['portal_mobile', 'portal_email'].includes(o.controlId) ? { ...o, disabled: true } : o))}
-          exAccountId={md.global.Account.accountId}
-          setShow={() => setShowUserInfoDialog(false)}
-          onOk={(data, ids) => {
-            externalPortalAjax
-              .saveUserDetail({
-                appId,
-                exAccountId: md.global.Account.accountId,
-                newCell: formatDataForPortalControl(data.filter(o => ids.includes(o.controlId))),
-              })
-              .then(() => {
-                setShowUserInfoDialog(false);
-                onDetailUpdate && onDetailUpdate(data);
-                ids.includes('portal_name') && location.reload();
-              });
-          }}
-        />
+        <Suspense fallback={null}>
+          <LoadableUserInfoDialog
+            appId={appId}
+            classNames={browserIsMobile() ? 'forMobilePortal' : ''}
+            show={showUserInfoDialog}
+            currentData={currentData
+              .filter(
+                o =>
+                  !['avatar', 'firstLoginTime', 'portal_logintime', 'roleid', 'status'].includes(o.alias) &&
+                  o?.fieldPermission?.[2] !== '1',
+              )
+              .map(o => (['portal_mobile', 'portal_email'].includes(o.controlId) ? { ...o, disabled: true } : o))}
+            exAccountId={md.global.Account.accountId}
+            setShow={() => setShowUserInfoDialog(false)}
+            onOk={(data, ids) => {
+              externalPortalAjax
+                .saveUserDetail({
+                  appId,
+                  exAccountId: md.global.Account.accountId,
+                  newCell: formatDataForPortalControl(data.filter(o => ids.includes(o.controlId))),
+                })
+                .then(() => {
+                  setShowUserInfoDialog(false);
+                  onDetailUpdate && onDetailUpdate(data);
+                  ids.includes('portal_name') && location.reload();
+                });
+            }}
+          />
+        </Suspense>
       )}
       {showTelDialog && (
         <ChangeAccountDialog

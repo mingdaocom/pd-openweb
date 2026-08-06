@@ -11,12 +11,15 @@ class CalendarDetailEntrypoint extends Component {
       container: this.el,
     });
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.match.params.id !== nextProps.match.params.id) {
-      CalendarDetail({
-        isDetailPage: true,
-        container: this.el,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.match.params.id !== this.props.match.params.id) {
+        CalendarDetail({
+          isDetailPage: true,
+          container: this.el,
+        });
+      }
     }
   }
   componentWillUnmount() {

@@ -137,7 +137,7 @@ export const updateAppMark = (appId, projectId, isMarked) => (dispatch, getState
           type: 'UPDATE_APP_DETAIL',
           data: {
             ...appDetail,
-            detail: Object.assign(appDetail.detail, { isMarked }),
+            detail: { ...appDetail.detail, isMarked },
           },
         });
         alert(isMarked ? _l('收藏成功') : _l('已取消收藏'));

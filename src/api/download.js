@@ -91,6 +91,22 @@ export default {
     return mdyAPI('Download', 'ExportProjectUserList', args, options);
   },
   /**
+   * 导出 应用角色成员信息
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用Id
+   * @param {integer} args.pageIndex 分页面码 = 默认1
+   * @param {integer} args.pageSize 分页 页大小
+   * @param {string} args.keywords 查询 关键词（现仅 支持 成员名称）
+   * @param {integer} args.searchMemberType 搜索 成员类型（默认=0、用户/人员=10、部门=20，组织角色=30，职位=40）
+   * @param {array} args.sort 排序参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  exportAppRoleMembers: function (args, options = {}) {
+    return mdyAPI('Download', 'ExportAppRoleMembers', args, options);
+  },
+  /**
   * 导出 不活跃成员
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织 Id
@@ -269,7 +285,7 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
-   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

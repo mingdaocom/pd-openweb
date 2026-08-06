@@ -54,7 +54,7 @@ export default class DelAppGroup extends Component {
               <Icon icon="search" className="Font18 textTertiary mRight3" />
               <input
                 className="w100"
-                placeholder="搜索"
+                placeholder={_l('搜索')}
                 type="text"
                 value={searchValue}
                 onChange={e => {

@@ -1,18 +1,16 @@
 import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import { bool, number } from 'prop-types';
+import { bool, func, number } from 'prop-types';
 import { Icon, MdLink } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import withEscClose from 'ming-ui/decorators/withEscClose';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { navigateTo } from 'src/router/navigateTo';
 import Content from './Content';
 import './index.less';
 
-@withClickAway
-@withEscClose
-export default class IndexSide extends Component {
+let IndexSide = class IndexSide extends Component {
   static propTypes = {
+    onClose: func,
     posX: number,
     visible: bool,
   };
@@ -20,11 +18,29 @@ export default class IndexSide extends Component {
     posX: -352,
   };
 
+  componentDidMount() {
+    document.body && document.body.addEventListener('keydown', this.closeWhenPressEsc);
+  }
+
+  componentWillUnmount() {
+    document.body && document.body.removeEventListener('keydown', this.closeWhenPressEsc);
+  }
+
+  closeWhenPressEsc = e => {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      this.props.onClose();
+    }
+  };
+
   render() {
     const { posX } = this.props;
-
     return (
-      <div className={cx('indexSideWrap')} style={{ transform: `translate3d(${posX}px,0,0)` }}>
+      <div
+        className={cx('indexSideWrap')}
+        style={{
+          transform: `translate3d(${posX}px,0,0)`,
+        }}
+      >
         <div className="indexSideHeaderWrap">
           <MdLink className="homepageWrap" to={'/dashboard'}>
             <div className="homepage">
@@ -36,7 +52,11 @@ export default class IndexSide extends Component {
             trigger={['click']}
             placement="bottomRight"
             overlay={
-              <Menu style={{ width: 120 }}>
+              <Menu
+                style={{
+                  width: 120,
+                }}
+              >
                 <Menu.Item onClick={() => navigateTo('/personal?type=system')}>{_l('偏好设置')}</Menu.Item>
               </Menu>
             }
@@ -50,4 +70,6 @@ export default class IndexSide extends Component {
       </div>
     );
   }
-}
+};
+IndexSide = ClickAway.wrap(IndexSide);
+export default IndexSide;

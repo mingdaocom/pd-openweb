@@ -78,6 +78,11 @@ const onAddBehaviorLog = item => {
   }
 };
 
+const getProjectId = () => {
+  const currentProject = getCurrentProject(localStorage.getItem('currentProjectId'));
+  return currentProject.projectId || _.get(md.global.Account.projects[0], 'projectId');
+};
+
 const Apps = props => {
   const { appId, toolbarConfig, setToolbarConfig } = props;
   const [loading, setLoading] = useState(true);
@@ -85,11 +90,6 @@ const Apps = props => {
   const [appShowCount, setAppShowCount] = useState(0);
   const appsWrap = useRef(null);
   const { commonAppShowType = 1, commonAppOpenType } = toolbarConfig;
-
-  const getProjectId = () => {
-    const currentProject = getCurrentProject(localStorage.getItem('currentProjectId'));
-    return currentProject.projectId || _.get(md.global.Account.projects[0], 'projectId');
-  };
 
   const handleOpenApp = app => {
     onAddBehaviorLog(app);
@@ -185,7 +185,13 @@ const Apps = props => {
                 overlayClassName="userConfigPopover"
                 overlayStyle={{ padding: 0 }}
                 content={
-                  <PopoverWrap style={{ width: 260, maxHeight: (document.body?.clientHeight || window.innerHeight) / 1.2, overflowY: 'auto' }}>
+                  <PopoverWrap
+                    style={{
+                      width: 260,
+                      maxHeight: (document.body?.clientHeight || window.innerHeight) / 1.2,
+                      overflowY: 'auto',
+                    }}
+                  >
                     {popoverApps.map(app => (
                       <div
                         className={cx('itemWrap pointer flexRow alignItemsCenter', { active: appId === app.id })}

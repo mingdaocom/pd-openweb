@@ -1,20 +1,19 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { controlState } from 'src/utils/control';
+import { canSetWidgetStyle, getTitleStyle, isSheetDisplay } from 'src/utils/controlCommon';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
 import { renderCount } from '../../core/utils';
 import { ControlLabel } from '../style';
 
-export default ({
+function FormLabel({
   from,
   recordId,
   item,
@@ -24,13 +23,13 @@ export default ({
   widgetStyle = {},
   disabled,
   updateErrorState = () => {},
-}) => {
+}) {
   const {
     hinttype = '0',
     valuesize = '0',
     titlesize = item.type === 34 ? '1' : '0',
     titlestyle = '0000',
-    titlecolor = item.type === 34 ? 'var(--color-text-primary)' : 'var(--color-text-title)',
+    titlecolor = 'var(--color-text-primary)',
     allowlink,
     hidetitle,
     required,
@@ -47,7 +46,10 @@ export default ({
   const showDesc = hintShowAsIcon && item.desc && !_.includes([22, 10010], item.type);
   const showOtherIcon = item.type === 45 && allowlink === '1' && item.enumDefault === 1;
 
-  const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
+  const currentErrorItem =
+    _.find(errorItems, obj => obj.controlId === item.controlId) ||
+    _.find(uniqueErrorItems, obj => obj.controlId === item.controlId) ||
+    {};
   const errorText = currentErrorItem.errorText || '';
   const isRuleError = currentErrorItem.errorType === FORM_ERROR_TYPE.RULE_ERROR;
   // 强制必填、业务规则报错等只读时依然呈现错误提示
@@ -148,4 +150,6 @@ export default ({
       {item.type === 34 && !item.isSubList && hintShowAsText && <WidgetsDesc item={item} from={from} />}
     </Fragment>
   );
-};
+}
+
+export default memo(FormLabel);

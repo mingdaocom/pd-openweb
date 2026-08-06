@@ -40,7 +40,7 @@ export default class UploadAction extends React.Component {
 
     return (
       show && (
-        <div className="fileListActionBtn Hand ThemeHoverColor3" title={title} icon={icon} onClick={action}>
+        <div className="fileListActionBtn Hand hoverColorPrimary" title={title} icon={icon} onClick={action}>
           {icon}
         </div>
       )

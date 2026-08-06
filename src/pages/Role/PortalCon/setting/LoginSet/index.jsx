@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Icon, LoadDiv, QiniuUpload, Slider } from 'ming-ui';
 import { BGTYPE, COLORS } from 'src/pages/Role/PortalCon/tabCon/util';
+import { formatNumberFromInput } from 'src/utils/control';
 import { Wrap, WrapCon, WrapDemo } from './style';
+
+function parseLogoHeightPx(text) {
+  const n = Math.round(Number(formatNumberFromInput(text, false).trim() || 40));
+  return Math.min(72, Math.max(16, Number.isFinite(n) ? n : 40));
+}
+
+/** 无/非法/越界时用 40（注意 logoHeight 为 0 时 ?? 40 仍为 0） */
+function normalizeLogoHeight(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 16 && n <= 72 ? n : 40;
+}
 
 export default function LoginSet(props) {
   const { appPkg = {}, onChangePortalSet } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadBgLoading, setUploadBgLoading] = useState(false);
+  const [logoHeightText, setLogoHeightText] = useState('40');
 
   useEffect(() => {
     let { portalSet = {} } = props;
     let { portalSetModel = {} } = portalSet;
     setPortalSetModel(portalSetModel);
+    setLogoHeightText(String(normalizeLogoHeight(portalSetModel.logoHeight)));
   }, [props.portalSet]);
 
   const updataUrl = data => {
@@ -84,6 +98,7 @@ export default function LoginSet(props) {
           logoImageUrl: file.url || file.serverName + file.key,
           logoImagePath: file.key,
         });
+        setLogoHeightText('40');
         setUploadLoading(false);
       },
       onError: () => {
@@ -145,6 +160,45 @@ export default function LoginSet(props) {
           )}
           {renderLogoCon()}
         </div>
+        {portalSetModel.logoImageUrl && (
+          <div className="logoHeightSet">
+            <div className="contentText mRight16">{_l('高度')}</div>
+            <div className="flex">
+              <Slider
+                showInput={false}
+                showNumber={false}
+                min={16}
+                max={72}
+                step={1}
+                value={normalizeLogoHeight(portalSetModel.logoHeight)}
+                liveUpdate={false}
+                onChange={value => {
+                  const n = Number(value);
+                  setLogoHeightText(String(n));
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      logoHeight: n,
+                    },
+                  });
+                }}
+              />
+            </div>
+            <input
+              type="text"
+              inputMode="numeric"
+              className="logoHeightNumInput"
+              value={logoHeightText}
+              onChange={e => setLogoHeightText(e.target.value)}
+              onBlur={() => {
+                const c = parseLogoHeightPx(logoHeightText);
+                setLogoHeightText(String(c));
+                onChangePortalSet({ portalSetModel: { ...portalSetModel, logoHeight: c } });
+              }}
+            />
+            <div className="contentText mLeft8">px</div>
+          </div>
+        )}
         <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('登录页面结构')}</h6>
         <ul className="pageMode mTop16">
           {[0, 1].map(o => {
@@ -178,7 +232,7 @@ export default function LoginSet(props) {
                   }}
                 >
                   {portalSetModel.pageMode / 3 - 1 === o && (
-                    <Icon className="Font18 Hand ThemeColor3" type="check_circle" />
+                    <Icon className="Font18 Hand colorPrimary" type="check_circle" />
                   )}
                 </span>
                 <span className="txt Block TxtCenter mTop13">{o === 0 ? _l('居中') : _l('左右')}</span>
@@ -258,7 +312,11 @@ export default function LoginSet(props) {
             <div className="backImageUrl" style={{ 'background-image': `url(${portalSetModel.backImageUrl})` }}></div>
           )}
           <WrapCon className={cx({ isCenterCon: portalSetModel.pageMode === 3, isR: portalSetModel.pageMode !== 3 })}>
-            {portalSetModel.logoImageUrl ? <img src={portalSetModel.logoImageUrl} height={32} /> : ''}
+            {portalSetModel.logoImageUrl ? (
+              <img src={portalSetModel.logoImageUrl} height={normalizeLogoHeight(portalSetModel.logoHeight)} />
+            ) : (
+              ''
+            )}
             {portalSetModel.pageTitle && (
               <p className="Font24 textPrimary mAll0 mTop20 Bold pageTitleDeme ellipsis">{portalSetModel.pageTitle}</p>
             )}

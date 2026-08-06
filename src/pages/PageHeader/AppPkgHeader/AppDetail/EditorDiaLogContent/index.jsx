@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import { ColorPicker, Icon, Input, LoadDiv, RadioGroup, RichText, SvgIcon, Textarea, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
-import mingoApi from 'src/api/mingo';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { generateAppOrWorksheetDescription } from 'src/utils/app';
 import './index.less';
 
 const Wrap = styled.div`
@@ -111,12 +111,16 @@ export default class Editor extends Component {
     this.onChange(summary);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { cacheKey, summary } = nextProps;
-    const cacheSummary = localStorage.getItem('mdEditor_' + cacheKey);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { cacheKey, summary } = this.props;
+      const cacheSummary = localStorage.getItem('mdEditor_' + cacheKey);
 
-    if (!this.props.isEditing && nextProps.isEditing && cacheSummary && cacheSummary !== summary) {
-      this.setState({ showCache: true });
+      if (!prevProps.isEditing && this.props.isEditing && cacheSummary && cacheSummary !== summary) {
+        this.setState({
+          showCache: true,
+        });
+      }
     }
   }
 
@@ -159,11 +163,11 @@ export default class Editor extends Component {
       return (
         <Fragment>
           <div className="mdEditorTipColor mLeft10">{_l('检测到有上次未保存的内容，')}</div>
-          <div className="pointer ThemeColor3 ThemeHoverColor2" onClick={this.recovery}>
+          <div className="pointer colorPrimary hoverColorPrimaryDark" onClick={this.recovery}>
             {_l('点击恢复')}
           </div>
           <div className="mdEditorTipColor mLeft5 mRight5">{_l('或')}</div>
-          <div className="pointer ThemeColor3 ThemeHoverColor2" onClick={this.clearStorage}>
+          <div className="pointer colorPrimary hoverColorPrimaryDark" onClick={this.clearStorage}>
             {_l('忽略')}
           </div>
         </Fragment>
@@ -233,29 +237,15 @@ export default class Editor extends Component {
     const { cacheKey, data } = this.props;
     const { remark } = this.state;
     const isApp = cacheKey === 'appIntroDescription';
-    const isSheet = cacheKey === 'sheetIntroDescription';
-    const param = {
-      langType: getCurrentLangCode(),
-      desc: remark,
-    };
-
-    if (isApp) {
-      param.name = data.name;
-      param.appId = data.id;
-      param.type = 1;
-    }
-
-    if (isSheet) {
-      param.name = data.name;
-      param.worksheetId = data.worksheetId;
-      param.type = 2;
-    }
 
     this.setState({ aiCreateLoading: true, remark: '', lastRemark: this.state.remark });
-    mingoApi
-      .generateAppOrWorksheetDescription(param)
-      .then(data => {
-        const { isSuccess, content, errorMsg } = data;
+    generateAppOrWorksheetDescription({
+      description: remark,
+      data: data,
+      isApp: isApp,
+    })
+      .then(res => {
+        const { isSuccess, content, errorMsg } = res.data || {};
 
         if (!isSuccess) {
           alert(errorMsg, 3);
@@ -438,7 +428,7 @@ export default class Editor extends Component {
       return (
         <Fragment>
           <div
-            className="mdEditorCancel ThemeColor3"
+            className="mdEditorCancel colorPrimary"
             onClick={() => {
               this.clearStorage();
               changeEditState && changeEditState(false);
@@ -449,7 +439,7 @@ export default class Editor extends Component {
           >
             {_l('取消')}
           </div>
-          <div className="mdEditorSave ThemeBGColor3 ThemeHoverBGColor2" onClick={this.onSave}>
+          <div className="mdEditorSave bgColorPrimary hoverBgColorPrimaryDark" onClick={this.onSave}>
             {_l('保存')}
           </div>
         </Fragment>

@@ -17,8 +17,10 @@ export default class GroupValidate extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.init(_.get(nextProps, 'location.search'));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.init(_.get(this.props, 'location.search'));
+    }
   }
 
   componentDidMount() {
@@ -121,7 +123,7 @@ export default class GroupValidate extends React.Component {
         ) : undefined}
         {result.isMember ? (
           <div className="group-btns">
-            <div className="group-btn group-send ThemeBGColor3" onClick={this.handleOpenChat}>
+            <div className="group-btn group-send bgColorPrimary" onClick={this.handleOpenChat}>
               <i className="icon-replyto"></i>
               {_l('发消息')}
             </div>
@@ -135,7 +137,7 @@ export default class GroupValidate extends React.Component {
         ) : (
           <div className="group-btns">
             {result.isPost ? (
-              <div className="group-btn group-apply ThemeBGColor3" onClick={this.handleApply}>
+              <div className="group-btn group-apply bgColorPrimary" onClick={this.handleApply}>
                 {result.isApply ? _l('已申请') : _l('申请加入')}
               </div>
             ) : undefined}

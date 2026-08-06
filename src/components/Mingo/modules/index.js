@@ -20,5 +20,9 @@ export function getTitleOfTaskType(taskType) {
     return _l('优化应用信息');
   }
 
+  if (taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT) {
+    return _l('Mingo');
+  }
+
   return '';
 }

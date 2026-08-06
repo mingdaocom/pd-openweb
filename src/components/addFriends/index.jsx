@@ -7,6 +7,7 @@ import { checkCertification } from 'src/components/checkCertification';
 import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
+import { pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import AddressBookInvite from './AddressBookInvite';
 import DetailList from './DetailList';
@@ -202,10 +203,12 @@ class AddFriends extends Component {
                 '近期有不法分子利用平台进行诈骗活动。为了保护平台安全，此功能需要完成身份认证后才能使用。对您使用造成的不便，深表歉意！',
               )}
               <span
-                className="colorPrimary ThemeHoverColor2 pointer"
-                onClick={() =>
-                  (location.href = `/certification/project/${projectId || getCurrentProjectId()}?returnUrl=${encodeURIComponent(location.href)}`)
-                }
+                className="colorPrimary hoverColorPrimaryDark pointer"
+                onClick={() => {
+                  location.href = pathCompletion(
+                    `/certification/project/${projectId || getCurrentProjectId()}?returnUrl=${encodeURIComponent(location.href)}`,
+                  );
+                }}
               >
                 {_l('前往认证')}
               </span>
@@ -273,7 +276,7 @@ class SelectProject extends Component {
                       </Fragment>
                     ) : (
                       <Fragment>
-                        <span className="icon-account_circle Font18 ThemeColor3"></span>
+                        <span className="icon-account_circle Font18 colorPrimary"></span>
                         <span className="flex pLeft12 ellipsis">
                           {_l('个人好友')}
                           <span className="Font12">{_l('(非同事)')}</span>

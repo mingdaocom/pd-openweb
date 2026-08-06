@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import api from '../../api/flowNode';
 import ErrorState from 'src/components/errorPage/errorState';
+import { pathCompletion } from 'src/utils/common';
 import './index.less';
 
 export default class WebHookCheatSheet extends Component {
@@ -25,7 +26,7 @@ export default class WebHookCheatSheet extends Component {
     }
   }
   goIndex = () => {
-    location.href = '/';
+    location.href = pathCompletion('/');
   };
   render() {
     const { apiData, loading, errorState } = this.state;
@@ -66,7 +67,7 @@ export default class WebHookCheatSheet extends Component {
               </ul>
             </div>
             <div className="jsonExample">
-              <JsonView src={data} theme="apathy:inverted" name={null} />
+              <JsonView theme="transparent" data={data} />
             </div>
           </ScrollView>
         </div>

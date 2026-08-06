@@ -34,15 +34,17 @@ export default class RowDetail extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.data &&
-      (nextProps.data.rowid !== this.props.data.rowid ||
-        (this.props.isMobile && !_.isEqual(nextProps.data, this.props.data)))
-    ) {
-      this.setState({
-        flag: Math.random(),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.data &&
+        (this.props.data.rowid !== prevProps.data.rowid ||
+          (prevProps.isMobile && !_.isEqual(this.props.data, prevProps.data)))
+      ) {
+        this.setState({
+          flag: Math.random(),
+        });
+      }
     }
   }
 
@@ -68,12 +70,18 @@ export default class RowDetail extends React.Component {
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
 
-    if (submitData.error && !extraParams.ignoreHiddenRequired) {
+    const hasSubmitError = !!submitData.error;
+
+    if (hasSubmitError && !extraParams.ignoreHiddenRequired) {
       return false;
     } else {
       const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-      !disabled && onSave({ ...data, ...row, empty: false }, updateControlIds);
-      if (extraParams.ignoreHiddenRequired && submitData.error) {
+      !disabled &&
+        onSave({ ...data, ...row, empty: false }, updateControlIds, {
+          hasError: hasSubmitError,
+          validateAll: true,
+        });
+      if (extraParams.ignoreHiddenRequired && hasSubmitError) {
         return false;
       } else if (isSwitchSave) {
         return row;
@@ -99,6 +107,60 @@ export default class RowDetail extends React.Component {
 
   continueSubmit = extraParams => {
     this.handleSave(false, false, false, false, extraParams);
+  };
+
+  // DataFormat 不会把他表字段、公式、文本组合这类被动派生字段加入 updateControlIds。
+  // H5 子表行详情需要像 PC 子表一样补齐这些 id，否则 row 已有新值但外层子表不会按字段变更处理。
+  getAsyncUpdatedControlIds = updatedControlIds => {
+    if (!this.customwidget.current) {
+      return updatedControlIds;
+    }
+
+    const formData = this.customwidget.current.dataFormat.getDataSource();
+    const affectedIds = new Set(updatedControlIds);
+    const derivedControls = formData.filter(control => _.includes([30, 31, 32], control.type));
+    let hasNewAffected = true;
+
+    while (hasNewAffected) {
+      hasNewAffected = false;
+      derivedControls.forEach(control => {
+        if (
+          !affectedIds.has(control.controlId) &&
+          [...affectedIds].some(controlId => _.includes(control.dataSource, controlId))
+        ) {
+          affectedIds.add(control.controlId);
+          hasNewAffected = true;
+        }
+      });
+    }
+
+    return _.uniq([...affectedIds].concat(this.customwidget.current.dataFormat.getUpdateControlIds()));
+  };
+
+  handleChange = (formData, updatedControlIds, options = {}) => {
+    if (!options.isAsyncChange || this.props.disabled) {
+      return;
+    }
+
+    // 查询工作表默认值的异步回填需要同步到子表行数据
+    const { data, onSave } = this.props;
+    const asyncChanges = options.asyncChanges || {};
+
+    if (this.customwidget.current && asyncChanges.controlId && !_.isUndefined(asyncChanges.value)) {
+      // H5 这里拿到的 formData 可能还是旧快照，需用异步回调原值重放一次，才能级联计算他表字段等派生值。
+      this.customwidget.current.dataFormat.updateDataSource({
+        controlId: asyncChanges.controlId,
+        value: asyncChanges.value,
+      });
+    }
+
+    // 重放后从当前 DataFormat 读取最新数据，确保 row 包含 sourcevalue 触发后的派生字段值。
+    const currentFormData = this.customwidget.current ? this.customwidget.current.dataFormat.getDataSource() : formData;
+    // 被动派生字段不会进入 DataFormat 的变更字段集合，这里补齐给外层子表保存。
+    const nextUpdatedControlIds = this.getAsyncUpdatedControlIds(updatedControlIds);
+    const row = [{}, ...currentFormData].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
+
+    onSave({ ...data, ...row, empty: false }, nextUpdatedControlIds);
   };
 
   handleClose = () => {
@@ -190,6 +252,7 @@ export default class RowDetail extends React.Component {
             widgetStyle={widgetStyle}
             rules={rules}
             continueSubmit={this.continueSubmit}
+            onChange={this.handleChange}
           />
         </div>
       </RecordInfoContext.Provider>

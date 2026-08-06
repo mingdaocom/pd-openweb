@@ -3,15 +3,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { isSheetDisplay } from '../../../../../widgetConfig/util';
 import { API_ENUM_TO_TYPE, DEFAULT_COLUMNS, FILTER_CONDITION_TYPE } from '../../enum';
 
-@withClickAway
-export default class RelateBox extends Component {
+let RelateBox = class RelateBox extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
     values: PropTypes.arrayOf(PropTypes.string),
@@ -19,7 +18,6 @@ export default class RelateBox extends Component {
   static defaultProps = {
     values: [],
   };
-
   renderLi = (item, i, onChangeFn) => {
     return (
       <React.Fragment>
@@ -31,7 +29,6 @@ export default class RelateBox extends Component {
       </React.Fragment>
     );
   };
-
   renderCustom = (data, type, isTop) => {
     const id = _.includes([2, 15, 16, 26, 46], type)
       ? _.get(
@@ -41,11 +38,16 @@ export default class RelateBox extends Component {
       : '';
     if (!id || id === 'rowid' || (!isTop && !_.includes(['rowid'], id))) return null;
     const { onChangeFn } = this.props;
-    let showData = _.find(data, i => i.controlId === id);
-    if (!showData) return null;
 
+    let showData = _.find(data, i => i.controlId === id);
+
+    if (!showData) return null;
     return (
-      <ul className={cx({ customSelectUl: !isTop })}>
+      <ul
+        className={cx({
+          customSelectUl: !isTop,
+        })}
+      >
         {_.map([showData], item =>
           this.renderLi(item, -1, () => {
             onChangeFn({ ...item, cid: item.controlId, rcid: '' }, true);
@@ -53,9 +55,8 @@ export default class RelateBox extends Component {
         )}
       </ul>
     );
-  };
+  }; // 符合动态值的本表字段异化，关联记录筛选用
 
-  // 符合动态值的本表字段异化，关联记录筛选用
   filterDynamicControls = isGlobal => {
     const {
       conditionType,
@@ -68,17 +69,15 @@ export default class RelateBox extends Component {
       showCustom,
     } = this.props;
     const dynamicControls = isGlobal ? globalSheetControls : columns;
-    let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue, from);
+    let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue, from); // 当前记录支持rowid
 
-    // 当前记录支持rowid
     if (showCustom && control.type === 2 && !isGlobal) {
       avaControls = avaControls.concat(ROW_ID_CONTROL);
     }
 
     const { globalSheetId, dataSource, controlId } = widgetControlData;
+    if (isGlobal && _.isUndefined(globalSheetControls)) return avaControls; // 记录id能反选到关联本表的关联记录
 
-    if (isGlobal && _.isUndefined(globalSheetControls)) return avaControls;
-    // 记录id能反选到关联本表的关联记录
     if (
       control.controlId === 'rowid' &&
       from === 'relateSheet' &&
@@ -94,9 +93,8 @@ export default class RelateBox extends Component {
             (widgetControlData.isSubList ? !isSheetDisplay(items) : true),
         ),
       );
-    }
+    } // 关联记录字段关联本表，支持rowid
 
-    // 关联记录字段关联本表，支持rowid
     if (
       from === 'relateSheet' &&
       conditionType === API_ENUM_TO_TYPE.RELATESHEET &&
@@ -117,25 +115,26 @@ export default class RelateBox extends Component {
       setKeys,
       control,
       sourceControlId = '',
-      globalSheetControls = [], // globalSheetControls 主记录Controls
+      globalSheetControls = [],
+      // globalSheetControls 主记录Controls
       from,
       showCustom,
-    } = this.props;
-    // 自定义动态筛选值(此刻、记录id、当前用户)，只有业务规则支持当前用户，其他暂不支持
+    } = this.props; // 自定义动态筛选值(此刻、记录id、当前用户)，只有业务规则支持当前用户，其他暂不支持
+
     let customColums = showCustom
       ? from === 'rule'
         ? DEFAULT_COLUMNS
         : DEFAULT_COLUMNS.filter(d => !_.includes(['user-self'], d.controlId))
       : [];
+    let listColumn = this.filterDynamicControls();
     let customData = !keywords
       ? customColums
-      : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0);
-    //符合动态筛选值规则的本表控件
-    let listColumn = this.filterDynamicControls();
+      : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0); //符合动态筛选值规则的本表控件
+
     let columnsData = !keywords
       ? listColumn
-      : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0);
-    //符合动态筛选值规则主表控件
+      : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0); //符合动态筛选值规则主表控件
+
     let listglobalSheetColumn = this.filterDynamicControls(true);
     let globalSheetControlsData = !keywords
       ? listglobalSheetColumn
@@ -143,7 +142,6 @@ export default class RelateBox extends Component {
           listglobalSheetColumn,
           o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0,
         );
-
     const showResult =
       listColumn.length > 0 || listglobalSheetColumn.length > 0 || (showCustom && customColums.length > 0);
     const searchResult =
@@ -213,4 +211,6 @@ export default class RelateBox extends Component {
       </React.Fragment>
     );
   }
-}
+};
+RelateBox = ClickAway.wrap(RelateBox);
+export default RelateBox;

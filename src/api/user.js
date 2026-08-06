@@ -4,6 +4,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
    * @param {array} args.accountIds 用户Id集
+   * @param {boolean} args.onlyProjectNormalUser 仅取 组织内有效用户
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

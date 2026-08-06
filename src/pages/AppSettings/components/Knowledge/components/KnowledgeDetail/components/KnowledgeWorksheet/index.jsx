@@ -22,11 +22,7 @@ import {
   STATUS_FROM,
 } from '../../../../core/config';
 import { useKnowledgeUsage } from '../../../../core/hooks';
-import {
-  fetchFilterData,
-  getControlIcon,
-  isDisabledKnowledge,
-} from '../../../../core/utils';
+import { fetchFilterData, getControlIcon, isDisabledKnowledge } from '../../../../core/utils';
 import Banner from '../../../Banner';
 import BasicStatus from '../../../BasicStatus';
 import CollapsePanel from '../../../CollapsePanel';
@@ -56,6 +52,18 @@ const DIALOG_TYPE_MAP = {
   RE_VECTORIZE: 'reVectorize',
   // 错误展示
   CHECK_ERROR: 'checkError',
+};
+
+const deleteKeyFromMap = (mapSetter, key) => {
+  mapSetter(prev => {
+    if (!(key in prev)) return prev;
+    const next = { ...prev };
+    delete next[key];
+    return next;
+  });
+};
+const handleViewRule = () => {
+  window.open(FIELD_RULE_TIP_URL, '_blank');
 };
 
 const KnowledgeWorksheet = props => {
@@ -278,15 +286,6 @@ const KnowledgeWorksheet = props => {
     await worksheetAjax.deleteWorksheetFilter({
       appId,
       filterId,
-    });
-  };
-
-  const deleteKeyFromMap = (mapSetter, key) => {
-    mapSetter(prev => {
-      if (!(key in prev)) return prev;
-      const next = { ...prev };
-      delete next[key];
-      return next;
     });
   };
 

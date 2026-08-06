@@ -8,6 +8,7 @@ import Trigger from 'rc-trigger';
 import { Dropdown, Icon } from 'ming-ui';
 import Config from 'src/pages/chat/utils/config';
 import * as socket from 'src/pages/chat/utils/socket';
+import { pathCompletion } from 'src/utils/common';
 import * as actions from '../../../redux/actions';
 import { TYPE_GROUP, TYPES } from '../constants';
 import InboxFilter from './baseComponent/inboxFilter';
@@ -178,8 +179,8 @@ class InboxHeader extends React.Component {
     const { inboxFavorite, title, filter, currentSession } = this.props;
     const clsNameFunc = flag =>
       cx('inboxItem Hand', {
-        'ThemeColor3 ThemeBorderColor3': flag,
-        ThemeHoverColor3: !flag,
+        'colorPrimary borderColorPrimary': flag,
+        hoverColorPrimary: !flag,
       });
     const { isSilent } = currentSession;
 
@@ -208,7 +209,9 @@ class InboxHeader extends React.Component {
         </span>
         <div className="btnWrapper flexRow alignItemsCenter">
           <Icon
-            className="Font20 textTertiary pointer ThemeHoverColor3 mRight15 refreshBtn"
+            className={cx('Font20 textTertiary pointer hoverColorPrimary refreshBtn', {
+              mRight15: !md.global.Account.isPortal,
+            })}
             icon="task-later"
             onClick={() => {
               if (filter) {
@@ -247,13 +250,15 @@ class InboxHeader extends React.Component {
               </div>
             </antd.Dropdown>
           )}
-          <Icon
-            className="Font20 textTertiary pointer ThemeHoverColor3"
-            icon="maximizing_a"
-            onClick={() => {
-              window.open(`/windowChat?id=${currentSession.id}&type=${currentSession.type}`);
-            }}
-          />
+          {!md.global.Account.isPortal && (
+            <Icon
+              className="Font20 textTertiary pointer hoverColorPrimary"
+              icon="maximizing_a"
+              onClick={() => {
+                window.open(pathCompletion(`/windowChat?id=${currentSession.id}&type=${currentSession.type}`));
+              }}
+            />
+          )}
         </div>
       </div>
     );

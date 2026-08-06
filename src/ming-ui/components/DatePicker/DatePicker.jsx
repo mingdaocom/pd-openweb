@@ -103,7 +103,7 @@ class DatePicker extends Component {
 
   static defaultProps = {
     locale,
-    placeholder: '请选择',
+    placeholder: _l('请选择'),
     allowClear: true,
   };
 

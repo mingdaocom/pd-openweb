@@ -120,7 +120,7 @@ export function UserSelector(props) {
   }
 
   useClickAway(conRef, e => {
-    if (e.target.closest('.cellUsers, .userCardSite')) {
+    if (e.target instanceof Element && e.target.closest('.cellUsers, .userCardSite')) {
       return;
     }
 

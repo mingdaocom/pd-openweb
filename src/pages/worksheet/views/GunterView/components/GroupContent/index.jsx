@@ -5,18 +5,18 @@ import _ from 'lodash';
 import { UserHead } from 'ming-ui';
 import { isSameType } from 'worksheet/common/ViewConfig/util';
 
-@connect(state => ({
-  ..._.pick(state.sheet.gunterView, ['viewConfig']),
-  ..._.pick(state.sheet, ['isCharge', 'base', 'worksheetInfo', 'controls']),
-}))
-export default class GroupContent extends Component {
+let GroupContent = class GroupContent extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     const { base, group, viewConfig, controls, worksheetInfo } = this.props;
     const { viewControl } = viewConfig;
-    const groupControl = _.find(controls, { controlId: viewControl }) || {};
+    const groupControl =
+      _.find(controls, {
+        controlId: viewControl,
+      }) || {};
 
     if (group.name && isSameType([26], groupControl)) {
       const data = safeParse(group.name);
@@ -26,15 +26,15 @@ export default class GroupContent extends Component {
             key={data.accountId}
             projectId={worksheetInfo.projectId}
             size={24}
-            user={{
-              ...data,
-              accountId: data.accountId,
-              userHead: data.avatar,
-            }}
+            user={{ ...data, accountId: data.accountId, userHead: data.avatar }}
             className={'roleAvatar flexShrink0'}
             appId={base.appId}
           />
-          <span className={cx('mLeft6 flexShrink0', { 'flex WordBreak overflow_ellipsis': true })}>
+          <span
+            className={cx('mLeft6 flexShrink0', {
+              'flex WordBreak overflow_ellipsis': true,
+            })}
+          >
             {data.fullname}
           </span>
         </div>
@@ -48,4 +48,9 @@ export default class GroupContent extends Component {
 
     return group.name || _l('为空');
   }
-}
+};
+GroupContent = connect(state => ({
+  ..._.pick(state.sheet.gunterView, ['viewConfig']),
+  ..._.pick(state.sheet, ['isCharge', 'base', 'worksheetInfo', 'controls']),
+}))(GroupContent);
+export default GroupContent;

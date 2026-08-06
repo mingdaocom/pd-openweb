@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, Dropdown, LoadDiv, MultipleDropdown } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
+import { getTranslateInfo } from 'src/utils/app';
 import './index.less';
 
 export default class SelectUsersFromApp extends Component {
@@ -72,7 +73,7 @@ export default class SelectUsersFromApp extends Component {
       res = res.map(({ roleId, name, users, departmentsInfos }) => {
         return {
           value: roleId,
-          label: name,
+          label: getTranslateInfo(appId, null, roleId).name || name,
           count: users.length + departmentsInfos.length,
         };
       });

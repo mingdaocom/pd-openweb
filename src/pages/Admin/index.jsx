@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
+import React, { lazy, PureComponent, Suspense } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import Loadable from 'react-loadable';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
+import { addSubPathOfRoute } from 'src/utils/common';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import AdminCommon from './common/common';
 import Empty from './common/TableEmpty';
@@ -17,14 +17,15 @@ import { menuList } from './router.config.js';
 import { allPlatformsHidden } from './util';
 import './index.less';
 
-const getComponent = component =>
-  Loadable({
-    loader: component,
-    loading: () => null,
-  });
+const getComponent = component => lazy(component);
 
 const withParams = (Component, params) => {
-  const ParamsComponent = props => <Component {...props} {...params} />;
+  const ParamsComponent = props => (
+    <Suspense fallback={<LoadDiv className="mTop10" />}>
+      <Component {...props} {...params} />
+    </Suspense>
+  );
+
   return ParamsComponent;
 };
 
@@ -38,14 +39,12 @@ const CommonEmpty = (
     />
   </div>
 );
-
 const NoPermission = (
   <div className="noPermissionWrapper">
     <img className="img" src={withoutPermission} />
     <div className="textSecondary Font17 mTop30">{_l('无权限，请联系管理员')}</div>
   </div>
 );
-
 export default class AdminEntryPoint extends PureComponent {
   state = {
     isLoading: true,
@@ -53,25 +52,27 @@ export default class AdminEntryPoint extends PureComponent {
     routeKeys: [],
   };
 
-  componentWillMount() {
+  componentDidMount() {
     if (_.isNull(localStorage.getItem('adminList_isUp'))) {
       safeLocalStorageSetItem('adminList_isUp', true);
     }
-  }
 
-  componentDidMount() {
     $('html').addClass('AppAdmin');
     this.init();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const projectId = _.get(nextProps, 'match.params.projectId');
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const projectId = _.get(this.props, 'match.params.projectId');
 
-    if (projectId !== Config.projectId) {
-      this.setState({ isLoading: true });
-      this.init();
-    } else {
-      Config.getParams();
+      if (projectId !== Config.projectId) {
+        this.setState({
+          isLoading: true,
+        });
+        this.init();
+      } else {
+        Config.getParams();
+      }
     }
   }
 
@@ -81,11 +82,14 @@ export default class AdminEntryPoint extends PureComponent {
 
   init() {
     AdminCommon.getAuthority().then(authority => {
-      this.setState({ isLoading: false, authority, routeKeys: this.getRouterKeys(authority) });
+      this.setState({
+        isLoading: false,
+        authority,
+        routeKeys: this.getRouterKeys(authority),
+      });
     });
-  }
+  } //获取权限模块
 
-  //获取权限模块
   getRouterKeys(authority) {
     const projectId = _.get(this.props, 'match.params.projectId');
 
@@ -106,7 +110,6 @@ export default class AdminEntryPoint extends PureComponent {
         }
 
         if (!window.platformENV.isOverseas && !window.platformENV.isLocal && key === 'quota') return;
-
         const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
         let featureType = getFeatureStatus(projectId, itemMenu.featureId);
         let hasFeatureIdsAuth = false;
@@ -126,7 +129,6 @@ export default class AdminEntryPoint extends PureComponent {
 
         if (itemMenu.featureId && !featureType) return false;
         if (itemMenu.featureIds && !hasFeatureIdsAuth) return false;
-
         return true;
       });
 
@@ -135,8 +137,8 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   renderHomeContent(routes) {
-    const { authority } = this.state;
-    // 过滤掉所有平台都被隐藏时的 platformintegration 菜单项
+    const { authority } = this.state; // 过滤掉所有平台都被隐藏时的 platformintegration 菜单项
+
     const filteredRoutes = _.map(routes, route => ({
       ...route,
       subMenuList: _.filter(
@@ -152,7 +154,9 @@ export default class AdminEntryPoint extends PureComponent {
       },
       [],
     );
+
     const isExtend = JSON.parse(localStorage.getItem('adminList_isUp'));
+
     const projectId = _.get(this.props, 'match.params.projectId');
 
     return (
@@ -167,8 +171,10 @@ export default class AdminEntryPoint extends PureComponent {
                     <Route
                       key={path}
                       exact={exact}
-                      path={path}
-                      component={withParams(getComponent(component), { authority })}
+                      path={addSubPathOfRoute(path)}
+                      component={withParams(getComponent(component), {
+                        authority,
+                      })}
                     />
                   );
                 })}
@@ -181,12 +187,17 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   renderRoutes() {
-    const { routeKeys, authority = [] } = this.state;
-    // 根据权限控制模块展示
+    const { routeKeys, authority = [] } = this.state; // 根据权限控制模块展示
+
     const routesWithAuthority = _.reduce(
       menuList,
       (result, { title, subMenuList = [], key, icon }) => {
-        let item = { title, subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)), key, icon };
+        let item = {
+          title,
+          subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)),
+          key,
+          icon,
+        };
         return result.concat([item]);
       },
       [],
@@ -194,9 +205,17 @@ export default class AdminEntryPoint extends PureComponent {
 
     return (
       <Switch>
-        <Route path="/admin/mycharacter/:projectId" component={() => <MyRole authority={authority} />} />
-        <Route path="/admin/apply/:projectId/:roleId?" component={() => <ApplyRole authority={authority} />} />
-        <Route path="/admin/:routeType/:projectId">{this.renderHomeContent(routesWithAuthority)}</Route>
+        <Route
+          path={addSubPathOfRoute('/admin/mycharacter/:projectId')}
+          component={() => <MyRole authority={authority} />}
+        />
+        <Route
+          path={addSubPathOfRoute('/admin/apply/:projectId/:roleId?')}
+          component={() => <ApplyRole authority={authority} />}
+        />
+        <Route path={addSubPathOfRoute('/admin/:routeType/:projectId')}>
+          {this.renderHomeContent(routesWithAuthority)}
+        </Route>
       </Switch>
     );
   }
@@ -213,31 +232,26 @@ export default class AdminEntryPoint extends PureComponent {
 
     if (isLoading) {
       return <LoadDiv className="mTop10" />;
-    }
+    } //没有任何权限
 
-    //没有任何权限
     if (!authority.length) {
       return NoPermission;
-    }
+    } //不是组织成员
 
-    //不是组织成员
     if (authority.includes(PERMISSION_ENUM.NOT_MEMBER)) {
       return CommonEmpty;
-    }
+    } //没有权限，可以申请管理员
 
-    //没有权限，可以申请管理员
     if (authority.includes(PERMISSION_ENUM.SHOW_APPLY) && !location.href.includes('admin/apply')) {
       navigateTo('/admin/apply/' + Config.projectId);
       return null;
-    }
+    } //有权限，但是没有组织后台菜单权限
 
-    //有权限，但是没有组织后台菜单权限
     if (authority.includes(PERMISSION_ENUM.SHOW_MY_CHARACTER) && !location.href.includes('admin/mycharacter')) {
       navigateTo('/admin/mycharacter/' + Config.projectId);
       return null;
-    }
+    } //超管跳转到首页
 
-    //超管跳转到首页
     if ((location.href.includes('admin/index') || location.href.includes('admin/apply')) && isSuperAdmin) {
       navigateTo('/admin/home/' + Config.projectId);
       return null;

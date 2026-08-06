@@ -4,7 +4,6 @@ import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
 import projectAjax from 'src/api/project';
 import { SYS_CHART_COLORS, SYS_COLOR } from 'src/pages/Admin/settings/config';
-import { browserIsMobile } from './common';
 
 // 获取当前网络信息
 export const getCurrentProject = (id, isExternalProject) => {
@@ -39,7 +38,7 @@ export function mdAppResponse(param) {
     const base64 = window.btoa(string);
 
     if (window.isMacOs) {
-      window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
+      window.webkit?.messageHandlers?.MD_APP_REQUEST?.postMessage(base64);
     } else {
       window.Android.MD_APP_REQUEST(base64);
     }
@@ -116,7 +115,7 @@ export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
   if ((type === 'worksheetDecode' && !params.rowId) || (type === 'worksheetDecode' && !params.controlId)) return;
 
   const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
-    ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
+    ? safeParse(sessionStorage.getItem('addBehaviorLogInfo'), null)
     : undefined;
 
   if (isLinkVisited && _.isEqual(addBehaviorLogInfo, { type, entityId, params })) {
@@ -255,26 +254,6 @@ export const dateServerZoneToAppZone = (date, appTimeZone) => {
   return moment(date)
     .add(appTimeZone - serverZone, 'm')
     .format('YYYY-MM-DD HH:mm:ss');
-};
-
-export const handlePushState = (queryKey = '', queryValue = '') => {
-  if (!browserIsMobile()) return;
-  const popupKey = queryKey + `=` + queryValue;
-
-  history.replaceState({ ...history.state, ...{ popupKey } }, '');
-  const baseUrl = location.href;
-  const url = baseUrl.includes('?') ? `${baseUrl}&${popupKey}` : `${baseUrl}?${popupKey}`;
-
-  history.pushState({ popupKey }, '', url);
-};
-
-export const handleReplaceState = (queryKey, queryValue, callback = () => {}) => {
-  const popupKey = queryKey + `=` + queryValue;
-
-  if (_.get(window, 'history.state.popupKey') === `${queryKey}=${queryValue}`) {
-    callback();
-    history.replaceState({ ...history.state, ...{ popupKey } }, '');
-  }
 };
 
 export const getContactInfo = key => {

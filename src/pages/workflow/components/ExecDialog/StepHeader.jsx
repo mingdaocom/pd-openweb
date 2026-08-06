@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
-import FlowChart, { MobileFlowChart } from '../FlowChart';
+
+const FlowChart = lazy(() => import('../FlowChart'));
+const MobileFlowChart = lazy(() => import('../FlowChart').then(module => ({ default: module.MobileFlowChart })));
 
 const Btn = styled.div`
   &:hover {
@@ -39,7 +41,7 @@ export default ({
       <div className="flex" />
       {isApproval && !hideStep && (
         <div
-          className="flexRow pointer alignItemsCenter textSecondary ThemeHoverColor3"
+          className="flexRow pointer alignItemsCenter textSecondary hoverColorPrimary"
           onClick={() => setVisible(true)}
         >
           <Icon className="Font16 mRight5" icon="department" />
@@ -48,13 +50,15 @@ export default ({
       )}
 
       {visible && (
-        <Modal
-          appId={appId}
-          processId={processId}
-          instanceId={instanceId}
-          selectNodeId={_.get(currentWork, 'flowNode.id')}
-          onClose={() => setVisible(false)}
-        />
+        <Suspense fallback={null}>
+          <Modal
+            appId={appId}
+            processId={processId}
+            instanceId={instanceId}
+            selectNodeId={_.get(currentWork, 'flowNode.id')}
+            onClose={() => setVisible(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

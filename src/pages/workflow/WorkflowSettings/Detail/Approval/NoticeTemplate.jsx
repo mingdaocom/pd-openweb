@@ -78,7 +78,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
             {!selectMsg.trim() && selectMsgKey === 'passMessage' && _l('已通过审批')}
             {!selectMsg.trim() && selectMsgKey === 'overruleMessage' && _l('已否决审批')}
             {selectMsg.trim() && <span style={{ background: 'var(--color-warning)' }}>{getNodeText(selectMsg)}</span>}
-            <span className="ThemeColor3 mLeft5">{_l('查看详情')}</span>
+            <span className="colorPrimary mLeft5">{_l('查看详情')}</span>
           </div>
           <div className="mTop15 textSecondary">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
         </div>

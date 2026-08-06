@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { ActionSheet, Dialog } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon, SvgIcon } from 'ming-ui';
-import { generateRandomPassword } from 'src/utils/common';
+import { generateRandomPassword, pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
+import showAddAppActionSheet from '../AddAppActionSheet';
 import ApplicationItem from '../ApplicationItem';
 import './index.less';
 
@@ -55,15 +55,15 @@ export default class ApplicationList extends Component {
             <div className="flexRow mTop28">
               <button
                 type="button"
-                className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
-                onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
+                className="joinNetwork bgColorPrimary hoverBgColorPrimaryDark mRight20"
+                onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'), '__blank')}
               >
                 {_l('加入组织')}
               </button>
               <button
                 type="button"
-                className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-                onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
+                className="createNetwork bgColorPrimary borderColorPrimary colorPrimary"
+                onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'), '__blank')}
               >
                 {_l('创建组织')}
               </button>
@@ -104,57 +104,7 @@ export default class ApplicationList extends Component {
 
   // 添加应用
   showActionSheet = () => {
-    const BUTTONS = [
-      {
-        key: 'application',
-        text: (
-          <Fragment>
-            <Icon className={cx('mRight10 textTertiary Font18')} icon="application_library" />
-            <span className="Bold">{_l('从模板库添加')}</span>
-          </Fragment>
-        ),
-      },
-      {
-        key: 'add',
-        text: (
-          <Fragment>
-            <Icon className={cx('mRight10 textTertiary Font18')} icon="add1" />
-            <span className="Bold">{_l('自定义创建')}</span>
-          </Fragment>
-        ),
-      },
-    ].filter(
-      v =>
-        (md.global.SysSettings.hideTemplateLibrary && v.key !== 'application') ||
-        !md.global.SysSettings.hideTemplateLibrary,
-    );
-    this.actionSheetHandler = ActionSheet.show({
-      actions: BUTTONS,
-      extra: (
-        <div className="flexRow header">
-          <span className="Font13">{_l('添加应用')}</span>
-          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
-            <Icon icon="close" />
-          </div>
-        </div>
-      ),
-      onAction: action => {
-        if (action.key === 'application') {
-          window.mobileNavigateTo(`/mobile/appBox`);
-        }
-
-        if (action.key === 'add') {
-          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
-          Dialog.alert({
-            content: title,
-            confirmText: _l('我知道了'),
-            onAction: () => {},
-          });
-        }
-
-        this.actionSheetHandler.close();
-      },
-    });
+    this.actionSheetHandler = showAddAppActionSheet();
   };
 
   forTitle = ({ type, name, icon, iconUrl, showExpandIcon = true }) => {
@@ -303,7 +253,7 @@ export default class ApplicationList extends Component {
         {markedGroup.map(item => {
           if ((!item || !item.apps || _.isEmpty(item.apps)) && !canCreateApp) return;
           return (
-            <Fragment>
+            <Fragment key={item.id}>
               {this.renderGroupDetail({
                 data: item,
                 type: 'markedGroup',
@@ -325,7 +275,7 @@ export default class ApplicationList extends Component {
               // if (_.isEmpty(currentApps)) return;
 
               return (
-                <Fragment>
+                <Fragment key={item.id}>
                   {this.renderGroupDetail({
                     type: 'groupApps',
                     name: _.get(projectGroupsNameLang, `${item.id}.data[0].value`) || item.name,

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+﻿import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,6 +7,9 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/W
 import { accAdd, accDiv, accMul, accSub } from 'src/utils/common';
 import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
+import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
+import { FIELD_SIZE_OPTIONS } from '../../tools/config';
+import { fixWeixinInputBlurScroll } from '../../tools/utils';
 
 const NumWrap = styled.span`
   ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
@@ -36,6 +39,19 @@ const getAutoValue = (dotformat, val) => {
   return val;
 };
 
+const getEditValue = ({ value, dotformat, numshow }) => {
+  let val = value;
+
+  if (numshow === '1' && val) {
+    val = accMul(val, 100);
+  }
+
+  val = getAutoValue(dotformat, val);
+  return val;
+};
+
+const getInputValue = value => (value === null || value === undefined ? '' : String(value));
+
 const Numeric = props => {
   const {
     type,
@@ -60,21 +76,11 @@ const Numeric = props => {
     suffix = '';
   }
 
-  const getEditValue = () => {
-    let val = props.value;
-
-    if (numshow === '1' && val) {
-      val = accMul(val, 100);
-    }
-
-    val = getAutoValue(dotformat, val);
-    return val;
-  };
-
   const inputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
+  const prevIsEditing = useRef(isEditing);
   const [originValue, setOriginValue] = useState('');
-  const [currentValue, setCurrentValue] = useState(getEditValue());
+  const [currentValue, setCurrentValue] = useState(getEditValue({ value: props.value, dotformat, numshow }));
   const isStepNumber = showtype === '3';
 
   const isEffective = (val = currentValue) => {
@@ -82,8 +88,11 @@ const Numeric = props => {
     return val !== null && val !== undefined && val !== '';
   };
 
+  const showClear = isEditing && isEffective();
+  const fieldSize = FIELD_SIZE_OPTIONS[_.get(props, 'advancedSetting.valuesize') || '0'];
+
   const getShowValue = () => {
-    let value = getEditValue();
+    let value = getEditValue({ value: props.value, dotformat, numshow });
 
     value = value || value === 0 ? getAutoValue(dotformat, toFixed(value, dot)) : '';
     // 数值、金额字段掩码时，不显示千分位
@@ -161,9 +170,17 @@ const Numeric = props => {
     props.onChange(value);
     props.onBlur(originValue);
 
-    if (window.isWeiXin) {
-      // 处理微信webview键盘收起 网页未撑开
-      window.scrollTo(0, 0);
+    fixWeixinInputBlurScroll();
+  };
+
+  const clearValue = () => {
+    debouncedOnChange.cancel();
+    setCurrentValue('');
+    props.onChange('');
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+      inputRef.current.focus();
     }
   };
 
@@ -200,19 +217,30 @@ const Numeric = props => {
   };
 
   useEffect(() => {
-    setCurrentValue(getEditValue());
+    const editValue = getEditValue({ value: props.value, dotformat, numshow });
+    const isEnteringEditing = isEditing && !prevIsEditing.current;
 
-    const editValue = getEditValue();
+    prevIsEditing.current = isEditing;
 
-    if (inputRef.current && (editValue === null || editValue === undefined || editValue === '')) {
-      inputRef.current.value = '';
+    if (!isEditing || isEnteringEditing) {
+      setCurrentValue(editValue);
     }
-  }, [isEditing, props.value]);
+
+    if (!inputRef.current) return;
+
+    if (!isEditing && (editValue === null || editValue === undefined || editValue === '')) {
+      inputRef.current.value = '';
+    } else if (isEnteringEditing) {
+      // 进入编辑时同步最新 props.value 到未受控 input DOM，
+      // 防止默认值联动更新后 input 仍显示旧值
+      inputRef.current.value = getInputValue(editValue);
+    }
+  }, [dotformat, isEditing, numshow, props.value]);
 
   return (
     <div className="flexCenter flexRow">
       {renderMobileNumberControl('subtract')}
-      <div className="Relative flex">
+      <div className={cx('Relative flex', { [CLEAR_ICON_SAFE_CLASS]: showClear })}>
         <div
           className={cx('customFormControlBox customFormControlInputView', {
             controlEditReadonly: !formDisabled && isEffective() && disabled,
@@ -269,6 +297,7 @@ const Numeric = props => {
             }}
           />
         )}
+        {showClear && <ClearValueIcon size={fieldSize} onClear={clearValue} />}
       </div>
       {renderMobileNumberControl('add')}
     </div>

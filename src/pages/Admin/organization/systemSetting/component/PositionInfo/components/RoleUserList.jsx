@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Checkbox, UserHead } from 'ming-ui';
 import * as actions from '../../../../../redux/position/action';
 import EmptyStatus from './EmptyStatus';
+import { pathCompletion } from 'src/utils/common';
 
 class RoleUserList extends Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class RoleUserList extends Component {
                 projectId={this.props.projectId}
               />
               <a
-                href={'/user_' + item.accountId}
+                href={pathCompletion('/user_' + item.accountId)}
                 className="textPrimary overflow_ellipsis mLeft10 LineHeight32 name"
                 title={item.fullname}
               >

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -12,6 +12,7 @@ import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { SHARECARDTYPS, WX_ICON_LIST } from 'src/components/ShareCardConfig/config.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { pathCompletion } from 'src/utils/common';
 import { getTitleTextFromControls } from 'src/utils/control';
 import { renderText } from 'src/utils/control';
 import { compatibleMDJS } from 'src/utils/project';
@@ -35,10 +36,10 @@ const CustomBtnBox = styled.div`
     max-width: 100%;
   }
 `;
+const LoadableRecordAction = lazy(() => import('mobile/components/RecordInfo/RecordAction'));
 
 export const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
-  const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
-
+  const shareUrl = pathCompletion(`/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`);
   copy(shareUrl);
   alert(_l('复制成功'));
 };
@@ -70,11 +71,16 @@ export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) =
 
 export const copyWorksheetShareUrl = ({ shareLink, isPublic, isCharge, appId, worksheetId, recordId, viewId }) => {
   copy(shareLink);
-  alert(_l('复制成功'));
+  alert(_l('复制成功')); // 在H5上执行公开分享，默认需要打开PC公开分享的链接开关
 
-  // 在H5上执行对外公开分享，默认需要打开PC对外公开分享的链接开关
   if (!isPublic && isCharge) {
-    updateWorksheetRowShareRange({ appId, worksheetId, rowId: recordId, viewId, isPublic });
+    updateWorksheetRowShareRange({
+      appId,
+      worksheetId,
+      rowId: recordId,
+      viewId,
+      isPublic,
+    });
   }
 };
 
@@ -87,12 +93,12 @@ export default class RecordFooter extends Component {
       customBtns: [],
       btnDisable: {},
       isFavorite: false,
-      RecordAction: null,
       shareCardSet: {},
       aiActionBtns: [],
       shareLink: '',
     };
   }
+
   recordRef = React.createRef();
 
   componentDidMount() {
@@ -107,19 +113,18 @@ export default class RecordFooter extends Component {
 
     this.props.addRefreshEvents('loadCustomBtns', () => {
       setTimeout(() => {
-        this.setState({ btnDisable: {} });
+        this.setState({
+          btnDisable: {},
+        });
       }, 500);
       this.loadCustomBtns();
     });
-
-    this.setState({ isFavorite: this.props.recordInfo.isFavorite });
-
-    import('mobile/components/RecordInfo/RecordAction').then(component => {
-      this.setState({ RecordAction: component.default });
+    this.setState({
+      isFavorite: this.props.recordInfo.isFavorite,
     });
-
     this.getShareCardSet();
   }
+
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
     this.shareSheetHandler && this.shareSheetHandler.close();
@@ -127,31 +132,35 @@ export default class RecordFooter extends Component {
 
   loadCustomBtns = () => {
     if (location.pathname.indexOf('public') > -1) return;
-
     const { recordBase } = this.props;
     const { appId, worksheetId, viewId, recordId } = recordBase;
-
+    const currentViewId = viewId === 'null' ? '' : viewId;
     const promises = [
       worksheetApi.getWorksheetBtns({
         appId,
         worksheetId,
         rowId: recordId,
-        viewId: viewId === 'null' ? '' : viewId,
+        viewId: currentViewId,
       }),
       worksheetApi.getWorksheetBtns({
         // appId,
         worksheetId,
         // rowId: recordId,
-        // viewId: viewId === 'null' ? '' : viewId,
+        // viewId: currentViewId,
         btnType: 1,
       }),
     ];
-
     Promise.all(promises).then(res => {
       this.setState(
         {
-          customBtns: replaceBtnsTranslateInfo(appId, res[0]),
-          aiActionBtns: replaceBtnsTranslateInfo(appId, res[1]),
+          customBtns: replaceBtnsTranslateInfo(appId, res[0]).filter(btn => btn.status !== 0),
+          aiActionBtns: replaceBtnsTranslateInfo(appId, res[1])
+            .filter(btn => btn.status !== 0)
+            .filter(btn => {
+              if (btn.isAllView === 1) return true;
+              const detailviews = safeParse(_.get(btn, 'advancedSetting.detailviews'), 'array');
+              return currentViewId && detailviews.includes(currentViewId);
+            }),
           loading: false,
         },
         () => {
@@ -160,11 +169,9 @@ export default class RecordFooter extends Component {
       );
     });
   };
-
   getShareCardSet = () => {
     const { recordBase = {}, formData } = this.props;
     const { worksheetId } = recordBase;
-
     if (!window.isMingDaoApp) return;
 
     const renderTxt = value => {
@@ -181,17 +188,25 @@ export default class RecordFooter extends Component {
     };
 
     if (worksheetId) {
-      sheetSetAjax.getShareCardSetting({ shareCardId: `${worksheetId}_${SHARECARDTYPS.RECORD}` }).then(res => {
-        if (res) {
-          const desc = renderTxt(res.desc);
-          const title = renderTxt(res.title);
-
-          this.setState({ shareCardSet: { desc, title, iconUrl: res.iconUrl } });
-        }
-      });
+      sheetSetAjax
+        .getShareCardSetting({
+          shareCardId: `${worksheetId}_${SHARECARDTYPS.RECORD}`,
+        })
+        .then(res => {
+          if (res) {
+            const desc = renderTxt(res.desc);
+            const title = renderTxt(res.title);
+            this.setState({
+              shareCardSet: {
+                desc,
+                title,
+                iconUrl: res.iconUrl,
+              },
+            });
+          }
+        });
     }
   };
-
   getButtons = () => {
     const { recordInfo, recordBase } = this.props;
     const publicShare = isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId);
@@ -208,7 +223,7 @@ export default class RecordFooter extends Component {
       },
       publicShare: {
         key: 'publicShare',
-        name: _l('对外公开分享'),
+        name: _l('公开分享'),
         info: _l('获得链接的所有人都可以查看'),
         icon: 'trash',
         iconClass: 'Font22 Red',
@@ -226,22 +241,26 @@ export default class RecordFooter extends Component {
       item => item,
     );
   };
-
   handleShare = () => {
     const { formData, recordBase, recordInfo } = this.props;
     const recordTitle = getTitleTextFromControls(formData);
-
     getWorksheetShareUrl({ ...recordBase, isPublic: recordInfo.shareRange === 2 }).then(shareLink => {
-      this.setState({ shareLink });
+      this.setState({
+        shareLink,
+      });
     });
-
     this.shareSheetHandler = ActionSheet.show({
       actions: this.getButtons().map(item => {
         return {
           key: item.icon,
           text: (
             <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
-              <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
+              <div
+                className="flex flexColumn"
+                style={{
+                  lineHeight: '22px',
+                }}
+              >
                 <span className="Bold">{item.name}</span>
                 <span className="Font12 textSecondary">{item.info}</span>
               </div>
@@ -263,7 +282,6 @@ export default class RecordFooter extends Component {
       },
     });
   };
-
   handleAPPShare = async publicShare => {
     const { recordInfo, recordBase, worksheetInfo, formData = [] } = this.props;
     const { appId, worksheetId, viewId, recordId } = recordBase;
@@ -278,7 +296,6 @@ export default class RecordFooter extends Component {
           viewId,
           objectType: 2,
         })) || {};
-
     compatibleMDJS('shareContent', {
       // 数据, 分享到聊天使用
       mdItem: {
@@ -290,15 +307,21 @@ export default class RecordFooter extends Component {
         appId,
         ownerName: _.get(safeParse(rowData.ownerid), '[0].fullname'),
         entityName: worksheetInfo.entityName,
-        url: publicShare ? shareLink : `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`,
+        url: publicShare ? shareLink : `/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`,
         public: publicShare,
-      }, //  mdItem{type=1, title, rowId, sheetId, viewId, appId, url, public, ownerName(拥有者姓名), entityName(实体名称 如"记录")}
+      },
+      //  mdItem{type=1, title, rowId, sheetId, viewId, appId, url, public, ownerName(拥有者姓名), entityName(实体名称 如"记录")}
       // 通用参数
-      type: 3, // 0: 文本, 1: 链接, 3: 明道云内容; (2: 图片暂不支持)
-      title: shareCardSet.title || renderText(formData.find(o => o.attribute === 1)) || _l('未命名'), // 标题
-      desc: shareCardSet.desc || '', // 描述
-      url: '', // 链接
-      icon: shareCardSet.iconUrl || `${md.global.FileStoreConfig.pubHost}/${WX_ICON_LIST[0]}`, // 图标链接
+      type: 3,
+      // 0: 文本, 1: 链接, 3: 明道云内容; (2: 图片暂不支持)
+      title: shareCardSet.title || renderText(formData.find(o => o.attribute === 1)) || _l('未命名'),
+      // 标题
+      desc: shareCardSet.desc || '',
+      // 描述
+      url: '',
+      // 链接
+      icon: shareCardSet.iconUrl || `${md.global.FileStoreConfig.pubHost}/${WX_ICON_LIST[0]}`,
+      // 图标链接
       success: function (res) {
         console.log(res, 'success');
       },
@@ -307,7 +330,6 @@ export default class RecordFooter extends Component {
       },
     });
   };
-
   handleCollectRecord = () => {
     const { recordBase, recordInfo, refreshCollectRecordList = () => {} } = this.props;
     const { worksheetId, recordId, viewId } = recordBase;
@@ -326,7 +348,9 @@ export default class RecordFooter extends Component {
           if (res) {
             alert(_l('已取消收藏'));
             refreshCollectRecordList();
-            this.setState({ isFavorite: false });
+            this.setState({
+              isFavorite: false,
+            });
           }
         });
     } else {
@@ -341,37 +365,33 @@ export default class RecordFooter extends Component {
           if (res) {
             alert(_l('收藏成功'));
             refreshCollectRecordList();
-            this.setState({ isFavorite: true });
+            this.setState({
+              isFavorite: true,
+            });
           }
         });
     }
   };
-
   adjustButtons = () => {
     const { recordBase } = this.props;
     const container = document.getElementById(`actionBar-${recordBase.recordId}`);
     if (!container) return;
-
     const buttons = container.querySelectorAll('[data-action-btn]');
     if (buttons.length < 2) return;
-
     const btn1 = buttons[0];
     const btn2 = buttons[1];
     const gap = 6;
-    const EPSILON = 2;
+    const EPSILON = 2; // 复位状态
 
-    // 复位状态
     btn1.style.flex = 'none';
     btn2.style.flex = 'none';
     btn2.style.display = 'inline-flex';
     btn1.style.maxWidth = 'none';
     btn2.style.maxWidth = 'none';
-
     const containerWidth = Math.floor(container.getBoundingClientRect().width);
     const btn1Width = Math.ceil(btn1.getBoundingClientRect().width);
-    const btn2Width = Math.ceil(btn2.getBoundingClientRect().width);
+    const btn2Width = Math.ceil(btn2.getBoundingClientRect().width); // 第一个按钮都放不下
 
-    // 第一个按钮都放不下
     if (btn1Width > containerWidth) {
       btn2.style.display = 'none';
       btn1.style.flex = '1 1 auto';
@@ -379,16 +399,14 @@ export default class RecordFooter extends Component {
       return;
     }
 
-    const halfContainer = (containerWidth - gap) / 2;
+    const halfContainer = (containerWidth - gap) / 2; // 两个按钮都能放下 且 两个按钮 ≤ 一半 → 平分
 
-    // 两个按钮都能放下 且 两个按钮 ≤ 一半 → 平分
     if (btn1Width + gap + btn2Width <= containerWidth && btn1Width <= halfContainer && btn2Width <= halfContainer) {
       btn1.style.flex = '1 1 0';
       btn2.style.flex = '1 1 0';
       return;
-    }
+    } // -------- 自适应布局 ----------
 
-    // -------- 自适应布局 ----------
     const remainWidth = containerWidth - btn1Width - gap;
 
     if (remainWidth + EPSILON < containerWidth / 3) {
@@ -428,6 +446,7 @@ export default class RecordFooter extends Component {
       (isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId) ||
         isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId)) &&
       !md.global.Account.isPortal;
+
     const isPublicShare =
       _.get(window, 'shareState.isPublicRecord') ||
       _.get(window, 'shareState.isPublicView') ||
@@ -436,20 +455,27 @@ export default class RecordFooter extends Component {
       _.get(window, 'shareState.isPublicForm') ||
       _.get(window, 'shareState.isPublicWorkflowRecord') ||
       _.get(window, 'shareState.isPublicPrint');
+
     const allowPrint =
       !isPublicShare &&
       !window.isMingDaoApp &&
       !window.isWeiXin &&
       !window.isWeLink &&
       !window.isDingTalk &&
-      printList.length;
+      (printList.length || isOpenPermit(permitList.recordPrintSwitch, recordInfo.switchPermit, recordBase.viewId));
+
+    const view = _.find(_.get(worksheetInfo, 'views'), item => item.viewId === recordBase.viewId) || {};
 
     return (
       <Fragment>
         {(allowEdit || isDraft) && !isRecordLock && (
           <Button
-            className={cx('mRight6 Font13 flex-shrink-0', { flex: !customBtns.length })}
-            style={{ width: customBtns.length ? 100 : 'unset' }}
+            className={cx('mRight6 Font13 flex-shrink-0', {
+              flex: !customBtns.length,
+            })}
+            style={{
+              width: customBtns.length ? 100 : 'unset',
+            }}
             onClick={onEditRecord}
             disabled={!!editLockedUser}
           >
@@ -471,6 +497,8 @@ export default class RecordFooter extends Component {
               <CustomButtons
                 classNames="customBtnItem flexRow ellipsis justifyContentCenter"
                 customBtns={customBtns}
+                view={view}
+                worksheetInfo={worksheetInfo}
                 isSlice
                 btnDisable={this.state.btnDisable}
                 isEditLock={!!editLockedUser}
@@ -500,7 +528,11 @@ export default class RecordFooter extends Component {
               <Button
                 className="flex mLeft6 Font13"
                 color="primary"
-                onClick={() => this.setState({ recordActionVisible: true })}
+                onClick={() =>
+                  this.setState({
+                    recordActionVisible: true,
+                  })
+                }
               >
                 <span className="bold">{_l('更多操作')}</span>
               </Button>
@@ -508,7 +540,14 @@ export default class RecordFooter extends Component {
               ''
             )}
             {!!customBtns.length && recordBase.appId && !isMobileOperate && (
-              <div className="moreOperation flex-shrink-0" onClick={() => this.setState({ recordActionVisible: true })}>
+              <div
+                className="moreOperation flex-shrink-0"
+                onClick={() =>
+                  this.setState({
+                    recordActionVisible: true,
+                  })
+                }
+              >
                 <Icon icon="expand_less" className="Font20" />
               </div>
             )}
@@ -546,51 +585,64 @@ export default class RecordFooter extends Component {
       instanceId,
       workId,
       formData,
+      appDetail,
     } = this.props;
-    const { recordActionVisible, customBtns, isFavorite, RecordAction, aiActionBtns } = this.state;
 
-    if (!RecordAction) return null;
+    const { recordActionVisible, customBtns, isFavorite, aiActionBtns } = this.state;
+    const view = _.find(_.get(worksheetInfo, 'views'), item => item.viewId === recordBase.viewId) || {};
 
     return (
-      <RecordAction
-        appId={recordBase.appId}
-        worksheetId={recordBase.worksheetId}
-        viewId={recordBase.viewId}
-        rowId={recordBase.recordId}
-        instanceId={instanceId}
-        workId={workId}
-        sheetRow={recordInfo}
-        formData={formData}
-        customBtns={customBtns}
-        aiActionBtns={aiActionBtns}
-        switchPermit={recordInfo.switchPermit}
-        loadRow={loadRecord}
-        isFavorite={isFavorite}
-        loadCustomBtns={this.loadCustomBtns}
-        handleDeleteSuccess={handleDeleteSuccess}
-        recordActionVisible={recordActionVisible}
-        onShare={this.handleShare}
-        hideRecordActionVisible={() => {
-          this.setState({ recordActionVisible: false });
-        }}
-        ref={this.recordRef}
-        updateBtnDisabled={val => {
-          this.setState({ btnDisable: val });
-        }}
-        handleCollectRecord={this.handleCollectRecord}
-        isRecordLock={isRecordLock}
-        updateRecordLock={updateRecordLock}
-        isEditLock={!!editLockedUser}
-        updatePrintList={list => this.setState({ printList: list })}
-        onUpdate={onUpdate}
-        worksheetInfo={worksheetInfo}
-      />
+      <Suspense fallback={null}>
+        <LoadableRecordAction
+          appDetail={appDetail}
+          appId={recordBase.appId}
+          worksheetId={recordBase.worksheetId}
+          viewId={recordBase.viewId}
+          rowId={recordBase.recordId}
+          instanceId={instanceId}
+          workId={workId}
+          sheetRow={recordInfo}
+          formData={formData}
+          customBtns={customBtns}
+          view={view}
+          aiActionBtns={aiActionBtns}
+          switchPermit={recordInfo.switchPermit}
+          loadRow={loadRecord}
+          isFavorite={isFavorite}
+          loadCustomBtns={this.loadCustomBtns}
+          handleDeleteSuccess={handleDeleteSuccess}
+          recordActionVisible={recordActionVisible}
+          onShare={this.handleShare}
+          hideRecordActionVisible={() => {
+            this.setState({
+              recordActionVisible: false,
+            });
+          }}
+          ref={this.recordRef}
+          updateBtnDisabled={val => {
+            this.setState({
+              btnDisable: val,
+            });
+          }}
+          handleCollectRecord={this.handleCollectRecord}
+          isRecordLock={isRecordLock}
+          updateRecordLock={updateRecordLock}
+          isEditLock={!!editLockedUser}
+          updatePrintList={list =>
+            this.setState({
+              printList: list,
+            })
+          }
+          onUpdate={onUpdate}
+          worksheetInfo={worksheetInfo}
+          getWorksheetShareUrl={getWorksheetShareUrl}
+        />
+      </Suspense>
     );
   }
 
   render() {
     const { isEditRecord } = this.props;
-
     return (
       <Fragment>
         <div className="flexRow alignItemsCenter bgPrimary pAll10 footer">

@@ -16,7 +16,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
 import { getDownLoadUrl } from 'src/pages/Print/core/util';
-import { browserIsMobile, emitter } from 'src/utils/common';
+import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import { sendCloudPrint } from 'src/utils/record';
@@ -70,16 +70,23 @@ const PrintTemplateList = styled.div`
   }
 `;
 
-export function handleSystemPrintRecord({
+export async function handleSystemPrintRecord({
   worksheetId,
   viewId,
   recordId,
   appId,
   projectId,
+  getType,
   workId,
   instanceId,
   rowIds,
   printId = '',
+  clientId,
+  shareShortUrls,
+  shareUrl,
+  appDetail,
+  worksheetInfo,
+  customWin,
 }) {
   let printData = {
     printId,
@@ -87,19 +94,38 @@ export function handleSystemPrintRecord({
     worksheetId,
     projectId: projectId,
     rowId: recordId,
-    getType: 1,
+    getType: _.isUndefined(getType) ? 1 : getType,
     viewId,
     appId,
     workId,
-    id: instanceId,
+    instanceId,
     rowIds,
+    appDetail,
+    worksheetInfo,
+    clientId,
+    shareShortUrls,
+    shareUrl,
+    printer: md.global.Account.fullname,
   };
   let printKey = Math.random().toString(36).substring(2);
-  webCacheAjax.add({
-    key: `${printKey}`,
-    value: JSON.stringify(printData),
-  });
-  window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
+
+  try {
+    await webCacheAjax.add({
+      key: `${printKey}`,
+      value: JSON.stringify(printData),
+      moduleType: 1,
+    });
+  } catch {
+    return;
+  }
+
+  const printViewUrl = pathCompletion(`/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
+
+  if (browserIsMobile()) {
+    (customWin || window).location.href = printViewUrl;
+  } else {
+    window.open(printViewUrl);
+  }
 }
 
 export async function handleTemplateRecordPrint({
@@ -114,6 +140,11 @@ export async function handleTemplateRecordPrint({
   instanceId,
   customWin,
   rowIds,
+  clientId,
+  shareShortUrls,
+  shareUrl,
+  appDetail,
+  worksheetInfo,
   disabledCloudPrint = false,
   updatePrintStatus = () => {},
 }) {
@@ -180,15 +211,28 @@ export async function handleTemplateRecordPrint({
       allowDownloadPermission: it.allowDownloadPermission,
       allowEditAfterPrint: it.allowEditAfterPrint,
       workId,
-      id: instanceId,
+      instanceId,
       rowIds: rowIds || [recordId],
+      clientId,
+      shareShortUrls,
+      shareUrl,
+      appDetail,
+      worksheetInfo,
+      printer: md.global.Account.fullname,
     };
     let printKey = Math.random().toString(36).substring(2);
-    webCacheAjax.add({
-      key: `${printKey}`,
-      value: JSON.stringify(printData),
-    });
-    const printViewUrl = `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`;
+
+    try {
+      await webCacheAjax.add({
+        key: `${printKey}`,
+        value: JSON.stringify(printData),
+        moduleType: 1,
+      });
+    } catch {
+      return;
+    }
+
+    const printViewUrl = pathCompletion(`/printForm/${appId}/worksheet/preview/print/${printKey}`);
 
     if (browserIsMobile()) {
       (customWin || window).location.href = printViewUrl;

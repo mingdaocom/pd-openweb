@@ -20,13 +20,22 @@ export default class PageTableCon extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.paginationInfo !== nextProps.paginationInfo) {
-      this.setState({ pageIndex: nextProps.paginationInfo.pageIndex, pageSize: nextProps.paginationInfo.pageSize });
-    }
+  // 分页
 
-    if (!_.isEqual(this.props.columns, nextProps.columns)) {
-      this.setState({ columns: nextProps.columns });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.paginationInfo !== this.props.paginationInfo) {
+        this.setState({
+          pageIndex: this.props.paginationInfo.pageIndex,
+          pageSize: this.props.paginationInfo.pageSize,
+        });
+      }
+
+      if (!_.isEqual(prevProps.columns, this.props.columns)) {
+        this.setState({
+          columns: this.props.columns,
+        });
+      }
     }
   }
 

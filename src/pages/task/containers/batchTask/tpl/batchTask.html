@@ -1,20 +1,20 @@
 ﻿<div class="barchTaskMain">
     <div class="header">
-        <div class="taskDetailStatusBtn ThemeColor3 ThemeBorderColor3">
+        <div class="taskDetailStatusBtn colorPrimary borderColorPrimary">
             <i class="Font16 icon-ok mRight5" />
             {{= _l('标记完成') }}
         </div>
         <ul class="Right relative">
-            <li title="{{= _l('批量关闭消息提醒') }}" class="batchIcon iconTaskNoNews ThemeColor3">
+            <li title="{{= _l('批量关闭消息提醒') }}" class="batchIcon iconTaskNoNews colorPrimary">
                 <i class="icon-chat-bell-nopush"></i>
             </li>
             <li
                 title="{{= it.isLocked ? _l('批量锁定任务') : _l('批量解锁任务') }}"
-                class="batchIcon iconTaskNewLocked ThemeColor3"
+                class="batchIcon iconTaskNewLocked colorPrimary"
             >
                 <i class="{{=it.isLocked ? 'icon-lock' : 'icon-task-new-no-locked'}}"></i>
             </li>
-            <li title="{{= _l('更多')}}" class="batchIcon batchMore ThemeColor3">
+            <li title="{{= _l('更多')}}" class="batchIcon batchMore colorPrimary">
                 <i class="icon-arrow-down-border"></i>
             </li>
             <ul class="batchOperator boderRadAll_3 boxShadow5 Hidden">
@@ -30,7 +30,7 @@
         <div class="detailTimeLabel Font17">{{=_l('未开始')}}</div>
         <div class="detailTimeLabelText">
             <div
-                class="detailTimeNowStart ThemeColor3 ThemeBorderColor3 pointer ThemeHoverColor2 ThemeHoverBorderColor2"
+                class="detailTimeNowStart colorPrimary borderColorPrimary pointer hoverColorPrimaryDark hoverBorderColorPrimaryDark"
                 title="{{=_l('批量启动所有未开始的任务')}}"
             >
                 {{=_l('现在开始')}}
@@ -76,7 +76,7 @@
         <div class="batchMember mTop5">
             <span title="{{=_l('批量添加任务参与者')}}"><i class="icon-group"></i></span>
             <div class="members">
-                <span class="ThemeColor3" id="batchAddTask" title="{{=_l('添加任务参与者')}}"
+                <span class="colorPrimary" id="batchAddTask" title="{{=_l('添加任务参与者')}}"
                     ><i class="icon-task-add-member-circle"></i
                 ></span>
             </div>

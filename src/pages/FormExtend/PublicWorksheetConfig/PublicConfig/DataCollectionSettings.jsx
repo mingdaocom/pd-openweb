@@ -190,6 +190,41 @@ const LimitWriteFrequencyWrap = styled.div`
   }
 `;
 
+const timePeriodList = [
+  { type: TIME_TYPE.MONTH, text: _l('月%02068') },
+  { type: TIME_TYPE.DAY, text: _l('日') },
+  { type: TIME_TYPE.HOUR, text: _l('时%02069') },
+];
+const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+const getDisabledTime = (from, itemData) => {
+  let disabledHours = () => [];
+  let disabledMinutes = () => [];
+
+  if (from === 'start' && itemData.end) {
+    const [endHour, endMinute] = itemData.end.split(':').map(item => parseInt(item));
+    disabledHours = () => Array.from({ length: 23 - endHour }, (_, k) => k + endHour + 1);
+    disabledMinutes = selectedHour =>
+      selectedHour < 0
+        ? Array.from({ length: 60 }, (_, k) => k)
+        : selectedHour === endHour
+          ? Array.from({ length: 60 - endMinute }, (_, k) => k + endMinute)
+          : [];
+  }
+
+  if (from === 'end' && itemData.start) {
+    const [startHour, startMinute] = itemData.start.split(':').map(item => parseInt(item));
+    disabledHours = () => Array.from({ length: startHour }, (_, k) => k);
+    disabledMinutes = selectedHour =>
+      selectedHour < 0
+        ? Array.from({ length: 60 }, (_, k) => k)
+        : selectedHour === startHour
+          ? Array.from({ length: startMinute + 1 }, (_, k) => k)
+          : [];
+  }
+
+  return { disabledHours, disabledMinutes };
+};
+
 export default function DataCollectionSettings(props) {
   const { data, setState } = props;
   const {
@@ -202,13 +237,7 @@ export default function DataCollectionSettings(props) {
     titleFolded,
   } = data;
   const [daySelectPopupVisible, setDaySelectPopupVisible] = useState(false);
-  const timePeriodList = [
-    { type: TIME_TYPE.MONTH, text: _l('月%02068') },
-    { type: TIME_TYPE.DAY, text: _l('日') },
-    { type: TIME_TYPE.HOUR, text: _l('时%02069') },
-  ];
-  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang];
+  const locale = locales[md.global.Account.lang] || localeEn;
 
   const onRangeInputChange = (value, type, from) => {
     if (parseInt(value) || parseInt(value) === 0 || value === '') {
@@ -254,35 +283,6 @@ export default function DataCollectionSettings(props) {
     const newTimeRange = _.cloneDeep(timeRange);
     newTimeRange[TIME_TYPE.HOUR][index][from] = timeString;
     setState({ timeRange: newTimeRange });
-  };
-
-  const getDisabledTime = (from, itemData) => {
-    let disabledHours = () => [];
-    let disabledMinutes = () => [];
-
-    if (from === 'start' && itemData.end) {
-      const [endHour, endMinute] = itemData.end.split(':').map(item => parseInt(item));
-      disabledHours = () => Array.from({ length: 23 - endHour }, (_, k) => k + endHour + 1);
-      disabledMinutes = selectedHour =>
-        selectedHour < 0
-          ? Array.from({ length: 60 }, (_, k) => k)
-          : selectedHour === endHour
-            ? Array.from({ length: 60 - endMinute }, (_, k) => k + endMinute)
-            : [];
-    }
-
-    if (from === 'end' && itemData.start) {
-      const [startHour, startMinute] = itemData.start.split(':').map(item => parseInt(item));
-      disabledHours = () => Array.from({ length: startHour }, (_, k) => k);
-      disabledMinutes = selectedHour =>
-        selectedHour < 0
-          ? Array.from({ length: 60 }, (_, k) => k)
-          : selectedHour === startHour
-            ? Array.from({ length: startMinute + 1 }, (_, k) => k)
-            : [];
-    }
-
-    return { disabledHours, disabledMinutes };
   };
 
   const renderTimePeriodItem = (itemProps, index) => {
@@ -658,7 +658,7 @@ export default function DataCollectionSettings(props) {
               <div className="commonMargin">
                 <Input
                   className="passwordInput"
-                  placeholder="请输入4-8位密码"
+                  placeholder={_l('请输入4-8位密码')}
                   value={limitPasswordWrite.limitPasswordWrite}
                   onChange={value => {
                     setState({

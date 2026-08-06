@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import RowHeadColumn from 'worksheet/components/BaseColumnHead/RowHeadColumn';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { SummaryCell } from 'worksheet/components/WorksheetTable/components/';
 import { RECORD_INFO_FROM, ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -115,6 +116,7 @@ function TableComp(props) {
     base = {},
     treeTableViewData = {},
     tableState = {},
+    rowsSummary = { types: {}, values: {} },
     changes = {},
     controls,
     useHeight,
@@ -130,6 +132,7 @@ function TableComp(props) {
     handleRemoveRelation,
     handleSaveSheetLayout,
     batchUpdateRecords,
+    changeRelateRecordSummaryType,
     updateTreeNodeExpansion = () => {},
     onUpdateCell = () => {},
     isDraft,
@@ -210,7 +213,12 @@ function TableComp(props) {
       r => r.rowid,
     ),
   );
-  const numberWidth = String(isNewRecord ? records.length * 10 : pageIndex * pageSize).length * 8;
+  // 序号列宽按实际会渲染的最大序号取位数：分页正常页为 pageIndex * pageSize，
+  // 表格形态全量/树形展示或第 1 页拼接新增行时，实际行数会超过 pageSize，需取 (pageIndex - 1) * pageSize + records.length
+  const maxRowNumber = isNewRecord
+    ? records.length * 10
+    : Math.max(pageIndex * pageSize, (pageIndex - 1) * pageSize + records.length);
+  const numberWidth = String(maxRowNumber).length * 8;
   let rowHeadWidth =
     (numberWidth > 24 ? numberWidth : 24) + 32 + (tableConfig.tableType === 'classic' && allowOpenRecord ? 34 : 0);
   const addHiddenTip = useCallback(
@@ -268,6 +276,7 @@ function TableComp(props) {
         allIsSelected={allIsSelected}
         relateRecordControlId={control.controlId}
         allowOpenRecord={allowOpenRecord}
+        view={view}
         className={className}
         style={style}
         rowIndex={rowIndex}
@@ -375,6 +384,31 @@ function TableComp(props) {
     return <div className="TxtCenter textTertiary mAll30">{_l('没有可见字段')}</div>;
   }
 
+  const showSummary =
+    direction !== 'vertical' &&
+    String(get(control, 'advancedSetting.openstatistics')) === '1' &&
+    !isTreeTableView &&
+    !!recordId &&
+    records.length > 0;
+
+  const renderFooterCell = ({ columnIndex, className, style }) => {
+    const summaryControl = [{ type: 'summaryhead' }].concat(columns)[columnIndex];
+    return (
+      <SummaryCell
+        className={className}
+        style={style}
+        control={summaryControl}
+        summaryType={summaryControl && rowsSummary.types[summaryControl.controlId]}
+        summaryValue={summaryControl && rowsSummary.values[summaryControl.controlId]}
+        rows={records}
+        selectedIds={selectedRowIds}
+        changeWorksheetSheetViewSummaryType={({ controlId, value }) =>
+          changeRelateRecordSummaryType({ controlId, value })
+        }
+      />
+    );
+  };
+
   return (
     <WorksheetTable
       showControlStyle
@@ -391,6 +425,8 @@ function TableComp(props) {
       direction={direction}
       recordColorConfig={view ? getRecordColorConfig(view) : undefined}
       disablePanVertical
+      showSummary={showSummary}
+      renderFooterCell={showSummary ? renderFooterCell : undefined}
       {...tableConfig}
       ref={worksheetTableRef}
       loading={tableLoading}
@@ -627,5 +663,6 @@ export default connect(
     handleRemoveRelation: bindActionCreators(actions.handleRemoveRelation, dispatch),
     handleSaveSheetLayout: bindActionCreators(actions.handleSaveSheetLayout, dispatch),
     updateTreeNodeExpansion: bindActionCreators(actions.updateTreeNodeExpansion, dispatch),
+    changeRelateRecordSummaryType: bindActionCreators(actions.changeRelateRecordSummaryType, dispatch),
   }),
 )(TableComp);

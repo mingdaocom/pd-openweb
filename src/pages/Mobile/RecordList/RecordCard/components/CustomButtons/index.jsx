@@ -5,7 +5,9 @@ import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
+import { getTranslateInfo } from 'src/utils/app';
 import { getButtonColor } from 'src/utils/control';
+import GroupButton from './GroupButton';
 
 const CustomButtonInCard = styled.div`
   flex: 1;
@@ -14,7 +16,7 @@ const CustomButtonInCard = styled.div`
   justify-content: center;
   align-items: center;
   gap: 5px;
-  padding 0 8px;
+  padding: 0 8px;
   height: 32px;
   border-radius: 3px;
   ${props => props.disabled && 'opacity: 0.5;'}
@@ -91,16 +93,24 @@ const CustomButtons = props => {
   const { entityName = _l('记录'), switches } = worksheetInfo;
   const recordRef = useRef(null);
 
+  const getButtonName = button => {
+    const translateInfo = getTranslateInfo(appId, null, button.btnId);
+
+    return translateInfo.name || button.name;
+  };
+
   const getButtonIcon = (button = {}, buttonColor = {}) => {
     const { icon, iconUrl } = button;
+    const disabled = btnDisable[button.btnId] || button.disabled;
 
-    if (!!iconUrl && !!icon && icon.endsWith('_svg')) {
+    if (!!iconUrl && !!icon && (icon.endsWith('_svg') || icon.startsWith('sys_'))) {
       let fillColor =
-        !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
-          ? 'var(--color-text-disabled)'
-          : buttonColor.color;
+        !button.color || button.color === 'transparent' || disabled ? 'var(--color-text-disabled)' : buttonColor.color;
 
-      if (!button.showAsPrimary || (button.showAsPrimary && !isInCard)) {
+      if (!isInCard) {
+        fillColor =
+          !button.color || button.color === 'transparent' || disabled ? 'var(--color-text-disabled)' : button.color;
+      } else if (!button.showAsPrimary) {
         fillColor = button.color;
       }
 
@@ -116,16 +126,20 @@ const CustomButtons = props => {
     }
 
     if (icon) {
+      const color = !isInCard
+        ? button.color === 'transparent'
+          ? 'var(--color-text-primary)'
+          : button.color
+        : !button.showAsPrimary && !disabled
+          ? button.color || 'var(--color-primary)'
+          : undefined;
+
       return (
         <i
           className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
             textDisabled: !button.showAsPrimary && !button.icon && (!button.color || button.color === 'transparent'),
           })}
-          style={
-            (!button.showAsPrimary && !(btnDisable[button.btnId] || button.disabled)) || !isInCard
-              ? { color: button.color || 'var(--color-primary)' }
-              : {}
-          }
+          style={color ? { color } : {}}
         />
       );
     }
@@ -142,7 +156,10 @@ const CustomButtons = props => {
       return true;
     }
 
-    if ((isRecordLock && !includes(['print', 'share'], button.type)) || (isEditLock && button.clickType === 3)) {
+    if (
+      (isRecordLock && !includes(['print', 'sysprint', 'share'], button.type)) ||
+      (isEditLock && button.clickType === 3)
+    ) {
       alert(isRecordLock ? _l('%0已锁定', entityName) : _l('不允许多人同时编辑，稍后重试'), 3);
       return true;
     }
@@ -171,45 +188,74 @@ const CustomButtons = props => {
     recordRef.current.handleTriggerCustomBtn(btn);
   };
 
+  const renderGroupButton = button => {
+    return (
+      <GroupButton
+        button={button}
+        disabled={btnDisable[button.btnId] || button.disabled}
+        isInCard={isInCard}
+        showType={showType}
+      >
+        <CustomButtons
+          {...props}
+          isInCard={false}
+          showMore={false}
+          buttons={button.buttons || []}
+          showType={showType}
+        />
+      </GroupButton>
+    );
+  };
+
+  const actionableButtons = buttons.filter(button => button.type !== 'group_ref' || (button.buttons || []).length);
+
   return (
     <Fragment>
       {isInCard &&
-        buttons.map((button, index) => {
+        actionableButtons.map((button, index) => {
           const buttonColor = getButtonColor(button.color, button.showAsPrimary);
-          const isLastButton = index === buttons.length - 1;
-          const isBeforeLast = index < buttons.length - 1;
+          const isLastButton = index === actionableButtons.length - 1;
+          const isBeforeLast = index < actionableButtons.length - 1;
 
           const shouldShowDivider = showType !== 'standard' && ((isLastButton && showMore) || isBeforeLast);
           return (
             <Fragment key={button.btnId}>
-              <CustomButtonInCard
-                className={`operates-${showType}`}
-                disabled={btnDisable[button.btnId] || button.disabled}
-                style={{
-                  ...buttonColor,
-                  ...(!button.showAsPrimary && button.style === 'text' && { color: button.color }),
-                }}
-                onClick={() => handleButtonClick(button)}
-              >
-                {(showType === 'icon' || button.showIcon) && getButtonIcon(button, buttonColor)}
-                {showType !== 'icon' && <div className="operateButtonText">{button.name}</div>}
-              </CustomButtonInCard>
+              {button.type === 'group_ref' ? (
+                renderGroupButton(button)
+              ) : (
+                <CustomButtonInCard
+                  className={`operates-${showType}`}
+                  disabled={btnDisable[button.btnId] || button.disabled}
+                  style={{
+                    ...buttonColor,
+                    ...(!button.showAsPrimary && button.style === 'text' && { color: button.color }),
+                  }}
+                  onClick={() => handleButtonClick(button)}
+                >
+                  {(showType === 'icon' || button.showIcon) && getButtonIcon(button, buttonColor)}
+                  {showType !== 'icon' && <div className="operateButtonText">{getButtonName(button)}</div>}
+                </CustomButtonInCard>
+              )}
               {shouldShowDivider && <OperatesDivider />}
             </Fragment>
           );
         })}
       {!isInCard &&
-        buttons.map(button => {
+        actionableButtons.map(button => {
           const buttonColor = getButtonColor(button.color, button.showAsPrimary);
           return (
             <Fragment key={button.btnId}>
-              <CustomButtonInPopup
-                disabled={btnDisable[button.btnId] || button.disabled}
-                onClick={() => handleButtonClick(button)}
-              >
-                {getButtonIcon(button, buttonColor)}
-                <div className="operateButtonText">{button.name}</div>
-              </CustomButtonInPopup>
+              {button.type === 'group_ref' ? (
+                renderGroupButton(button)
+              ) : (
+                <CustomButtonInPopup
+                  disabled={btnDisable[button.btnId] || button.disabled}
+                  onClick={() => handleButtonClick(button)}
+                >
+                  {getButtonIcon(button, buttonColor)}
+                  <div className="operateButtonText">{getButtonName(button)}</div>
+                </CustomButtonInPopup>
+              )}
             </Fragment>
           );
         })}

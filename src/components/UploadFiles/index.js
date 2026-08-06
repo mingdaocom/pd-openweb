@@ -12,7 +12,7 @@ import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog'
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import FileComponent from './File';
 import openPcCamera from './PcUpload';
@@ -201,35 +201,38 @@ export default class UploadFiles extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if ('attachmentData' in nextProps && !this._uploading) {
-      this.setState({
-        attachmentData: nextProps.attachmentData,
-      });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if ('attachmentData' in this.props && !this._uploading) {
+        this.setState({
+          attachmentData: this.props.attachmentData,
+        });
+      }
 
-    if ('temporaryData' in nextProps && !this._uploading) {
-      this.setState({
-        temporaryData: formatTemporaryData(nextProps.temporaryData),
-      });
-    }
+      if ('temporaryData' in this.props && !this._uploading) {
+        this.setState({
+          temporaryData: formatTemporaryData(this.props.temporaryData),
+        });
+      }
 
-    if ('kcAttachmentData' in nextProps && !this._uploading) {
-      this.setState({
-        kcAttachmentData: formatKcAttachmentData(nextProps.kcAttachmentData),
-      });
-    }
+      if ('kcAttachmentData' in this.props && !this._uploading) {
+        this.setState({
+          kcAttachmentData: formatKcAttachmentData(this.props.kcAttachmentData),
+        });
+      }
 
-    if (nextProps.originCount !== this.props.originCount) {
-      this.setState({
-        originCount: nextProps.originCount,
-      });
+      if (this.props.originCount !== prevProps.originCount) {
+        this.setState({
+          originCount: this.props.originCount,
+        });
+      }
     }
   }
 
   handleOpenControlAttachmentInNewTab(fileID, options = {}) {
-    const { controlId } = this.props;
+    const { controlId, projectId } = this.props;
     const recordBaseInfo = _.get(this, 'context.recordBaseInfo');
+    const openOptions = _.omitBy(options, _.isUndefined);
 
     if (!recordBaseInfo) {
       return;
@@ -237,12 +240,13 @@ export default class UploadFiles extends Component {
 
     openControlAttachmentInNewTab(
       _.assign(
-        _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
+        _.pick(recordBaseInfo, ['appId', 'projectId', 'recordId', 'viewId', 'worksheetId']),
         {
           controlId,
           fileId: fileID,
+          projectId: _.get(recordBaseInfo, 'projectId') || projectId,
         },
-        options,
+        openOptions,
       ),
     );
   }
@@ -733,7 +737,7 @@ export default class UploadFiles extends Component {
             let totalSize = parseFloat(currentTotalSize / 1024 / 1024) + parseFloat(filesSize / 1024 / 1024);
 
             if (totalSize > maxTotalSize) {
-              alert('附件总大小超过 ' + formatFileSize(maxTotalSize * 1024 * 1024) + '，请您分批次上传', 3);
+              alert(_l('附件总大小超过 %0，请您分批次上传', formatFileSize(maxTotalSize * 1024 * 1024)), 3);
               _this.onRemoveAll(uploader);
               return false;
             }
@@ -749,7 +753,7 @@ export default class UploadFiles extends Component {
                     hint: _l('应用附件上传量已到最大值'),
                     removeFooter: !window.platformENV.isPlatform,
                     okText: _l('购买上传量扩展包'),
-                    onOk: () => window.open(`/admin/expansionservice/${projectId}/storage`),
+                    onOk: () => window.open(pathCompletion(`/admin/expansionservice/${projectId}/storage`)),
                   });
                   // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
                   _this.setState({
@@ -977,7 +981,7 @@ export default class UploadFiles extends Component {
     } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
     const allowappupload = (advancedSetting.allowappupload || '1') === '1';
-    const { allowcamera } = advancedSetting;
+    const allowcamera = advancedSetting.allowcamera === '1';
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
     let emptys = Array.from({ length: 15 });
@@ -1064,7 +1068,10 @@ export default class UploadFiles extends Component {
             ) : (
               <div className="UploadFiles-ramSize">
                 <div className="UploadFiles-attachmentProgress">
-                  <div style={{ width: `${currentPrograss}%` }} className="UploadFiles-currentProgress ThemeBGColor3" />
+                  <div
+                    style={{ width: `${currentPrograss}%` }}
+                    className="UploadFiles-currentProgress bgColorPrimary"
+                  />
                 </div>
                 <div className="UploadFiles-info">
                   {totalSize}/{md.global.SysSettings.fileUploadLimitSize}M(

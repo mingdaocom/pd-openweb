@@ -1,11 +1,9 @@
-﻿import React from 'react';
-import cx from 'classnames';
+import React from 'react';
 import _ from 'lodash';
 import { Checkbox, Dropdown, LoadDiv, RadioGroup } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import fixedDataApi from 'src/api/fixedData';
 import privateMapAjax from 'src/api/privateMap';
-import langConfig from 'src/common/langConfig';
 import common from '../common';
 import './index.less';
 
@@ -17,7 +15,7 @@ const configs = [
   // },
   {
     label: _l('语言设置'),
-    component: 'languague',
+    component: 'language',
   },
 ];
 
@@ -107,42 +105,41 @@ export default class AccountChart extends React.Component {
       .catch();
   }
 
-  //语言设置
-  languague = () => {
+  // 语言设置
+  language = () => {
+    const currentLanguage = getCookie('i18n_langtag') || window.getDefaultLangKey();
+
     return (
-      <div className="languagueSetting">
-        {langConfig.map(item => {
-          return (
-            <div
-              className={cx('languagueItem', {
-                active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
-              })}
-              onClick={() => {
-                if (this.state.disabledSetLanguage) return;
-                if (!md.global.Account.isPortal) {
-                  this.setState({ disabledSetLanguage: true });
-                  accountSetting
-                    .editAccountSetting({ settingType: '6', settingValue: getCurrentLangCode(item.key).toString() })
-                    .then(res => {
-                      if (res) {
-                        setCookie('i18n_langtag', item.key);
-                        window.location.reload();
-                      }
-                    })
-                    .catch(() => {
-                      this.setState({ disabledSetLanguage: false });
-                    });
-                } else {
-                  setCookie('i18n_langtag', item.key);
+      <Dropdown
+        className="dropdownSetting textPrimary"
+        border
+        disabled={this.state.disabledSetLanguage}
+        value={currentLanguage}
+        data={window.getAllowLangConfig().map(item => ({ text: item.value, value: item.key }))}
+        onChange={value => {
+          if (this.state.disabledSetLanguage || value === currentLanguage) return;
+
+          if (!md.global.Account.isPortal) {
+            this.setState({ disabledSetLanguage: true });
+            accountSetting
+              .editAccountSetting({ settingType: '6', settingValue: getCurrentLangCode(value).toString() })
+              .then(res => {
+                if (res) {
+                  setCookie('i18n_langtag', value);
                   window.location.reload();
+                } else {
+                  this.setState({ disabledSetLanguage: false });
                 }
-              }}
-            >
-              {item.value}
-            </div>
-          );
-        })}
-      </div>
+              })
+              .catch(() => {
+                this.setState({ disabledSetLanguage: false });
+              });
+          } else {
+            setCookie('i18n_langtag', value);
+            window.location.reload();
+          }
+        }}
+      />
     );
   };
 
@@ -167,7 +164,7 @@ export default class AccountChart extends React.Component {
           <div className="systemSettingsRight">
             <div className="textSecondary mBottom16">
               <Dropdown
-                className="systemSettingsZone textPrimary w100"
+                className="dropdownSetting textPrimary"
                 border
                 value={this.state.currentTimeZone}
                 data={this.state.timeZones}
@@ -196,10 +193,13 @@ export default class AccountChart extends React.Component {
             <div className="systemSettingsRight">
               <div className="textSecondary mBottom10">
                 <Dropdown
-                  className="systemSettingsZone textPrimary"
+                  className="dropdownSetting textPrimary"
                   border
                   value={this.state.map}
-                  data={this.state.mapList}
+                  data={[
+                    { text: _l('高德地图'), value: 0 },
+                    { text: _l('Google地图'), value: 1 },
+                  ]}
                   onChange={value => {
                     this.sureSettings('map', value, () => {
                       this.setState({ map: value });

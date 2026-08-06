@@ -19,8 +19,10 @@ class DatePickerBase extends Component {
     this.state = state;
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState(this.generateState(nextProps));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState(this.generateState(this.props));
+    }
   }
 
   generateState = props => {

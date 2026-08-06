@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog, Dropdown } from 'ming-ui';
+import { getTranslateInfo } from 'src/utils/app';
 
 const ChangeRoleDialogWrap = styled.div`
   display: flex;
@@ -36,7 +37,7 @@ const ChangeRoleDialogWrap = styled.div`
 `;
 
 export default function ChangeRoleDialog(props) {
-  const { setChangeRoleDialog, changeRoleDialog, roleList = [], title } = props;
+  const { appId, setChangeRoleDialog, changeRoleDialog, roleList = [], title } = props;
   const [roleId, setRoleId] = useState('');
   useEffect(() => {
     setRoleId((roleList.find(o => o.isDefault) || {}).roleId);
@@ -70,7 +71,7 @@ export default function ChangeRoleDialog(props) {
           isAppendToBody
           placeholder={_l('请选择角色')}
           data={roleList.map(o => {
-            return { ...o, value: o.roleId, text: o.name };
+            return { ...o, value: o.roleId, text: getTranslateInfo(appId, null, o.roleId).name || o.name };
           })}
           value={roleId}
           className={cx('flex InlineBlock topActDrop mLeft16')}

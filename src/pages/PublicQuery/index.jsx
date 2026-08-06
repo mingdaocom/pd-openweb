@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -14,6 +14,9 @@ import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import WorksheetShareHeader from './header';
 import './index.less';
 
+const LoadablePublicQuery = lazy(() => import('./publicquery'));
+const LoadableWorksheetListShare = lazy(() => import('./worksheetListShare'));
+
 class WorksheetSahre extends React.Component {
   constructor(props) {
     super(props);
@@ -27,7 +30,8 @@ class WorksheetSahre extends React.Component {
       errorMsg: '',
       isSearch: true,
       cardControls: [],
-      viewSet: {}, //视图配置信息
+      viewSet: {},
+      //视图配置信息
       worksheetId: '',
       rowId: '',
       viewId: '',
@@ -36,63 +40,18 @@ class WorksheetSahre extends React.Component {
       shareId: location.pathname.match(/.*\/public\/query\/(.*)/)[1].split('&&')[0],
       exported: false,
       worksheetName: '',
-      querydata: {}, //公开查询的筛选数据
+      querydata: {},
+      //公开查询的筛选数据
       rowIds: [],
       controlsId: [],
       sheetSwitchPermit: [],
-      PublicQuery: null,
-      WorksheetListShare: null,
     };
-    // 防止重复加载的标记
-    this.loadingPublicQuery = false;
-    this.loadingWorksheetListShare = false;
   }
 
   componentDidMount() {
     $('html').addClass('WorksheetSharePage');
     this.getShareInfo(this.state.shareId);
-    if (this.state.isSearch) {
-      this.loadPublicQuery();
-    }
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.isSearch && !prevState.isSearch && !this.state.PublicQuery) {
-      this.loadPublicQuery();
-    }
-
-    if (!this.state.isSearch && prevState.isSearch && !this.state.WorksheetListShare) {
-      this.loadWorksheetListShare();
-    }
-  }
-
-  loadPublicQuery = () => {
-    if (!this.state.PublicQuery && !this.loadingPublicQuery) {
-      this.loadingPublicQuery = true;
-      import('./publicquery')
-        .then(res => {
-          this.loadingPublicQuery = false;
-          this.setState({ PublicQuery: res.default });
-        })
-        .catch(() => {
-          this.loadingPublicQuery = false;
-        });
-    }
-  };
-
-  loadWorksheetListShare = () => {
-    if (!this.state.WorksheetListShare && !this.loadingWorksheetListShare) {
-      this.loadingWorksheetListShare = true;
-      import('./worksheetListShare')
-        .then(res => {
-          this.loadingWorksheetListShare = false;
-          this.setState({ WorksheetListShare: res.default });
-        })
-        .catch(() => {
-          this.loadingWorksheetListShare = false;
-        });
-    }
-  };
 
   getShareInfo = id => {
     publicWorksheetAjax
@@ -105,7 +64,14 @@ class WorksheetSahre extends React.Component {
         shareAuthor && (window.shareAuthor = shareAuthor);
 
         if (res.visibleType === 1) {
-          this.setState({ loading: false, isSearch: true, rowsList: [], publicqueryRes: { visibleType: 1 } });
+          this.setState({
+            loading: false,
+            isSearch: true,
+            rowsList: [],
+            publicqueryRes: {
+              visibleType: 1,
+            },
+          });
         }
 
         if (clientId) {
@@ -113,13 +79,20 @@ class WorksheetSahre extends React.Component {
           !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', clientId);
         }
 
-        preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId } });
-
+        preall(
+          {
+            type: 'function',
+          },
+          {
+            allowNotLogin: true,
+            requestParams: {
+              projectId,
+            },
+          },
+        );
         globalEvents();
-
         shareAuthor && (window.shareAuthor = shareAuthor);
         localStorage.setItem('currentProjectId', projectId);
-
         await shareGetAppLangDetail({
           projectId,
           appId,
@@ -129,11 +102,13 @@ class WorksheetSahre extends React.Component {
           res.worksheet.template.controls = replaceControlsTranslateInfo(appId, worksheetId, template.controls);
         }
 
-        let sheetSwitchPermit = await sheetAjax.getSwitchPermit({ worksheetId: worksheetId });
-
+        let sheetSwitchPermit = await sheetAjax.getSwitchPermit({
+          worksheetId: worksheetId,
+        });
         this.setState(
           {
             appId,
+            projectId,
             worksheetId,
             rowId,
             viewId,
@@ -142,15 +117,20 @@ class WorksheetSahre extends React.Component {
             sheetSwitchPermit,
           },
           () => {
-            this.setState({ loading: false, error: !viewId && !appId });
+            this.setState({
+              loading: false,
+              error: !viewId && !appId,
+            });
           },
         );
       })
       .catch(err => {
-        this.setState({ loading: false, error: err.errorCode === 300016 ? err.errorCode : false });
+        this.setState({
+          loading: false,
+          error: err.errorCode === 300016 ? err.errorCode : false,
+        });
       });
   };
-
   loadSheet = (querydata = {}) => {
     const { viewId, worksheetId } = this.state;
 
@@ -159,9 +139,11 @@ class WorksheetSahre extends React.Component {
     }
 
     this.promiseRowsData = publicWorksheetAjax.query({
-      worksheetId, // 工作表id
+      worksheetId,
+      // 工作表id
       getType: 1,
-      pageSize: 100000, //公开查询不分页
+      pageSize: 100000,
+      //公开查询不分页
       pageIndex: 1,
       viewId,
       filterControls: querydata.controls,
@@ -169,8 +151,8 @@ class WorksheetSahre extends React.Component {
       randStr: querydata.randStr,
       captchaType: querydata.captchaType,
       isGetWorksheet: true,
+      langType: getCurrentLangCode(),
     });
-
     this.promiseRowsData.then(data => {
       let { resultCode } = data || {};
 
@@ -188,23 +170,41 @@ class WorksheetSahre extends React.Component {
         );
         return;
       } else {
-        this.setState({ querydata: {} });
+        this.setState({
+          querydata: {},
+        });
       }
 
       if (resultCode === 4) {
         //无数据
-        this.setState({ error: false, loading: false, isSearch: false, rowsList: [] });
+        this.setState({
+          error: false,
+          loading: false,
+          isSearch: false,
+          rowsList: [],
+        });
         return;
       }
 
       if (resultCode === 8) {
         //查询已关闭 visibleType: 1,
-        this.setState({ loading: false, isSearch: true, rowsList: [], publicqueryRes: { visibleType: 1 } });
+        this.setState({
+          loading: false,
+          isSearch: true,
+          rowsList: [],
+          publicqueryRes: {
+            visibleType: 1,
+          },
+        });
         return;
       }
 
       if (resultCode === 7) {
-        this.setState({ error: true, loading: false, errorMsg: _l('暂无权限查看') });
+        this.setState({
+          error: true,
+          loading: false,
+          errorMsg: _l('暂无权限查看'),
+        });
         return;
       }
 
@@ -264,13 +264,16 @@ class WorksheetSahre extends React.Component {
       controlsId,
       querydata = {},
       sheetSwitchPermit = [],
-      PublicQuery,
-      WorksheetListShare,
     } = this.state;
 
     if (loading) {
       return (
-        <div className="centerLoad" style={{ height: window.innerHeight }}>
+        <div
+          className="centerLoad"
+          style={{
+            height: window.innerHeight,
+          }}
+        >
           <LoadDiv />
         </div>
       );
@@ -281,32 +284,39 @@ class WorksheetSahre extends React.Component {
     }
 
     if (isSearch) {
-      if (!PublicQuery) {
-        return (
-          <div className="centerLoad" style={{ height: window.innerHeight }}>
-            <LoadDiv />
-          </div>
-        );
-      }
-
       return (
-        <PublicQuery
-          publicqueryRes={publicqueryRes}
-          onRef={ref => (this.child = ref)}
-          querydata={querydata}
-          searchFn={querydata => {
-            this.setState(
-              {
-                isSearch: false,
-                loading: true,
-                querydata,
-              },
-              () => {
-                this.loadSheet(querydata);
-              },
-            );
-          }}
-        />
+        <Suspense
+          fallback={
+            <div
+              className="centerLoad"
+              style={{
+                height: window.innerHeight,
+              }}
+            >
+              <LoadDiv className="mTop10" />
+            </div>
+          }
+        >
+          <LoadablePublicQuery
+            publicqueryRes={publicqueryRes}
+            onRef={ref => (this.child = ref)}
+            querydata={querydata}
+            appId={appId}
+            projectId={projectId}
+            searchFn={querydata => {
+              this.setState(
+                {
+                  isSearch: false,
+                  loading: true,
+                  querydata,
+                },
+                () => {
+                  this.loadSheet(querydata);
+                },
+              );
+            }}
+          />
+        </Suspense>
       );
     }
 
@@ -339,7 +349,11 @@ class WorksheetSahre extends React.Component {
     return (
       <React.Fragment>
         <WorksheetShareHeader
-          switchSearch={() => this.setState({ isSearch: true })}
+          switchSearch={() =>
+            this.setState({
+              isSearch: true,
+            })
+          }
           shareId={shareId}
           publicqueryRes={publicqueryRes}
           exported={exported && rowIds.length > 0}
@@ -353,12 +367,19 @@ class WorksheetSahre extends React.Component {
           filterControls={querydata.controls}
         />
         <div className="shareConBox">
-          {!WorksheetListShare ? (
-            <div className="centerLoad" style={{ height: window.innerHeight }}>
-              <LoadDiv />
-            </div>
-          ) : (
-            <WorksheetListShare
+          <Suspense
+            fallback={
+              <div
+                className="centerLoad"
+                style={{
+                  height: window.innerHeight,
+                }}
+              >
+                <LoadDiv className="mTop10" />
+              </div>
+            }
+          >
+            <LoadableWorksheetListShare
               sheetSwitchPermit={sheetSwitchPermit}
               viewIdForPermit={viewId}
               cardControls={cardControls}
@@ -372,7 +393,7 @@ class WorksheetSahre extends React.Component {
               worksheetName={worksheetName}
               viewName={viewName}
             />
-          )}
+          </Suspense>
         </div>
       </React.Fragment>
     );
@@ -380,5 +401,4 @@ class WorksheetSahre extends React.Component {
 }
 
 const root = createRoot(document.getElementById('app'));
-
 root.render(<WorksheetSahre />);

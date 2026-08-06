@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { getPathWithoutSubPath, getRequest } from 'src/utils/common';
 import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
 
@@ -25,7 +25,6 @@ const HomeEntry = styled.div`
     color: var(--color-primary);
   }
 `;
-
 const MODULE_TO_TEXT = {
   account: _l('个人账户'),
   admin: _l('组织管理'),
@@ -33,7 +32,6 @@ const MODULE_TO_TEXT = {
   group: _l('群组信息'),
   search: _l('超级搜索'),
 };
-
 const PAGE_HEADER_ROUTE = {
   account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
@@ -41,9 +39,7 @@ const PAGE_HEADER_ROUTE = {
   user: ['user', '/user_:userId?'],
   search: ['/search'],
 };
-
-@withRouter
-export default class GlobalSearchHeader extends Component {
+let GlobalSearchHeader = class GlobalSearchHeader extends Component {
   static propTypes = {};
   static defaultProps = {};
   state = {
@@ -61,26 +57,32 @@ export default class GlobalSearchHeader extends Component {
   }
 
   getModule = () => {
-    const { path = '' } = this.props;
-    if (_.isEqual(PAGE_HEADER_ROUTE.user, path)) return 'user';
+    const firstPath = _.isArray(this.props.path) ? this.props.path[0] : this.props.path || '';
+    const path = getPathWithoutSubPath(firstPath);
+    if (_.includes(PAGE_HEADER_ROUTE.user, path)) return 'user';
     if (_.includes(PAGE_HEADER_ROUTE.account, path)) return 'account';
     if (_.includes(PAGE_HEADER_ROUTE.admin, path)) return 'admin';
     if (_.includes(PAGE_HEADER_ROUTE.group, path)) return 'group';
     if (_.includes(PAGE_HEADER_ROUTE.search, path)) return 'search';
     return '';
   };
-
-  onSearchChange = value => this.setState({ searchValue: value });
-
+  onSearchChange = value =>
+    this.setState({
+      searchValue: value,
+    });
   onSearch = () => {
     const { searchValue, searchKey } = this.state;
     if (searchValue === searchKey) return;
     const urlParam = getRequest(this.props.search);
-    this.setState({ searchKey: searchValue });
+    this.setState({
+      searchKey: searchValue,
+    });
     navigateTo(`/search?search_key=${searchValue || ''}&search_type=${urlParam.search_type || ''}`);
   };
-
-  onClearSearch = () => this.setState({ searchValue: '' });
+  onClearSearch = () =>
+    this.setState({
+      searchValue: '',
+    });
 
   render() {
     const text = MODULE_TO_TEXT[this.getModule()];
@@ -98,7 +100,13 @@ export default class GlobalSearchHeader extends Component {
         <div className="searchCon">
           <div className="search">
             <span className="searchIconCon" onClick={this.onSearch}>
-              <Icon icon="search" className="Font20" style={{ color: 'var(--color-text-title)' }} />
+              <Icon
+                icon="search"
+                className="Font20"
+                style={{
+                  color: 'var(--color-text-title)',
+                }}
+              />
             </span>
             <Input
               className="flex borderNone"
@@ -118,4 +126,6 @@ export default class GlobalSearchHeader extends Component {
       </div>
     );
   }
-}
+};
+GlobalSearchHeader = withRouter(GlobalSearchHeader);
+export default GlobalSearchHeader;

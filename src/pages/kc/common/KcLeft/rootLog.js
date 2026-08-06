@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Dialog, UserCard } from 'ming-ui';
 import service from '../../api/service';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import { PERMISSION_TYPE_NAME, PICK_TYPE, ROOT_LOG_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import { humanDateTime } from '../../utils';
 import './rootLog.less';
@@ -15,13 +15,13 @@ function memberLinkHtml(member, logContent) {
       <span>
         <a
           className="memberName"
-          href={member.accountId ? `/user_${member.accountId}` : 'javascript:void(0);'}
+          href={member.accountId ? pathCompletion(`/user_${member.accountId}`) : 'javascript:void(0);'}
           target="_blank"
           onClick={e => !member.accountId && e.preventDefault()}
         >
           @{htmlEncodeReg(member.fullname)}
         </a>
-        {logContent.exterUserIds && logContent.exterUserIds.indexOf(member.accountId) !== -1 ? '(外部用户)' : ''}
+        {logContent.exterUserIds && logContent.exterUserIds.indexOf(member.accountId) !== -1 ? _l('(外部用户)') : ''}
       </span>
     </UserCard>
   ) : (
@@ -54,14 +54,14 @@ function logDesc(log) {
               <span>
                 <a
                   className="memberName"
-                  href={member.accountId ? `/user_${member.accountId}` : 'javascript:void(0);'}
+                  href={member.accountId ? pathCompletion(`/user_${member.accountId}`) : 'javascript:void(0);'}
                   target="_blank"
                   onClick={e => !member.accountId && e.preventDefault()}
                 >
                   @{htmlEncodeReg(member.fullname)}
                 </a>
                 {log.content.exterUserIds && log.content.exterUserIds.indexOf(member.accountId) !== -1
-                  ? '(外部用户)'
+                  ? _l('(外部用户)')
                   : ''}
               </span>
             </UserCard>
@@ -77,13 +77,13 @@ function logDesc(log) {
               <span>
                 <a
                   className="memberName"
-                  href={member.accountId ? `/user_${member.accountId}` : 'javascript:void(0);'}
+                  href={member.accountId ? pathCompletion(`/user_${member.accountId}`) : 'javascript:void(0);'}
                   target="_blank"
                   onClick={e => !member.accountId && e.preventDefault()}
                 >
                   @{htmlEncodeReg(member.fullname)}
                 </a>
-                {member.isExterUser && member.isExterUser === 1 ? '(外部用户)' : ''}
+                {member.isExterUser && member.isExterUser === 1 ? _l('(外部用户)') : ''}
               </span>
             </UserCard>
           ))}
@@ -97,7 +97,7 @@ function logDesc(log) {
             <UserCard sourceId={member.accountId} disabled={!member.accountId}>
               <a
                 className="memberName"
-                href={member.accountId ? `/user_${member.accountId}` : 'javascript:void(0);'}
+                href={member.accountId ? pathCompletion(`/user_${member.accountId}`) : 'javascript:void(0);'}
                 target="_blank"
                 onClick={e => !member.accountId && e.preventDefault()}
               >
@@ -114,20 +114,22 @@ function logDesc(log) {
             if (change.permission === ROOT_PERMISSION_TYPE.OWNER) {
               return (
                 <Fragment>
-                  <span className="mRight5">将</span>
+                  <span className="mRight5">{_l('将')}</span>
                   {change.memberArr.map(member => memberLinkHtml(member, log.content))}
-                  <span className="mLeft5">设为共享文件夹</span>
-                  <span className="mLeft5 mRight5">{log.content.rootName}</span>的拥有者
+                  <span className="mLeft5">{_l('设为共享文件夹')}</span>
+                  <span className="mLeft5 mRight5">{log.content.rootName}</span>
+                  {_l('的拥有者')}
                   <br />
                 </Fragment>
               );
             } else {
               return (
                 <Fragment>
-                  <span className="mRight5">将</span>
-                  {change.memberArr.map(member => memberLinkHtml(member, log.content))} 的权限
+                  <span className="mRight5">{_l('将')}</span>
+                  {change.memberArr.map(member => memberLinkHtml(member, log.content))}
+                  {_l('的权限')}
                   {change.originPermission && `从 ${PERMISSION_TYPE_NAME[change.originPermission]} `}
-                  {`调整为 ${PERMISSION_TYPE_NAME[change.permission]}`}
+                  {_l('调整为 %0', PERMISSION_TYPE_NAME[change.permission])}
                 </Fragment>
               );
             }
@@ -194,7 +196,7 @@ export function getRootLog(rootName, rootId) {
                     <i className={`rootLogType ${logTypeName}`}></i>
                     <div className="rootLogTitle">
                       <UserCard sourceId={item.handleUser.accountId}>
-                        <span className="ThemeColor3 bold handler">{htmlEncodeReg(item.handleUser.fullname)} </span>
+                        <span className="colorPrimary bold handler">{htmlEncodeReg(item.handleUser.fullname)} </span>
                       </UserCard>
                       {logDesc(item)}
                     </div>

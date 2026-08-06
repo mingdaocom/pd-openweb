@@ -10,10 +10,11 @@ import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import organizeAjax from 'src/api/organize.js';
+import projectSettingAjax from 'src/api/projectSetting';
 import { hasPermission } from 'src/components/checkPermission';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { CLEAR_CACHE_PROCESS_TYPE, PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { downloadFile } from 'src/pages/Admin/util';
 import { getCurrentProject } from 'src/utils/project';
 import ImportDeptAndRole from '../../components/ImportDeptAndRole';
@@ -110,10 +111,12 @@ const DefaultGroup = {
 
 // 导入角色模版
 const roleTemplatePaths = {
-  0: '/staticfiles/template/组织角色导入模板.xlsx',
-  1: '/staticfiles/template/Role Import Template.xlsx',
-  2: '/staticfiles/template/役割インポートテンプレート.xlsx',
-  3: '/staticfiles/template/角色導入模板.xlsx',
+  0: '/staticfiles/template/orgRoleImportTemplate/组织角色导入模板.xlsx',
+  1: '/staticfiles/template/orgRoleImportTemplate/Role Import Template.xlsx',
+  2: '/staticfiles/template/orgRoleImportTemplate/役割インポートテンプレート.xlsx',
+  3: '/staticfiles/template/orgRoleImportTemplate/角色導入模板.xlsx',
+  4: '/staticfiles/template/orgRoleImportTemplate/แม่แบบการนำเข้าบทบาท.xlsx',
+  5: '/staticfiles/template/orgRoleImportTemplate/Templat Import Peranan.xlsx',
 };
 
 class RoleManage extends Component {
@@ -239,7 +242,7 @@ class RoleManage extends Component {
           if (data[index].children.length >= 50 && resLi.allCount > data[index].children.length) {
             data[index].children = data[index].children
               .filter(v => v.key !== 'isMore')
-              .concat({ title: '加载', key: 'isMore', isLeaf: true, selectable: false });
+              .concat({ title: _l('加载'), key: 'isMore', isLeaf: true, selectable: false });
           }
         } else {
           data[index].children = resLi.list.map(l => {
@@ -357,6 +360,18 @@ class RoleManage extends Component {
     this.setState({ showRoleDialog: true, filed });
   };
 
+  clearRoleCache = ({ itemId = '', processType }) => {
+    const { projectId } = this.props;
+    this.setState({ actionPopupVisible: false, popupVisible: false });
+    projectSettingAjax.clearItemCache({ projectId, itemId, processType }).then(data => {
+      if (data) {
+        alert(_l('刷新中，请稍后查看'));
+      } else {
+        alert(_l('刷新失败'), 2);
+      }
+    });
+  };
+
   renderImportInfo = () => {
     return (
       <div className="roleManageContainer">
@@ -389,7 +404,7 @@ class RoleManage extends Component {
         })
         .then(res => {
           if (res === 1) {
-            alert('删除成功');
+            alert(_l('删除成功'));
             this.setState({ expandedKeys: expandedKeys.filter(l => l !== item.orgRoleGroupId) });
             this.init();
           } else if (res === 24004) {
@@ -642,6 +657,7 @@ class RoleManage extends Component {
   titleRender = l => {
     const { searchValue, currentRole, authority } = this.props;
     const { showDeleteId = '', actionPopupVisible, treeData } = this.state;
+    const hasRoleAuth = hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE);
     let orgGroup = {};
 
     if (searchValue) {
@@ -670,7 +686,7 @@ class RoleManage extends Component {
                 <Icon icon="person_off_a" className="textTertiary Font18 mLeft6 TxtMiddle disabledIcon" />
               )}
             </span>
-            {!isDefault && hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE) && (
+            {!isDefault && (l.isLeaf || hasRoleAuth) && (
               <span className="moreActionButton Hand">
                 <Trigger
                   popupVisible={l.key === actionPopupVisible}
@@ -685,7 +701,7 @@ class RoleManage extends Component {
                   }}
                   popup={
                     <Menu className="Static">
-                      {!l.disabled ? (
+                      {hasRoleAuth && !l.disabled ? (
                         <MenuItem
                           key="0"
                           onClick={() => {
@@ -707,17 +723,36 @@ class RoleManage extends Component {
                           {_l('编辑')}
                         </MenuItem>
                       ) : null}
-                      <MenuItem
-                        key="2"
-                        onClick={e =>
-                          !l.disabled ? this.handleDisableOrgRoleConfirm(e, l) : this.disabledAndEnabledOrgRole(e, l)
-                        }
-                      >
-                        {l.disabled ? _l('恢复使用') : _l('停用')}
-                      </MenuItem>
-                      <MenuItem key="1" className="delRole" onClick={() => this.showDeleteDialog(l)}>
-                        {_l('删除')}
-                      </MenuItem>
+                      {l.isLeaf && (
+                        <MenuItem
+                          key="3"
+                          onClick={() =>
+                            this.clearRoleCache({
+                              itemId: l.organizeId,
+                              processType: CLEAR_CACHE_PROCESS_TYPE.ORG_ROLE,
+                            })
+                          }
+                        >
+                          {_l('刷新角色成员信息')}
+                        </MenuItem>
+                      )}
+                      {hasRoleAuth && (
+                        <Fragment>
+                          <MenuItem
+                            key="2"
+                            onClick={e =>
+                              !l.disabled
+                                ? this.handleDisableOrgRoleConfirm(e, l)
+                                : this.disabledAndEnabledOrgRole(e, l)
+                            }
+                          >
+                            {l.disabled ? _l('恢复使用') : _l('停用')}
+                          </MenuItem>
+                          <MenuItem key="1" className="delRole" onClick={() => this.showDeleteDialog(l)}>
+                            {_l('删除')}
+                          </MenuItem>
+                        </Fragment>
+                      )}
                     </Menu>
                   }
                 >
@@ -916,8 +951,15 @@ class RoleManage extends Component {
                     >
                       {_l('导入角色')}
                     </MenuItem>
-                    <MenuItem key="1" className="mBottom4" onClick={this.exportRoleList}>
+                    <MenuItem key="1" onClick={this.exportRoleList}>
                       {_l('导出角色')}
+                    </MenuItem>
+                    <MenuItem
+                      key="2"
+                      className="mBottom4"
+                      onClick={() => this.clearRoleCache({ processType: CLEAR_CACHE_PROCESS_TYPE.ALL_ORG_ROLE })}
+                    >
+                      {_l('刷新角色列表')}
                     </MenuItem>
                   </Menu>
                 }
@@ -974,7 +1016,9 @@ class RoleManage extends Component {
           </div>
         </div>
         <div className="roleManageRight flexColumn">
-          {_.isEmpty(currentRole) && !searchValue ? (
+          {loading ? (
+            <LoadDiv className="mTop30" />
+          ) : _.isEmpty(currentRole) && !searchValue ? (
             <EmptyStatus
               tipTxt={_l('可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色')}
               icon="Empty_Noposition"

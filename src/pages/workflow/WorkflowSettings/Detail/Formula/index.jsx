@@ -10,6 +10,7 @@ import flowNode from '../../../api/flowNode';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { pathCompletion } from 'src/utils/common';
 import { getSummaryInfo } from 'src/utils/record';
 import { ACTION_ID, APP_TYPE, DATE_SHOW_TYPES } from '../../enum';
 import { checkConditionsIsNull, getControlTypeName, getIcons, handleGlobalVariableName } from '../../utils';
@@ -55,19 +56,29 @@ export default class Formula extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.setState({ isFocus: false });
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.setState({
+          isFocus: false,
+        });
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -80,6 +91,10 @@ export default class Formula extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (
           result.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL &&
           !result.selectNodeId &&
@@ -185,7 +200,7 @@ export default class Formula extends Component {
       }
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -294,7 +309,7 @@ export default class Formula extends Component {
         <div className="mTop15 textSecondary">
           {_l('英文输入+、-、*、/、( ) 进行运算 或')}
           <span
-            className="ThemeColor3 ThemeHoverColor2 pointer addFormula mLeft5"
+            className="colorPrimary hoverColorPrimaryDark pointer addFormula mLeft5"
             onClick={() => this.setState({ showFormulaLayer: true, fnmatch: '' })}
           >
             {_l('添加公式')}
@@ -365,7 +380,7 @@ export default class Formula extends Component {
       <div className="mTop10 flexRow relative">
         {data.fieldNodeId ? (
           <div
-            className={cx('actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox', {
+            className={cx('actionControlBox flex borderColorPrimary clearBorderRadius ellipsis actionCustomBox', {
               actionCustomBoxError: !data.fieldNodeName || !data.fieldControlName,
             })}
           >
@@ -380,7 +395,7 @@ export default class Formula extends Component {
               />
             </span>
             <i
-              className="icon-delete actionControlDel ThemeColor3"
+              className="icon-delete actionControlDel colorPrimary"
               onClick={() =>
                 callback({
                   fieldNodeType: 0,
@@ -393,7 +408,7 @@ export default class Formula extends Component {
             />
           </div>
         ) : (
-          <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
+          <div className="actionControlBox flex borderColorPrimary clearBorderRadius">
             <DateTime
               selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
               timePicker
@@ -488,7 +503,7 @@ export default class Formula extends Component {
               );
             }}
           >
-            <span className="ThemeColor3">{_l('查看时间单位')}</span>
+            <span className="colorPrimary">{_l('查看时间单位')}</span>
           </Tooltip>
         </div>
 
@@ -731,9 +746,10 @@ export default class Formula extends Component {
    */
   renderTag = tag => {
     const { data } = this.state;
-    const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
+    const key = tag.replace(/^\$|\$$/g, '');
+    const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
     const nodeObj = data.formulaMap[ids[0]] || {};
-    const controlObj = data.formulaMap[ids.join('-')] || {};
+    const controlObj = data.formulaMap[key] || {};
 
     return (
       <Tag
@@ -808,7 +824,7 @@ export default class Formula extends Component {
       .map(({ name, id }) => ({
         text: name,
         value: id,
-        className: id === data.appId ? 'ThemeColor3' : '',
+        className: id === data.appId ? 'colorPrimary' : '',
       }));
     const otherWorksheet = [
       {
@@ -834,8 +850,8 @@ export default class Formula extends Component {
           <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
           {isAggregationSheet && (
             <div
-              className="ThemeColor3 ThemeHoverColor2 pointer"
-              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+              className="colorPrimary hoverColorPrimaryDark pointer"
+              onClick={() => window.open(pathCompletion(`/app/${this.props.relationId}/settings/aggregations`))}
             >
               + {_l('新建聚合表')}
             </div>
@@ -902,7 +918,7 @@ export default class Formula extends Component {
             ) : (
               <div className="addActionBtn mTop15">
                 <span
-                  className="ThemeBorderColor3"
+                  className="borderColorPrimary"
                   onClick={() => this.updateSource({ filters: [{ conditions: [[{}]], spliceType: 2 }] })}
                 >
                   <i className="icon-add Font16" />
@@ -1098,15 +1114,17 @@ export default class Formula extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue) ||
-            (data.actionId === ACTION_ID.DATE_FORMULA &&
-              ((data.fieldValue && data.fieldControlId) || data.formulaValue)) ||
-            (data.actionId === ACTION_ID.DATE_DIFF_FORMULA &&
-              (data.startTime.fieldValue || data.startTime.fieldControlId) &&
-              (data.endTime.fieldValue || data.endTime.fieldControlId)) ||
-            (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], data.actionId) && data.selectNodeId) ||
-            (data.actionId === ACTION_ID.FUNCTION_CALCULATION && data.formulaValue) ||
-            (data.actionId === ACTION_ID.WORKSHEET_TOTAL && data.appId)
+            ((data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue) ||
+              (data.actionId === ACTION_ID.DATE_FORMULA &&
+                ((data.fieldValue && data.fieldControlId) || data.formulaValue)) ||
+              (data.actionId === ACTION_ID.DATE_DIFF_FORMULA &&
+                (data.startTime.fieldValue || data.startTime.fieldControlId) &&
+                (data.endTime.fieldValue || data.endTime.fieldControlId)) ||
+              (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], data.actionId) &&
+                data.selectNodeId) ||
+              (data.actionId === ACTION_ID.FUNCTION_CALCULATION && data.formulaValue) ||
+              (data.actionId === ACTION_ID.WORKSHEET_TOTAL && data.appId)) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

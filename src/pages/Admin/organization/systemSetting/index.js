@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
+import { addSubPathOfRoute } from 'src/utils/common';
 import Config from '../../config';
 import CertInfo from './component/CertInfo';
 import ProjectInfo from './component/ProjectInfo';
@@ -64,7 +65,7 @@ export default class SystemSetting extends Component {
             return (
               <Route
                 key={item.path}
-                path={item.path}
+                path={addSubPathOfRoute(item.path)}
                 render={({ match: { params } }) => (
                   <Component
                     ref={ele => (this.com = ele)}

@@ -112,7 +112,7 @@ function APICard(props) {
       </div>
       <div className="publishStatusCon">
         <span
-          className={cx('StatusTxt mLeft40 Font12', props.item.publishStatus === 1 ? 'ThemeColor3' : 'textTertiary')}
+          className={cx('StatusTxt mLeft40 Font12', props.item.publishStatus === 1 ? 'colorPrimary' : 'textTertiary')}
         >
           {props?.item?.lastModifiedDate && props?.item?.publishStatus
             ? `${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`

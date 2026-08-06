@@ -7,7 +7,7 @@ import orderController from 'src/api/order';
 import { checkPermission } from 'src/components/checkPermission';
 import { payDialogFunc } from 'src/components/pay/payDialog';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { addToken, encrypt, getRequest } from 'src/utils/common';
+import { addToken, encrypt, getRequest, pathCompletion } from 'src/utils/common';
 import Config from '../../../config';
 import billCommon from '../common';
 import './style.less';
@@ -95,7 +95,7 @@ export default class WaitingPay extends Component {
     if (request.ReturnUrl) {
       window.location.href = request.ReturnUrl;
     } else {
-      window.location.href = '/admin/billinfo/' + Config.projectId;
+      window.location.href = pathCompletion('/admin/billinfo/' + Config.projectId);
     }
   };
 
@@ -245,8 +245,8 @@ export default class WaitingPay extends Component {
       });
     } else if (this.state.payStyle == 'wechartPay') {
       if (confirm(_l('确定以【微信支付】方式进行本次付款？'))) {
-        window.open(`/wechatPay/${Config.projectId}/${orderId}`);
-        payDialogFunc({ url: request.ReturnUrl || `/admin/billinfo/${Config.projectId}` });
+        window.open(pathCompletion(`/wechatPay/${Config.projectId}/${orderId}`));
+        payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
       }
     } else if (this.state.payStyle == 'aliPay') {
       this.aliPay();
@@ -258,12 +258,12 @@ export default class WaitingPay extends Component {
     window.open(
       addToken(
         md.global.Config.AjaxApiUrl +
-          'download/downloadBankInfo?projectId=' +
-          Config.projectId +
-          '&orderId=' +
-          orderId +
-          '&sendEmail=' +
-          this.state.needEmail,
+        'download/downloadBankInfo?projectId=' +
+        Config.projectId +
+        '&orderId=' +
+        orderId +
+        '&sendEmail=' +
+        this.state.needEmail,
       ),
     );
   }
@@ -309,7 +309,7 @@ export default class WaitingPay extends Component {
       window.open(
         addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
       );
-      payDialogFunc({ url: request.ReturnUrl || `/admin/billinfo/${Config.projectId}` });
+      payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
       //操作日志
       orderController.addThreePartPayOrderLog({
         projectId: Config.projectId,
@@ -401,7 +401,7 @@ export default class WaitingPay extends Component {
             <div className="textTertiary mTop24">
               <div>{_l('我们将在收到款项后的15分钟内为您完成服务')}</div>
               {_l('如有疑问，')}
-              <span className="ThemeColor3 Hand" onClick={this.handleHelp.bind(this)}>
+              <span className="colorPrimary Hand" onClick={this.handleHelp.bind(this)}>
                 {_l('请与我们联系')}
               </span>
             </div>

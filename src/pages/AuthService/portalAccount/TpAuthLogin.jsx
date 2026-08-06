@@ -5,7 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { accountResultAction } from './util';
 
 const Wrap = styled.div`
@@ -49,7 +49,7 @@ export default function () {
   }, []);
 
   const goPortalLogin = subUrl => {
-    location.href = `${window.subPath || ''}/login?${subUrl}`; // 跳转到登录
+    location.href = pathCompletion(`/login?${subUrl}`); // 跳转到登录
   };
 
   const getUrl = () => {

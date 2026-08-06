@@ -243,7 +243,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
               {promptSound.file ? (
                 <Tooltip title={_l('重新上传')}>
                   <span className="pointer">
-                    <i className="Font20 icon-file_upload textSecondary ThemeHoverColor3" />
+                    <i className="Font20 icon-file_upload textSecondary hoverColorPrimary" />
                   </span>
                 </Tooltip>
               ) : (
@@ -308,7 +308,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
 
           <div className="mTop10">
             <AudioBox
-              className={cx('ThemeBorderColor3 ThemeBGColor3 textWhite', { Alpha5: !promptSound.content.trim() })}
+              className={cx('borderColorPrimary bgColorPrimary textWhite', { Alpha5: !promptSound.content.trim() })}
               onClick={() => trialListening(promptSound, formulaMap)}
             >
               <i className="Font16 mRight5 icon-volume_up" />

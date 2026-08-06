@@ -52,7 +52,7 @@ export default class Support extends Component {
       <span
         className={cx(
           'TxtMiddle pointer stopPropagation',
-          type === 3 ? 'ThemeColor3 ThemeHoverColor2' : 'textSecondary ThemeHoverColor3',
+          type === 3 ? 'colorPrimary hoverColorPrimaryDark' : 'textSecondary hoverColorPrimary',
           className,
         )}
         style={Object.assign({}, { alignItems: 'center', display: 'inline-flex' }, style)}

@@ -9,9 +9,18 @@ export default class TimeSelect extends Component {
     dateNoTime: true,
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (this.text && this.text.value !== nextProps.data.number) {
-      this.text.value = nextProps.data.number;
+  /**
+   * 修改类型
+   */
+  /**
+   * 修改类型
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.text && this.text.value !== this.props.data.number) {
+        this.text.value = this.props.data.number;
+      }
     }
   }
 
@@ -56,34 +65,34 @@ export default class TimeSelect extends Component {
       {
         text: dateNoTime ? _l('在以上日期') : _l('在以上日期时间'),
         value: EXEC_TIME_TYPE.CURRENT,
-        className: EXEC_TIME_TYPE.CURRENT === data.executeTimeType ? 'ThemeColor3' : '',
+        className: EXEC_TIME_TYPE.CURRENT === data.executeTimeType ? 'colorPrimary' : '',
       },
       {
         text: _l('之前'),
         value: EXEC_TIME_TYPE.BEFORE,
-        className: EXEC_TIME_TYPE.BEFORE === data.executeTimeType ? 'ThemeColor3' : '',
+        className: EXEC_TIME_TYPE.BEFORE === data.executeTimeType ? 'colorPrimary' : '',
       },
       {
         text: _l('之后'),
         value: EXEC_TIME_TYPE.AFTER,
-        className: EXEC_TIME_TYPE.AFTER === data.executeTimeType ? 'ThemeColor3' : '',
+        className: EXEC_TIME_TYPE.AFTER === data.executeTimeType ? 'colorPrimary' : '',
       },
     ];
     const unitList = [
       {
         text: TIME_TYPE_NAME[TIME_TYPE.MINUTE],
         value: TIME_TYPE.MINUTE,
-        className: data.unit === TIME_TYPE.MINUTE ? 'ThemeColor3' : '',
+        className: data.unit === TIME_TYPE.MINUTE ? 'colorPrimary' : '',
       },
       {
         text: TIME_TYPE_NAME[TIME_TYPE.HOUR],
         value: TIME_TYPE.HOUR,
-        className: data.unit === TIME_TYPE.HOUR ? 'ThemeColor3' : '',
+        className: data.unit === TIME_TYPE.HOUR ? 'colorPrimary' : '',
       },
       {
         text: TIME_TYPE_NAME[TIME_TYPE.DAY],
         value: TIME_TYPE.DAY,
-        className: data.unit === TIME_TYPE.DAY ? 'ThemeColor3' : '',
+        className: data.unit === TIME_TYPE.DAY ? 'colorPrimary' : '',
       },
     ];
 
@@ -102,7 +111,7 @@ export default class TimeSelect extends Component {
             <Fragment>
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
                 ref={text => {
                   this.text = text;
                 }}

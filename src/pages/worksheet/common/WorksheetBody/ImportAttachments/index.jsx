@@ -279,7 +279,7 @@ function ImportAttachments(props) {
               <div className="flexRow justifyContentRight alignItemsCenter">
                 <div
                   className={cx('mRight40 colorPrimary', {
-                    'pointer hoverTextPrimaryDark': isComplete,
+                    'pointer hoverColorPrimaryDark': isComplete,
                     cursorNotAllowed: !isComplete,
                   })}
                   onClick={() => isComplete && setStep(1)}

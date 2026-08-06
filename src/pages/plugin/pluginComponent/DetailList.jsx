@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
-import { downloadFile } from 'src/utils/common';
+import { downloadFile, pathCompletion } from 'src/utils/common';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, pluginConstants } from '../config';
 import ExportPlugin from './ExportPlugin';
 import PublishVersion from './PublishVersion';
@@ -195,7 +195,7 @@ function SecretKeyDialog(props) {
         <div className="flex flexRow alignItemsCenter">
           <div className="passwordBox">{password}</div>
           <span
-            className="pointer textTertiary ThemeHoverColor3 mLeft16"
+            className="pointer textTertiary hoverColorPrimary mLeft16"
             onClick={() => {
               copy(password);
               alert(_l('复制成功'));
@@ -233,6 +233,27 @@ function SecretKeyDialog(props) {
     </Dialog>
   );
 }
+
+const renderCommonColumn = ({ content, withLink, onClick = () => {} }) => {
+  return withLink ? (
+    <div className="linkWrapper" onClick={onClick}>
+      <div className="overflow_ellipsis" title={content}>
+        {content || '-'}
+      </div>
+      {content && <Icon icon="launch" className="mLeft4 textTertiary" />}
+    </div>
+  ) : (
+    <div className="overflow_ellipsis" title={content}>
+      {content}
+    </div>
+  );
+};
+const emptyInfo = {
+  [pluginConfigType.commit]: { icon: 'code', text: _l('暂无提交的代码') },
+  [pluginConfigType.publishHistory]: { icon: 'extension', text: _l('暂无发布历史') },
+  [pluginConfigType.usageDetail]: { icon: 'extension', text: _l('暂无使用') },
+  [pluginConfigType.exportHistory]: { icon: 'extension', text: _l('暂无导出历史') },
+};
 
 export default function DetailList(props) {
   const {
@@ -278,21 +299,6 @@ export default function DetailList(props) {
         });
       },
     });
-  };
-
-  const renderCommonColumn = ({ content, withLink, onClick = () => {} }) => {
-    return withLink ? (
-      <div className="linkWrapper" onClick={onClick}>
-        <div className="overflow_ellipsis" title={content}>
-          {content || '-'}
-        </div>
-        {content && <Icon icon="launch" className="mLeft4 textTertiary" />}
-      </div>
-    ) : (
-      <div className="overflow_ellipsis" title={content}>
-        {content}
-      </div>
-    );
   };
 
   const columns = {
@@ -475,7 +481,7 @@ export default function DetailList(props) {
             content: (item.worksheet || {}).name,
             withLink: isWorkflowPlugin,
             onClick: () => {
-              isWorkflowPlugin && window.open(`/workflowedit/${(item.worksheet || {}).id}`);
+              isWorkflowPlugin && window.open(pathCompletion(`/workflowedit/${(item.worksheet || {}).id}`));
             },
           }),
       },
@@ -521,7 +527,7 @@ export default function DetailList(props) {
         render: item =>
           item.url ? (
             <span
-              className="colorPrimary pointer ThemeHoverColor2"
+              className="colorPrimary pointer hoverColorPrimaryDark"
               onClick={() =>
                 window.open(
                   downloadFile(`${md.global.Config.AjaxApiUrl}Download/Plugin?projectId=${projectId}&id=${item.id}`),
@@ -540,7 +546,7 @@ export default function DetailList(props) {
         render: item =>
           item.profile ? (
             <span
-              className="colorPrimary pointer ThemeHoverColor2"
+              className="colorPrimary pointer hoverColorPrimaryDark"
               onClick={() => setSecretKeyDetail({ visible: true, data: item.profile })}
             >
               {_l('查看')}
@@ -560,13 +566,6 @@ export default function DetailList(props) {
         ),
       },
     ],
-  };
-
-  const emptyInfo = {
-    [pluginConfigType.commit]: { icon: 'code', text: _l('暂无提交的代码') },
-    [pluginConfigType.publishHistory]: { icon: 'extension', text: _l('暂无发布历史') },
-    [pluginConfigType.usageDetail]: { icon: 'extension', text: _l('暂无使用') },
-    [pluginConfigType.exportHistory]: { icon: 'extension', text: _l('暂无导出历史') },
   };
 
   return (

@@ -9,6 +9,7 @@ import delPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/del.png'
 import editPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/edit.png';
 import lookPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/look.png';
 import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
+import RecordLoggingSettingDialog, { getRecordLoggingRangeText, LOGGING_RANGE } from '../RecordLoggingSettingDialog';
 import { Wrap } from './style';
 
 const dataPermissionOptions = [
@@ -28,18 +29,18 @@ const optionsList = [
 
 export default function (props) {
   const { onClose, show, sheets, isForPortal, onOk } = props;
-  const recordActionLists = recordActionList.filter(o =>
-    isForPortal ? !['recordShare', 'recordLogging'].includes(o.key) : true,
-  );
+  const recordActionLists = recordActionList.filter(o => (isForPortal ? !['recordShare'].includes(o.key) : true));
   const sheetActionLists = sheetActionList.filter(o =>
     isForPortal ? !['worksheetShareView', 'worksheetLogging', 'worksheetDiscuss'].includes(o.key) : true,
   );
   const [checkedWorksheets, setCheckedWorksheets] = useState([]);
+  const [showRecordLoggingDialog, setShowRecordLoggingDialog] = useState(false);
 
   const getActions = () => {
     let data = {};
     recordActionLists.map(o => {
-      data[o.key] = { enable: false };
+      data[o.key] =
+        o.key === 'recordLogging' ? { enable: false, Range: LOGGING_RANGE.ALL, AllowExport: false } : { enable: false };
     });
     sheetActionLists.map(o => {
       data[o.key] = { enable: false };
@@ -143,12 +144,23 @@ export default function (props) {
           {actionList.length > 0 &&
             actionList.map(o => {
               return (
-                <div className="subCheckbox InlineFlex mRight8 flexRow alignItemsCenter">
+                <div className="rolePermissionInlineRow">
                   <Checkbox
                     checked={(sheet[o.key] || {}).enable}
                     onChange={() => {
+                      const nextEnable = !(sheet[o.key] || {}).enable;
                       changeSheetOptionInfo({
-                        [o.key]: { enable: !(sheet[o.key] || {}).enable },
+                        [o.key]:
+                          o.key === 'recordLogging'
+                            ? {
+                                ...(sheet[o.key] || {}),
+                                enable: nextEnable,
+                                Range: (sheet[o.key] || {}).Range || LOGGING_RANGE.ALL,
+                                AllowExport: _.isBoolean((sheet[o.key] || {}).AllowExport)
+                                  ? sheet[o.key].AllowExport
+                                  : false,
+                              }
+                            : { ...(sheet[o.key] || {}), enable: nextEnable },
                       });
                     }}
                   >
@@ -158,6 +170,19 @@ export default function (props) {
                     <Tooltip title={o.tips}>
                       <i className="icon-info_outline Font16 textDisabled mLeft3 TxtMiddle" />
                     </Tooltip>
+                  )}
+                  {o.key === 'recordLogging' && (sheet[o.key] || {}).enable && (
+                    <React.Fragment>
+                      <span className="recordLoggingRangeText mLeft5">{getRecordLoggingRangeText(sheet[o.key])}</span>
+                      <Icon
+                        icon="settings"
+                        className="recordLoggingSettingIcon Font16 Hand textTertiary mLeft8 TxtMiddle InlineBlock"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setShowRecordLoggingDialog(true);
+                        }}
+                      />
+                    </React.Fragment>
                   )}
                 </div>
               );
@@ -389,6 +414,12 @@ export default function (props) {
             </Button>
           </div>
         </div>
+        <RecordLoggingSettingDialog
+          visible={showRecordLoggingDialog}
+          value={sheet.recordLogging}
+          onChange={next => changeSheetOptionInfo({ recordLogging: next })}
+          onClose={() => setShowRecordLoggingDialog(false)}
+        />
       </Wrap>
     </Modal>
   );

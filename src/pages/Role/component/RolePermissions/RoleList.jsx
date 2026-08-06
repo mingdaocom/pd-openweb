@@ -12,6 +12,8 @@ const Wrap = styled.p`
   margin: 10px 0 4px 0;
 `;
 
+const ROLE_ACTION_MANAGE_MEMBERS = 10;
+
 export default class Con extends React.Component {
   handleSortEnd = list => {
     const { handleMoveApp, roleList, isForPortal } = this.props;
@@ -21,10 +23,33 @@ export default class Con extends React.Component {
     handleMoveApp && handleMoveApp(newList);
   };
 
+  handleChoose = roleId => {
+    // 切换角色前先处理未保存配置，避免外部门户等场景先切到新角色后再保存旧角色。
+    this.props.handleChangePage(() => {
+      this.props.onSelect(roleId);
+      this.props.onChange({
+        roleId,
+      });
+    });
+  };
+
+  handleAction = (action, data) => {
+    // “管理角色/管理用户”会离开当前角色配置页，也需要先处理未保存配置；复制、删除等原地操作不拦截。
+    if (action.key === ROLE_ACTION_MANAGE_MEMBERS) {
+      this.props.handleChangePage(() => {
+        this.props.onAction(action, data);
+      });
+      return;
+    }
+
+    this.props.onAction(action, data);
+  };
+
   render() {
-    const { dataList, roleId, isForPortal, roleList } = this.props;
+    const { appId, dataList, roleId, isForPortal, roleList } = this.props;
     const sysList = roleList.filter(o => sysRoleType.includes(o.roleType));
     const List = roleList.filter(o => !sysRoleType.includes(o.roleType));
+
     return (
       <ul>
         {!isForPortal && sysList.length > 0 && <Wrap>{_l('系统')}</Wrap>}
@@ -33,20 +58,16 @@ export default class Con extends React.Component {
             // item, dataList, onAction, roleId, onChoose, isForPortal
             return (
               <ItemCon
+                appId={appId}
                 item={o}
                 onChoose={roleId => {
-                  this.props.onSelect(roleId);
-                  this.props.handleChangePage(() => {
-                    this.props.onChange({
-                      roleId,
-                    });
-                  });
+                  this.handleChoose(roleId);
                 }}
                 isForPortal={isForPortal}
                 roleId={roleId}
                 dataList={dataList}
                 onAction={(o, data) => {
-                  this.props.onAction(o, data);
+                  this.handleAction(o, data);
                 }}
               />
             );
@@ -62,17 +83,13 @@ export default class Con extends React.Component {
             renderItem={options => (
               <ItemCon
                 {...options}
+                appId={appId}
                 onChoose={roleId => {
-                  this.props.onSelect(roleId);
-                  this.props.handleChangePage(() => {
-                    this.props.onChange({
-                      roleId,
-                    });
-                  });
+                  this.handleChoose(roleId);
                 }}
                 dataList={dataList}
                 onAction={(o, data) => {
-                  this.props.onAction(o, data);
+                  this.handleAction(o, data);
                 }}
                 isForPortal={isForPortal}
                 roleId={roleId}

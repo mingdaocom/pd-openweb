@@ -1,8 +1,7 @@
 import React from 'react';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 
-@withClickAway
-class DepartmentAction extends React.Component {
+let DepartmentAction = class DepartmentAction extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -35,6 +34,6 @@ class DepartmentAction extends React.Component {
       </ul>
     );
   }
-}
-
+};
+DepartmentAction = ClickAway.wrap(DepartmentAction);
 export default DepartmentAction;

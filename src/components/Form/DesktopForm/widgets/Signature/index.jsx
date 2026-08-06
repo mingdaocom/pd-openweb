@@ -7,8 +7,7 @@ import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import accountSettingAjax from 'src/api/accountSetting';
 import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -18,8 +17,7 @@ import { compatibleMDJS } from 'src/utils/project';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 import 'rc-trigger/assets/index.css';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const SignatureBox = styled.div`
   cursor: pointer;
   height: ${props => props.autoHeight && 'auto !important'};
@@ -276,6 +274,8 @@ const Signature = props => {
     canvas.getContext('2d');
     signaturePadRef.current = new SignaturePad.default(canvas, {
       penColor: '#151515',
+      minWidth: 3,
+      maxWidth: 3,
       throttle: 8,
       minDistance: 3,
       onBegin: () => {
@@ -403,7 +403,7 @@ const Signature = props => {
     return (
       <Footer>
         {showLast && (
-          <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={useLastSignature}>
+          <div className="colorPrimary hoverColorPrimaryDark pointer lastSignature" onClick={useLastSignature}>
             {_l('使用上次签名')}
           </div>
         )}

@@ -17,14 +17,22 @@ export default class CountDown extends Component {
       this.func();
     }, 1000);
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.endTime !== nextProps.endTime) {
-      this.setState({ endTime: nextProps.endTime }, () => {
-        this.func();
-        timer = setInterval(() => {
-          this.func();
-        }, 1000);
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.endTime !== this.props.endTime) {
+        this.setState(
+          {
+            endTime: this.props.endTime,
+          },
+          () => {
+            this.func();
+            timer = setInterval(() => {
+              this.func();
+            }, 1000);
+          },
+        );
+      }
     }
   }
 

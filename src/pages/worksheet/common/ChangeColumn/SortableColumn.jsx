@@ -73,7 +73,7 @@ export default function SortableColumn(props) {
         </span>
         <Tooltip placement="bottom" title={canDrag ? null : _l('前往')}>
           <i
-            className={cx('icon textTertiary Font16 Right ThemeHoverColor3 dragHandle', {
+            className={cx('icon textTertiary Font16 Right hoverColorPrimary dragHandle', {
               'icon-drag': canDrag,
               'icon-backspace searchIcon': search && !canDrag,
             })}

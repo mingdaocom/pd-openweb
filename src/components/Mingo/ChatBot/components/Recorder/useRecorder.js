@@ -194,7 +194,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
   const start = useCallback(async () => {
     try {
       if (!window.WebRecorder || !window.SpeechRecognizer) {
-        alert('请确保已加载腾讯云语音识别SDK');
+        alert(_l('请确保已加载腾讯云语音识别SDK'));
         return;
       }
 

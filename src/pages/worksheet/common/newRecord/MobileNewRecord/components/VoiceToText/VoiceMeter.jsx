@@ -24,9 +24,9 @@ const Bar = styled.div`
   animation: ${bounce} ${({ speed }) => speed}ms ease-in-out infinite;
 `;
 
-const VoiceMeterCSS = ({ speed = 900 }) => {
-  const delays = [-200, -100, 0, -100, -200];
+const delays = [-200, -100, 0, -100, -200];
 
+const VoiceMeterCSS = ({ speed = 900 }) => {
   return (
     <Wrapper>
       {delays.map((delay, i) => (

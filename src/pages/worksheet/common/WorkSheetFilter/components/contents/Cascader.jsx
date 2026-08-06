@@ -24,11 +24,13 @@ export default class RelateRecord extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.fullValues?.length !== this.props.fullValues?.length) {
-      this.setState({
-        records: nextProps.fullValues?.length > 0 ? _.map(nextProps.fullValues, r => safeParse(r)) : [],
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.fullValues?.length !== prevProps.fullValues?.length) {
+        this.setState({
+          records: this.props.fullValues?.length > 0 ? _.map(this.props.fullValues, r => safeParse(r)) : [],
+        });
+      }
     }
   }
 
@@ -38,6 +40,13 @@ export default class RelateRecord extends React.Component {
 
   get isAnyLevel() {
     return this.props.control.advancedSetting.anylevel === '0' || this.isFuzzy;
+  }
+
+  // 只有“是”是单值条件；是其中一个/不是任何一个/属于/不属于都可以填多个值，
+  // 级联单选字段在筛选器里不应被字段自身的单选配置限制成只能选一个。
+  get selectSingle() {
+    const { type, control = {} } = this.props;
+    return control.enumDefault !== 2 && type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE;
   }
 
   handleChange = selected => {
@@ -81,6 +90,7 @@ export default class RelateRecord extends React.Component {
             onChange={this.handleChange}
             {...{
               ...control,
+              enumDefault: this.selectSingle ? 1 : 2,
               advancedSetting: _.assign(
                 {},
                 from === 'rule'

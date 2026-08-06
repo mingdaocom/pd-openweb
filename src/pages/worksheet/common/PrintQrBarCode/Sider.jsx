@@ -297,7 +297,7 @@ function LabeSizeConfig(props) {
               <Tooltip title={_l('交换')}>
                 <span>
                   <i
-                    className="switchWH icon-sync1 ThemeHoverColor3 Hand"
+                    className="switchWH icon-sync1 hoverColorPrimary Hand"
                     onClick={() => {
                       const newSize = { height: size.width, width: size.height };
                       setSize(newSize);
@@ -539,9 +539,9 @@ export default function Sider(props) {
       {printType !== PRINT_TYPE.BAR && (
         <ConfigItem
           label={_l('容错率')}
-          tips={
-            '容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。'
-          }
+          tips={_l(
+            '容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。',
+          )}
         >
           <Dropdown
             menuClass="w100"

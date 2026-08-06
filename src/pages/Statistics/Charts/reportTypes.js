@@ -1,0 +1,18 @@
+export const reportTypes = {
+  BarChart: 1,
+  LineChart: 2,
+  PieChart: 3,
+  NumberChart: 10,
+  RadarChart: 5,
+  FunnelChart: 6,
+  DualAxes: 7,
+  PivotTable: 8,
+  CountryLayer: 9,
+  BidirectionalBarChart: 11,
+  ScatterChart: 12,
+  WordCloudChart: 13,
+  GaugeChart: 14,
+  ProgressChart: 15,
+  TopChart: 16,
+  WorldMap: 17,
+};

@@ -80,9 +80,11 @@ const PaginationWrap = props => {
     if (type === 'prev') {
       return <a className="page">{_l('上一页')}</a>;
     }
+
     if (type === 'next') {
       return <a className="page">{_l('下一页')}</a>;
     }
+
     return originalElement;
   }, []);
 

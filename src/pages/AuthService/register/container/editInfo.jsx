@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -9,15 +9,15 @@ import RegisterController from 'src/api/register';
 import DepDropDown from 'src/pages/AuthService/components/DepDropDown.jsx';
 import { ActionResult } from 'src/pages/AuthService/config.js';
 import { getDepartmentInfo } from 'src/pages/AuthService/register/util.js';
-import { registerSuc } from 'src/pages/AuthService/util.js';
-import { encrypt, getRequest } from 'src/utils/common';
+import { getMingoAnonymousReturnUrl, registerSuc } from 'src/pages/AuthService/util.js';
+import { encrypt, getRequest, pathCompletion } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 
 const Wrap = styled.div`
   .Dropdown--placeholder,
   .ant-select-selection-placeholder,
   .ant-select-selection-item {
-    line-height: 52px !important;
+    line-height: 48px !important;
   }
 `;
 
@@ -31,20 +31,7 @@ export default function (props) {
     warnList: [],
     focusDiv: '',
   });
-
-  useEffect(() => {
-    const { userCard = {} } = props;
-
-    if (_.isEmpty(userCard)) return;
-
-    const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
-
-    if (!isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {
-      submitUserCard();
-    } else {
-      setState({ ...getDepartmentInfo(props), pageLoading: false });
-    }
-  }, [props]);
+  const submitUserCardRef = useRef();
 
   // 提交名片信息
   const submitUserCard = () => {
@@ -165,6 +152,24 @@ export default function (props) {
     }
   };
 
+  useEffect(() => {
+    submitUserCardRef.current = submitUserCard;
+  });
+
+  useEffect(() => {
+    const { userCard = {} } = props;
+
+    if (_.isEmpty(userCard)) return;
+
+    const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
+
+    if (!isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {
+      submitUserCardRef.current && submitUserCardRef.current();
+    } else {
+      setState({ ...getDepartmentInfo(props), pageLoading: false });
+    }
+  }, [props, setState]);
+
   const validateEditCard = data => {
     let { dialCode, password = '', emailOrTel = '' } = props;
 
@@ -178,7 +183,7 @@ export default function (props) {
           msg: _l('您已成功加入该组织'),
           onClose: function () {
             setState({ loading: false });
-            location.href = '/app';
+            location.href = getMingoAnonymousReturnUrl() || pathCompletion('/app');
             if (window.isMingDaoApp) {
               mdAppResponse({
                 sessionId: 'register',
@@ -194,7 +199,7 @@ export default function (props) {
           msg: _l('您已成功加入该组织'),
           onClose: function () {
             setState({ loading: false });
-            location.href = '/personal?type=enterprise';
+            location.href = pathCompletion('/personal?type=enterprise');
             if (window.isMingDaoApp) {
               mdAppResponse({
                 sessionId: 'register',
@@ -377,8 +382,8 @@ export default function (props) {
   return (
     <React.Fragment>
       {loading && <div className="loadingLine"></div>}
-      <div className="title mTop24 Font20">{companyName || _l('填写名片')}</div>
-      <p className="mTop15 textTertiary Font15">{_l('完善名片信息')}</p>
+      <div className="title mTop24 Font28 Bold textPrimary">{companyName || _l('填写名片')}</div>
+      <p className="mTop15 textSecondary Font15">{_l('完善名片信息')}</p>
       {renderCon()}
       <span
         className="btnForRegister Hand"

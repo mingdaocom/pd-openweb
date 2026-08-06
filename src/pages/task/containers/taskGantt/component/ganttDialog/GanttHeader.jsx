@@ -3,9 +3,9 @@ import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 
 const chooseDisplayType = [
-  { type: 'day', text: '按天' },
-  { type: 'week', text: '按周' },
-  { type: 'month', text: '按月' },
+  { type: 'day', text: _l('按天') },
+  { type: 'week', text: _l('按周') },
+  { type: 'month', text: _l('按月') },
 ];
 
 export default class GanttHeader extends Component {
@@ -22,7 +22,7 @@ export default class GanttHeader extends Component {
           <Fragment>
             <div className="controlWrap flex flexRow">
               <div className="today" onClick={scrollToToday}>
-                今天
+                {_l('今天')}
               </div>
               <div className="chooseDisplayType ">
                 {chooseDisplayType.map(item => (
@@ -37,13 +37,13 @@ export default class GanttHeader extends Component {
               </div>
             </div>
             <div className="operationWrap flexRow">
-              <div className="refresh operation ThemeColor3" onClick={refresh}>
+              <div className="refresh operation colorPrimary" onClick={refresh}>
                 <Icon icon="refresh" />
-                <span>刷新</span>
+                <span>{_l('刷新')}</span>
               </div>
-              <div className="export operation ThemeColor3" onClick={exportData}>
+              <div className="export operation colorPrimary" onClick={exportData}>
                 <Icon icon="export" />
-                <span>导出</span>
+                <span>{_l('导出')}</span>
               </div>
               <canvas id="ganttCanvas" className="Hidden" />
             </div>
@@ -51,7 +51,7 @@ export default class GanttHeader extends Component {
         ) : (
           <div className="flex" />
         )}
-        <div className="close operation ThemeColor3 pointer" onClick={closeLayer}>
+        <div className="close operation colorPrimary pointer" onClick={closeLayer}>
           <Icon icon="delete" />
         </div>
       </div>

@@ -196,20 +196,23 @@ export default class EditorCon extends Component {
       loading: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.node, nextProps.node)) {
-      this.setState(
-        {
-          fieldNames: [],
-          rows: [],
-          loading: true,
-        },
-        () => {
-          this.setState({
-            loading: false,
-          });
-        },
-      );
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.node, this.props.node)) {
+        this.setState(
+          {
+            fieldNames: [],
+            rows: [],
+            loading: true,
+          },
+          () => {
+            this.setState({
+              loading: false,
+            });
+          },
+        );
+      }
     }
   }
 

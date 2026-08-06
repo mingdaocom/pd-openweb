@@ -338,7 +338,7 @@ export default function GroupDialog(props) {
                             </span>
                           }
                         >
-                          <Icon icon="info_outline" className="Hand textTertiary ThemeHoverColor3 Font16 pRight20" />
+                          <Icon icon="info_outline" className="Hand textTertiary hoverColorPrimary Font16 pRight20" />
                         </Tooltip>
                       )}
                       {_.get(item, `fields[${i}].name`) && (
@@ -506,7 +506,7 @@ export default function GroupDialog(props) {
 
         {groupControls.length < GROUPMAX && (
           <WrapAdd
-            className="Hand pTop12 addItem Bold ThemeHoverColor3 flexRow alignItemsCenter InlineBlock addGroupBtn"
+            className="Hand pTop12 addItem Bold hoverColorPrimary flexRow alignItemsCenter InlineBlock addGroupBtn"
             onClick={() => {
               setState({ groupControls: groupControls.concat({}) });
             }}

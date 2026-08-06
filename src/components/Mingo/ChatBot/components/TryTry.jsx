@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { TRY_TRY_LIST } from './tryTryList';
 
 const Con = styled.div`
   .refresh-try {
@@ -45,42 +45,6 @@ const Con = styled.div`
     border-top: 1px solid var(--color-border-secondary);
   }
 `;
-
-const TRY_TRY_LIST = [
-  {
-    id: 1,
-    text: _l('如何搭建应用'),
-  },
-  {
-    id: 2,
-    text: _l('如何创建自动化工作流'),
-  },
-  {
-    id: 3,
-    text: _l('创建工作流节点的上限是多少'),
-  },
-  {
-    id: 4,
-    text: _l('应用搭建的基本步骤有哪些'),
-  },
-  {
-    id: 5,
-    text: _l('如何设计工作表'),
-  },
-  { id: 6, text: _l('如何设置用户访问权限') },
-  { id: 7, text: _l('如何实现扫码录入') },
-  { id: 8, text: _l('如何将记录数据生成条码') },
-  { id: 9, text: _l('如何配置工作流实现自动化') },
-  { id: 10, text: _l('子表和关联记录的区别') },
-  { id: 11, text: _l('如何创建自定义字段') },
-  { id: 12, text: _l('如何根据条件控制字段显隐') },
-  { id: 13, text: _l('外部门户可用来做什么') },
-  { id: 14, text: _l('聚合表可以用来做什么') },
-  { id: 15, text: _l('用户权限标签可以用来做什么') },
-  { id: 16, text: _l('如何为应用添加外部链接') },
-  { id: 17, text: _l('如何制作统计图表') },
-  { id: 18, text: _l('如何对数据多维度分析') },
-];
 
 function getTryTryList(oldIds = [], num = 3) {
   const newTryTryList = TRY_TRY_LIST.filter(item => !oldIds.includes(item.id));

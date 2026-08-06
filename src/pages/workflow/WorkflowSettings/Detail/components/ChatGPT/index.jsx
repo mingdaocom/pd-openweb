@@ -11,10 +11,11 @@ import styled from 'styled-components';
 import filterXss from 'xss';
 import { Checkbox, Dialog, ScrollView, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import agentApi from 'src/api/agent';
 import codeAjax from 'src/api/code';
-import sseAjax from 'src/api/sse';
 import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
 import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 
 const Null = styled.div`
@@ -225,19 +226,41 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
     if (!list.length || !controller) return;
 
     let gptResponseContent = '';
+    let hasStreamError = false;
+    let isGeneratedFinished = false;
+    const messageList = _.takeRight(
+      list.filter(item => item.content),
+      11,
+    ).map(({ role, content }) => {
+      return {
+        role,
+        content,
+      };
+    });
+
+    const finishGenerateCode = () => {
+      if (isGeneratedFinished || hasStreamError || !gptResponseContent) {
+        return;
+      }
+
+      isGeneratedFinished = true;
+      const newList = [].concat(list);
+
+      newList[list.length - 1].content = gptResponseContent;
+      setList(newList);
+      setController(null);
+      saveGenerateCodeRecord(newList);
+    };
+
     const parser = createParser(event => {
       if (event.type === 'event') {
         if (event.data === '[DONE]') {
-          const newList = [].concat(list);
-
-          newList[list.length - 1].content = gptResponseContent;
-          setList(newList);
-          setController(null);
-          saveGenerateCodeRecord(newList);
+          finishGenerateCode();
           return;
         }
 
         if (event.event === 'error') {
+          hasStreamError = true;
           setError({
             errorMsg: _l('模型调用失败'),
             sourceData: event.data,
@@ -245,33 +268,37 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
           return;
         }
 
-        const source = safeParse(event.data);
+        let source = {};
 
-        if (source.choices && source.choices.length) {
-          gptResponseContent += source.choices[0].delta.content || '';
-          $('.chatGPTElement:last .markdown-body').html(getMarkdownContent(gptResponseContent));
-          $('.chatGPTDialog .scroll-viewport').scrollTop(10000000);
+        try {
+          source = JSON.parse(event.data);
+        } catch {
+          return;
         }
+
+        if (!source || source.EventType !== 'text-delta') {
+          return;
+        }
+
+        gptResponseContent += source.Delta || '';
+        $('.chatGPTElement:last .markdown-body').html(getMarkdownContent(gptResponseContent));
+        $('.chatGPTDialog .scroll-viewport').scrollTop(10000000);
       }
     });
 
     const requestData = {
-      codeType,
-      lang: 0,
-      messageList: _.takeRight(
-        list.filter(item => item.content),
-        11,
-      ).map(({ role, content }) => {
-        return {
-          role,
-          content,
-        };
-      }),
+      message: (_.findLast(messageList, item => item.role === 'user') || {}).content || '',
+      agentName: codeType === 1 ? 'js-code-agent' : 'python-code-agent',
+      sessionId: genBotSessionId(),
+      context: {
+        codeType,
+        lang: 0,
+        messageList,
+      },
     };
 
-    const resp = await sseAjax.generateCodeBlock(requestData, {
+    const resp = await agentApi.agentExecuteStream(requestData, {
       abortController: controller,
-      isReadableStream: true,
     });
 
     const reader = resp.body.getReader();
@@ -284,13 +311,10 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
 
         const result = new TextDecoder().decode(value);
 
-        if ((safeParse(result) || {}).error) {
-          alert(result, 2);
-          break;
-        }
-
         parser.feed(result);
       }
+
+      finishGenerateCode();
     } finally {
       setController(null);
       reader.releaseLock();
@@ -314,6 +338,12 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
 
   const saveGenerateCodeRecord = list => {
     codeAjax.saveGenerateCodeRecord({ workflowId: processId, nodeId, messageList: list });
+  };
+
+  const getGeneratedCode = content => {
+    const codeReg = codeType === 1 ? /```(?:javascript|js)\s*\n([\s\S]*?)```/i : /```(?:python|py)\s*\n([\s\S]*?)```/i;
+
+    return (content.match(codeReg) || [])[1] || '';
   };
 
   useEffect(() => {
@@ -344,13 +374,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
             <NullContent codeType={codeType} />
           ) : (
             list.map((item, index) => {
-              const code =
-                codeType === 1
-                  ? ((item.content.match(/```javascript[\s\S]*?```/) || [])[0] || '').replace(
-                      /(```javascript\n)|\n```/g,
-                      '',
-                    )
-                  : ((item.content.match(/```python[\s\S]*?```/) || [])[0] || '').replace(/(```python\n)|\n```/g, '');
+              const code = getGeneratedCode(item.content);
               const lastShowError = !!error && item.role === 'assistant' && index === list.length - 1;
               return (
                 <div className="flexRow mBottom25" key={index}>
@@ -363,7 +387,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
                         className={cx(
                           'chatGPTElement',
                           {
-                            'ThemeBorderColor3 ThemeBGColor3 textWhite Font14': item.role === 'user',
+                            'borderColorPrimary bgColorPrimary textWhite Font14': item.role === 'user',
                           },
                           { w100: item.role !== 'user' },
                         )}
@@ -386,7 +410,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
                                 />
                                 <div className="flex" />
                                 <UseBtn
-                                  className="ThemeColor3 mLeft20"
+                                  className="colorPrimary mLeft20"
                                   onClick={() => {
                                     const inputData = {};
 

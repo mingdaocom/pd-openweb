@@ -32,6 +32,7 @@ const BatchOptBtn = styled.div`
   z-index: 1;
   position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
   .deleteOpt {
     color: var(--color-error);
@@ -155,11 +156,7 @@ class SheetView extends Component {
       return <WithoutRows text={_l('执行查询后显示结果')} />;
     }
 
-    return currentSheetRows.length || batchOptCheckedData.length ? (
-      <SheetRows view={view} navigateTo={window.mobileNavigateTo} />
-    ) : (
-      this.renderWithoutRows()
-    );
+    return currentSheetRows.length || batchOptCheckedData.length ? <SheetRows view={view} /> : this.renderWithoutRows();
   }
   // 加载自定义按钮数据
   loadCustomBtns = (props = this.props) => {
@@ -177,8 +174,9 @@ class SheetView extends Component {
         this.setState({
           customBtns: replaceBtnsTranslateInfo(appId, data).filter(
             item =>
-              _.includes([CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY, CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM], item.clickType) ||
-              (item.writeObject === 1 && item.writeType === 1),
+              item.status !== 0 &&
+              (_.includes([CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY, CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM], item.clickType) ||
+                (item.writeObject === 1 && item.writeType === 1)),
           ),
           customButtonLoading: false,
         });
@@ -456,6 +454,7 @@ class SheetView extends Component {
           </BatchOptBtn>
         )}
         <RecordAction
+          appDetail={this.props.appDetail?.detail}
           changeActionSheetModalIndex={changeActionSheetModalIndex}
           loading={customButtonLoading}
           recordActionVisible={showButtons}
@@ -463,6 +462,7 @@ class SheetView extends Component {
           worksheetId={worksheetId}
           viewId={viewId}
           customBtns={customBtns}
+          switchPermit={sheetSwitchPermit || worksheetInfo.switches}
           worksheetInfo={worksheetInfo}
           loadRow={() => {}}
           loadCustomBtns={this.loadCustomBtns}

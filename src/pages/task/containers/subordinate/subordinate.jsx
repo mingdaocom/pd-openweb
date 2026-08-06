@@ -19,12 +19,12 @@ export default class Subordinate extends Component {
           <div className="subordinateNullImg" />
           <div className="Font17 mTop40">{_l('创建或加入组织以启用“下属任务”，查看下属和协作同事的任务进展')}</div>
           <div
-            className="Font16 mTop40 subordinateAdd ThemeColor3 ThemeBorderColor3 pointer"
+            className="Font16 mTop40 subordinateAdd colorPrimary borderColorPrimary pointer"
             onClick={() => this.joinNetwork()}
           >
             {_l('创建组织')}
           </div>
-          <div className="Font13 mTop20 ThemeColor3">
+          <div className="Font13 mTop20 colorPrimary">
             {_l('或')}{' '}
             <span className="pointer" onClick={() => this.joinNetwork()}>
               {_l('加入组织')}

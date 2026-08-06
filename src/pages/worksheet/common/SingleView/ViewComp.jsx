@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import Sheet from 'worksheet/common/Sheet/Sheet';
 import { loadWorksheet, openNewRecord, refreshSheet, updateFilters, updateSearchRecord } from 'worksheet/redux/actions';
 import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
@@ -135,4 +135,4 @@ export default connect(
       },
       dispatch,
     ),
-)(errorBoundary(ViewComp));
+)(ErrorBoundary.wrap(ViewComp));

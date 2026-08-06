@@ -11,9 +11,11 @@ User.init = function () {
   if (request.type) {
     type = request.type;
   }
+
   if (request.projectId) {
     projectId = request.projectId;
   }
+
   $('#accountNav')
     .off()
     .on('click', 'li', function () {
@@ -28,8 +30,10 @@ User.init = function () {
   if (guideSettings.accountEmail || guideSettings.accountMobilePhone) {
     $('.accountTab').find('.warnLight').show();
   }
+
   User.reloadList(type);
 };
+
 User.reloadList = function (typeTag) {
   var event = $('.accountChartLi');
   switch (typeTag) {
@@ -76,6 +80,7 @@ User.reloadList = function (typeTag) {
       });
       break;
   }
+
   event.addClass('ThemeBGColor8').siblings('li').removeClass('ThemeBGColor8');
 };
 

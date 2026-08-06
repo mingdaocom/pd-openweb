@@ -10,6 +10,7 @@ import { Icon, LoadDiv, Dropdown as MDDropdown, SvgIcon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { DropdownPlaceholder } from '../../../styled';
@@ -195,7 +196,7 @@ export default function SelectSheetFromApp(props) {
                   <Button
                     type="primary"
                     onClick={() => {
-                      window.open(`/app/${appId}/settings/aggregations`);
+                      window.open(pathCompletion(`/app/${appId}/settings/aggregations`));
                     }}
                     style={{ borderRadius: 20 }}
                   >

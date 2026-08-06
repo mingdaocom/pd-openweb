@@ -49,55 +49,63 @@ class DepartmentTree extends React.Component {
       height: 600,
     };
     this.timer = null;
+    this.handleResize = _.throttle(() => this.getHeight(), 500);
+
+    this.handleTreeSwitcherMouseOver = e => {
+      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
+    };
+
+    this.handleTreeSwitcherMouseLeave = e => {
+      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
+    };
   }
 
   componentDidMount() {
     this.init();
     this.lisentHover();
-    window.addEventListener('resize', _.throttle(this.getHeight, 500));
+    window.addEventListener('resize', this.handleResize);
   }
 
   lisentHover() {
-    $(document).on('mouseover', '.ant-tree-switcher', e => {
-      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
-    });
-    $(document).on('mouseleave', '.ant-tree-switcher', e => {
-      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
-    });
+    $(document).on('mouseover', '.ant-tree-switcher', this.handleTreeSwitcherMouseOver);
+    $(document).on('mouseleave', '.ant-tree-switcher', this.handleTreeSwitcherMouseLeave);
   }
 
   unBindHover() {
-    $(document).off('mouseover', '.ant-tree-switcher', e => {
-      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
-    });
-    $(document).off('mouseleave', '.ant-tree-switcher', e => {
-      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
-    });
+    $(document).off('mouseover', '.ant-tree-switcher', this.handleTreeSwitcherMouseOver);
+    $(document).off('mouseleave', '.ant-tree-switcher', this.handleTreeSwitcherMouseLeave);
   }
 
-  componentWillReceiveProps(nexrProps) {
-    if (
-      !_.isEqual(this.props.newDepartments, nexrProps.newDepartments) ||
-      !_.isEqual(this.props.expandedKeys, nexrProps.expandedKeys) ||
-      this.props.departmentId !== nexrProps.departmentId ||
-      !nexrProps.departmentId
-    ) {
-      this.setState({
-        newDepartments: _.cloneDeep(nexrProps.newDepartments),
-        expandedKeys: nexrProps.expandedKeys || [],
-        selectedKeys: !nexrProps.departmentId ? [] : [nexrProps.departmentId],
-      });
-    } else {
-      this.setState({ newDepartments: _.cloneDeep(nexrProps.newDepartments) });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(prevProps.newDepartments, this.props.newDepartments) ||
+        !_.isEqual(prevProps.expandedKeys, this.props.expandedKeys) ||
+        prevProps.departmentId !== this.props.departmentId ||
+        !this.props.departmentId
+      ) {
+        this.setState({
+          newDepartments: _.cloneDeep(this.props.newDepartments),
+          expandedKeys: this.props.expandedKeys || [],
+          selectedKeys: !this.props.departmentId ? [] : [this.props.departmentId],
+        });
+      } else {
+        this.setState({
+          newDepartments: _.cloneDeep(this.props.newDepartments),
+        });
+      }
 
-    if (!_.isEqual(this.props.newDepartments, nexrProps.newDepartments)) {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => this.getHeight(), 200);
+      if (!_.isEqual(prevProps.newDepartments, this.props.newDepartments)) {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.getHeight(), 200);
+      }
     }
   }
 
   componentWillUnmount() {
+    clearTimeout(this.timer);
+    window.removeEventListener('resize', this.handleResize);
+    this.handleResize.cancel();
     this.unBindHover();
   }
 
@@ -139,6 +147,8 @@ class DepartmentTree extends React.Component {
       arr.splice(index, 1);
       dragObj = item;
     });
+
+    if (!dragObj) return;
 
     if (!info.dropToGap) {
       sortedDepartmentIds = [];

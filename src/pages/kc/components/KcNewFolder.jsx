@@ -6,6 +6,7 @@ export default class KcNewFolder extends Component {
     isList: PropTypes.bool,
     addNewFolder: PropTypes.func,
     onHideAddNewFolder: PropTypes.func,
+    setRef: PropTypes.func,
   };
   constructor(props) {
     super(props);
@@ -50,10 +51,10 @@ export default class KcNewFolder extends Component {
     }
   };
   render() {
-    const { isList } = this.props;
+    const { isList, setRef } = this.props;
     const { folderName } = this.state;
     return isList ? (
-      <li key="new" className="flexRow addNewFolder">
+      <li key="new" ref={setRef} className="flexRow addNewFolder">
         <span className="noSelectPoint" />
         <span className="type fileIcon-folder" />
         <input
@@ -70,7 +71,7 @@ export default class KcNewFolder extends Component {
         />
       </li>
     ) : (
-      <li key="new" className="thumbnailItem addNewFolder">
+      <li key="new" ref={setRef} className="thumbnailItem addNewFolder">
         <div className="thumbnailImg">
           <span className="type fileIcon-folder" />
         </div>

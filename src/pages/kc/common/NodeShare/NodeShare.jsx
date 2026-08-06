@@ -64,6 +64,7 @@ class NodeShare extends React.Component {
 
   render() {
     const { loading, allowDownload, attachments, fileId } = this.state;
+    const projectId = this.state.node?.projectId || this.props.projectId;
 
     if (!AttachmentsPreview || loading) {
       return <LoadDiv size="big" />;
@@ -76,7 +77,7 @@ class NodeShare extends React.Component {
       );
     } else {
       return (
-        <WaterMark projectId={this.state.node?.projectId}>
+        <WaterMark projectId={projectId}>
           <AttachmentsPreview
             isShare
             options={{

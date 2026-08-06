@@ -5,7 +5,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Checkbox, ColorPicker, Icon, RadioGroup, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import sheetAjax from 'src/api/worksheet';
 import process from 'src/pages/workflow/api/process';
@@ -23,7 +23,6 @@ import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
 import { COLORS, ICONS } from './config';
 import './CreateCustomBtn.less';
 
-@errorBoundary
 class CreateCustomBtnCon extends React.Component {
   constructor(props) {
     super(props);
@@ -53,12 +52,14 @@ class CreateCustomBtnCon extends React.Component {
     $('.Radio').attr('title', '');
   }
 
-  componentWillReceiveProps(nextProps) {
-    const btnDataInfoPre = this.props.btnDataInfo || {};
-    const btnDataInfoNext = nextProps.btnDataInfo || {};
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const btnDataInfoPre = prevProps.btnDataInfo || {};
+      const btnDataInfoNext = this.props.btnDataInfo || {};
 
-    if (!_.isEqual(btnDataInfoPre, btnDataInfoNext)) {
-      this.initState(nextProps);
+      if (!_.isEqual(btnDataInfoPre, btnDataInfoNext)) {
+        this.initState(this.props);
+      }
     }
   }
 
@@ -1136,6 +1137,8 @@ class CreateCustomBtnCon extends React.Component {
   }
 }
 
+const CreateCustomBtnConWithErrorBoundary = ErrorBoundary.wrap(CreateCustomBtnCon);
+
 class CreateCustomBtn extends React.Component {
   constructor(props) {
     super(props);
@@ -1170,7 +1173,7 @@ class CreateCustomBtn extends React.Component {
         <div className="createCustomBtnCon">
           <div className="flexColumn h100">
             {this.renderTitle()}
-            <CreateCustomBtnCon
+            <CreateCustomBtnConWithErrorBoundary
               {...this.props}
               key={`${btnI}_btn`}
               onChangeEditStatus={isEdit => {

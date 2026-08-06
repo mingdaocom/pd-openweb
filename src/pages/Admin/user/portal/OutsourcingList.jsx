@@ -253,7 +253,7 @@ export default class OutsourcingList extends Component {
             {selectKeys.length ? (
               <Fragment>
                 <span className="Font16 color_b Bold">{_l(`已选择%0条`, selectKeys.length)}</span>
-                <div className="ThemeColor3 mLeft30 Hand pTop3" onClick={() => this.handleDelete()}>
+                <div className="colorPrimary mLeft30 Hand pTop3" onClick={() => this.handleDelete()}>
                   <span className="icon icon-sp_filter_none_white"></span>
                   <span>{_l('移除')}</span>
                 </div>

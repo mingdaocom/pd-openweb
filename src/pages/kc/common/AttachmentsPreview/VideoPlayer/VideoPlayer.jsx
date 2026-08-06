@@ -25,9 +25,12 @@ class VideoPlayer extends Component {
   componentDidMount() {
     this.loadVideo(this.props.src);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.src !== this.props.src) {
-      this.loadVideo(nextProps.src);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.src !== prevProps.src) {
+        this.loadVideo(this.props.src);
+      }
     }
   }
   loadVideo(src) {

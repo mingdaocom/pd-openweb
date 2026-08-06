@@ -5,8 +5,7 @@ import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { browserIsMobile, emitter } from 'src/utils/common';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
+import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
 import { getCardWidth } from 'src/utils/worksheet';
 import { getRelateSheetId } from '../../HierarchyView/util';
 import DraggableRecord from './DraggableRecord';
@@ -56,28 +55,21 @@ export default class VerticalSortableRecordItem extends Component {
       recordInfoRowId: '',
     };
   }
-  componentDidMount() {
-    window.addEventListener('popstate', this.onQueryChange);
-  }
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.onQueryChange);
-  }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.recordInfoId &&
-      nextProps.recordInfoId !== this.props.recordInfoId &&
-      nextProps.recordInfoId === this.props.data.rowId
-    ) {
-      this.setState({
-        recordInfoVisible: true,
-        recordInfoRowId: nextProps.recordInfoId,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.recordInfoId &&
+        this.props.recordInfoId !== prevProps.recordInfoId &&
+        this.props.recordInfoId === prevProps.data.rowId
+      ) {
+        this.setState({
+          recordInfoVisible: true,
+          recordInfoRowId: this.props.recordInfoId,
+        });
+      }
     }
   }
-  onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
-  };
 
   getNode = (data, path) => {
     if (!path.length) return {};
@@ -90,11 +82,10 @@ export default class VerticalSortableRecordItem extends Component {
     if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
-      window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
+      window.location.href = pathCompletion(`/mobile/record/${appId}/${curInfo.wsid}/${rowId}`);
       return;
     }
 
-    handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {
@@ -107,7 +98,7 @@ export default class VerticalSortableRecordItem extends Component {
 
       // 第一级 (本表)
       if (configIndex === 0 || viewControls.length === 1) {
-        return { worksheetId, viewId };
+        return { worksheetId, viewId, view };
       }
 
       // 获取关联控件配置的viewId
@@ -125,7 +116,8 @@ export default class VerticalSortableRecordItem extends Component {
       };
     }
 
-    return { worksheetId, viewId };
+    // 本表层级：详情按钮区需要 view.advancedSetting.detailgroup 才能渲染自定义动作分组
+    return { worksheetId, viewId, view };
   };
   getCurrentSheetRows = () => {
     const { stateTree = [] } = this.props;
@@ -209,6 +201,7 @@ export default class VerticalSortableRecordItem extends Component {
               worksheetId={recordInfoPara.worksheetId}
               viewId={recordInfoPara.viewId}
               enablePayment={worksheetInfo.enablePayment}
+              worksheetInfo={worksheetInfo}
               rowId={recordInfoRowId}
               onClose={() => {
                 this.setState({ recordInfoVisible: false });

@@ -10,6 +10,7 @@ import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import { openAgentPromptGenBot } from 'src/components/Mingo/modules/AgentPromptGenBot';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import selectPBPDialog from '../../../components/selectPBPDialog';
@@ -179,6 +180,12 @@ const AI_ACTIONS_BOX = styled.div`
   }
 `;
 
+const DATA_PROCESSING_TOOL_TYPES = [1, 2, 3, 4, 10];
+const WORKSHEET_RANGE_TOOL_TYPES = [1, 2, 3, 4];
+const SINGLETON_TOOL_TYPES = DATA_PROCESSING_TOOL_TYPES.concat([7, 8, 9]);
+const NO_CONFIRM_TOOL_TYPES = [3, 4, 9, 10];
+const EDITABLE_TOOL_TYPES = [5, 6, 7, 8, 9];
+
 export default class Agent extends Component {
   constructor(props) {
     super(props);
@@ -198,18 +205,22 @@ export default class Agent extends Component {
     this.mounted = true;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -226,6 +237,10 @@ export default class Agent extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
       });
   }
@@ -267,10 +282,6 @@ export default class Agent extends Component {
       }
     });
 
-    if (saveRequest) {
-      return;
-    }
-
     if (!prompt.trim()) {
       alert(_l('提示词不能为空'), 2);
       return;
@@ -278,6 +289,10 @@ export default class Agent extends Component {
 
     if (hasError) {
       alert(_l('输出参数配置有误'), 2);
+      return;
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -454,12 +469,19 @@ export default class Agent extends Component {
         {window.platformENV.isPlatform ? (
           <div className="Font13 textSecondary mTop5">
             {_l('选择用于 AI Agent 的大语言模型。Token 消耗将从组织信用点扣除')}
-            <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
+            <Support type={3} text={_l('了解模型价格')} href={pathCompletion('/billingrules')} />
           </div>
         ) : (
           <div className="Font13 textSecondary mTop5">{_l('选择用于 AI Agent 的大语言模型。')}</div>
         )}
-        <SelectAIModel data={data} showAutoModel showModelSettings updateSource={this.updateSource} />
+        <SelectAIModel
+          projectId={this.props?.companyId}
+          appId={this.props.flowInfo?.relationId || this.props?.relationId}
+          data={data}
+          showAutoModel
+          showModelSettings
+          updateSource={this.updateSource}
+        />
       </Fragment>
     );
   }
@@ -549,7 +571,7 @@ export default class Agent extends Component {
     const { flowInfo, isAIActions, companyId } = this.props;
     const { data } = this.state;
     const isChatBot = flowInfo.startAppType === APP_TYPE.CHATBOT;
-    const MORE_TOOLS = [3, 1, 2, 4, 7, 8, 6, 5, 9]
+    const MORE_TOOLS = [3, 1, 2, 10, 4, 7, 8, 6, 5, 9]
       .filter(
         key =>
           key !== 9 ||
@@ -560,12 +582,12 @@ export default class Agent extends Component {
       .filter(
         o =>
           !_.includes(
-            data.tools.filter(o => _.includes([1, 2, 3, 4, 7, 8, 9], o.type) && o.enabled).map(o => o.type),
+            data.tools.filter(o => _.includes(SINGLETON_TOOL_TYPES, o.type) && o.enabled).map(o => o.type),
             o.type,
           ),
       );
-    const worksheetTools = data.tools.filter(o => _.includes([1, 2, 3, 4], o.type) && o.enabled);
-    const otherTools = data.tools.filter(o => !_.includes([1, 2, 3, 4], o.type) && o.enabled);
+    const worksheetTools = data.tools.filter(o => _.includes(DATA_PROCESSING_TOOL_TYPES, o.type) && o.enabled);
+    const otherTools = data.tools.filter(o => !_.includes(DATA_PROCESSING_TOOL_TYPES, o.type) && o.enabled);
 
     return (
       <Fragment>
@@ -624,9 +646,12 @@ export default class Agent extends Component {
 
                   return (
                     <Fragment key={o.type}>
-                      {index === 0 && _.includes([1, 2, 3, 4], o.type) && <div className="desc">{_l('数据处理')}</div>}
-                      {((index === 0 && !_.includes([1, 2, 3, 4], o.type)) ||
-                        (index !== 0 && index === MORE_TOOLS.filter(o => _.includes([1, 2, 3, 4], o.type)).length)) && (
+                      {index === 0 && _.includes(DATA_PROCESSING_TOOL_TYPES, o.type) && (
+                        <div className="desc">{_l('数据处理')}</div>
+                      )}
+                      {((index === 0 && !_.includes(DATA_PROCESSING_TOOL_TYPES, o.type)) ||
+                        (index !== 0 &&
+                          index === MORE_TOOLS.filter(o => _.includes(DATA_PROCESSING_TOOL_TYPES, o.type)).length)) && (
                         <div className="desc">{_l('更多工具')}</div>
                       )}
                       <div
@@ -634,8 +659,14 @@ export default class Agent extends Component {
                         onClick={() => {
                           this.triggerRef.close();
 
-                          if (_.includes([1, 2, 3, 4], o.type)) {
-                            this.updateTool(data.tools.filter(obj => obj.type === o.type)[0].toolId, { enabled: true });
+                          if (_.includes(DATA_PROCESSING_TOOL_TYPES, o.type)) {
+                            const existingTool = data.tools.find(obj => obj.type === o.type);
+
+                            if (existingTool) {
+                              this.updateTool(existingTool.toolId, { enabled: true });
+                            } else {
+                              this.updateSource({ tools: data.tools.concat(getNewTool()) });
+                            }
                           }
 
                           if (o.type === 5) {
@@ -700,7 +731,7 @@ export default class Agent extends Component {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <span className="pointer textTertiary ThemeHoverColor3">+ {_l('添加工具')}</span>
+            <span className="pointer textTertiary hoverColorPrimary">+ {_l('添加工具')}</span>
           </Trigger>
         </div>
       </Fragment>
@@ -747,7 +778,7 @@ export default class Agent extends Component {
                       ? item.type === 5
                         ? _l('API已删除')
                         : _l('封装业务流程已删除')
-                      : _.includes([1, 2, 3, 4], item.type)
+                      : _.includes(DATA_PROCESSING_TOOL_TYPES, item.type)
                         ? AGENT_TOOLS[item.type].displayName
                         : item.name}
                   </div>
@@ -761,7 +792,7 @@ export default class Agent extends Component {
 
                 {tool.range && item.type !== 9 && (
                   <div
-                    className="Font13 ThemeColor3 ThemeHoverColor2 pointer mLeft10"
+                    className="Font13 colorPrimary hoverColorPrimaryDark pointer mLeft10"
                     onClick={() =>
                       selectWorksheet({
                         appId: this.props.relationId,
@@ -791,16 +822,20 @@ export default class Agent extends Component {
 
                 {!tool.range && _.includes([5, 6], item.type) && !selectToolId && !isDelete && (
                   <i
-                    className="Font12 icon-task-new-detail ThemeColor3 ThemeHoverColor2 pointer mLeft10"
+                    className="Font12 icon-task-new-detail colorPrimary hoverColorPrimaryDark pointer mLeft10"
                     onClick={() =>
-                      window.open(`${item.type === 5 ? '/integrationApi' : '/workflowedit'}/${item.configs[0].appId}`)
+                      window.open(
+                        pathCompletion(
+                          `${item.type === 5 ? '/integrationApi' : '/workflowedit'}/${item.configs[0].appId}`,
+                        ),
+                      )
                     }
                   />
                 )}
 
-                {(!tool.range || item.type === 9) && !selectToolId && !isDelete && (
+                {_.includes(EDITABLE_TOOL_TYPES, item.type) && !selectToolId && !isDelete && (
                   <i
-                    className="Font16 textSecondary ThemeHoverColor3 pointer icon-edit mLeft10"
+                    className="Font16 textSecondary hoverColorPrimary pointer icon-edit mLeft10"
                     onClick={() => this.setState({ selectToolId: item.toolId })}
                   />
                 )}
@@ -808,8 +843,10 @@ export default class Agent extends Component {
                 <div className="flex" />
               </div>
 
-              {tool.range && (
-                <div className="Font12 textSecondary">{item.auto ? tool.autoRange : tool.specificRange}</div>
+              {(tool.range || tool.desc) && (
+                <div className="Font12 textSecondary">
+                  {tool.range ? (item.auto ? tool.autoRange : tool.specificRange) : tool.desc}
+                </div>
               )}
 
               {item.type === 8 && window.platformENV.isPlatform && (
@@ -821,9 +858,9 @@ export default class Agent extends Component {
 
             <div className="mLeft12">
               <i
-                className="Font16 pointer textTertiary ThemeHoverColor3 icon-trash"
+                className="Font16 pointer textTertiary hoverColorPrimary icon-trash"
                 onClick={() => {
-                  if (_.includes([1, 2, 3, 4, 9], item.type)) {
+                  if (_.includes(DATA_PROCESSING_TOOL_TYPES.concat([9]), item.type)) {
                     this.updateTool(item.toolId, { enabled: !item.enabled });
                   } else {
                     this.updateSource({ tools: data.tools.filter(o => o.toolId !== item.toolId) });
@@ -833,7 +870,7 @@ export default class Agent extends Component {
             </div>
           </div>
 
-          {(isChatBot || isAIActions) && !_.includes([3, 4, 9], item.type) && !isDelete && (
+          {(isChatBot || isAIActions) && !_.includes(NO_CONFIRM_TOOL_TYPES, item.type) && !isDelete && (
             <div className="mTop3">
               <Checkbox
                 className="textSecondary"
@@ -844,7 +881,7 @@ export default class Agent extends Component {
             </div>
           )}
 
-          {_.includes([1, 2, 3, 4], item.type) &&
+          {_.includes(WORKSHEET_RANGE_TOOL_TYPES, item.type) &&
             item.configs.map(o => (
               <SHEET_LIST key={o.appId}>
                 <SvgIcon url={o.iconUrl} fill={o.iconColor} size={16} />
@@ -854,7 +891,7 @@ export default class Agent extends Component {
 
                 {_.includes([3, 4], item.type) && (
                   <i
-                    className="Font16 pointer textTertiary ThemeHoverColor3 icon-settings mLeft15"
+                    className="Font16 pointer textTertiary hoverColorPrimary icon-settings mLeft15"
                     onClick={() =>
                       worksheetFilter({
                         ...this.props,
@@ -875,7 +912,7 @@ export default class Agent extends Component {
                 )}
 
                 <i
-                  className="Font16 pointer textTertiary ThemeHoverColor3 icon-closeelement-bg-circle mLeft15"
+                  className="Font16 pointer textTertiary hoverColorPrimary icon-closeelement-bg-circle mLeft15"
                   onClick={() =>
                     this.updateTool(item.toolId, {
                       configs: item.configs.filter(info => info.appId !== o.appId),
@@ -898,7 +935,7 @@ export default class Agent extends Component {
                 </div>
               </div>
               <i
-                className="Font16 pointer textTertiary ThemeHoverColor3 icon-edit mLeft15"
+                className="Font16 pointer textTertiary hoverColorPrimary icon-edit mLeft15"
                 onClick={() => this.setState({ showVectorDialog: true, toolNode: item.toolNode })}
               />
             </SHEET_LIST>
@@ -971,7 +1008,11 @@ export default class Agent extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.prompt.trim()} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.prompt.trim() && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
 
         {showVectorDialog && (
           <Dialog

@@ -57,7 +57,7 @@ const VoteUpdater = {
             <div id="{{= it.idPrefix + "divVoteUpload" + it.curindex }}"></div>\
             <div class="Clear"></div>\
           </div>\
-          <div class="Left ThemeColor3 Hand" id="{{= it.idPrefix + "VotePicUpload" + it.curindex }}">{{= _l("上传图片") }}...</div>\
+          <div class="Left colorPrimary Hand" id="{{= it.idPrefix + "VotePicUpload" + it.curindex }}">{{= _l("上传图片") }}...</div>\
           {{? it.canClose}}\
           <div class="Left mLeft10">\
             <span class="Hand Bold textTertiary removeVoteItem" title="{{= _l("关闭") }}">×</span>\
@@ -401,7 +401,7 @@ const VoteUpdater = {
       return $voteItemInput.val() === '' || $voteItemInput.val() === _l('请输入投票项');
     });
     if ($emptyInput.length) {
-      alert('投票项内容不能为空', 3);
+      alert(_l('投票项内容不能为空'), 3);
     }
   },
 };

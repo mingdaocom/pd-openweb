@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import './tabs.css';
 
@@ -14,26 +13,32 @@ export class Tabs extends React.Component {
   };
 
   componentDidMount() {
-    if (ReactDom.findDOMNode(this.refs.current)) {
+    if (this.currentTab) {
       this.setIndicatorStyle();
     }
   }
 
   componentDidUpdate() {
-    if (ReactDom.findDOMNode(this.refs.current)) {
+    if (this.currentTab) {
       this.setIndicatorStyle();
     }
   }
 
   setIndicatorStyle = () => {
-    const indicator = ReactDom.findDOMNode(this.indicator);
+    const indicator = this.indicator;
+    if (!indicator) return;
+
     const position = this.getIndicatorPosition();
+    if (!position) return;
+
     indicator.style.left = position.left + 'px';
     indicator.style.width = position.width + 'px';
   };
 
   getIndicatorPosition = () => {
-    const currentTab = ReactDom.findDOMNode(this.refs.current);
+    const currentTab = this.currentTab;
+    if (!currentTab) return;
+
     const tabWidth = currentTab.offsetWidth;
     const tabLeft = currentTab.offsetLeft;
     const left = tabLeft;
@@ -48,14 +53,14 @@ export class Tabs extends React.Component {
           {React.Children.map(this.props.children, (el, i) =>
             React.cloneElement(el, {
               key: i,
-              ref: el.props.focused ? 'current' : undefined,
+              setRef: el.props.focused ? currentTab => (this.currentTab = currentTab) : undefined,
               style: el.props.style,
               className: el.props.className,
             }),
           )}
         </ul>
         <div
-          className="mmTabIndicator ThemeBGColor3"
+          className="mmTabIndicator bgColorPrimary"
           ref={indicator => {
             this.indicator = indicator;
           }}

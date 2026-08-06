@@ -208,14 +208,12 @@ export default class ImportExcel extends React.Component {
             onDrop={() => this.setState({ dragOver: false })}
           >
             <div className="optionContent">
-              <div
-                className={cx(
-                  'dropContainer ThemeBorderColor4',
-                  this.state.dragOver ? 'ThemeBGColor5' : 'ThemeBGColor6',
-                )}
-              >
+              <div className="dropContainer borderColorPrimary bgColorPrimaryTransparent">
                 <div
-                  className={cx('uploadIcon icon-cloud_upload', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')}
+                  className={cx(
+                    'uploadIcon icon-cloud_upload',
+                    this.state.dragOver ? 'colorPrimary' : 'colorPrimaryLight',
+                  )}
                 />
                 <div className="dropDesc">
                   {this.state.dragOver ? _l('松开鼠标开始上传') : _l('拖拽文件到这里上传')}
@@ -223,7 +221,7 @@ export default class ImportExcel extends React.Component {
               </div>
               <div className={cx('chooseBtnContainer', fileList.size > 0 && 'Hidden')}>
                 <div
-                  className="chooseBtn ThemeHoverBGColor2 ThemeBGColor3"
+                  className="chooseBtn hoverBgColorPrimaryDark bgColorPrimary"
                   onClick={() => {
                     $('#selectFileTrigger').click();
                   }}

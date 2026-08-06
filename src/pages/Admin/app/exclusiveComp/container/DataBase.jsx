@@ -1,10 +1,11 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Button, Dialog, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
+import { pathCompletion } from 'src/utils/common';
 import ConnectDataBase from '../component/ConnectDataBase';
 import DataBaseImg from '../images/database.png';
 import './DataBase.less';
@@ -64,30 +65,29 @@ function DataBase(props) {
   const [popupVisibleId, setPopupVisibleId] = useState(undefined);
   const [limit, setLimit] = useState('-');
 
+  const getLimit = useCallback(() => {
+    projectAjax.getDBInstanceLimit({ projectId }).then(res => {
+      setLimit(res);
+    });
+  }, [projectId]);
+
+  const getList = useCallback(() => {
+    projectAjax.getDBInstances({ projectId }).then(res => {
+      setList(res);
+      setLoading(false);
+    });
+  }, [projectId]);
+
   useEffect(() => {
     getList();
     getLimit();
-  }, []);
+  }, [getLimit, getList]);
 
   useEffect(() => {
     if (refresh === -1) return;
 
     getList();
-  }, [refresh]);
-
-  const getLimit = () => {
-    projectAjax.getDBInstanceLimit({ projectId }).then(res => {
-      setLimit(res);
-    });
-  };
-
-  const getList = () => {
-    !loading && setLoading(true);
-    projectAjax.getDBInstances({ projectId }).then(res => {
-      setList(res);
-      setLoading(false);
-    });
-  };
+  }, [getList, refresh]);
 
   const onCreate = () => {
     setCreateConnect({ visible: true, id: undefined, data: {} });
@@ -132,7 +132,8 @@ function DataBase(props) {
     });
   };
 
-  const toManage = item => history.push(`/admin/database/${projectId}/${item.id}`, item);
+  const toManage = item =>
+    history.push(pathCompletion(`/admin/database/${projectId}/${item.id}`, { hasDomain: false }), item);
 
   const renderPopup = item => {
     return (
@@ -216,7 +217,7 @@ function DataBase(props) {
                       setPopupVisibleId(visible ? item.id : undefined);
                     }}
                   >
-                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverTextPrimaryLight Hand" />
+                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverColorPrimaryLight Hand" />
                   </Trigger>
                 </div>
               </div>

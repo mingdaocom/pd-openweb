@@ -134,12 +134,6 @@ const Cascader = React.forwardRef(
       }
     }, [searchValue, multiple]);
 
-    useEffect(() => {
-      if (!_.isUndefined(open) && open !== popupVisible) {
-        handlePopupVisibleChange(open);
-      }
-    }, [open, handlePopupVisibleChange]);
-
     // 监听 options 变化，如果正在加载的节点有了子节点，清空加载状态
     useEffect(() => {
       if (loadingNode) {
@@ -269,6 +263,12 @@ const Cascader = React.forwardRef(
       },
       [onDropdownVisibleChange, showSearch, disabled],
     );
+
+    useEffect(() => {
+      if (!_.isUndefined(open) && open !== popupVisible) {
+        handlePopupVisibleChange(open);
+      }
+    }, [open, handlePopupVisibleChange]);
 
     // 清空所有选择
     const handleClear = useCallback(
@@ -401,7 +401,7 @@ const Cascader = React.forwardRef(
           if (text.search(new RegExp(searchValue.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1) {
             return (
               <React.Fragment>
-                <span className="ThemeColor3">{text}</span>
+                <span className="colorPrimary">{text}</span>
                 {!isLast && <span> / </span>}
               </React.Fragment>
             );
@@ -424,7 +424,7 @@ const Cascader = React.forwardRef(
         return (
           <div className="cascader-content">
             <div className="cascader-not-found-content" style={{ width: containerRef.current?.clientWidth }}>
-              {notFoundContent || (loadingNode ? _l('数据加载中...') : searchValue ? '无匹配结果' : '暂无数据')}
+              {notFoundContent || (loadingNode ? _l('数据加载中...') : searchValue ? _l('无匹配结果') : _l('暂无数据'))}
             </div>
           </div>
         );

@@ -2,7 +2,6 @@
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import {

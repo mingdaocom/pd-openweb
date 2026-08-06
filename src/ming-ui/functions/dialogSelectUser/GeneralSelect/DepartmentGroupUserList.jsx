@@ -13,10 +13,9 @@ import './css/user.less';
 export default class DepartmentGroupUserList extends Component {
   constructor(props) {
     super(props);
+    const isCheckedGroupOnlyMyJoin = localStorage.getItem('isCheckedGroupOnlyMyJoin');
     this.state = {
-      onlyJoinGroupChecked: localStorage.getItem('isCheckedGroupOnlyMyJoin')
-        ? safeParse(localStorage.getItem('isCheckedGroupOnlyMyJoin'))
-        : true,
+      onlyJoinGroupChecked: isCheckedGroupOnlyMyJoin ? safeParse(isCheckedGroupOnlyMyJoin) : true,
     };
   }
 
@@ -99,7 +98,7 @@ export default class DepartmentGroupUserList extends Component {
                     </div>
                     {/* {this.props.unique ? null : (
                     <div
-                      className="GSelect-treeItem-allSelect ThemeColor3"
+                      className="GSelect-treeItem-allSelect colorPrimary"
                       onClick={() => }
                     >
                       {_l('全选')}

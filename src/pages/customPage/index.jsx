@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import update from 'immutability-helper';
@@ -10,12 +10,11 @@ import customApi from 'statistics/api/custom.js';
 import reportConfigApi from 'statistics/api/reportConfig';
 import { reportTypes } from 'statistics/Charts/common';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
-import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
+import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap/defaultConfig';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
 import ConfigHeader from './ConfigHeader';
-import MobileLayout from './mobileLayout';
 import * as actions from './redux/action';
 import {
   enumWidgetType,
@@ -28,11 +27,12 @@ import {
 import WebLayout from './webLayout';
 import './index.less';
 
+const MobileLayout = lazy(() => import('./mobileLayout'));
+
 const TYPE_TO_COMP = {
   web: WebLayout,
   mobile: MobileLayout,
 };
-
 const CustomPageWrap = styled.div`
   position: fixed;
   top: 0;
@@ -59,22 +59,24 @@ const mapStateToProps = ({ customPage, sheet, appPkg }) => ({ ...customPage, ...
 
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, updateSheetListAppItem }, dispatch);
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class CustomPage extends Component {
+let CustomPage = class CustomPage extends Component {
   static propTypes = {};
   static defaultProps = {};
-
   state = {
     displayType: 'web',
   };
 
   componentDidMount() {
-    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
+    this.props.updatePageInfo({
+      loadFilterComponentCount: 0,
+    });
     this.getPageData();
   }
 
   componentWillUnmount() {
-    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
+    this.props.updatePageInfo({
+      loadFilterComponentCount: 0,
+    });
   }
 
   getPageData = () => {
@@ -82,7 +84,9 @@ export default class CustomPage extends Component {
     const pageId = ids.worksheetId;
     updateLoading(true);
     customApi
-      .getPage({ appId: pageId })
+      .getPage({
+        appId: pageId,
+      })
       .then(({ components, apk, version, adjustScreen, config }) => {
         components = updateLayout(fillObjectId(components), config);
         updatePageInfo({
@@ -103,14 +107,12 @@ export default class CustomPage extends Component {
       })
       .finally(() => updateLoading(false));
   };
-
   handleBack = () => {
     const { updateModified, updateEditPageVisible } = this.props;
     updateEditPageVisible(false);
     updateModified(false);
-  };
+  }; // 找到编辑过名称和描述的图表保存数据
 
-  // 找到编辑过名称和描述的图表保存数据
   fillChartData = components => {
     return new Promise(resolve => {
       const chartComponent = components
@@ -150,7 +152,6 @@ export default class CustomPage extends Component {
       }
     });
   };
-
   getCreateRecordBtns = components => {
     const btnComponent = components.filter(item => item.type === enumWidgetType.button);
     return _.flatten(
@@ -166,7 +167,6 @@ export default class CustomPage extends Component {
       }),
     );
   };
-
   getFilterBtns = components => {
     const btnComponent = components.filter(item => item.type === enumWidgetType.button);
     return _.flatten(
@@ -178,7 +178,6 @@ export default class CustomPage extends Component {
       }),
     );
   };
-
   getAlreadyDeleteBtn = components => {
     const getBtn = components => {
       const btnComponents = components.filter(c => c.type === enumWidgetType.button);
@@ -193,11 +192,15 @@ export default class CustomPage extends Component {
 
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
-    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { btnId: b.btnId }));
+    const deleteBtns = originBtns.filter(
+      b =>
+        !_.find(newBtns, {
+          btnId: b.btnId,
+        }),
+    );
     return deleteBtns;
-  };
+  }; // 找到已经删除的设置默认值的创建记录按钮，调用 optionWorksheetBtn 删除 btnId
 
-  // 找到已经删除的设置默认值的创建记录按钮，调用 optionWorksheetBtn 删除 btnId
   removeWorksheetBtn = () => {
     const { ids, components } = this.props;
     const btns = this.getAlreadyDeleteBtn(components);
@@ -212,7 +215,6 @@ export default class CustomPage extends Component {
     });
     Promise.all(removeBtnRequest).then(() => {});
   };
-
   getAlreadyDeleteFilterBtn = components => {
     const getBtn = components => {
       const btnComponents = components.filter(c => c.type === enumWidgetType.button);
@@ -227,11 +229,15 @@ export default class CustomPage extends Component {
 
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
-    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { filterId: b.filterId }));
+    const deleteBtns = originBtns.filter(
+      b =>
+        !_.find(newBtns, {
+          filterId: b.filterId,
+        }),
+    );
     return deleteBtns;
-  };
+  }; // 找到已经删除的设置筛选条件的扫码按钮，调用 deleteWorksheetFilter 删除 filterId
 
-  // 找到已经删除的设置筛选条件的扫码按钮，调用 deleteWorksheetFilter 删除 filterId
   removeFilterId = () => {
     const { ids, components } = this.props;
     const btns = this.getAlreadyDeleteFilterBtn(components);
@@ -242,9 +248,8 @@ export default class CustomPage extends Component {
       });
     });
     Promise.all(removeBtnRequest).then(() => {});
-  };
+  }; // 找到设置默认值的创建记录按钮，调用 saveWorksheetBtn 接口并保存 btnId
 
-  // 找到设置默认值的创建记录按钮，调用 saveWorksheetBtn 接口并保存 btnId
   fillBtnData = components => {
     return new Promise(resolve => {
       const createRecordBtns = this.getCreateRecordBtns(components);
@@ -252,8 +257,8 @@ export default class CustomPage extends Component {
       if (createRecordBtns.length) {
         // 找到创建按钮
         const saveBtnRequest = createRecordBtns.map(item => {
-          const { temporaryWriteControls, controls } = item.config;
-          // 保存的时候对 writeControls 数据处理
+          const { temporaryWriteControls, controls } = item.config; // 保存的时候对 writeControls 数据处理
+
           let writeControlsFormat = temporaryWriteControls.map(o => {
             let control = _.find(controls, item => item.controlId === o.controlId) || {};
             return {
@@ -262,7 +267,9 @@ export default class CustomPage extends Component {
                 formatControlsData([
                   {
                     ...control,
-                    advancedSetting: { defsource: o.defsource },
+                    advancedSetting: {
+                      defsource: o.defsource,
+                    },
                   },
                 ])[0],
                 ['advancedSetting', 'defsource'],
@@ -293,7 +300,10 @@ export default class CustomPage extends Component {
                   ...component.button,
                   buttonList: buttonList.map(btn => {
                     const { id, config } = btn;
-                    const target = _.find(btnIds, { id });
+
+                    const target = _.find(btnIds, {
+                      id,
+                    });
 
                     if (target) {
                       const { btnId } = target;
@@ -331,9 +341,8 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  };
+  }; // 找到设置筛选条件的按钮，调用 saveWorksheetFilter 接口并保存 filterId
 
-  // 找到设置筛选条件的按钮，调用 saveWorksheetFilter 接口并保存 filterId
   fillFilterData = components => {
     const { ids } = this.props;
     return new Promise(resolve => {
@@ -369,18 +378,14 @@ export default class CustomPage extends Component {
                   ...component.button,
                   buttonList: buttonList.map(btn => {
                     const { id, config } = btn;
-                    const target = _.find(btnIds, { id });
+
+                    const target = _.find(btnIds, {
+                      id,
+                    });
 
                     if (target) {
                       const { filterId } = target;
-                      return {
-                        ...btn,
-                        config: {
-                          ...config,
-                          filterConditions: undefined,
-                        },
-                        filterId,
-                      };
+                      return { ...btn, config: { ...config, filterConditions: undefined }, filterId };
                     } else {
                       return btn;
                     }
@@ -397,8 +402,8 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  };
-  // 保存筛选组件
+  }; // 保存筛选组件
+
   fillFilterComponent = components => {
     return new Promise(resolve => {
       const { ids } = this.props;
@@ -428,10 +433,7 @@ export default class CustomPage extends Component {
                 value: _.isEmpty(item.dynamicSource) ? item.value : undefined,
                 control: undefined,
                 objectControls: item.objectControls.map(object => {
-                  return {
-                    ...object,
-                    control: undefined,
-                  };
+                  return { ...object, control: undefined };
                 }),
               };
             }),
@@ -449,7 +451,9 @@ export default class CustomPage extends Component {
               return {
                 ...component,
                 filter: undefined,
-                value: _.find(filterIds, { id: component.id || component.uuid }).filtersGroupId,
+                value: _.find(filterIds, {
+                  id: component.id || component.uuid,
+                }).filtersGroupId,
               };
             } else {
               return component;
@@ -461,9 +465,8 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  };
+  }; // 删除筛选组件
 
-  // 删除筛选组件
   removeFiltersGroup = () => {
     const { ids, components } = this.props;
 
@@ -473,7 +476,12 @@ export default class CustomPage extends Component {
 
     const originFilters = getFilter(this.$originComponents);
     const newFilters = getFilter(components);
-    const deleteFilters = originFilters.filter(f => !_.find(newFilters, { value: f.value }));
+    const deleteFilters = originFilters.filter(
+      f =>
+        !_.find(newFilters, {
+          value: f.value,
+        }),
+    );
     const removeFilterRequest = deleteFilters.map(item => {
       return sheetApi.deleteFiltersGroupByIds({
         appId: ids.appId,
@@ -481,26 +489,33 @@ export default class CustomPage extends Component {
       });
     });
     Promise.all(removeFilterRequest).then(() => {});
-  };
+  }; // 保存前处理数据，title处理掉空白字符，type转换为后端需要的数字
 
-  // 保存前处理数据，title处理掉空白字符，type转换为后端需要的数字
   dealComponents = components => {
     return components.map(item => {
       return update(item, {
-        web: { title: { $apply: value => value.trim() } },
-        mobile: { title: { $apply: value => value.trim() } },
-        type: { $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]) },
+        web: {
+          title: {
+            $apply: value => value.trim(),
+          },
+        },
+        mobile: {
+          title: {
+            $apply: value => value.trim(),
+          },
+        },
+        type: {
+          $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]),
+        },
       });
     });
-  };
+  }; // 清除 component 里面的临时数据 & 填充或处理后端需要的数据
 
-  // 清除 component 里面的临时数据 & 填充或处理后端需要的数据
   dealComponentTemporaryData = components => {
     return components.map(item => {
       // 清除 uuid
-      const component = _.omit(item, 'uuid');
+      const component = _.omit(item, 'uuid'); // 清空按钮的临时配置
 
-      // 清空按钮的临时配置
       if (component.type === enumWidgetType.button) {
         const { buttonList } = component.button;
         return {
@@ -521,24 +536,16 @@ export default class CustomPage extends Component {
             }),
           },
         };
-      }
+      } // 找到透视表，保存管理员列宽的配置
 
-      // 找到透视表，保存管理员列宽的配置
       if (component.type === enumWidgetType.analysis && component.reportType === reportTypes.PivotTable) {
         const columnWidthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${component.value}`) || undefined;
-        return {
-          ...component,
-          config: {
-            ...component.config,
-            columnWidthConfig,
-          },
-        };
+        return { ...component, config: { ...component.config, columnWidthConfig } };
       }
 
       return component;
     });
   };
-
   handleSave = async () => {
     const {
       version,
@@ -558,15 +565,12 @@ export default class CustomPage extends Component {
     }
 
     updateSaveLoading(true);
-
     let newComponents = this.dealComponents(components);
-
     newComponents = await this.fillChartData(newComponents);
     newComponents = await this.fillBtnData(newComponents);
     newComponents = await this.fillFilterData(newComponents);
     newComponents = await this.fillFilterComponent(newComponents);
     newComponents = this.dealComponentTemporaryData(newComponents);
-
     customApi
       .savePage({
         appId: pageId,
@@ -583,10 +587,7 @@ export default class CustomPage extends Component {
           this.removeFiltersGroup();
           this.$originComponents = components;
           this.$originAdjustScreen = adjustScreen;
-          this.$originConfig = {
-            ...config,
-            orightWebCols: config.webNewCols,
-          };
+          this.$originConfig = { ...config, orightWebCols: config.webNewCols };
           updatePageInfo({
             components,
             pageId,
@@ -607,7 +608,6 @@ export default class CustomPage extends Component {
       })
       .finally(() => updateSaveLoading(false));
   };
-
   cancelModified = () => {
     const { updatePageInfo } = this.props;
     updatePageInfo({
@@ -618,10 +618,11 @@ export default class CustomPage extends Component {
     });
     this.handleBack();
   };
-
   switchType = type => {
     const { updateComponents, components } = this.props;
-    this.setState({ displayType: type });
+    this.setState({
+      displayType: type,
+    });
     this.props.updatePageInfo({
       loadFilterComponentCount: 0,
       activeContainerInfo: {},
@@ -649,9 +650,29 @@ export default class CustomPage extends Component {
           onSave={this.handleSave}
         />
         <div className="customPageContentWrap">
-          {loading ? <LoadDiv style={{ marginTop: '60px' }} /> : <Comp {...rest} />}
+          {loading ? (
+            <LoadDiv
+              style={{
+                marginTop: '60px',
+              }}
+            />
+          ) : (
+            <Suspense
+              fallback={
+                <LoadDiv
+                  style={{
+                    marginTop: '60px',
+                  }}
+                />
+              }
+            >
+              <Comp {...rest} />
+            </Suspense>
+          )}
         </div>
       </CustomPageWrap>
     );
   }
-}
+};
+CustomPage = connect(mapStateToProps, mapDispatchToProps)(CustomPage);
+export default CustomPage;

@@ -219,6 +219,16 @@ export default function WorkflowNode(props) {
             </div>
           </div>
         )}
+        {item.type === 4 && (
+          <div className="flexRow nodeItem">
+            <div className="Font13 mRight20 label">{_l('审批按钮说明')}</div>
+            <div className="flex">
+              {renderBtn('btndescmap_4', _.get(item, 'btnDescMap[4]'))}
+              {renderBtn('btndescmap_5', _.get(item, 'btnDescMap[5]'))}
+              {renderBtn('btndescmap_17', _.get(item, 'btnDescMap[17]'))}
+            </div>
+          </div>
+        )}
         {item.type === 3 && (
           <div className="flexRow nodeItem">
             <div className="Font13 mRight20 label">{_l('提交按钮')}</div>

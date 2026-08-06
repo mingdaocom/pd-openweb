@@ -115,7 +115,7 @@ export default class PaymentDetails extends Component {
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
           <div>
-            <i className="icon-backspace Font22 ThemeHoverColor3 Hand" onClick={onClose} />
+            <i className="icon-backspace Font22 hoverColorPrimary Hand" onClick={onClose} />
             <span className="Font17 bold mLeft10">{_l('交易明细')}</span>
           </div>
         </div>

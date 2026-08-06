@@ -1,16 +1,13 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import mingdaoLogo from 'staticfiles/images/mingdao.png';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Button, Qr } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import mingoHead from 'src/pages/chat/containers/ChatList/Mingo/images/mingo.png';
-import embedMingo from '../embed';
-
-if (location.href.includes('embedTest')) {
-  embedMingo();
-}
+import { pathCompletion } from 'src/utils/common';
+import mingoWordmark from './images/mingo-logo.png';
 
 const Con = styled.div`
   width: 100%;
@@ -24,6 +21,20 @@ const Con = styled.div`
     margin-right: 6px;
     object-fit: cover;
     border-radius: 50%;
+  }
+  .brand-wordmark {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    /* 文字 logo 视觉重心偏上，几何居中后略下沉 2px 才视觉居中 */
+    margin-top: 1px;
+  }
+  .mingdao-logo {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+    display: block;
   }
   a.logo {
     color: var(--color-text-primary) !important;
@@ -130,14 +141,24 @@ const QrCode = styled.div`
   }
 `;
 
-export default function Header({ error, isShare, isFooter = false, isSmallMode, onCopyLink, onContinueChat }) {
+export default function Header({
+  error,
+  isShare,
+  isFooter = false,
+  isSmallMode,
+  brandWordmark = false,
+  useMingdaoLogo = false,
+  hideLoginEntry = false,
+  onCopyLink,
+  onContinueChat,
+}) {
   const searchParams = new URL(location.href).searchParams;
   const isEmbed = !!searchParams.get('embed') || window.top !== window.self;
 
   if (isEmbed) {
     return (
       <Con className={cx('t-flex t-items-center t-justify-between isEmbed')}>
-        <div className="title">{_l('HAP助手')}</div>
+        <div className="title">{_l('Mingo')}</div>
         <i
           className="Right icon icon-launch Font18 textSecondary Hand"
           onClick={() => {
@@ -151,12 +172,22 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
 
   return (
     <Con className={cx('t-flex t-items-center t-justify-between', { isSmallMode, isFooter, isEmbed })}>
-      {!isFooter && (
-        <a href="/" className="logo t-flex t-items-center">
-          <img className="hap-logo" src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} alt="HAP助手" />
-          {md.global.SysSettings.aiBrandName || 'Mingo'}
-        </a>
-      )}
+      {!isFooter &&
+        // PlanPage 使用明道云 logo；agent 落地页用 mingo 文字 logo；其余页面保持品牌 logo + 名称
+        (useMingdaoLogo ? (
+          <a href={pathCompletion('/')} className="logo t-flex t-items-center">
+            <img className="mingdao-logo" src={mingdaoLogo} alt={_l('明道云')} />
+          </a>
+        ) : brandWordmark ? (
+          <a href={pathCompletion('/')} className="logo t-flex t-items-center">
+            <img className="brand-wordmark" src={mingoWordmark} alt="mingo" />
+          </a>
+        ) : (
+          <a href={pathCompletion('/')} className="logo t-flex t-items-center">
+            <img className="hap-logo" src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} alt="HAP助手" />
+            {md.global.SysSettings.aiBrandName || 'Mingo'}
+          </a>
+        ))}
       <Right className="t-flex t-items-center">
         {isShare && (!isSmallMode || isFooter) && !error && !window.callFromHelp && (
           <Fragment>
@@ -184,9 +215,9 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
               className="user-info t-flex t-items-center"
               onClick={() => {
                 if (isSmallMode) {
-                  location.href = '/mobile/myHome';
+                  location.href = pathCompletion('/mobile/myHome');
                 } else {
-                  location.href = '/personal';
+                  location.href = pathCompletion('/personal');
                 }
               }}
             >
@@ -194,10 +225,12 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
             </div>
           </Tooltip>
         )}
-        {!md?.global?.Account?.accountId && !isFooter && (
+        {!hideLoginEntry && !md?.global?.Account?.accountId && !isFooter && (
           <Button
             type="primary"
-            onClick={() => (location.href = '/login?ReturnUrl=' + encodeURIComponent(window.location.href))}
+            onClick={() =>
+              (location.href = pathCompletion('/login?ReturnUrl=' + encodeURIComponent(window.location.href)))
+            }
           >
             {_l('登录')}
           </Button>
@@ -212,6 +245,9 @@ Header.propTypes = {
   isShare: PropTypes.bool,
   isFooter: PropTypes.bool,
   isSmallMode: PropTypes.bool,
+  brandWordmark: PropTypes.bool,
+  useMingdaoLogo: PropTypes.bool,
+  hideLoginEntry: PropTypes.bool,
   onCopyLink: PropTypes.func,
   onContinueChat: PropTypes.func,
 };

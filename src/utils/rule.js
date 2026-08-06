@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { updateRulesDataOfRow } from 'src/components/Form/core/formUtils/rowRuleAdapter';
 
 /**
  * 获取记录字段规则错误
  */
 export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
   let errors = [];
-  const formData = updateRulesData({
+  const formData = updateRulesDataOfRow({
     from,
     rules,
     recordId: row.rowid,

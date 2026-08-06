@@ -31,18 +31,26 @@ export default class Authentication extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -55,6 +63,10 @@ export default class Authentication extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (!(result.webHookNodes || []).length) {
           if (result.appType === APP_TYPE.BASIC_AUTH) {
             result.webHookNodes = [{ testMap: {} }];
@@ -163,7 +175,7 @@ export default class Authentication extends Component {
       }
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -342,7 +354,7 @@ export default class Authentication extends Component {
             <div className="mTop15 flexRow alignItemsCenter">
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                 style={{ width: 115 }}
                 ref={refreshTime => {
                   this.refreshTime = refreshTime;
@@ -642,7 +654,7 @@ export default class Authentication extends Component {
             {refreshType === 10002 && (
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
                 style={{ width: 180 }}
                 placeholder={_l('请输入错误码字段名称，如 code')}
                 value={refreshName}
@@ -653,7 +665,7 @@ export default class Authentication extends Component {
 
             <input
               type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
               placeholder={
                 refreshType === 10001
                   ? _l('请输入指定刷新 token 的 HTTP 状态码，如：400,401(多个状态码用英文逗号隔开)')
@@ -710,7 +722,7 @@ export default class Authentication extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect onSave={this.onSave} />
+        <DetailFooter {...this.props} isCorrect={!_.isEqual(data, this.cacheResult)} onSave={this.onSave} />
 
         {showTestDialog && (
           <TestParameter

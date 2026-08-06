@@ -12,32 +12,33 @@ const DATE_FILTER = [
   { id: 'custom', text: _l('自定义日期') },
 ];
 
+const formatDate = date => date.format('YYYY-MM-DD');
+
+const getDateFilter = id => {
+  const today = formatDate(moment());
+  const beginOfCurrentMonth = moment().startOf('M');
+
+  switch (id) {
+    case 'today':
+      return { startDate: today, endDate: today };
+    case 'currentWeek':
+      return { startDate: formatDate(moment().subtract(7, 'd')), endDate: today };
+    case 'currentMonth':
+      return { startDate: formatDate(beginOfCurrentMonth), endDate: today };
+    case 'prevMonth':
+      return {
+        startDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'M')),
+        endDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'day')),
+      };
+    case 'currentYear':
+      return { startDate: formatDate(moment().startOf('year')), endDate: today };
+  }
+};
+
 export default function DatePickerFilter(props) {
   const { updateData } = props;
   const $ref = useRef(null);
-  const formatDate = date => date.format('YYYY-MM-DD');
   let _endDate = formatDate(moment());
-
-  const getDateFilter = id => {
-    const today = formatDate(moment());
-    const beginOfCurrentMonth = moment().startOf('M');
-
-    switch (id) {
-      case 'today':
-        return { startDate: today, endDate: today };
-      case 'currentWeek':
-        return { startDate: formatDate(moment().subtract(7, 'd')), endDate: today };
-      case 'currentMonth':
-        return { startDate: formatDate(beginOfCurrentMonth), endDate: today };
-      case 'prevMonth':
-        return {
-          startDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'M')),
-          endDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'day')),
-        };
-      case 'currentYear':
-        return { startDate: formatDate(moment().startOf('year')), endDate: today };
-    }
-  };
 
   const handleClick = id => {
     const data = getDateFilter(id);

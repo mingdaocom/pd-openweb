@@ -1,9 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import filterXss from 'xss';
 import { Icon, LoadDiv } from 'ming-ui';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { dateConvertToUserZone } from 'src/utils/project';
+import { completeAdminLogLinks } from '../utils';
 import './style.less';
 
 export default class HistoryLogs extends React.Component {
@@ -22,8 +24,11 @@ export default class HistoryLogs extends React.Component {
       <div className="orgManagementContent roleLogListContent">
         {_.map(list, (log, index) => {
           return (
-            <div className={cx('logItem Font13 clearfix ThemeColor3', { mTop0: index === 0 })} key={index}>
-              <span className="textPrimary" dangerouslySetInnerHTML={{ __html: log.msg }} />{' '}
+            <div className={cx('logItem Font13 clearfix colorPrimary', { mTop0: index === 0 })} key={index}>
+              <span
+                className="textPrimary"
+                dangerouslySetInnerHTML={{ __html: filterXss(completeAdminLogLinks(log.msg)) }}
+              />
               <span className="mLeft24 textTertiary">{dateConvertToUserZone(log.createTime)}</span>
             </div>
           );
@@ -41,7 +46,7 @@ export default class HistoryLogs extends React.Component {
       <div className="orgManagementWrap roleAuthLogTable">
         <div className="orgManagementHeader Font17">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
+            <Icon icon="backspace" className="Font22 hoverColorPrimary pointer" onClick={onClose} />
             <div className="Font17 bold flex mLeft10">{_l('历史日志')}</div>
           </div>
         </div>

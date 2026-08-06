@@ -11,7 +11,8 @@
   text-align: left;
 }
 
-.postOperatorListContainer .Menu {
+/* 只对一级操作菜单做右对齐；二级子菜单要沿用 Menu 算出的 left(100%/-100%) 展开到父菜单项右侧 */
+.postOperatorListContainer .Menu:not(.Menu--subMenu) {
   z-index: 2;
   left: auto !important;
   right: 0;

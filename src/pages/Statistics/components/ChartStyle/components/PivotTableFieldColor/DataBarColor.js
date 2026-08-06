@@ -16,10 +16,13 @@ export default class DataBarColor extends Component {
       onlyShowBar: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      const { colorRule } = nextProps;
-      this.setState(colorRule);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible) {
+        const { colorRule } = this.props;
+        this.setState(colorRule);
+      }
     }
   }
   handleSave = () => {

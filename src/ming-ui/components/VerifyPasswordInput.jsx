@@ -3,7 +3,7 @@ import { Input } from 'antd';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 
 const Password = styled(Input.Password)`
   box-shadow: none !important;
@@ -38,6 +38,19 @@ const NoPassword = styled.div`
   }
 `;
 
+const settingBtns = () => {
+  return (
+    <span
+      className="colorPrimary Hand"
+      onClick={() => {
+        window.open(pathCompletion('/personal?type=account'));
+      }}
+    >
+      {_l('前往设置')}
+    </span>
+  );
+};
+
 export default function VerifyPasswordInput(props) {
   const {
     className,
@@ -53,19 +66,6 @@ export default function VerifyPasswordInput(props) {
   const [isNoneVerification, setIsNoneVerification] = useState(false);
   const passWordRef = useRef(null);
   const isMobile = browserIsMobile();
-
-  const settingBtns = () => {
-    return (
-      <span
-        className="colorPrimary Hand"
-        onClick={() => {
-          window.open('/personal?type=account');
-        }}
-      >
-        {_l('前往设置')}
-      </span>
-    );
-  };
 
   const vertifyCheckBox = () => {
     return (

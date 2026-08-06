@@ -1,8 +1,7 @@
 import React from 'react';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 
-@withClickAway
-class MoreActionDia extends React.Component {
+let MoreActionDia = class MoreActionDia extends React.Component {
   render() {
     if (!this.props.showMoreAction) {
       return '';
@@ -16,6 +15,6 @@ class MoreActionDia extends React.Component {
       </ul>
     );
   }
-}
-
+};
+MoreActionDia = ClickAway.wrap(MoreActionDia);
 export default MoreActionDia;

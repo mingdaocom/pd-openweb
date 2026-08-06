@@ -384,7 +384,7 @@ class SearchWorksheetActionDialog extends Component {
               });
             }}
           >
-            <i className="icon-trash Font17 textTertiary ThemeHoverColor3"></i>
+            <i className="icon-trash Font17 textTertiary hoverColorPrimary"></i>
           </span>
         </div>
         {showSelect && (

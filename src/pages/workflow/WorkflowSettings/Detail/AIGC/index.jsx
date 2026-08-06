@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import filterXss from 'xss';
 import { Dialog, Dropdown, LoadDiv, ScrollView, Support, Switch } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID } from '../../enum';
 import { formatTestParameters, getIcons } from '../../utils';
 import {
@@ -81,18 +82,26 @@ export default class AIGC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -105,6 +114,10 @@ export default class AIGC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (!result.appId && result.appList.length && !result.platformConfigModel) {
           result.appId = result.appList[0].id;
         }
@@ -139,10 +152,6 @@ export default class AIGC extends Component {
       }
     });
 
-    if (saveRequest) {
-      return;
-    }
-
     if (!appId) {
       alert(_l('请选择一种AI模型'), 2);
       return;
@@ -155,6 +164,10 @@ export default class AIGC extends Component {
 
     if (hasError) {
       alert(_l('输出参数配置有误'), 2);
+      return;
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -186,12 +199,14 @@ export default class AIGC extends Component {
         {window.platformENV.isPlatform ? (
           <div className="Font13 textSecondary mTop5">
             {_l('选择用于 AIGC 的大语言模型。Token 消耗将从组织信用点扣除')}
-            <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
+            <Support type={3} text={_l('了解模型价格')} href={pathCompletion('/billingrules')} />
           </div>
         ) : (
           <div className="Font13 textSecondary mTop5">{_l('选择用于 AIGC 的大语言模型。')}</div>
         )}
         <SelectAIModel
+          projectId={this.props?.companyId}
+          appId={this.props?.relationId}
           data={{ ...data, model: data.appId }}
           updateSource={({ model }) => this.updateSource({ appId: model })}
         />
@@ -334,7 +349,7 @@ export default class AIGC extends Component {
           <div className="flex" />
           {source.templateKey && data.actionId === ACTION_ID.AIGC_TEXT && (
             <div
-              className="ThemeColor3 ThemeHoverColor2 pointer"
+              className="colorPrimary hoverColorPrimaryDark pointer"
               onClick={() => this.setState({ templateKey: source.templateKey })}
             >
               <i className="Font14 icon-lightbulb_outline mRight5" />
@@ -480,7 +495,11 @@ export default class AIGC extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.appId && data.prompt} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.appId && data.prompt && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

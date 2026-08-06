@@ -158,6 +158,7 @@ export const WrapContainer = styled.div`
     object-fit: contain;
   }
   border-radius: 4px;
+  position: relative;
   padding: 48px 48px 72px 48px;
   box-sizing: border-box;
   width: 50%;
@@ -246,20 +247,21 @@ export const WrapContainer = styled.div`
   .loginBtn {
     background: var(--color-primary);
     height: 48px;
-    border-radius: 4px;
+    border-radius: 6px;
     line-height: 48px;
-    color: var(--color-white);
+    color: var(--color-text-inverse);
     font-weight: bold;
     font-size: 16px;
     &:hover {
-      background: var(--color-link-hover);
+      background: var(--color-primary-dark);
     }
-    // &.sending {
-    //   background: var(--color-background-secondary);
-    // }
+    &:active {
+      background: var(--color-primary-dark);
+    }
     &.disable {
       cursor: default;
-      background: var(--color-text-disabled) !important;
+      background: var(--color-background-disabled) !important;
+      color: var(--color-text-disabled) !important;
     }
   }
   &.isR {
@@ -272,8 +274,37 @@ export const WrapContainer = styled.div`
   }
   .lang {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    top: 48px;
+    right: 48px;
+    z-index: 2;
+    > div {
+      gap: 4px;
+    }
+    .iconCon {
+      font-size: 16px;
+    }
+    .txt,
+    .iconCon,
+    .icon-arrow-down-border {
+      color: var(--color-text-secondary);
+    }
+    .ming.Dropdown {
+      line-height: 20px;
+      .Dropdown--input {
+        min-height: 20px;
+        padding: 0;
+        background: transparent;
+      }
+      .value {
+        max-width: none;
+      }
+    }
+  }
+  &.isM {
+    .lang {
+      top: 32px;
+      right: 24px;
+    }
   }
 `;
 export const WrapUl = styled.div`

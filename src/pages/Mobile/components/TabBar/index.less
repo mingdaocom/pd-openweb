@@ -14,11 +14,6 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    img {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-    }
     &.action {
       color: var(--color-primary);
       .icon {
@@ -29,8 +24,9 @@
       color: var(--color-text-tertiary);
       font-size: 22px;
     }
-    span {
-      margin-top: 3px;
+    &.iconOnly .icon {
+      color: var(--color-primary);
+      font-size: 30px;
     }
     .processCount {
       color: var(--color-white);

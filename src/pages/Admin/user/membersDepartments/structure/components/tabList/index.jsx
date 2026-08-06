@@ -6,6 +6,7 @@ import { Icon } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { pathCompletion } from 'src/utils/common';
 import {
   fetchApproval,
   fetchInActive,
@@ -71,7 +72,7 @@ class TabList extends React.Component {
     const segmentMap = { 2: 'inactive', 3: 'approve' };
     const segment = segmentMap[typeCursor];
     const base = `/admin/structure/${projectId}`;
-    history.pushState(null, '', segment ? `${base}/${segment}` : base);
+    history.pushState(null, '', pathCompletion(segment ? `${base}/${segment}` : base, { hasDomain: false }));
 
     switch (typeCursor) {
       case 0:
@@ -101,7 +102,7 @@ class TabList extends React.Component {
       projectSettingAjax.projectClearCache({ projectId, processType: 20 }),
     ]).then(([data1, data2]) => {
       if (data1 && data2) {
-        alert(_l('刷新成功'));
+        alert(_l('刷新中，请稍后查看'));
       } else {
         alert(_l('刷新失败'), 2);
       }

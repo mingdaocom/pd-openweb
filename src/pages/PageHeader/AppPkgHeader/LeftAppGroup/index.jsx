@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
@@ -15,7 +15,6 @@ import appManagementApi from 'src/api/appManagement';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import Drag from 'worksheet/common/WorkSheetLeft/Drag';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
-import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import {
   addAppSection,
   clearSheetList,
@@ -25,13 +24,15 @@ import {
   updateALLSheetList,
 } from 'worksheet/redux/actions/sheetList';
 import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import { findSheet } from 'src/utils/worksheet';
 import { getIds } from '../../util';
 import DelAppGroup from '../AppGroup/DelAppGroup';
 import { ICON_ROLE_TYPE } from '../config';
 import SinglelLeftGroup from './SinglelLeftGroup';
 import './index.less';
+
+const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
 
 const RoleSelectWrap = styled.div(
   ({ borderColor }) => `
@@ -397,22 +398,24 @@ const AppSectionItem = props => {
         />
       )}
       {dialogImportExcel && (
-        <DialogImportExcelCreate
-          projectId={projectId}
-          appId={ids.appId}
-          groupId={item.workSheetId}
-          onCancel={() => setDialogImportExcel(false)}
-          createType="worksheet"
-          refreshPage={() => {
-            const singleRef = getAppSectionRef(item.workSheetId);
-            singleRef.dispatch(
-              getSheetList({
-                appId: ids.appId,
-                appSectionId: item.workSheetId,
-              }),
-            );
-          }}
-        />
+        <Suspense fallback={null}>
+          <LoadableDialogImportExcelCreate
+            projectId={projectId}
+            appId={ids.appId}
+            groupId={item.workSheetId}
+            onCancel={() => setDialogImportExcel(false)}
+            createType="worksheet"
+            refreshPage={() => {
+              const singleRef = getAppSectionRef(item.workSheetId);
+              singleRef.dispatch(
+                getSheetList({
+                  appId: ids.appId,
+                  appSectionId: item.workSheetId,
+                }),
+              );
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

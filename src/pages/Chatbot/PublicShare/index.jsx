@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
@@ -11,6 +11,8 @@ import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/
 import preall from 'src/common/preall';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import chatBotDefaultIcon from 'src/pages/Chatbot/assets/profile.png';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import Content from './Content';
 import Header from './Header';
 import './index.less';
@@ -34,6 +36,34 @@ const Entry = () => {
   const [share, setShare] = useState({});
   const [errorCode, setErrorCode] = useState(null);
   const isSmallMode = window.innerWidth < 880;
+
+  const getEntityShareById = useCallback(
+    async params => {
+      const result = await appManagementApi.getEntityShareById({ id, sourceType: 71, ...params });
+      const shareData = _.get(result, 'data') || {};
+      const clientId = shareData.clientId;
+      window.clientId = clientId;
+      clientId && sessionStorage.setItem(id, clientId);
+
+      if (result.resultCode === 1) {
+        const { appId, projectId, sourceId } = shareData;
+        const [chatbotId] = (sourceId || '').split('|');
+
+        if (appId && projectId && chatbotId) {
+          await shareGetAppLangDetail({ appId, projectId });
+
+          result.data = {
+            ...shareData,
+            customerPageName: getTranslateInfo(appId, null, chatbotId).name || shareData.customerPageName,
+          };
+        }
+      }
+
+      return result;
+    },
+    [id],
+  );
+
   useEffect(() => {
     const clientId = sessionStorage.getItem(id);
     window.clientId = clientId;
@@ -60,21 +90,7 @@ const Entry = () => {
         setLoading(false);
         setErrorCode(err.errorCode);
       });
-  }, []);
-
-  const getEntityShareById = data => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const result = await appManagementApi.getEntityShareById({ id, sourceType: 71, ...data });
-        const clientId = _.get(result, 'data.clientId');
-        window.clientId = clientId;
-        clientId && sessionStorage.setItem(id, clientId);
-        resolve(result);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  };
+  }, [getEntityShareById, id]);
 
   if (loading) {
     return (
@@ -122,7 +138,7 @@ const Entry = () => {
     return <ShareState code={share.resultCode} />;
   };
 
-  const { appId, pageTitle, customerPageName, iconUrl } = share.data || {};
+  const { appId, projectId, pageTitle, customerPageName, iconUrl } = share.data || {};
   const [chatbotId, conversationId] = get(share, 'data.sourceId', '').split('|');
   const title = pageTitle || customerPageName;
 
@@ -133,11 +149,15 @@ const Entry = () => {
         isAiAction={share.data?.sourceType === 72}
         error={share.resultCode !== 1}
         isSmallMode={isSmallMode}
+        appId={appId}
+        projectId={projectId}
         title={customerPageName}
         iconUrl={iconUrl || chatBotDefaultIcon}
-        onContinueChat={() => window.open(`/embed/chatbot/${appId}/${chatbotId}?share=${conversationId}`)}
+        onContinueChat={() =>
+          window.open(pathCompletion(`/embed/chatbot/${appId}/${chatbotId}?share=${conversationId}`))
+        }
         onCopyLink={() => {
-          const link = `${window.location.origin}/public/chatbot/${id}`;
+          const link = pathCompletion(`/public/chatbot/${id}`);
           copy(link);
           alert(_l('复制成功'));
         }}
@@ -150,9 +170,11 @@ const Entry = () => {
           isSmallMode={isSmallMode}
           isShare
           isFooter
-          onContinueChat={() => window.open(`/embed/chatbot/${appId}/${chatbotId}?share=${conversationId}`)}
+          onContinueChat={() =>
+            window.open(pathCompletion(`/embed/chatbot/${appId}/${chatbotId}?share=${conversationId}`))
+          }
           onCopyLink={() => {
-            const link = `${window.location.origin}/public/chatbot/${id}`;
+            const link = pathCompletion(`/public/chatbot/${id}`);
             copy(link);
             alert(_l('复制成功'));
           }}

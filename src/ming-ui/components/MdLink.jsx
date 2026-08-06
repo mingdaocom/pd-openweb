@@ -1,13 +1,19 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import propTypes from 'prop-types';
-import { fillUrl } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 
 export default function MdLink(props) {
   const { to, children, onClick, className, ...rest } = props;
   return (
-    <Link draggable="false" to={fillUrl(to)} onClick={onClick} className={cx('stopPropagation', className)} {...rest}>
+    <Link
+      draggable="false"
+      to={pathCompletion(to, { hasDomain: false })}
+      onClick={onClick}
+      className={cx('stopPropagation', className)}
+      {...rest}
+    >
       {children}
     </Link>
   );

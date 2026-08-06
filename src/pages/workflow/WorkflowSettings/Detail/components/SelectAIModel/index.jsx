@@ -6,7 +6,14 @@ import aIService from 'src/api/aIService';
 import selectAIModelDialog from '../../../../components/selectAIModelDialog';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 
-export default ({ data, showAutoModel = false, showModelSettings = false, updateSource = () => {} }) => {
+export default ({
+  appId,
+  projectId,
+  data,
+  showAutoModel = false,
+  showModelSettings = false,
+  updateSource = () => {},
+}) => {
   const [modelDetail, setModelDetail] = useState({});
   const [modelParameterDialog, setModelParameterDialog] = useState(false);
   const [modelParameter, setModelParameter] = useState({});
@@ -91,7 +98,12 @@ export default ({ data, showAutoModel = false, showModelSettings = false, update
           <div
             className={cx('flowSelectModel flex flexRow alignItemsCenter', { clearBorderRadius: showModelSettings })}
             onClick={() =>
-              selectAIModelDialog({ showAutoModel, onOk: settings => updateSource({ model: settings?.name || '' }) })
+              selectAIModelDialog({
+                appId,
+                projectId,
+                showAutoModel,
+                onOk: settings => updateSource({ model: settings?.name || '' }),
+              })
             }
           >
             {_.isEmpty(modelDetail) ? null : modelDetail.status ? (
@@ -121,7 +133,7 @@ export default ({ data, showAutoModel = false, showModelSettings = false, update
 
         {showModelSettings && (
           <div
-            className="actionControlMore ThemeColor3"
+            className="actionControlMore colorPrimary"
             onClick={() => {
               setModelParameterDialog(true);
               setModelParameter({ temperature: data.temperature, maxTokens: data.maxTokens || '' });

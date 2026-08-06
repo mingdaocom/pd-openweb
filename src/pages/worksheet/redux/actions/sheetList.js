@@ -1,10 +1,8 @@
 import update from 'immutability-helper';
 import { pick } from 'lodash';
 import _ from 'lodash';
-import moment from 'moment';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import webCache from 'src/api/webCache';
 import sheetApi from 'src/api/worksheet';
 import processApi from 'src/pages/workflow/api/process';
 import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
@@ -39,7 +37,7 @@ export const formatLeftSectionDetail = data => {
 let getAppSectionDetailRequest;
 
 export function getSheetList(args) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: true });
     dispatch({ type: 'SHEET_LIST', data: [] });
     if (getAppSectionDetailRequest) {
@@ -57,7 +55,6 @@ export function getSheetList(args) {
         return;
       }
 
-      const isCharge = canEditApp(data.appRoleType, data.isLock);
       const list = formatLeftSectionDetail(data);
 
       if (data.workSheetInfo.length) {
@@ -67,15 +64,7 @@ export function getSheetList(args) {
         });
       }
 
-      const { worksheetId } = getState().sheet.base;
       const { currentPcNaviStyle } = store.getState().appPkg;
-      const sheetInfo = _.find(data.workSheetInfo, { workSheetId: worksheetId }) || {};
-      const maturityTime = moment(md.global.Account.createTime).add(7, 'days').format('YYYY-MM-DD');
-      const isMaturity = moment().isBefore(maturityTime);
-
-      if (isCharge && isMaturity && sheetInfo.type === 0 && currentPcNaviStyle === 0) {
-        dispatch(updateGuidanceVisible());
-      }
 
       if ([1, 3].includes(currentPcNaviStyle)) {
         const { appSectionDetail } = store.getState().sheetList;
@@ -459,40 +448,6 @@ export function sortSheetList(appId, appSectionId, sheetList) {
       appSectionId,
       workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
     });
-  };
-}
-
-export function updateGuidanceVisible(visible) {
-  return function (dispatch) {
-    const key = `${md.global.Account.accountId}-guidanceHide`;
-
-    if (_.isBoolean(visible)) {
-      webCache.add(
-        {
-          key,
-          value: 'true',
-        },
-        { silent: true },
-      );
-
-      dispatch({
-        type: 'GUIDANCE_VISIBLE',
-        value: visible,
-      });
-    } else {
-      webCache
-        .get({
-          key,
-        })
-        .then(res => {
-          if (!_.get(res, 'data')) {
-            dispatch({
-              type: 'GUIDANCE_VISIBLE',
-              value: true,
-            });
-          }
-        });
-    }
   };
 }
 

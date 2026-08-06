@@ -59,7 +59,7 @@ const GroupBoard = props => {
         {viewData.map(item => {
           if (item.key === '-1' && !hasNoFirstGroup) return;
           return (
-            <div className="groupHeaderItemWrap">
+            <div key={item.key} className="groupHeaderItemWrap">
               <GroupByControl
                 className="firstGroup"
                 canFold={false}
@@ -131,7 +131,7 @@ const GroupBoard = props => {
                     viewData={viewData}
                     allowOperation={allowOperation}
                     viewRootEl={viewport}
-                    {..._.pick(props, ['appId', 'sheetSwitchPermit', 'updateViewCard', 'delBoardViewRecord'])}
+                    {..._.pick(props, ['appId', 'sheetSwitchPermit', 'delBoardViewRecord'])}
                   />
                 );
               })}

@@ -4,9 +4,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
 import Button from 'ming-ui/components/Button';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Icon from 'ming-ui/components/Icon';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import discussionAjax from 'src/api/discussion';
 import postAjax from 'src/api/post';
@@ -19,8 +18,7 @@ import { AT_ALL_TEXT } from './config';
 import { SOURCE_TYPE } from './config';
 import './css/commenter.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class Commenter extends React.Component {
   static propTypes = {
     placeholder: PropTypes.string,
@@ -130,7 +128,6 @@ class Commenter extends React.Component {
     // @
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
-      sessionStorage.setItem('atData', JSON.stringify(this.props.atData || []));
       MentionsInput(
         Object.assign(
           {
@@ -144,6 +141,7 @@ class Commenter extends React.Component {
             isAtAll: true,
             sourceType,
             forReacordDiscussion: this.props.forReacordDiscussion,
+            getAtData: () => this.props.atData || [],
             projectId,
           },
           this.props.mentionsOptions,
@@ -170,26 +168,22 @@ class Commenter extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.storageId && nextProps.storageId !== this.props.storageId) {
-      this.textarea.value = window.localStorage.getItem('commenter-' + nextProps.storageId) || '';
-    }
-
-    if (!nextProps.disableMentions && nextProps.forReacordDiscussion) {
-      sessionStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
-    }
-
-    if (
-      !_.isEqual(_.pick(this.props, ['entityType', 'isHide']), _.pick(nextProps, ['entityType', 'isHide'])) &&
-      nextProps.autoFocus
-    ) {
-      setTimeout(() => {
-        $(this.textarea).focus();
-      }, 50);
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps !== this.props) {
+      if (this.props.storageId && this.props.storageId !== prevProps.storageId) {
+        this.textarea.value = window.localStorage.getItem('commenter-' + this.props.storageId) || '';
+      }
+
+      if (
+        !_.isEqual(_.pick(prevProps, ['entityType', 'isHide']), _.pick(this.props, ['entityType', 'isHide'])) &&
+        this.props.autoFocus
+      ) {
+        setTimeout(() => {
+          $(this.textarea).focus();
+        }, 50);
+      }
+    }
+
     const $textarea = $(this.textarea);
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
     const { textareaMaxHeight, textareaMinHeight, textareaExpandHeight } = this.props;
@@ -460,7 +454,7 @@ class Commenter extends React.Component {
     return (
       <ClickAwayable
         className={cx('commentBox', {
-          'ThemeBorderColor3 ThemeColor4 autoHeight': this.state.isEditing || !this.props.autoShrink,
+          'borderColorPrimary colorPrimaryLight autoHeight': this.state.isEditing || !this.props.autoShrink,
         })}
         onClickAway={() => this.onClickAway()}
         // 知识文件选择层 点击时不收起
@@ -483,7 +477,7 @@ class Commenter extends React.Component {
             <span className="commentIconBtn">
               <Icon
                 id={this.textareaId + '-attachment'}
-                className={cx('Hand commentAttachBtn ThemeHoverColor3', { ThemeColor3: this.state.showAttachment })}
+                className={cx('Hand commentAttachBtn hoverColorPrimary', { colorPrimary: this.state.showAttachment })}
                 icon="attachment"
                 onClick={() => this.setState({ showAttachment: !this.state.showAttachment })}
               />
@@ -494,7 +488,7 @@ class Commenter extends React.Component {
               ref={faceBtn => {
                 this.faceBtn = faceBtn;
               }}
-              className="commentIconBtn ThemeHoverColor3"
+              className="commentIconBtn hoverColorPrimary"
             >
               <Icon className="Hand" icon="smile" />
             </span>
@@ -503,7 +497,7 @@ class Commenter extends React.Component {
             <Tooltip title={_l('同时转发此条')}>
               <span className="commentIconBtn">
                 <i
-                  className={cx('icon-forward2 Font19 ThemeColor3', { hoverRelayBtn: !this.state.isReshare })}
+                  className={cx('icon-forward2 Font19 colorPrimary', { hoverRelayBtn: !this.state.isReshare })}
                   onClick={() => this.setState({ isReshare: !this.state.isReshare })}
                 />
               </span>

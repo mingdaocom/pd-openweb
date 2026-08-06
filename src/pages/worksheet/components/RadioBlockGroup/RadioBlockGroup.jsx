@@ -17,7 +17,7 @@ export default class RadioBlockGroup extends Component {
           <div
             key={index}
             className={cx('item', {
-              ThemeBGColor3: item.value === value,
+              bgColorPrimary: item.value === value,
             })}
             onClick={() => {
               onChange(item.value);

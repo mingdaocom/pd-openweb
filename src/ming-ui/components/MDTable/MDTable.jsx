@@ -119,35 +119,45 @@ export default class MDTable extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.rowHeight !== this.props.rowHeight) {
-      this.scrollHeight = this.getSumSize(nextProps.rowCount - nextProps.fixedRowCount, nextProps.rowHeight);
-      this.fixedColumnsWidth = this.updateFixedWidth(nextProps);
-      if (this.mainleftgrid.current) {
-        this.mainleftgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.rowHeight !== prevProps.rowHeight) {
+        this.scrollHeight = this.getSumSize(this.props.rowCount - this.props.fixedRowCount, this.props.rowHeight);
+        this.fixedColumnsWidth = this.updateFixedWidth(this.props);
+
+        if (this.mainleftgrid.current) {
+          this.mainleftgrid.current.resetAfterIndices({
+            columnIndex: 0,
+            rowIndex: 0,
+          });
+        }
+
+        if (this.mainrightgrid.current) {
+          this.mainrightgrid.current.resetAfterIndices({
+            columnIndex: 0,
+            rowIndex: 0,
+          });
+        }
       }
 
-      if (this.mainrightgrid.current) {
-        this.mainrightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
+      if (
+        !_.isEqual(this.props.sheetColumnWidths, prevProps.sheetColumnWidths) ||
+        this.props.fixedColumnCount !== prevProps.fixedColumnCount ||
+        this.props.rowCount !== prevProps.rowCount ||
+        this.props.columnCount !== prevProps.columnCount ||
+        this.props.width !== prevProps.width ||
+        this.props.height !== prevProps.height
+      ) {
+        this.updateTableLayout(this.props);
+      }
+
+      if (this.props.defaultScrollLeft !== prevProps.defaultScrollLeft) {
+        this.setScroll({
+          left: this.props.defaultScrollLeft,
+        });
       }
     }
 
-    if (
-      !_.isEqual(nextProps.sheetColumnWidths, this.props.sheetColumnWidths) ||
-      nextProps.fixedColumnCount !== this.props.fixedColumnCount ||
-      nextProps.rowCount !== this.props.rowCount ||
-      nextProps.columnCount !== this.props.columnCount ||
-      nextProps.width !== this.props.width ||
-      nextProps.height !== this.props.height
-    ) {
-      this.updateTableLayout(nextProps);
-    }
-
-    if (nextProps.defaultScrollLeft !== this.props.defaultScrollLeft) {
-      this.setScroll({ left: nextProps.defaultScrollLeft });
-    }
-  }
-  componentDidUpdate() {
     this.needUpdateRows = [];
   }
 

@@ -134,7 +134,7 @@ export default function AddOrEditSource(props) {
             if (res.errorMsgList) {
               setNoExistSource(true);
               alert(_l('数据源不存在'), 2);
-              setTimeout(() => location.assign('/integration/source'), 5000);
+              setTimeout(() => navigateTo('/integration/source'), 5000);
             } else {
               const detail = {
                 ...res,

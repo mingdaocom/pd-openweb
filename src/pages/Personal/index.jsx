@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import Loadable from 'react-loadable';
+import React, { Component, lazy, Suspense } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import common from './common.js';
@@ -10,14 +10,15 @@ import './index.less';
 
 const guideSettings = md.global.Account.guideSettings;
 const showWarn = guideSettings.accountEmail || guideSettings.accountMobilePhone;
-
 export default class PersonalEntrypoint extends Component {
   componentDidMount() {
     $('html').addClass('AppPersonal');
   }
+
   componentWillUnmount() {
     $('html').removeClass('AppPersonal');
   }
+
   shouldComponentUpdate(nextProps) {
     if (nextProps.location.search !== this.props.location.search) {
       return true;
@@ -28,7 +29,11 @@ export default class PersonalEntrypoint extends Component {
 
   handleClick(type) {
     const defaultType = type[0];
-    navigateTo(common.url({ type: defaultType }));
+    navigateTo(
+      common.url({
+        type: defaultType,
+      }),
+    );
   }
 
   render() {
@@ -38,23 +43,24 @@ export default class PersonalEntrypoint extends Component {
         ? routerConfigs
         : routerConfigs.filter(item => !item.typetag.includes('privatekey'));
     const type = getRequest().type || 'information';
+
     const currentComp = _.get(
       _.find(menus, menu => menu.typetag.includes(type)),
       'component',
     );
-    const MainComponent = Loadable({
-      loader: currentComp,
-      loading: () => null,
-    });
+
+    const MainComponent = lazy(currentComp);
     return (
       <div className="mainBoxAccount">
-        <div className="h100 ThemeBGColor9 accountTabWrap">
+        <div className="h100 bgPrimary accountTabWrap">
           <ul className="accountTab">
             {menus &&
               menus.map((item, index) => {
                 return (
                   <li
-                    className={cx('ThemeHoverBGColor7 Hand Relative', { active: item.typetag.includes(type) })}
+                    className={cx('hoverBgTertiary Hand Relative', {
+                      active: item.typetag.includes(type),
+                    })}
                     key={index}
                     onClick={() => this.handleClick(item.typetag)}
                   >
@@ -69,7 +75,9 @@ export default class PersonalEntrypoint extends Component {
           </ul>
         </div>
         <div id="accountCenterMainBox" className="mainPage flex">
-          <MainComponent />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <MainComponent />
+          </Suspense>
         </div>
       </div>
     );

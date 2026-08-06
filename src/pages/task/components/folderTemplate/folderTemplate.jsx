@@ -19,7 +19,7 @@ export default class FolderTemplate extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     ajaxRequest.getTemplateTypes({ appid: this.props.appId }).then(source => {
       this.setState({
         selectType: source.data.templateType[0].templateTypeId,
@@ -141,7 +141,7 @@ export default class FolderTemplate extends Component {
                 {templateType.map((type, i) => {
                   return (
                     <li
-                      className={cx('ellipsis', { ThemeColor3: type.templateTypeId === this.state.selectType })}
+                      className={cx('ellipsis', { colorPrimary: type.templateTypeId === this.state.selectType })}
                       key={i}
                       onClick={() => this.getTemplates(type.templateTypeId)}
                     >
@@ -162,7 +162,7 @@ export default class FolderTemplate extends Component {
                     <li
                       className={cx(
                         'boderRadAll_3',
-                        tpl.templateId === '' ? 'folderTemplateNull ThemeColor3 ThemeBorderColor3' : '',
+                        tpl.templateId === '' ? 'folderTemplateNull colorPrimary borderColorPrimary' : '',
                       )}
                       key={i}
                       style={{ backgroundImage: 'url(' + tpl.icon + ')' }}
@@ -189,7 +189,7 @@ export default class FolderTemplate extends Component {
                         <div className="folderTemplateOperator">
                           {tpl.isCustom ? (
                             <Tooltip title={_l('删除模板')}>
-                              <span className="ThemeColor3" onClick={evt => this.delTemplate(tpl.templateId, evt)}>
+                              <span className="colorPrimary" onClick={evt => this.delTemplate(tpl.templateId, evt)}>
                                 <i className="icon-trash" />
                               </span>
                             </Tooltip>

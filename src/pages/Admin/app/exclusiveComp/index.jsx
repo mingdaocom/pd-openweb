@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Support } from 'ming-ui';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
+import { addSubPathOfRoute } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import DataBase from './container/DataBase';
@@ -89,14 +90,14 @@ export default class ExclusiveComp extends Component {
         {hasComputing && (
           <Fragment>
             <Route
-              path={'/admin/computing/:projectId'}
+              path={addSubPathOfRoute('/admin/computing/:projectId')}
               exact
               render={({ match: { params } }) => {
                 return <ExplanList {...params} refresh={refresh} />;
               }}
             />
             <Route
-              path={'/admin/computing/:projectId/:id'}
+              path={addSubPathOfRoute('/admin/computing/:projectId/:id')}
               exact
               render={({ match: { params } }) => {
                 return <ExplanDetail {...params} />;
@@ -107,14 +108,14 @@ export default class ExclusiveComp extends Component {
         {hasDataBase && (
           <Fragment>
             <Route
-              path={'/admin/database/:projectId'}
+              path={addSubPathOfRoute('/admin/database/:projectId')}
               exact
               render={({ match: { params } }) => {
                 return <DataBase {...params} refresh={refresh} />;
               }}
             />
             <Route
-              path={'/admin/database/:projectId/:id'}
+              path={addSubPathOfRoute('/admin/database/:projectId/:id')}
               exact
               render={({ match: { params } }) => {
                 return <ManageDataBase {...params} />;

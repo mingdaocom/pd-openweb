@@ -3,7 +3,7 @@ import { Dialog } from 'ming-ui';
 import { generateRandomPassword } from 'src/utils/common';
 import './index.less';
 
-export default (callback = () => {}, onCancel = () => {}) => {
+export default function captcha(callback = () => {}, onCancel = () => {}) {
   const randstr = generateRandomPassword(16);
 
   const getImgLink = () => {
@@ -33,7 +33,7 @@ export default (callback = () => {}, onCancel = () => {}) => {
           </div>
           <div className="mTop10">
             <span
-              className="ThemeColor3 ThemeHoverColor2 pointer"
+              className="colorPrimary hoverColorPrimaryDark pointer"
               onClick={() => {
                 $('.captchaImg img').attr('src', getImgLink());
               }}
@@ -64,4 +64,4 @@ export default (callback = () => {}, onCancel = () => {}) => {
       userLanguage: LANG_MAPS[window.getCurrentLang()],
     }).show();
   }
-};
+}

@@ -1,22 +1,26 @@
-import React, { Fragment, useState } from 'react';
-import JsonView from 'react-json-view';
+import React, { Fragment, lazy, Suspense, useState } from 'react';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import { get } from 'lodash';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import EmailCard from './EmailCard';
 import NotificationCard from './NotificationCard';
-import RecordCard from './RecordCard';
 
+const RecordCard = lazy(() => import('./RecordCard'));
 const TOOL_CALL_CARD_TYPES = {
-  UPDATE_RECORD: 'update_record', // 更新记录
-  CREATE_RECORD: 'create_record', // 创建记录
-  API: 'wf_api_', // 集成 API
-  PBP: 'wf_pbp_', // 封装业务流程
-  SEND: 'wf_send_', // 发送站内通知
+  UPDATE_RECORD: 'update_record',
+  // 更新记录
+  CREATE_RECORD: 'create_record',
+  // 创建记录
+  API: 'wf_api_',
+  // 集成 API
+  PBP: 'wf_pbp_',
+  // 封装业务流程
+  SEND: 'wf_send_',
+  // 发送站内通知
   EMAIL: 'wf_email_', // 发送邮件
 };
-
 const TOOL_CALL_CARD_CONFIG = {
   [TOOL_CALL_CARD_TYPES.UPDATE_RECORD]: {
     type: TOOL_CALL_CARD_TYPES.UPDATE_RECORD,
@@ -75,7 +79,6 @@ const Con = styled.div`
     margin-top: 8px;
   }
 `;
-
 const CardCon = styled.div`
   border: 1px solid var(--color-border-primary);
   border-radius: 6px;
@@ -127,7 +130,6 @@ const CardCon = styled.div`
     }
   }
 `;
-
 const JSONDataCon = styled.div`
   padding: 16px;
   width: 100%;
@@ -144,13 +146,15 @@ const JSONDataCon = styled.div`
 function renderToolArguments({ chatbotId, conversationId, config, functionArguments, functionData }) {
   if (config.type === TOOL_CALL_CARD_TYPES.CREATE_RECORD || config.type === TOOL_CALL_CARD_TYPES.UPDATE_RECORD) {
     return (
-      <RecordCard
-        chatbotId={chatbotId}
-        conversationId={conversationId}
-        config={config}
-        functionArguments={functionArguments}
-        functionData={functionData}
-      />
+      <Suspense fallback={null}>
+        <RecordCard
+          chatbotId={chatbotId}
+          conversationId={conversationId}
+          config={config}
+          functionArguments={functionArguments}
+          functionData={functionData}
+        />
+      </Suspense>
     );
   } else if (config.type === TOOL_CALL_CARD_TYPES.SEND) {
     return (
@@ -179,7 +183,7 @@ function JSONDataComp({ data }) {
   return (
     <JSONDataCon>
       <div className="title">json</div>
-      <JsonView src={data} displayDataTypes={false} displayObjectSize={false} name={null} />
+      <JsonView data={data} />
     </JSONDataCon>
   );
 }
@@ -190,7 +194,9 @@ function FunctionCallCard(props) {
   return (
     <CardCon color={config.color} className={isFolded ? 'folded' : ''}>
       <div
-        className={cx('card-header t-flex t-flex-row t-items-center', { needConfirm })}
+        className={cx('card-header t-flex t-flex-row t-items-center', {
+          needConfirm,
+        })}
         onClick={() => {
           if (isFolded) {
             setIsFolded(false);
@@ -202,13 +208,15 @@ function FunctionCallCard(props) {
         </div>
         <div className="tool-name ellipsis">{config.name}</div>
         {(config.type === TOOL_CALL_CARD_TYPES.CREATE_RECORD || config.type === TOOL_CALL_CARD_TYPES.UPDATE_RECORD) && (
-          <RecordCard
-            chatbotId={chatbotId}
-            conversationId={conversationId}
-            showAsTitle={true}
-            config={config}
-            functionArguments={functionArguments}
-          />
+          <Suspense fallback={null}>
+            <RecordCard
+              chatbotId={chatbotId}
+              conversationId={conversationId}
+              showAsTitle={true}
+              config={config}
+              functionArguments={functionArguments}
+            />
+          </Suspense>
         )}
         {!isFolded && (
           <Fragment>
@@ -265,10 +273,7 @@ export function renderToolCalls(
             conversationId={conversationId}
             key={index}
             needConfirm={needConfirm}
-            config={{
-              ...config,
-              name: item.toolName || config.name,
-            }}
+            config={{ ...config, name: item.toolName || config.name }}
             functionArguments={functionArguments}
             item={item}
             functionData={functionData}
@@ -290,7 +295,6 @@ export function renderToolCalls(
     </Con>
   );
 }
-
 /**
  * 发送邮件
  *   原始数据

@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
@@ -184,7 +183,7 @@ export default class BaseColumnHead extends React.Component {
       <div className={cx('baseColumnHead columnHead allowOutClick', className, { isLast })} style={style}>
         <div className="inner allowOutClick">
           <div
-            className={cx('controlName allowOutClick', { 'ThemeHoverColor3 Hand': canSort })}
+            className={cx('controlName allowOutClick', { 'hoverColorPrimary Hand': canSort })}
             style={{
               width: style.width - 10,
               height: style.height,
@@ -211,7 +210,7 @@ export default class BaseColumnHead extends React.Component {
               onClick={() => this.setState({ listVisible: true })}
               style={className.indexOf('headAlignCenter') > -1 ? { lineHeight: style.height - 2 + 'px' } : {}}
             >
-              <i className="icon icon-arrow-down-border ThemeHoverColor3 Hand"></i>
+              <i className="icon icon-arrow-down-border hoverColorPrimary Hand"></i>
             </span>
           )}
         </div>

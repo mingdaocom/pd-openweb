@@ -10,6 +10,7 @@ import { Bold600, Hr, Tip99 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { checkCertification } from 'src/components/checkCertification';
 import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
+import { pathCompletion } from 'src/utils/common';
 import { getPublicShare, getUrl, updatePublicShareStatus } from './controller';
 import Validity from './Validity';
 
@@ -199,7 +200,7 @@ export default function Share(props) {
           ) : (
             <div className="flexRow alignItemsCenter">
               <div className="flex">
-                {!hidePublicTitle && <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>}
+                {!hidePublicTitle && <Bold600 className="Font15">{_l('公开分享')}</Bold600>}
                 <Tip99 className={cx({ mTop10: !isPayShare, textSecondary: isPayShare })}>
                   {publicShareDesc || _l('获得链接的所有人都可以查看')}
                 </Tip99>
@@ -286,7 +287,7 @@ export default function Share(props) {
               />
               {from === 'newRecord' && canEditForm && (
                 <a
-                  href={`/worksheet/form/edit/${params.worksheetId}?#detail`}
+                  href={pathCompletion(`/worksheet/form/edit/${params.worksheetId}?#detail`)}
                   target="_blank"
                   className="mTop13 InlineBlock"
                 >

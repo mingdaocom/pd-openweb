@@ -4,10 +4,10 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createTask from 'src/components/createTask/load';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
 import { updateStateConfig } from '../../../../redux/actions';
@@ -15,8 +15,7 @@ import config from '../../config/config';
 import { addFollowMembers, removeFollowMembers, updateUserStatus } from '../../redux/actions';
 import './subordinateMembers.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class SubordinateMembers extends Component {
   constructor(props) {
     super(props);
@@ -46,14 +45,6 @@ class SubordinateMembers extends Component {
   switchNetwork(projectId) {
     this.setState({ showNetwork: false });
     this.props.getSetting(projectId);
-  }
-
-  /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
   }
 
   /**
@@ -190,7 +181,7 @@ class SubordinateMembers extends Component {
   createTask(account, evt) {
     evt.stopPropagation();
 
-    $.CreateTask({
+    createTask({
       ProjectID: config.projectId,
       ChargeArray: [
         {
@@ -209,12 +200,12 @@ class SubordinateMembers extends Component {
   renderPopup(account) {
     return (
       <ul className="ganttSubordinateMembersOp boxShadow5 boderRadAll_3">
-        <li className="ThemeColor3 ThemeBGColor3" onClick={() => this.lookOtherTasks(account)}>
+        <li className="colorPrimary bgColorPrimary" onClick={() => this.lookOtherTasks(account)}>
           <i className="icon-abstract" />
           {_l('更多任务')}
         </li>
         {account.type === 4 ? (
-          <li className="ThemeColor3 ThemeBGColor3" onClick={() => this.removeMembers(account.accountId)}>
+          <li className="colorPrimary bgColorPrimary" onClick={() => this.removeMembers(account.accountId)}>
             <i className="icon-trash" />
             {_l('移除')}
           </li>
@@ -273,10 +264,8 @@ class SubordinateMembers extends Component {
         <div className="flexColumn">
           <div className="ganttNetwork relative">
             <div
-              className="ganttNetworkName ThemeColor3 overflow_ellipsis"
-              onMouseDown={evt =>
-                this.checkMouseDownIsLeft(evt) && this.setState({ showNetwork: !this.state.showNetwork })
-              }
+              className="ganttNetworkName colorPrimary overflow_ellipsis"
+              onClick={() => this.setState({ showNetwork: !this.state.showNetwork })}
             >
               {this.getNetWorkName()} <i className="icon-arrow-down-border" />
             </div>
@@ -290,7 +279,7 @@ class SubordinateMembers extends Component {
                   return (
                     <li
                       key={i}
-                      className="overflow_ellipsis ThemeColor3 ThemeBGColor3"
+                      className="overflow_ellipsis colorPrimary bgColorPrimary"
                       onClick={() => this.switchNetwork(project.projectId)}
                     >
                       <i className="icon-business" />
@@ -316,7 +305,7 @@ class SubordinateMembers extends Component {
                   {_l('可前往 组织管理-员工汇报关系中设置，或关注与您协作的同事，查看相关任务进展。')}
                 </div>
                 <div
-                  className="ganttSubordinateAddMember ThemeColor3 ThemeBorderColor3 mTop25"
+                  className="ganttSubordinateAddMember colorPrimary borderColorPrimary mTop25"
                   onClick={() => this.addSubordinate()}
                 >
                   {_l('添加下属')}
@@ -334,7 +323,7 @@ class SubordinateMembers extends Component {
                   {item.account.type === 3 ? <i className="ganttTriangle" /> : undefined}
 
                   <UserHead
-                    className={cx('ganttMembersAvatar', { ThemeBorderColor3: item.account.type === 4 })}
+                    className={cx('ganttMembersAvatar', { borderColorPrimary: item.account.type === 4 })}
                     user={{
                       userHead: item.account.avatar,
                       accountId: item.account.accountId,
@@ -349,7 +338,7 @@ class SubordinateMembers extends Component {
 
                   <Tooltip title={_l('创建新任务')} placement="bottomLeft">
                     <span
-                      className="ganttMembersAddTask Font16 ThemeColor3"
+                      className="ganttMembersAddTask Font16 colorPrimary"
                       onClick={evt => this.createTask(item.account, evt)}
                     >
                       <i className="icon-plus" />
@@ -365,7 +354,7 @@ class SubordinateMembers extends Component {
                       popupPlacement="bottomLeft"
                     >
                       <span className="ganttMembersOperation" onClick={evt => evt.stopPropagation()}>
-                        <i className="icon-moreop ThemeColor3 Font16" />
+                        <i className="icon-moreop colorPrimary Font16" />
                       </span>
                     </Trigger>
                   ) : undefined}
@@ -374,7 +363,7 @@ class SubordinateMembers extends Component {
             })}
           </ul>
 
-          <div className="ganttSubordinate ThemeColor3" onClick={evt => this.addFollowMembers(evt)}>
+          <div className="ganttSubordinate colorPrimary" onClick={evt => this.addFollowMembers(evt)}>
             <i className="icon-hr_person_add Font18 mRight5" />
             {_l('添加同事')}
             <Tooltip placement="top" title={this.tooltip()}>

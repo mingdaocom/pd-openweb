@@ -8,6 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import appManagement from 'src/api/appManagement';
+import { pathCompletion } from 'src/utils/common';
 import selectPBPDialog from '../../../components/selectPBPDialog';
 import { ACTION_ID, FIELD_TYPE_LIST, RELATION_TYPE } from '../../enum';
 import {
@@ -48,18 +49,26 @@ export default class PBC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -73,6 +82,10 @@ export default class PBC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.actionId === ACTION_ID.PBC) {
           result.subProcessVariables
             .filter(o => o.processVariableType === 1)
@@ -197,7 +210,7 @@ export default class PBC extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -252,7 +265,7 @@ export default class PBC extends Component {
         {this.renderList(data.fields.filter(o => !o.dataSource))}
 
         <div className="addActionBtn mTop25">
-          <span className="ThemeBorderColor3" onClick={this.addParameters}>
+          <span className="borderColorPrimary" onClick={this.addParameters}>
             <i className="icon-add Font16" />
             {_l('添加参数')}
           </span>
@@ -302,7 +315,7 @@ export default class PBC extends Component {
             <div className="mTop10 flexRow">
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                 placeholder={_l('参数名')}
                 value={selectItem.alias}
                 onChange={e => this.updateExportFields('alias', e.target.value, selectItem)}
@@ -325,7 +338,7 @@ export default class PBC extends Component {
             <div className="mTop10 flexRow">
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                 placeholder={_l('参数说明')}
                 value={selectItem.desc}
                 onChange={evt => this.updateExportFields('desc', evt.target.value, selectItem)}
@@ -371,7 +384,7 @@ export default class PBC extends Component {
     return (
       <input
         type="text"
-        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
         placeholder={_l('字段名（必填）')}
         value={item.fieldName}
         maxLength={64}
@@ -451,7 +464,7 @@ export default class PBC extends Component {
             {!isPlugin && (
               <Tooltip title={_l('编辑')}>
                 <span
-                  className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer mTop8"
+                  className="Font16 textSecondary hoverColorPrimary mLeft10 pointer mTop8"
                   onClick={() => {
                     this.setState({ selectFieldId: item.fieldId });
                     this.cacheItem = item;
@@ -464,7 +477,7 @@ export default class PBC extends Component {
 
             <Tooltip title={_l('删除')}>
               <span
-                className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer mTop8"
+                className="Font16 textSecondary hoverColorPrimary mLeft10 pointer mTop8"
                 onClick={() => {
                   let fields = [].concat(data.fields);
                   let objArrayIds = [];
@@ -491,7 +504,7 @@ export default class PBC extends Component {
 
             <Tooltip title={_l('添加')}>
               <span
-                className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer mTop8"
+                className="Font16 textSecondary hoverColorPrimary mLeft10 pointer mTop8"
                 style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
                 onClick={() => this.addParameters(item)}
               >
@@ -615,7 +628,7 @@ export default class PBC extends Component {
       <Fragment>
         <div className="flexRow">
           <div className="bold flex">{_l('选择业务流程')}</div>
-          <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.createNewPBPFlow}>
+          <div className="colorPrimary hoverColorPrimaryDark pointer" onClick={this.createNewPBPFlow}>
             + {_l('新建封装业务流程')}
           </div>
         </div>
@@ -727,7 +740,7 @@ export default class PBC extends Component {
         return {
           text: item.name,
           value: item.id,
-          className: item.id === data.appId ? 'ThemeColor3' : '',
+          className: item.id === data.appId ? 'colorPrimary' : '',
         };
       });
     const otherPBC = [
@@ -847,7 +860,7 @@ export default class PBC extends Component {
       })
       .then(res => {
         appManagement.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
-        window.open(`/workflowedit/${res.id}`);
+        window.open(pathCompletion(`/workflowedit/${res.id}`));
         closeDetail();
       });
   };
@@ -892,7 +905,7 @@ export default class PBC extends Component {
         </div>
         <DetailFooter
           {...this.props}
-          isCorrect={!!data.appId || isPBCOut}
+          isCorrect={(!!data.appId || isPBCOut) && !_.isEqual(data, this.cacheResult)}
           onSave={() => {
             setTimeout(this.onSave, 50);
           }}

@@ -91,10 +91,6 @@ export const SYSTEM_FIELD_TO_TEXT = {
   wfstatus: _l('状态'),
 };
 
-// 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
-export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy|temp-name|print-time)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy|temp-name|print-time)?))?\$/g;
-
 export const TIME_TYPES = [
   {
     value: '2',
@@ -257,16 +253,21 @@ export const OTHER_FIELD_TYPE = {
   PRINT_TEMP: 'printTemp',
 };
 
+export const CUR_DEPARTMENT = [
+  { icon: 'icon-department', key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') },
+];
+export const CUR_ROLE = [{ icon: 'icon-group', key: 'role', id: 'user-role', text: _l('当前用户的组织角色') }];
+
 export const CURRENT_TYPES = {
   3: CUR_USER,
   5: CUR_USER,
   15: DATE_TYPES,
   16: TIME_TYPES,
   26: CUR_USER,
-  27: [{ icon: 'icon-department', key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') }],
+  27: CUR_DEPARTMENT,
   40: CUR_LOCATION_TYPES,
   46: CUR_TIME_TYPES,
-  48: [{ icon: 'icon-group', key: 'role', id: 'user-role', text: _l('当前用户的组织角色') }],
+  48: CUR_ROLE,
   2: CUR_SEARCH_TYPES,
   6: CUR_SEARCH_TYPES,
 };

@@ -59,13 +59,13 @@ function Apply(props) {
   });
   useEffect(() => {
     getApplyList({ appId }, true);
-  }, []);
+  }, [appId, getApplyList]);
   useEffect(() => {
     setState({
-      userList: _.get(props, ['appRole', 'apply']) || [],
-      loading: props.appRole.loading,
+      userList: _.get(appRole, 'apply') || [],
+      loading: appRole.loading,
     });
-  }, [props.appRole]);
+  }, [appRole, setState]);
   const columns = [
     {
       id: 'name',
@@ -295,6 +295,7 @@ function Apply(props) {
       {show && (
         <BatchDialog
           show={show}
+          appId={appId}
           txt={_l('为选中的%0个申请人选择角色', selectedIds.length || 0)}
           title={_l('批量通过')}
           roleInfos={roleInfos.filter(o => o.canSetMembers)}

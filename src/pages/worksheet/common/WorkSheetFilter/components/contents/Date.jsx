@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import _, { find, flatten, get, includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -8,10 +8,12 @@ import DatePicker from 'src/components/Form/DesktopForm/widgets/Date';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import {
   DATE_COMPARE_FILTER_TYPES,
+  DATE_COMPARE_RANGE_LABELS,
   DATE_OPTIONS,
   DATE_RANGE_TYPE,
   DATE_RANGE_TYPE_OPTIONS,
   FILTER_CONDITION_TYPE,
+  getDateCompareRangeValues,
 } from '../../enum';
 
 function getPicker(type) {
@@ -19,6 +21,22 @@ function getPicker(type) {
     4: 'month',
     5: 'year',
   }[type];
+}
+
+function getDateOptionsByCompareType(type, dateOptions) {
+  const allowedValues = [18].concat(getDateCompareRangeValues(type));
+
+  // 比较规则只展示当前方向支持的动态时间点，并复写“过去/将来”范围文案。
+  return dateOptions
+    .map(options =>
+      options
+        .filter(o => _.includes(allowedValues, o.value))
+        .map(o => ({
+          ...o,
+          text: DATE_COMPARE_RANGE_LABELS[o.value] || o.text,
+        })),
+    )
+    .filter(options => options.length);
 }
 
 export default function Date(props) {
@@ -36,9 +54,8 @@ export default function Date(props) {
     from = '',
     appId,
   } = props;
-  const [dayNum, setDayNum] = useState(value);
-  // 早于 / 晚于 / 早于等于 / 晚于等于：只支持指定日期，不允许选择动态日期类型
-  const onlySpecificDate = includes(DATE_COMPARE_FILTER_TYPES, type);
+  const dayNum = value;
+  const isDateCompareFilter = includes(DATE_COMPARE_FILTER_TYPES, type);
   let dateOptions = DATE_OPTIONS;
   // if (
   //   dateRange === 18 &&
@@ -97,15 +114,10 @@ export default function Date(props) {
     dateOptions = dateOptions.map(options => options.filter(o => !(o.value > 18 && o.value < 19)));
   }
 
-  useEffect(() => {
-    setDayNum(value);
-  }, [value]);
-  useEffect(() => {
-    // 兼容存量数据：这些筛选类型下若残留动态日期类型，强制纠正为指定日期
-    if (onlySpecificDate && dateRange !== 18) {
-      onChange({ dateRange: 18, value: undefined });
-    }
-  }, [onlySpecificDate, dateRange]);
+  if (isDateCompareFilter) {
+    dateOptions = getDateOptionsByCompareType(type, dateOptions);
+  }
+
   return (
     <div className="worksheetFilterDateCondition">
       {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (
@@ -134,17 +146,15 @@ export default function Date(props) {
           {from !== 'subTotal' && (
             <div className="dateType dateInputCon">
               <Dropdown
-                disabled={disabled || onlySpecificDate}
+                disabled={disabled}
                 data={dateOptions}
                 hiddenValue={[10, 11]}
                 value={
-                  onlySpecificDate
-                    ? 18
-                    : includes([1, 2], dateRangeType) &&
-                        includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type) &&
-                        dateRange === 18
-                      ? dateRange + 0.1 * dateRangeType
-                      : dateRange
+                  includes([1, 2], dateRangeType) &&
+                  includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type) &&
+                  dateRange === 18
+                    ? dateRange + 0.1 * dateRangeType
+                    : dateRange
                 }
                 isAppendToBody
                 menuStyle={{ width: 220 }}
@@ -188,7 +198,6 @@ export default function Date(props) {
                   let dayNumToChange = dayNum;
 
                   if (dateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
-                    setDayNum(100);
                     dayNumToChange = 100;
                   }
 
@@ -196,7 +205,7 @@ export default function Date(props) {
                     onChange({ value: dayNumToChange, dateRangeType });
                   }
                 }}
-                onChange={e => setDayNum(get(e, 'target.value', '').replace(/[^\d]/g, ''))}
+                onChange={e => onChange({ value: get(e, 'target.value', '').replace(/[^\d]/g, ''), dateRangeType })}
               />
               {(dateRange === 101 || dateRange === 102) && (
                 <Dropdown
@@ -209,7 +218,6 @@ export default function Date(props) {
                     const changes = { dateRangeType: newDateRangeType };
 
                     if (newDateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
-                      setDayNum(100);
                       changes.value = 100;
                     }
 
@@ -225,6 +233,8 @@ export default function Date(props) {
                     FILTER_CONDITION_TYPE.DATE_NE,
                     FILTER_CONDITION_TYPE.DATEENUM,
                     FILTER_CONDITION_TYPE.NDATEENUM,
+                    FILTER_CONDITION_TYPE.DATE_LTE,
+                    FILTER_CONDITION_TYPE.DATE_GTE,
                   ],
                   type,
                 ) && (

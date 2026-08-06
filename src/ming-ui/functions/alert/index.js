@@ -54,12 +54,13 @@ function getIcon(type = 'success', isMobile = false) {
 export function antAlert(content, alertType = 1) {
   const isReactNode = React.isValidElement(content);
   const isPlainValue = typeof content !== 'object' || isReactNode;
+  const isMobile = browserIsMobile();
 
   // 统一参数
   const defaultOptions = {
     msg: '',
     type: alertType,
-    duration: 3000,
+    duration: isMobile ? 2000 : 3000,
     ...(isPlainValue ? { msg: content } : content),
   };
   const { msg, type, duration, onClose, key, style, isPcAlert } = defaultOptions;
@@ -67,8 +68,6 @@ export function antAlert(content, alertType = 1) {
   const func = ['success', 'error', 'warning', 'info', 'loading'][type - 1] || 'success';
   // 内容处理
   const contentValue = isReactNode ? msg : String(msg || '').replace(/(<([^>]+)>)/gi, '');
-
-  const isMobile = browserIsMobile();
 
   // 部分情况需要在移动端使用antd的message
   if (isMobile && !isPcAlert) {

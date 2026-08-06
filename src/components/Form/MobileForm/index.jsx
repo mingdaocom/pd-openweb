@@ -35,6 +35,9 @@ const CustomFormItemControlWrap = styled.div`
   }
   .customFormTextarea {
     ${props => (props.size ? `font-size: ${props.size} !important; height: ${CONTROL_HEIGHT_MAP[props.size]};` : '')}
+    &:not(.isEditing) {
+      ${props => (_.includes([2, 3], props.type) ? props.valueStyle : '')}
+    }
   }
   .customFormControlBox {
     ${props => (props.size ? `font-size: ${props.size} !important; height: ${CONTROL_HEIGHT_MAP[props.size]};` : '')}
@@ -92,6 +95,7 @@ const MobileForm = props => {
     const formList = [];
     let prevRow = -1;
     let preIsSection;
+    let firstFieldRendered = false;
     let data = [].concat(renderData).filter(item => !item.hidden && controlState(item, from).visible);
     const richTextControlCount = data.filter(c => c.type === 41).length;
 
@@ -121,10 +125,14 @@ const MobileForm = props => {
         ..._.pick(props, ['disabledFunctions', 'recordId', 'from', 'isEditing']),
         item,
       });
+      const isFirstItem = !firstFieldRendered && !_.includes([22, 52], item.type);
 
       formList.push(
         <div
-          className={cx('customFormItem', { customFormItemRow: displayRowInfo.displayRow, isFilledByAi })}
+          className={cx('customFormItem', {
+            customFormItemRow: displayRowInfo.displayRow,
+            isFilledByAi,
+          })}
           style={{
             width: '100%',
             display: item.type === 49 && disabled ? 'none' : 'flex',
@@ -161,6 +169,7 @@ const MobileForm = props => {
               formDisabled={item.disabled}
               updateErrorState={updateErrorState}
               handleChange={handleChange}
+              isFirstItem={isFirstItem}
             />
           )}
 
@@ -200,6 +209,9 @@ const MobileForm = props => {
 
       prevRow = item.row;
       preIsSection = item.type === 22 || item.type === 10010;
+      if (isFirstItem) {
+        firstFieldRendered = true;
+      }
     });
 
     return formList;
@@ -228,6 +240,7 @@ const MobileForm = props => {
   useEffect(() => {
     if (containerRef.current) {
       setTimeout(() => {
+        if (!containerRef.current) return;
         const emSize = window.getComputedStyle(containerRef.current).fontSize || '16px';
         const emSizeNum = emSize.split('px')[0];
         updateEmSizeNumAction(dispatch, emSizeNum);
@@ -240,7 +253,7 @@ const MobileForm = props => {
         // });
       }, 0);
     }
-  }, []);
+  }, [dispatch]);
 
   if (rulesLoading) {
     return (

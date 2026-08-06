@@ -4,7 +4,8 @@ import _ from 'lodash';
 import { Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { pathCompletion } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import './index.less';
 
 const LINK_TYPES = [
@@ -133,7 +134,7 @@ class SelectIntegrationApi extends Component {
   };
 
   handleClick = () => {
-    window.open(`${location.origin}/integration`);
+    window.open(pathCompletion(`/integration`));
   };
 
   handleSearch = type => {

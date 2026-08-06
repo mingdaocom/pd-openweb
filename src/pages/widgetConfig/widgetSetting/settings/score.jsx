@@ -88,7 +88,7 @@ export default function Score({ data, onChange }) {
               }}
             />
           ) : (
-            <span className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36" onClick={() => setVisible(true)}>
+            <span className="colorPrimary hoverColorPrimaryDark pointer LineHeight36" onClick={() => setVisible(true)}>
               {_l('设置')}
             </span>
           )}

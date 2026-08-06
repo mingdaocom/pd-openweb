@@ -126,7 +126,7 @@ export default function SheetGroupSelect(props) {
       popup={
         <PopupWrapper>
           <SearchInput
-            placeholder="搜索"
+            placeholder={_l('搜索')}
             className="searchInput"
             value={searchKeyWords}
             onChange={value => setSearchKeyWords(value)}

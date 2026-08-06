@@ -8,10 +8,11 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import reportRequestAjax from '../api/report';
-import { formatSummaryName } from 'statistics/common';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { countryLayerCodeMap } from 'statistics/enum';
 import * as actions from 'statistics/redux/actions';
-import { fillValueMap, version } from '../common';
+import { version } from '../common/reportConfigUtils';
+import { fillValueMap } from '../common/reportDataUtils';
 import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
 
 const PathWrapper = styled.div`
@@ -120,36 +121,39 @@ export class CountryLayer extends Component {
     this.CountryLayerChart && this.CountryLayerChart.destroy();
     this.resizeObserver && this.resizeObserver.unobserve(this.chartEl);
   }
-  componentWillReceiveProps(nextProps) {
-    const { style = {}, displaySetup = {} } = nextProps.reportData;
-    const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = this.props.reportData;
 
-    if (
-      (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
-      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
-      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      !_.isEqual(style, oldStyle) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
-        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
-      )
-    ) {
-      this.resetChart(nextProps);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { style = {}, displaySetup = {} } = this.props.reportData;
+      const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = prevProps.reportData;
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.isLinkageData =
-        nextProps.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
-    }
+      if (
+        (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
+        displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+        !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+        !_.isEqual(style, oldStyle) ||
+        this.props.themeColor !== prevProps.themeColor ||
+        !_.isEqual(
+          _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+          _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        )
+      ) {
+        this.resetChart(this.props);
+      }
 
-    if (!nextProps.loading && this.props.loading) {
-      const { map, yaxisList, summary } = nextProps.reportData;
-      const data = setColorLavel(map);
-      this.setCount(formatYaxisList(data, yaxisList), summary);
-      this.colorLavels = this.getColorLavels(nextProps, data);
-      this.CountryLayerChart.changeData(data);
+      if (this.props.isLinkageData !== prevProps.isLinkageData) {
+        this.isLinkageData =
+          this.props.isLinkageData &&
+          !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      }
+
+      if (!this.props.loading && prevProps.loading) {
+        const { map, yaxisList, summary } = this.props.reportData;
+        const data = setColorLavel(map);
+        this.setCount(formatYaxisList(data, yaxisList), summary);
+        this.colorLavels = this.getColorLavels(this.props, data);
+        this.CountryLayerChart.changeData(data);
+      }
     }
   }
   renderChart = props => {

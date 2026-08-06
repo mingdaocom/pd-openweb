@@ -227,7 +227,7 @@
   font-size: 14px;
   color: var(--color-text-tertiary);
 }
-.linkageFolder li.hover .ThemeColor8 {
+.linkageFolder li.hover .textTertiary {
   color: var(--color-white) !important;
 }
 .linkageFolder li.hover .folderMemberCount {
@@ -290,7 +290,7 @@
 .taskUpdateCharge {
   font-size: 32px;
 }
-.taskUpdateCharge:not(:hover) .ThemeColor3 {
+.taskUpdateCharge:not(:hover) .colorPrimary {
   color: var(--color-text-title) !important;
 }
 .taskTabs {

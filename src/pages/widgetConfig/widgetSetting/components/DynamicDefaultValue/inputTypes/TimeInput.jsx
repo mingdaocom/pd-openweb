@@ -29,9 +29,11 @@ export default class TimeInput extends Component {
     this.updateValue();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.dynamicValue, this.props.dynamicValue)) {
-      this.updateValue(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.dynamicValue, prevProps.dynamicValue)) {
+        this.updateValue(this.props);
+      }
     }
   }
 

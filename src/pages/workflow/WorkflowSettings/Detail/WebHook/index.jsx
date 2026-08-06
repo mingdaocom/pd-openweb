@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { checkJSON, formatTestParameters } from '../../utils';
 import {
@@ -49,18 +50,26 @@ export default class WebHook extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -73,6 +82,10 @@ export default class WebHook extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (!result.headers.length) {
           result.headers.push({
             name: '',
@@ -128,7 +141,9 @@ export default class WebHook extends Component {
       return;
     }
 
-    window.open(`/workflow/checksheet/${this.props.processId}/${this.props.selectNodeId}/${selectNodeId}`);
+    window.open(
+      pathCompletion(`/workflow/checksheet/${this.props.processId}/${this.props.selectNodeId}/${selectNodeId}`),
+    );
   };
 
   /**
@@ -194,7 +209,7 @@ export default class WebHook extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -304,7 +319,7 @@ export default class WebHook extends Component {
             )}
             <div className="mTop15 flexRow">
               <div className="bold flex">{_l('响应 Body')}</div>
-              <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.generateFromJSON}>
+              <div className="colorPrimary hoverColorPrimaryDark pointer" onClick={this.generateFromJSON}>
                 {_l('从 JSON 导入响应示例')}
               </div>
             </div>
@@ -699,7 +714,7 @@ export default class WebHook extends Component {
             <div className="flexRow mTop10">
               <input
                 type="text"
-                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                 placeholder={_l('示例：200,201（多个状态码用英文逗号隔开）')}
                 value={data.successCode}
                 onChange={e => this.updateSource({ successCode: e.target.value.replace(/[^0-9,]/g, '') })}
@@ -713,7 +728,7 @@ export default class WebHook extends Component {
                   <input
                     type="text"
                     style={{ width: 100 }}
-                    className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                     placeholder={_l('示例：500')}
                     value={item.key}
                     onChange={e => this.updateErrorMsg('key', e.target.value.replace(/[^0-9]/g, ''), i)}
@@ -721,7 +736,7 @@ export default class WebHook extends Component {
 
                   <input
                     type="text"
-                    className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
+                    className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
                     placeholder={_l('请输入错误消息')}
                     value={item.value}
                     onChange={e => this.updateErrorMsg('value', e.target.value, i)}
@@ -729,7 +744,7 @@ export default class WebHook extends Component {
                   />
 
                   <i
-                    className="icon-trash Font16 ThemeHoverColor3 pointer textDisabled mLeft8"
+                    className="icon-trash Font16 hoverColorPrimary pointer textDisabled mLeft8"
                     onClick={() => this.deleteErrorMsg(i)}
                   />
                 </div>
@@ -738,7 +753,7 @@ export default class WebHook extends Component {
 
             <div className="mTop10">
               <span
-                className="ThemeHoverColor3 pointer textSecondary"
+                className="hoverColorPrimary pointer textSecondary"
                 onClick={() => this.setState({ errorMsgArray: errorMsgArray.concat({ key: '', value: '' }) })}
               >
                 + {_l('状态码')}
@@ -749,7 +764,7 @@ export default class WebHook extends Component {
             <div className="flexRow mTop10">
               <input
                 type="text"
-                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                 placeholder={_l('请输入错误消息')}
                 value={data.errorMsg}
                 onChange={e => this.updateSource({ errorMsg: e.target.value })}
@@ -827,7 +842,7 @@ export default class WebHook extends Component {
         <div className="flexRow mTop10">
           <input
             type="text"
-            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+            className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
             placeholder={_l('推送地址')}
             value={data.sendContent}
             onChange={e => this.updateSource({ sendContent: e.target.value.trim() })}
@@ -873,7 +888,8 @@ export default class WebHook extends Component {
             ((_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], data.appType) && data.selectNodeId) ||
               data.appType === APP_TYPE.WEBHOOK ||
               data.actionId === ACTION_ID.PBC_OUT) &&
-            data.sendContent
+            data.sendContent &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

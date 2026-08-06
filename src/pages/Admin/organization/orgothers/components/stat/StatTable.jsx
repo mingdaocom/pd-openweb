@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Icon, LoadDiv, UserName } from 'ming-ui';
 import statisticController from 'src/api/statistic';
 import PaginationWrap from '../../../../components/PaginationWrap';
+import { pathCompletion } from 'src/utils/common';
 
 const PAGE_SIZES = {
   NORMAL: 20,
@@ -209,41 +210,29 @@ export default class StatTable extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.fetchData();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.reportType !== nextProps.reportType ||
-      this.props.startDate !== nextProps.startDate ||
-      this.props.endDate !== nextProps.endDate
-    ) {
-      this.abortRequest();
-      this.setState(
-        {
-          isLoading: true,
-          pageIndex: 1,
-          pageSize: PAGE_SIZES.NORMAL,
-          sortField: SORT_FIELDS_TYPES.CREATETIME,
-          sortType: SORT_TYPES.DESC,
-        },
-        this.fetchData.bind(this),
-      );
-    }
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    const { sortField, sortType, pageIndex, pageSize } = this.state;
-
-    if (
-      sortField !== nextState.sortField ||
-      sortType !== nextState.sortType ||
-      pageIndex !== nextState.pageIndex ||
-      pageSize !== nextState.pageSize
-    ) {
-      this.abortRequest();
-      this.fetchData(nextState);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        prevProps.reportType !== this.props.reportType ||
+        prevProps.startDate !== this.props.startDate ||
+        prevProps.endDate !== this.props.endDate
+      ) {
+        this.abortRequest();
+        this.setState(
+          {
+            isLoading: true,
+            pageIndex: 1,
+            pageSize: PAGE_SIZES.NORMAL,
+            sortField: SORT_FIELDS_TYPES.CREATETIME,
+            sortType: SORT_TYPES.DESC,
+          },
+          this.fetchData.bind(this),
+        );
+      }
     }
   }
 
@@ -252,6 +241,11 @@ export default class StatTable extends React.Component {
       this.promise.abort();
     }
   }
+
+  refreshData = () => {
+    this.abortRequest();
+    this.fetchData();
+  };
 
   fetchData(nextState) {
     const { startDate, endDate, projectId, reportType } = this.props;
@@ -336,19 +330,14 @@ export default class StatTable extends React.Component {
 
           if (field.sortField) {
             const clickHander = () => {
-              if (field.sortField === sortField) {
-                this.setState({
-                  sortType: sortType === SORT_TYPES.DESC ? SORT_TYPES.ASC : SORT_TYPES.DESC,
-                });
-              } else {
-                this.setState({
-                  sortType: SORT_TYPES.DESC,
-                });
-              }
-
-              this.setState({
-                sortField: field.sortField,
-              });
+              this.setState(
+                {
+                  sortType:
+                    field.sortField === sortField && sortType === SORT_TYPES.DESC ? SORT_TYPES.ASC : SORT_TYPES.DESC,
+                  sortField: field.sortField,
+                },
+                this.refreshData,
+              );
             };
 
             return (
@@ -403,7 +392,7 @@ export default class StatTable extends React.Component {
           </td>
           <td>{department}</td>
           <td className="overflow_ellipsis wMax100">
-            <a href={'/feeddetail?itemID=' + item.postId} target="_blank" className="TxtMiddle">
+            <a href={pathCompletion('/feeddetail?itemID=' + item.postId)} target="_blank" className="TxtMiddle">
               {item.message}
             </a>
           </td>
@@ -416,7 +405,7 @@ export default class StatTable extends React.Component {
         <React.Fragment>
           <td className="pLeft10">{index + 1}</td>
           <td className="overflow_ellipsis wMax100">
-            <a href={'/group/groupValidate?gID=' + item.groupId} target="_blank">
+            <a href={pathCompletion('/group/groupValidate?gID=' + item.groupId)} target="_blank">
               {item.groupName}
             </a>
           </td>
@@ -437,7 +426,7 @@ export default class StatTable extends React.Component {
           <td>{department}</td>
           <td>
             <a
-              href={'/feeddetail?itemID=' + item.postId}
+              href={pathCompletion('/feeddetail?itemID=' + item.postId)}
               target="_blank"
               className="overflow_ellipsis TxtMiddle wMax100"
             >
@@ -457,7 +446,7 @@ export default class StatTable extends React.Component {
     const fields = SORT_FILEDS[reportType];
     return (
       <div className="statTable">
-        <table className="ThemeBorderColor4 w100" cellSpacing="0">
+        <table className="borderColorPrimary w100" cellSpacing="0">
           {this.renderCol()}
           <thead>{this.renderThead()}</thead>
         </table>
@@ -492,7 +481,7 @@ export default class StatTable extends React.Component {
             total={allCount}
             pageSize={pageSize}
             pageIndex={pageIndex}
-            onChange={pageIndex => this.setState({ pageIndex }, this.fetchData)}
+            onChange={pageIndex => this.setState({ pageIndex }, this.refreshData)}
           />
         ) : null}
       </div>

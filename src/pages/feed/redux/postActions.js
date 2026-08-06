@@ -618,7 +618,7 @@ export function edit(args, successCallback, failCallback) {
       .then(result => {
         if (!result.success) {
           failCallback(result);
-          return alert('操作失败', 2);
+          return alert(_l('操作失败'), 2);
         }
 
         alert(_l('操作成功'));

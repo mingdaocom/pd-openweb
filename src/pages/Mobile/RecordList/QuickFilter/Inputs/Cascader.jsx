@@ -74,9 +74,14 @@ export default class Cascader extends Component {
     this.searchRef = React.createRef();
     this.handleSearch = this.onSearch.bind(this);
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.value, nextProps.value)) {
-      this.setState({ value: nextProps.value });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.value, this.props.value)) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
     }
   }
   loadData = (rowId = '') => {
@@ -177,7 +182,7 @@ export default class Cascader extends Component {
 
     return (
       <div
-        className="flexRow Font17 ThemeColor3 pLeft15 pRight15 relative"
+        className="flexRow Font17 colorPrimary pLeft15 pRight15 relative"
         style={{ height: 46, alignItems: 'center' }}
       >
         {operatePath.length ? (
@@ -471,7 +476,7 @@ export default class Cascader extends Component {
           </div>
           <CascaderCon>
             {values.map(item => (
-              <CascaderItem>
+              <CascaderItem key={item.id || item.sid || item.name}>
                 <div className="flexRow alignItemsCenter">
                   <span className="userName flex">{item.name || _l('未命名')}</span>
                   <Icon

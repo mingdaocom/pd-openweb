@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon, Radio } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 
 const RangeBox = styled.div`
   z-index: 100;
@@ -70,9 +70,7 @@ const HeaderRange = styled.div`
     color: var(--color-primary) !important;
   }
 `;
-
-@withClickAway
-class Range extends React.Component {
+let Range = class Range extends React.Component {
   el = null;
   containerRef = null;
 
@@ -95,17 +93,14 @@ class Range extends React.Component {
   handleResize = () => {
     this.updatePosition();
   };
-
   updatePosition = () => {
     setTimeout(() => {
       if (!this.el || !this.containerRef) return;
-
       const el = this.el;
       const { offsetWidth: w, offsetHeight: h } = el;
       const ul = document.querySelector('.switchBoxCon ul')?.getBoundingClientRect();
       const chat = document.querySelector('#chat')?.getBoundingClientRect();
       const conWidth = window.innerWidth - chat.width;
-
       Object.assign(el.style, {
         transition: 'all 0.3s',
         left: ul && ul.width + w + ul.left <= conWidth ? `${Math.max(10, ul.width)}px` : 'initial',
@@ -118,7 +113,6 @@ class Range extends React.Component {
   render() {
     const { data = {}, diaRang } = this.props;
     const { viewIds = [] } = data;
-
     return (
       <RangeBox
         className="rangeBox Absolute"
@@ -231,6 +225,6 @@ class Range extends React.Component {
       </RangeBox>
     );
   }
-}
-
+};
+Range = ClickAway.wrap(Range);
 export default Range;

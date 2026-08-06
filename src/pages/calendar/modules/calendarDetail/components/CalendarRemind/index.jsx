@@ -44,10 +44,14 @@ export default class CalendarRemind extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      value: convert(nextProps.remindType, nextProps.remindTime),
-    });
+  // 修改日程提醒类型 // 修改日程提醒类型
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        value: convert(this.props.remindType, this.props.remindTime),
+      });
+    }
   }
 
   // 修改日程提醒类型
@@ -159,7 +163,7 @@ export default class CalendarRemind extends Component {
                 {_l('提前%19001')}
                 <input
                   type="text"
-                  className="remindBox ThemeBorderColor3"
+                  className="remindBox borderColorPrimary"
                   value={this.state.value}
                   onChange={this.onChangeRemind}
                   onBlur={this.changeRemindTime.bind(this)}

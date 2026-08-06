@@ -1,15 +1,19 @@
 import React from 'react';
 import App from './App';
+import AppRole from './AppRole';
 import Collections from './Collections';
 import Control from './Control';
 import ControlRules from './ControlRules';
 import CustomAction from './CustomAction';
-import CustomPage from './CustomPage';
-import CustomPageButton from './CustomPageButton';
-import CustomPageChart from './CustomPageChart';
-import CustomPageFilter from './CustomPageFilter';
-import CustomPageRichText from './CustomPageRichText';
-import CustomPageView from './CustomPageView';
+import CustomPage from './customPage/CustomPage';
+import CustomPageButton from './customPage/CustomPageButton';
+import CustomPageCard from './customPage/CustomPageCard';
+import CustomPageChart from './customPage/CustomPageChart';
+import CustomPageFilter from './customPage/CustomPageFilter';
+import CustomPageRichText from './customPage/CustomPageRichText';
+import CustomPageTabs from './customPage/CustomPageTabs';
+import CustomPageView from './customPage/CustomPageView';
+import ExternalPortalRole from './ExternalPortalRole';
 import Gourup from './Gourup';
 import Sheet from './Sheet';
 import StatisticsChart from './StatisticsChart';
@@ -48,10 +52,18 @@ const Components = {
   pageView: CustomPageView,
   // 自定义页面、富文本
   pageRichText: CustomPageRichText,
+  // 自定义页面、标签页
+  pageTabs: CustomPageTabs,
+  // 自定义页面、卡片
+  pageCard: CustomPageCard,
   // 工作流
   workflow: Workflow,
   // 工作流、节点
   workflowNode: WorkflowNode,
+  // 应用、角色
+  appRole: AppRole,
+  // 外部门户、角色
+  externalPortalRole: ExternalPortalRole,
 };
 
 export default function Content(props) {

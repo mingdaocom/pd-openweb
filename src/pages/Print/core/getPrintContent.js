@@ -2,8 +2,10 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { MdMarkdown, RichText } from 'ming-ui';
+import { getBarCodeValue } from 'src/components/Form/core/utils';
 import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 import Embed from 'src/components/Form/DesktopForm/widgets/Embed';
+import { parseDataSource } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { getSwitchItemNames, getTitleTextFromRelateControl, renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
@@ -182,7 +184,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
 
       return (
         <React.Fragment>
-          <span style={{ fontSize: 10 }}>{value === '1' ? '☑ ' : '☐ '}</span>
+          <span style={{ fontSize: 12 }}>{value === '1' ? '☑ ' : '☐ '}</span>
           {item.hint}
         </React.Fragment>
       );
@@ -191,7 +193,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
     case 8:
     case 20:
     case 31:
+    case 38:
     case 37:
+    case 53:
       if (item.noUnit) {
         return renderCellText(dataItem, { noUnit: item.noUnit }) || placeholderMode;
       }
@@ -213,6 +217,10 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
       return value ? renderRecordAttachments(value, item.isRelateMultipleSheet, fileStyle[id]) : placeholderMode;
     case 15:
     case 16:
+      if (item.isRelateMultipleSheet) {
+        return renderCellText(dataItem, { appId: item.appId }) || placeholderMode;
+      }
+
       // 直接取新接口返回的 value
       return value || placeholderMode;
     case 28:
@@ -625,16 +633,34 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
     }
 
     case 47: {
-      // 二维码数据源为字段值时判断是否为空、条码
-      if (!item.value && ((item.enumDefault === 2 && item.enumDefault2 === 3) || item.enumDefault === 1)) {
+      const dataSource = parseDataSource(item.dataSource);
+      const controls = dataItem.allControls || dataItem.controls || [];
+      const formData = controls.map(it => {
+        if (dataSource && it.controlId === dataSource && _.isUndefined(it.value)) {
+          return { ...it, value: item.value };
+        }
+
+        return it;
+      });
+      const barCodeData = { ...dataItem, formData };
+      const barCodeValue = getBarCodeValue({
+        data: formData,
+        control: {
+          enumDefault: item.enumDefault,
+          enumDefault2: item.enumDefault2,
+          dataSource,
+        },
+        codeInfo: {
+          recordId: item.recordId,
+          appId: item.appId,
+          worksheetId: item.worksheetId,
+          viewId: item.viewId || item.viewIdForPermit,
+        },
+      });
+
+      if (!barCodeValue) {
         return placeholderMode;
       }
-
-      const controls = dataItem.allControls || dataItem.controls;
-      const formData = controls.map(it =>
-        item.dataSource?.includes(it.controlId) ? { ...it, value: item.value } : it,
-      );
-      const barCodeData = { ...dataItem, formData };
 
       return <BarCode {...barCodeData} />;
     }

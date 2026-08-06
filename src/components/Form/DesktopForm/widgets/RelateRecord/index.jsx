@@ -113,15 +113,14 @@ export default class Widgets extends Component {
     return parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!this.isCard) {
-      return;
-    }
+  shouldComponentUpdate(nextProps) {
+    if (!this.isCard) return true;
+    if (nextProps.value === this.props.value) return true;
 
     try {
       if (nextProps.value === 'deleteRowIds: all') {
         this.cardsComp.current.table.deleteAllRecord();
-        return;
+        return false;
       }
 
       const nextData = this.parseValue(nextProps.value);
@@ -129,25 +128,18 @@ export default class Widgets extends Component {
       if (_.get(nextData, '0.isWorksheetQueryFill')) {
         const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
         this.cardsComp.current.table.clearAndAdd(newRecords);
+        return false;
       }
     } catch (err) {
       console.log(err);
     }
-  }
 
-  shouldComponentUpdate(nextProps) {
-    const nextData = this.parseValue(nextProps.value);
-    return (nextProps.value !== 'deleteRowIds: all' && !_.get(nextData, '0.isWorksheetQueryFill')) || !this.isCard;
+    return true;
   }
 
   parseValue(value) {
-    let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting;
     if (!value) return [];
-    if (
-      showtype == RELATE_RECORD_SHOW_TYPE.DROPDOWN &&
-      typeof value === 'string' &&
-      value.indexOf('deleteRowIds') > -1
-    ) {
+    if (typeof value === 'string' && value.indexOf('deleteRowIds') > -1) {
       return [];
     }
 

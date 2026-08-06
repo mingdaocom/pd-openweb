@@ -4,6 +4,7 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import { formatrChartValue, getChartColors, getStyleColor } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const getControlMinAndMax = map => {
   const data = {};
@@ -29,55 +30,81 @@ class ProgressChart extends Component {
       match: null,
     };
     this.ProgressChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
+    this.renderTimer = null;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderProgressChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.ProgressChart && this.ProgressChart.destroy();
+    this.isUnmounted = true;
+    clearTimeout(this.renderTimer);
+    this.destroyProgressChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      style.columnCount !== oldStyle.columnCount ||
+      this.props.direction !== prevProps.direction;
+    const shouldUpdate =
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.showValueType !== oldStyle.showValueType ||
-      nextProps.color !== this.props.color
-    ) {
-      const { ProgressChartConfig } = this.getComponentConfig(nextProps);
-      this.ProgressChart && this.ProgressChart.update(ProgressChartConfig);
+      this.props.color !== prevProps.color;
+
+    if (!this.g2plotComponent) {
+      return;
     }
 
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      style.columnCount !== oldStyle.columnCount ||
-      nextProps.direction !== this.props.direction
-    ) {
-      this.ProgressChart && this.ProgressChart.destroy();
-      setTimeout(() => {
-        this.renderProgressChart(nextProps);
-      }, 0);
+    if (shouldRecreate) {
+      this.scheduleRenderProgressChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.ProgressChart) {
+      const { ProgressChartConfig } = this.getComponentConfig(this.props);
+      this.ProgressChart.update(ProgressChartConfig);
     }
   }
-  renderProgressChart(props) {
-    if (this.chartEl) {
-      const { ProgressChartComponent, ProgressChartConfig } = this.getComponentConfig(props);
-      this.ProgressChart = new ProgressChartComponent(this.chartEl, ProgressChartConfig);
-      this.ProgressChart.render();
+  destroyProgressChart = () => {
+    if (this.ProgressChart) {
+      this.ProgressChart.destroy();
+      this.ProgressChart = null;
     }
+  };
+  scheduleRenderProgressChart = props => {
+    this.destroyProgressChart();
+    clearTimeout(this.renderTimer);
+    this.renderTimer = setTimeout(() => {
+      this.renderProgressChart(props);
+    }, 0);
+  };
+  renderProgressChart(props) {
+    if (!this.chartEl || !this.g2plotComponent || this.isUnmounted) {
+      return;
+    }
+
+    const { ProgressChartComponent, ProgressChartConfig } = this.getComponentConfig(props);
+    this.destroyProgressChart();
+    this.ProgressChart = new ProgressChartComponent(this.chartEl, ProgressChartConfig);
+    this.ProgressChart.render();
   }
   getComponentConfig(props) {
     const { data, yAxis, controlMinAndMax, isThumbnail, reportData, isDark } = props;
     const { yaxisList, displaySetup, style } = reportData;
     const { showChartType, showNumber, colorRules } = displaySetup;
-    const { showValueType = 1 } = style;
+    const showValueType = style.showValueType === 3 ? '13' : (style.showValueType ?? 1).toString();
     const { clientWidth } = this.chartEl;
     const { clientHeight } = document.querySelector(
       isThumbnail ? `.statisticsCard-${reportData.reportId} .chartWrapper` : '.ChartDialog .chart .flex',
@@ -87,16 +114,36 @@ class ProgressChart extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
 
     const titleFormatter = () => {
-      if (showValueType == 1) {
-        return formatrChartValue(data.value, false, yaxisList, null, false);
+      let values = [];
+
+      if (showValueType.includes('1')) {
+        values.push(formatrChartValue(data.value, false, yaxisList, null, false));
       }
 
-      if (showValueType == 2) {
+      if (showValueType.includes('2')) {
         const { ydot } = yaxisList[0];
-        return `${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)} %`;
+        values.push(`${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)}%`);
       }
 
-      return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue || 0, false, yaxisList)}`;
+      if (showValueType.includes('3')) {
+        values.push(formatrChartValue(data.targetValue || 0, false, yaxisList, null, false));
+      }
+
+      return `${values.join(' / ')}`;
+    };
+
+    const titleCustomHtml = container => {
+      const title = titleFormatter();
+
+      container.style.pointerEvents = 'auto';
+
+      if (title) {
+        container.setAttribute('title', title);
+      } else {
+        container.removeAttribute('title');
+      }
+
+      return title;
     };
 
     const getColor = () => {
@@ -136,8 +183,9 @@ class ProgressChart extends Component {
                   fontWeight: 'bold',
                   fontSize: '20px',
                   textAlign: 'center',
+                  whiteSpace: 'pre-wrap',
                 },
-                formatter: titleFormatter,
+                customHtml: titleCustomHtml,
               }
             : null,
           content: {
@@ -185,7 +233,7 @@ class ProgressChart extends Component {
                   textAlign: 'center',
                   textShadow: '#fff 1px 0 10px',
                 },
-                formatter: titleFormatter,
+                customHtml: titleCustomHtml,
               }
             : null,
           content: {
@@ -284,7 +332,9 @@ export default props => {
   const controlMinAndMax = getControlMinAndMax(map);
   return (
     <div
-      className="flex chartWrapper alignItemsCenter justifyContentCenter flexRow overflowHidden"
+      className={cx('flex chartWrapper alignItemsCenter justifyContentCenter flexRow', {
+        overflowHidden: yaxisList.length === 1,
+      })}
       style={style.allowScroll ? { overflowY: 'scroll', alignItems: 'flex-start' } : null}
     >
       <Row gutter={[8, 0]} className="w100">

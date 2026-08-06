@@ -4,7 +4,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Dialog, FunctionWrap, Icon, LoadDiv, Qr, Radio } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
-import webCacheAjax from 'src/api/webCache';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { browserIsMobile } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
@@ -116,6 +115,7 @@ export default class PrePayOrder extends Component {
       worksheetId,
       rowId,
       paymentModule,
+      appId,
       isAtOncePayment,
       onUpdateSuccess = () => {},
       onCancel = () => {},
@@ -124,11 +124,25 @@ export default class PrePayOrder extends Component {
     const selectedMerchantNo = (
       _.find(merchants || selectedMerchants, v => v.merchantPaymentChannel === activePayChannel) || {}
     ).merchantNo;
+    const isMobile = browserIsMobile();
+    const backUrlForTicket =
+      isMobile && window.isWeiXin && appId && worksheetId && rowId
+        ? `${md.global.Config.WebUrl}${
+            paymentModule === 3 && location.pathname.includes('portal') ? `portal/` : ''
+          }mobile/record/${appId}/${worksheetId}/${rowId}`
+        : undefined;
 
     this.setState({ payLoading: true });
 
     paymentAjax
-      .createOrder({ worksheetId, rowId, paymentModule, merchantNo: selectedMerchantNo, atOnce: isAtOncePayment })
+      .createOrder({
+        worksheetId,
+        rowId,
+        paymentModule,
+        merchantNo: selectedMerchantNo,
+        atOnce: isAtOncePayment,
+        ...(backUrlForTicket ? { backUrlForTicket } : {}),
+      })
       .then(res => {
         if (res && res.orderId) {
           if (preOrderInfo.amount <= 0) {
@@ -136,18 +150,8 @@ export default class PrePayOrder extends Component {
               { orderInfo: { ...orderInfo, orderId: res.orderId }, loading: true, payLoading: false },
               this.checkPayOrder,
             );
-          } else if (browserIsMobile()) {
+          } else if (isMobile) {
             this.setState({ payLoading: false });
-            // 微信环境下保存当前url用于商家小票返回商家
-            if (window.isWeiXin) {
-              webCacheAjax.add({
-                key: `${res.orderId}`,
-                value:
-                  paymentModule !== 3 || (paymentModule === 3 && !location.pathname.includes('portal'))
-                    ? location.origin
-                    : `${location.origin}/portal`,
-              });
-            }
 
             onCancel();
             location.href = `${md.global.Config.WebUrl}orderpay/${res.orderId}`;

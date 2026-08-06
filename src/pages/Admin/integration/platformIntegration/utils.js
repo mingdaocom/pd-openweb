@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import roleAjax from 'src/api/role.js';
 import workwxAjax from 'src/api/workWeiXin';
+import { pathCompletion } from 'src/utils/common';
 import { checkClearIntegrationDialog } from './components/ClearISaventergrationModal';
 
 const INTERGRATION_FAILED_INFO = {
@@ -43,11 +44,16 @@ export const checkClearIntergrationData = ({ projectId, onSave = () => {}, integ
  * @param {*} integrationType 集成类型 1:钉钉 3:企微 6:飞书
  */
 export const getIntegrationHomeUrl = ({ projectId, integrationType }) => {
+  const isSaas = location.host.endsWith('.mingdao.com');
+  const host = 'https://www.mingdao.com';
+
   if (integrationType === 3) {
-    return `${md.global.Config.WebUrl}auth/workwx?p=${projectId}`;
+    return pathCompletion(`/auth/workwx?p=${projectId}`);
   } else if (integrationType === 1) {
-    return `${md.global.Config.WebUrl}sso/sso?t=2&p=${projectId}`;
+    const url = `/auth/workdd?p=${projectId}`;
+    return isSaas ? host + url : pathCompletion(url);
   } else if (integrationType === 6) {
-    return `${md.global.Config.WebUrl}auth/feishu?p=${projectId}`;
+    const url = `/auth/feishu?p=${projectId}`;
+    return isSaas ? host + url : pathCompletion(url);
   }
 };

@@ -8,9 +8,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, ScrollView, Skeleton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import Guidance from 'src/pages/worksheet/components/Guidance';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import CreateAppItem from './CreateAppItem';
 import WorkSheetGroup from './WorkSheetGroup';
 import WorkSheetItem from './WorkSheetItem';
@@ -47,20 +46,23 @@ class WorkSheetLeft extends Component {
       projectFolded: getProjectfoldedFromStorage(),
     };
   }
-  componentWillMount = function () {
+  componentDidMount = function () {
     this.getSheetList(this.props);
   };
   componentWillUnmount() {
     this.props.sheetListActions.updateSheetListLoading(true);
     this.props.sheetListActions.clearSheetList();
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.groupId !== this.props.groupId) {
-      this.getSheetList(nextProps);
-    }
 
-    if (!_.isEqual(nextProps.groupData, this.props.groupData)) {
-      this.getSheetList(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.groupId !== prevProps.groupId) {
+        this.getSheetList(this.props);
+      }
+
+      if (!_.isEqual(this.props.groupData, prevProps.groupData)) {
+        this.getSheetList(this.props);
+      }
     }
   }
   getSheetList = props => {
@@ -151,9 +153,8 @@ class WorkSheetLeft extends Component {
     );
   }
   render() {
-    const { worksheetId, loading, isUnfold, guidanceVisible, secondLevelGroup = false, appPkg, style } = this.props;
+    const { loading, isUnfold, secondLevelGroup = false, appPkg, style } = this.props;
     const { data } = this;
-    const sheetInfo = _.find(data, { workSheetId: worksheetId }) || {};
 
     // 获取url参数
     const { ln } = getAppFeaturesVisible();
@@ -173,14 +174,6 @@ class WorkSheetLeft extends Component {
         ) : (
           this.renderContent(data)
         )}
-        {guidanceVisible && sheetInfo.type === 0 && (
-          <Guidance
-            sheetListVisible={isUnfold}
-            onClose={() => {
-              this.props.sheetListActions.updateGuidanceVisible(false);
-            }}
-          />
-        )}
       </div>
     );
   }
@@ -195,7 +188,6 @@ const mapStateToProps = state => ({
   data: state.sheetList.data,
   loading: state.sheetList.loading,
   isUnfold: state.sheetList.isUnfold,
-  guidanceVisible: state.sheetList.guidanceVisible,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkSheetLeft);

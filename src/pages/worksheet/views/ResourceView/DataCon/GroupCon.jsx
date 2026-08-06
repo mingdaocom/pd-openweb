@@ -328,7 +328,8 @@ export default function GroupCon(props) {
         relationWorksheetId: base.worksheetId,
       })
       .then(res => {
-        const { switches, worksheetId, appId } = res;
+        const { switches, worksheetId, appId, projectId } = res;
+        const currentProjectId = projectId || worksheetInfo.projectId;
         const recordAttachmentSwitch = !viewId
           ? true
           : isOpenPermit(permitList.recordAttachmentSwitch, switches, viewId);
@@ -357,6 +358,7 @@ export default function GroupCon(props) {
             recordId: rowId,
             worksheetId,
             controlId: coverCid,
+            projectId: currentProjectId,
           },
           {
             openControlAttachmentInNewTab: recordAttachmentSwitch
@@ -368,6 +370,7 @@ export default function GroupCon(props) {
                     recordId: rowId,
                     viewId,
                     worksheetId,
+                    projectId: currentProjectId,
                     ...options,
                   });
                 }

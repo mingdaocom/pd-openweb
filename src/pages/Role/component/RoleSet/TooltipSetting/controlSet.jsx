@@ -55,11 +55,13 @@ export default class extends React.PureComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (_.isEqual(nextProps.fields, this.props.fields)) {
-      this.setState({
-        fields: nextProps.fields,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.isEqual(this.props.fields, prevProps.fields)) {
+        this.setState({
+          fields: this.props.fields,
+        });
+      }
     }
   }
 

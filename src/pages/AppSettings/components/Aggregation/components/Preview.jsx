@@ -16,12 +16,20 @@ import { getAllSourceList, getNodeInfo, getSourceIndex, isHasChange } from '../u
 import emptyImg from './img/empty.png';
 import Table from './Table';
 
-let ajaxPromise = null;
-let ajaxPromisePublish = null;
-let ajaxPromiseStatus = null;
+const getNumFetch = async worksheetId => {
+  return sheetAjax.getFilterRowsTotalNum({
+    worksheetId,
+    status: 1,
+    sortControls: [],
+    searchType: 1,
+  });
+};
 
 function Preview(props) {
   const cache = useRef({});
+  const ajaxPromise = useRef(null);
+  const ajaxPromisePublish = useRef(null);
+  const ajaxPromiseStatus = useRef(null);
   const { projectId, appId, onChangePreview } = props;
   const [
     {
@@ -224,9 +232,9 @@ function Preview(props) {
       loading: false,
       isPublishing: false,
     });
-    if (ajaxPromisePublish) ajaxPromisePublish.abort();
-    if (ajaxPromise) ajaxPromise.abort();
-    if (ajaxPromiseStatus) ajaxPromiseStatus.abort();
+    if (ajaxPromisePublish.current) ajaxPromisePublish.current.abort();
+    if (ajaxPromise.current) ajaxPromise.current.abort();
+    if (ajaxPromiseStatus.current) ajaxPromiseStatus.current.abort();
   };
 
   useEffect(() => {
@@ -238,19 +246,10 @@ function Preview(props) {
     }
   }, [previewRunning, syncTaskStatus]);
 
-  const getNumFetch = async worksheetId => {
-    return sheetAjax.getFilterRowsTotalNum({
-      worksheetId,
-      status: 1,
-      sortControls: [],
-      searchType: 1,
-    });
-  };
-
   //轮询获取计数，计数>0则获取数据
   const getRunFetch = async worksheetId => {
     if (!worksheetId || cache.current.syncTaskStatus === 'STOP') return;
-    if (ajaxPromise) ajaxPromise.abort();
+    if (ajaxPromise.current) ajaxPromise.current.abort();
     // console.log('轮询', moment().format('YYYY/MM/DD HH:mm:ss'));
     const allNum = await getNumFetch(worksheetId);
     setTimeout(() => {
@@ -266,7 +265,7 @@ function Preview(props) {
       return;
     }
 
-    ajaxPromise = sheetAjax.getFilterRows({
+    const request = sheetAjax.getFilterRows({
       worksheetId,
       pageSize: pageSize,
       pageIndex: pageIndex,
@@ -276,7 +275,8 @@ function Preview(props) {
       keyWords: keyWords,
       filterControls: filters,
     });
-    ajaxPromise.then(res => {
+    ajaxPromise.current = request;
+    request.then(res => {
       setState({
         data: _.get(res, 'data') || [],
         pageSize: pageSize,
@@ -290,13 +290,13 @@ function Preview(props) {
   //根据状态轮询
   const refresh = id => {
     if (cache.current.syncTaskStatus === 'STOP') return;
-    let worksheetId = id || cache.current.worksheetId || worksheetId;
+    let currentWorksheetId = id || cache.current.worksheetId || worksheetId;
 
-    if (ajaxPromiseStatus) {
-      ajaxPromiseStatus.abort();
+    if (ajaxPromiseStatus.current) {
+      ajaxPromiseStatus.current.abort();
     }
 
-    ajaxPromiseStatus = AggTableAjax.getPreviewTaskStatus(
+    const statusRequest = AggTableAjax.getPreviewTaskStatus(
       {
         projectId,
         appId,
@@ -304,11 +304,12 @@ function Preview(props) {
       },
       { isAggTable: true },
     );
-    ajaxPromiseStatus.then(async res => {
+    ajaxPromiseStatus.current = statusRequest;
+    statusRequest.then(async res => {
       const { taskStatus } = res;
 
-      if (res.worksheetId && res.worksheetId !== worksheetId) {
-        worksheetId = res.worksheetId;
+      if (res.worksheetId && res.worksheetId !== currentWorksheetId) {
+        currentWorksheetId = res.worksheetId;
         changeInfoWithWorksheetId(res);
       }
 
@@ -318,17 +319,17 @@ function Preview(props) {
         if ('FINISHED' === taskStatus) {
           //结束后获取计数，无计数=>则延迟2s重新获取计数和数据
           // console.log('结束后获取计数', moment().format('YYYY/MM/DD HH:mm:ss'));
-          const allNum = await getNumFetch(worksheetId);
+          const allNum = await getNumFetch(currentWorksheetId);
 
           if (allNum > 0) {
-            getData({ worksheetId, withCount: false });
+            getData({ worksheetId: currentWorksheetId, withCount: false });
           } else {
             setState({
               previewRunning: true,
             });
             setTimeout(async () => {
               if (cache.current.syncTaskStatus !== 'STOP') {
-                const count = await getNumFetch(worksheetId);
+                const count = await getNumFetch(currentWorksheetId);
 
                 if (count > 0) {
                   getData({
@@ -346,10 +347,10 @@ function Preview(props) {
             }, 2000);
           }
         } else {
-          getData({ worksheetId });
+          getData({ worksheetId: currentWorksheetId });
         }
       } else {
-        getRunFetch(worksheetId);
+        getRunFetch(currentWorksheetId);
       }
     });
   };
@@ -387,7 +388,7 @@ function Preview(props) {
       pageIndex: 1,
     });
     try {
-      ajaxPromisePublish = AggTableAjax.publishTask(
+      const publishRequest = AggTableAjax.publishTask(
         {
           projectId,
           appId,
@@ -396,8 +397,9 @@ function Preview(props) {
         },
         { isAggTable: true },
       );
-      const data = await ajaxPromisePublish;
-      ajaxPromisePublish = null;
+      ajaxPromisePublish.current = publishRequest;
+      const data = await publishRequest;
+      ajaxPromisePublish.current = null;
       isSucceeded = data.isSucceeded;
       errorMsgList = data.errorMsgList;
       setState({
@@ -459,7 +461,7 @@ function Preview(props) {
     withLoading,
   }) => {
     if (!worksheetId) return;
-    if (ajaxPromise) ajaxPromise.abort();
+    if (ajaxPromise.current) ajaxPromise.current.abort();
     withLoading &&
       setState({
         loading: true,
@@ -475,8 +477,9 @@ function Preview(props) {
       keyWords: keyWords,
       filterControls: filters,
     };
-    ajaxPromise = sheetAjax.getFilterRows(fetchListParams);
-    ajaxPromise.then(res => {
+    const request = sheetAjax.getFilterRows(fetchListParams);
+    ajaxPromise.current = request;
+    request.then(res => {
       setState({
         worksheetId,
         data: _.get(res, 'data'),
@@ -602,7 +605,7 @@ function Preview(props) {
                   <Tooltip placement="bottom" title={_l('刷新')}>
                     <Icon
                       icon="task-later"
-                      className="textTertiary Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
+                      className="textTertiary Font18 pointer mLeft10 mRight2 hoverColorPrimary"
                       onClick={() => {
                         getData({ worksheetId, pI: 1, withCount: false, withLoading: true });
                       }}

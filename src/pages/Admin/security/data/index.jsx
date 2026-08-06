@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Support } from 'ming-ui';
+import styled from 'styled-components';
+import { Dialog, LoadDiv, Support, Switch, VerifyPasswordConfirm } from 'ming-ui';
 import dataLimitAjax from 'src/api/dataLimit';
+import openAuthorAjax from 'src/api/openAuthor';
 import projectSettingController from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { VersionProductType } from 'src/utils/enum';
@@ -13,6 +15,15 @@ import LimitFileDownloadSetting from './LimitFileDownloadSetting';
 import WaterMarkSettingDialog from './WaterMarkSettingDialog';
 import WebProxySetting from './WebProxySetting';
 
+const PERSONAL_API_ACCESS_DEFAULT_SETTING = {
+  enabled: false,
+  patEnabled: false,
+};
+
+const PersonalApiAccessPolicyWrap = styled.div`
+  min-height: 190px;
+`;
+
 export default class DataCom extends Component {
   constructor(props) {
     super(props);
@@ -24,8 +35,18 @@ export default class DataCom extends Component {
       showLimitDownload: false,
       enabledWatermarkTxt: '',
       showAppAccess: false,
+      showPersonalApiAccessPolicy: false,
+      initApiAccessSetting: PERSONAL_API_ACCESS_DEFAULT_SETTING,
+      editingPersonalApiAccessSetting: PERSONAL_API_ACCESS_DEFAULT_SETTING,
+      personalApiAccessLoading: false,
+      personalApiAccessSaveLoading: false,
       attachmentSettingInfo: {},
       showEncryptRules: type === 'isShowEncryptRules',
+      showCliAccessPolicy: false,
+      initCliAccessSetting: { enabled: false },
+      editingCliAccessSetting: { enabled: false },
+      cliAccessPolicyLoading: false,
+      cliAccessPolicySaveLoading: false,
     };
   }
 
@@ -33,6 +54,8 @@ export default class DataCom extends Component {
     this.getEnabledWatermark();
     this.getApiProxyState();
     this.getAttachmentSetting();
+    this.getPersonalApiAccessSetting();
+    this.getCliAccessPolicySetting();
   }
 
   getEnabledWatermark = () => {
@@ -51,6 +74,38 @@ export default class DataCom extends Component {
     dataLimitAjax.getAttachmentSetting({ projectId: Config.projectId }).then(res => {
       this.setState({ attachmentSettingInfo: res });
     });
+  };
+
+  getPersonalApiAccessSetting = () => {
+    this.setState({ personalApiAccessLoading: true });
+    openAuthorAjax
+      .getSetting({ projectId: Config.projectId })
+      .then(({ enabled, patEnabled } = {}) => {
+        this.setState({
+          editingPersonalApiAccessSetting: { enabled, patEnabled },
+          initApiAccessSetting: { enabled, patEnabled },
+        });
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.setState({ personalApiAccessLoading: false });
+      });
+  };
+
+  getCliAccessPolicySetting = () => {
+    this.setState({ cliAccessPolicyLoading: true });
+    openAuthorAjax
+      .getCliAccessPolicySetting({ projectId: Config.projectId })
+      .then(data => {
+        this.setState({
+          initCliAccessSetting: { enabled: !!data },
+          editingCliAccessSetting: { enabled: !!data },
+        });
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.setState({ cliAccessPolicyLoading: false });
+      });
   };
 
   updateWebProxyState = () => {
@@ -113,6 +168,220 @@ export default class DataCom extends Component {
     );
   };
 
+  savePersonalApiAccessPolicy = () => {
+    const { editingPersonalApiAccessSetting } = this.state;
+    const { enabled, patEnabled } = editingPersonalApiAccessSetting;
+
+    this.setState({ personalApiAccessSaveLoading: true });
+    openAuthorAjax
+      .editSetting({
+        projectId: Config.projectId,
+        enabled: enabled,
+        patEnabled: patEnabled,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          this.setState({ showPersonalApiAccessPolicy: false, initApiAccessSetting: editingPersonalApiAccessSetting });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.setState({ personalApiAccessSaveLoading: false });
+      });
+  };
+
+  verifyAndSavePersonalApiAccessPolicy = () => {
+    VerifyPasswordConfirm.confirm({
+      onOk: this.savePersonalApiAccessPolicy,
+    });
+  };
+
+  saveCliAccessPolicy = () => {
+    const { editingCliAccessSetting } = this.state;
+
+    this.setState({ cliAccessPolicySaveLoading: true });
+    openAuthorAjax
+      .editCliAccessPolicySetting({
+        projectId: Config.projectId,
+        enabled: editingCliAccessSetting.enabled,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          this.setState({ showCliAccessPolicy: false, initCliAccessSetting: { ...editingCliAccessSetting } });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.setState({ cliAccessPolicySaveLoading: false });
+      });
+  };
+
+  verifyAndSaveCliAccessPolicy = () => {
+    VerifyPasswordConfirm.confirm({
+      onOk: this.saveCliAccessPolicy,
+    });
+  };
+
+  renderPersonalApiAccessPolicyEnabledContent = () => {
+    const { initApiAccessSetting } = this.state;
+    const enabledStrategies = [
+      initApiAccessSetting.enabled ? _l('平台级 OAuth 应用') : '',
+      initApiAccessSetting.patEnabled ? _l('个人访问令牌') : '',
+    ].filter(Boolean);
+
+    if (!enabledStrategies.length) return null;
+
+    return (
+      <div>
+        {_l('已开启：')}
+        {enabledStrategies.join('、')}
+      </div>
+    );
+  };
+
+  openPersonalApiAccessPolicy = () => {
+    const { initApiAccessSetting } = this.state;
+
+    this.setState({
+      showPersonalApiAccessPolicy: true,
+      editingPersonalApiAccessSetting: { ...initApiAccessSetting },
+    });
+  };
+
+  openCliAccessPolicy = () => {
+    const { initCliAccessSetting } = this.state;
+
+    this.setState({
+      showCliAccessPolicy: true,
+      editingCliAccessSetting: { ...initCliAccessSetting },
+    });
+  };
+
+  renderPolicyItem = ({ checked, onChange, title, description }) => {
+    return (
+      <div className="flexRow mBottom24">
+        <Switch className="mRight16 mTop3" checked={checked} onClick={value => onChange(!value)} />
+        <div className="flex minWidth0">
+          <div className="textTitle Font14 bold">{title}</div>
+          <div className="textSecondary mTop5">{description}</div>
+        </div>
+      </div>
+    );
+  };
+
+  renderPersonalApiAccessPolicyDialog = () => {
+    const {
+      showPersonalApiAccessPolicy,
+      personalApiAccessLoading,
+      personalApiAccessSaveLoading,
+      editingPersonalApiAccessSetting,
+      initApiAccessSetting,
+    } = this.state;
+
+    const { enabled, patEnabled } = editingPersonalApiAccessSetting;
+
+    if (!showPersonalApiAccessPolicy) return null;
+
+    return (
+      <Dialog
+        visible
+        title={_l('API 访问策略')}
+        width={600}
+        okText={_l('保存')}
+        okDisabled={
+          personalApiAccessSaveLoading ||
+          (editingPersonalApiAccessSetting.enabled === initApiAccessSetting.enabled &&
+            editingPersonalApiAccessSetting.patEnabled === initApiAccessSetting.patEnabled)
+        }
+        onOk={this.verifyAndSavePersonalApiAccessPolicy}
+        showCancel={false}
+        overlayClosable={false}
+        onCancel={() => this.setState({ showPersonalApiAccessPolicy: false })}
+      >
+        <PersonalApiAccessPolicyWrap>
+          {personalApiAccessLoading ? (
+            <LoadDiv />
+          ) : (
+            <Fragment>
+              <div className="textSecondary mBottom24">
+                {_l('允许使用以下授权方式，按个人身份权限调用 API 访问组织数据')}
+              </div>
+              {this.renderPolicyItem({
+                checked: enabled,
+                onChange: value =>
+                  this.setState({
+                    editingPersonalApiAccessSetting: { ...this.state.editingPersonalApiAccessSetting, enabled: value },
+                  }),
+                title: _l('平台级 OAuth 应用'),
+                description: _l('关闭后，用户将不允许使用平台级 OAuth 应用的方式访问数据，等同于关闭OAuth应用集成'),
+              })}
+              {this.renderPolicyItem({
+                checked: patEnabled,
+                onChange: value =>
+                  this.setState({
+                    editingPersonalApiAccessSetting: {
+                      ...this.state.editingPersonalApiAccessSetting,
+                      patEnabled: value,
+                    },
+                  }),
+                title: _l('个人访问令牌'),
+                description: _l('关闭后，用户将不允许选择当前组织生成个人访问令牌，且已生成的令牌会立即失效'),
+              })}
+            </Fragment>
+          )}
+        </PersonalApiAccessPolicyWrap>
+      </Dialog>
+    );
+  };
+
+  renderCliAccessPolicyDialog = () => {
+    const {
+      showCliAccessPolicy,
+      cliAccessPolicyLoading,
+      cliAccessPolicySaveLoading,
+      editingCliAccessSetting,
+      initCliAccessSetting,
+    } = this.state;
+
+    if (!showCliAccessPolicy) return null;
+
+    return (
+      <Dialog
+        visible
+        title={_l('CLI 访问策略')}
+        width={600}
+        okText={_l('保存')}
+        okDisabled={cliAccessPolicySaveLoading || editingCliAccessSetting.enabled === initCliAccessSetting.enabled}
+        onOk={this.verifyAndSaveCliAccessPolicy}
+        showCancel={false}
+        overlayClosable={false}
+        onCancel={() => this.setState({ showCliAccessPolicy: false })}
+      >
+        <div>
+          {cliAccessPolicyLoading ? (
+            <LoadDiv />
+          ) : (
+            <Fragment>
+              <div className="textSecondary mBottom24">{_l('控制是否允许 CLI 工具以用户身份访问本组织数据')}</div>
+              {this.renderPolicyItem({
+                checked: editingCliAccessSetting.enabled,
+                onChange: value => this.setState({ editingCliAccessSetting: { enabled: value } }),
+                title: _l('启用 CLI 访问'),
+                description: _l('关闭后，将禁止 CLI 工具以用户身份权限访问组织数据'),
+              })}
+            </Fragment>
+          )}
+        </div>
+      </Dialog>
+    );
+  };
+
   render() {
     const {
       showEncryptRules,
@@ -122,8 +391,12 @@ export default class DataCom extends Component {
       showLimitDownload,
       showAppAccess,
       attachmentSettingInfo,
+      initApiAccessSetting,
+      initCliAccessSetting,
     } = this.state;
+
     const projectId = Config.projectId;
+    const personalApiAccessPolicyEnabled = !!initApiAccessSetting.enabled || !!initApiAccessSetting.patEnabled;
 
     if (showAppAccess) {
       return <AppAccess projectId={projectId} onClose={() => this.setState({ showAppAccess: false })} />;
@@ -196,8 +469,17 @@ export default class DataCom extends Component {
                 onClick: () => this.setState({ showWaterMarkSetting: true }),
               },
               {
+                key: 'personalApiAccessPolicy',
+                title: _l('API 访问策略'),
+                description: _l('限制成员使用个人身份权限（OAuth 授权、个人访问令牌）直接调用 API，降低数据泄露风险。'),
+                showSlideIcon: true,
+                customContent: this.renderPersonalApiAccessPolicyEnabledContent(),
+                isEnabled: personalApiAccessPolicyEnabled,
+                onClick: this.openPersonalApiAccessPolicy,
+              },
+              {
                 key: 'webProxy',
-                title: _l('API网络代理'),
+                title: _l('API 网络代理'),
                 description: (
                   <span>
                     {_l('通过设置的代理服务发送API请求，适用于内网部署、专线访问或网络合规场景')}
@@ -208,6 +490,14 @@ export default class DataCom extends Component {
                 featureId: VersionProductType.apiRequestProxy,
                 isEnabled: apiProxyEnabled,
                 onClick: () => this.setState({ showWebProxySetting: true }),
+              },
+              md.global.SysSettings.enableAIConnector !== false && {
+                key: 'cliAccessPolicy',
+                title: _l('CLI 访问策略'),
+                description: _l('控制是否允许 CLI 工具以用户身份访问本组织数据，保障组织数据安全'),
+                showSlideIcon: true,
+                isEnabled: !!initCliAccessSetting.enabled,
+                onClick: this.openCliAccessPolicy,
               },
               {
                 key: 'addressVisibleRange',
@@ -222,10 +512,12 @@ export default class DataCom extends Component {
                 featureId: VersionProductType.dataEnctypt,
                 onClick: () => this.setState({ showEncryptRules: true }),
               },
-            ]}
+            ].filter(Boolean)}
           />
         </div>
         {this.renderWaterMarkSetting()}
+        {this.renderPersonalApiAccessPolicyDialog()}
+        {this.renderCliAccessPolicyDialog()}
       </div>
     );
   }

@@ -1,6 +1,5 @@
 ﻿import _ from 'lodash';
 import moment from 'moment';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import {
   API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
@@ -10,7 +9,7 @@ import {
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { getConditionType, getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { accDiv, accMul } from 'src/utils/common';
-import { isEmptyValue, toFixed } from 'src/utils/control';
+import { getDatePickerConfigs, isEmptyValue, toFixed } from 'src/utils/controlCommon';
 import { dateAppZoneToServerZone } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 
@@ -140,7 +139,7 @@ const dateFn = (filterData, value, isEQ, appTimeZone) => {
       break;
     // { text: _l('下季度'), value: 14 },
     case 14:
-      date = moment().startOf('quarter').add(-1, 'quarter').format('YYYY-MM-DD');
+      date = moment().startOf('quarter').add(1, 'quarter').format('YYYY-MM-DD');
       date = dataType === 16 ? dateAppZoneToServerZone(date, appTimeZone) : date;
       result = moment(value).isSame(date, 'quarter');
       break;
@@ -176,6 +175,7 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}, appTimeZone) =
   }
 
   let dateRangeTypeNum;
+  let date = '';
 
   if (_.includes([101, 102], dateRange)) {
     const isFeature = dateRange === 102;
@@ -208,7 +208,7 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}, appTimeZone) =
   switch (dateRange) {
     // { text: _l('今天'), value: 1 },
     case 1:
-      let date = moment().format('YYYY-MM-DD');
+      date = moment().format('YYYY-MM-DD');
       return dataType === 16 ? dateAppZoneToServerZone(date, appTimeZone) : date;
     // { text: _l('昨天'), value: 2 },
     case 2:
@@ -500,8 +500,11 @@ export default function filterFn({ filterData, originControl, data = [], recordI
 
       if (!dynamicSource.length && control.type !== 46) {
         // 今天、昨天、明天，对比单位天
-        if (_.includes([1, 2, 3, 10, 11], dateRange)) {
+        if (_.includes([1, 2, 3, 10, 11, 21, 22, 23, 31, 32, 33], dateRange)) {
           timeLevel = 'day';
+        } else if (_.includes([101, 102], dateRange)) {
+          // ...前/...后支持按日、月、季度、年等颗粒度取相对时间点。
+          timeLevel = timeModeByDateRangeType(dateRangeType || DATE_RANGE_TYPE.DAY);
         } else if (_.includes([4, 5, 6], dateRange)) {
           timeLevel = 'week';
         } else if (_.includes([7, 8, 9], dateRange)) {
@@ -1250,7 +1253,8 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
             return parseFloat(value) <= parseFloat(compareValue);
           case CONTROL_FILTER_WHITELIST.DATE.value:
-            let day = dayFn(filterData, compareValue, false, currentControl, appTimeZone);
+            // 早于等于按需求取动态日期的开始点，与早于保持一致。
+            let day = dayFn(filterData, compareValue, true, currentControl, appTimeZone);
             return !value || (!!dynamicSource.length && !compareValue)
               ? false
               : moment(value).isSameOrBefore(day, timeLevel);

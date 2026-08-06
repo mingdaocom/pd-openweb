@@ -8,15 +8,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { flatten, get, isArray, isEmpty, omit, trim } from 'lodash';
+import { findLast, flatten, get, isArray, isEmpty, trim } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import appManagementAjax from 'src/api/appManagement';
-import mingoAjax from 'src/api/mingo';
 import { useGlobalStore } from 'src/common/GlobalStore';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import useChat from 'src/pages/worksheet/hooks/useChat';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { SpeechSynthesizer } from 'src/utils/audio';
 import { emitter } from 'src/utils/common';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
@@ -25,8 +25,13 @@ import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip, MINGO_TASK_STATUS, MINGO_TASK_TYPE } from '../../ChatBot/enum';
-import { createWorksheetSuggestionSSE, generateWorksheetWidgetsSSE } from '../../ChatBot/service/aiTask';
+import {
+  createWorksheetSuggestionSSE,
+  fetchWorksheetNameIconRecommend,
+  generateWorksheetWidgetsSSE,
+} from '../../ChatBot/service/aiTask';
 import { buildGenerateWorksheetWidgetsUserMessage } from '../../ChatBot/service/buildGenerateWorksheetWidgetsMessages';
+import { cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import { STEP_STATUS } from './config';
 import { getStepStatusText } from './LoadingWithSteps';
 import MingoCreateWorksheet from './MingoCreateWorksheet';
@@ -104,6 +109,16 @@ function getCurrentAppData({ base = {}, sheetList = {} } = {}) {
       worksheetName: globalStoreForMingo.worksheetName,
       projectId: globalStoreForMingo.projectId,
     };
+  } else if (window?.globalStoreForMingo?.activeModule === 'workflow') {
+    const globalStoreForMingo = window.globalStoreForMingo;
+    return {
+      activeModule: 'workflow',
+      appId: globalStoreForMingo.appId,
+      appName: globalStoreForMingo.appName,
+      projectId: globalStoreForMingo.projectId,
+      sectionId: globalStoreForMingo.sectionId,
+      appDescription: globalStoreForMingo.appDescription,
+    };
   }
 }
 
@@ -141,12 +156,13 @@ function MingoContent(props, ref) {
   const [sendDisabled, setSendDisabled] = useState(false);
   const [currentAppData, setCurrentAppData] = useState(getCurrentAppData({ base, sheetList }));
   const [unsavedControlIds, setUnsavedControlIds] = useState([]);
-  const { appId, projectId, sectionId, worksheetId } = currentAppData;
+  const { appId, projectId, sectionId, worksheetId, worksheets = [], appName, appDescription } = currentAppData;
   const cache = useRef({
     taskStatus:
       defaultData.taskStatus ||
       window.mingoPendingCreateWorksheetTaskStatus ||
       MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_PREPARING_WORKSHEET_DESCRIPTION,
+    createWorksheetSuggestionSessionId: defaultData.createWorksheetSuggestionSessionId || genBotSessionId(),
   });
   const messageListRef = useRef(null);
   const [isChatting, setIsChatting] = useState(defaultIsChatting);
@@ -178,43 +194,58 @@ function MingoContent(props, ref) {
     messageProps: {
       messageTaskStatus: taskStatus,
     },
-    aiCompletionApi: async (messages, { abortController }) => {
+    aiCompletionApi: async (messages, { abortController, agentParams }) => {
       const taskStatus = cache.current.taskStatus;
 
+      const existingWorksheetList = JSON.stringify({
+        appName,
+        description: appDescription,
+        existWorksheet: worksheets.map(item => ({
+          worksheetId: item.workSheetId,
+          name: item.workSheetName,
+          remark: item.remark,
+        })),
+        userLanguage: window.getCurrentLang() || 'zh-Hans',
+      });
+
       if (taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
+        const taskScoped = messages.filter(m => m.messageTaskStatus === taskStatus);
+        const lastUser = findLast(taskScoped, m => m.role === 'user');
+        const normalizedContent = isArray(lastUser?.content)
+          ? lastUser.content.filter(item => item.type !== 'tool_calls')
+          : lastUser?.content;
+        const latestText = isArray(normalizedContent)
+          ? normalizedContent.map(part => (part.type === 'text' ? part.text || '' : '')).join('')
+          : normalizedContent || '';
+        const fallbackContext = buildGenerateWorksheetWidgetsUserMessage(
+          cache.current.worksheetDescription,
+          window.globalStoreForMingo?.allWidgets || [],
+        );
+        // 仅取该阶段最后一条用户发言；无用户句时（如首次自动 reGenerate）回落为建表上下文，避免把 assistant 整段当作 message
+        const message = trim(latestText) || fallbackContext;
+
         return generateWorksheetWidgetsSSE({
-          appId,
-          messages: [
-            {
-              role: 'user',
-              content: buildGenerateWorksheetWidgetsUserMessage(
-                cache.current.worksheetDescription,
-                window.globalStoreForMingo?.allWidgets || [],
-              ),
-              hidden: true,
-              messageTaskStatus: taskStatus,
-            },
-          ].concat(
-            messages
-              .filter(message => message.messageTaskStatus === taskStatus)
-              .map(message => ({
-                ...message,
-                content: isArray(message.content)
-                  ? message.content.filter(item => item.type !== 'tool_calls')
-                  : message.content,
-              }))
-              .slice(-1),
-          ),
+          agentParams: {
+            ...agentParams,
+            message,
+          },
+          sessionId: cache.current.createWorksheetSuggestionSessionId,
+          context: {
+            // userRequest: agentParams.message,
+            existingWorksheetList: existingWorksheetList,
+          },
           abortController,
         });
       }
 
       return createWorksheetSuggestionSSE({
-        appId,
-        taskType,
-        messages: messages.map(m => omit(m, ['media'])),
+        message: existingWorksheetList,
+        context: {
+          userRequest: agentParams.message,
+        },
+        sessionId: cache.current.createWorksheetSuggestionSessionId,
+        agentParams,
         abortController,
-        currentAppData,
       });
     },
     onMessagePipe: messageContent => {
@@ -243,10 +274,7 @@ function MingoContent(props, ref) {
       console.log('onMessageDone', messages);
     },
     onError: (error, eventData) => {
-      setError({
-        errorMsg: _l('模型调用失败'),
-        sourceData: eventData,
-      });
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
@@ -258,7 +286,10 @@ function MingoContent(props, ref) {
     }
   }, []);
 
-  const handleSend = (newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat } = {}) => {
+  const handleSend = (
+    newMessage,
+    { fromMessageId, images, fileIds, media, useFileContentFormat, attachments } = {},
+  ) => {
     if (taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
       emitter.emit('UPDATE_GLOBAL_STORE', 'mingoIsCreatingWorksheetStatus', 1);
     }
@@ -284,9 +315,22 @@ function MingoContent(props, ref) {
       ]);
       sendMessage(newMessage, {
         messageOptions: { messageTaskStatus: cache.current.taskStatus },
+        fromMessageId,
+        images,
+        fileIds,
+        media,
+        useFileContentFormat,
+        attachments,
       });
     } else {
-      sendMessage(newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat });
+      sendMessage(newMessage, {
+        fromMessageId,
+        images,
+        fileIds,
+        media,
+        useFileContentFormat,
+        attachments,
+      });
     }
 
     setTimeout(() => {
@@ -301,6 +345,7 @@ function MingoContent(props, ref) {
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
+      cancelStream(cache.current.createWorksheetSuggestionSessionId);
       clearMessages();
       // 终止正在进行的 load 请求
       if (cache.current.loadAbortController) {
@@ -356,6 +401,7 @@ function MingoContent(props, ref) {
   return (
     <MingoContentWrap className={className}>
       <MessageList
+        showAssistantAvatar={false}
         taskStatus={taskStatus}
         showLoadingWhenContentIsEmpty={!error}
         handleSetTaskStatus={handleSetTaskStatus}
@@ -380,7 +426,12 @@ function MingoContent(props, ref) {
           taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_PREPARING_WORKSHEET_DESCRIPTION && (
             <Fragment>
               <div className="messageContent">{_l('请告诉我您想创建的工作表，或上传参考图片 😉')}</div>
-              <CreateWorksheetRecommend appId={appId} onSelect={({ name }) => handleSend(name)} />
+              <CreateWorksheetRecommend
+                appName={appName}
+                appDescription={appDescription}
+                worksheets={worksheets}
+                onSelect={({ name }) => handleSend(name)}
+              />
             </Fragment>
           )
         }
@@ -409,18 +460,21 @@ function MingoContent(props, ref) {
                   setIsRequesting(true);
                   setTaskStep(STEP_STATUS.GET_WORKSHEET_NAME_AND_ICON);
                   handleScrollToBottom({ timeout: 100 });
-                  const { worksheetName, icons } = await mingoAjax.getRecommendedSheetSummaries({
-                    appId,
-                    requirements: content,
+                  const { worksheetName, icons } = await fetchWorksheetNameIconRecommend({
+                    message: content,
+                    sessionId: cache.current.createWorksheetSuggestionSessionId,
+                    context: { worksheetRequirement: content },
+                    projectId,
                   });
-                  const iconName = icons[0].fileName || 'table';
+                  const sheetName = worksheetName || trim(content).slice(0, 100) || _l('工作表');
+                  const iconName = icons[0]?.fileName || 'table';
                   const iconUrl = `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg`;
                   setTaskStep(STEP_STATUS.CREATING_WORKSHEET);
                   appManagementAjax
                     .addWorkSheet({
                       appId,
                       sourceType: 1,
-                      name: worksheetName,
+                      name: sheetName,
                       iconColor: '#732ED1',
                       projectId,
                       appSectionId: sectionId,
@@ -441,7 +495,7 @@ function MingoContent(props, ref) {
                               _l('已为你创建工作表') +
                               `\n\`\`\`custom_block_mingo_edit_worksheet_info\n
               {
-                "workSheetName": "${worksheetName}",
+                "workSheetName": "${sheetName}",
                 "worksheetId": "${data.workSheetId}",
                 "icon": "${iconName}",
                 "iconColor": "#732ED1",
@@ -571,6 +625,7 @@ function MingoContent(props, ref) {
             isRequesting={isRequesting}
             abortRequest={() => {
               abortRequest();
+              cancelStream(cache.current.createWorksheetSuggestionSessionId);
               if (messages.filter(message => message.role === 'assistant').length === 0) {
                 emitter.emit('UPDATE_GLOBAL_STORE', 'mingoIsCreatingWorksheetStatus', false);
                 onClose();
@@ -593,6 +648,8 @@ function MingoContent(props, ref) {
                 fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
                 media: ocrFiles.map(f => f.commonAttachment),
                 useFileContentFormat: true,
+                // 图片与文档都需透传给后端，useChat 会按 mime 映射为 image/doc
+                attachments: files,
               });
             }}
           />

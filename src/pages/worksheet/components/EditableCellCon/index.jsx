@@ -3,7 +3,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import './EditableCellCon.less';
 
 const Con = styled.div`
@@ -62,7 +62,7 @@ function EditableCellCon(props) {
         {children}
         {!isediting && (
           <span
-            className={cx('editIcon textTertiary ThemeHoverColor3', { canClear: !!onClear })}
+            className={cx('editIcon textTertiary hoverColorPrimary', { canClear: !!onClear })}
             onClick={e => {
               e.stopPropagation();
               if (onClear) {
@@ -96,7 +96,7 @@ function EditableCellCon(props) {
 }
 
 export default props => {
-  const Comp = props.clickAwayWrap ? withClickAway(EditableCellCon) : EditableCellCon;
+  const Comp = props.clickAwayWrap ? ClickAway.wrap(EditableCellCon) : EditableCellCon;
   return <Comp {...props} />;
 };
 

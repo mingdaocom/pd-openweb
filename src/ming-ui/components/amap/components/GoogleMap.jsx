@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -7,6 +6,7 @@ import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import markImg from '../img/mark_r.png';
 import { getMapKey } from '../MapLoader';
 import CustomLocation from './CustomLocation';
+import loadGoogleMapApi from './loadGoogleMapApi';
 import OperatorIcon from './OperatorIcon';
 import '../../less/MDMap.less';
 
@@ -26,55 +26,105 @@ const ErrorContent = styled.div`
   }
 `;
 
-function BaseGoogleMap(props) {
-  const {
-    lat,
-    lng,
-    gMapKey,
-    mapContainerStyle,
-    disabled,
-    children,
-    zoom = 15,
-    options = {},
-    onMapLoad = () => {},
-    onMapDragEnd = () => {},
-    handleClick = () => {},
-  } = props;
+function createLoadedGoogleMap({ GoogleMap, Marker, useLoadScript }) {
+  return function LoadedGoogleMap(props) {
+    const {
+      lat,
+      lng,
+      gMapKey,
+      mapContainerStyle,
+      disabled,
+      children,
+      zoom = 15,
+      options = {},
+      onMapLoad = () => {},
+      onMapDragEnd = () => {},
+      handleClick = () => {},
+    } = props;
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: gMapKey,
-    libraries: ['maps', 'places'],
-  });
+    const { isLoaded, loadError } = useLoadScript({
+      googleMapsApiKey: gMapKey,
+      libraries: ['maps', 'places'],
+    });
 
-  if (loadError) {
+    if (loadError) {
+      return (
+        <ErrorContent style={mapContainerStyle} className="TxtCenter" disabled={disabled}>
+          <Icon icon="location_off" />
+          <span>{_l('加载失败')}</span>
+        </ErrorContent>
+      );
+    }
+
+    if (!isLoaded) {
+      return <LoadDiv className="w100 h100 flexCenter" style={mapContainerStyle} />;
+    }
+
+    const position = lat && lng ? { lng: parseFloat(lng), lat: parseFloat(lat) } : undefined;
+
     return (
-      <ErrorContent style={mapContainerStyle} className="TxtCenter" disabled={disabled}>
-        <Icon icon="location_off" />
-        <span>{_l('加载失败')}</span>
-      </ErrorContent>
+      <GoogleMap
+        zoom={zoom}
+        mapContainerStyle={mapContainerStyle}
+        center={position}
+        options={{
+          disableDefaultUI: true,
+          ...(disabled ? { disableDoubleClickZoom: true, draggable: false } : options),
+        }}
+        onLoad={onMapLoad}
+        onDragEnd={onMapDragEnd}
+        onClick={handleClick}
+      >
+        {children}
+        {!children && position && <Marker position={position} icon={markImg}></Marker>}
+      </GoogleMap>
     );
-  }
+  };
+}
 
-  if (!isLoaded) {
-    return <LoadDiv className="w100 h100 flexCenter" style={mapContainerStyle} />;
-  }
+function BaseGoogleMap(props) {
+  const { mapContainerStyle } = props;
+  const [LoadedGoogleMap, setLoadedGoogleMap] = useState(null);
 
-  const position = lat && lng ? { lng: parseFloat(lng), lat: parseFloat(lat) } : undefined;
+  useEffect(() => {
+    let mounted = true;
 
-  return (
-    <GoogleMap
-      zoom={zoom}
-      mapContainerStyle={mapContainerStyle}
-      center={position}
-      options={{ disableDefaultUI: true, ...(disabled ? { disableDoubleClickZoom: true, draggable: false } : options) }}
-      onLoad={onMapLoad}
-      onDragEnd={onMapDragEnd}
-      onClick={handleClick}
-    >
-      {children}
-      {!children && position && <Marker position={position} icon={markImg}></Marker>}
-    </GoogleMap>
+    loadGoogleMapApi().then(api => {
+      if (mounted) {
+        setLoadedGoogleMap(() => createLoadedGoogleMap(api));
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return LoadedGoogleMap ? (
+    <LoadedGoogleMap {...props} />
+  ) : (
+    <LoadDiv className="w100 h100 flexCenter" style={mapContainerStyle} />
   );
+}
+
+export function GmapOverlayView(props) {
+  const [OverlayView, setOverlayView] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadGoogleMapApi().then(api => {
+      if (mounted) {
+        setOverlayView(() => api.OverlayView);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return OverlayView ? <OverlayView {...props} /> : null;
 }
 
 // key没获取前,加载地图会报错

@@ -21,6 +21,26 @@
       background: var(--color-background-hover);
     }
 
+    &.disabled {
+      color: var(--color-text-disabled);
+      cursor: not-allowed;
+      .icon {
+        color: var(--color-text-disabled) !important;
+      }
+    }
+
+    &.moreOptionDivider {
+      height: 1px;
+      padding: 0;
+      margin: 6px 0;
+      background: var(--color-border-secondary);
+      cursor: default;
+
+      &:hover {
+        background: var(--color-border-secondary);
+      }
+    }
+
     &.red {
       color: var(--color-error);
 

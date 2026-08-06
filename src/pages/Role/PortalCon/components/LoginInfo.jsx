@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdAntDateRangePicker } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import externalPortalAjax from 'src/api/externalPortal';
 import PorTalTable from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalTable';
 import { pageSize } from '../tabCon/util';

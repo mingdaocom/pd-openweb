@@ -89,7 +89,7 @@ export default function UserInfoWrap(props) {
         <div className="headerWrap flexRow">
           <span className="flex">{title || _l('修改用户信息')}</span>
           {showClose && (
-            <Icon className="textTertiary Font22 Hand ThemeHoverColor3" icon="close" onClick={() => setShow(false)} />
+            <Icon className="textTertiary Font22 Hand hoverColorPrimary" icon="close" onClick={() => setShow(false)} />
           )}
         </div>
         <UserInfoDialogWrap className="flex userInfoCon">

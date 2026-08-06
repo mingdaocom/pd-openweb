@@ -1,0 +1,79 @@
+[data-theme='dark'] {
+  /* ================= Dark Theme (强化卡片/弹窗可见性) ================= */
+
+  /* 主题色 */
+  --color-primary: #2a82ff; /* 稍亮 */
+  --color-primary-light: #52a0ff; /* 稍亮 */
+  --color-primary-dark: #1862d9; /* 稍亮 */
+  --color-primary-focus: #2a82ff; /* 稍亮 */
+  --color-primary-focus-outer: rgba(42, 130, 255, 0.5); /* 暗底上提高到 ~50% 更可见 */
+  --color-primary-transparent: rgba(42, 130, 255, 0.2); /* 暗底上提高到 ~20% 更可见 */
+  --color-primary-transparent-light: rgba(42, 130, 255, 0.12); /* 暗底上提高到 ~12% 更可见 */
+
+  /* 应用色 */
+  --color-app: #1677ff; /* 不变 */
+  --color-app-light: #4096ff; /* 不变 */
+  --color-app-dark: #0958d9; /* 不变 */
+  --color-app-transparent: rgba(22, 119, 255, 0.2); /* 暗底上提高到 ~20% 更可见 */
+
+  /* mingo */
+  --color-mingo: #8f62ff; /* 稍亮 */
+  --color-mingo-light: #9881f4; /* 稍亮 */
+  --color-mingo-dark: #7b15ff; /* 稍亮 */
+  --color-mingo-transparent: rgba(143, 98, 255, 0.2); /* 暗底上提高到 ~20% 更可见 */
+  --color-mingo-transparent-light: rgba(143, 98, 255, 0.1); /* 更浅透明覆层：列表选中底、弱高亮 */
+
+  /* 背景层级 */
+  --color-background-primary: #161616; /* 基底 */
+  --color-background-secondary: #090909;
+  --color-background-tertiary: #1f1f1f;
+  --color-background-card: #222222; /* 卡片/菜单/面板（明显亮于基底） */
+  --color-background-hover: #393939; /*  hover (对比card高亮)） */
+  --color-background-disabled: #141414;
+  --color-background-overlay: rgba(0, 0, 0, 0.6); /* 提高不透明度 */
+  --color-background-overlay-light: rgba(0, 0, 0, 0.24); /* 提高不透明度 */
+  --color-background-overlay-white: rgba(22, 22, 22, 0.2); /* 和背景主色同色 */
+  --color-background-inverse: #1e1e1e; /* 不变 */
+  --color-background-input: #222222; /* 输入框、选择器的背景色 */
+
+  /* 文本：在更亮的卡片/弹窗上保持足够对比 */
+  --color-text-primary: #e6e6e6;
+  --color-text-title: #f2f2f2;
+  --color-text-secondary: #b3b3b3;
+  --color-text-tertiary: #8c8c8c;
+  --color-text-placeholder: #6f6f6f;
+  --color-text-disabled: #5e5e5e;
+  --color-text-inverse: #ffffff; /* 不变 */
+
+  /* 边框/描边：给卡片与弹窗加“可见轮廓”，比背景更亮一档 */
+  --color-border-primary: #3c3c3c; /* 常规描边（卡片/面板外框） */
+  --color-border-secondary: #2a2a2a; /* 轻分隔 */
+  --color-border-tertiary: #484848; /* 强分割 */
+  --color-border-hover: #525252; /* 悬停边框（输入/按钮 hover） */
+  --color-border-strong: #606060; /* 强强调（拖拽/高对比轮廓） */
+
+  /* 阴影：暗色里阴影存在感更弱，靠“更亮表面 + 细描边”表达层级 */
+  --shadow-sm: 0 0 1px 1px rgba(42, 42, 42, 1), 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 0 1px 1px rgba(42, 42, 42, 1), 0 2px 6px rgba(0, 0, 0, 0.38), 0 2px 4px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 0 1px 1px rgba(42, 42, 42, 1), 0 8px 16px rgba(0, 0, 0, 0.34), 0 4px 6px rgba(0, 0, 0, 0.26);
+  --shadow-xl: 0 0 1px 1px rgba(42, 42, 42, 1), 0 12px 28px rgba(0, 0, 0, 0.32), 0 8px 16px rgba(0, 0, 0, 0.24);
+
+  /* 功能色浅底：暗色需更高透明度（~0.20）以确保提示条/Tag 可见 */
+  --color-success: #4caf50;
+  --color-success-bg: rgba(76, 175, 80, 0.2);
+  --color-success-border: #66bb6a;
+  --color-warning: #ff9800;
+  --color-warning-bg: rgba(255, 152, 0, 0.2);
+  --color-warning-border: #ffb74d;
+  --color-error: #f44336;
+  --color-error-bg: rgba(244, 67, 54, 0.2);
+  --color-error-border: #ef9a9a;
+  --color-info: #1677ff;
+  --color-info-bg: rgba(22, 119, 255, 0.2);
+  --color-info-border: #90caf9;
+
+  /* 链接在暗底提亮，hover 再提一档，强化可见性 */
+  --color-link: #66b0ff;
+  --color-link-hover: #8cc6ff;
+  --color-link-visited: #8ab6f5;
+}

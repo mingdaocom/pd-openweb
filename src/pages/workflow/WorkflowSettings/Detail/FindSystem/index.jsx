@@ -26,18 +26,26 @@ export default class FindSystem extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -58,6 +66,10 @@ export default class FindSystem extends Component {
         instanceId,
       })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: !sId ? result : { ...result, name: data.name } });
       });
   }
@@ -77,10 +89,6 @@ export default class FindSystem extends Component {
     const { data, saveRequest } = this.state;
     const { appId, appType, name, actionId, selectNodeId, fields, conditions, executeType, random, relation } = data;
 
-    if (saveRequest) {
-      return;
-    }
-
     if (checkConditionsIsNull(conditions)) {
       alert(_l('筛选条件的判断值不能为空'), 2);
       return;
@@ -94,6 +102,10 @@ export default class FindSystem extends Component {
         alert(_l('必须选择筛选字段'), 2);
         return;
       }
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
+      return;
     }
 
     flowNode
@@ -341,7 +353,7 @@ export default class FindSystem extends Component {
     return (
       <div className="addActionBtn mTop25">
         <span
-          className={data.appId ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
+          className={data.appId ? 'borderColorPrimary' : 'textDisabled borderTertiary'}
           onClick={() => this.updateSource({ conditions: [[{}]] })}
         >
           <i className="icon-add Font16" />
@@ -376,8 +388,9 @@ export default class FindSystem extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], data.actionId) ||
-            (!!data.selectNodeId && !!data.fields.length)
+            (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], data.actionId) ||
+              (!!data.selectNodeId && !!data.fields.length)) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

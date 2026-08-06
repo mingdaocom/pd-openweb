@@ -4,7 +4,6 @@ import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import { Button, Input, LoadDiv, Textarea } from 'ming-ui';
 import privateGuide from 'src/api/privateGuide';
-import 'src/common/mdcss/Themes/theme.less';
 import logo from 'src/pages/emailValidate/logo.png';
 import { encrypt, getRequest } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -102,6 +101,7 @@ class PrivateImageInstall extends Component {
         this.setState({ passwordPrompt: _l('请输入确认密码') });
         return;
       }
+
       this.setState({ passwordPrompt: '' });
     }
 
@@ -118,7 +118,8 @@ class PrivateImageInstall extends Component {
           stepResult: Object.assign(stepResult, { createdAdmin: true }),
         });
       })
-      .fail(() => {
+
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -145,7 +146,8 @@ class PrivateImageInstall extends Component {
           stepResult: Object.assign(stepResult, { createdProject: true }),
         });
       })
-      .fail(() => {
+
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -159,9 +161,11 @@ class PrivateImageInstall extends Component {
     if (stepResult.createdProject) {
       return this.renderCompleteInstall();
     }
+
     if (stepResult.createdAdmin) {
       return this.renderCreatedProject();
     }
+
     if (stepResult.createdLicenseCode) {
       return this.renderCreatedAdmin();
     }
@@ -180,9 +184,12 @@ class PrivateImageInstall extends Component {
     const { channel } = getRequest();
 
     let moreQueryParams = '';
+
     // 来源
     if (channel) {
       moreQueryParams += '&channel=' + channel;
+    } else {
+      moreQueryParams += '&channel=nocoly';
     }
 
     // 系统版本
@@ -195,7 +202,7 @@ class PrivateImageInstall extends Component {
       moreQueryParams += '&ltv=' + stepResult.licenseTemplateVersion;
     }
 
-    const url = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(
+    const url = `<a href="${window.platformENV.isOverseas ? 'https://www.nocoly.com' : 'https://www.mingdao.com'}/register?ReturnUrl=${encodeURIComponent(
       `/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
     )}" target="_blank" class="applyPrivatekey">${_l('立即注册')}</a>`;
 
@@ -212,7 +219,9 @@ class PrivateImageInstall extends Component {
           size="large"
           onClick={() => {
             window.open(
-              `https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
+              window.platformENV.isOverseas
+                ? `https://www.nocoly.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`
+                : `https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
             );
           }}
         >
@@ -329,15 +338,21 @@ class PrivateImageInstall extends Component {
   renderCompleteInstall() {
     return (
       <div className="body completeInstall">
-        <img src={weixinCode} className="weixinCode" />
-        <div className="title">{_l('太棒了！ 您完成了安装')}</div>
-        <div className="info">{_l('建议您扫码注册并收藏工单系统，获得各类支持与问题解答')}</div>
+        {window.platformENV.isOverseas ? (
+          <div className="title">{_l('太棒了！ 您完成了安装')}</div>
+        ) : (
+          <Fragment>
+            <img src={weixinCode} className="weixinCode" />
+            <div className="title">{_l('太棒了！ 您完成了安装')}</div>
+            <div className="info">{_l('建议您扫码注册并收藏工单系统，获得各类支持与问题解答')}</div>
+          </Fragment>
+        )}
         <Button
           className="btn mTop45"
           type="primary"
           size="large"
           onClick={() => {
-            location.href = '/dashboard';
+            location.href = window.__customSubPath__ + '/dashboard';
           }}
         >
           {_l('完成')}
@@ -351,7 +366,7 @@ class PrivateImageInstall extends Component {
         <DocumentTitle title={_l('HAP 私有部署版')} />
         <div className="header">
           <div>
-            <img src={logo} />
+            <img src={logo} width={window.platformENV.isOverseas ? 120 : 87} />
           </div>
           <div className="text">{_l('HAP 私有部署版')}</div>
         </div>

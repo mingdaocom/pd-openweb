@@ -12,6 +12,7 @@ import wxPng5 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyn
 import wxPng6 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/6.png';
 import wxPng7 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/7.png';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
+import { pathCompletion } from 'src/utils/common';
 import { getIntegrationHomeUrl } from '../../utils';
 import workwxPng1 from './img/1.png';
 import workwxPng2 from './img/2.png';
@@ -139,7 +140,7 @@ export default class WorkwxSyncCourse extends React.Component {
   renderDing = () => {
     const { domainName } = this.state;
     const homeUrl = getIntegrationHomeUrl({ projectId: this.props.match?.params?.projectId, integrationType: 3 });
-    const url = encodeURIComponent(`${md.global.Config.WebUrl}dashboard`);
+    const url = encodeURIComponent(pathCompletion(`/dashboard`));
     // 图片加载需要时间，固定高度能让 hash 定位到指定的位置
     return (
       <React.Fragment>

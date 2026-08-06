@@ -206,7 +206,7 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
   // 项目已删除
   if (source.data.length === 1 && source.data[0].eventType === 'D_folder') {
     $('.taskType .myTask').click();
-    alert('项目已删除', 3);
+    alert(_l('项目已删除'), 3);
 
     return false;
   }

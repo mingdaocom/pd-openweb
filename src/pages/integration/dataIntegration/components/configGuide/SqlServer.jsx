@@ -96,16 +96,18 @@ export default function SqlServerGuide(props) {
 
         <h5>{_l('创建专用用户并授权')}</h5>
         <div className="sqlText">
-          <div>-- {_l('创建用户')}</div>
+          <div>--{_l('使用业务库创建用户')}</div>
+          <div>use cdc_test;</div>
           <div>CREATE LOGIN flinkuser WITH PASSWORD = 'Flink@123';</div>
           <div>CREATE USER flinkuser FOR LOGIN flinkuser;</div>
           <div>-- {_l('授予数据库访问权限')}</div>
           <div>ALTER ROLE db_owner ADD MEMBER flinkuser; --{_l('生产环境建议细化权限')}</div>
-          <div>GRANT SELECT ON ALL TABLES IN SCHEMA dbo TO flinkuser;</div>
+          <div>GRANT SELECT ON SCHEMA::dbo TO flinkuser;</div>
+          <div>GRANT SELECT ON SCHEMA::cdc TO flinkuser;</div>
+          <div />
           <div>-- {_l('授予CDC相关权限')}</div>
+          <div>use master</div>
           <div>GRANT VIEW SERVER STATE TO flinkuser;</div>
-          <div>GRANT SELECT ON sys.change_tables TO flinkuser;</div>
-          <div>GO</div>
         </div>
 
         <h5>{_l('查询表是否已经启用CDC(变更数据捕获)')}</h5>

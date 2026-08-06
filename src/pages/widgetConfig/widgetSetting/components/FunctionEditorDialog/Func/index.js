@@ -209,6 +209,7 @@ function Func(props, ref) {
                 if (loadingTimerRef.current) {
                   clearTimeout(loadingTimerRef.current);
                 }
+
                 loadingTimerRef.current = setTimeout(() => {
                   setCodeEditorLoading(false);
                 }, 10);

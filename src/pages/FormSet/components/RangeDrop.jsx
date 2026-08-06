@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Checkbox, Icon, Radio } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 
 const HeaderRange = styled.div`
   display: block;
@@ -65,8 +65,7 @@ const RangeBox = styled.div`
     overflow: auto;
   }
 `;
-@withClickAway
-export class RangeDrop extends React.Component {
+let RangeDrop = class RangeDrop extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -78,7 +77,6 @@ export class RangeDrop extends React.Component {
   render() {
     const { printData, views, setData, className } = this.props;
     const viewList = this.getViews(views);
-
     return (
       <RangeBox className={className}>
         <HeaderRange className="headerRange Font14 textPrimary">
@@ -97,10 +95,7 @@ export class RangeDrop extends React.Component {
             checked={printData.range === 1}
             onClick={() => {
               setData({
-                printData: {
-                  ...printData,
-                  range: 1,
-                },
+                printData: { ...printData, range: 1 },
               });
             }}
           />
@@ -110,10 +105,7 @@ export class RangeDrop extends React.Component {
             checked={printData.range === 3}
             onClick={() => {
               setData({
-                printData: {
-                  ...printData,
-                  range: 3,
-                },
+                printData: { ...printData, range: 3 },
               });
             }}
           />
@@ -146,6 +138,7 @@ export class RangeDrop extends React.Component {
       </RangeBox>
     );
   }
-}
-
+};
+RangeDrop = ClickAway.wrap(RangeDrop);
+export { RangeDrop };
 export default RangeDrop;

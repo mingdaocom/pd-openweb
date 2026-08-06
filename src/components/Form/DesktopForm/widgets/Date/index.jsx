@@ -4,8 +4,8 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, MdAntDatePicker } from 'ming-ui';
-import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { getTimeZoneText } from 'src/utils/control';
+import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/utils/controlCommon';
 import {
   dateAppZoneToServerZone,
   dateConvertToServerZone,

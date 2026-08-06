@@ -7,24 +7,24 @@ import { Icon, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import accountSettingApi from 'src/api/accountSetting';
 import loginApi from 'src/api/login';
-import langConfig from 'src/common/langConfig';
 import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
 import MyStatus from 'src/pages/chat/components/MyStatus';
 import Avatar from 'src/pages/PageHeader/components/Avatar';
 import { navigateTo } from 'src/router/navigateTo';
 import { navigateToLogin } from 'src/router/navigateTo';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible, pathCompletion } from 'src/utils/common';
 import { removePssId } from 'src/utils/pssId';
 import { PopoverWrap, Wrap } from '../ChatList/Avatar/styled';
+import renderHelpPopover from './Help';
 import ThemeMode from './ThemeMode';
 
 const renderLanguagePopover = () => {
   return (
     <PopoverWrap>
-      {langConfig.map(item => (
+      {window.getAllowLangConfig().map(item => (
         <div
           className={cx('itemWrap pointer', {
-            active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
+            active: (getCookie('i18n_langtag') || window.getDefaultLangKey()) === item.key,
           })}
           key={item.key}
           onClick={() => {
@@ -93,6 +93,7 @@ export default props => {
   const { ss } = getAppFeaturesVisible();
 
   const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
+
   return (
     <Wrap className="flexColumn h100">
       <div className="header flexColumn pBottom20">
@@ -104,7 +105,7 @@ export default props => {
             src={Account.avatar}
             size={72}
             onClick={() => {
-              window.open('/personal?type=information');
+              window.open(pathCompletion('/personal?type=information'));
               onClose();
             }}
           />
@@ -114,9 +115,9 @@ export default props => {
             className="colorPrimary Font14 mTop10 pointer bold myAccount"
             onClick={() => {
               if (md.global.Account.isSSO || window.isDingTalk) {
-                location.href = '/personal?type=information';
+                location.href = pathCompletion('/personal?type=information');
               } else {
-                window.open('/personal?type=information');
+                window.open(pathCompletion('/personal?type=information'));
               }
 
               onClose();
@@ -210,14 +211,30 @@ export default props => {
           <div className="flex mLeft15">{_l('更多')}</div>
         </div>
         <div className="divider mTop10 mBottom10" />
-        {ss && !md.global.SysSettings.hideHelpTip && (
-          <Support href="https://help.mingdao.com">
-            <div className="flexRow alignItemsCenter pointer itemWrap">
-              <Icon className="textTertiary Font22" icon="help" />
-              <div className="flex mLeft15">{_l('帮助')}</div>
-            </div>
-          </Support>
-        )}
+        {ss &&
+          !md.global.SysSettings.hideHelpTip &&
+          (window.platformENV.isOverseas ? (
+            <Popover
+              title={null}
+              placement="leftTop"
+              overlayClassName="userConfigPopover"
+              overlayStyle={{ padding: 0 }}
+              content={renderHelpPopover(props)}
+            >
+              <div className="flexRow alignItemsCenter pointer itemWrap">
+                <Icon className="textTertiary Font22" icon="help" />
+                <div className="flex mLeft15">{_l('帮助')}</div>
+                <Icon className="Gray_9e Font12" icon="arrow-right" />
+              </div>
+            </Popover>
+          ) : (
+            <Support href="https://help.mingdao.com">
+              <div className="flexRow alignItemsCenter pointer itemWrap">
+                <Icon className="textTertiary Font22" icon="help" />
+                <div className="flex mLeft15">{_l('帮助')}</div>
+              </div>
+            </Support>
+          ))}
         <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => dialogKeyboardShortcuts()}>
           <Icon className="textTertiary Font22" icon="keyboard" />
           <div className="flex mLeft15">{_l('快捷键')}</div>
@@ -229,7 +246,7 @@ export default props => {
           <div
             className="flexRow alignItemsCenter pointer itemWrap"
             onClick={() => {
-              location.href = '/appInstallSetting';
+              window.open(pathCompletion('/appInstallSetting'));
             }}
           >
             <Icon className="textTertiary Font18" icon="phonelink" />
@@ -255,9 +272,7 @@ export default props => {
           <div
             className="flexRow alignItemsCenter pointer itemWrap"
             onClick={() => {
-              const { PlatformUrl, WebUrl } = md?.global?.Config || {};
-              const url = PlatformUrl || WebUrl; //没有PlatformUrl就还是WebUrl
-              window.open(url + 'sysconfig');
+              window.open(md.global.Config.PlatformUrl);
             }}
           >
             <Icon className="textTertiary Font22" icon="platform_admin" />

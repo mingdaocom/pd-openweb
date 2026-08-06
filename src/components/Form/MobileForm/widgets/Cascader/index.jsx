@@ -12,6 +12,29 @@ import { CustomCommonCapsule } from '../../style';
 import { checkCellIsEmpty, sortPathsBySearchKeyword } from '../../tools/utils';
 import { CustomMobileCascadeControl, OptionWrap, PopupContentBox } from './style';
 
+const formatSearchData = (item, keywords) => {
+  const searchPath = safeParse(item.searchPath) || [];
+  const nodes = [];
+
+  searchPath.forEach((part, idx) => {
+    if (idx > 0) {
+      nodes.push(' / ');
+    }
+
+    if (part.includes(keywords)) {
+      nodes.push(
+        <span className="highlight" key={idx}>
+          {part}
+        </span>,
+      );
+    } else {
+      nodes.push(part);
+    }
+  });
+
+  return nodes;
+};
+
 const Cascader = props => {
   const {
     disabled,
@@ -314,29 +337,6 @@ const Cascader = props => {
       // 非叶子节点，更新层级路径并加载数据
       loadNextOperatePath(item);
     }
-  };
-
-  const formatSearchData = (item, keywords) => {
-    const searchPath = safeParse(item.searchPath) || [];
-    const nodes = [];
-
-    searchPath.forEach((part, idx) => {
-      if (idx > 0) {
-        nodes.push(' / ');
-      }
-
-      if (part.includes(keywords)) {
-        nodes.push(
-          <span className="highlight" key={idx}>
-            {part}
-          </span>,
-        );
-      } else {
-        nodes.push(part);
-      }
-    });
-
-    return nodes;
   };
 
   const handleCheckboxClick = item => {

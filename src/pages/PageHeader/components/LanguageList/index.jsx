@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Divider, Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -7,6 +7,8 @@ import { Icon, LoadDiv } from 'ming-ui';
 import accountSettingApi from 'src/api/accountSetting';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
+import { getSystemLangKey } from 'src/common/langConfig';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled(Menu)`
   .ant-dropdown-menu-item.active {
@@ -16,54 +18,61 @@ const Wrap = styled(Menu)`
 
 export default props => {
   const { placement, app, isCharge } = props;
-  const { id: appId, projectId } = app;
+  const { id: appId, projectId, originalLang } = app;
   const [loading, setLoading] = useState(true);
   const [appLangs, setAppLangs] = useState([]);
   const [langList, setLangList] = useState({});
+  const appLangRequestId = useRef(0);
+  const langListRequestKey = useRef('');
+  const loadedLangListKey = useRef('');
+
+  const loadLangList = useCallback(
+    (appLangs = []) => {
+      const langCodes = appLangs
+        .map(n => n.langCode)
+        .concat(originalLang)
+        .filter(n => n);
+      const langKey = langCodes.join(',');
+
+      if (!langKey || loadedLangListKey.current === langKey) return;
+
+      langListRequestKey.current = langKey;
+      setLoading(true);
+      fixedDataApi.loadLangList({ langCodes }).then(langList => {
+        if (langListRequestKey.current !== langKey) return;
+
+        loadedLangListKey.current = langKey;
+        setLangList(langList);
+        setLoading(false);
+      });
+    },
+    [originalLang],
+  );
 
   useEffect(() => {
+    const requestId = appLangRequestId.current + 1;
+
+    appLangRequestId.current = requestId;
     appManagementApi
       .getAppLangs({
         appId,
         projectId,
       })
       .then(data => {
+        if (appLangRequestId.current !== requestId) return;
+
         setAppLangs(data);
         if (placement.includes('top')) {
           loadLangList(data);
         }
       });
-  }, []);
-
-  const loadLangList = appLangs => {
-    if (!_.isEmpty(langList)) return;
-    setLoading(true);
-    fixedDataApi
-      .loadLangList({
-        langCodes: appLangs
-          .map(n => n.langCode)
-          .concat(app.originalLang)
-          .filter(n => n),
-      })
-      .then(langList => {
-        setLangList(langList);
-        setLoading(false);
-      });
-  };
+  }, [appId, loadLangList, placement, projectId]);
 
   const handleSetLang = value => {
-    const langCodeObjs = {
-      en: 'en',
-      ja: 'ja',
-      zh_hant: 'zh-Hant',
-      zh_hans: 'zh-Hans',
-    };
-    const langCode =
-      value === ''
-        ? langCodeObjs[app.originalLang]
-          ? getCurrentLangCode(langCodeObjs[app.originalLang])
-          : 0
-        : getCurrentLangCode(langCodeObjs[value]);
+    const sysLang =
+      value === '' ? getSystemLangKey(app.originalLang) || window.getDefaultLangKey() : getSystemLangKey(value);
+    const langCode = getCurrentLangCode(sysLang);
+
     accountSettingApi
       .editAccountSetting({
         settingType: '20',
@@ -71,7 +80,7 @@ export default props => {
       })
       .then(data => {
         if (data) {
-          if (_.isNumber(value === '' ? 0 : getCurrentLangCode(langCodeObjs[value] || ''))) {
+          if (_.isNumber(langCode)) {
             accountSettingApi
               .editAccountSetting({
                 settingType: '6',
@@ -79,7 +88,7 @@ export default props => {
               })
               .then(res => {
                 if (res) {
-                  setCookie('i18n_langtag', langCodeObjs[value] ? value : 'zh-Hans');
+                  setCookie('i18n_langtag', sysLang);
                   window.location.reload();
                 }
               });
@@ -136,7 +145,7 @@ export default props => {
                   <Menu.Item
                     key="settings"
                     onClick={() => {
-                      location.href = `/app/${appId}/settings/language`;
+                      location.href = pathCompletion(`/app/${appId}/settings/language`);
                     }}
                   >
                     <Icon icon="settings" className="mRight8 textTertiary" />
@@ -151,7 +160,7 @@ export default props => {
       placement={placement}
       trigger={['click']}
       onVisibleChange={value => {
-        if (value && !langList.length) {
+        if (value) {
           loadLangList(appLangs);
         }
       }}

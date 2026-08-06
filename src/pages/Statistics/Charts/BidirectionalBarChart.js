@@ -4,7 +4,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import { formatChartData as formatBarChartData } from './BarChart';
 import {
   formatNumberValue,
@@ -14,6 +16,7 @@ import {
   getEmptyChartData,
   getLegendType,
 } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const mergeChartData = (data, contrastData) => {
   const result = [];
@@ -43,20 +46,26 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.BidirectionalBarChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderBidirectionalBarChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.BidirectionalBarChart && this.BidirectionalBarChart.destroy();
+    this.isUnmounted = true;
+    this.destroyBidirectionalBarChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, rightY, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
+  componentDidUpdate(prevProps) {
+    const { displaySetup, rightY, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = prevProps.reportData;
 
     if (_.isEmpty(rightY)) {
       return;
@@ -64,8 +73,8 @@ export default class extends Component {
 
     const rightYDisplay = rightY.display.ydisplay;
     const oldRightYDisplay = oldRightY.display.ydisplay;
-
-    if (
+    const shouldRecreate = this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
       displaySetup.hideOverlapText !== oldDisplaySetup.hideOverlapText ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -80,47 +89,65 @@ export default class extends Component {
       !_.isEqual(rightYDisplay, oldRightYDisplay) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const config = this.getComponentConfig(nextProps);
-      this.BidirectionalBarChart && this.BidirectionalBarChart.update(config);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.g2plotComponent) {
+      return;
     }
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.BidirectionalBarChart && this.BidirectionalBarChart.destroy();
-      this.renderBidirectionalBarChart(nextProps);
+    if (shouldRecreate) {
+      this.renderBidirectionalBarChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.BidirectionalBarChart) {
+      const config = this.getComponentConfig(this.props);
+      this.BidirectionalBarChart.update(config);
     }
   }
+  destroyBidirectionalBarChart = () => {
+    if (this.BidirectionalBarChart) {
+      this.BidirectionalBarChart.destroy();
+      this.BidirectionalBarChart = null;
+    }
+  };
   renderBidirectionalBarChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes } = reportData;
+
+    if (!this.chartEl || !this.g2plotComponent) {
+      return;
+    }
+
     const config = this.getComponentConfig(props);
     const { BidirectionalBar } = this.g2plotComponent;
 
-    if (this.chartEl) {
-      this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        xaxes.controlId;
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.BidirectionalBarChart.on('element:click', this.handleClick);
-      }
-
-      this.BidirectionalBarChart.render();
+    this.destroyBidirectionalBarChart();
+    this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      xaxes.controlId;
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.BidirectionalBarChart.on('element:click', this.handleClick);
     }
+
+    this.BidirectionalBarChart.render();
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, contrastMap, displaySetup, yaxisList, summary, rightY, xaxes, split, sorts } = reportData;
-    const { xdisplay, ydisplay, legendType, showLegend, showChartType, percent } = displaySetup;
+    const { xdisplay, ydisplay, legendType, showLegend, showChartType, percent, mobileShowNumber } = displaySetup;
+    const showNumber = displaySetup.showDimension || displaySetup.showNumber;
+    const isMobile = props.isMobile || layoutType === 'mobile';
+    const labelShowNumber = isMobile ? (mobileShowNumber ?? showNumber) : showNumber;
     const showPercent = percent.enable;
     const styleConfig = reportData.style || {};
     const style =
@@ -171,7 +198,7 @@ export default class extends Component {
         },
       },
       interactions: [{ type: 'active-region' }],
-      label: displaySetup.showNumber
+      label: labelShowNumber
         ? {
             position: isVertical ? 'top' : 'right',
             layout: [
@@ -433,6 +460,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.BidirectionalBarChart || !this.g2plotComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {

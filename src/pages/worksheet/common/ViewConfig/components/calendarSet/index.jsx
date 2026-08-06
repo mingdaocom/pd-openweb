@@ -19,7 +19,7 @@ import SelectStartOrEndGroups from '../SelectStartOrEndControl/SelectStartOrEndG
 let obj = [_l('月'), _l('周'), _l('日')];
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周日')];
 const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-const locale = locales[md.global.Account.lang];
+const locale = locales[md.global.Account.lang] || localeEn;
 
 const ShowChoose = styled.div`
   .showtimeCon {
@@ -75,6 +75,22 @@ const ShowChoose = styled.div`
   }
 `;
 
+const changePickerContainerLeft = () => {
+  const changeLeft = () => {
+    $('.ant-picker-range-arrow').css({ transition: 'none' });
+    $('.ant-picker-panel-container').css({
+      marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
+    });
+  };
+
+  setTimeout(() => {
+    $('.ant-picker-input input').on({
+      click: () => changeLeft(),
+      focus: () => changeLeft(),
+    });
+  }, 500);
+};
+
 export default function CalendarSet(props) {
   const { appId, view, updateCurrentView, worksheetControls } = props;
   const { advancedSetting = {}, worksheetId, viewId } = view;
@@ -88,22 +104,6 @@ export default function CalendarSet(props) {
   useEffect(() => {
     changePickerContainerLeft();
   }, []);
-
-  const changePickerContainerLeft = () => {
-    const changeLeft = () => {
-      $('.ant-picker-range-arrow').css({ transition: 'none' });
-      $('.ant-picker-panel-container').css({
-        marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
-      });
-    };
-
-    setTimeout(() => {
-      $('.ant-picker-input input').on({
-        click: () => changeLeft(),
-        focus: () => changeLeft(),
-      });
-    }, 500);
-  };
 
   useEffect(() => {
     setCheckedWorkDate(unweekday !== '');
@@ -138,10 +138,8 @@ export default function CalendarSet(props) {
         ];
   }
 
-  const startData = calendarcids[0]
-    ? worksheetControls.filter(item => item.controlId === calendarcids[0].begin)
-    : [];
-  const isDelete = (calendarcids[0] && calendarcids[0].begin) && (!startData || startData.length <= 0);
+  const startData = calendarcids[0] ? worksheetControls.filter(item => item.controlId === calendarcids[0].begin) : [];
+  const isDelete = calendarcids[0] && calendarcids[0].begin && (!startData || startData.length <= 0);
   return (
     <React.Fragment>
       <div className="title Font13 bold">{_l('日期')}</div>

@@ -91,7 +91,7 @@ const WorksheetFilter = props => {
             />
           ) : (
             <AddActionBtn className="mTop15">
-              <span className="ThemeBorderColor3" onClick={() => setFilters([{ conditions: [[{}]], spliceType: 2 }])}>
+              <span className="borderColorPrimary" onClick={() => setFilters([{ conditions: [[{}]], spliceType: 2 }])}>
                 <i className="icon-add Font16" />
                 {_l('筛选条件')}
               </span>

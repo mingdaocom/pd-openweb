@@ -259,7 +259,7 @@ export default function ConditionsGroup(props) {
               widgetControlData={_.get(conditionProps, 'widgetControlData')}
             >
               <AddButton
-                className="mRight30 ThemeHoverColor3"
+                className="mRight30 hoverColorPrimary"
                 icon="add"
                 textLeft={4}
                 iconSize={18}

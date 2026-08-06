@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { toFixed } from 'src/utils/control';
+import { toFixed } from 'src/utils/controlCommon';
 import { getContactInfo } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE } from '../config';
+
+export { flattenArr, getAvailableFilters, getResult, isRelateMoreList, replaceStr } from './ruleUtils';
 
 export const getEmbedValue = (embedData = {}, id) => {
   switch (id) {
@@ -66,34 +68,6 @@ export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   }
 
   return '';
-};
-
-/**
- * 验证身份证校验码
- */
-export const validateIdCardCheckCode = idCard => {
-  const first17 = idCard.substring(0, 17);
-  // 校验码（第18位）
-  const checkCode = idCard.substring(17, 18).toUpperCase();
-
-  // 权重数组
-  const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
-  // 校验码对应表
-  const checkCodeMap = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
-
-  // 计算加权和
-  let sum = 0;
-
-  for (let i = 0; i < 17; i++) {
-    sum += parseInt(first17[i], 10) * weights[i];
-  }
-
-  // 计算余数
-  const remainder = sum % 11;
-  // 获取正确的校验码
-  const correctCheckCode = checkCodeMap[remainder];
-
-  return checkCode === correctCheckCode;
 };
 
 /**
@@ -259,63 +233,18 @@ export const checkChildTableIsEmpty = (control = {}) => {
   const state = store && store.getState();
 
   if (state && state.rows && !state.baseLoading) {
+    // 子表筛选(filterControls)生效时按筛选条件从服务端重新加载，state.rows 只是筛选后的子集（可能为空），
+    // 不能据此判空触发必填。改用 store 维护的 realCount(未筛选真实总数)判空：
+    // 已知则据此判定（筛选出唯一行删空后 realCount 归 0，可正常触发必填）；
+    // 未知（从未在未筛选态加载过，realCount 仍为 null）时回退旧的安全策略，避免误报必填。
+    if (!_.isEmpty(state.filterControls)) {
+      return _.isNumber(state.realCount) ? state.realCount <= 0 : false;
+    }
+
     return filterEmptyChildTableRows(state.rows).length <= 0;
   } else {
     return control.value === '0' || !control.value;
   }
-};
-
-/*********************************************************************************
- * 以下是业务规则相关
- *********************************************************************************
- */
-
-export const flattenArr = (obj = {}) => {
-  return Object.values(obj).reduce((total, cur = []) => {
-    return total.concat(_.flatten(cur));
-  }, []);
-};
-
-export const getResult = (arr, index, result, ava) => {
-  if (!index) {
-    return result;
-  } else {
-    return arr[index - 1].spliceType === 1 ? ava && result : ava || result;
-  }
-};
-
-export const replaceStr = (str, index, value) => {
-  return str.substring(0, index) + value + str.substring(index + 1);
-};
-
-// 过滤不必要走（字段都删除）的业务规则
-export const getAvailableFilters = (rules = [], formatData = [], recordId) => {
-  //过滤禁用规则及单个且数组中字段全部删除情况
-  // 注意如果是记录id，data里不包含系统字段，所以必须recordId存在才生效
-  let filterRules = [];
-  rules.forEach(o => {
-    if (!o.disabled) {
-      let filterTrs = [];
-      (o.filters || []).map(tr => {
-        if (
-          _.some(tr.groupFilters || [], t =>
-            _.get(t, 'dynamicSource[0].cid') === 'rowid'
-              ? recordId
-              : _.findIndex(formatData, da => da.controlId === t.controlId) > -1,
-          )
-        ) {
-          filterTrs = filterTrs.concat(tr);
-        }
-      });
-      filterTrs.length > 0 && filterRules.push({ ...o, filters: filterTrs });
-    }
-  });
-
-  return {
-    defaultRules: filterRules.filter(i => i.type === 0), // 交互规则
-    errorOrStyleRules: filterRules.filter(i => _.includes([1, 3], i.type)), // 验证+样式规则
-    errorRules: filterRules.filter(i => i.type === 1), // 验证规则
-  };
 };
 
 export const getAttachmentData = (control = {}) => {
@@ -331,18 +260,6 @@ export const getAttachmentData = (control = {}) => {
 
   return fileData;
 };
-
-//是否关联多条列表
-export function isRelateMoreList(control, condition) {
-  return (
-    control &&
-    control.type === 29 &&
-    control.enumDefault === 2 &&
-    control.advancedSetting &&
-    control.advancedSetting.showtype === '2' &&
-    _.includes([24, 25], condition.filterType || condition.type)
-  );
-}
 
 export const mergeFormDataWidthSystem = (data = [], systemControlData = []) => {
   const mergedData = [...data];

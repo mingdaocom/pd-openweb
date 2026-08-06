@@ -29,7 +29,7 @@ export const initialFunctionData = [
     name: _l('短信服务'),
     nameSuffix: _l('中国大陆区'),
     price: null,
-    unit: _l('条'),
+    unit: _l('条%26077'),
     description: _l(
       '短信服务可分为验证码短信和自定义短信。自定义短信仅支持发往中国大陆手机号，按70字计一条计费，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。',
     ),
@@ -38,9 +38,9 @@ export const initialFunctionData = [
   {
     id: BASIC_FUNCTION_TYPE.SMS_INTERNATIONAL,
     name: _l('短信服务'),
-    nameSuffix: _l('国际地区'),
+    nameSuffix: _l('非中国大陆地区'),
     price: null,
-    unit: _l('条'),
+    unit: _l('条%26077'),
     description: _l('未配置国际短信服务商时，由平台代发并收取费用'),
     chargeLocation: _l('外部门户验证码；公开表单短信验证码'),
   },

@@ -54,24 +54,26 @@ export default class Formula extends React.Component {
     this.state.formulaStr = this.getFormulaFromDataSource(this.state.calType, dataSource);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { data } = nextProps;
-    const { dataSource, controlId } = data;
-    const nextCalType = FORMULA.CUSTOM.type;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { data } = this.props;
+      const { dataSource, controlId } = data;
+      const nextCalType = FORMULA.CUSTOM.type;
 
-    if (controlId !== this.props.data.controlId) {
-      const newFormulaStr = this.getFormulaFromDataSource(nextCalType, dataSource);
-      this.setState({
-        calType: nextCalType,
-        formulaStr: newFormulaStr,
-        fnmatch: '',
-        fnmatchPos: undefined,
-        selectColumnVisible: false,
-        showInSideFormulaSelect: false,
-        shoOutSideFormulaSelect: false,
-        hasDeletedWidget: false,
-      });
-      this.tagtextarea.setValue(newFormulaStr);
+      if (controlId !== prevProps.data.controlId) {
+        const newFormulaStr = this.getFormulaFromDataSource(nextCalType, dataSource);
+        this.setState({
+          calType: nextCalType,
+          formulaStr: newFormulaStr,
+          fnmatch: '',
+          fnmatchPos: undefined,
+          selectColumnVisible: false,
+          showInSideFormulaSelect: false,
+          shoOutSideFormulaSelect: false,
+          hasDeletedWidget: false,
+        });
+        this.tagtextarea.setValue(newFormulaStr);
+      }
     }
   }
 
@@ -302,7 +304,16 @@ export default class Formula extends React.Component {
               })}
             </CalItem>
 
-            <div className="formulaBox">
+            <div
+              className="formulaBox"
+              ref={con => {
+                this.formulaBox = con;
+              }}
+              style={{ position: 'relative' }}
+              onMouseDown={() => {
+                this.setState({ selectColumnVisible: true });
+              }}
+            >
               <TagTextarea
                 autoComma
                 key={data.controlId}
@@ -324,6 +335,7 @@ export default class Formula extends React.Component {
                 showSearch
                 visible={selectColumnVisible}
                 onClickAway={this.hideSelectColumn}
+                onClickAwayExceptions={[this.formulaBox]}
                 list={getFormulaControls(filterAllControls, data).map(data => ({
                   value: data.controlId,
                   filterValue: data.controlName,

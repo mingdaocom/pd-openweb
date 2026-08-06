@@ -1,7 +1,34 @@
 ﻿import _ from 'lodash';
-import mingoAjax from 'src/api/mingo';
+import agentApi from 'src/api/agent';
+import { buildFormFieldsControls } from 'src/components/Mingo/ChatBot/utils';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { emitter } from 'src/utils/common';
 import { formatAiGenControlValue } from 'src/utils/control';
+
+const IMAGE_FILE_EXTS = ['.jpg', '.jpeg', '.png', '.heic'];
+
+const normalizeFileExt = fileExt => {
+  if (!fileExt) return '';
+  return String(fileExt).startsWith('.') ? String(fileExt).toLowerCase() : `.${String(fileExt).toLowerCase()}`;
+};
+
+const isImageAttachment = (file = {}) => {
+  const type = String(file.type || '').toLowerCase();
+  return (
+    type === 'image' || /^image\//.test(type) || IMAGE_FILE_EXTS.includes(normalizeFileExt(file.fileExt || file.ext))
+  );
+};
+
+export const normalizeGenerateRecordAttachments = (filesList = []) => {
+  return (filesList || [])
+    .map(file => ({
+      type: isImageAttachment(file) ? 'image' : 'doc',
+      url: file.url,
+      name: file.name || file.originalFileName || file.originalFilename || file.fileName,
+      size: file.size || file.fileSize,
+    }))
+    .filter(file => file.url);
+};
 
 export const generateRecord = ({
   text = '',
@@ -14,45 +41,27 @@ export const generateRecord = ({
   setFilledByAiMap,
 }) => {
   setType('parse');
-  const { worksheetInfo = {}, worksheetId } = propsRef.current;
-  let content = [];
+  const { worksheetInfo = {} } = propsRef.current;
+  const currentProjectId = worksheetInfo?.projectId || projectId;
 
-  if (text) {
-    content.push({
-      type: 'text',
-      text: _l('【当前用户正在使用语音输入，文本内容与选项内容无需完全匹配，可以进行模糊匹配】') + text,
-    });
-  }
-
-  if (filesList?.length) {
-    content.push(
-      ...filesList.map(file => ({
-        type: 'image_url',
-        image_url: {
-          url: file.url,
-        },
-      })),
-    );
-    content.push({
-      type: 'text',
-      hidden: true,
-      text: `[用户上传的图片链接] ${filesList.map(file => file.url).join('、')}`,
-    });
-  }
-
-  aiParseRef.current = mingoAjax.generateRecordByMobile({
-    projectId: worksheetInfo?.projectId || projectId,
-    worksheetId: worksheetInfo?.worksheetId || worksheetId,
-    messageList: [
-      {
-        role: 'user',
-        content,
-      },
-    ],
+  const request = agentApi.agentExecute({
+    agentName: 'record-precise-filler',
+    sessionId: genBotSessionId(),
+    projectId: currentProjectId,
+    forceReroute: false,
+    message: text ? _l('【当前用户正在使用语音输入，文本内容与选项内容无需完全匹配，可以进行模糊匹配】') + text : '',
+    attachments: normalizeGenerateRecordAttachments(filesList),
+    context: {
+      formFields: JSON.stringify(buildFormFieldsControls(worksheetInfo, { from: 'generate-record' })),
+      userLanguage: window.getCurrentLang() || 'zh-Hans',
+    },
   });
+  aiParseRef.current = request;
 
   aiParseRef.current
-    .then((data = '') => {
+    .then(result => {
+      const data = _.get(result, 'data.response.text') || '';
+
       if (data.length) {
         try {
           if (!data.includes('custom_block_mingo_generate_record_jsonl')) {
@@ -90,8 +99,8 @@ export const generateRecord = ({
         alert(_l('未识别到有效信息'), 3);
       }
     })
-    .catch(({ errorCode }) => {
-      if (errorCode !== 1) {
+    .catch(error => {
+      if (error?.name !== 'AbortError' && error?.errorCode !== 1) {
         alert(_l('识别失败'), 2);
       }
     })

@@ -92,7 +92,7 @@ export default function FilterViewRange(props) {
       popupVisible={showRange}
       onPopupVisibleChange={showRange => {
         if (!showRange && !isAllView && _.isEmpty(viewIds)) {
-          alert('至少选中一个视图！', 3);
+          alert(_l('至少选中一个视图！'), 3);
           return;
         }
 

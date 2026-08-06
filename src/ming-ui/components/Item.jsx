@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import './less/Item.less';
 
 function Item(props) {
-  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, ...rest } = props;
+  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, setRef, ...rest } = props;
   return (
-    <li {...rest} className={cx(className, `ming Item ${iconAtEnd ? 'iconAtEnd' : ''}`)}>
+    <li {...rest} ref={setRef} className={cx(className, `ming Item ${iconAtEnd ? 'iconAtEnd' : ''}`)}>
       {createElement(
         href ? 'a' : 'div',
         {
@@ -34,6 +34,7 @@ Item.propTypes = {
   className: PropTypes.string,
   children: PropTypes.any,
   disabled: PropTypes.bool, // 是否禁用
+  setRef: PropTypes.func,
 };
 
 export default Item;

@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { ActionSheet, Popup, TextArea } from 'antd-mobile';
+import { ActionSheet, TextArea } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import SelectUser from 'mobile/components/SelectUser';
 import verifyPassword from 'src/components/verifyPassword';
 import instanceAJAX from 'src/pages/workflow/apiV2/instance';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
-import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
 import functionTemplateModal from '../FunctionTemplateModal';
 import './index.less';
 
@@ -70,64 +70,11 @@ export default class extends Component {
     }
 
     this.getOperationDetail();
-    this.takeOverNavigation(true, this.props.action);
-    window.addEventListener('popstate', this.onQueryChange);
   }
 
   componentWillUnmount() {
     this.actionHandler && this.actionHandler.close();
-    window.removeEventListener('popstate', this.onQueryChange);
-    compatibleMDJS(
-      'handOverNavigation',
-      { sessionId: this.state.sessionId },
-      () => {},
-      () => {
-        this.props.onHide();
-        history.back();
-      },
-    );
   }
-
-  onQueryChange = () => {
-    if (!window.isMingDaoApp || !this.props.action) {
-      return;
-    }
-
-    handleReplaceState('page', `otherAction-${this.props.action}`, () => {
-      this.takeOverNavigation(false, this.props.action);
-      this.props.onHide();
-    });
-  };
-
-  // 有弹层时，拦截APP自身返回，将弹层关闭后交还控制权给APP
-  takeOverNavigation = (disabled, action) => {
-    if (!window.isMingDaoApp) {
-      return;
-    }
-
-    if (disabled) {
-      if (action) {
-        handlePushState('page', `otherAction-${action}`);
-      }
-
-      compatibleMDJS('takeOverNavigation', {
-        sessionId: this.state.sessionId,
-        appWillGoBack: ({ sessionId }) => {
-          this.setState({ sessionId });
-          if (action) {
-            this.props.onHide();
-            history.back();
-            return 2;
-          }
-
-          return 1;
-        },
-      });
-    } else {
-      compatibleMDJS('handOverNavigation', { sessionId: this.state.sessionId });
-      this.props.onHide();
-    }
-  };
 
   /**
    * 获取历史意见列表
@@ -444,9 +391,12 @@ export default class extends Component {
       };
 
       return (
-        <div className="itemWrap flexRow valignWrapper" onClick={handleOpen}>
+        <div className="itemWrap" onClick={handleOpen}>
           <div className="textPrimary Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
-          <div className="flex ellipsis">{_.find(personsPassing, { value: countersignType }).text}</div>
+          <div className="mTop10 flexRow valignWrapper selectWrap">
+            <div className="flex ellipsis">{_.find(personsPassing, { value: countersignType }).text}</div>
+            <Icon icon="expand_more" className="Font18 textSecondary" />
+          </div>
         </div>
       );
     }
@@ -587,6 +537,7 @@ export default class extends Component {
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode, app = {} } = instance || {};
     const btnMap = _.get(instance, 'btnMap') || {};
+    const btnDescMap = _.get(instance, 'btnDescMap') || {};
     const { inputType } = opinionTemplate || {};
     const opinionTemplateOpinions = _.get(opinionTemplate, 'opinions') || [];
     const { auth, allowUploadAttachment } = flowNode || {};
@@ -611,6 +562,12 @@ export default class extends Component {
       opinions = opinionTemplateOpinions[5];
     }
 
+    const btnDesc = {
+      pass: btnDescMap[4] || '',
+      overrule: btnDescMap[5] || '',
+      return: btnDescMap[17] || '',
+    };
+
     const selectTemplateVisible =
       !customApproveContent &&
       _.includes(['pass', 'after', 'overrule', 'return'], action) &&
@@ -625,6 +582,7 @@ export default class extends Component {
             {action === 'overrule' && (btnMap[5] || _l('拒绝'))}
             {action === 'return' && (btnMap[17] || _l('退回'))}
           </div>
+          {!!btnDesc[action] && <div className="pLeft15 pRight15 mTop6 Font13 textSecondary">{btnDesc[action]}</div>}
           {this.renderVerifyPassword()}
           {!hideContent && (
             <Fragment>
@@ -726,7 +684,6 @@ export default class extends Component {
           <div
             className="flex actionBtn bold textSecondary"
             onClick={() => {
-              this.takeOverNavigation(false, this.props.action);
               this.props.onHide();
             }}
           >
@@ -748,12 +705,12 @@ export default class extends Component {
     const { backFlowNodesVisible, edit } = this.state;
     const { visible, onHide } = this.props;
     return (
-      <Popup
+      <MobilePopup
         visible={visible}
+        layerId={`otherAction-${this.props.action}`}
         className={cx('otherActionModal mobileModal', { backFlowNodeModal: backFlowNodesVisible })}
         onClose={() => {
           if (edit) return;
-          this.takeOverNavigation(false, this.props.action);
           onHide();
         }}
         closeOnMaskClick={true}
@@ -761,7 +718,7 @@ export default class extends Component {
         <div className="otherActionWrapper flexColumn leftAlign" style={{ height: edit ? 300 : 'auto' }}>
           {backFlowNodesVisible ? this.renderBackFlowNodes() : this.renderContent()}
         </div>
-      </Popup>
+      </MobilePopup>
     );
   }
 }

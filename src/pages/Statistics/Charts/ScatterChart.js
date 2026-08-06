@@ -4,9 +4,12 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import { formatNumberFromInput } from 'src/utils/control';
 import { formatrChartAxisValue, formatrChartValue, getChartColors, getLegendType, getStyleColor } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -21,6 +24,7 @@ const formatChartData = (data, splitId) => {
       const name = item.x;
       data.forEach(element => {
         const target = element.value.filter(n => n.originalX === item.originalX)[0];
+
         if (target) {
           result.push({
             name,
@@ -100,23 +104,29 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.ScatterChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    Promise.all([import('@antv/g2plot'), import('@antv/util')]).then(data => {
+    Promise.all([loadG2Plot(), import('@antv/util')]).then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data[0];
       this.uniq = data[1].uniq;
       this.renderScatterChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.ScatterChart && this.ScatterChart.destroy();
+    this.isUnmounted = true;
+    this.destroyScatterChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate = this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -131,40 +141,55 @@ export default class extends Component {
         _.pick(oldStyle, ['tooltipValueType', 'inheritLastYaxis', 'inheritLastYaxisIndex']),
       ) ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const config = this.getComponentConfig(nextProps);
-      this.ScatterChart && this.ScatterChart.update(config);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.g2plotComponent || !this.uniq) {
+      return;
     }
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.ScatterChart && this.ScatterChart.destroy();
-      this.renderScatterChart(nextProps);
+    if (shouldRecreate) {
+      this.renderScatterChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.ScatterChart) {
+      const config = this.getComponentConfig(this.props);
+      this.ScatterChart.update(config);
     }
   }
+  destroyScatterChart = () => {
+    if (this.ScatterChart) {
+      this.ScatterChart.destroy();
+      this.ScatterChart = null;
+    }
+  };
   renderScatterChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
+
+    if (!this.chartEl || !this.g2plotComponent || !this.uniq) {
+      return;
+    }
+
     const config = this.getComponentConfig(props);
     const { Scatter } = this.g2plotComponent;
 
-    if (this.chartEl) {
-      this.ScatterChart = new Scatter(this.chartEl, config);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        (xaxes.controlId || split.controlId);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.ScatterChart.on('element:click', this.handleClick);
-      }
-
-      this.ScatterChart.render();
+    this.destroyScatterChart();
+    this.ScatterChart = new Scatter(this.chartEl, config);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      (xaxes.controlId || split.controlId);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.ScatterChart.on('element:click', this.handleClick);
     }
+
+    this.ScatterChart.render();
   }
   handleClick = event => {
     const { reportData, isMobile } = this.props;
@@ -251,6 +276,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.ScatterChart || !this.g2plotComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -263,7 +293,7 @@ export default class extends Component {
     );
   };
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, xaxes, yaxisList, split, valueMap = {} } = reportData;
@@ -273,6 +303,7 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
     const { quadrant = {}, inheritLastYaxis, inheritLastYaxisIndex = 0 } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
@@ -388,7 +419,7 @@ export default class extends Component {
           },
         },
       },
-      label: displaySetup.showNumber
+      label: (isMobile ? (displaySetup.mobileShowNumber ?? displaySetup.showNumber) : displaySetup.showNumber)
         ? {
             layout: [
               { type: 'interval-hide-overlap' },

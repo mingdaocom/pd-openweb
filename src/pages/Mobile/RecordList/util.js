@@ -20,6 +20,8 @@ export const getViewActionInfo = ({
   hideAddRecord,
   hasDebugRoles,
   isGroupFilter,
+  currentSheetRows = [],
+  sheetRowLoading = true,
 }) => {
   const { navGroup = [], childType, advancedSetting = {}, viewControl, viewControls = [] } = view;
   const { appnavtype } = advancedSetting;
@@ -101,8 +103,10 @@ export const getViewActionInfo = ({
       canAddRecord = canAddRecord && isHaveSelectControl;
       break;
     case detail:
-      canAddRecord = canAddRecord && childType !== 1;
-      recordActionWrapBottom = childType === 1 ? recordActionWrapBottom + 100 : recordActionWrapBottom;
+      const isEmptySingleDetail = childType === 1 && !sheetRowLoading && _.isEmpty(currentSheetRows);
+      canAddRecord = canAddRecord && (childType !== 1 || isEmptySingleDetail);
+      recordActionWrapBottom =
+        childType === 1 && !isEmptySingleDetail ? recordActionWrapBottom + 100 : recordActionWrapBottom;
       break;
     case resource:
       const viewControlInfo =

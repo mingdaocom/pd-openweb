@@ -13,7 +13,7 @@ import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import { formatValue } from 'src/pages/Admin/homePage/utils.js';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize, pathCompletion } from 'src/utils/common';
 import { dateDimension, formatChartData, formatter, selectDateList } from '../../util';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
@@ -110,6 +110,21 @@ const ChartWrap = styled.div`
       .totalTxt {
         top: 12px;
         left: 0px;
+        z-index: 1;
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        max-width: 45%;
+        line-height: 20px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        .totalLabel,
+        .totalValue {
+          min-width: 0;
+        }
+        .totalValue {
+          margin-left: 4px;
+        }
       }
     }
     .mBotto8 {
@@ -155,8 +170,11 @@ export default class Overview extends Component {
       wrapWidth: undefined,
       startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
       endTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+      totalTxtWidthMap: {},
     };
     this.summaryRef = React.createRef();
+    this.totalTxtRefs = {};
+    this.totalTxtElements = {};
   }
 
   componentDidMount() {
@@ -167,6 +185,42 @@ export default class Overview extends Component {
     this.getOverviewData();
     this.getChartData();
   }
+
+  componentDidUpdate() {
+    _.keys(this.totalTxtElements).forEach(type => {
+      this.updateTotalTxtWidth(type);
+    });
+  }
+
+  getTotalTxtRef = type => {
+    if (!this.totalTxtRefs[type]) {
+      this.totalTxtRefs[type] = ele => {
+        if (ele) {
+          this.totalTxtElements[type] = ele;
+          this.updateTotalTxtWidth(type);
+        } else {
+          delete this.totalTxtElements[type];
+        }
+      };
+    }
+
+    return this.totalTxtRefs[type];
+  };
+
+  updateTotalTxtWidth = type => {
+    const ele = this.totalTxtElements[type];
+    if (!ele) return;
+
+    const width = Math.ceil(ele.getBoundingClientRect().width);
+    if (this.state.totalTxtWidthMap[type] === width) return;
+
+    this.setState(prevState => ({
+      totalTxtWidthMap: {
+        ...prevState.totalTxtWidthMap,
+        [type]: width,
+      },
+    }));
+  };
 
   getOverviewData = () => {
     const { projectId } = this.props;
@@ -369,14 +423,19 @@ export default class Overview extends Component {
   };
 
   renderChart = (data = [], isDualAxes, chartInfo) => {
-    const { selectedDate, currentDimension, loading } = this.state;
+    const { selectedDate, currentDimension, loading, totalTxtWidthMap } = this.state;
     const { total, type } = chartInfo;
     let isEmpty = _.isArray(data[0]) ? _.isEmpty(data[0]) && _.isEmpty(data[1]) : _.isEmpty(data);
+    const totalLabel = _.trim(_l('总计：%0', ''));
+    const showTotalValue = _.includes(['attachment', 'workflow'], type);
 
     return (
       <div className="w100 chartCon Relative">
         {!loading && (!isEmpty || _.includes(['attachment', 'workflow'], type)) && (
-          <span className="Absolute totalTxt">{_l('总计：%0', type === 'attachment' ? total : '')}</span>
+          <span className="Absolute totalTxt" ref={this.getTotalTxtRef(type)}>
+            <span className="totalLabel">{totalLabel}</span>
+            {showTotalValue && <span className="totalValue">{total}</span>}
+          </span>
         )}
 
         {loading ? (
@@ -385,7 +444,7 @@ export default class Overview extends Component {
           <LineChart
             data={data}
             isDualAxes={isDualAxes}
-            chartInfo={chartInfo}
+            chartInfo={{ ...chartInfo, totalTxtWidth: totalTxtWidthMap[type], hideLegendValue: type === 'workflow' }}
             currentDimension={currentDimension}
             selectedDate={selectedDate}
           />
@@ -467,7 +526,7 @@ export default class Overview extends Component {
   };
   linkHref = type => {
     const { projectId } = this.props;
-    location.assign(`/admin/${type}/${projectId}`);
+    location.assign(pathCompletion(`/admin/${type}/${projectId}`));
   };
 
   renderLoading = () => {

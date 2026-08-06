@@ -2,7 +2,6 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { formatNumberFromInput } from 'src/utils/control';

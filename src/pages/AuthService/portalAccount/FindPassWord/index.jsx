@@ -136,7 +136,11 @@ function ContainerCon(props) {
       >
         <div>
           <div>
-            {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} className="mRight20" /> : ''}
+            {baseSetInfo.logoImageUrl ? (
+              <img src={baseSetInfo.logoImageUrl} height={baseSetInfo.logoHeight || 40} className="mRight20" />
+            ) : (
+              ''
+            )}
             <p className="Font26 textPrimary mAll0 Bold" style={{ WebkitBoxOrient: 'vertical' }}>
               {baseSetInfo.pageTitle}
             </p>
@@ -163,6 +167,14 @@ function ContainerCon(props) {
             </FixedContent>
           ) : (
             <React.Fragment>
+              <span
+                className="portalBackLink Hand"
+                onClick={() => {
+                  navigateTo(`/app/${appId}${customLink ? '/' + customLink : ''}`);
+                }}
+              >
+                {_l('返回')}
+              </span>
               <p className="Font26 textPrimary mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
                 {_l('重置密码')}
               </p>
@@ -176,14 +188,6 @@ function ContainerCon(props) {
               >
                 <Container {...props} {...baseSetInfo} appId={appId} />
               </div>
-              <span
-                className="btnUseOldAccount Hand"
-                onClick={() => {
-                  navigateTo(`${window.subPath || ''}/app/${appId}${customLink ? '/' + customLink : ''}`);
-                }}
-              >
-                {_l('返回登录页面')}
-              </span>
             </React.Fragment>
           )}
         </div>

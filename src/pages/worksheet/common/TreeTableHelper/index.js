@@ -1,4 +1,5 @@
 import _, { difference, find, get, intersection, isUndefined, pickBy, sortBy } from 'lodash';
+import { parseAdvancedSetting } from 'src/utils/control';
 
 function getSortedValue(list) {
   return _.map(list, function (num) {
@@ -42,6 +43,21 @@ export function getTreeExpandCellWidth(index, rowsLength) {
   return index * (strLength * 14) + 27;
 }
 
+export function getTreeExpandSize(control = {}) {
+  const advancedSetting = get(control, 'advancedSetting');
+  const rawDefaultLayer = get(advancedSetting, 'defaultlayer');
+  const { defaultLayer } = parseAdvancedSetting(advancedSetting);
+  const effectiveLayer = _.isUndefined(rawDefaultLayer) || rawDefaultLayer === '' ? defaultLayer : rawDefaultLayer;
+  const parsedLayer = Number(effectiveLayer);
+
+  if (!Number.isInteger(parsedLayer) || parsedLayer <= 0) {
+    return undefined;
+  }
+
+  // treeDataUpdater 的 expandSize 是“向下可递归层数”，转换为“默认展开层级（含根）”
+  return parsedLayer - 1;
+}
+
 export function treeDataUpdater(
   { treeMap = {} } = {},
   {
@@ -55,6 +71,7 @@ export function treeDataUpdater(
     expandSize,
     levelLimit,
     pageIndexStart,
+    prevTreeMap,
   } = {},
 ) {
   let maxLevel = defaultIndex;
@@ -68,7 +85,16 @@ export function treeDataUpdater(
     let filteredRows = _.filter(rows, r => r.pid === row.rowid || _.includes(row.childrenids, r.rowid));
     filteredRows = _.sortBy(filteredRows, r => r.addTime);
     const key = (notSetKey ? [keyPrefix] : [keyPrefix, row.rowid]).filter(_.identity).join('_');
-    doNotContinue = doNotContinue || (expandSize && index + 1 - defaultIndex > expandSize);
+    // 传入 prevTreeMap 时保留用户已展开的层级：已加载过的节点继续向下递归（即便折叠也保留子节点 key），
+    // 仅对新节点按默认展开层级（expandSize）决定是否展开，避免编辑/新增记录后深层级被重置收起
+    const prevNode = prevTreeMap && prevTreeMap[key];
+
+    if (prevNode) {
+      doNotContinue = doNotContinue || !prevNode.loaded;
+    } else {
+      doNotContinue = doNotContinue || (!isUndefined(expandSize) && index + 1 - defaultIndex > expandSize);
+    }
+
     if (!doNotContinue) {
       filteredRows.forEach((r, i) => {
         const newLevelList = defaultLevelList.concat(i + 1);
@@ -95,8 +121,8 @@ export function treeDataUpdater(
         childrenIds,
         key,
         levelList: defaultLevelList,
-        loaded: doNotContinue ? false : !!filteredRows.length || !row.childrenids,
-        folded: doNotContinue ? true : !filteredRows.length,
+        loaded: prevNode ? prevNode.loaded : doNotContinue ? false : !!filteredRows.length || !row.childrenids,
+        folded: prevNode ? prevNode.folded : doNotContinue ? true : !filteredRows.length,
         parentKeys,
         hideExpand,
       };
@@ -308,22 +334,19 @@ export const handleUpdateTreeNodeExpansion =
   };
 
 export function handleTreeNodeRow(row, deletedRecordId) {
-  let newChildrenIds;
-
-  if (typeof deletedRecordId === 'object') {
-    row.childrenids && intersection(safeParse(row.childrenids, 'array'), deletedRecordId).length
-      ? JSON.stringify(difference(safeParse(row.childrenids, 'array'), deletedRecordId))
-      : row.childrenids;
-  } else {
-    newChildrenIds =
-      row.childrenids && row.childrenids.indexOf(deletedRecordId) > -1
-        ? JSON.stringify(safeParse(row.childrenids, 'array').filter(id => id !== deletedRecordId))
-        : row.childrenids;
-  }
+  // deletedRecordId 兼容单个 id（string）与一批 id（array，如取消关联/批量删除）；统一按数组处理，
+  // 从本行 childrenids 里剔除被删 id、并在父记录被删时清空本行 pid。
+  // 注意：数组分支历史上漏写了 `newChildrenIds =` 赋值，导致取消关联时所有剩余行 childrenids 被置 undefined、
+  // 展开 icon 消失，这里统一逻辑修复。
+  const deletedIds = Array.isArray(deletedRecordId) ? deletedRecordId : [deletedRecordId];
+  const oldChildrenIds = safeParse(row.childrenids, 'array');
+  const newChildrenIds = intersection(oldChildrenIds, deletedIds).length
+    ? JSON.stringify(difference(oldChildrenIds, deletedIds))
+    : row.childrenids;
 
   return {
     ...row,
-    pid: deletedRecordId === row.pid ? '' : row.pid,
+    pid: _.includes(deletedIds, row.pid) ? '' : row.pid,
     childrenids: newChildrenIds,
   };
 }

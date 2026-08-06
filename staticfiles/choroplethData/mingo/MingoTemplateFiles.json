@@ -1,0 +1,138 @@
+{
+  "Users": [
+    {
+      "AccountId": "virtualuser-en-1",
+      "FullName": "Michael Brown",
+      "AvatarUrl": "UserAvatar/virtualuser-en-1.png"
+    },
+    {
+      "AccountId": "virtualuser-en-2",
+      "FullName": "Emma White",
+      "AvatarUrl": "UserAvatar/virtualuser-en-2.png"
+    },
+    {
+      "AccountId": "virtualuser-en-3",
+      "FullName": "Robert Lee",
+      "AvatarUrl": "UserAvatar/virtualuser-en-3.png"
+    },
+    {
+      "AccountId": "virtualuser-en-4",
+      "FullName": "Emily Davis",
+      "AvatarUrl": "UserAvatar/virtualuser-en-4.png"
+    },
+    {
+      "AccountId": "virtualuser-en-5",
+      "FullName": "John Smith",
+      "AvatarUrl": "UserAvatar/virtualuser-en-5.png"
+    },
+    {
+      "AccountId": "virtualuser-en-6",
+      "FullName": "Daniel Wilson",
+      "AvatarUrl": "UserAvatar/virtualuser-en-6.png"
+    },
+    {
+      "AccountId": "virtualuser-en-7",
+      "FullName": "Sophia Johnson",
+      "AvatarUrl": "UserAvatar/virtualuser-en-7.png"
+    },
+    {
+      "AccountId": "virtualuser-en-8",
+      "FullName": "James Miller",
+      "AvatarUrl": "UserAvatar/virtualuser-en-8.png"
+    },
+    {
+      "AccountId": "virtualuser-en-9",
+      "FullName": "Olivia Taylor",
+      "AvatarUrl": "UserAvatar/virtualuser-en-9.png"
+    },
+    {
+      "AccountId": "virtualuser-en-10",
+      "FullName": "David Anderson",
+      "AvatarUrl": "UserAvatar/virtualuser-en-10.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-1",
+      "FullName": "赵子轩",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-1.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-2",
+      "FullName": "刘思涵",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-2.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-3",
+      "FullName": "周睿哲",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-3.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-4",
+      "FullName": "林雨欣",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-4.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-5",
+      "FullName": "孙泽宇",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-5.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-6",
+      "FullName": "陈嘉怡",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-6.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-7",
+      "FullName": "王强",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-7.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-8",
+      "FullName": "张丽莉",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-8.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-9",
+      "FullName": "李浩宇",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-9.png"
+    },
+    {
+      "AccountId": "virtualuser-cn-10",
+      "FullName": "吴勇",
+      "AvatarUrl": "UserAvatar/virtualuser-cn-10.png"
+    }
+  ],
+  "Files": [
+    {
+      "FileName": "Sample PDF Document",
+      "FilePath": "doc/202509/74005043-A19F-4704-942B-DC63C13986DA.pdf"
+    },
+    {
+      "FileName": "Sample Document",
+      "FilePath": "doc/202509/FF4297A4-7C5F-45CC-982A-CAA5DEE6EFEB.docx"
+    },
+    {
+      "FileName": "Supplementary Data Table",
+      "FilePath": "doc/202509/50E3CEC4-1CA6-4633-9248-4266E1AF685F.xlsx"
+    },
+    {
+      "FileName": "Blank Slate Notebooks-cmpr",
+      "FilePath": "pic/202509/B976D679-6DAD-40F8-A824-54D732FC098B.png"
+    },
+    {
+      "FileName": "Office Essentials-cmpr",
+      "FilePath": "pic/202509/7EDB9B53-A732-4903-8D98-62562F5194CD.png"
+    },
+    {
+      "FileName": "Energetic Idea Bulb",
+      "FilePath": "pic/202509/561207ED-B104-4FC7-AE00-DB1CDC517972.png"
+    },
+    {
+      "FileName": "Upward Pathway",
+      "FilePath": "pic/202509/50F3EAEC-691C-434C-BD1C-F72240783D7B.png"
+    },
+    {
+      "FileName": "Mingo",
+      "FilePath": "pic/202509/1304BC7C-2CFF-40CE-ACD7-B2B6048E1DA7.png"
+    }
+  ]
+}

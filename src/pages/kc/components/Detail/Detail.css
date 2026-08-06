@@ -74,7 +74,6 @@
   color: var(--color-text-title) !important;
 }
 .attributeLeft {
-  width: 50px;
   display: inline-flex;
   justify-content: space-between;
   color: var(--color-text-tertiary);

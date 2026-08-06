@@ -9,6 +9,7 @@ import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/Filter
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
 import { formatViewToDropdown } from '../../../../util';
+import SubListStatisticsConfig from '../components/SubListStatisticsConfig';
 
 export default function RelateConfig(props) {
   const { data, onChange, globalSheetControls, allControls } = props;
@@ -217,6 +218,8 @@ export default function RelateConfig(props) {
               </Checkbox>
             </div>
           )}
+
+          <SubListStatisticsConfig {...props} controls={controls} />
         </Fragment>
       )}
     </Fragment>

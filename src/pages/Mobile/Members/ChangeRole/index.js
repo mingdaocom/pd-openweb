@@ -4,6 +4,7 @@ import { Button, Dialog, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 import * as actions from './redux/actions';
 import './index.less';
 
@@ -41,7 +42,7 @@ class ChangeRole extends React.Component {
     const { params } = this.props.match;
 
     if (moveRoleFetch) {
-      this.props.history.push(`/mobile/members/${params.appId}`);
+      this.props.history.push(pathCompletion(`/mobile/members/${params.appId}`, { hasDomain: false }));
       return '';
     }
 

@@ -43,13 +43,18 @@ export default class SingleFilter extends Component {
       conditions: formateddata.conditions,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.id && nextProps.id !== this.props.id) {
-      const formateddata = formatOriginFilterValue({ items: nextProps.conditions });
-      this.setState({
-        relationType: formateddata.relationType,
-        conditions: formateddata.conditions,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.id && this.props.id !== prevProps.id) {
+        const formateddata = formatOriginFilterValue({
+          items: this.props.conditions,
+        });
+        this.setState({
+          relationType: formateddata.relationType,
+          conditions: formateddata.conditions,
+        });
+      }
     }
   }
   addCondition = control => {

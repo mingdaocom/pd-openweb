@@ -124,7 +124,7 @@ export default class Stat extends React.Component {
     return (
       <Fragment>
         <div className="orgManagementHeader">
-          <i className="icon-backspace Hand mRight10 TxtMiddle Font22 ThemeHoverColor3" onClick={this.props.onClose} />
+          <i className="icon-backspace Hand mRight10 TxtMiddle Font22 hoverColorPrimary" onClick={this.props.onClose} />
           {_l('使用统计')}
           <div className="flex"></div>
         </div>

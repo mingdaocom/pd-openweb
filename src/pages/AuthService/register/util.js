@@ -2,7 +2,7 @@ import _ from 'lodash';
 import registerApi from 'src/api/register';
 import { AccountNextActions, ActionResult } from 'src/pages/AuthService/config';
 import { registerSuc } from 'src/pages/AuthService/util';
-import { encrypt, getRequest } from 'src/utils/common';
+import { encrypt, getRequest, pathCompletion } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 import { setPssId } from 'src/utils/pssId';
 import { InviteFromType } from '../config';
@@ -145,7 +145,7 @@ export const doCreateAccount = ({ accountInfo, callback, onChange }) => {
 
         if ([7, 8].includes(tpType)) {
           //url 中的 tpType 参数为 7 或 8 ，则直接进
-          location.href = '/app';
+          location.href = pathCompletion('/app');
 
           if (window.isMingDaoApp) {
             mdAppResponse({

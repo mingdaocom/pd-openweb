@@ -10,7 +10,6 @@ export const errorMessage = error => {
     alert(error.msg || error.ex, 2);
   } else {
     alert(_l('操作失败，请稍后重试'), 2);
-    console.log(error.code);
   }
 };
 
@@ -391,7 +390,7 @@ export const returnCustonValue = item => {
   // 单选框
   if (item.type === 9) {
     if (item.value && item.value !== '0') {
-      return _.find(item.options, ({ key }) => key === item.value).value;
+      return (_.find(item.options, ({ key }) => key === item.value) || {}).value || '';
     }
 
     return '';
@@ -417,7 +416,7 @@ export const returnCustonValue = item => {
   // 下拉框
   if (item.type === 11) {
     if (item.value !== '0') {
-      return _.find(item.options, ({ key }) => key === item.value).value;
+      return (_.find(item.options, ({ key }) => key === item.value) || {}).value || '';
     }
 
     return '';
@@ -425,7 +424,7 @@ export const returnCustonValue = item => {
 
   // 附件
   if (item.type === 14) {
-    return _.map(JSON.parse(item.value), att => att.originalFilename).join(', ');
+    return _.map(safeParse(item.value, 'array'), att => att.originalFilename).join(', ');
   }
 
   // 日期

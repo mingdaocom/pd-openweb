@@ -4,8 +4,7 @@ import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import { Dialog, LoadDiv } from 'ming-ui';
 import ErrorState from 'src/components/errorPage/errorState';
-import { getAppFeaturesPath } from 'src/utils/app';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg, pathCompletion } from 'src/utils/common';
 import { Config, getCalendarDetail, getParamsFromUrl } from './common';
 import CalendarDetail from './root';
 
@@ -20,17 +19,8 @@ class Container extends Component {
   }
   dialogRef = React.createRef();
 
-  componentWillMount() {
-    this.fetchData(true);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.calendarId !== this.props.calendarId || nextProps.recurTime !== this.props.recurTime) {
-      this.fetchData(true, nextProps);
-    }
-  }
-
   componentDidMount() {
+    this.fetchData(true);
     const { exitCallback, saveCallback, deleteCallback } = Config;
     const dialog = $('.calendarEdit')[0];
 
@@ -55,6 +45,14 @@ class Container extends Component {
       Config.cancelCallback = Config.closeDialog = function () {
         $('.calendarEdit').parent().remove();
       };
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.calendarId !== prevProps.calendarId || this.props.recurTime !== prevProps.recurTime) {
+        this.fetchData(true, this.props);
+      }
     }
   }
 
@@ -155,7 +153,7 @@ export default function (options) {
   if (Config.isDetailPage && Config.container) {
     Object.assign(Config, getParamsFromUrl());
     Config.exitCallback = Config.deleteCallback = function () {
-      window.location.href = '/apps/calendar/home' + '?' + getAppFeaturesPath();
+      window.location.href = pathCompletion('/apps/calendar/home');
     };
   } else {
     const { saveCallback } = Config;

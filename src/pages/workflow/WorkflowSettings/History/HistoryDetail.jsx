@@ -8,6 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import api from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
 import process from '../../api/process';
+import { pathCompletion } from 'src/utils/common';
 import { APP_TYPE, OPERATION_TYPE } from '../enum';
 import HistoryStatus from './components/HistoryStatus';
 import logDialog from './components/logDialog';
@@ -44,7 +45,7 @@ export default class HistoryDetail extends Component {
 
   retryPosition = '';
 
-  componentWillMount() {
+  componentDidMount() {
     this.getData();
     this.getProcessPublish();
   }
@@ -240,12 +241,14 @@ export default class HistoryDetail extends Component {
       <Fragment>
         <span className="textSecondary mRight10">{_l('%0 行记录', item.sort)}</span>
         <span
-          className="ThemeColor3 ThemeHoverColor2 pointer"
+          className="colorPrimary hoverColorPrimaryDark pointer"
           onClick={() =>
             window.open(
-              `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${item.flowNode.subProcessId}/2/subprocessHistory/${
-                item.workId
-              }_${item.instanceId}`,
+              pathCompletion(
+                `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${item.flowNode.subProcessId}/2/subprocessHistory/${
+                  item.workId
+                }_${item.instanceId}`,
+              ),
             )
           }
         >
@@ -262,7 +265,7 @@ export default class HistoryDetail extends Component {
 
     return (
       <span
-        className="ThemeColor3 ThemeHoverColor2 pointer"
+        className="colorPrimary hoverColorPrimaryDark pointer"
         onClick={() => logDialog({ processId: processInfo.id, nodeId: flowNode.id, instanceId: id })}
       >
         {_l('查看详情')}
@@ -283,7 +286,7 @@ export default class HistoryDetail extends Component {
           <div
             className={cx(
               'historyDetailRetry',
-              isRetry ? 'historyDetailRetryDisabled' : 'ThemeHoverColor2 ThemeHoverBorderColor2',
+              isRetry ? 'historyDetailRetryDisabled' : 'hoverColorPrimaryDark hoverBorderColorPrimaryDark',
             )}
             onClick={e => {
               e.stopPropagation();
@@ -417,11 +420,11 @@ export default class HistoryDetail extends Component {
                 <div className="Font13 Normal">
                   {_l('版本：%0', moment(processInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   <span
-                    className="mLeft5 ThemeColor3 ThemeHoverColor2 pointer"
+                    className="mLeft5 colorPrimary hoverColorPrimaryDark pointer"
                     onClick={() => {
-                      location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${
-                        processInfo.id
-                      }/1/execHistory/${id}`;
+                      location.href = pathCompletion(
+                        `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${processInfo.id}/1/execHistory/${id}`,
+                      );
                     }}
                   >
                     {_l('详情')}
@@ -468,12 +471,12 @@ export default class HistoryDetail extends Component {
                       <div className="nodeName Font15 overflow_ellipsis flexColumn">
                         <div
                           title={name}
-                          className="pointer ThemeHoverColor3"
+                          className="pointer hoverColorPrimary"
                           onClick={() =>
-                            (!_.includes([1, 30], flowNode.type) || (!resultTypeId && flowNode.flowIds[0])) &&
+                            (!_.includes([1, 30], flowNode.type) || (!resultTypeId && flowNode.flowIds?.[0])) &&
                             openNodeDetail({
                               processId: processInfo.id,
-                              selectNodeId: flowNode.type === 1 ? flowNode.flowIds[0] : flowNode.id,
+                              selectNodeId: flowNode.type === 1 ? flowNode.flowIds?.[0] : flowNode.id,
                               selectNodeType: flowNode.type === 1 ? 2 : flowNode.type,
                               debugEvents: data.debugEvents,
                             })
@@ -483,10 +486,10 @@ export default class HistoryDetail extends Component {
                             ? name
                             : resultTypeId
                               ? resultTypeText[
-                                  (_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]) || {}).resultTypeId ||
+                                  (_.find(flowNode.flows, o => o.id === flowNode.flowIds?.[0]) || {}).resultTypeId ||
                                     resultTypeId
                                 ]
-                              : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
+                              : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds?.[0]) || {})
                                   .name || _l('分支')}
                           {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
                         </div>

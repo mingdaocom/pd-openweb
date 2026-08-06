@@ -20,6 +20,7 @@ import homeAppApi from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { getFeatureStatus } from 'src/utils/project';
 import { CAN_NOT_AS_TEXT_GROUP } from '../config';
@@ -158,6 +159,11 @@ const use_ids = {
   27: 'departmentId',
   48: 'organizeId',
 };
+
+const getCopyDefaultSetting = (advancedSetting = {}) => ({
+  dynamicsrc: '',
+  defaulttype: advancedSetting.defaulttype === '1' ? '1' : '',
+});
 
 export function dealUserId(data, key = 'defsource') {
   const value = _.get(data, ['advancedSetting', key]) || '[]';
@@ -471,7 +477,7 @@ export function navigateToApp(worksheetId) {
 export const navigateToView = (worksheetId, viewId) => {
   homeAppApi.getAppSimpleInfo({ worksheetId }).then(data => {
     const { appId, appSectionId } = data;
-    window.open(`/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`);
+    window.open(pathCompletion(`/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`));
   });
 };
 
@@ -1301,7 +1307,7 @@ export const dealCopyWidgetId = (data = {}) => {
     controlId: uuidv4(),
     alias: '',
     controlName: _l('%0-复制', data.controlName),
-    advancedSetting: { ...data.advancedSetting, custom_event: '', dynamicsrc: '', defaulttype: '' },
+    advancedSetting: { ...data.advancedSetting, custom_event: '', ...getCopyDefaultSetting(data.advancedSetting) },
   };
 
   let ids = {};
@@ -1316,7 +1322,7 @@ export const dealCopyWidgetId = (data = {}) => {
       const newItem = {
         ...item,
         controlId: uuidv4(),
-        advancedSetting: { ...item.advancedSetting, dynamicsrc: '', defaulttype: '' },
+        advancedSetting: { ...item.advancedSetting, ...getCopyDefaultSetting(item.advancedSetting) },
       };
       ids[item.controlId] = newItem.controlId;
       return newItem;
@@ -1395,7 +1401,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
       const currentQuery = find(queryConfigs, queryItem => queryItem.controlId === data.controlId);
 
       if (currentQuery) {
-        dealItem = handleAdvancedSettingChange(dealItem, { dynamicsrc: '', defaulttype: '' });
+        dealItem = handleAdvancedSettingChange(dealItem, getCopyDefaultSetting(dealItem.advancedSetting));
       }
       // currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}`, controlId: dealItem.controlId });
 

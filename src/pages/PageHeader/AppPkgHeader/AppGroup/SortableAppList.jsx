@@ -1,11 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
 import { SortableList } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import SortableAppItem from './SortableAppItem';
 
-export default withClickAway(({ items, onScroll, ...rest }) => (
+export default ClickAway.wrap(({ items, onScroll, ...rest }) => (
   <div className="appItemsWrap" onScroll={_.throttle(onScroll)}>
     <SortableList
       useDragHandle={false}

@@ -160,7 +160,7 @@ export default class extends Component {
             {_l('取消')}
           </Button>
           <Button
-            disabled={!selectedAppId || (!selectedWorksheetId && !onlyApp)}
+            disabled={!selectedAppId || (!onlyApp && !_.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId))}
             onClick={e => {
               e.stopPropagation();
               const selectedWrorkesheet = _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId);

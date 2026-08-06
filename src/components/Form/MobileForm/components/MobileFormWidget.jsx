@@ -258,20 +258,27 @@ export default function MobileFormWidget(props) {
         const currentItem = itemRef.current;
         // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
         const newValue = newVal || (`${currentItem.value || ''}` ? `${currentItem.value || ''}`.trim() : '');
+        const isTextWidget = !isUnTextWidget(currentItem);
+        const valueChanged = newValue !== originValue;
 
         if (currentItem.unique && newValue) {
           checkControlUnique(controlId, currentItem.type, newValue);
         }
 
-        if (newValue && newValue !== originValue) {
+        if (valueChanged && isTextWidget) {
+          handleChange(newValue, controlId, currentItem, false);
+        }
+
+        if (newValue && valueChanged) {
           dataFormat.current.updateDataBySearchConfigs({
             control: { ...currentItem, value: newValue },
             searchType: 'onBlur',
           });
-          // 文本类失焦触发自定义事件
-          if (!isUnTextWidget(currentItem)) {
-            triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
-          }
+        }
+
+        // 文本类失焦触发自定义事件
+        if (valueChanged && isTextWidget) {
+          triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
         }
 
         onBlur(controlId);

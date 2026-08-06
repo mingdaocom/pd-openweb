@@ -27,7 +27,7 @@ import {
 } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { getRecordColor, handleRowData } from 'src/utils/record';
-import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
+import { getCardDisplayPara, getCardTitleFieldForView, getMultiRelateViewConfig } from '../util';
 import CardCoverImage from './CardCoverImage';
 
 const RecordItemWrap = styled.div`
@@ -73,7 +73,7 @@ const RecordItemWrap = styled.div`
     color: var(--color-text-secondary);
     text-overflow: ellipsis;
     white-space: break-spaces;
-    word-break: break-all;
+    word-break: break-word;
     display: -webkit-box;
     /*! autoprefixer: off */
     -webkit-line-clamp: 3 !important;
@@ -227,6 +227,13 @@ const ColorTag = styled.div`
   left: 0px;
 `;
 
+const isEmptyCell = item => {
+  return (
+    checkCellIsEmpty(item.value) ||
+    (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '2' && item.value <= 0)
+  );
+};
+
 const BaseCard = props => {
   const {
     data = {},
@@ -291,10 +298,17 @@ const BaseCard = props => {
   const showCover = !!currentView.coverCid;
 
   const viewtitle = _.get(getCurrentView(), 'advancedSetting.viewtitle');
-  const viewtitleControlIndex = findIndex(fields, item => item.controlId === viewtitle);
+  // 仅兼容 $单个字段ID$：展示时按真实字段 ID 走原有卡片标题样式和交互。
+  const titleRow = _.isEmpty(row) ? data.item || {} : row;
+  const compatibleTitleField = getCardTitleFieldForView(titleRow, data.formData || [], getCurrentView());
+  const cardFields = compatibleTitleField?.isWrappedViewTitle
+    ? [compatibleTitleField].concat(fields.filter(item => item.controlId !== compatibleTitleField.controlId))
+    : fields;
+  const compatibleViewtitle = compatibleTitleField?.isWrappedViewTitle ? compatibleTitleField.controlId : viewtitle;
+  const viewtitleControlIndex = findIndex(cardFields, item => item.controlId === compatibleViewtitle);
   const titleIndex =
-    viewtitleControlIndex < 0 ? findIndex(fields, item => item.attribute === 1) : viewtitleControlIndex;
-  const titleField = fields[titleIndex] || {};
+    viewtitleControlIndex < 0 ? findIndex(cardFields, item => item.attribute === 1) : viewtitleControlIndex;
+  const titleField = cardFields[titleIndex] || {};
   const abstractControl = _.find(data.formData, f => f.controlId === abstract) || {};
   const [forceShowFullValue, setForceShowFullValue] = useState(_.get(titleField, 'advancedSetting.datamask') !== '1');
   const [absShowFullValue, setAbsShowFullValue] = useState(
@@ -325,7 +339,7 @@ const BaseCard = props => {
   const showControlStyle =
     _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
   const abstractValue = abstract ? renderCellText(abstractControl, { noMask: absShowFullValue, appId }) : '';
-  const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
+  const otherFields = update(cardFields, { $splice: [[titleIndex, 1]] });
 
   const titleMasked = key => {
     const controlField = key === 'title' ? titleField : abstractControl;
@@ -355,7 +369,8 @@ const BaseCard = props => {
 
   const isCanQuickEdit = () => {
     const viewtitle = _.get(getCurrentView(), 'advancedSetting.viewtitle');
-    const titleField = fields.find(item => (!viewtitle ? item.attribute === 1 : item.controlId === viewtitle)) || {};
+    const titleField =
+      cardFields.find(item => (!viewtitle ? item.attribute === 1 : item.controlId === compatibleViewtitle)) || {};
     return isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && titleField.type === 2 && allowEdit;
   };
 
@@ -408,13 +423,6 @@ const BaseCard = props => {
           />
         )}
       </div>
-    );
-  };
-
-  const isEmptyCell = item => {
-    return (
-      checkCellIsEmpty(item.value) ||
-      (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '2' && item.value <= 0)
     );
   };
 
@@ -707,7 +715,7 @@ const BaseCard = props => {
                   }
                 }}
               >
-                <Icon icon="more_horiz Font18" className="textTertiary ThemeHoverColor3" />
+                <Icon icon="more_horiz Font18" className="textTertiary hoverColorPrimary" />
               </div>
             </RecordOperate>
           </div>

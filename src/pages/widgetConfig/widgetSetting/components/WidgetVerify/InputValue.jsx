@@ -3,6 +3,24 @@ import _ from 'lodash';
 import { Input } from 'ming-ui';
 import { formatNumberThousand } from 'src/utils/control';
 
+const displayValue = value => {
+  if (!value) return '';
+  if (value === '-') return '-';
+  value = value.replace(/,/g, '');
+  let formatNumber = '';
+
+  if (_.includes(value, '.')) {
+    formatNumber = _.endsWith(value, '.')
+      ? `${String(parseFloat(value))}.`
+      : String(parseFloat(value).toFixed(value.split('.')[1].length));
+  } else {
+    formatNumber = String(parseFloat(value));
+  }
+
+  const dealValue = formatNumberThousand(formatNumber);
+  return dealValue;
+};
+
 export default function InputValue({ type, value, className, onChange, onBlur, placeholder }) {
   const [isEditing, setEditing] = useState(false);
 
@@ -20,24 +38,6 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
           .replace(/\./g, '')
           .replace('$#$', '.');
     if (dealValue === '.') return '';
-    return dealValue;
-  };
-
-  const displayValue = value => {
-    if (!value) return '';
-    if (value === '-') return '-';
-    value = value.replace(/,/g, '');
-    let formatNumber = '';
-
-    if (_.includes(value, '.')) {
-      formatNumber = _.endsWith(value, '.')
-        ? `${String(parseFloat(value))}.`
-        : String(parseFloat(value).toFixed(value.split('.')[1].length));
-    } else {
-      formatNumber = String(parseFloat(value));
-    }
-
-    const dealValue = formatNumberThousand(formatNumber);
     return dealValue;
   };
 

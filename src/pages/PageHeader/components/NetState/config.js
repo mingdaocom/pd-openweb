@@ -192,6 +192,11 @@ export const EXPERIENCE_VERSION_TO_TEXT = {
 
 // 免费版
 export const OVERDUE_NET_TEXT = {
+  app: {
+    hint: _l('应用数量已达到最大值'),
+    explain: _l('免费版最多可以创建3个应用，请付费升级正式版以扩展更多用量'),
+    btnText: _l('立即购买'),
+  },
   worksheet: {
     hint: _l('工作表数量已达到最大值'),
     explain: _l('免费版最多可创建100个工作表，请升级版本以创建更多工作表'),

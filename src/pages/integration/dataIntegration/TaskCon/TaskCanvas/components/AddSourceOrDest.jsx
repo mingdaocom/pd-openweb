@@ -4,10 +4,11 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   .addSource {
@@ -158,11 +159,15 @@ function AddSourceOrDest(props) {
                 {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET && (
                   <Icon
                     icon="task-new-detail"
-                    className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                    className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark Hand"
                     onClick={e => {
                       e.stopPropagation();
                       const infoTxt = nodeType === 'SOURCE_TABLE' ? 'datasourceId' : 'dataDestId';
-                      window.open(`/integration/sourceDetail/${(_.get(node, 'nodeConfig.config') || {})[infoTxt]}`); //数据源落地页地址
+                      window.open(
+                        pathCompletion(
+                          `/integration/sourceDetail/${(_.get(node, 'nodeConfig.config') || {})[infoTxt]}`,
+                        ),
+                      ); //数据源落地页地址
                     }}
                   />
                 )}

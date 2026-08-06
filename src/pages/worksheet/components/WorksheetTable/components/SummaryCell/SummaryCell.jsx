@@ -4,14 +4,13 @@ import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { emitter } from 'src/utils/common';
 import { getSummaryInfo } from 'src/utils/record';
 import SummaryContent from './SummaryContent';
 import './SummaryCell.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway); //
+const ClickAwayable = ClickAway;
 
 export default class extends React.Component {
   static propTypes = {

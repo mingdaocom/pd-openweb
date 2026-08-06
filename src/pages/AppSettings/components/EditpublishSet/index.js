@@ -8,6 +8,7 @@ import { Button, Icon, Input, Textarea } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import workWeiXinAjax from 'src/api/workWeiXin';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import wechatPng from '../../img/wechat_work.png';
 import AppSettingHeader from '../AppSettingHeader';
 import AppLinkParamsSettings from './AppLinkParamsSettings';
@@ -127,7 +128,7 @@ class EditPublishSetDialog extends React.Component {
         }
       });
     } else {
-      window.open(`/weixinAppCourse/${projectId}/${appId}`);
+      window.open(pathCompletion(`/weixinAppCourse/${projectId}/${appId}`));
     }
   }
 
@@ -324,7 +325,7 @@ class EditPublishSetDialog extends React.Component {
           <div className="publishAppCourse">
             {_l('发布到')}
             <span
-              className="ThemeHoverColor2"
+              className="hoverColorPrimaryDark"
               onClick={() => {
                 this.getWXProjectSettingInfo();
               }}
@@ -336,9 +337,9 @@ class EditPublishSetDialog extends React.Component {
           <div className="publishAppCourse">
             {_l('发布到')}
             <span
-              className="ThemeHoverColor2"
+              className="hoverColorPrimaryDark"
               onClick={() => {
-                window.open(`/dingAppCourse/${projectId}/${appId}`);
+                window.open(pathCompletion(`/dingAppCourse/${projectId}/${appId}`));
               }}
             >
               {_l('钉钉工作台')}
@@ -352,7 +353,7 @@ class EditPublishSetDialog extends React.Component {
             )}
           </p>
           <div className="bold mBottom10">{_l('应用链接')}</div>
-          <AppLinkParamsSettings url={`${md.global.Config.WebUrl}app/${appId}`} defaultHide={['ch', 'ac']} />
+          <AppLinkParamsSettings url={pathCompletion(`/app/${appId}`)} defaultHide={['ch', 'ac']} />
           <div className="bold mBottom10 mTop30">{_l('SSO登录时，应用首页地址')}</div>
           <div className="textSecondary mTop8">
             {_l('设置后，从SSO登录的账号在点击应用上的首页按钮时返回到此地址。未设置时，返回到本平台的工作台。')}

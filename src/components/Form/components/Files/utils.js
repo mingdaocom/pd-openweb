@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import qs from 'query-string';
 import { getFileExtends } from 'src/components/UploadFiles/utils';
-import { downloadFile } from 'src/utils/common';
+import { downloadFile, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 
 export const handleShare = (data, isDownload) => {
   if (!md.global.Account.accountId) {
-    window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
+    window.open(pathCompletion(`/login?ReturnUrl=${location.href}`));
     return;
   }
 
@@ -64,7 +64,7 @@ export const handleShare = (data, isDownload) => {
 
 export const handleSaveKcCloud = (data, isDownload) => {
   if (!md.global.Account.accountId) {
-    window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
+    window.open(pathCompletion(`/login?ReturnUrl=${location.href}`));
     return;
   }
 

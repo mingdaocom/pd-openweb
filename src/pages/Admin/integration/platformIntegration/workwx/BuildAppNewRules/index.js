@@ -144,9 +144,15 @@ export default class BuildAppNewRules extends Component {
     this.props.status !== 0 && this.geterwima();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.status, nextProps.status)) {
-      this.setState({ step: nextProps.status === 0 ? 2 : 1 });
+  // 获取二维码链接
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.status, this.props.status)) {
+        this.setState({
+          step: this.props.status === 0 ? 2 : 1,
+        });
+      }
     }
   }
 

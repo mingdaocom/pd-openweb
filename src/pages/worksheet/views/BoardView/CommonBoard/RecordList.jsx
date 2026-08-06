@@ -83,7 +83,7 @@ export default function Board(props) {
   const { keyType: dragItemKey } = dragItem || {};
 
   const scrollLoad = () => {
-    if (!$scrollerRef || !$contentRef) return;
+    if (!$scrollerRef.current || !$contentRef.current) return;
     const threshold =
       $scrollerRef.current.scrollHeight - $contentRef.current.clientHeight - $scrollerRef.current.scrollTop;
 

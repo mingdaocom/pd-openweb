@@ -89,7 +89,7 @@ export default class FeedsPanel extends Component {
     return (
       <div className="ChatPanel-FeedsPanel">
         <div className="header">
-          <span className="slideInfoBar ThemeColor3" onClick={this.props.onSetPanelVisible.bind(this, false)}>
+          <span className="slideInfoBar colorPrimary" onClick={this.props.onSetPanelVisible.bind(this, false)}>
             <i className="icon-arrow-left-border" />
             {_l('返回')}
           </span>

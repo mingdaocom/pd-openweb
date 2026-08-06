@@ -6,8 +6,7 @@ import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Steps } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { isLightColor } from 'src/utils/control';
 import { FROM } from './enum';
 
@@ -19,8 +18,6 @@ function getOptionStyle(option, cell) {
       }
     : {};
 }
-
-const ClickAway = createDecoratedComponent(withClickAway);
 
 const Con = styled.div`
   padding: 7px 6px !important;
@@ -67,6 +64,7 @@ function OptionsSteps(props, ref) {
     onClick,
     updateEditingStatus,
     updateCell,
+    onValidate,
   } = props;
   const { options, enumDefault2, value } = cell;
   const cache = useRef({});
@@ -95,7 +93,12 @@ function OptionsSteps(props, ref) {
         }
 
         if (options[nextIndex]) {
-          updateCell({ value: JSON.stringify([options[nextIndex].key]) });
+          const newValue = JSON.stringify([options[nextIndex].key]);
+          updateCell({ value: newValue });
+
+          if (_.isFunction(onValidate)) {
+            onValidate(newValue);
+          }
         }
       }
     },
@@ -133,7 +136,13 @@ function OptionsSteps(props, ref) {
       value={JSON.parse(value || '[]')[0]}
       data={{ options, enumDefault2 }}
       onChange={v => {
-        updateCell({ value: JSON.stringify(v ? [v] : []) });
+        const newValue = JSON.stringify(v ? [v] : []);
+        updateCell({ value: newValue });
+        // 单选步骤通过点击即时提交，不走输入/失焦校验流程；必填报错后重新选择需主动重新校验，
+        // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+        if (_.isFunction(onValidate)) {
+          onValidate(newValue);
+        }
       }}
     />
   );
@@ -176,7 +185,7 @@ function OptionsSteps(props, ref) {
       {editable && (
         <OperateIcon className="editIcon OperateIcon">
           <i
-            className="ThemeHoverColor3 icon icon-edit"
+            className="hoverColorPrimary icon icon-edit"
             onClick={e => {
               e.stopPropagation();
               updateEditingStatus(true);

@@ -53,7 +53,7 @@ class Header extends Component {
       timeButtons.push(
         <button
           key="year"
-          className="year ThemeHoverColor3"
+          className="year hoverColorPrimary"
           onClick={event => {
             event.nativeEvent.stopImmediatePropagation();
             this.buttonOnClick(event, 'year');
@@ -77,7 +77,7 @@ class Header extends Component {
       timeButtons.push([
         <button
           key="year"
-          className="year ThemeHoverColor3"
+          className="year hoverColorPrimary"
           onClick={event => {
             event.nativeEvent.stopImmediatePropagation();
             this.buttonOnClick(event, 'year');
@@ -87,7 +87,7 @@ class Header extends Component {
         </button>,
         <button
           key="month"
-          className="month ThemeHoverColor3"
+          className="month hoverColorPrimary"
           onClick={event => {
             event.nativeEvent.stopImmediatePropagation();
             this.buttonOnClick(event, 'month');
@@ -103,7 +103,7 @@ class Header extends Component {
         <div className="time">{timeButtons}</div>
         <div className="pager">
           <button
-            className="prev ThemeHoverColor3"
+            className="prev hoverColorPrimary"
             onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'prev');
@@ -112,7 +112,7 @@ class Header extends Component {
             <Icon icon="arrow-left-border" />
           </button>
           <button
-            className="now ThemeHoverColor3"
+            className="now hoverColorPrimary"
             onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'now');
@@ -121,7 +121,7 @@ class Header extends Component {
             <Icon icon="circle" />
           </button>
           <button
-            className="next ThemeHoverColor3"
+            className="next hoverColorPrimary"
             onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'next');

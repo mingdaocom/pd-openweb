@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID, APP_TYPE, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { checkConditionsIsNull, clearFlowNodeMapParameter, getControlTypeName } from '../../utils';
 import {
@@ -33,18 +34,26 @@ export default class Search extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -65,6 +74,10 @@ export default class Search extends Component {
         instanceId,
       })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         result.fields = _.filter(
           result.fields,
           o =>
@@ -172,7 +185,7 @@ export default class Search extends Component {
       }
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -213,7 +226,7 @@ export default class Search extends Component {
     const { data } = this.state;
     const MESSAGE = {
       [ACTION_ID.RECORD_LINK_FIND]: _l(
-        '通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
+        '通过解析内部成员访问或公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
       ),
       [ACTION_ID.RECORD_UPDATE]: _l(
         '根据筛选条件和排序规则从工作表中查找符合条件的第一条数据，并在获取的同时对记录进行更新（原子性防止并发操作，适用于出入库等场景）',
@@ -286,8 +299,8 @@ export default class Search extends Component {
           <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
           {isAggregationSheet && (
             <div
-              className="ThemeColor3 ThemeHoverColor2 pointer"
-              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+              className="colorPrimary hoverColorPrimaryDark pointer"
+              onClick={() => window.open(pathCompletion(`/app/${this.props.relationId}/settings/aggregations`))}
             >
               + {_l('新建聚合表')}
             </div>
@@ -336,7 +349,7 @@ export default class Search extends Component {
                 <span className="textSecondary">{_l('，是否切换为新版？')}</span>
               </div>
               <span
-                className="ThemeColor3 ThemeHoverColor2 pointer"
+                className="colorPrimary hoverColorPrimaryDark pointer"
                 onClick={() => this.getNodeDetail(this.props, { appId: data.appId })}
               >
                 {_l('切换为新版，并重新配置')}
@@ -447,7 +460,7 @@ export default class Search extends Component {
         return {
           text: item.name,
           value: item.id,
-          className: item.id === data.appId ? 'ThemeColor3' : '',
+          className: item.id === data.appId ? 'colorPrimary' : '',
         };
       });
     const otherWorksheet = [
@@ -745,11 +758,11 @@ export default class Search extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
+            (_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
               ? !!data.appId
               : data.actionId === ACTION_ID.BATCH_FIND
                 ? !!data.selectNodeId
-                : !!data.appId && !!data.link.trim()
+                : !!data.appId && !!data.link.trim()) && !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

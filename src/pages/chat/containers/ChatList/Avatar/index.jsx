@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
 import _ from 'lodash';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Setting from 'src/pages/chat/containers/SettingDrawer';
 import User from 'src/pages/chat/containers/UserDrawer';

@@ -6,7 +6,7 @@ import _ from 'lodash';
 import bg from 'staticfiles/images/connectorBg.png';
 import styled from 'styled-components';
 import { Button, Icon, ScrollView, Support } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import dataConnectorApi from '../../api/dataConnector';
 import dataSourceApi from '../../api/datasource';
 import syncTaskApi from '../../api/syncTask';

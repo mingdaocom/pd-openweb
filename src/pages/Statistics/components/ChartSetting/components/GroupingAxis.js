@@ -4,17 +4,13 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
+import { isAreaControl, isNumberControl, isOptionControl, isTimeControl } from 'statistics/common/controlUtils';
 import {
   areaParticleSizeDropdownData,
   filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
-  isAreaControl,
-  isNumberControl,
-  isOptionControl,
-  isTimeControl,
-  timeGatherParticle,
-  timeParticleSizeDropdownData,
-} from 'statistics/common';
+} from 'statistics/common/reportConfigUtils';
+import { timeGatherParticle, timeParticleSizeDropdownData } from 'statistics/common/timeUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import WithoutFidldItem from './WithoutFidldItem';
 
@@ -62,7 +58,7 @@ export default class GroupingAxis extends Component {
     }
 
     if (isNumberControl(data.type)) {
-      isAlert && alert('数值和公式字段不能分组', 2);
+      isAlert && alert(_l('数值和公式字段不能分组'), 2);
       return false;
     } else {
       return true;

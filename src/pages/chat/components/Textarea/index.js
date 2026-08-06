@@ -11,22 +11,43 @@ export default class TextareaBox extends Component {
     super(props);
     this.state = {
       value: this.props.value,
+      propValue: this.props.value,
     };
     this.lastHeight = 50;
     this.currentHeight = 50;
+    this.isComposing = false;
+    this.compositionEndTime = 0;
   }
-  componentWillReceiveProps(newProps) {
-    const { value } = this.state;
 
-    // 表情 & @ 的更新
-    if (newProps.value !== value) {
-      this.setState({
-        value: newProps.value,
-      });
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.value !== prevState.propValue) {
+      return {
+        value: nextProps.value,
+        propValue: nextProps.value,
+      };
     }
+
+    return null;
+  }
+  isInputComposing(event) {
+    return (
+      this.isComposing ||
+      event.nativeEvent?.isComposing ||
+      event.keyCode === 229 ||
+      Date.now() - this.compositionEndTime < 50
+    );
+  }
+  handleCompositionStart() {
+    this.isComposing = true;
+  }
+  handleCompositionEnd() {
+    this.compositionEndTime = Date.now();
+    this.isComposing = false;
   }
   handleKeyDown(event) {
     if (event.which === 13) {
+      if (this.isInputComposing(event)) return;
+
       const { value } = this.state;
       const isSendMsg =
         (config.inputMode === Constant.INPUT_MODE_ENTER && !event.ctrlKey) ||
@@ -45,14 +66,16 @@ export default class TextareaBox extends Component {
         const pos = getCaretPosition(event.target);
         const start = value.slice(0, pos);
         const end = value.slice(pos);
-
-        this.setState({
-          value: isEnter ? start + '\r\n' + end : start + end,
-        });
+        const nextValue = isEnter ? start + '\r\n' + end : start + end;
 
         if (isEnter) {
-          setCaretPosition(event.target, pos + 1);
+          this.setState({ value: nextValue }, () => {
+            setCaretPosition(event.target, pos + 1);
+          });
+          this.props.onChange(nextValue);
           event.preventDefault();
+        } else {
+          this.setState({ value: nextValue });
         }
       }
 
@@ -66,13 +89,19 @@ export default class TextareaBox extends Component {
   handleChange(value) {
     const { session } = this.props;
     const height = $(this.textareaWrapper).height();
+    const nextValue = value === undefined ? $(this.textareaWrapper).find('textarea').val() : value;
     this.currentHeight = height;
     if (this.lastHeight !== this.currentHeight) {
       this.lastHeight = height;
       utils.scrollEnd(session.id);
     }
 
-    this.props.onChange(value || $(this.textareaWrapper).find('textarea').val());
+    this.setState({ value: nextValue });
+    this.props.onChange(nextValue);
+
+    if (!this.isComposing && Date.now() - this.compositionEndTime > 100) {
+      this.compositionEndTime = 0;
+    }
   }
   handleKeyUp(event) {
     if (event.which === 37 || event.which === 38 || event.which === 39 || event.which === 40) {
@@ -126,6 +155,8 @@ export default class TextareaBox extends Component {
             value={value}
             placeholder={placeholder}
             onChange={this.handleChange.bind(this)}
+            onCompositionStart={this.handleCompositionStart.bind(this)}
+            onCompositionEnd={this.handleCompositionEnd.bind(this)}
             onKeyDown={this.handleKeyDown.bind(this)}
             onKeyUp={this.handleKeyUp.bind(this)}
             onBlur={this.handleBlur.bind(this)}

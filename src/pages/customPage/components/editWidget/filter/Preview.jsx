@@ -4,8 +4,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon, LoadDiv } from 'ming-ui';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { defaultFilterData } from './enum';
 import { formatFilters } from './util';
 

@@ -16,18 +16,9 @@ const SelectionIndicatorWrapper = styled.div(
   pointer-events: none;
 `,
 );
-
 const headerHeight = 60;
 const rowHeight = 32;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['editIndex', 'grouping', 'searchRecordId', 'chartScroll', 'groupingScroll']),
-    ..._.pick(state.sheet, ['base']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class SelectionIndicator extends React.Component {
+let SelectionIndicator = class SelectionIndicator extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,15 +26,21 @@ export default class SelectionIndicator extends React.Component {
       height: rowHeight,
     };
   }
-  componentWillReceiveProps({ groupingScroll, grouping }) {
-    if (groupingScroll && !this.props.groupingScroll) {
-      groupingScroll.on('scrollStart', this.handleMouseLeave);
-    }
 
-    if (!_.isEqual(grouping, this.props.grouping) && groupingScroll && groupingScroll.y) {
-      this.handleMouseLeave();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { groupingScroll, grouping } = this.props;
+
+      if (groupingScroll && !prevProps.groupingScroll) {
+        groupingScroll.on('scrollStart', this.handleMouseLeave);
+      }
+
+      if (!_.isEqual(grouping, prevProps.grouping) && groupingScroll && groupingScroll.y) {
+        this.handleMouseLeave();
+      }
     }
   }
+
   componentDidMount() {
     const { chartScroll, groupingScroll, base } = this.props;
     this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId}`);
@@ -54,6 +51,7 @@ export default class SelectionIndicator extends React.Component {
     chartScroll.on('scrollStart', this.handleMouseLeave);
     groupingScroll && groupingScroll.on('scrollStart', this.handleMouseLeave);
   }
+
   componentWillUnmount() {
     const { chartScroll, groupingScroll } = this.props;
     this.gunterViewEl && this.gunterViewEl.removeEventListener('mousemove', this.handleMouseMove);
@@ -62,6 +60,7 @@ export default class SelectionIndicator extends React.Component {
     chartScroll.off('scrollStart', this.handleMouseLeave);
     groupingScroll && groupingScroll.off('scrollStart', this.handleMouseLeave);
   }
+
   handleClick = () => {
     const { editIndex, updateEditIndex } = this.props;
 
@@ -70,7 +69,10 @@ export default class SelectionIndicator extends React.Component {
     }
   };
   handleMouseLeave = event => {
-    this.setState({ top: null });
+    this.setState({
+      top: null,
+    });
+
     if (_.isNumber(this.props.editIndex) && !event) {
       this.props.updateEditIndex(null);
     }
@@ -86,26 +88,45 @@ export default class SelectionIndicator extends React.Component {
       const value = headerHeight - scrollY + index * rowHeight;
 
       if (index >= grouping[grouping.length - 1].openCount || index === editIndex) {
-        this.setState({ top: null });
+        this.setState({
+          top: null,
+        });
         return;
       }
 
       if (index * rowHeight <= scrollY) {
         const diff = Math.abs(index * rowHeight - scrollY);
-        this.setState({ top: value + diff, height: rowHeight - diff });
+        this.setState({
+          top: value + diff,
+          height: rowHeight - diff,
+        });
       } else {
-        this.setState({ top: value, height: rowHeight });
+        this.setState({
+          top: value,
+          height: rowHeight,
+        });
       }
     } else {
-      this.setState({ top: null });
+      this.setState({
+        top: null,
+      });
     }
   };
+
   render() {
     const { editIndex, searchRecordId, chartScroll } = this.props;
     const { top, height } = this.state;
     return (
       <Fragment>
-        {top !== null && <SelectionIndicatorWrapper color="rgba(0, 0, 0, .04)" style={{ top, height }} />}
+        {top !== null && (
+          <SelectionIndicatorWrapper
+            color="rgba(0, 0, 0, .04)"
+            style={{
+              top,
+              height,
+            }}
+          />
+        )}
         {editIndex !== null && (
           <SelectionIndicatorWrapper
             color={searchRecordId ? 'rgba(255, 147, 0, .09);' : 'rgba(33, 150, 243, .06)'}
@@ -118,4 +139,12 @@ export default class SelectionIndicator extends React.Component {
       </Fragment>
     );
   }
-}
+};
+SelectionIndicator = connect(
+  state => ({
+    ..._.pick(state.sheet.gunterView, ['editIndex', 'grouping', 'searchRecordId', 'chartScroll', 'groupingScroll']),
+    ..._.pick(state.sheet, ['base']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(SelectionIndicator);
+export default SelectionIndicator;

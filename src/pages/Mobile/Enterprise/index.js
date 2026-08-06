@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, Radio } from 'ming-ui';
 import account from 'src/api/account';
 import common from 'src/pages/Personal/common';
+import { pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import Back from '../components/Back';
 
@@ -41,10 +42,10 @@ const EmptyProject = styled.div`
       color: var(--color-white) !important;
     }
   }
-  .ThemeColor3 {
+  .colorPrimary {
     color: var(--color-primary);
   }
-  .ThemeBGColor3 {
+  .bgColorPrimary {
     background-color: var(--color-primary);
   }
 `;
@@ -226,15 +227,15 @@ class Enterprise extends Component {
           <div className="flexRow mTop28">
             <button
               type="button"
-              className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
-              onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
+              className="joinNetwork bgColorPrimary hoverBgColorPrimaryDark mRight20"
+              onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'), '__blank')}
             >
               {_l('加入组织')}
             </button>
             {/*<button
               type="button"
-              className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
+              className="createNetwork bgColorPrimary borderColorPrimary colorPrimary"
+              onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'), '__blank')}
             >
               {_l('创建组织')}
             </button>*/}

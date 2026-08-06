@@ -12,11 +12,12 @@ export const changeViewConfig = (value, viewConfig) => {
   const periodType = value || PERIOD_TYPE.day;
   const { minDayWidth } = _.find(PERIODS, { value: periodType });
   const count = getPeriodCount(periodType, minDayWidth, viewConfig);
-  return Object.assign(viewConfig, {
+  return {
+    ...viewConfig,
     periodCount: count,
     minDayWidth,
     periodType,
-  });
+  };
 };
 
 /**
@@ -563,15 +564,23 @@ const calculateTimeBlock = (item, periodList, viewConfig) => {
  */
 export const groupingTimeBlock = (grouping, periodList, viewConfig) => {
   if (_.isEmpty(periodList)) return grouping;
-  grouping.forEach(item => {
+  return grouping.map(item => {
     const data = calculateTimeBlock(item, periodList, viewConfig);
-    item.rows.forEach(row => {
-      delete row.left;
-      delete row.right;
+    const itemWithoutBlock = _.omit(item, ['left', 'right', 'rows']);
+    const newRows = item.rows.map(row => {
+      const rowWithoutBlock = _.omit(row, ['left', 'right']);
       const data = calculateTimeBlock(row, periodList, viewConfig);
-      Object.assign(row, data);
+      return {
+        ...rowWithoutBlock,
+        ...data,
+      };
     });
-    Object.assign(item, data);
+
+    return {
+      ...itemWithoutBlock,
+      rows: newRows,
+      ...data,
+    };
   });
 };
 
@@ -579,12 +588,10 @@ export const groupingTimeBlock = (grouping, periodList, viewConfig) => {
  * 为时间块添加颜色
  */
 export const fillRecordsTimeBlockColor = (grouping, colorControl) => {
-  grouping.forEach(item => {
-    item.rows.forEach(row => {
-      fillRecordTimeBlockColor(row, colorControl);
-    });
-  });
-  return grouping;
+  return grouping.map(item => ({
+    ...item,
+    rows: item.rows.map(row => fillRecordTimeBlockColor(row, colorControl)),
+  }));
 };
 
 export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
@@ -592,15 +599,19 @@ export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   const defaultColor = '#1677ff';
 
   if (record[controlId] && colorControl.enumDefault2 === 1) {
-    const value = JSON.parse(record[controlId]);
+    const value = safeParse(record[controlId], 'array');
     const colorId = _.isArray(value) ? value[0] : null;
     const { color } = _.find(options, { key: colorId && colorId.startsWith('other') ? 'other' : colorId }) || {};
-    record.color = color || defaultColor;
-  } else {
-    record.color = defaultColor;
+    return {
+      ...record,
+      color: color || defaultColor,
+    };
   }
 
-  return record;
+  return {
+    ...record,
+    color: defaultColor,
+  };
 };
 
 /**
@@ -707,6 +718,19 @@ export const getControlsForGunter = worksheetControls => {
         (item.type === 30 &&
           _.includes([15, 16], item.sourceControlType) &&
           (item.strDefault || '').split('')[0] !== '1')), //甘特图可以支持他表字段（存储）类型
+  );
+};
+
+/**
+ * 甘特图分组不支持多选字段。
+ */
+export const isGunterGroupMultiSelectControl = (control = {}) => {
+  const type = control.type === 30 ? control.sourceControlType : control.type;
+
+  return (
+    type === 10 ||
+    ([26, 27, 48].includes(type) && control.enumDefault === 1) ||
+    (type === 29 && control.enumDefault === 2)
   );
 };
 

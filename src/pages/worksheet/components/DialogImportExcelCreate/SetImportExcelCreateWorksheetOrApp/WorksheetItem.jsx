@@ -77,8 +77,11 @@ export default class WorksheetItem extends Component {
       sheetItemOperateVisible: false,
     };
   }
-  componentWillReceiveProps() {
-    this.computeDirectionVisible();
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.computeDirectionVisible();
+    }
   }
   computeDirectionVisible() {
     if (!this.scrollWraperEl) return;

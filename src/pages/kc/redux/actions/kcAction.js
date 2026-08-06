@@ -527,11 +527,11 @@ export function starNode(item) {
           throw new Error();
         }
 
-        alert(isStared ? '标星成功' : '取消标星成功');
+        alert(isStared ? _l('标星成功') : _l('取消标星成功'));
         item.isStared = isStared;
         dispatch(updateNodeItem(item));
       })
-      .catch(() => alert('操作失败，请稍后重试'), 3);
+      .catch(() => alert(_l('操作失败，请稍后重试')), 3);
   };
 }
 

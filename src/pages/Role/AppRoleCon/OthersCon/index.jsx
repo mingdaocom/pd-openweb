@@ -86,6 +86,57 @@ const ExplainCon = styled.div`
   }
 `;
 
+const renderDes = () => {
+  return (
+    <Des className="">
+      <div className="title textSecondary">{_l('什么是用户扩展信息表？')}</div>
+      <div className="con mTop12 textSecondary">
+        {_l(
+          '用户扩展信息表非常类似于组织中的用户管理表。在组织中，可以全局管理成员基础信息，如：部门、职位、组织角色等。其中部门、组织角色可用于数据权限范围，在工作表添加部门字段，可以使用户对自己所在部门的记录都拥有权限。同样在具体应用中，往往也需要额外管理用户在本应用中的扩展信息。如：销售管理应用中，需要管理销售人员所在的团队、区域、职能等，同时也希望这些信息可以类似部门一样用于数据权限范围。此时就可以建立一张销售人员表。',
+        )}
+      </div>
+      <div className="title mTop24 textSecondary">{_l('什么是权限标签？')}</div>
+      <div className="con mTop12 textSecondary">
+        {_l(
+          '权限标签指用于控制数据权限范围的扩展信息字段（仅支持关联类型字段）。当用户访问应用时，系统可以从扩展信息表中读取当前用户的权限标签，从而使用户对其他工作表中关联了相同标签的记录拥有权限。',
+        )}
+      </div>
+      <div className="title mTop24 textSecondary">{_l('权限标签如何用于数据权限范围？')}</div>
+      <div className="con mTop12 textSecondary">
+        {_l('权限标签用于数据权限范围时和部门字段类似，只是没有专门的系统字段，需要通过关联记录字段来灵活实现。')}
+      </div>
+      <div className="con mTop10 textSecondary">
+        {_l(
+          '如：还是在销售管理应用中，用户扩展信息表中已设置了团队作为用户权限标签（关联团队表），并且订单表也关联了所属团队时。那么当用户访问应用时，系统就可以根据读取到的用户所在团队，并从订单表中过滤出关联了相同团队的订单，从而实现用户对属于自己团队的订单拥有查看、编辑或删除权限（可以在角色权限中进行设置）。',
+        )}
+      </div>
+      <div className="con mTop10 textSecondary">
+        {_l('此过程如下图所示')}
+        <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('了解更多')} />
+      </div>
+      <div className="imgDes flexRow alignItemsCenter">
+        <div className="left">
+          <div className="desCard">{_l('销售人员')}</div>
+        </div>
+        <div className="center flex flexRow alignItemsCenter justifyContentCenter">
+          <div className="flex"></div>
+          <img src={img1} width={56} />
+          <div className="flex"></div>
+          <div className="desCard c">{_l('团队')}</div>
+          <div className="flex"></div>
+          <img src={img2} width={56} />
+          <div className="flex"></div>
+        </div>
+        <div className="right flexColumn">
+          <div className="desCard">{_l('订单')}</div>
+          <div className="desCard mTop10">{_l('订单')}</div>
+          <div className="desCard mTop10">{_l('订单')}</div>
+        </div>
+      </div>
+    </Des>
+  );
+};
+
 function OthersCon(props) {
   const { appId, projectId } = props;
   // 0: 说明 1: 创建 2: 编辑 3: 结果回现
@@ -158,57 +209,6 @@ function OthersCon(props) {
           <Support type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
         </div>
       </ExplainCon>
-    );
-  };
-
-  const renderDes = () => {
-    return (
-      <Des className="">
-        <div className="title textSecondary">{_l('什么是用户扩展信息表？')}</div>
-        <div className="con mTop12 textSecondary">
-          {_l(
-            '用户扩展信息表非常类似于组织中的用户管理表。在组织中，可以全局管理成员基础信息，如：部门、职位、组织角色等。其中部门、组织角色可用于数据权限范围，在工作表添加部门字段，可以使用户对自己所在部门的记录都拥有权限。同样在具体应用中，往往也需要额外管理用户在本应用中的扩展信息。如：销售管理应用中，需要管理销售人员所在的团队、区域、职能等，同时也希望这些信息可以类似部门一样用于数据权限范围。此时就可以建立一张销售人员表。',
-          )}
-        </div>
-        <div className="title mTop24 textSecondary">{_l('什么是权限标签？')}</div>
-        <div className="con mTop12 textSecondary">
-          {_l(
-            '权限标签指用于控制数据权限范围的扩展信息字段（仅支持关联类型字段）。当用户访问应用时，系统可以从扩展信息表中读取当前用户的权限标签，从而使用户对其他工作表中关联了相同标签的记录拥有权限。',
-          )}
-        </div>
-        <div className="title mTop24 textSecondary">{_l('权限标签如何用于数据权限范围？')}</div>
-        <div className="con mTop12 textSecondary">
-          {_l('权限标签用于数据权限范围时和部门字段类似，只是没有专门的系统字段，需要通过关联记录字段来灵活实现。')}
-        </div>
-        <div className="con mTop10 textSecondary">
-          {_l(
-            '如：还是在销售管理应用中，用户扩展信息表中已设置了团队作为用户权限标签（关联团队表），并且订单表也关联了所属团队时。那么当用户访问应用时，系统就可以根据读取到的用户所在团队，并从订单表中过滤出关联了相同团队的订单，从而实现用户对属于自己团队的订单拥有查看、编辑或删除权限（可以在角色权限中进行设置）。',
-          )}
-        </div>
-        <div className="con mTop10 textSecondary">
-          {_l('此过程如下图所示')}
-          <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('了解更多')} />
-        </div>
-        <div className="imgDes flexRow alignItemsCenter">
-          <div className="left">
-            <div className="desCard">{_l('销售人员')}</div>
-          </div>
-          <div className="center flex flexRow alignItemsCenter justifyContentCenter">
-            <div className="flex"></div>
-            <img src={img1} width={56} />
-            <div className="flex"></div>
-            <div className="desCard c">{_l('团队')}</div>
-            <div className="flex"></div>
-            <img src={img2} width={56} />
-            <div className="flex"></div>
-          </div>
-          <div className="right flexColumn">
-            <div className="desCard">{_l('订单')}</div>
-            <div className="desCard mTop10">{_l('订单')}</div>
-            <div className="desCard mTop10">{_l('订单')}</div>
-          </div>
-        </div>
-      </Des>
     );
   };
 

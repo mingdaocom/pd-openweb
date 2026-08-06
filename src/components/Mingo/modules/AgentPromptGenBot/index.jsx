@@ -2,8 +2,9 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef,
 import { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import sseAjax from 'src/api/sse';
+import agentApi from 'src/api/agent';
 import useChat from 'src/pages/worksheet/hooks/useChat';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { SpeechSynthesizer } from 'src/utils/audio';
 import { emitter } from 'src/utils/common';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
@@ -11,6 +12,7 @@ import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip, MINGO_TASK_TYPE } from '../../ChatBot/enum';
+import { cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import ResultConfirm from './ResultConfirm';
 
 const MingoContentWrap = styled.div`
@@ -62,32 +64,27 @@ function AgentPromptGenBot(props, ref) {
   const [error, setError] = useState();
   const speechSynthesizer = useRef(new SpeechSynthesizer({ bufferDelay: 2000 }));
   const { messages, sendMessage, loading, activeMessageId, isRequesting, abortRequest, clearMessages } = useChat({
-    aiCompletionApi: async (messages, { abortController }) => {
+    aiCompletionApi: async (messages, { abortController, agentParams }) => {
       const {
         userLanguage = '',
         nodeName = '',
         nodeDescription = '',
         existingPrompt = '',
       } = cache.current?.params || {};
-      return sseAjax.generateAgentPrompt(
+      cache.current.sessionId = cache.current.sessionId || genBotSessionId();
+      return await agentApi.agentExecuteStream(
         {
-          messageList: [
-            {
-              role: 'user',
-              content: `
-                - userLanguage：${userLanguage}
-                - nodeName：${nodeName}
-                - nodeDescription：${nodeDescription}
-                - existingPrompt：${existingPrompt}
-              `,
-            },
-            ...messages,
-          ],
+          agentName: 'agent-prompt-generator',
+          sessionId: cache.current.sessionId,
+          ...agentParams,
+          context: {
+            userLanguage,
+            nodeName,
+            nodeDescription,
+            existingPrompt,
+          },
         },
-        {
-          abortController,
-          isReadableStream: true,
-        },
+        { abortController },
       );
     },
     onMessagePipe: messageContent => {
@@ -99,10 +96,7 @@ function AgentPromptGenBot(props, ref) {
       console.log('onMessageDone', messages);
     },
     onError: (error, eventData) => {
-      setError({
-        errorMsg: _l('模型调用失败'),
-        sourceData: eventData,
-      });
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
@@ -116,7 +110,7 @@ function AgentPromptGenBot(props, ref) {
 
   const handleSend = (
     newMessage,
-    { fromMessageId, messageOptions, images, fileIds, media, useFileContentFormat } = {},
+    { fromMessageId, messageOptions, images, fileIds, media, useFileContentFormat, attachments } = {},
   ) => {
     setIsChatting(true);
     sendMessage(newMessage, {
@@ -126,6 +120,7 @@ function AgentPromptGenBot(props, ref) {
       fileIds,
       media,
       useFileContentFormat,
+      attachments,
     });
     setTimeout(() => {
       handleScrollToBottom();
@@ -135,6 +130,7 @@ function AgentPromptGenBot(props, ref) {
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
+      cancelStream(cache.current.sessionId);
       clearMessages();
       // 终止正在进行的 load 请求
       if (cache.current.loadAbortController) {
@@ -159,6 +155,7 @@ function AgentPromptGenBot(props, ref) {
   return (
     <MingoContentWrap className={className}>
       <MessageList
+        showAssistantAvatar={false}
         activeMessageId={activeMessageId}
         taskType={taskType}
         allowEdit={allowEdit}
@@ -209,7 +206,10 @@ function AgentPromptGenBot(props, ref) {
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}
-            abortRequest={abortRequest}
+            abortRequest={() => {
+              abortRequest();
+              cancelStream(cache.current.sessionId);
+            }}
             setAutoPlay={value => {
               cache.current.autoPlay = value;
             }}
@@ -227,6 +227,8 @@ function AgentPromptGenBot(props, ref) {
                 fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
                 media: ocrFiles.map(f => f.commonAttachment),
                 useFileContentFormat: true,
+                // 图片与文档都需透传给后端，useChat 会按 mime 映射为 image/doc
+                attachments: files,
               });
             }}
           />

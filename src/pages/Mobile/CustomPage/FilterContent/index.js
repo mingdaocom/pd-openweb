@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
-import { SpinLoading } from 'antd-mobile';
+import { Popup, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -20,6 +19,10 @@ import Filters from './Filters';
 const Wrap = styled.div`
   &.disableFiltersGroup {
     pointer-events: none;
+  }
+  &.filterStepListWrapper {
+    -webkit-overflow-scrolling: touch;
+    position: inherit;
   }
 `;
 
@@ -45,13 +48,6 @@ const FilterEntry = styled.div`
   }
 `;
 
-const DrawerWrap = styled(Drawer)`
-  z-index: 100 !important;
-  .ant-drawer-body {
-    padding: 10px 0 0 0;
-  }
-`;
-
 function FilterContent(props) {
   const { ids = {}, apk = {}, widget, className = '' } = props;
   const { id, value, mobile } = widget;
@@ -63,6 +59,7 @@ function FilterContent(props) {
   const isEdit = className.includes('disableFiltersGroup');
   const translateInfo = getTranslateInfo(ids.appId, null, id);
   const height = _.get(mobile, 'layout.h') || 1;
+  const clicksearch = _.get(filtersGroup.advancedSetting, 'clicksearch');
 
   const filters = formatFilters(filtersGroup.filters || []).filter(c => !c.className.includes('disable'));
 
@@ -183,21 +180,28 @@ function FilterContent(props) {
           </div>
         )}
       </FilterEntry>
-      <DrawerWrap
+      <Popup
+        className={cx('filterStepListWrapper', {
+          open: visible,
+        })}
         forceRender={true}
-        placement="right"
-        visible={visible}
-        closable={false}
-        width="90%"
-        onClose={() => {
-          setVisible(false);
+        bodyStyle={{
+          width: '80%',
+          borderRadius: '14px 0 0 14px',
+          overflow: 'hidden',
+          backgroundColor: 'var(--color-background-card)',
         }}
+        position="right"
+        visible={visible}
+        onMaskClick={() => setVisible(false)}
+        onClose={() => setVisible(false)}
       >
         <Filters
           appId={ids.appId}
           // worksheetId={ids.worksheetId}
           projectId={apk.projectId}
-          enableBtn={filtersGroup.enableBtn}
+          enableBtn={true}
+          defaultTriggerUpdate={clicksearch !== '1'}
           advancedSetting={filtersGroup.advancedSetting}
           filters={filters.filter(
             c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)),
@@ -210,7 +214,7 @@ function FilterContent(props) {
             setVisible(false);
           }}
         />
-      </DrawerWrap>
+      </Popup>
     </Wrap>
   );
 }

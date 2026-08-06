@@ -753,14 +753,12 @@ function MessageList(
       .map(message => convertModelMessageToUIMessage(message))
       .filter(message => !filterHiddenMessage || !message.hidden);
   }, [messages]);
-  const onWheel = useCallback(() => {
-    if (!messagesEndRef.current) return;
-    const { scrollHeight, scrollTop, clientHeight } = scrollViewRef.current.getScrollInfo();
-
-    // 检测是否滚动到顶部，触发加载更多
-    if (scrollTop <= 50 && !isLoadingMore) {
-      onScrollToTop();
-    }
+  // 通过 ScrollView 的 onScroll 事件控制「回到底部」按钮的显隐
+  const handleScroll = useCallback(() => {
+    if (!scrollViewRef.current || !scrollToBottomRef.current) return;
+    const scrollInfo = scrollViewRef.current.getScrollInfo();
+    if (!scrollInfo) return;
+    const { scrollHeight, scrollTop, clientHeight } = scrollInfo;
 
     if (scrollTop < 120) return;
     const scrollBottom = scrollHeight - scrollTop - clientHeight;
@@ -770,14 +768,25 @@ function MessageList(
     } else {
       scrollToBottomRef.current.classList.add('fadeOut');
     }
-  }, [onScrollToTop, isLoadingMore]);
-  const latestMessageIsUser = last(uiMessages)?.role === 'user';
-  useImperativeHandle(ref, () => ({
-    scrollToBottom: () => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+  // 滚动到顶部边界时，触发加载更多
+  const handleReachVerticalEdge = useCallback(
+    ({ direction }) => {
+      if (direction === 'up' && !isLoadingMore) {
+        onScrollToTop();
       }
     },
+    [onScrollToTop, isLoadingMore],
+  );
+  // 借助 ScrollView 的 scrollToElement 滚动到底部
+  const scrollToBottom = useCallback((behavior = 'smooth') => {
+    if (scrollViewRef.current && messagesEndRef.current) {
+      scrollViewRef.current.scrollToElement(messagesEndRef.current, behavior);
+    }
+  }, []);
+  const latestMessageIsUser = last(uiMessages)?.role === 'user';
+  useImperativeHandle(ref, () => ({
+    scrollToBottom: () => scrollToBottom(),
     scrollViewRef: scrollViewRef,
   }));
   useEffect(() => {
@@ -789,8 +798,8 @@ function MessageList(
     const lastUserMessageId = findLast(uiMessages, item => item.role === 'user')?.id;
     const lastUserMessageDom = lastUserMessageId && document.querySelector(`[data-id="${lastUserMessageId}"]`);
 
-    if (!isLoadingChat && messagesEndRef.current && lastUserMessageDom) {
-      lastUserMessageDom.scrollIntoView();
+    if (!isLoadingChat && scrollViewRef.current && lastUserMessageDom) {
+      scrollViewRef.current.scrollToElement(lastUserMessageDom);
     }
 
     cache.current.prevIsLoadingChat = isLoadingChat;
@@ -819,7 +828,8 @@ function MessageList(
     <MessageListWrap
       ref={scrollViewRef}
       className={cx('t-flex-1', { isMobile, isChatbot: !!chatbotId })}
-      onWheel={onWheel}
+      onScroll={handleScroll}
+      onReachVerticalEdge={handleReachVerticalEdge}
       onClick={handleMessageClick}
     >
       <div className="messageListContent" style={{ maxWidth, ...listContentStyle }}>
@@ -833,16 +843,18 @@ function MessageList(
           <div>
             {!!messageRecommendComp && (
               <MessageItemWrap>
-                <div className="assistantOperates t-flex t-items-center">
-                  <Fragment>
-                    <img
-                      src={assistantAvatar || md.global.SysSettings.aiBrandLogoUrl || mingoHead}
-                      className="avatar"
-                      alt=""
-                    />
-                    <div className="avatarName">{assistantName || md.global.SysSettings.aiBrandName || 'Mingo'}</div>
-                  </Fragment>
-                </div>
+                {showAssistantAvatar && (
+                  <div className="assistantOperates t-flex t-items-center">
+                    <Fragment>
+                      <img
+                        src={assistantAvatar || md.global.SysSettings.aiBrandLogoUrl || mingoHead}
+                        className="avatar"
+                        alt=""
+                      />
+                      <div className="avatarName">{assistantName || md.global.SysSettings.aiBrandName || 'Mingo'}</div>
+                    </Fragment>
+                  </div>
+                )}
                 {messageRecommendComp}
               </MessageItemWrap>
             )}
@@ -1004,11 +1016,7 @@ function MessageList(
         <ScrollToBottom
           className={cx('fadeOut noPaddingBottom', { isMobile })}
           ref={scrollToBottomRef}
-          onClick={() => {
-            if (messagesEndRef.current) {
-              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onClick={() => scrollToBottom()}
         >
           <i className="icon icon-arrow_back"></i>
         </ScrollToBottom>

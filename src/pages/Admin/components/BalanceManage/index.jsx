@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Switch } from 'ming-ui';
+import { Dialog, Icon, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AIServiceAjax from 'src/api/aIService';
 import ProjectAjax from 'src/api/projectSetting';
 
@@ -67,6 +68,20 @@ const getConfigs = basePricingPolicy => [
     desc: _l('当年附件上传流量剩余2%时自动购买当年额度包，费用20信用点/1GB'),
     hasSwitch: true,
     ajaxFuncName: 'setAutoPurchaseApkStorageExtPack',
+  },
+  {
+    key: 'autoPurchaseExternalUserExtPack',
+    title: _l('外部用户额度自动增补'),
+    desc: _l('当外部用户额度剩余不足20人时自动购买100人，费用500信用点/100人'),
+    hasSwitch: true,
+    ajaxFuncName: 'setAutoPurchaseExternalUserExtPack',
+  },
+  {
+    key: 'allowMingoAgentCharge',
+    title: _l('Mingo AI 功能'),
+    desc: _l('关闭后，当AI福利点用完后，将不会继续扣除信用点，且无法使用MingoAI付费功能'),
+    hasSwitch: true,
+    ajaxFuncName: 'setAllowMingoAgentCharge',
   },
   {
     key: 'sms',
@@ -145,7 +160,24 @@ export default function BalanceManage(props) {
         {configs.map(item => (
           <div className="item" key={`balanceManage-item-${item.key}`}>
             <div className="leftCon">
-              <div className="Font15 Bold mBottom8 textPrimary ellipsis">{item.title}</div>
+              <div className="Font15 Bold mBottom8 textPrimary ellipsis">
+                {item.title}
+
+                {item.key === 'allowMingoAgentCharge' && (
+                  <Tooltip
+                    title={
+                      <div>
+                        <div>{_l('Mingo搭建—AI搭建应用、创建工作表、填充示例数据、优化名称和图标、填写记录')}</div>
+                        <div className="mTop12">{_l('Mingo查询—使用Mingo查询应用数据')}</div>
+                        <div className="mTop12">{_l('使用帮助问答不扣费')}</div>
+                      </div>
+                    }
+                    placement="bottom"
+                  >
+                    <Icon icon="help" className="mLeft6 hoverColorPrimary textTertiary" />
+                  </Tooltip>
+                )}
+              </div>
               <div className="Font13 textSecondary mRight5">{item.desc}</div>
             </div>
             {item.hasSwitch && (

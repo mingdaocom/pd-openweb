@@ -58,10 +58,12 @@ class Radio extends Component {
     checked: this.props.checked || this.props.defaultChecked,
   };
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      checked: nextProps.checked,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        checked: this.props.checked,
+      });
+    }
   }
 
   handleClick = () => {

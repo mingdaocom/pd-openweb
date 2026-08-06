@@ -10,7 +10,6 @@ const TimeDotWrapper = styled.div`
   position: relative;
   z-index: 1;
 `;
-
 const DotWrapper = styled.div`
   position: absolute;
   width: 10px;
@@ -20,28 +19,26 @@ const DotWrapper = styled.div`
   z-index: 1;
   background-color: var(--color-primary);
 `;
-
 const lineHeight = 32;
 const rowDotHeight = 10;
-
-@connect(state => ({
-  ..._.pick(state.sheet.gunterView, ['chartScroll']),
-}))
-class MonitorTimeDot extends Component {
+let MonitorTimeDot = class MonitorTimeDot extends Component {
   constructor(props) {
     super(props);
     this.state = {
       position: {},
     };
   }
+
   componentDidMount() {
     const { chartScroll } = this.props;
     chartScroll.on('scroll', this.handleScroll);
   }
+
   componentWillUnmount() {
     const { chartScroll } = this.props;
     chartScroll.off('scroll', this.handleScroll);
   }
+
   handleScroll = () => {
     const { row, chartScroll } = this.props;
     const { left, width } = row;
@@ -49,27 +46,38 @@ class MonitorTimeDot extends Component {
 
     if (left + width <= x) {
       this.setState({
-        position: { left: 10 },
+        position: {
+          left: 10,
+        },
       });
       return;
     }
 
     if (left >= x + chartScroll.wrapperWidth) {
       this.setState({
-        position: { right: 10 },
+        position: {
+          right: 10,
+        },
       });
       return;
     }
 
-    this.setState({ position: {} });
+    this.setState({
+      position: {},
+    });
   };
+
   render() {
     const { position } = this.state;
     const { top, row, onPositionRow } = this.props;
     return (
       !_.isEmpty(position) && (
         <DotWrapper
-          style={{ top, ...position, backgroundColor: row.color }}
+          style={{
+            top,
+            ...position,
+            backgroundColor: row.color,
+          }}
           onClick={() => {
             const { position } = this.state;
 
@@ -85,21 +93,17 @@ class MonitorTimeDot extends Component {
       )
     );
   }
-}
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['gunterView']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class TimeDot extends Component {
+};
+MonitorTimeDot = connect(state => ({ ..._.pick(state.sheet.gunterView, ['chartScroll']) }))(MonitorTimeDot);
+let TimeDot = class TimeDot extends Component {
   constructor(props) {
     super(props);
   }
+
   handlePositionRow = time => {
     this.props.refreshGunterView(time);
   };
+
   renderRow(row, index) {
     const { left, right, width } = row;
     const top = index * lineHeight + (lineHeight / 2 - rowDotHeight / 2);
@@ -112,7 +116,11 @@ export default class TimeDot extends Component {
       return (
         <DotWrapper
           key={row.rowid}
-          style={{ top, right: 10, backgroundColor: row.color }}
+          style={{
+            top,
+            right: 10,
+            backgroundColor: row.color,
+          }}
           onClick={() => {
             this.handlePositionRow(row.startTime);
           }}
@@ -124,7 +132,11 @@ export default class TimeDot extends Component {
       return (
         <DotWrapper
           key={row.rowid}
-          style={{ top, left: 10, backgroundColor: row.color }}
+          style={{
+            top,
+            left: 10,
+            backgroundColor: row.color,
+          }}
           onClick={() => {
             this.handlePositionRow(row.endTime);
           }}
@@ -134,6 +146,7 @@ export default class TimeDot extends Component {
 
     return <MonitorTimeDot key={row.rowid} row={row} top={top} onPositionRow={this.handlePositionRow} />;
   }
+
   renderGroupingItem(item) {
     const { withoutArrangementVisible } = this.props.gunterView;
     return (
@@ -143,10 +156,16 @@ export default class TimeDot extends Component {
         .map((row, index) => this.renderRow(row, item.hide ? index : item.groupingIndex + index + 1))
     );
   }
+
   render() {
     const { grouping } = this.props.gunterView;
     return (
       <TimeDotWrapper className="timeDotWrapper">{grouping.map(item => this.renderGroupingItem(item))}</TimeDotWrapper>
     );
   }
-}
+};
+TimeDot = connect(
+  state => ({ ..._.pick(state.sheet, ['gunterView']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(TimeDot);
+export default TimeDot;

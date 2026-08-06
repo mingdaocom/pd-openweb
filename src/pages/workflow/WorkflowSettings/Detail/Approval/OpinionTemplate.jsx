@@ -56,7 +56,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
       <SortableItemBox className="flexRow mTop10 alignItemsCenter">
         <DragHandle>
           <Tooltip title={dragging ? '' : _l('拖拽调整排序')}>
-            <i className="icon-drag Font16 textSecondary ThemeHoverColor3" style={{ cursor: 'move' }} />
+            <i className="icon-drag Font16 textSecondary hoverColorPrimary" style={{ cursor: 'move' }} />
           </Tooltip>
         </DragHandle>
         <Textarea

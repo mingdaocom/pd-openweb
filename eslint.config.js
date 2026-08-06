@@ -5,6 +5,11 @@ const js = require('@eslint/js');
 const globals = require('globals');
 const babelParser = require('@babel/eslint-parser');
 
+const reactHooksRecommendedRules = Object.keys(reactHooks.configs.recommended.rules).reduce((rules, ruleName) => {
+  rules[ruleName] = 'warn';
+  return rules;
+}, {});
+
 module.exports = [
   js.configs.recommended,
   {
@@ -58,6 +63,7 @@ module.exports = [
         IM: false,
         dd: false,
         mdyAPI: false,
+        agentAPI: false,
         AMap: false,
         destroyAlert: false,
         blobStream: false,
@@ -78,9 +84,8 @@ module.exports = [
       'react/jsx-uses-vars': 'error',
       'react/react-in-jsx-scope': 'error',
 
-      // React Hooks rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'off',
+      // React Hooks recommended rules run as warnings before React Compiler adoption.
+      ...reactHooksRecommendedRules,
 
       // Prettier integration
       'prettier/prettier': 'error',

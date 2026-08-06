@@ -5,10 +5,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
+import agentApi from 'src/api/agent';
 import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
-import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
+import { generateParamsForPrompt } from '../util';
 import AutoHeightInput from './AutoHeightInput';
 import { MESSAGE_TYPE } from './enum';
 import LoadingDots from './LoadingDots';
@@ -242,8 +243,6 @@ function ChatLLM(
   {
     env,
     control,
-    freeId,
-    worksheetId,
     currentCode,
     showEmptyHolder,
     onCodeUpdate = () => {},
@@ -252,22 +251,16 @@ function ChatLLM(
   },
   ref,
 ) {
-  const messageStoreId = freeId || control.controlId;
+  // AI 生成字段属单轮旧功能，sessionId 加 session-bot- 前缀以便从历史会话列表排除（见 fetchAgentSessions）；
+  // 仍以 controlId 收尾，保持同一控件对话的稳定续接。
+  const sessionId = `session-bot-${control.controlId}`;
   const cache = useRef({});
   const uploadImageRef = useRef(null);
   const [messageListLoading, setMessageListLoading] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [error, setError] = useState();
-  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+  const [uploadedAttachment, setUploadedAttachment] = useState(null);
   const isRefValue = control.type === 54;
-  const handleSaveMessageList = useCallback(newMessages => {
-    const filteredMessages = newMessages.filter(m => m.type !== MESSAGE_TYPE.SHOW_NOT_SEND);
-    saveMessageList({
-      worksheetId,
-      messageStoreId,
-      messageList: [filteredMessages[0], ...filteredMessages.slice(1).slice(-9)],
-    });
-  }, []);
   const paramsForPrompt = useMemo(
     () => generateParamsForPrompt({ envControls: env.controls, isRefValue, control }),
     [env.controls, isRefValue, control],
@@ -286,8 +279,8 @@ function ChatLLM(
     setMessages,
     setFirstInputMessage,
   } = useChatBot({
+    sessionId,
     params: paramsForPrompt,
-    onMessageDone: handleSaveMessageList,
     currentCode,
     defaultMessages: [
       {
@@ -360,11 +353,11 @@ function ChatLLM(
     e.preventDefault();
     sendMessage(input, {
       noCode: showEmptyHolder,
-      imageUrl: uploadedImageUrl,
+      attachment: uploadedAttachment,
     });
     if (isFunction(get(uploadImageRef, 'current.clear'))) {
       uploadImageRef.current.clear();
-      setUploadedImageUrl('');
+      setUploadedAttachment(null);
     }
 
     setTimeout(() => {
@@ -384,22 +377,55 @@ function ChatLLM(
   }, [currentCode]);
 
   useEffect(() => {
-    getMessageList({
-      worksheetId,
-      messageStoreId,
-    }).then(res => {
-      if (res && res.messageList) {
-        setMessages(prev => [...prev, ...res.messageList]);
-        if (res.messageList[0] && res.messageList[0].content) {
-          setFirstInputMessage(res.messageList[0].content);
-        }
-      }
+    agentApi
+      .getAgentSessionsMessages({ sessionId }, { silent: true })
+      .then(res => {
+        const body = res?.data ?? res;
+        const rawList = Array.isArray(body)
+          ? body
+          : body?.messages || body?.Messages || body?.items || body?.Items || body?.data || body?.Data || [];
+        // 接口按时间倒序返回（最新在前），渲染需要按时间正序（最新在下）
+        const messageList = rawList
+          .slice()
+          .reverse()
+          .map(m => {
+            const role = m.role || m.Role;
+            const text = m.content != null ? m.content : m.Content;
+            const attachments = m.attachments || m.Attachments || [];
+            const imageAttachments = (Array.isArray(attachments) ? attachments : []).filter(
+              a => (a.type || a.Type) === 'image' && (a.url || a.Url),
+            );
+            // 带图片的历史消息还原为 OpenAI 风格数组，复用 Markdown 的图片预览渲染
+            const content = imageAttachments.length
+              ? [
+                  { type: 'text', text: typeof text === 'string' ? text : '' },
+                  ...imageAttachments.map(a => ({
+                    type: 'image_url',
+                    image_url: { url: a.url || a.Url },
+                  })),
+                ]
+              : text;
+            return { role, content };
+          })
+          .filter(m => m.role && m.content != null && m.content !== '');
 
-      setMessageListLoading(false);
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView();
-      }, 0);
-    });
+        if (messageList.length) {
+          setMessages(prev => [...prev, ...messageList]);
+          const first = messageList[0];
+          if (first && first.content) {
+            setFirstInputMessage(first.content);
+          }
+        }
+      })
+      .catch(err => {
+        console.error('getAgentSessionsMessages failed:', err);
+      })
+      .finally(() => {
+        setMessageListLoading(false);
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView();
+        }, 0);
+      });
   }, []);
 
   return (
@@ -497,15 +523,15 @@ function ChatLLM(
               dropElementId={dropElementId}
               dropElement={inputRef.current}
               onBegin={() => {
-                setUploadedImageUrl(null);
+                setUploadedAttachment(null);
                 setIsUploadingImage(true);
               }}
-              onUploaded={url => {
-                setUploadedImageUrl(url);
+              onUploaded={attachment => {
+                setUploadedAttachment(attachment);
                 setIsUploadingImage(false);
               }}
               onError={() => {
-                setUploadedImageUrl(null);
+                setUploadedAttachment(null);
                 setIsUploadingImage(false);
               }}
             />
@@ -533,14 +559,6 @@ function ChatLLM(
             className="Hand"
             onClick={() => {
               clearMessages();
-              setMessageListLoading(true);
-              saveMessageList({
-                worksheetId,
-                messageStoreId,
-                messageList: [],
-              }).then(() => {
-                setMessageListLoading(false);
-              });
             }}
           >
             <i className="icon icon-cleaning_services textTertiary Font16" />

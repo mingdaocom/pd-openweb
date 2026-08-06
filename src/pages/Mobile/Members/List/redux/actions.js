@@ -2,6 +2,7 @@ import { Dialog } from 'antd-mobile';
 import _ from 'lodash';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
+import { getTranslateInfo } from 'src/utils/app';
 
 export const getMembersList = appId => dispatch => {
   dispatch({ type: 'MOBILE_LIST_FETCH_START' });
@@ -11,11 +12,16 @@ export const getMembersList = appId => dispatch => {
     ajaxRequest.getRolesWithUsers({ appId }).then(),
   ]).then(res => {
     const [detail, list] = res;
+    const roleList = _.cloneDeep(list).map(item => ({
+      ...item,
+      name: getTranslateInfo(appId, null, item.roleId).name || item.name,
+    }));
+
     dispatch({
       type: 'UPDATE_MEMBER_LIST',
       data: {
         detail,
-        list: _.cloneDeep(list),
+        list: roleList,
       },
     });
     dispatch({ type: 'MOBILE_LIST_FETCH_SUCCESS' });

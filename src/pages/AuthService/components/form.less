@@ -32,7 +32,7 @@
     padding: 10px;
     height: auto !important;
     padding: 0 4px;
-    border-radius: 3px;
+    border-radius: 6px;
     .privacyTextCon {
       flex-wrap: wrap;
       padding: 10px 0;
@@ -53,7 +53,7 @@
     margin: 0 !important;
     padding: 10px 4px;
     height: auto !important;
-    border-radius: 3px;
+    border-radius: 6px;
     &.errorDiv {
       background: var(--color-error-bg);
       &:hover {
@@ -82,7 +82,7 @@
 
   .iti {
     // width: 100%;
-    font-size: 13px;
+    font-size: 14px;
     height: 48px;
   }
 
@@ -98,7 +98,7 @@
 
   .iti--separate-dial-code .iti__selected-country {
     background-color: var(--color-background-primary);
-    border-radius: 3px;
+    border-radius: 6px;
   }
 
   .iti--allow-dropdown .iti__country-container:hover .iti__selected-country {
@@ -126,7 +126,7 @@
       width: 100%;
       padding: 0 10px;
       box-sizing: border-box;
-      line-height: 52px;
+      line-height: 48px;
     }
   }
 
@@ -138,9 +138,9 @@
     padding: 7px 17px;
     line-height: 20px;
     margin-bottom: 10px;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
     background: var(--color-background-secondary);
     background-clip: padding-box;
 
@@ -158,24 +158,37 @@
     position: relative;
     margin-top: 24px;
     background: var(--color-background-primary);
-    height: 52px;
+    border-radius: 6px;
+    background-clip: padding-box;
+    height: 48px;
     &.mesDivDrop {
       height: auto;
-      min-height: 52px;
+      min-height: 48px;
     }
     box-sizing: border-box;
     .iti__country-container {
       display: none;
       top: 1px;
     }
+    .mdIntlTelDialCodeTrigger {
+      display: none !important;
+      top: 50% !important;
+      transform: translateY(-50%);
+      padding-right: 0 !important;
+      z-index: 1 !important;
+      font-size: 14px;
+    }
     &.showIti {
       .iti__country-container {
         display: block;
       }
+      .mdIntlTelDialCodeTrigger {
+        display: flex !important;
+      }
     }
 
     &:hover {
-      box-shadow: 0px 1px 2px #00000014;
+      box-shadow: var(--shadow-sm);
     }
     &.termsText {
       &:hover {
@@ -192,23 +205,18 @@
         background-color: var(--color-background-secondary);
       }
     }
-    #txtMobilePhone {
-      padding-left: 10px;
-      &.showIti {
-        padding-left: 75px;
-      }
-    }
-
     .title {
       position: absolute;
       left: 12px;
-      top: 18px;
-      color: var(--color-text-tertiary);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-placeholder);
       font-size: 14px;
       z-index: 0;
-      line-height: 1;
+      line-height: 1.5;
       transition: all 0.3s;
       font-weight: 400;
+      pointer-events: none;
     }
 
     .warnTips {
@@ -235,7 +243,8 @@
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 2px solid var(--color-primary) !important;
+          border: 1px solid var(--color-primary) !important;
+          box-shadow: var(--shadow-sm);
         }
         .title {
           color: var(--color-primary) !important;
@@ -246,11 +255,14 @@
       input[type='password'],
       .Dropdown--input,
       .ant-select-selector {
-        border: 2px solid red !important;
+        border: 1px solid var(--color-error) !important;
       }
       .title {
         color: var(--color-error) !important;
-        top: -9px;
+        top: -1px;
+        transform: translateY(-50%);
+        font-size: 12px;
+        font-weight: 600;
         background: var(--color-background-primary);
         padding: 0 4px;
       }
@@ -258,13 +270,14 @@
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 2px solid var(--color-border-secondary) !important;
+          border: 1px solid var(--color-border-primary) !important;
         }
         &.errorDivCu {
           input[type='text']:not(.iti__search-input),
           input[type='password'],
           .Dropdown--input {
-            border: 2px solid var(--color-primary) !important;
+            border: 1px solid var(--color-primary) !important;
+            box-shadow: var(--shadow-sm);
           }
         }
         .title {
@@ -274,11 +287,11 @@
           color: var(--color-text-title) !important;
           padding: 10px 10px;
           font-weight: bold;
-          font-size: 13px;
+          font-size: 14px;
           line-height: 24px;
           background: var(--color-background-primary) 0% 0% no-repeat padding-box;
-          box-shadow: 0px 3px 6px #00000029;
-          border-radius: 4px;
+          box-shadow: var(--shadow-md);
+          border-radius: 6px;
           text-align: left;
           z-index: 1;
           position: absolute;
@@ -290,14 +303,14 @@
       }
     }
     .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-      border: 1px solid var(--color-border-secondary);
-      box-shadow: none;
+      border: 1px solid var(--color-primary);
+      box-shadow: var(--shadow-sm);
     }
     .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
       border: none;
     }
     .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
-      height: 52px;
+      height: 48px;
     }
     input[type='text']:not(.iti__search-input),
     input[type='password'],
@@ -308,22 +321,27 @@
       width: 100%;
       padding: 0 15px;
       box-sizing: border-box;
-      height: 52px;
+      height: 48px;
       vertical-align: top;
-      line-height: 42px;
-      font-size: 16px;
-      border: 1px solid var(--color-border-secondary);
-      border-radius: 3px;
+      line-height: 48px;
+      font-size: 14px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 6px;
+      background: var(--color-background-primary);
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 
       .Dropdown--placeholder {
-        padding: 0 15px;
-        color: var(--color-text-tertiary) !important;
-        line-height: 42px;
+        padding: 0 12px;
+        color: var(--color-text-placeholder) !important;
+        line-height: 48px;
       }
 
       &:focus {
         outline: 0px;
         border-color: var(--color-primary);
+        box-shadow: var(--shadow-sm);
       }
 
       &.loginInput {
@@ -341,25 +359,39 @@
 
     &.hasValue {
       .title {
-        font-size: 14px;
-        color: var(--color-primary) !important;
-        top: -9px;
+        font-size: 12px;
+        color: var(--color-text-secondary) !important;
+        top: -1px;
+        transform: translateY(-50%);
         z-index: 0;
         background: var(--color-background-primary);
         padding: 0 4px;
+        font-weight: 600;
       }
 
       input:not(.iti__search-input),
       .Dropdown--input {
-        border: 1px solid var(--color-border-secondary);
+        border: 1px solid var(--color-border-primary);
         &:focus {
-          border: 2px solid var(--color-primary) !important;
+          border: 1px solid var(--color-primary) !important;
+          box-shadow: var(--shadow-sm);
         }
         .icon-arrow-down-border {
           position: absolute;
-          line-height: 52px;
+          line-height: 48px;
           top: 0;
           right: 12px;
+        }
+      }
+
+      &.errorDivCu {
+        .title {
+          color: var(--color-primary) !important;
+        }
+        input:not(.iti__search-input),
+        .Dropdown--input {
+          border: 1px solid var(--color-primary) !important;
+          box-shadow: var(--shadow-sm);
         }
       }
 
@@ -371,17 +403,17 @@
     .btnSendVerifyCode {
       display: inline-block;
       padding: 0 10px;
-      height: 44px;
+      height: 40px;
       background-color: var(--color-primary);
-      border-radius: 4px;
+      border-radius: 6px;
       position: absolute;
       right: 4px;
       top: 4px;
       text-align: center;
       font-size: 14px;
       font-weight: bold;
-      color: var(--color-white);
-      line-height: 44px;
+      color: var(--color-text-inverse);
+      line-height: 40px;
       cursor: pointer;
       z-index: 1;
 
@@ -393,13 +425,14 @@
       }
 
       &.btnEnabled:hover {
-        background-color: var(--color-link-hover);
+        background-color: var(--color-primary-dark);
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
       }
 
       &.btnDisabled {
-        background-color: var(--color-text-placeholder);
+        background-color: var(--color-background-disabled);
+        color: var(--color-text-disabled);
         cursor: default;
       }
     }
@@ -433,6 +466,8 @@
 .loginContainer,
 .loginContainer {
   .backspaceT {
+    color: var(--color-text-secondary);
+    font-size: 14px;
     .backspace {
       vertical-align: -2px;
       display: inline-block;
@@ -443,7 +478,7 @@
       background-size: contain;
     }
     &:hover {
-      color: var(--color-link-hover);
+      color: var(--color-primary-light);
 
       .backspace {
         background: url(../login/img/backspaceH.png) no-repeat;

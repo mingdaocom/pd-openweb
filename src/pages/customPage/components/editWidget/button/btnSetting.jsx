@@ -246,8 +246,20 @@ const ProcessDefaultConfig = {
 
 let sheetRequest = null;
 
+const initConfigData = { action: '', viewId: '', openMode: 1, value: '' };
+
 function BtnSetting(props) {
-  const { pageId, activeIndex, appPkg = {}, btnSetting = {}, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
+  const {
+    pageId,
+    activeIndex,
+    appPkg = {},
+    btnSetting = {},
+    btnConfig,
+    components,
+    setBtnSetting,
+    onDel,
+    onCopy,
+  } = props;
   const appId = appPkg.id;
   const btnSettingParam = _.get(btnSetting, 'param');
   const [displayType, setDisplayType] = useState('setting');
@@ -256,8 +268,6 @@ function BtnSetting(props) {
   const projectId = appPkg.projectId || appPkg.id;
 
   const [dataSource, setDataSource] = useSetState({ worksheets: [], views: [], pages: [], controls: [], inputs: [] });
-
-  const initConfigData = { action: '', viewId: '', openMode: 1, value: '' };
 
   const { views, controls } = dataSource;
   const { action, viewId, searchId, filterId, openMode, btnId, value, config } = btnSetting;

@@ -50,8 +50,10 @@ export default class Others extends React.Component {
     this.itemClickHandler = this.itemClickHandler.bind(this);
   }
 
-  componentWillReceiveProps() {
-    this.setState(defaultState, this.fetch);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState(defaultState, this.fetch);
+    }
   }
 
   componentWillUnmount() {

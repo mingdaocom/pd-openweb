@@ -1,36 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { LoadDiv } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
+const LoadableMobileSingleView = lazy(() => import('mobile/components/SingleView'));
+const LoadableSingleView = lazy(() => import('worksheet/common/SingleView'));
 
 const ViewSahre = props => {
   const { data, showHeader, headerLeft, headerRight } = props;
-  const [Component, setComponent] = useState(null);
-
-  useEffect(() => {
-    if (isMobile) {
-      import('mobile/components/SingleView').then(component => {
-        setComponent(component.default);
-      });
-    } else {
-      import('worksheet/common/SingleView').then(component => {
-        setComponent(component.default);
-      });
-    }
-  }, []);
-
-  if (!Component) return <LoadDiv />;
-
+  const Component = isMobile ? LoadableMobileSingleView : LoadableSingleView;
   return (
-    <Component
-      showHeader={showHeader !== 'false'}
-      headerLeft={headerLeft}
-      headerRight={headerRight}
-      appId={data.appId}
-      worksheetId={data.worksheetId}
-      viewId={data.viewId}
-    />
+    <Suspense fallback={<LoadDiv className="mTop10" />}>
+      <Component
+        showHeader={showHeader !== 'false'}
+        headerLeft={headerLeft}
+        headerRight={headerRight}
+        appId={data.appId}
+        worksheetId={data.worksheetId}
+        viewId={data.viewId}
+      />
+    </Suspense>
   );
 };
 

@@ -26,7 +26,7 @@ const TABS = [
   { key: 'base', label: _l('企业微信集成') },
   { key: 'other', label: _l('扫码登录与同步') },
   { key: 'chatSetting', label: _l('聊天工具栏配置') },
-  { key: 'interfaceLicense', label: '接口许可' },
+  { key: 'interfaceLicense', label: _l('接口许可') },
 ];
 
 export default class Workwx extends React.Component {
@@ -127,7 +127,7 @@ export default class Workwx extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AgentId || !this.state.Secret || !this.state.CorpId) {
-      alert('请输入相关信息', 3);
+      alert(_l('请输入相关信息'), 3);
       return;
     }
 
@@ -536,7 +536,9 @@ export default class Workwx extends React.Component {
                 href={
                   intergrationType !== 2
                     ? `/wxappSyncCourse/${projectId}#scanWorkwx`
-                    : 'https://help.mingdao.com/wecom/ways-login-hap#scan-code-login'
+                    : !window.platformENV.isOverseas
+                      ? 'https://help.mingdao.com/wecom/ways-login-hap#scan-code-login'
+                      : 'https://help.nocoly.com/wecom/ways-login-hap#scan-code-login'
                 }
                 updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
                 customNameIcon={customNameIcon}
@@ -743,7 +745,10 @@ export default class Workwx extends React.Component {
             <div className="orgManagementHeader">
               <div className="w100 h100 flexRow alignItemsCenter">
                 {status !== 1 && (
-                  <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
+                  <i
+                    className="icon-backspace Font22 hoverColorPrimary pointer mRight10"
+                    onClick={this.props.onClose}
+                  />
                 )}
                 <div className={cx('tabBox', { singleTab: !(this.state.status === 1 || intergrationType === 2) })}>
                   {TABS.map(({ key, label }) => {

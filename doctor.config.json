@@ -1,0 +1,40 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "ignore": {
+    "files": [
+      "**/*.test.js",
+      "**/*.test.jsx",
+      "api/**",
+      "html-templates/**",
+      "library/**",
+      "src/api/**",
+      "src/html-templates/**",
+      "src/library/**"
+    ]
+  },
+  "rules": {
+    "react-doctor/no-full-lodash-import": "off",
+    "react-doctor/no-moment": "off",
+    "react-doctor/no-barrel-import": "off",
+    "react-doctor/js-combine-iterations": "off",
+    "react-doctor/no-render-in-render": "off",
+    "react-doctor/no-render-prop-children": "off",
+    "react-doctor/prefer-module-scope-pure-function": "off",
+    "react-doctor/no-polymorphic-children": "off",
+    "react-doctor/html-no-invalid-paragraph-child": "off",
+    "react-doctor/rendering-conditional-render": "off",
+    "react-doctor/no-uncontrolled-input": "off",
+    "react-doctor/server-dedup-props": "off",
+    "react-doctor/dangerous-html-sink": "off",
+    "react-doctor/postmessage-origin-risk": "off",
+    "react-doctor/no-prevent-default": "off",
+    "react-doctor/async-await-in-loop": "off",
+    "react-doctor/rendering-svg-precision": "off",
+    "react-doctor/js-tosorted-immutable": "off",
+    "react-doctor/async-parallel": "off",
+    "react-doctor/js-index-maps": "off",
+    "react-doctor/js-cache-storage": "off",
+    "react-doctor/js-set-map-lookups": "off",
+    "react-doctor/js-flatmap-filter": "off"
+  }
+}

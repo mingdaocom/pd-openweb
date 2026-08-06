@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ScrollView, SvgIcon } from 'ming-ui';
 
@@ -73,7 +74,7 @@ const AppListContainer = styled.div`
 `;
 
 export default function AuthAppList(props) {
-  const { className, authApps = [], onRemove = () => {} } = props;
+  const { className, authApps = [], customDateTitle, customAccountTitle, dateFormat, onRemove = () => {} } = props;
 
   const columns = [
     {
@@ -94,14 +95,14 @@ export default function AuthAppList(props) {
     },
     {
       dataIndex: 'createTime',
-      title: _l('创建时间'),
+      title: customDateTitle || _l('创建时间'),
       render: item => {
-        return <div>{item.ctime ? moment(item.ctime).format('YYYY-MM-DD') : ''}</div>;
+        return <div>{item.ctime ? moment(item.ctime).format(dateFormat ? dateFormat : 'YYYY-MM-DD') : ''}</div>;
       },
     },
     {
       dataIndex: 'owner',
-      title: _l('拥有者'),
+      title: customAccountTitle || _l('拥有者'),
       render: item => {
         const createAccount = item.createAccountInfo || item.createAccount || {};
         return !_.isEmpty(createAccount) ? (
@@ -158,3 +159,35 @@ export default function AuthAppList(props) {
     </AppListContainer>
   );
 }
+
+AuthAppList.propTypes = {
+  className: PropTypes.string,
+  // 授权应用列表。
+  authApps: PropTypes.arrayOf(
+    PropTypes.shape({
+      appId: PropTypes.string,
+      appName: PropTypes.string,
+      iconColor: PropTypes.string,
+      iconUrl: PropTypes.string,
+      ctime: PropTypes.string,
+      createAccountInfo: PropTypes.shape({
+        avatar: PropTypes.string,
+        fullName: PropTypes.string,
+        fullname: PropTypes.string,
+      }),
+      createAccount: PropTypes.shape({
+        avatar: PropTypes.string,
+        fullName: PropTypes.string,
+        fullname: PropTypes.string,
+      }),
+    }),
+  ),
+  // 自定义时间列标题。
+  customDateTitle: PropTypes.string,
+  // 自定义账号列标题。
+  customAccountTitle: PropTypes.string,
+  // 时间展示格式，默认 YYYY-MM-DD。
+  dateFormat: PropTypes.string,
+  // 移除应用时触发，参数为 appId。
+  onRemove: PropTypes.func,
+};

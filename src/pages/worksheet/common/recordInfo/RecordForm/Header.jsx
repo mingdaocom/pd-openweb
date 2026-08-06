@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { isEmpty, isFunction } from 'lodash';
 import PropTypes from 'prop-types';
@@ -9,6 +9,8 @@ import discussionAjax from 'src/api/discussion';
 import favoriteApi from 'src/api/favorite.js';
 import worksheetAjax from 'src/api/worksheet';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import PrintList from 'src/pages/worksheet/common/recordInfo/RecordForm/PrintList';
@@ -30,8 +32,8 @@ const SideBarIcon = styled(IconBtn)`
     margin-left: 2px;
   }
 `;
-
 let favCom = null;
+const LoadableAiActionChatBot = lazy(() => import('src/components/Mingo/modules/AiActionChatBot'));
 
 export default function InfoHeader(props) {
   const {
@@ -59,6 +61,7 @@ export default function InfoHeader(props) {
     onSideIconClick,
     handleAddSheetRow,
     viewId,
+    view,
     from,
     isOpenNewAddedRecord,
     customBtnTriggerCb,
@@ -69,8 +72,7 @@ export default function InfoHeader(props) {
     recordTitle,
     isRecordLock,
     updateRecordLock,
-    setModalRightComp,
-    // allowExAccountDiscuss = false, //允许外部用户讨论
+    setModalRightComp, // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
   } = props;
@@ -88,6 +90,7 @@ export default function InfoHeader(props) {
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
   const workflowVisible = isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
   const portalNotHasDiscuss = md.global.Account.isPortal && !props.allowExAccountDiscuss; //外部用户且未开启讨论
+
   const isPublicShare =
     _.get(window, 'shareState.isPublicRecord') ||
     _.get(window, 'shareState.isPublicView') ||
@@ -97,6 +100,8 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
     _.get(window, 'shareState.isPublicPrint') ||
     _.get(window, 'shareState.isPublicChatbot');
+
+  const isPublicRecordLand = isPublicShare && notDialog;
 
   const project = getCurrentProject(projectId);
   const showFav =
@@ -111,6 +116,7 @@ export default function InfoHeader(props) {
     ((!isPublicShare && showOrder) ||
       (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
       (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
+      (md.global.Account.isPortal && logVisible) ||
       (md.global.Account.isPortal && props.approved && workflowVisible) ||
       from === RECORD_INFO_FROM.WORKFLOW);
   useEffect(() => {
@@ -119,9 +125,9 @@ export default function InfoHeader(props) {
     }
 
     if (aiActionActive) {
-      import('src/components/Mingo/modules/AiActionChatBot').then(res => {
-        setModalRightComp(
-          <res.default
+      setModalRightComp(
+        <Suspense fallback={null}>
+          <LoadableAiActionChatBot
             allowResize={!notDialog}
             isCharge={isCharge}
             appId={recordbase.appId}
@@ -134,21 +140,21 @@ export default function InfoHeader(props) {
               operatesRef.current.loadBtns();
             }}
             onClose={() => setAiActionActive(false)}
-          />,
-        );
-      });
+          />
+        </Suspense>,
+      );
     } else {
       setModalRightComp(null);
     }
   }, [aiActionActive, aiActionButtons, recordId, worksheetId, worksheetInfo.worksheetId, recordTitle]);
+
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;
     }
 
-    let entityType = 0;
+    let entityType = 0; //外部用户且未开启讨论 不能内部讨论
 
-    //外部用户且未开启讨论 不能内部讨论
     if (md.global.Account.isPortal && props.allowExAccountDiscuss && props.exAccountDiscussEnum === 1) {
       entityType = 2;
     }
@@ -169,17 +175,17 @@ export default function InfoHeader(props) {
 
   useEffect(() => {
     rowId.current = recordId;
+
     if (!isOpenNewAddedRecord) {
       loadDiscussionsCount();
     }
   }, [recordId, props.allowExAccountDiscuss]);
-
   useEffect(() => {
     setIsFavorite(_.get(props, 'recordinfo.isFavorite'));
   }, [_.get(props, 'recordinfo.isFavorite'), recordId]);
-
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
+
     if (isEmpty(worksheetInfo)) {
       worksheetAjax
         .getWorksheetInfo({
@@ -194,18 +200,22 @@ export default function InfoHeader(props) {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
   }, []);
-
   let header = renderHeader && renderHeader({ ...recordinfo, isLoading: refreshRotating, onRefresh, isRecordLock });
 
   if (viewId) {
     header = null;
-  }
+  } // 展开 收起 右侧按钮
 
-  // 展开 收起 右侧按钮
   const sideBarBtn = () => {
     return (
-      <SideBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-        <Tooltip title={sideVisible ? _l('收起') : _l('展开')} placement="bottom" align={{ offset: [0, 0] }}>
+      <SideBarIcon className="Hand hoverColorPrimary" onClick={onSideIconClick}>
+        <Tooltip
+          title={sideVisible ? _l('收起') : _l('展开')}
+          placement="bottom"
+          align={{
+            offset: [0, 0],
+          }}
+        >
           <span>
             <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
           </span>
@@ -218,13 +228,12 @@ export default function InfoHeader(props) {
         )}
       </SideBarIcon>
     );
-  };
+  }; // 关闭
 
-  // 关闭
   const closeBtn = () => {
     const btn = (
       <IconBtn
-        className="Hand ThemeHoverColor3 closeBtn"
+        className="Hand hoverColorPrimary closeBtn"
         onClick={e => {
           e.stopPropagation();
           onCancel();
@@ -236,7 +245,14 @@ export default function InfoHeader(props) {
     return notDialog ? (
       btn
     ) : (
-      <Tooltip title={_l('关闭')} placement="bottom" align={{ offset: [0, 0] }} shortcut={'Esc'}>
+      <Tooltip
+        title={_l('关闭')}
+        placement="bottom"
+        align={{
+          offset: [0, 0],
+        }}
+        shortcut={'Esc'}
+      >
         {btn}
       </Tooltip>
     );
@@ -274,6 +290,7 @@ export default function InfoHeader(props) {
     favCom.then(res => {
       setIsFavorite(!isFavorite);
       favCom = null;
+
       if (res) {
         if (!isFavorite) {
           alert(_l('收藏成功'));
@@ -289,28 +306,46 @@ export default function InfoHeader(props) {
   const favBtn = () => {
     const btn = (
       <IconBtn
-        className={cx('Hand favBtn', { ThemeHoverColor3: !isFavorite })}
-        style={{ color: isFavorite ? 'var(--color-yellow)' : 'var(--color-text-secondary)' }}
+        className={cx('Hand favBtn', {
+          hoverColorPrimary: !isFavorite,
+        })}
+        style={{
+          color: isFavorite ? 'var(--color-yellow)' : 'var(--color-text-secondary)',
+        }}
         onClick={onFav}
       >
         <Icon className="Font22 Hand" icon={!isFavorite ? 'star_outline' : 'star'} />
       </IconBtn>
     );
     return (
-      <Tooltip title={isFavorite ? _l('取消收藏') : _l('收藏')} placement="bottom" align={{ offset: [0, 0] }}>
+      <Tooltip
+        title={isFavorite ? _l('取消收藏') : _l('收藏')}
+        placement="bottom"
+        align={{
+          offset: [0, 0],
+        }}
+      >
         {btn}
       </Tooltip>
     );
   };
 
   return (
-    <div className="recordHeader flexRow Font22" style={{ zIndex: 10 }}>
+    <div
+      className="recordHeader flexRow Font22"
+      style={{
+        zIndex: 10,
+      }}
+    >
       {!!header && !loading && (
         <div className="customHeader flex flexRow">
           {from === RECORD_INFO_FROM.DRAFT && (
             <SwitchRecord currentSheetRows={currentSheetRows} currentIndex={currentIndex} onSwitch={switchRecord} />
           )}
-          {React.cloneElement(header, { onSubmit: onSubmit, isSmall })}
+          {React.cloneElement(header, {
+            onSubmit: onSubmit,
+            isSmall,
+          })}
           {showSideBar && from !== RECORD_INFO_FROM.DRAFT && sideBarBtn()}
           {!notDialog && closeBtn()}
         </div>
@@ -321,7 +356,7 @@ export default function InfoHeader(props) {
             <SwitchRecord currentSheetRows={currentSheetRows} currentIndex={currentIndex} onSwitch={switchRecord} />
           )}
           <span
-            className={cx('refreshBtn Font20 textTertiary ThemeHoverColor3 Hand', {
+            className={cx('refreshBtn Font20 textTertiary hoverColorPrimary Hand', {
               isLoading: refreshRotating,
               disable: iseditting,
             })}
@@ -330,7 +365,13 @@ export default function InfoHeader(props) {
               onRefresh();
             }}
           >
-            <Tooltip title={_l('刷新')} placement="bottom" align={{ offset: [0, 0] }}>
+            <Tooltip
+              title={_l('刷新')}
+              placement="bottom"
+              align={{
+                offset: [0, 0],
+              }}
+            >
               <i className="icon icon-task-later" />
             </Tooltip>
           </span>
@@ -345,6 +386,7 @@ export default function InfoHeader(props) {
               sideVisible={sideVisible}
               recordbase={recordbase}
               recordinfo={recordinfo}
+              view={view}
               hideRecordInfo={hideRecordInfo}
               reloadRecord={reloadRecord}
               onDelete={onDelete}
@@ -361,24 +403,30 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
-          {!_.isEmpty(aiActionButtons) && isFunction(setModalRightComp) && !md.global.SysSettings.hideAIBasicFun && (
-            <div className="t-flex t-items-center">
-              <BgIconButton
-                iconStyle={{ fontSize: 18, color: 'var(--color-mingo-light)' }}
-                className="aiActionButtons"
-                text={
-                  <div className="t-flex">
-                    <span className="t-ml-2">{_l('AI 动作')}</span>
-                    <span className="aiButtonsCount">{aiActionButtons.length}</span>
-                  </div>
-                }
-                icon="auto_awesome"
-                onClick={() => {
-                  setAiActionActive(true);
-                }}
-              />
-            </div>
-          )}
+          {/* 记录没有配置AI动作时，管理员、开发者在详情页工具栏也显示AI动作入口 */}
+          {(isCharge || !_.isEmpty(aiActionButtons)) &&
+            isFunction(setModalRightComp) &&
+            !md.global.SysSettings.hideAIBasicFun && (
+              <div className="t-flex t-items-center">
+                <BgIconButton
+                  iconStyle={{
+                    fontSize: 18,
+                    color: 'var(--color-mingo-light)',
+                  }}
+                  className="aiActionButtons"
+                  text={
+                    <div className="t-flex">
+                      <span className="t-ml-2">{_l('AI 动作')}</span>
+                      {aiActionButtons.length ? <span className="aiButtonsCount">{aiActionButtons.length}</span> : null}
+                    </div>
+                  }
+                  icon="auto_awesome"
+                  onClick={() => {
+                    setAiActionActive(true);
+                  }}
+                />
+              </div>
+            )}
           {!isPublicShare && (
             <PrintList
               type={1}
@@ -410,6 +458,11 @@ export default function InfoHeader(props) {
             />
           )}
           {!notDialog && closeBtn()}
+
+          {isPublicRecordLand && !_.get(window, 'shareState.isPublicPage') && (
+            <PublicAppLangDropdown className="mRight16" appId={recordbase.appId} projectId={projectId} />
+          )}
+          {isPublicRecordLand && _.get(view, 'viewType') !== 6 && <CreateByMingDaoYun />}
         </div>
       )}
     </div>

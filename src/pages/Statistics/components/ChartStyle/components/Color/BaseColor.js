@@ -1,12 +1,12 @@
-import React, { Component, Fragment } from 'react';
-import { Button, ConfigProvider, Input, Modal, Radio } from 'antd';
+import React, { Component } from 'react';
+import { Button, ConfigProvider, Modal, Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
-import webCacheApi from 'src/api/webCache';
 import { getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
-import { getIsAlienationColor } from 'statistics/common';
+import { getIsAlienationColor } from 'statistics/common/reportDataUtils';
 import store from 'src/redux/configureStore';
+import { pathCompletion } from 'src/utils/common';
 import './BaseColor.less';
 
 export default class BaseColor extends Component {
@@ -29,44 +29,26 @@ export default class BaseColor extends Component {
     // colorGroupIndex 是老配置，表示选择的颜色组
     // colorGroupId 是新配置，表示选择的组织管理颜色组
     this.state = {
-      savePersonColorVisible: false,
       type: defaultType,
       colorGroupIndex: colorGroupIndex || 0,
       colorGroupId: colorGroupIndex ? null : colorGroupId || chartColors[0].id,
       colorIndex: 0,
       customColors: customColors || storeCustomColors || defaultCustomColors,
       controlColors: this.isAlienationColor ? controlColors : [],
-      personColors: [],
     };
     this.chartColors = chartColors;
   }
-  componentDidMount() {
-    webCacheApi
-      .get({
-        key: `${md.global.Account.accountId}-personColors`,
-      })
-      .then(data => {
-        if (data.data) {
-          this.setState({
-            personColors: JSON.parse(data.data),
-          });
-        }
-      });
-  }
   handleSave = () => {
     const { currentReport, onChange } = this.props;
-    const { type, colorGroupId, customColors, personColors } = this.state;
+    const { type, colorGroupId, customColors } = this.state;
     const param = {
       colorType: type,
       colorGroupIndex: undefined,
     };
 
     if (type === 1) {
-      if (colorGroupId && colorGroupId.includes('personColor')) {
-        param.colorGroupId = colorGroupId;
-        param.personColor = _.find(personColors, { id: colorGroupId });
-      } else {
-        param.colorGroupId = colorGroupId;
+      param.colorGroupId = colorGroupId;
+      if (!colorGroupId || !colorGroupId.includes('personColor')) {
         param.personColor = undefined;
       }
     } else {
@@ -81,16 +63,6 @@ export default class BaseColor extends Component {
         ...param,
       },
     });
-    if (personColors.length) {
-      webCacheApi.add({
-        key: `${md.global.Account.accountId}-personColors`,
-        value: JSON.stringify(personColors),
-      });
-    } else {
-      webCacheApi.clear({
-        key: `${md.global.Account.accountId}-personColors`,
-      });
-    }
   };
   handleChangeType = e => {
     const { value } = e.target;
@@ -100,10 +72,10 @@ export default class BaseColor extends Component {
     };
 
     if (value === 2) {
-      const { colorGroupId, personColors } = this.state;
+      const { colorGroupId } = this.state;
 
       if (colorGroupId && colorGroupId.includes('personColor')) {
-        const { colors } = _.find(personColors, { id: colorGroupId }) || {};
+        const colors = _.get(this.props.currentReport, 'style.personColor.colors');
 
         if (colors) {
           data.customColors = colors;
@@ -131,7 +103,6 @@ export default class BaseColor extends Component {
       customColors: customColors.concat('#1677ff'),
     });
   };
-  handleSavePersonColor = () => {};
   renderBaseColorFooter() {
     const { type } = this.state;
     const { projectId, onCancel } = this.props;
@@ -145,21 +116,10 @@ export default class BaseColor extends Component {
                 type="link"
                 className="pAll0"
                 onClick={() => {
-                  window.open(`/admin/settings/${projectId}/customcolor`);
+                  window.open(pathCompletion(`/admin/settings/${projectId}/customcolor`));
                 }}
               >
-                <span className="bold colorPrimary hoverTextPrimaryDark">{_l('前往组织后台编辑颜色')}</span>
-              </Button>
-            )}
-            {type === 2 && (
-              <Button
-                type="link"
-                className="pAll0"
-                onClick={() => {
-                  this.setState({ savePersonColorVisible: true });
-                }}
-              >
-                <span className="bold">{_l('保存为个人颜色')}</span>
+                <span className="bold colorPrimary hoverColorPrimaryDark">{_l('前往组织后台编辑颜色')}</span>
               </Button>
             )}
           </div>
@@ -176,7 +136,7 @@ export default class BaseColor extends Component {
     );
   }
   renderColorGroup({ name, id, colors }, index) {
-    const { colorGroupId, personColors } = this.state;
+    const { colorGroupId } = this.state;
     return (
       <div
         key={index}
@@ -202,18 +162,6 @@ export default class BaseColor extends Component {
         <div className="flexRow valignWrapper flex">
           <div className="Font13 mLeft10 colorName">{name}</div>
           <Icon className={cx('mLeft10 Font20', { Visibility: id !== colorGroupId })} icon="done" />
-          {id && id.includes('personColor') && id !== colorGroupId && (
-            <Icon
-              className="textTertiary Font20 deleteIcon"
-              icon="trash"
-              onClick={event => {
-                event.stopPropagation();
-                this.setState({
-                  personColors: personColors.filter(item => item.id !== id),
-                });
-              }}
-            />
-          )}
         </div>
       </div>
     );
@@ -269,7 +217,7 @@ export default class BaseColor extends Component {
   }
   render() {
     const { visible, onCancel } = this.props;
-    const { type, customColors, controlColors, personColors, savePersonColorVisible } = this.state;
+    const { type, customColors, controlColors } = this.state;
     const isOptionColor = !_.isEmpty(controlColors);
     const themeColor = _.get(store.getState(), 'appPkg.iconColor');
     const adaptThemeColors = this.chartColors.filter(item =>
@@ -277,97 +225,49 @@ export default class BaseColor extends Component {
     );
     const adaptThemeId = adaptThemeColors.map(item => item.id);
     return (
-      <Fragment>
-        <Modal
-          title={_l('图形颜色')}
-          width={480}
-          className="chartModal chartBaseColorModal"
-          visible={visible}
-          centered={true}
-          destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-          footer={this.renderBaseColorFooter()}
-          onCancel={onCancel}
-        >
-          <div className="mBottom16">{_l('配色方案')}</div>
-          <Radio.Group onChange={this.handleChangeType} value={type}>
-            {isOptionColor && <Radio value={0}>{_l('选项色')}</Radio>}
-            <Radio value={1}>{_l('色板')}</Radio>
-            <Radio value={2}>{_l('自定义')}</Radio>
-          </Radio.Group>
-          {type === 0 && <div className="mTop20 textSecondary">{_l('选项色是使用工作表该选项字段所配置的颜色')}</div>}
-          {type === 1 && (
-            <div className="colorSwatches">
-              <div className="textSecondary pLeft20 pRight20">{_l('组织')}</div>
-              {adaptThemeColors.map((item, index) =>
-                this.renderColorGroup({ ...item, id: 'adaptThemeColor', name: _l('适应主题') }, index, true),
-              )}
-              {this.chartColors
-                .filter(item => !adaptThemeId.includes(item.id))
-                .map((item, index) => this.renderColorGroup(item, index))}
-              {!!personColors.length && <div className="textSecondary mTop6 pLeft20 pRight20">{_l('个人')}</div>}
-              {personColors.map((item, index) => this.renderColorGroup(item, index))}
-            </div>
-          )}
-          {type === 2 && (
-            <div className="colorSwatches customSwatches">
-              {customColors.map((item, index) => this.renderColor(item, index))}
-              {customColors.length < 18 && (
-                <div className="flexRow valignWrapper colorItem hoverText" onClick={this.handleAddCustomColor}>
-                  <div className="addWrap flexRow alignItemsCenter justifyContentCenter">
-                    <Icon icon="add" className="Font20 textTertiary" />
-                  </div>
-                  <div className="Font13 mLeft5">{_l('添加颜色')}</div>
+      <Modal
+        title={_l('图形颜色')}
+        width={520}
+        className="chartModal chartBaseColorModal"
+        visible={visible}
+        centered={true}
+        destroyOnClose={true}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
+        footer={this.renderBaseColorFooter()}
+        onCancel={onCancel}
+      >
+        <div className="mBottom16">{_l('配色方案')}</div>
+        <Radio.Group onChange={this.handleChangeType} value={type}>
+          {isOptionColor && <Radio value={0}>{_l('选项色')}</Radio>}
+          <Radio value={1}>{_l('色板')}</Radio>
+          <Radio value={2}>{_l('自定义')}</Radio>
+        </Radio.Group>
+        {type === 0 && <div className="mTop20 textSecondary">{_l('选项色是使用工作表该选项字段所配置的颜色')}</div>}
+        {type === 1 && (
+          <div className="colorSwatches">
+            <div className="textSecondary pLeft20 pRight20">{_l('组织')}</div>
+            {adaptThemeColors.map((item, index) =>
+              this.renderColorGroup({ ...item, id: 'adaptThemeColor', name: _l('适应主题') }, index, true),
+            )}
+            {this.chartColors
+              .filter(item => !adaptThemeId.includes(item.id))
+              .map((item, index) => this.renderColorGroup(item, index))}
+          </div>
+        )}
+        {type === 2 && (
+          <div className="colorSwatches customSwatches">
+            {customColors.map((item, index) => this.renderColor(item, index))}
+            {customColors.length < 18 && (
+              <div className="flexRow valignWrapper colorItem hoverText" onClick={this.handleAddCustomColor}>
+                <div className="addWrap flexRow alignItemsCenter justifyContentCenter">
+                  <Icon icon="add" className="Font20 textTertiary" />
                 </div>
-              )}
-            </div>
-          )}
-        </Modal>
-        <Modal
-          title={_l('保存')}
-          width={480}
-          className="chartModal savePersonColorModal"
-          visible={savePersonColorVisible}
-          centered={true}
-          destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-          footer={
-            <div className="mTop20 mBottom10 pRight8">
-              <ConfigProvider autoInsertSpaceInButton={false}>
-                <Button type="link" onClick={() => this.setState({ savePersonColorVisible: false })}>
-                  {_l('取消')}
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    const { value } = document.querySelector('.savePersonColorModal input');
-
-                    if (!value) {
-                      alert(_l('请输入名称'), 3);
-                      return;
-                    }
-
-                    this.setState({
-                      type: 1,
-                      savePersonColorVisible: false,
-                      personColors: this.state.personColors.concat({
-                        id: `personColor-${Date.now()}`,
-                        name: value,
-                        colors: this.state.customColors,
-                      }),
-                    });
-                  }}
-                >
-                  {_l('确认')}
-                </Button>
-              </ConfigProvider>
-            </div>
-          }
-          onCancel={() => this.setState({ savePersonColorVisible: false })}
-        >
-          <Input className="chartInput" autoFocus />
-        </Modal>
-      </Fragment>
+                <div className="Font13 mLeft5">{_l('添加颜色')}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     );
   }
 }

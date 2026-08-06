@@ -72,9 +72,9 @@ const QA_TEXT = [
     content: (
       <Fragment>
         <div>{_l('创建索引时，会有下列限制，不遵循限制可能会出现索引创建失败的情况：')}</div>
-        <div>{_l('○ 创建「唯一索引」时，选择的索引字段在已有记录里不能存在重复值；')}</div>
+        <div>{_l('○ 创建「唯一索引」时，选择的索引字段在已有记录里不能存在重复值（包含回收站内的记录）；')}</div>
         <div>{_l('○ 创建索引时选择的字段不能和之前已创建的某个索引的字段完全一样；')}</div>
-        <div>{_l('○ 一张工作表只能创建一个「文本索引」或「所有文本字段全文索引」；')}</div>
+        <div>{_l('○ 一张工作表只能创建一个「文本索引」；')}</div>
         <div>{_l('○ 一个索引只能包含一个「选项」类型的字段，如单选/多选/人员/部门等；')}</div>
       </Fragment>
     ),
@@ -127,11 +127,6 @@ export default class CreateIndex extends Component {
   changeIndexOnly = checked => {
     this.setState({ uniqueIndex: !checked });
   };
-  // 添加通配符文本索引
-  addUsualTxt = checked => {
-    this.setState({ wildcardIndex: !checked });
-  };
-
   saveIndex = () => {
     let { uniqueIndex, selectedIndexList = [], customeIndexName = '', wildcardIndex } = this.state;
     const { worksheetId, isEdit, currentIndexInfo = {}, appId, getIndexesInfo = () => {}, indexList = [] } = this.props;
@@ -349,7 +344,7 @@ export default class CreateIndex extends Component {
             <span>{_l('选择索引字段')}</span>
             <Tooltip
               title={_l(
-                '每张工作表只能创建一个「文本索引」或者「文本字段全文索引」；创建「文本索引」时，不能包含「选项字段」；每个索引只能包含一个「选项字段」',
+                '每张工作表只能创建一个「文本索引」；创建「文本索引」时，不能包含「选项字段」；每个索引只能包含一个「选项字段」',
               )}
               placement="bottom"
             >
@@ -448,19 +443,6 @@ export default class CreateIndex extends Component {
               placement="bottom"
             >
               <Icon icon="help" className="mLeft8 lineHeight20 mRight24 textTertiary" />
-            </Tooltip>
-            <Checkbox
-              checked={wildcardIndex}
-              disabled={selectedIndexList.some(item => item.indexType == 'text')}
-              onClick={this.addUsualTxt}
-            >
-              {_l('所有文本字段全文索引')}
-            </Checkbox>
-            <Tooltip
-              title={_l('支持所有文本字段全文检索。工作表创建文本索引后不可再创建此类型索引')}
-              placement="bottom"
-            >
-              <Icon icon="help" className="mLeft8 lineHeight20 textTertiary" />
             </Tooltip>
           </div>
           <div className="minBold sunTitle">{_l('索引名称')}</div>

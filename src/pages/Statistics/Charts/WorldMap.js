@@ -5,7 +5,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { getMapKey } from 'src/ming-ui/components/amap/MapLoader';
 import { formatrChartValue, getChartColors } from './common';
 
@@ -172,28 +173,31 @@ export default class extends Component {
   componentWillUnmount() {
     this.scene && this.scene.destroy();
   }
-  componentWillReceiveProps(nextProps) {
-    const { style = {}, displaySetup = {} } = nextProps.reportData;
-    const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = this.props.reportData;
 
-    if (
-      (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
-      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
-      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      !_.isEqual(style, oldStyle) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
-        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
-      )
-    ) {
-      this.resetChart(nextProps);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { style = {}, displaySetup = {} } = this.props.reportData;
+      const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = prevProps.reportData;
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.isLinkageData =
-        nextProps.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      if (
+        (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
+        displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+        !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+        !_.isEqual(style, oldStyle) ||
+        this.props.themeColor !== prevProps.themeColor ||
+        !_.isEqual(
+          _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+          _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        )
+      ) {
+        this.resetChart(this.props);
+      }
+
+      if (this.props.isLinkageData !== prevProps.isLinkageData) {
+        this.isLinkageData =
+          this.props.isLinkageData &&
+          !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      }
     }
   }
   handleClickPoint = event => {
@@ -443,7 +447,7 @@ export default class extends Component {
               className="pointer Font20 textSecondary"
               icon="add"
               onClick={() => {
-                this.scene.zoomIn();
+                this.scene && this.scene.zoomIn();
               }}
             />
           </Tooltip>
@@ -452,7 +456,7 @@ export default class extends Component {
               className="pointer Font17 textSecondary mTop10 mBottom10"
               icon="gps_fixed"
               onClick={() => {
-                this.scene.setZoom(1);
+                this.scene && this.scene.setZoom(1);
               }}
             />
           </Tooltip>
@@ -461,7 +465,7 @@ export default class extends Component {
               className="pointer Font20 textSecondary"
               icon="minus"
               onClick={() => {
-                this.scene.zoomOut();
+                this.scene && this.scene.zoomOut();
               }}
             />
           </Tooltip>

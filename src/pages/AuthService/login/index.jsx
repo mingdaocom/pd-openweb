@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { initIntlTelInput } from 'ming-ui/components/intlTelInput';
+import { initIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import appManagementController from 'src/api/appManagement';
 import loginController from 'src/api/login';
 import privateSysSetting from 'src/api/privateSysSetting';
 import projectApi from 'src/api/project';
+import ChangeLang from 'src/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import { getRequest } from 'src/utils/sso';
@@ -63,6 +64,12 @@ export default function Login() {
 
   const onInit = () => {
     const request = getRequest();
+    const accountWebUrl = _.get(window, 'md.global.Config.AccountUrl');
+
+    if (_.get(window, 'md.global.SysSettings.initialized') === false && accountWebUrl) {
+      location.href = `${accountWebUrl}createPlatformAdmin`;
+      return;
+    }
 
     //兼容移动端app的只允许企业单点登录
     if (
@@ -161,11 +168,7 @@ export default function Login() {
         host: location.host,
         projectId: request.projectId || request.projectid || '', //'167046ff-fe94-4d7d-8a5e-b9148be9c13f', //
       })
-      .then(async res => {
-        if (!res || !res.companyName) {
-          location.replace('/privateImageInstall');
-          return;
-        }
+      .then(async (res = {}) => {
 
         //request.loginMode === 'systemLogin' 指定平台账号登录方式
         if (request.loginMode === 'systemLogin') {
@@ -226,6 +229,7 @@ export default function Login() {
       <WrapBg homeImage={state.homeImage} />
       <div className="loginBox">
         <div className="loginContainer">
+          <ChangeLang className="authServiceLang" />
           <Header
             lineLoading={state.lineLoading}
             logo={state.logo}

@@ -26,24 +26,16 @@ import XAxis from './components/XAxis';
 import yAxisPanelGenerator, { bidirectionalBarChartYAxisPanelGenerator } from './components/YAxis';
 import './index.less';
 
-@connect(
-  state => ({
-    ..._.pick(state.statistics, ['currentReport', 'reportData', 'worksheetInfo']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ChartStyle extends Component {
+let ChartStyle = class ChartStyle extends Component {
   constructor(props) {
     super(props);
   }
+
   handleChangeDisplaySetup = (data, isRequest = false) => {
     const { displaySetup } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
-        displaySetup: {
-          ...displaySetup,
-          ...data,
-        },
+        displaySetup: { ...displaySetup, ...data },
       },
       isRequest,
     );
@@ -53,16 +45,7 @@ export default class ChartStyle extends Component {
     const { display } = rightY;
     this.props.changeCurrentReport(
       {
-        rightY: {
-          ...rightY,
-          display: {
-            ...display,
-            ydisplay: {
-              ...display.ydisplay,
-              ...data,
-            },
-          },
-        },
+        rightY: { ...rightY, display: { ...display, ydisplay: { ...display.ydisplay, ...data } } },
       },
       isRequest,
     );
@@ -79,14 +62,12 @@ export default class ChartStyle extends Component {
     const { style } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
-        style: {
-          ...style,
-          ...data,
-        },
+        style: { ...style, ...data },
       },
       isRequest,
     );
   };
+
   renderCount() {
     const { reportType, displaySetup, summary, yaxisList, rightY } = this.props.currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
@@ -97,7 +78,9 @@ export default class ChartStyle extends Component {
       <Collapse.Panel
         key="count"
         header={_l('总计')}
-        className={cx({ collapsible: !switchChecked })}
+        className={cx({
+          collapsible: !switchChecked,
+        })}
         extra={
           <Switch
             size="small"
@@ -109,21 +92,9 @@ export default class ChartStyle extends Component {
               if (isMultiaxis) {
                 this.props.changeCurrentReport(
                   {
-                    displaySetup: {
-                      ...displaySetup,
-                      showTotal: false,
-                    },
-                    summary: {
-                      ...summary,
-                      showTotal: checked,
-                    },
-                    rightY: {
-                      ...rightY,
-                      summary: {
-                        ...rightY.summary,
-                        showTotal: checked,
-                      },
-                    },
+                    displaySetup: { ...displaySetup, showTotal: false },
+                    summary: { ...summary, showTotal: checked },
+                    rightY: { ...rightY, summary: { ...rightY.summary, showTotal: checked } },
                   },
                   true,
                 );
@@ -145,14 +116,8 @@ export default class ChartStyle extends Component {
                   onChange={() => {
                     this.props.changeCurrentReport(
                       {
-                        displaySetup: {
-                          ...displaySetup,
-                          showTotal: false,
-                        },
-                        summary: {
-                          ...summary,
-                          showTotal: !summary.showTotal,
-                        },
+                        displaySetup: { ...displaySetup, showTotal: false },
+                        summary: { ...summary, showTotal: !summary.showTotal },
                       },
                       true,
                     );
@@ -167,10 +132,7 @@ export default class ChartStyle extends Component {
             onChangeSummary={(data, isRequest = true) => {
               this.props.changeCurrentReport(
                 {
-                  summary: {
-                    ...summary,
-                    ...data,
-                  },
+                  summary: { ...summary, ...data },
                 },
                 isRequest,
               );
@@ -187,17 +149,8 @@ export default class ChartStyle extends Component {
                     onChange={() => {
                       this.props.changeCurrentReport(
                         {
-                          displaySetup: {
-                            ...displaySetup,
-                            showTotal: false,
-                          },
-                          rightY: {
-                            ...rightY,
-                            summary: {
-                              ...rightY.summary,
-                              showTotal: !rightY.summary.showTotal,
-                            },
-                          },
+                          displaySetup: { ...displaySetup, showTotal: false },
+                          rightY: { ...rightY, summary: { ...rightY.summary, showTotal: !rightY.summary.showTotal } },
                         },
                         true,
                       );
@@ -212,13 +165,7 @@ export default class ChartStyle extends Component {
               onChangeSummary={(data, isRequest = true) => {
                 this.props.changeCurrentReport(
                   {
-                    rightY: {
-                      ...rightY,
-                      summary: {
-                        ...rightY.summary,
-                        ...data,
-                      },
-                    },
+                    rightY: { ...rightY, summary: { ...rightY.summary, ...data } },
                   },
                   isRequest,
                 );
@@ -229,9 +176,11 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderNumberCount() {
     return numberSummaryPanelGenerator({ ...this.props, onChangeDisplayValue: this.handleChangeDisplayValue });
   }
+
   renderNumberStyle() {
     return numberStylePanelGenerator({
       ...this.props,
@@ -240,6 +189,7 @@ export default class ChartStyle extends Component {
       handleChangeDisplaySetup: this.handleChangeDisplaySetup,
     });
   }
+
   renderLegend() {
     const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
 
@@ -262,7 +212,9 @@ export default class ChartStyle extends Component {
       <Collapse.Panel
         key="legend"
         header={_l('图例')}
-        className={cx({ collapsible: !displaySetup.showLegend })}
+        className={cx({
+          collapsible: !displaySetup.showLegend,
+        })}
         extra={
           <Switch
             size="small"
@@ -281,6 +233,7 @@ export default class ChartStyle extends Component {
           {LegendTypeData.map(item => (
             <div
               key={item.value}
+              title={item.text}
               className={cx('flex centerAlign pointer textSecondary', {
                 active: displaySetup.legendType == item.value,
               })}
@@ -288,13 +241,14 @@ export default class ChartStyle extends Component {
                 this.handleChangeDisplayValue('legendType', item.value);
               }}
             >
-              {item.text}
+              <span className="ellipsis">{item.text}</span>
             </div>
           ))}
         </div>
       </Collapse.Panel>
     );
   }
+
   renderLabel() {
     const { currentReport } = this.props;
     return (
@@ -305,10 +259,12 @@ export default class ChartStyle extends Component {
           onChangeDisplaySetup={this.handleChangeDisplaySetup}
           onChangeYDisplaySetup={this.handleChangeYDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
+          onChangeCurrentReport={this.props.changeCurrentReport}
         />
       </Collapse.Panel>
     );
   }
+
   renderGaugeColor() {
     return gaugeColorPanelGenerator({
       ...this.props,
@@ -316,18 +272,15 @@ export default class ChartStyle extends Component {
       onChangeDisplayValue: this.handleChangeDisplayValue,
     });
   }
+
   renderScale() {
-    return scalePanelGenerator({
-      ...this.props,
-      onChangeStyle: this.handleChangeStyle,
-    });
+    return scalePanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
   }
+
   renderIndicator() {
-    return indicatorPanelGenerator({
-      ...this.props,
-      onChangeStyle: this.handleChangeStyle,
-    });
+    return indicatorPanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
   }
+
   renderLayout() {
     const { currentReport } = this.props;
     const { style } = currentReport;
@@ -342,17 +295,27 @@ export default class ChartStyle extends Component {
         value = 1;
       }
 
-      this.handleChangeStyle({ columnCount: value });
+      this.handleChangeStyle({
+        columnCount: value,
+      });
     }, 100);
 
     return (
       <Collapse.Panel key="layout" header={_l('布局')}>
         <div>
           <div className="flexRow valignWrapper mBottom12">
-            <div style={{ width: 90 }}>{_l('每行显示个数')}</div>
+            <div
+              style={{
+                width: 90,
+              }}
+            >
+              {_l('每行显示个数')}
+            </div>
             <Input
               className="chartInput columnCountInput"
-              style={{ width: 78 }}
+              style={{
+                width: 78,
+              }}
               value={columnCount}
               onChange={event => {
                 changeColumnCount(event.target.value);
@@ -383,7 +346,9 @@ export default class ChartStyle extends Component {
             <Checkbox
               checked={style.allowScroll}
               onChange={e => {
-                this.handleChangeStyle({ allowScroll: e.target.checked });
+                this.handleChangeStyle({
+                  allowScroll: e.target.checked,
+                });
               }}
             >
               {_l('允许容器内滚动')}
@@ -396,6 +361,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderXAxis() {
     const { currentReport } = this.props;
     const { xdisplay, fontStyle, showChartType } = currentReport.displaySetup;
@@ -407,7 +373,9 @@ export default class ChartStyle extends Component {
       <Collapse.Panel
         key="xAxis"
         header={isVertical ? _l('Y轴') : isBidirectionalBarChart ? _l('维度轴') : _l('X轴')}
-        className={cx({ collapsible: !switchChecked })}
+        className={cx({
+          collapsible: !switchChecked,
+        })}
         extra={
           <Switch
             size="small"
@@ -418,11 +386,7 @@ export default class ChartStyle extends Component {
             onChange={checked => {
               this.handleChangeDisplaySetup({
                 fontStyle: checked ? 1 : 0,
-                xdisplay: {
-                  ...xdisplay,
-                  showDial: checked,
-                  showTitle: checked,
-                },
+                xdisplay: { ...xdisplay, showDial: checked, showTitle: checked },
               });
               this.handleChangeStyle({
                 showXAxisSlider: checked,
@@ -439,6 +403,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderYAxis() {
     const { currentReport } = this.props;
     const isBidirectionalBarChart = currentReport.reportType === reportTypes.BidirectionalBarChart;
@@ -446,6 +411,7 @@ export default class ChartStyle extends Component {
       ? bidirectionalBarChartYAxisPanelGenerator(this.props)
       : yAxisPanelGenerator(this.props);
   }
+
   renderQuadrant() {
     const { style } = this.props.currentReport;
     const { quadrant = {} } = style;
@@ -453,7 +419,9 @@ export default class ChartStyle extends Component {
       <Collapse.Panel
         key="quadrant"
         header={_l('四象限')}
-        className={cx({ collapsible: !quadrant.visible })}
+        className={cx({
+          collapsible: !quadrant.visible,
+        })}
         extra={
           <Switch
             size="small"
@@ -475,10 +443,7 @@ export default class ChartStyle extends Component {
                 textColor: '#9e9e9e',
               };
               this.handleChangeStyle({
-                quadrant: {
-                  ...(_.isEmpty(quadrant) ? defaultQuadrant : quadrant),
-                  visible: checked,
-                },
+                quadrant: { ...(_.isEmpty(quadrant) ? defaultQuadrant : quadrant), visible: checked },
               });
             }}
           />
@@ -488,16 +453,14 @@ export default class ChartStyle extends Component {
           quadrant={quadrant}
           onChangeQuadrant={data => {
             this.handleChangeStyle({
-              quadrant: {
-                ...quadrant,
-                ...data,
-              },
+              quadrant: { ...quadrant, ...data },
             });
           }}
         />
       </Collapse.Panel>
     );
   }
+
   renderMeasureAxis() {
     const { currentReport } = this.props;
     return (
@@ -506,9 +469,11 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderTopChart() {
     return topChartPanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
   }
+
   renderWordCloudFontSize() {
     const { currentReport } = this.props;
     return (
@@ -517,6 +482,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderDataFilter() {
     const { currentReport } = this.props;
     const { displaySetup, reportType, pivotTable } = currentReport;
@@ -532,10 +498,7 @@ export default class ChartStyle extends Component {
               onChange={count => {
                 this.props.changeCurrentReport(
                   {
-                    pivotTable: {
-                      ...pivotTable,
-                      showLineCount: count,
-                    },
+                    pivotTable: { ...pivotTable, showLineCount: count },
                   },
                   true,
                 );
@@ -548,10 +511,7 @@ export default class ChartStyle extends Component {
               onChange={count => {
                 this.props.changeCurrentReport(
                   {
-                    pivotTable: {
-                      ...pivotTable,
-                      showColumnCount: count,
-                    },
+                    pivotTable: { ...pivotTable, showColumnCount: count },
                   },
                   true,
                 );
@@ -570,12 +530,11 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderUnit() {
-    return unitPanelGenerator({
-      ...this.props,
-      onChangeStyle: this.handleChangeStyle,
-    });
+    return unitPanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
   }
+
   renderTitle() {
     const { currentReport, changeCurrentReport } = this.props;
     const { showTitle = true } = currentReport.displaySetup;
@@ -583,7 +542,9 @@ export default class ChartStyle extends Component {
       <Collapse.Panel
         key="title"
         header={_l('标题')}
-        className={cx({ collapsible: !showTitle })}
+        className={cx({
+          collapsible: !showTitle,
+        })}
         extra={
           <Switch
             size="small"
@@ -605,6 +566,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderColor() {
     const { changeCurrentReport } = this.props;
     return (
@@ -617,6 +579,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderPivotTableFieldColor() {
     const { currentReport, changeCurrentReport } = this.props;
     return (
@@ -629,6 +592,7 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+
   renderCountConfig() {
     const { currentReport, changeCurrentReport } = this.props;
     const { reportType } = currentReport;
@@ -638,10 +602,7 @@ export default class ChartStyle extends Component {
     }
 
     if (reportTypes.PivotTable === reportType) {
-      return pivotTableCountPanelGenerator({
-        ...this.props,
-        onChangeStyle: this.handleChangeStyle,
-      });
+      return pivotTableCountPanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
     }
 
     if (reportTypes.NumberChart === reportType) {
@@ -650,13 +611,7 @@ export default class ChartStyle extends Component {
 
     if ([reportTypes.BarChart, reportTypes.LineChart].includes(reportType)) {
       const { summary, yaxisList } = currentReport;
-      return allCountPanelGenerator({
-        ...this.props,
-        key: 'allCount',
-        title: _l('总计'),
-        summary,
-        yaxisList,
-      });
+      return allCountPanelGenerator({ ...this.props, key: 'allCount', title: _l('总计'), summary, yaxisList });
     }
 
     if (reportTypes.DualAxes === reportType) {
@@ -693,13 +648,7 @@ export default class ChartStyle extends Component {
               const { showTotal } = displaySetup;
               changeCurrentReport(
                 {
-                  rightY: {
-                    ...rightY,
-                    summary: {
-                      ...summary,
-                      showTotal,
-                    },
-                  },
+                  rightY: { ...rightY, summary: { ...summary, showTotal } },
                 },
                 isRequest,
               );
@@ -711,18 +660,21 @@ export default class ChartStyle extends Component {
 
     return this.renderCount();
   }
+
   renderExpandIcon(panelProps) {
     return (
       <Icon
-        className={cx('Font18 mRight5 textTertiary', { 'icon-arrow-active': panelProps.isActive })}
+        className={cx('Font18 mRight5 textTertiary', {
+          'icon-arrow-active': panelProps.isActive,
+        })}
         icon="arrow-down-border"
       />
     );
   }
+
   render() {
     const { currentReport, sourceType } = this.props;
     const { reportType } = currentReport;
-
     return (
       <div className="chartStyle">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
@@ -791,4 +743,9 @@ export default class ChartStyle extends Component {
       </div>
     );
   }
-}
+};
+ChartStyle = connect(
+  state => ({ ..._.pick(state.statistics, ['currentReport', 'reportData', 'worksheetInfo']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ChartStyle);
+export default ChartStyle;

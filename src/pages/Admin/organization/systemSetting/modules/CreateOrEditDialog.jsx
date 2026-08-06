@@ -12,13 +12,15 @@ export default class SiteName extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      workSiteName: nextProps.workSiteId ? nextProps.workSiteName : '',
-    });
-    setTimeout(() => {
-      $(this.processName).focus();
-    }, 300);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        workSiteName: this.props.workSiteId ? this.props.workSiteName : '',
+      });
+      setTimeout(() => {
+        $(this.processName).focus();
+      }, 300);
+    }
   }
 
   handleChange(e) {

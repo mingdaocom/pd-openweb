@@ -81,6 +81,17 @@ const featureData = [
     value3: _l('300G/月年'),
   },
   {
+    className: 'aiWelfarePoint',
+    name: _l('AI 福利点'),
+    dataTip: _l(
+      '「AI 福利点」（1福利点=1个信用点）可用于抵扣 mingo 中AI搭建和查询功能费用，组织所有用户共享；使用 AI 搭建应用时会优先消耗 AI 福利点，额度用尽后再从通用信用点扣费',
+    ),
+    value0: _l('一次性赠送50'),
+    value1: _l('50/月'),
+    value2: _l('100/月（含专业版试用，试用结束后清零）'),
+    value3: _l('200/月'),
+  },
+  {
     className: 'addConditionGraoup',
     name: _l('条件组'),
     dataTip: _l('添加条件组，结合 且/或 条件进行筛选'),
@@ -153,7 +164,7 @@ const featureData = [
   },
   {
     className: 'apiProxy',
-    name: _l('API网络代理'),
+    name: _l('API 网络代理'),
     dataTip: _l('发送API请求时可以使用您配置的代理服务器'),
     value0: 'basicNo',
     value1: 'basicNo',
@@ -244,15 +255,6 @@ const featureData = [
     value3: 'basicPng',
   },
   {
-    className: 'multiLanguage',
-    name: _l('应用多语言'),
-    dataTip: '',
-    value0: 'basicNo',
-    value1: 'basicNo',
-    value2: 'basicPng',
-    value3: 'basicPng',
-  },
-  {
     className: 'appBackupRestore',
     name: _l('应用备份/还原'),
     dataTip: '',
@@ -332,6 +334,15 @@ const featureData = [
     dataTip: _l(
       '可根据配置的打印模板将记录转为PDF、Word或Excel文件，可以通过新增记录、更新记录或发送邮件节点将文件写入附件',
     ),
+    value0: 'basicNo',
+    value1: 'basicPng',
+    value2: 'basicPng',
+    value3: 'basicPng',
+  },
+  {
+    className: 'multiLanguage',
+    name: _l('应用多语言'),
+    dataTip: '',
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',
@@ -703,6 +714,7 @@ export const VERSION_CARD_LIST = [
       _l('每月 100,000 次工作流执行'),
       _l('每月 100,000 次数据同步'),
       _l('每年 60GB 附件上传'),
+      _l('100 个外部门户用户'),
     ],
   },
   {
@@ -721,7 +733,7 @@ export const VERSION_CARD_LIST = [
       _l('使用分析'),
       _l('应用备份与恢复'),
       _l('代码块'),
-      _l('API网络代理'),
+      _l('API 网络代理'),
       _l('封装业务流程'),
     ],
   },

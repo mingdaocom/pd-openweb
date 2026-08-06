@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Checkbox, Collapse, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { isNumberControl } from 'statistics/common';
+import { isNumberControl } from 'statistics/common/controlUtils';
 import { Count, Location } from './Count';
 import PreinstallStyle from './PreinstallStyle';
 import SubLineCount from './SubLineCount';

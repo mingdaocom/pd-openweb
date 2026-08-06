@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Button, Dialog, FunctionWrap, Radio } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
+import { pathCompletion } from 'src/utils/common';
 
 const TextWrap = styled.div`
   display: inline-block;
@@ -22,7 +23,7 @@ function WeChatServiceAccountsDialog(props) {
   const [selectedAppId, setSelectedAppId] = useState(props.appId);
 
   const toLinkSystemService = () => {
-    window.open(`/admin/weixin/${projectId}`);
+    window.open(pathCompletion(`/admin/weixin/${projectId}`));
   };
 
   return (
@@ -33,7 +34,7 @@ function WeChatServiceAccountsDialog(props) {
       footer={
         <div className="flexRow alignItemsCenter">
           {weChatServiceAccounts.length > 0 && (
-            <div className="Hand colorPrimary hoverTextPrimaryLight" onClick={toLinkSystemService}>
+            <div className="Hand colorPrimary hoverColorPrimaryLight" onClick={toLinkSystemService}>
               {_l('添加微信服务号')}
             </div>
           )}
@@ -64,7 +65,7 @@ function WeChatServiceAccountsDialog(props) {
       {!weChatServiceAccounts.length ? (
         <div className="LineHeight50 TxtCenter textTertiary">
           <span>{_l('暂无微信服务号,请先前往')}</span>
-          <span className="colorPrimary hoverTextPrimaryLight" onClick={toLinkSystemService}>
+          <span className="colorPrimary hoverColorPrimaryLight" onClick={toLinkSystemService}>
             {_l('组织后台')}
           </span>
           <span>{_l('添加')}</span>
@@ -179,7 +180,7 @@ export default function WeChatServiceAccount(props) {
       {weChatServiceAccounts.length === 0 ? (
         <Fragment>
           {_l('暂未绑定认证的服务号，')}
-          <a href={`/admin/weixin/${projectId}`} className="colorPrimary hoverTextPrimaryLight">
+          <a href={pathCompletion(`/admin/weixin/${projectId}`)} className="colorPrimary hoverColorPrimaryLight">
             {_l('请前往组织后台')}
           </a>
           {_l('添加微信服务号')}
@@ -200,13 +201,16 @@ export default function WeChatServiceAccount(props) {
             (weChatServiceAccounts.length === 1 &&
               selectedServiceAppId &&
               !weChatServiceAccounts.find(item => item.appId === selectedServiceAppId))) && (
-            <span className="colorPrimary hoverTextPrimaryLight mLeft5 Hand" onClick={handleChangeWeChatServiceAccount}>
+            <span
+              className="colorPrimary hoverColorPrimaryLight mLeft5 Hand"
+              onClick={handleChangeWeChatServiceAccount}
+            >
               {_l('修改')}
             </span>
           )}
         </Fragment>
       ) : (
-        <span className="colorPrimary hoverTextPrimaryLight Hand" onClick={handleChangeWeChatServiceAccount}>
+        <span className="colorPrimary hoverColorPrimaryLight Hand" onClick={handleChangeWeChatServiceAccount}>
           {_l('设置')}
         </span>
       )}

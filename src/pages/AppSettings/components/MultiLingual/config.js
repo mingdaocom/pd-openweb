@@ -15,4 +15,7 @@ export const LANG_DATA_TYPE = {
   customePageStatistics: 12,
   workflow: 14,
   workflowNode: 15,
+  appRole: 16,
+  customePageTabs: 17,
+  customePageCard: 18,
 };

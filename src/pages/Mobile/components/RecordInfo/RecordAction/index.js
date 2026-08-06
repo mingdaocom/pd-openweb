@@ -16,7 +16,7 @@ import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import { getTranslateInfo } from 'src/utils/app';
 import { appendDataToLocalPushUniqueId, emitter, getRequest } from 'src/utils/common';
-import { getCurrentProject, handlePushState } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/project';
 import { handleRecordError } from 'src/utils/record';
 import MobilePrintList from '../MobilePrintList';
 import AiActionButtons from './AiActionButtons';
@@ -65,9 +65,12 @@ class RecordAction extends Component {
     customBtnWorkflow();
     emitter.on('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.recordActionVisible !== this.props.recordActionVisible && this.props.isBatchOperate) {
-      customBtnWorkflow();
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.recordActionVisible !== prevProps.recordActionVisible && prevProps.isBatchOperate) {
+        customBtnWorkflow();
+      }
     }
   }
   componentWillUnmount() {
@@ -81,9 +84,13 @@ class RecordAction extends Component {
   recef = React.createRef();
 
   get tipConfig() {
+    const { appId } = this.props;
+    const translateInfo = getTranslateInfo(appId, null, this.activeBtn.btnId);
+    const tiptext = get(this.activeBtn, 'advancedSetting.tiptext');
+
     return {
       enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
-      tipText: get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
+      tipText: tiptext ? translateInfo.completeText || tiptext || _l('操作完成') : _l('操作完成'),
     };
   }
 
@@ -171,11 +178,11 @@ class RecordAction extends Component {
           _.get(btn, 'advancedSetting') || {};
         doubleConfirmFunc({
           projectId: !isBatchOperate ? sheetRow.projectId : worksheetInfo.projectId,
-          title: translateInfo.confirmMsg || btn.confirmMsg,
-          description: translateInfo.confirmContent || confirmcontent,
+          title: btn.confirmMsg ? translateInfo.confirmMsg || btn.confirmMsg : '',
+          description: confirmcontent ? translateInfo.confirmContent || confirmcontent : '',
           enableRemark: enableremark,
-          remarkName: translateInfo.remark || remarkname,
-          remarkHint: translateInfo.hintText || remarkhint,
+          remarkName: remarkname ? translateInfo.remark || remarkname : '',
+          remarkHint: remarkhint ? translateInfo.hintText || remarkhint : '',
           remarkRequired: remarkrequired,
           remarktype,
           remarkoptions: (() => {
@@ -186,15 +193,15 @@ class RecordAction extends Component {
               template: template.map((item, index) => {
                 return {
                   ...item,
-                  value: translateInfo[`templateName_${index}`] || item.value,
+                  value: item.value ? translateInfo[`templateName_${index}`] || item.value : '',
                 };
               }),
             });
           })(),
           verifyPwd: btn.verifyPwd,
           enableConfirm: btn.enableConfirm,
-          okText: translateInfo.sureName || btn.sureName,
-          cancelText: translateInfo.cancelName || btn.cancelName,
+          okText: btn.sureName ? translateInfo.sureName || btn.sureName : '',
+          cancelText: btn.cancelName ? translateInfo.cancelName || btn.cancelName : '',
           btn,
           onOk: onOk ? onOk : btnInfo => run(btnInfo),
           onClose,
@@ -381,7 +388,6 @@ class RecordAction extends Component {
           controlId: addRelationControl.controlId,
           worksheetId: worksheetId,
         };
-        window.isMingDaoApp && handlePushState('page', 'newRecord');
         this.setState({
           newRecordVisible: true,
         });
@@ -752,6 +758,9 @@ class RecordAction extends Component {
       updateRecordLock = () => {},
       updatePrintList = () => {},
       formData,
+      appDetail,
+      getWorksheetShareUrl,
+      view,
     } = this.props;
     const { btnDisable, rowInfo, printList } = this.state;
     const projectId = sheetRow.projectId || worksheetInfo.projectId;
@@ -772,6 +781,8 @@ class RecordAction extends Component {
       _.get(window, 'shareState.isPublicForm') ||
       _.get(window, 'shareState.isPublicWorkflowRecord') ||
       _.get(window, 'shareState.isPublicPrint');
+    const allowBatchPrint =
+      !isPublicShare && (!!printList.length || isOpenPermit(permitList.recordPrintSwitch, switchPermit, viewId));
 
     return (
       <Popup
@@ -793,7 +804,7 @@ class RecordAction extends Component {
             <div className="flexRow justifyContentCenter alignItemsCenter mBottom30">
               <LoadDiv />
             </div>
-          ) : isBatchOperate && _.isEmpty(customBtns) && _.isEmpty(printList) ? (
+          ) : isBatchOperate && _.isEmpty(customBtns) && !allowBatchPrint ? (
             <div className="textPrimary bold mBottom30 TxtLeft pLeft15">{_l('暂无操作')}</div>
           ) : (
             <div className="popupContentBox">
@@ -802,9 +813,12 @@ class RecordAction extends Component {
                   <div className="btnTypeLabel">{_l('自定义动作')}</div>
                   <div className="customBtnLists">
                     <CustomButtons
+                      appId={appId}
                       isBatch={isBatchOperate}
                       classNames="flex customBtnItem"
                       customBtns={customBtns}
+                      view={view}
+                      worksheetInfo={worksheetInfo}
                       btnDisable={btnDisable}
                       isEditLock={isEditLock}
                       isRecordLock={isRecordLock}
@@ -841,7 +855,7 @@ class RecordAction extends Component {
               )}
               {appId ? (
                 <div className="extrBtnBox">
-                  {!_.isEmpty(customBtns) && (!isBatchOperate || (isBatchOperate && !_.isEmpty(printList))) && (
+                  {!_.isEmpty(customBtns) && (!isBatchOperate || (isBatchOperate && allowBatchPrint)) && (
                     <div className="splitLineBox">
                       <div className="splitLine"></div>
                     </div>
@@ -854,8 +868,10 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {!isPublicShare && !window.isWeiXin && !window.isWeLink && !window.isDingTalk && (
+                  {!isPublicShare && (
                     <MobilePrintList
+                      worksheetInfo={worksheetInfo}
+                      appDetail={appDetail}
                       isBatchOperate={isBatchOperate}
                       appId={appId}
                       worksheetId={worksheetId}
@@ -868,6 +884,7 @@ class RecordAction extends Component {
                       controls={formData || rowInfo.receiveControls}
                       hideRecordActionVisible={hideRecordActionVisible}
                       switchPermit={switchPermit}
+                      getWorksheetShareUrl={getWorksheetShareUrl}
                       updatePrintList={printList => {
                         this.setState({ printList, printListLoading: false });
                         updatePrintList(printList);

@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { DropdownContentWrap } from '../../../../styled';
 import allData from './telData';
-import 'intl-tel-input/build/css/intlTelInput.min.css';
 import '../../../../styled/style.less';
 
 const SelectInfoWrap = styled.div`
@@ -88,7 +87,6 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData, s
                   }
                 }}
               >
-                <div className={`iti__flag iti__${item.iso2}`}></div>
                 <span className="countryName overflow_ellipsis">{item.name}</span>
                 <span className="textSecondary">{`(+${item.dialCode})`}</span>
               </div>
@@ -127,7 +125,6 @@ export default function SelectCountryDialog(props) {
             {data.length > 0 ? (
               data.map((item, index) => (
                 <div key={item.name} className="countryItem">
-                  <div className={`iti__flag iti__${item.iso2}`}></div>
                   <span className="countryName overflow_ellipsis">{item.name}</span>
                   <i
                     className="icon-close"

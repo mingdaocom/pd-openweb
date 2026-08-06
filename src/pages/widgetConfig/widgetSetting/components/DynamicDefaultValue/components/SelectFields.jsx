@@ -3,7 +3,7 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
 import { SYSTEM_CONTROL, SYSTEM_PERSON_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../../../config/widget';
@@ -24,21 +24,19 @@ const filterSys = (controls = [], fromCustomEventApi) => {
   return controls.filter(i => !_.includes(FILTER_SYS_CONTROLS, i.controlId));
 };
 
-@withClickAway
-export default class SelectFields extends Component {
+let SelectFields = class SelectFields extends Component {
   static propTypes = {};
   static defaultProps = {};
   state = {
     searchValue: '',
-  };
-  // 省略掉自身和循环引用
+  }; // 省略掉自身和循环引用
+
   omitSelfAndNest = controls => {
     const { data } = this.props;
     return _.filter(controls, item => {
       try {
-        const defaultValue = JSON.parse(_.get(item, ['advancedSetting', 'defsource']) || '[]');
+        const defaultValue = JSON.parse(_.get(item, ['advancedSetting', 'defsource']) || '[]'); // 去除循环引用
 
-        // 去除循环引用
         if (_.some(defaultValue, item => _.includes([data.controlId], item.cid))) {
           return false;
         }
@@ -52,12 +50,13 @@ export default class SelectFields extends Component {
   };
   handleChange = e => {
     const { value } = e.target;
-    this.setState({ searchValue: value });
+    this.setState({
+      searchValue: value,
+    });
   };
-
   getSheetList = (subListControls, initSheetList) => {
-    const { data = {}, from, parentControl } = this.props;
-    // 自定义默认值
+    const { data = {}, from, parentControl } = this.props; // 自定义默认值
+
     if (
       _.includes(
         [DYNAMIC_FROM_MODE.CREATE_CUSTOM, DYNAMIC_FROM_MODE.PRINT_TEMP, DYNAMIC_FROM_MODE.API_AUTH_ACCOUNT],
@@ -65,6 +64,7 @@ export default class SelectFields extends Component {
       )
     )
       return initSheetList;
+
     if (_.includes([DYNAMIC_FROM_MODE.SEARCH_PARAMS], from)) {
       // (查询参数 && 非对象数组内字段)不支持关联记录
       if (!data.dataSource) {
@@ -77,9 +77,8 @@ export default class SelectFields extends Component {
           })),
         );
       }
-    }
+    } // 关联多条----关联单条、多条（列表除外）
 
-    // 关联多条----关联单条、多条（列表除外）
     const filterSubListControls = filterControls(data, subListControls);
     return initSheetList.concat(
       filterSubListControls.map(item => ({
@@ -88,7 +87,6 @@ export default class SelectFields extends Component {
       })),
     );
   };
-
   filterFieldList = () => {
     const { from, globalSheetInfo, controls, data = {}, fromCustomEventApi } = this.props;
     const subListControls = this.omitSelfAndNest(controls) || [];
@@ -98,15 +96,24 @@ export default class SelectFields extends Component {
     const initSheetList =
       from === 'subList'
         ? [
-            { id: worksheetId, name: _l('主记录') },
-            { id: 'current', name: _l('当前子表记录') },
+            {
+              id: worksheetId,
+              name: _l('主记录'),
+            },
+            {
+              id: 'current',
+              name: _l('当前子表记录'),
+            },
           ]
-        : [{ id: 'current', name: _l('当前记录') }];
+        : [
+            {
+              id: 'current',
+              name: _l('当前记录'),
+            },
+          ]; // 获取当前记录和关联表控件(自定义默认值)
 
-    // 获取当前记录和关联表控件(自定义默认值)
-    const sheetList = this.getSheetList(subListControls, initSheetList);
+    const sheetList = this.getSheetList(subListControls, initSheetList); // 获取当前表的控件
 
-    // 获取当前表的控件
     const fieldList = {
       current: getControls({
         data,
@@ -114,31 +121,47 @@ export default class SelectFields extends Component {
         isCurrent: true,
         from,
       }),
-      [worksheetId]: getControls({ data, controls: filterSys(globalSheetControls), isCurrent: true, from }),
-    };
-    // 获取关联表控件下的所有符合条件的字段
+      [worksheetId]: getControls({
+        data,
+        controls: filterSys(globalSheetControls),
+        isCurrent: true,
+        from,
+      }),
+    }; // 获取关联表控件下的所有符合条件的字段
+
     sheetList.slice(initSheetList.length).forEach(({ id }) => {
       const relateSheetControl = _.find(subListControls, ({ controlId }) => controlId === id) || {};
+      let relationControls = _.get(relateSheetControl, 'relationControls') || []; // 如果relationControl没有返回系统字段， 则手动添加上
 
-      let relationControls = _.get(relateSheetControl, 'relationControls') || [];
-
-      // 如果relationControl没有返回系统字段， 则手动添加上
       if (!relationControls.some(item => item.controlId === 'ctime')) {
         relationControls = relationControls
           .concat([...SYSTEM_CONTROL, ...WORKFLOW_SYSTEM_CONTROL, ...SYSTEM_PERSON_CONTROL])
           .filter(i => !_.includes(['wfstatus'], i));
       }
 
-      const filteredRelationControls = getControls({ data, controls: relationControls, from });
+      const filteredRelationControls = getControls({
+        data,
+        controls: relationControls,
+        from,
+      });
       fieldList[id] = filteredRelationControls;
     });
-    if (!searchValue) return { sheetList, filteredList: fieldList };
+    if (!searchValue)
+      return {
+        sheetList,
+        filteredList: fieldList,
+      };
     const filteredList = {};
+
     _.keys(fieldList).forEach(key => {
       const item = fieldList[key];
       filteredList[key] = item.filter(field => _.includes(field.controlName, searchValue));
     });
-    return { sheetList, filteredList };
+
+    return {
+      sheetList,
+      filteredList,
+    };
   };
   isMultiUser = data => {
     // dynamicMultiple其他字段值多选
@@ -151,8 +174,16 @@ export default class SelectFields extends Component {
       ? update(dynamicValue, {
           $push: [
             {
-              ...{ cid: fieldId, rcid: relateSheetControlId, staticValue: '' },
-              ...(para.isAsync ? { isAsync: true } : {}),
+              ...{
+                cid: fieldId,
+                rcid: relateSheetControlId,
+                staticValue: '',
+              },
+              ...(para.isAsync
+                ? {
+                    isAsync: true,
+                  }
+                : {}),
             },
           ],
         })
@@ -169,6 +200,7 @@ export default class SelectFields extends Component {
       return (p.list || []).length + (c.list || []).length;
     }, 0);
   };
+
   render() {
     const { searchValue } = this.state;
     const { onClick, data, dynamicValue, from, hideRelateSheetHeader } = this.props;
@@ -255,7 +287,14 @@ export default class SelectFields extends Component {
                   <ul className="fieldList">
                     {list.map(({ text, id }) => {
                       return (
-                        <li className="overflow_ellipsis" onClick={() => onClick({ fieldId: id })}>
+                        <li
+                          className="overflow_ellipsis"
+                          onClick={() =>
+                            onClick({
+                              fieldId: id,
+                            })
+                          }
+                        >
                           <span className="overflow_ellipsis">{text}</span>
                         </li>
                       );
@@ -270,4 +309,6 @@ export default class SelectFields extends Component {
       </SelectFieldsWrap>
     );
   }
-}
+};
+SelectFields = ClickAway.wrap(SelectFields);
+export default SelectFields;

@@ -175,6 +175,27 @@ function TipsRender(props) {
   );
 }
 
+const getData = data => {
+  const { value, type = 'operation', disable } = data;
+  return [
+    {
+      text: _l('全部'),
+      value: 100,
+      checked: value === 100 && !disable,
+    },
+    {
+      text: type === 'look' ? _l('用户加入的') : _l('用户拥有的'),
+      value: 20,
+      checked: [20, 30].includes(value) && !disable,
+    },
+    // {
+    //   text: _l('不允许'),
+    //   value: 0,
+    //   checked: ![20, 30, 100].includes(value) || disable,
+    // },
+  ];
+};
+
 export default function SheetSet(props) {
   const [list, setState] = useState([]);
   const { onChange } = props;
@@ -219,27 +240,6 @@ export default function SheetSet(props) {
       },
     ]);
   }, [props]);
-
-  const getData = data => {
-    const { value, type = 'operation', disable } = data;
-    return [
-      {
-        text: _l('全部'),
-        value: 100,
-        checked: value === 100 && !disable,
-      },
-      {
-        text: type === 'look' ? _l('用户加入的') : _l('用户拥有的'),
-        value: 20,
-        checked: [20, 30].includes(value) && !disable,
-      },
-      // {
-      //   text: _l('不允许'),
-      //   value: 0,
-      //   checked: ![20, 30, 100].includes(value) || disable,
-      // },
-    ];
-  };
 
   return (
     <Wrap className="TxtLeft">

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import filterXss from 'xss';
 import { Icon, LoadDiv, PreferenceTime, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import { completeAdminLogLinks } from '../../utils';
 
 const PAGE_SIZE = 30;
 
@@ -34,9 +36,11 @@ export default class Discuss extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.worksheetId !== this.props.worksheetId || nextProps.rowId !== this.props.rowId) {
-      this.loadLog({ ..._.pick(nextProps, ['worksheetId', 'rowId']), pageIndex: 1 });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.worksheetId !== prevProps.worksheetId || this.props.rowId !== prevProps.rowId) {
+        this.loadLog({ ..._.pick(this.props, ['worksheetId', 'rowId']), pageIndex: 1 });
+      }
     }
   }
 
@@ -96,7 +100,10 @@ export default class Discuss extends Component {
           return (
             <div className="logItem" key={index}>
               <Icon icon={[undefined, 'plus', 'edit', 'trash', 'restart', 'download', 'reply'][item.type]} />
-              <span className="logContent" dangerouslySetInnerHTML={{ __html: item.message }} />
+              <span
+                className="logContent"
+                dangerouslySetInnerHTML={{ __html: filterXss(completeAdminLogLinks(item.message)) }}
+              />
               <span className="logTime">
                 <PreferenceTime value={item.createTime} className="Normal Hand hoverColorPrimary logTimeTip" />
               </span>

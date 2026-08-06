@@ -5,6 +5,10 @@ import { SelectFieldsWrap } from '../../styled';
 import { getIconByType } from '../../util';
 import { isSingleRelateSheet } from '../../util/setting';
 
+const getAvailableControlCount = list => {
+  return _.keys(list).reduce((p, c) => p + (list[c] || []).length, 0);
+};
+
 export default function SelectControlWithRelate({
   from = '',
   // 数据筛选函数
@@ -21,10 +25,6 @@ export default function SelectControlWithRelate({
   useClickAway(ref, onClickAway);
   const [searchValue, setSearchValue] = useState('');
   const { worksheetId: globalSheetId } = globalSheetInfo;
-
-  const getAvailableControlCount = list => {
-    return _.keys(list).reduce((p, c) => p + (list[c] || []).length, 0);
-  };
 
   const getSheetList = () => {
     return _.filter(allControls, item => {

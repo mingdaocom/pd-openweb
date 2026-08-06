@@ -1,26 +1,16 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import CalendarView from 'worksheet/views/CalendarView';
 import UnNormal from 'worksheet/views/components/UnNormal';
-import GalleryView from 'worksheet/views/GalleryView';
-import GunterView from 'worksheet/views/GunterView/enter';
 import SheetView from 'worksheet/views/SheetView';
 import TreeTableView from 'worksheet/views/TreeTableView';
+import { REFRESH_TIME_VALUES } from 'src/pages/worksheet/common/ViewConfig/config';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import BoardView from './BoardView';
-import CustomWidgetView from './CustomWidgetView';
-import DetailView from './DetailView';
-import HierarchyMixView from './HierarchyMixView';
-import HierarchyVerticalView from './HierarchyVerticalView';
-import HierarchyView from './HierarchyView';
-import MapView from './MapView';
-import ResourceView from './ResourceView';
 import ViewContext from './ViewContext';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
@@ -39,6 +29,18 @@ const Con = styled.div`
 
 const Loading = styled.div``;
 
+const BoardView = lazy(() => import('./BoardView'));
+const CalendarView = lazy(() => import('worksheet/views/CalendarView'));
+const CustomWidgetView = lazy(() => import('./CustomWidgetView'));
+const DetailView = lazy(() => import('./DetailView'));
+const GalleryView = lazy(() => import('worksheet/views/GalleryView'));
+const GunterView = lazy(() => import('worksheet/views/GunterView/enter'));
+const HierarchyMixView = lazy(() => import('./HierarchyMixView'));
+const HierarchyVerticalView = lazy(() => import('./HierarchyVerticalView'));
+const HierarchyView = lazy(() => import('./HierarchyView'));
+const MapView = lazy(() => import('./MapView'));
+const ResourceView = lazy(() => import('./ResourceView'));
+
 const TYPE_TO_COMP = {
   [board]: BoardView,
   [sheet]: SheetView,
@@ -54,6 +56,34 @@ const TYPE_TO_COMP = {
   [map]: MapView,
   [resource]: ResourceView,
 };
+
+function ViewLoadingContent() {
+  return (
+    <Loading>
+      <Skeleton
+        style={{ flex: 1 }}
+        direction="column"
+        widths={['30%', '40%', '90%', '60%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+      <Skeleton
+        style={{ flex: 1 }}
+        direction="column"
+        widths={['40%', '55%', '100%', '80%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+      <Skeleton
+        style={{ flex: 2 }}
+        direction="column"
+        widths={['45%', '100%', '100%', '100%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+    </Loading>
+  );
+}
 
 export function updateHierarchyConfigLevel(view) {
   const viewId = view.viewId;
@@ -143,7 +173,7 @@ function View(props) {
       clearInterval(cache.current.refreshTimer);
     }
 
-    if (authRefreshTime && _.includes(['10', '30', '60', '120', '180', '240', '300'], String(authRefreshTime))) {
+    if (authRefreshTime && _.includes(REFRESH_TIME_VALUES, String(authRefreshTime))) {
       cache.current.refreshTimer = setInterval(
         () => {
           if (
@@ -167,10 +197,6 @@ function View(props) {
     };
   }, [view.viewId, authRefreshTime]);
 
-  useEffect(() => {
-    props.embedNeedUpdate && refreshSheet(view, { isRefreshBtn: true });
-  }, [props.embedNeedUpdate]);
-
   useLayoutEffect(() => {
     cache.current.viewId = view.viewId;
   }, [view.viewId]);
@@ -181,7 +207,9 @@ function View(props) {
         {!Component || activeViewStatus !== 1 ? (
           <UnNormal resultCode={error ? -999999 : activeViewStatus} />
         ) : (
-          <Component {...viewProps} />
+          <Suspense fallback={<ViewLoadingContent />}>
+            <Component {...viewProps} />
+          </Suspense>
         )}
       </Con>
     </ViewContext.Provider>
@@ -202,29 +230,7 @@ function ViewWithLoading(props) {
   if (loading) {
     return (
       <Con>
-        <Loading>
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['30%', '40%', '90%', '60%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '55%', '100%', '80%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 2 }}
-            direction="column"
-            widths={['45%', '100%', '100%', '100%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-        </Loading>
+        <ViewLoadingContent />
       </Con>
     );
   }
@@ -232,4 +238,4 @@ function ViewWithLoading(props) {
   return <View {...props} />;
 }
 
-export default errorBoundary(ViewWithLoading);
+export default ErrorBoundary.wrap(ViewWithLoading);

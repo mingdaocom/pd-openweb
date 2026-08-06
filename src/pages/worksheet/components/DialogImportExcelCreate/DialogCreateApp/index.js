@@ -133,7 +133,7 @@ export default class DialogCreateApp extends Component {
               />
 
               {!createAppStatus && !createAppLoading && (
-                <div className="editIcon Hand hoverTextPrimaryLight">
+                <div className="editIcon Hand hoverColorPrimaryLight">
                   <Icon
                     icon="edit Hand"
                     className="textDisabled editApp"

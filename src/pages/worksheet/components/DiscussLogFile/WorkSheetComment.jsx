@@ -47,9 +47,12 @@ export default class WorkSheetComment extends React.Component {
 
     this.getAtData();
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.formFlag !== this.props.formFlag || !_.isEqual(this.props.formdata, nextProps.formdata)) {
-      this.getAtData(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.formFlag !== prevProps.formFlag || !_.isEqual(prevProps.formdata, this.props.formdata)) {
+        this.getAtData(this.props);
+      }
     }
   }
   componentWillUnmount() {

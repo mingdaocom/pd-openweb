@@ -187,7 +187,7 @@ const CloudPrint = props => {
 
   const handleFieldsAnalysis = () => {
     const showError = () => {
-      alert('字段解析格式错误，请检查模版类型', 3);
+      alert(_l('字段解析格式错误，请检查模版类型'), 3);
 
       return [];
     };

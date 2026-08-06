@@ -50,10 +50,11 @@ const SYSTEM_FIELDS = [
 ];
 
 export default function UserPicker(props) {
-  const { projectId, appId, selectUsers = [], changeSelect } = props;
+  const { projectId, appId, selectUsers = [], changeSelect, showRequestTypeFilter = true } = props;
   const selectUserRef = useRef();
 
   const [visible, setVisible] = useState(false);
+  const isPortal = _.get(md, 'global.Account.isPortal');
 
   const selectUserCallback = users => {
     let param = { selectUsers: users };
@@ -68,12 +69,13 @@ export default function UserPicker(props) {
   const pickUser = () => {
     const filterIds = ['user-sub', 'user-undefined'];
     quickSelectUser(selectUserRef.current, {
+      isHidAddUser: isPortal,
       hidePortalCurrentUser: true,
       selectRangeOptions: false,
       includeSystemField: false,
       rect: selectUserRef.current.getBoundingClientRect(),
 
-      tabType: 3,
+      tabType: isPortal ? 2 : 3,
       appId,
       showMoreInvite: false,
       isTask: false,
@@ -99,27 +101,31 @@ export default function UserPicker(props) {
   const renderPopup = () => {
     return (
       <UserPickerWrapper>
-        <div className="bold pLeft20 pRight20 mBottom8">{_l('类型')}</div>
-        {SYSTEM_FIELDS.map(item => {
-          const checked = selectUsers.map(user => user.accountId).includes(item.accountId);
+        {showRequestTypeFilter && (
+          <React.Fragment>
+            <div className="bold pLeft20 pRight20 mBottom8">{_l('类型')}</div>
+            {SYSTEM_FIELDS.map(item => {
+              const checked = selectUsers.map(user => user.accountId).includes(item.accountId);
 
-          return (
-            <div
-              className="userItem"
-              key={`UserPicker-Item-${item.accountId}`}
-              onClick={() => {
-                const systemIds = SYSTEM_FIELDS.map(sys => sys.accountId);
-                const users = selectUsers.filter(user => !!systemIds.includes(user.accountId));
-                selectUserCallback(
-                  checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
-                );
-              }}
-            >
-              <Checkbox text={item.fullname} checked={checked} />
-            </div>
-          );
-        })}
-        <div className="divider" />
+              return (
+                <div
+                  className="userItem"
+                  key={`UserPicker-Item-${item.accountId}`}
+                  onClick={() => {
+                    const systemIds = SYSTEM_FIELDS.map(sys => sys.accountId);
+                    const users = selectUsers.filter(user => !!systemIds.includes(user.accountId));
+                    selectUserCallback(
+                      checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
+                    );
+                  }}
+                >
+                  <Checkbox text={item.fullname} checked={checked} />
+                </div>
+              );
+            })}
+            <div className="divider" />
+          </React.Fragment>
+        )}
         <div
           className="userItem"
           onClick={() => selectUserCallback([{ accountId: 'user-self', fullname: _l('我自己') }])}

@@ -19,7 +19,7 @@ export default class CustomIcon extends Component {
   cacheData = [];
   uploadLoadingKey = undefined;
 
-  componentWillMount() {
+  componentDidMount() {
     this.getList();
   }
 
@@ -108,7 +108,7 @@ export default class CustomIcon extends Component {
           <div className="flexRow alignItemsCenter">
             <Icon
               icon="backspace"
-              className="Font22 ThemeHoverColor3 pointer"
+              className="Font22 hoverColorPrimary pointer"
               onClick={() => navigateTo(`/admin/settings/${projectId}`)}
             />
             <div className="Font17 bold flex mLeft10">{_l('自定义图标')}</div>
@@ -158,7 +158,7 @@ export default class CustomIcon extends Component {
               }}
             >
               <div
-                className="ThemeBGColor3 ThemeHoverBGColor2 pointer textWhite appManagementUploadBtn"
+                className="bgColorPrimary hoverBgColorPrimaryDark pointer textWhite appManagementUploadBtn"
                 id="customIconBtn"
               >
                 <Icon icon="add" className="Font18 mRight2" />
@@ -171,7 +171,7 @@ export default class CustomIcon extends Component {
           {!selected.length ? (
             <span className="textTertiary">
               {_l('上传的图标可用于应用配置时的图标选择，建议使用 SVG 格式的单色图标')}（{_l('推荐下载地址')}
-              <a className="ThemeColor3 ThemeHoverColor2" href="https://www.iconfont.cn" target="_blank">
+              <a className="colorPrimary hoverColorPrimaryDark" href="https://www.iconfont.cn" target="_blank">
                 iconfont
               </a>
               ）。
@@ -179,7 +179,7 @@ export default class CustomIcon extends Component {
           ) : (
             <Fragment>
               <span>{_l('已选中%0个', selected.length)}</span>
-              <span className="ThemeHoverColor3 pointer mLeft15 textSecondary" onClick={this.download}>
+              <span className="hoverColorPrimary pointer mLeft15 textSecondary" onClick={this.download}>
                 <Icon icon="download" className="Font16 mRight5" />
                 SVG
               </span>

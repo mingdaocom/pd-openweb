@@ -14,7 +14,7 @@ import { SwitchStyle } from './style';
 export default function (props) {
   const { portalSetModel, onChangePortalSet } = props;
   const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang];
+  const locale = locales[md.global.Account.lang] || localeEn;
   const [{ type, show }, setCommonState] = useSetState({
     type: null,
     show: false,
@@ -51,7 +51,7 @@ export default function (props) {
               <div className="bold mTop6 LineHeight24 Font13">
                 {_l('设置')}
                 <span
-                  className="ThemeColor3 Hand mRight10 mLeft10"
+                  className="colorPrimary Hand mRight10 mLeft10"
                   onClick={() => {
                     setCommonState({ type: 0, show: true });
                   }}
@@ -60,7 +60,7 @@ export default function (props) {
                 </span>
                 {_l('和')}
                 <span
-                  className="ThemeColor3 Hand mLeft10"
+                  className="colorPrimary Hand mLeft10"
                   onClick={() => {
                     setCommonState({ type: 1, show: true });
                   }}

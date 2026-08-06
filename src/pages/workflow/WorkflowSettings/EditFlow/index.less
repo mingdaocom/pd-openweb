@@ -124,8 +124,7 @@
     cursor: pointer;
     &:hover {
       box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.16);
-      .workflowNodeDel,
-      .workflowBranchCopy {
+      .workflowNodeDel {
         display: inline-block;
       }
       .testResultBox {
@@ -429,10 +428,6 @@
         background: var(--color-error);
       }
     }
-    .workflowBranchCopy {
-      display: none;
-      height: 15px;
-    }
     .workflowNotes {
       position: absolute;
       z-index: 1;
@@ -530,7 +525,7 @@
     &:not(.disabled):hover {
       background: var(--color-border-secondary);
     }
-    &.ThemeColor3 {
+    &.colorPrimary {
       background: var(--color-background-primary) !important;
     }
     &.disabled {
@@ -603,30 +598,6 @@
         transform: rotate(90deg);
       }
     }
-    .copyNodeBtn {
-      padding: 0 16px;
-      height: 36px;
-      border-radius: 18px;
-      color: var(--color-white);
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.2);
-      font-weight: bold;
-      font-size: 13px;
-      margin-right: 15px;
-      display: inline-flex;
-      align-items: center;
-      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1) inset;
-      transition: all 250ms ease-out;
-      &:hover {
-        background: rgba(0, 0, 0, 0.15);
-        box-shadow: none;
-      }
-    }
-  }
-  .createNodeMessageBox {
-    background: var(--color-background-secondary);
-    border-radius: 3px;
-    padding: 16px;
   }
   .nodeList {
     margin: 0 16px 20px;
@@ -668,15 +639,6 @@
         border-radius: 3px;
         background-color: var(--color-border-secondary);
         color: var(--color-text-secondary);
-      }
-      .nodeListNew {
-        margin-left: 10px;
-        height: 22px;
-        line-height: 22px;
-        padding: 0 8px;
-        border-radius: 11px;
-        background: var(--color-success);
-        color: var(--color-white);
       }
     }
   }

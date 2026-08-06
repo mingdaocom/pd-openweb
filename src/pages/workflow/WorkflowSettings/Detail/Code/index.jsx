@@ -8,6 +8,7 @@ import flowNode from '../../../api/flowNode';
 import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
 import { ACTION_ID } from '../../enum';
 import { ChatGPT, DetailFooter, DetailHeader, KeyPairs, ParameterList, TestParameter } from '../components';
+import { getCodeForSave, shouldSyncCodeMirrorContent } from './utils';
 
 const CodeSnippetButton = styled.div`
   padding: 0 8px;
@@ -44,30 +45,39 @@ export default class Code extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
-
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.data.code !== this.state.data.code ||
-      (!prevState.isFullCode && this.state.isFullCode) ||
-      (prevState.isFullCode && !this.state.isFullCode)
-    ) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
+    }
+
+    const codeChanged = prevState.data.code !== this.state.data.code;
+    const fullCodeChanged = prevState.isFullCode !== this.state.isFullCode;
+    const changedFromEditor = codeChanged && this.editorChangedCode === this.state.data.code;
+
+    if (shouldSyncCodeMirrorContent({ codeChanged, fullCodeChanged, changedFromEditor })) {
       this.updateCodeMirrorContent(this.state.data.code);
     }
+
+    if (codeChanged) {
+      this.editorChangedCode = undefined;
+    }
   }
+  /**
+   * 获取节点详情
+   */
 
   /**
    * 获取节点详情
@@ -78,6 +88,10 @@ export default class Code extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (!result.inputDatas.length) {
           result.inputDatas.push({
             name: '',
@@ -101,15 +115,21 @@ export default class Code extends Component {
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest } = this.state;
-    const { name, actionId, inputDatas, code, testMap, version, maxRetries } = data;
+    const { data, saveRequest, isFullCode } = this.state;
+    const tagtextarea = isFullCode && this.fullCodeTagtextarea ? this.fullCodeTagtextarea : this.tagtextarea;
+    const code = getCodeForSave({
+      editorCode: tagtextarea && tagtextarea.cmObj ? tagtextarea.cmObj.getValue() : undefined,
+      stateCode: data.code,
+    });
+    const currentData = { ...data, code };
+    const { name, actionId, inputDatas, testMap, version, maxRetries } = currentData;
 
     if (!code) {
       alert(_l('代码块必填'), 2);
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(currentData, this.cacheResult)) {
       return;
     }
 
@@ -142,18 +162,26 @@ export default class Code extends Component {
    */
   updateCodeMirrorContent(code) {
     const { isFullCode } = this.state;
+    const tagtextarea = isFullCode && this.fullCodeTagtextarea ? this.fullCodeTagtextarea : this.tagtextarea;
+    const value = code || '';
 
-    if (isFullCode && this.fullCodeTagtextarea) {
-      const cursor = this.fullCodeTagtextarea.cmObj.getCursor();
-
-      this.fullCodeTagtextarea.setValue(code);
-      this.fullCodeTagtextarea.cmObj.setCursor(cursor);
-    } else if (this.tagtextarea) {
-      const cursor = this.tagtextarea.cmObj.getCursor();
-
-      this.tagtextarea.setValue(code);
-      this.tagtextarea.cmObj.setCursor(cursor);
+    if (!tagtextarea) {
+      return;
     }
+
+    if (!tagtextarea.cmObj) {
+      tagtextarea.setValue(value);
+      return;
+    }
+
+    if (tagtextarea.cmObj.getValue() === value) {
+      return;
+    }
+
+    const cursor = tagtextarea.cmObj.getCursor();
+
+    tagtextarea.setValue(value);
+    tagtextarea.cmObj.setCursor(cursor);
   }
 
   /**
@@ -300,6 +328,11 @@ export default class Code extends Component {
         lineNumbers
         maxHeight={10000000}
         onChange={(err, value) => {
+          if (value === this.state.data.code) {
+            return;
+          }
+
+          this.editorChangedCode = value;
           this.updateSource({ code: value });
         }}
       />
@@ -441,7 +474,11 @@ export default class Code extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={!!data.code} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={!!data.code && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
 
         {isFullCode && (
           <Dialog

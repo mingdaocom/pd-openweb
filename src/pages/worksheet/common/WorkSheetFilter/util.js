@@ -15,6 +15,7 @@ import {
   FILTER_CONDITION_TYPE,
   FILTER_RELATION_TYPE,
   getControlSelectType,
+  getDateCompareRangeValues,
   getFilterTypeLabel,
 } from './enum';
 
@@ -304,6 +305,7 @@ export function getConditionOverrideValue(type, condition, valueType, from) {
   const { value, values, dateRange, dateRangeType, fullValues } = condition;
   let newDateRangeType = dateRangeType;
   const conditionGroupType = getConditionType(condition);
+  const isDateCompareType = includes(DATE_COMPARE_FILTER_TYPES, type);
   const base = {
     type,
     values: [],
@@ -345,7 +347,7 @@ export function getConditionOverrideValue(type, condition, valueType, from) {
       return base;
     case CONTROL_FILTER_WHITELIST.DATE.value:
       if (_.includes([101, 102], dateRange)) {
-        newDateRangeType = DATE_RANGE_TYPE.DAY;
+        newDateRangeType = isDateCompareType ? newDateRangeType || DATE_RANGE_TYPE.DAY : DATE_RANGE_TYPE.DAY;
       } else if (!includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type)) {
         let showType = get(condition, 'control.advancedSetting.showtype');
 
@@ -367,9 +369,13 @@ export function getConditionOverrideValue(type, condition, valueType, from) {
           dateRangeType: newDateRangeType,
         });
       } else if (includes(DATE_COMPARE_FILTER_TYPES, type)) {
-        // 早于 / 晚于 / 早于等于 / 晚于等于：只支持指定日期，锁定 dateRange 为 18，清空已选值待重新选择
+        const allowedDateRange = getDateCompareRangeValues(type);
+        // 切换比较规则时只保留同方向的动态时间点，避免出现“早于 7天后”这类歧义组合。
+        const currentDateRange = _.includes(allowedDateRange, dateRange) ? dateRange : 18;
+
         return Object.assign({}, base, {
-          dateRange: 18,
+          dateRange: currentDateRange,
+          value: _.includes([101, 102], currentDateRange) ? value || 1 : undefined,
           dateRangeType: newDateRangeType || DATE_RANGE_TYPE.DAY,
         });
       } else {

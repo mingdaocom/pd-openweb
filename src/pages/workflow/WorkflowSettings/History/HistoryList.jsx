@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Checkbox, Dialog, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import processVersion from '../../api/processVersion';
+import { pathCompletion } from 'src/utils/common';
 import { SUPPORT_HREF } from '../enum';
 import HistoryListItem from './components/HistoryListItem';
 import { STATUS2COLOR } from './config';
@@ -77,7 +78,10 @@ export default class HistoryList extends Component {
         {!accumulation.waiting && (
           <Fragment>
             <div className="relative">
-              <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => this.setState({ showList: true })}>
+              <span
+                className="colorPrimary hoverColorPrimaryDark pointer"
+                onClick={() => this.setState({ showList: true })}
+              >
                 {_l('暂停')}
               </span>
               {this.renderSuspendList()}
@@ -89,7 +93,11 @@ export default class HistoryList extends Component {
         {accumulation.waiting && (
           <Fragment>
             <span className="mLeft10">{_l('已被')}</span>
-            <a href={`/user_${accumulation.createdBy.accountId}`} className="accumulationLine" target="_blank">
+            <a
+              href={pathCompletion(`/user_${accumulation.createdBy.accountId}`)}
+              className="accumulationLine"
+              target="_blank"
+            >
               {accumulation.createdBy.fullName}
             </a>
             <span>{_l('暂停消费')}</span>
@@ -109,7 +117,7 @@ export default class HistoryList extends Component {
 
         {accumulation.waiting && (
           <Fragment>
-            <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft10" onClick={() => onRecovery(false)}>
+            <span className="colorPrimary hoverColorPrimaryDark pointer mLeft10" onClick={() => onRecovery(false)}>
               {_l('立即恢复')}
             </span>
             {this.discardAction()}
@@ -184,7 +192,7 @@ export default class HistoryList extends Component {
     };
 
     return (
-      <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft20" onClick={discardFun}>
+      <span className="colorPrimary hoverColorPrimaryDark pointer mLeft20" onClick={discardFun}>
         {_l('丢弃')}
       </span>
     );

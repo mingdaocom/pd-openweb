@@ -4,6 +4,24 @@ import RegExpValidator from 'src/utils/expression';
 import { allSwitchKeys, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
 import { FIELD_SIZE_OPTIONS, TITLE_SIZE_OPTIONS } from './config';
 
+export const fixWeixinInputBlurScroll = () => {
+  if (!window.isWeiXin) return;
+
+  setTimeout(() => {
+    const activeElement = document.activeElement;
+    const isActiveFormInput =
+      activeElement &&
+      _.includes(['INPUT', 'TEXTAREA', 'SELECT'], activeElement.tagName) &&
+      activeElement.closest &&
+      activeElement.closest('.customMobileFormContainer');
+
+    if (isActiveFormInput) return;
+
+    // 处理微信 webview 键盘收起后页面未撑开
+    window.scrollTo(0, 0);
+  }, 100);
+};
+
 export const getTabTypeBySelectUser = (control = {}) => {
   const { advancedSetting = {}, sourceControl = {}, controlId } = control;
   return _.includes(['caid', 'ownerid', 'daid'], controlId)

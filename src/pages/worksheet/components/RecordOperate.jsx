@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
-import _, { noop } from 'lodash';
+import _, { get, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -10,7 +10,9 @@ import worksheetAjax from 'src/api/worksheet';
 import { deleteRecord, handleCustomWidget, handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
 import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
+import GroupedMenuItem from 'worksheet/common/recordInfo/RecordForm/groupedMenu/GroupedMenuItem';
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
+import { segmentsFromView } from 'worksheet/common/ViewConfig/components/customBtn/groupedLayout/layoutUtils';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { copyRow } from 'worksheet/controllers/record';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -298,6 +300,61 @@ export default function RecordOperate(props) {
   const groupControlPermission = groupControl && controlState(groupControl);
   const currentGroup = groupControl && _.find(groups, { key: currentGroupKey });
   const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
+  const customButtonsForRender = defaultCustomButtons || customButtons;
+  const customButtonSegments = useMemo(() => {
+    if (defaultCustomButtons || !view) {
+      return null;
+    }
+
+    const detailgroup = get(view, 'advancedSetting.detailgroup');
+    const detailbtns = get(view, 'advancedSetting.detailbtns');
+
+    if (!detailgroup && !detailbtns) {
+      return null;
+    }
+
+    const segments = segmentsFromView(customButtons, detailbtns, detailgroup);
+
+    if (!segments || !segments.length || !segments.some(seg => seg.type === 'group')) {
+      return null;
+    }
+
+    const byId = _.keyBy(customButtons, 'btnId');
+
+    const items = _.compact(
+      segments.map(seg => {
+        if (seg.type === 'group') {
+          const groupButtons = (seg.ids || []).map(id => byId[id]).filter(Boolean);
+
+          // 组内动作全部停用/不可见时，过滤掉空分组，更多菜单不再显示空组占位
+          if (!groupButtons.length) {
+            return null;
+          }
+
+          return {
+            kind: 'group',
+            group: {
+              id: seg.id,
+              name: seg.name,
+              icon: seg.icon,
+              iconUrl: seg.iconUrl,
+              iconColor: seg.iconColor,
+            },
+            buttons: groupButtons,
+          };
+        }
+
+        return { kind: 'btns', buttons: (seg.ids || []).map(id => byId[id]).filter(Boolean) };
+      }),
+    );
+
+    // 过滤空分组后若已无任何分组，退回扁平渲染
+    if (!items.some(it => it.kind === 'group')) {
+      return null;
+    }
+
+    return items;
+  }, [defaultCustomButtons, customButtons, view]);
   const isExternal = _.isEmpty(getCurrentProject(projectId));
   const canFav =
     !hideFav &&
@@ -334,7 +391,7 @@ export default function RecordOperate(props) {
       }
 
       setCustomButtonLoading(false);
-      setCustomButtons(replaceBtnsTranslateInfo(appId, newButtons).filter(b => !b.disabled));
+      setCustomButtons(replaceBtnsTranslateInfo(appId, newButtons).filter(b => !b.disabled && b.status !== 0));
     } catch (err) {
       console.log(err);
       alert(_l('加载自定义按钮失败'), 3);
@@ -458,6 +515,7 @@ export default function RecordOperate(props) {
               '.DropdownPrintTrigger',
               '#t_mask',
               '.templateListSelect',
+              '.groupedMenuPopup',
             ]}
             onClickAway={() => changePopupVisible(false)}
             onMouseLeave={
@@ -523,9 +581,8 @@ export default function RecordOperate(props) {
               </Loading>
             )}
             <React.Fragment>
-              <CustomButtons
-                type="menu"
-                {...{
+              {(() => {
+                const sharedButtonProps = {
                   projectId,
                   appId,
                   viewId,
@@ -537,17 +594,39 @@ export default function RecordOperate(props) {
                   sheetSwitchPermit,
                   isDraft,
                   entityName,
-                }}
-                buttons={defaultCustomButtons || customButtons}
-                loadBtns={loadButtons}
-                triggerCallback={() => changePopupVisible(false)}
-                onUpdate={onUpdate}
-                isRecordLock={isRecordLock}
-                reloadRecord={reloadRecord}
-                setCustomButtonActive={v => (customButtonActive.current = v)}
-                isEditLock={isEditLock}
-              />
-              {!!(defaultCustomButtons || customButtons).length && <Hr />}
+                  loadBtns: loadButtons,
+                  triggerCallback: () => changePopupVisible(false),
+                  onUpdate,
+                  isRecordLock,
+                  reloadRecord,
+                  setCustomButtonActive: v => (customButtonActive.current = v),
+                  isEditLock,
+                };
+
+                if (!customButtonSegments) {
+                  return <CustomButtons type="menu" {...sharedButtonProps} buttons={customButtonsForRender} />;
+                }
+
+                return customButtonSegments.map((seg, idx) => {
+                  if (seg.kind === 'group') {
+                    return (
+                      <GroupedMenuItem
+                        key={`group-${seg.group.id || idx}`}
+                        group={seg.group}
+                        buttons={seg.buttons}
+                        buttonsProps={{ ...sharedButtonProps, type: 'menu' }}
+                      />
+                    );
+                  }
+
+                  if (!seg.buttons.length) {
+                    return null;
+                  }
+
+                  return <CustomButtons key={`btns-${idx}`} type="menu" {...sharedButtonProps} buttons={seg.buttons} />;
+                });
+              })()}
+              {!!customButtonsForRender.length && <Hr />}
             </React.Fragment>
             {showCopy && (
               <MenuItemWrap

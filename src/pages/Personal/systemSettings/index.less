@@ -5,47 +5,21 @@
   background-color: var(--color-background-primary);
   overflow-x: hidden;
   padding: 0 40px;
-  .languagueSetting {
-    display: flex;
-    align-items: center;
-    .languagueItem {
-      cursor: pointer;
-      width: 100px;
-      height: 32px;
-      line-height: 30px;
-      text-align: center;
-      border: 1px solid var(--color-border-secondary);
-      margin-right: -1px;
-      color: var(--color-text-title);
-      &:hover {
-        color: var(--color-primary);
-      }
-      &.active {
-        color: var(--color-white);
-        font-weight: bold;
-        background: var(--color-primary);
-        border-color: var(--color-primary);
-      }
-      &:first-child {
-        border-radius: 3px 0 0 3px;
-      }
-      &:last-child {
-        border-radius: 0 3px 3px 0;
-      }
-    }
-  }
   .systemSettingItem {
     display: flex;
     padding: 30px 0;
     border-bottom: 1px solid var(--color-border-secondary);
     .systemSettingsLabel {
       width: 140px;
+      min-width: 140px;
       text-align: left;
     }
     .systemSettingsRight {
       display: flex;
       flex-direction: column;
       padding-left: 32px;
+      width: 100%;
+      max-width: 632px;
       label {
         .ant-checkbox-input {
           display: none;
@@ -66,9 +40,8 @@
       .RadioGroup--vertical .Radio {
         margin-bottom: 10px;
       }
-      .systemSettingsZone {
-        width: 500px;
-        max-width: 600px;
+      .dropdownSetting {
+        width: 100%;
         .Dropdown--border {
           height: 32px;
         }

@@ -101,10 +101,9 @@ export default class TagInput extends Component {
         <span ref={node => (this.textWrap = node)} style={{ visibility: 'hidden', position: 'absolute' }}>
           {val}
         </span>
-        <div
-          className={cx('createTag ellipsis', { show: val.length !== 0 })}
-          onClick={this.userTag}
-        >{`使用 “${val}”`}</div>
+        <div className={cx('createTag ellipsis', { show: val.length !== 0 })} onClick={this.userTag}>
+          {_l('使用 “%0”', val)}
+        </div>
       </div>
     );
   }

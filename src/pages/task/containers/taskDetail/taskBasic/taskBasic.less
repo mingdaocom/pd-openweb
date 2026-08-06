@@ -186,6 +186,10 @@
       border: 0;
       padding: 0;
       background-color: var(--color-background-primary);
+      .ck-read-only {
+        line-height: 40px;
+        color: var(--color-text-disabled);
+      }
     }
     .mdEditorContent {
       overflow-x: hidden;
@@ -227,7 +231,7 @@
     .detailAttsPostBtn {
       margin: 10px 0 20px;
       text-align: right;
-      .ThemeColor3 {
+      .colorPrimary {
         &:not(:hover) {
           color: var(--color-text-tertiary) !important;
         }

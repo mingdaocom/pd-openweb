@@ -9,6 +9,7 @@ import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
+import { pathCompletion } from 'src/utils/common';
 import Back from '../../components/Back';
 import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
@@ -287,9 +288,12 @@ class MemberList extends Component {
         ) {
           // 移到其他角色
           this.props.history.push(
-            `/mobile/changeRole/${!detail.projectId ? 'individual' : detail.projectId}/${params.appId}/${
-              params.roleId
-            }/${accountId}/${departmentId}/${departmentTreeId}/${projectOrganizeId}/${jobId}`,
+            pathCompletion(
+              `/mobile/changeRole/${!detail.projectId ? 'individual' : detail.projectId}/${params.appId}/${
+                params.roleId
+              }/${accountId}/${departmentId}/${departmentTreeId}/${projectOrganizeId}/${jobId}`,
+              { hasDomain: false },
+            ),
           );
         } else if (
           (!isSysRole && buttonIndex === 2) ||
@@ -305,7 +309,7 @@ class MemberList extends Component {
                     roleId: params.roleId,
                     appId: params.appId,
                     callback: () => {
-                      this.props.history.push(`/mobile/dashboard`);
+                      this.props.history.push(pathCompletion(`/mobile/dashboard`, { hasDomain: false }));
                     },
                   }),
                 );
@@ -380,7 +384,7 @@ class MemberList extends Component {
         <Back
           className={cx({ bottom55: canAddUser })}
           onClick={() => {
-            this.props.history.push(`/mobile/members/${detail.id}`);
+            this.props.history.push(pathCompletion(`/mobile/members/${detail.id}`, { hasDomain: false }));
           }}
         />
         {this.state.selectUserVisible && (

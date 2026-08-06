@@ -52,6 +52,7 @@ export default class Card extends Component {
           alert(_l('操作成功'));
           onApproveDone(item);
         }
+
         if (_.get(window, 'JSBridgeAdapter.approvalEvent')) {
           window.JSBridgeAdapter.approvalEvent({
             type: action === 'pass' ? 1 : 2,
@@ -160,7 +161,8 @@ export default class Card extends Component {
     return null;
   }
   renderPropsTime() {
-    return <div className="textTertiary ellipsis time">{this.props.time}</div>;
+    const { item } = this.props;
+    return <div className="textTertiary ellipsis time">{createTimeSpan(item.workItem.receiveTime)}</div>;
   }
   renderHeader() {
     const { currentTab, item } = this.props;
@@ -312,7 +314,7 @@ export default class Card extends Component {
       <div className="mobileProcessCardBody flexColumn">
         <div className="flexRow">
           <img className="accountAvatar" src={createAccount.avatar} />
-          <span className="breakAll">{renderBodyTitle().replace(/(<([^>]+)>)/gi, '')}</span>
+          <span className="breakAll">{renderBodyTitle().replace(/(<([^>]+)>)/gi, '') || _l('未命名')}</span>
         </div>
         {this.processInformTabs.includes(currentTab) && (
           <span className="textTertiary Font13 mTop8 ellipsis">{item.workItem.opinion}</span>

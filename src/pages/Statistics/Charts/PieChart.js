@@ -4,7 +4,8 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName, getIsAlienationColor } from 'statistics/common/reportDataUtils';
 import { browserIsMobile } from 'src/utils/common';
 import {
   formatNumberValue,
@@ -14,6 +15,7 @@ import {
   getChartColors,
   getLegendType,
 } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const formatChartData = (data = []) => {
   const result = data
@@ -52,21 +54,30 @@ export default class extends Component {
       match: null,
     };
     this.PieChart = null;
+    this.PieComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.PieComponent = data.Pie;
       this.renderPieChart();
     });
   }
   componentWillUnmount() {
-    this.PieChart && this.PieChart.destroy();
+    this.isUnmounted = true;
+    this.destroyPieChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.showTotal !== oldDisplaySetup.showTotal ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -75,44 +86,54 @@ export default class extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const pieConfig = this.getPieConfig(nextProps);
-      this.PieChart && this.PieChart.update(pieConfig);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.PieComponent) {
+      return;
     }
 
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      nextProps.isLinkageData !== this.props.isLinkageData
-    ) {
-      this.PieChart && this.PieChart.destroy();
-      this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(nextProps));
-      this.PieChart.render();
+    if (shouldRecreate) {
+      this.renderPieChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.PieChart) {
+      const pieConfig = this.getPieConfig(this.props);
+      this.PieChart.update(pieConfig);
     }
   }
-  renderPieChart() {
-    const { reportData } = this.props;
+  destroyPieChart = () => {
+    if (this.PieChart) {
+      this.PieChart.destroy();
+      this.PieChart = null;
+    }
+  };
+  renderPieChart(props = this.props) {
+    const { reportData } = props;
     const { map, displaySetup, style, xaxes } = reportData;
 
-    if (this.chartEl) {
-      this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
-      this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData && map.length;
-      this.isLinkageData =
-        this.props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        xaxes.controlId &&
-        map.length;
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.PieChart.on('element:click', this.handleClick);
-      }
-
-      this.PieChart.render();
+    if (!this.chartEl || !this.PieComponent) {
+      return;
     }
+
+    this.destroyPieChart();
+    this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(props));
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData && map.length;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      xaxes.controlId &&
+      map.length;
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.PieChart.on('element:click', this.handleClick);
+    }
+
+    this.PieChart.render();
   }
   handleClick = data => {
     const { reportData, isMobile } = this.props;
@@ -185,6 +206,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.PieChart || !this.PieComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -226,7 +252,7 @@ export default class extends Component {
     }
   }
   getPieConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
@@ -236,9 +262,11 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
     const data = xaxes.controlId ? formatChartData(_.get(map[0], 'value')) : formatChartMap(map, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
-    const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || percent.enable;
+    const showNumber = isMobile ? (displaySetup.mobileShowNumber ?? displaySetup.showNumber) : displaySetup.showNumber;
+    const isLabelVisible = displaySetup.showDimension || showNumber || percent.enable;
     const newYaxisList = formatYaxisList(data, yaxisList);
     const isAnnular = displaySetup.showChartType === 1;
     const colors = getChartColors(style, themeColor, projectId);
@@ -378,7 +406,7 @@ export default class extends Component {
               type: 'outer',
               formatter: item => {
                 const dimensionText = displaySetup.showDimension ? `${findName(item.originalId)}` : '';
-                const numberText = displaySetup.showNumber
+                const numberText = showNumber
                   ? `${displaySetup.showDimension ? ` ` : ''}${formatrChartValue(
                       item.originalValue,
                       false,

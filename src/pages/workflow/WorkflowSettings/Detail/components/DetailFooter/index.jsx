@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import _ from 'lodash';
 import { any, func } from 'prop-types';
@@ -41,6 +41,8 @@ DetailFooter.propTypes = {
   onSave: func,
   closeDetail: func,
 };
+
+const hideNodeType = [5, 10, 11, 12, 15, 17, 18, 19, 27];
 
 export default function DetailFooter({
   isCorrect,
@@ -97,14 +99,12 @@ export default function DetailFooter({
 
   // 执行数据
   if ((_.includes(debugEvents, -1) || _.includes(debugEvents, 0)) && instanceId) {
-    const hideNodeType = [5, 10, 11, 12, 15, 17, 18, 19, 27];
-
     if (_.includes(hideNodeType, selectNodeType)) return null;
 
     return (
       <Fragment>
         <Footer className="flexRow">
-          <span className="footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2 mRight10" onClick={getSource}>
+          <span className="footerSaveBtn bgColorPrimary hoverBgColorPrimaryDark mRight10" onClick={getSource}>
             {_l('查看输出数据')}
           </span>
         </Footer>
@@ -123,13 +123,7 @@ export default function DetailFooter({
                 <LoadDiv className="mTop10" />
               ) : (
                 <ScrollView className="flex">
-                  <JsonView
-                    src={source}
-                    theme="brewer"
-                    displayDataTypes={false}
-                    displayObjectSize={false}
-                    name={null}
-                  />
+                  <JsonView data={source} />
                 </ScrollView>
               )}
             </div>
@@ -144,14 +138,14 @@ export default function DetailFooter({
   return (
     <Footer className={cx('flexRow', { workflowDetailFooterWhile: isIntegration })}>
       <span
-        className={cx('footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2 mRight10', { Alpha5: !isCorrect })}
+        className={cx('footerSaveBtn bgColorPrimary hoverBgColorPrimaryDark mRight10', { Alpha5: !isCorrect })}
         onClick={onSave}
       >
         {_l('保存')}
       </span>
 
       <span
-        className="footerCancelBtn ThemeBorderColor3 ThemeHoverBorderColor2 ThemeColor3 ThemeHoverColor2"
+        className="footerCancelBtn borderColorPrimary hoverBorderColorPrimaryDark colorPrimary hoverColorPrimaryDark"
         onClick={closeDetail}
       >
         {_l('取消')}

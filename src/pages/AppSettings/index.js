@@ -1,9 +1,8 @@
-import React, { Component, Fragment } from 'react';
-import Loadable from 'react-loadable';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, UpgradeIcon } from 'ming-ui';
+import { Icon, LoadDiv, Support, UpgradeIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { getMyPermissions } from 'src/components/checkPermission';
@@ -14,6 +13,7 @@ import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import { setFavicon } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import Beta from './components/Beta';
@@ -22,7 +22,13 @@ import { getAppConfig } from './util';
 import './index.less';
 
 function UpgradeCom({ projectId, featureId }) {
-  return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
+  return (
+    <Fragment>
+      {buriedUpgradeVersionDialog(projectId, featureId, {
+        dialogType: 'content',
+      })}
+    </Fragment>
+  );
 }
 
 class AppSettings extends Component {
@@ -42,38 +48,42 @@ class AppSettings extends Component {
 
   componentDidMount() {
     this.getData();
+
     if (this.props.location.search === '?backup') {
       this.setState({
         currentConfigType: 'backup',
       });
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.location.search === '?backup') {
-      this.setState({
-        manageBackupFilesVisible: true,
-      });
-    }
 
-    if (_.get(this.props, 'match.params.navTab') !== _.get(nextProps, 'match.params.navTab')) {
-      this.setState({ currentConfigType: _.get(nextProps, 'match.params.navTab') });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.location.search === '?backup') {
+        this.setState({
+          manageBackupFilesVisible: true,
+        });
+      }
+
+      if (_.get(prevProps, 'match.params.navTab') !== _.get(this.props, 'match.params.navTab')) {
+        this.setState({
+          currentConfigType: _.get(this.props, 'match.params.navTab'),
+        });
+      }
     }
   }
 
   getFilteredRouterConfigs = (routerConfigs, projectId, permissionType) => {
     const { hideRagEmbedFun } = md.global.SysSettings;
-
     const filtered = hideRagEmbedFun
       ? routerConfigs.filter(item => item.featureId !== VersionProductType.vectorKnowledgeBase)
       : routerConfigs;
-
     return getAppConfig(filtered, permissionType).filter(
       item => !item.featureId || getFeatureStatus(projectId, item.featureId),
     );
   };
-
   getData = () => {
     const { appId } = _.get(this.props, 'match.params');
+
     homeAppApi
       .getApp({
         appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
@@ -84,40 +94,60 @@ class AppSettings extends Component {
       .then(data => {
         setFavicon(data.iconUrl, data.iconColor);
         const { permissionType, id, isLock, isPassword, projectId } = data;
-
         const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
 
         if (!permissionType || (isLock && isPassword) || _.isEmpty(list)) {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
+
           return;
         }
 
         data.name = getTranslateInfo(id, null, id).name || data.name;
-        this.setState({ data, loading: false }, () => {
-          this.getMyPermissions();
-          this.getConfigList();
-        });
+        this.setState(
+          {
+            data,
+            loading: false,
+          },
+          () => {
+            this.getMyPermissions();
+            this.getConfigList();
+          },
+        );
       })
       .catch(() => {
-        this.setState({ loading: false });
+        this.setState({
+          loading: false,
+        });
       });
-  };
+  }; // 删除应用
 
-  // 删除应用
   handleDelApp = () => {
     const { appId } = _.get(this.props, 'match.params');
-    const { data: { projectId } = { projectId: '' } } = this.state;
-    this.setState({ delAppConfirmVisible: false });
-    homeAppApi.deleteApp({ appId, projectId, isHomePage: true }).then(() => {
-      navigateTo('/dashboard');
-    });
-  };
 
+    const {
+      data: { projectId } = {
+        projectId: '',
+      },
+    } = this.state;
+    this.setState({
+      delAppConfirmVisible: false,
+    });
+    homeAppApi
+      .deleteApp({
+        appId,
+        projectId,
+        isHomePage: true,
+      })
+      .then(() => {
+        navigateTo('/dashboard');
+      });
+  };
   getConfigList = () => {
     const { data } = this.state;
     const { permissionType, isLock, isPassword, projectId, sourceType, id, license = {} } = data;
     const isNormalApp = sourceType === 1;
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
+
     const canLock = _.includes(
       [
         APP_ROLE_TYPE.ADMIN_ROLE,
@@ -127,11 +157,13 @@ class AppSettings extends Component {
       ],
       permissionType,
     );
+
     const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
     const configList = list
       .filter(it => {
         if (it.type === 'lock') {
           if (canLock && data.isPassword) return true; // 管理员、开发者、运营者+开发者、拥有者对自己已解锁的应用有恢复锁定权限
+
           if (!(isOwner && isNormalApp && !isLock && !isPassword)) return false; // 仅普通应用的拥有者可锁定应用
         }
 
@@ -145,19 +177,16 @@ class AppSettings extends Component {
         ) {
           if (['export'].includes(it.type)) {
             return data.exported;
-          }
+          } // 模版应用
 
-          // 模版应用
           if (license.goodsPushType === 1) {
             return true;
-          }
+          } // 免费
 
-          // 免费
           if (license.licenseType === 0) {
             return !isLock;
-          }
+          } // 收费
 
-          // 收费
           if (license.licenseType === 1) {
             return false;
           }
@@ -165,26 +194,26 @@ class AppSettings extends Component {
 
         return true;
       });
-
     const type = _.get(this.props, 'match.params.navTab') || localStorage.getItem('appManageMenu');
+
     const hasMenu = _.includes(
       configList.map(v => v.type),
       type,
     );
+
     this.setState({
       configList,
       currentConfigType: type && hasMenu ? type : 'options',
     });
+
     if (type && !hasMenu) {
       safeLocalStorageSetItem('appManageMenu', 'options');
-      location.href = `/app/${id}/settings/options`;
+      location.href = pathCompletion(`/app/${id}/settings/options`);
     }
   };
-
   getMyPermissions = () => {
     const { data } = this.state;
     const { projectId } = data;
-
     getMyPermissions(projectId, false).then(permissionIds =>
       this.setState({
         myPermissions: permissionIds,
@@ -208,18 +237,12 @@ class AppSettings extends Component {
     const { id: appId, name, permissionType, projectId, fixed } = data;
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
     const featureType = featureId && getFeatureStatus(projectId, featureId);
-
     const currentComp =
       _.get(
         _.find(routerConfigs, menu => menu.type === currentConfigType),
         'component',
       ) || routerConfigs[0].component;
-
-    const Component = Loadable({
-      loader: currentComp,
-      loading: () => null,
-    });
-
+    const Component = lazy(currentComp);
     const componentProps = {
       ...this.props,
       data,
@@ -232,16 +255,16 @@ class AppSettings extends Component {
       featureId: featureType && featureType === '2' ? featureId : undefined,
       onChangeData: obj =>
         this.setState({
-          data: {
-            ...data,
-            ...obj,
-          },
+          data: { ...data, ...obj },
         }),
     };
-
     return (
       <div className="manageAppWrap flexRow">
-        <div className={cx('manageAppLeft', { collapseManageAppLeft: collapseAppManageNav })}>
+        <div
+          className={cx('manageAppLeft', {
+            collapseManageAppLeft: collapseAppManageNav,
+          })}
+        >
           <div className="flex">
             {configList
               .filter(v => (allowDelete ? true : v.type !== 'del'))
@@ -261,17 +284,27 @@ class AppSettings extends Component {
                       onClick={() => {
                         // 删除应用
                         if (type === 'del') {
-                          this.setState({ delAppConfirmVisible: true });
+                          this.setState({
+                            delAppConfirmVisible: true,
+                          });
                           return;
                         }
 
                         safeLocalStorageSetItem('appManageMenu', type);
                         navigateTo(`/app/${appId}/settings/${type}`);
-                        this.setState({ currentConfigType: type });
+                        this.setState({
+                          currentConfigType: type,
+                        });
                       }}
                     >
                       {collapseAppManageNav ? (
-                        <Tooltip placement="right" align={{ offset: [5, 0] }} title={text}>
+                        <Tooltip
+                          placement="right"
+                          align={{
+                            offset: [5, 0],
+                          }}
+                          title={text}
+                        >
                           <Icon className="appConfigItemIcon Font18" icon={icon} />
                         </Tooltip>
                       ) : (
@@ -296,21 +329,32 @@ class AppSettings extends Component {
                 );
               })}
           </div>
-          <div className={cx('collapseWrap TxtRight', { collapseHideWrap: collapseAppManageNav })}>
+          <div
+            className={cx('collapseWrap TxtRight', {
+              collapseHideWrap: collapseAppManageNav,
+            })}
+          >
             <Tooltip title={!collapseAppManageNav ? _l('收起') : _l('展开')}>
               <Icon
                 icon={!collapseAppManageNav ? 'menu_left' : 'menu_right'}
                 className="Font20 textTertiary pointer collapseWrapIcon"
                 onClick={() => {
                   safeLocalStorageSetItem('collapseAppManageNav', !collapseAppManageNav);
-                  this.setState({ collapseAppManageNav: !collapseAppManageNav });
+                  this.setState({
+                    collapseAppManageNav: !collapseAppManageNav,
+                  });
                 }}
               />
             </Tooltip>
           </div>
         </div>
         <div className={cx('manageAppRight flex flexColumn minHeight0', currentConfigType)}>
-          <div className="flexColumn flex minHeight0" style={{ minWidth: 800 }}>
+          <div
+            className="flexColumn flex minHeight0"
+            style={{
+              minWidth: 800,
+            }}
+          >
             {loading ? (
               <LoadDiv />
             ) : (window.platformENV.isOverseas || window.platformENV.isLocal) &&
@@ -323,9 +367,7 @@ class AppSettings extends Component {
                   ) : (
                     <span>
                       {_l('数据集成服务未部署，请参考')}
-                      <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
-                        {_l('帮助')}
-                      </a>
+                      <Support type={3} href="https://docs-pd.mingdao.com/faq/integrate/flink" text={_l('帮助')} />
                     </span>
                   ),
                   dialogType: 'content',
@@ -336,7 +378,9 @@ class AppSettings extends Component {
               !['variables', 'aggregations', 'knowledge'].includes(currentConfigType) ? (
               <UpgradeCom projectId={projectId} featureId={featureId} />
             ) : (
-              <Component {...componentProps} />
+              <Suspense fallback={<LoadDiv className="mTop10" />}>
+                <Component {...componentProps} />
+              </Suspense>
             )}
           </div>
         </div>
@@ -344,7 +388,11 @@ class AppSettings extends Component {
           <VerifyDel
             name={name}
             onOk={this.handleDelApp}
-            onCancel={() => this.setState({ delAppConfirmVisible: false })}
+            onCancel={() =>
+              this.setState({
+                delAppConfirmVisible: false,
+              })
+            }
           />
         )}
       </div>

@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { TimePicker } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dropdown, Icon, Input, LoadDiv, Radio } from 'ming-ui';
+import { Button, Dropdown, Icon, Input, LoadDiv, MdAntTimePicker, Radio } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from 'src/pages/integration/api/datasource';
 import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig';
@@ -106,7 +101,6 @@ export default function TimingSetting(props) {
   const [setting, setSetting] = useState(settingValue || { readIntervalType: 0, readType: 0, config: {} });
   const [loading, setLoading] = useState(true);
   const [fields, setFields] = useState(sourceFields);
-  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
 
   useEffect(() => {
     onGetTimingSetting();
@@ -235,9 +229,8 @@ export default function TimingSetting(props) {
             ]}
           />
           {setting.readIntervalType === 1 && (
-            <TimePicker
+            <MdAntTimePicker
               className="timePicker"
-              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
               format="HH:mm"
               placeholder="HH:mm"
               value={setting.readTime ? dayjs(setting.readTime, 'HH:mm') : null}
@@ -367,7 +360,7 @@ export default function TimingSetting(props) {
             <div className="tipsBlock">
               <span>{_l('数据源的定时设置是共用的，可在')}</span>
               <span
-                className="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer"
+                className="mLeft5 mRight5 colorPrimary hoverColorPrimaryDark pointer"
                 onClick={() => {
                   navigateTo(`/integration/sourceDetail/${sourceId}/timingSetting`);
                 }}

@@ -1,6 +1,7 @@
 .mui-datetimerangepicker {
   display: block;
   border: solid 1px var(--color-border-secondary);
+  color: var(--color-text-title);
   background-color: var(--color-background-primary);
   border-radius: 4px;
   box-shadow:
@@ -16,7 +17,7 @@
 
     .mui-datetimerangepicker-col {
       flex: 1;
-      min-width: 246px;
+      min-width: 296px;
       &:nth-child(2) {
         border-left: solid 1px var(--color-border-secondary);
       }
@@ -76,41 +77,52 @@
 
     &.toolbar {
       box-sizing: content-box;
-      height: 30px;
+      min-height: 36px;
       padding: 8px 18px;
       text-align: right;
       background-color: var(--color-background-secondary);
 
       & > .mui-datetimerangepicker-col {
-        text-align: right;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 36px;
+        text-align: center;
         flex: none;
         width: 50%;
         box-sizing: border-box;
         &:nth-child(2) {
           border-left: none;
           padding-left: 18px;
+          justify-content: space-between;
         }
 
-        &:after {
-          content: '';
-          display: block;
-          width: 100%;
-          height: 0;
-          clear: both;
+        .timePickerGroup {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--color-text-title);
         }
 
-        & > .label {
-          display: inline-block;
+        .timePickerGroup > .label {
+          width: 36px;
           font-size: 13px;
           line-height: 30px;
+          text-align: center;
           vertical-align: middle;
           margin-right: 8px;
         }
 
-        & > .label,
-        & > .mui-time,
         & > .Dropdown {
-          float: left;
+          margin: 0 auto;
+        }
+
+        .toolbarActions {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          margin-left: auto;
         }
 
         .Menu {
@@ -118,13 +130,17 @@
           text-align: left;
         }
 
-        & > button {
+        .toolbarActions > button {
           font-size: 13px;
           line-height: 20px;
           padding: 5px 6px;
           min-width: 50px;
+          max-width: 76px;
           vertical-align: middle;
           margin-left: 6px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
           &.Button--ghost {
             padding: 4px 6px;
           }

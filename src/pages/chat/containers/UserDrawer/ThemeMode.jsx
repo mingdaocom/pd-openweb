@@ -3,7 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { emitter, setBodyThemeMode } from 'src/utils/common';
+import { emitter, getDefaultThemeMode, setBodyThemeMode } from 'src/utils/common';
 
 const Wrap = styled.div`
   background: var(--color-background-secondary);
@@ -42,7 +42,7 @@ const themeModes = [
 ];
 
 export default () => {
-  const [themeMode, setThemeMode] = useState(localStorage.getItem('themeMode') || 'light');
+  const [themeMode, setThemeMode] = useState(localStorage.getItem('themeMode') || getDefaultThemeMode());
 
   const onChange = value => {
     setThemeMode(value);

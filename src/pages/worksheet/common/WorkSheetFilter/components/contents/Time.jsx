@@ -26,7 +26,8 @@ export default class Date extends Component {
   }
   render() {
     const { control = {}, type, value, minValue, maxValue, onChange } = this.props;
-    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+    const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+    const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
     const unit = String(control.unit);
     const timeFormat = _.includes(['1', '8'], unit) ? 'HH:mm' : 'HH:mm:ss';
     return (
@@ -35,7 +36,7 @@ export default class Date extends Component {
           <div className="dateRangeInputCon">
             <AntTimePicker.RangePicker
               format={timeFormat}
-              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+              locale={datePickerLocale}
               defaultValue={minValue && maxValue ? [moment(minValue, timeFormat), moment(maxValue, timeFormat)] : []}
               popupClassName="filterDateRangeInputPopup"
               onOpenChange={isOpen => {

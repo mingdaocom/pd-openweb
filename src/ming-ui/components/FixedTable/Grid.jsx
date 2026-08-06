@@ -35,6 +35,7 @@ export default function Grid(props) {
     tableData,
     setRef,
     renderCustomComp,
+    cache,
   } = props;
   let leftFixedCount = props.leftFixedCount;
   let leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
@@ -82,6 +83,10 @@ export default function Grid(props) {
         ref={setRef}
         className={id + ' ' + cx({ leftFixed, rightFixed, topFixed, bottomFixed }) + '' + id}
         key={`${id}-${config.width}`}
+        // key 含宽度：行数/滚动条状态变化（如子表筛选）导致宽度变时 grid 会整体重挂。
+        // center 列是横向滚动区，重挂若回到 0 而表头/内容不同步重挂就会横向错位；
+        // 用缓存的横向位置初始化，使重挂后直接落在原位置，不依赖异步的 setScrollX 纠正。
+        initialScrollLeft={id.endsWith('center') ? (cache && cache.left) || 0 : 0}
         style={{
           position: 'absolute',
           left: config.left,

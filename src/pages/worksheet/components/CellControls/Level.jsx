@@ -33,14 +33,18 @@ export default class Level extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: levelSafeParse(nextProps.cell.value) });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: levelSafeParse(this.props.cell.value),
+        });
+      }
     }
   }
 
   handleTableKeyDown = e => {
-    const { cell, updateCell } = this.props;
+    const { cell, updateCell, onValidate } = this.props;
     const { max } = cell.advancedSetting || {};
     const minNumber = 0;
     const maxNumber = levelSafeParse(max);
@@ -66,6 +70,11 @@ export default class Level extends React.Component {
             updateCell({
               value: inputValue || '',
             });
+
+            if (_.isFunction(onValidate)) {
+              onValidate(inputValue || '');
+            }
+
             this.prevValue = inputValue;
             setTimeout(() => {
               this.prevValue = undefined;
@@ -78,7 +87,7 @@ export default class Level extends React.Component {
   };
 
   handleChange = value => {
-    const { cell, updateCell } = this.props;
+    const { cell, updateCell, onValidate } = this.props;
 
     if (cell.required && !value) {
       alert(_l('%0为必填字段', cell.controlName), 3);
@@ -89,6 +98,11 @@ export default class Level extends React.Component {
     updateCell({
       value,
     });
+    // 等级通过点击即时提交，不走输入/失焦校验流程；必填报错后重新评分需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (_.isFunction(onValidate)) {
+      onValidate(value);
+    }
   };
 
   render() {

@@ -302,7 +302,7 @@ export default class FilterItem extends Component {
             />
           </div>
           {!disableSave && this.checkNewFilter(filter) && (
-            <span className="ThemeHoverColor3 Hand mTop15 mRight6 textSecondary" onClick={onSaveNew}>
+            <span className="hoverColorPrimary Hand mTop15 mRight6 textSecondary" onClick={onSaveNew}>
               {_l('保存')}
             </span>
           )}
@@ -314,7 +314,7 @@ export default class FilterItem extends Component {
         key={filter.type === FILTER_TYPE.PUBLIC ? `public-${index}` : `personal-${index}`}
       >
         <div
-          className={cx('filterItem flexRow ThemeBGColor3', { expanded })}
+          className={cx('filterItem flexRow bgColorPrimary', { expanded })}
           onClick={e => {
             const $targetTarget = $(e.target).closest('.moreOperateBtn, .worksheetFilterOperateList');
 
@@ -327,7 +327,7 @@ export default class FilterItem extends Component {
           }}
         >
           <div
-            className={cx('filterTitle flex ellipsis', { ThemeColor3: selected })}
+            className={cx('filterTitle flex ellipsis', { colorPrimary: selected })}
             ref={title => (this.title = title)}
           >
             {nameIsEditing ? (

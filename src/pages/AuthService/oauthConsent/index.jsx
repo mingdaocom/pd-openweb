@@ -9,6 +9,13 @@ import { getRequest } from 'src/utils/common';
 import { ACTION_RESULT, ERROR_MSG, getScopeDisplayListFromScopes } from './constants';
 import { BtnGroup, Card, ErrorContent, ErrorIconWrap, LogoWrap, PageWrap, ScopeListWrap } from './style';
 
+const onCancel = () => {
+  window.close();
+  setTimeout(() => {
+    alert(_l('授权已取消'));
+  }, 300);
+};
+
 function OAuthConsentPage() {
   const {
     client_id: clientId,
@@ -102,12 +109,6 @@ function OAuthConsentPage() {
   };
 
   // 点击取消，关闭窗口，
-  const onCancel = () => {
-    window.close();
-    setTimeout(() => {
-      alert(_l('授权已取消'));
-    }, 300);
-  };
 
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import googleIcon from './img/google.svg';
 import microsoftIcon from './img/microsoft.png';
 import { getWorkWeiXinCorpInfoByApp } from './util';
@@ -95,12 +95,8 @@ export default function (props) {
       <a
         onClick={() => {
           if (_.includes([1, 6, 7], projectIntergrationType)) {
-            const url =
-              window.platformENV.isOverseas || window.platformENV.isLocal
-                ? md.global.Config.WebUrl
-                : location.origin + '/';
             const authPathMap = { 1: 'dingding', 6: 'feishu', 7: 'microsoft' };
-            location.href = `${url}auth/${authPathMap[projectIntergrationType]}?p=${projectId}`;
+            location.href = pathCompletion(`/auth/${authPathMap[projectIntergrationType]}?p=${projectId}`);
           } else {
             const request = getRequest();
             getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
@@ -128,7 +124,7 @@ export default function (props) {
           ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
             md.global.SysSettings.enableVerificationCodeLogin)) && (
           <div
-            className="Hand ThemeColor3 ThemeHoverColor3 mTop25 TxtCenter Bold"
+            className="loginModeSwitch Hand"
             onClick={() => {
               if (window.isMingDaoApp && verifyType === 'verifyCode') {
                 window.md_js.back({});
@@ -147,7 +143,9 @@ export default function (props) {
           {(openLDAP || isOpenSystemLogin) &&
             modeType &&
             (canChangeSysOrLDAP || shouldRenderIntegrationBtn || isOpenSso || isCanWeixin || isCanQQ) && (
-              <div className="title Font14">{_l('或通过以下方式')}</div>
+              <div className="tpLoginDivider">
+                <span>{_l('或')}</span>
+              </div>
             )}
           {canChangeSysOrLDAP && renderSysOrLDAPBtn()}
           {isOpenSso && renderSsoBtn()}

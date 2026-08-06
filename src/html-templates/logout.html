@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -32,9 +32,9 @@
                             } else if (location.href.indexOf('?RedirectUrl') > -1) {
                                 location.href = decodeURIComponent(location.search.replace('?RedirectUrl=', ''));
                             } else if (localStorage.getItem('loginFrom') === '2') {
-                                location.href = window.subPath ? window.subPath + '/network' : '/network';
+                                location.href = (window.subPath || window.__customSubPath__ || '') + '/network';
                             } else {
-                                var loginUrl = window.subPath ? window.subPath + '/login' : '/login';
+                                var loginUrl = (window.subPath || window.__customSubPath__ || '') + '/login';
 
                                 if (location.href.indexOf('?ReturnUrl') > -1) {
                                     location.href = loginUrl + location.search;

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -6,15 +6,14 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import reportApi from 'statistics/api/report';
-import charts from 'statistics/Charts';
 import { reportTypes } from 'statistics/Charts/common';
-import { CountryLayer } from 'statistics/Charts/CountryLayer';
-import { isOptionControl } from 'statistics/common';
+import VerificationDataLength from 'statistics/Charts/VerificationDataLength';
+import { isOptionControl } from 'statistics/common/controlUtils';
 import { Abnormal, WithoutData } from 'statistics/components/ChartStatus';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import './index.less';
 
 const Content = styled.div`
@@ -22,7 +21,67 @@ const Content = styled.div`
   .showTotalHeight {
     height: 100%;
   }
+  .g2-tooltip {
+    background-color: var(--color-background-card) !important;
+  }
+  .g2-html-annotation {
+    display: block !important;
+  }
 `;
+
+const CHART_LOADERS = {
+  [reportTypes.LineChart]: () => import('statistics/Charts/LineChart'),
+  [reportTypes.BarChart]: () => import('statistics/Charts/BarChart'),
+  [reportTypes.PieChart]: () => import('statistics/Charts/PieChart'),
+  [reportTypes.NumberChart]: () => import('statistics/Charts/NumberChart'),
+  [reportTypes.RadarChart]: () => import('statistics/Charts/RadarChart'),
+  [reportTypes.FunnelChart]: () => import('statistics/Charts/FunnelChart'),
+  [reportTypes.DualAxes]: () => import('statistics/Charts/DualAxes'),
+  [reportTypes.PivotTable]: () => import('statistics/Charts/PivotTable'),
+  [reportTypes.CountryLayer]: () => import('statistics/Charts/CountryLayer'),
+  [reportTypes.BidirectionalBarChart]: () => import('statistics/Charts/BidirectionalBarChart'),
+  [reportTypes.ScatterChart]: () => import('statistics/Charts/ScatterChart'),
+  [reportTypes.WordCloudChart]: () => import('statistics/Charts/WordCloudChart'),
+  [reportTypes.GaugeChart]: () => import('statistics/Charts/GaugeChart'),
+  [reportTypes.ProgressChart]: () => import('statistics/Charts/ProgressChart'),
+  [reportTypes.TopChart]: () => import('statistics/Charts/TopChart'),
+  [reportTypes.WorldMap]: () => import('statistics/Charts/WorldMap'),
+};
+
+const VERIFY_CHART_TYPES = [
+  reportTypes.LineChart,
+  reportTypes.BarChart,
+  reportTypes.PieChart,
+  reportTypes.RadarChart,
+  reportTypes.FunnelChart,
+  reportTypes.DualAxes,
+  reportTypes.WordCloudChart,
+];
+
+const chartComponentCache = {};
+
+const loadChartComponent = reportType => {
+  const normalizedReportType = Number(reportType);
+
+  if (chartComponentCache[normalizedReportType]) {
+    return Promise.resolve(chartComponentCache[normalizedReportType]);
+  }
+
+  const loader = CHART_LOADERS[normalizedReportType];
+
+  if (!loader) {
+    return Promise.resolve(null);
+  }
+
+  return loader().then(component => {
+    const ChartComponent = component.default;
+    chartComponentCache[normalizedReportType] = VERIFY_CHART_TYPES.includes(normalizedReportType)
+      ? VerificationDataLength(ChartComponent)
+      : ChartComponent;
+
+    return chartComponentCache[normalizedReportType];
+  });
+};
 
 function Chart({
   data,
@@ -35,15 +94,45 @@ function Chart({
   linkageMatch,
   onUpdateLinkageFiltersGroup,
 }) {
+  const reportType = Number(data.reportType);
+  const [chart, setChart] = useState(() => ({
+    reportType,
+    Component: chartComponentCache[reportType],
+  }));
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!reportType || data.status <= 0) {
+      return;
+    }
+
+    const cachedChart = chartComponentCache[reportType];
+
+    if (cachedChart) {
+      setChart({ reportType, Component: cachedChart });
+      return;
+    }
+
+    setChart({ reportType, Component: null });
+    loadChartComponent(reportType).then(Component => {
+      if (isMounted) {
+        setChart({ reportType, Component });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [reportType, data.status]);
+
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
 
-  charts[reportTypes.CountryLayer] = CountryLayer;
-
   const isMapEmpty = _.isEmpty(data.map);
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
-  const Charts = charts[data.reportType];
+  const Charts = chart.reportType === reportType ? chart.Component : null;
   const WithoutDataComponent = <WithoutData />;
   const { drillParticleSizeType } = data.country || {};
   const filter = data.filter || {};
@@ -71,8 +160,8 @@ function Chart({
           const workSheetId = data.appId;
 
           if (window.isMingDaoApp) {
-            const url = `/worksheet/${workSheetId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
-            window.location.href = url;
+            const url = `/worksheet/${workSheetId}/view/${filter.viewId}?chartId=${result.id}`;
+            window.location.href = pathCompletion(url);
           } else {
             homeAppApi.getAppSimpleInfo({ workSheetId }).then(data => {
               const url = `/mobile/recordList/${data.appId}/${data.appSectionId}/${workSheetId}/${filter.viewId}?chartId=${result.id}`;
@@ -94,7 +183,19 @@ function Chart({
       reportTypes.RadarChart,
       reportTypes.PieChart,
       reportTypes.BidirectionalBarChart,
-    ].includes(data.reportType) && isOptionControl(data.xaxes.controlType);
+    ].includes(reportType) && isOptionControl(data.xaxes.controlType);
+
+  if (!CHART_LOADERS[reportType]) {
+    return WithoutDataComponent;
+  }
+
+  if (!Charts) {
+    return (
+      <div className="flexRow justifyContentCenter alignItemsCenter h100">
+        <SpinLoading color="primary" />
+      </div>
+    );
+  }
 
   const ChartComponent = (
     <Charts
@@ -115,7 +216,7 @@ function Chart({
     />
   );
 
-  switch (data.reportType) {
+  switch (reportType) {
     case reportTypes.BarChart:
     case reportTypes.PieChart:
     case reportTypes.RadarChart:
@@ -244,7 +345,7 @@ function ChartWrapper(props) {
           )}
         </div>
       )}
-      <Content className={cx('flexColumn overflowHidden', `statisticsCard-${_.get(widget, 'value')}`)}>
+      <Content className={cx('flexColumn overflowHidden', `statisticsCard-${_.get(widget, 'value') || data.reportId}`)}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
             <SpinLoading color="primary" />

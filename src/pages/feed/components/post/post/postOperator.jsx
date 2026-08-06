@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
@@ -60,7 +59,7 @@ class PostOperator extends React.Component {
   };
 
   hideOperateList = e => {
-    if (e && e.target && e.target === ReactDom.findDOMNode(this.toggleBtn)) {
+    if (e && e.target && e.target === this.toggleBtn) {
       return;
     }
 

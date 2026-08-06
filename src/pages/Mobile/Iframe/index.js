@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import DocumentTitle from 'react-document-title';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import Back from '../components/Back';
 
 const data = {
   help: {
-    url: 'https://help.mingdao.com',
+    url: window.platformENV.isOverseas ? 'https://help.nocoly.com' : 'https://help.mingdao.com',
     title: _l('帮助中心'),
   },
 };

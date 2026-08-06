@@ -222,7 +222,7 @@ export default class Condition extends Component {
                 </span>
               )}
               <span
-                className="deleteBtn ThemeHoverColor3"
+                className="deleteBtn hoverColorPrimary"
                 onClick={() => {
                   onDelete();
                 }}
@@ -241,7 +241,7 @@ export default class Condition extends Component {
                 <span className="Hand">{_l('该字段已删除')}</span>
               </Tooltip>
               <span
-                className="deleteBtn ThemeHoverColor3"
+                className="deleteBtn hoverColorPrimary"
                 onClick={() => {
                   onDelete();
                 }}

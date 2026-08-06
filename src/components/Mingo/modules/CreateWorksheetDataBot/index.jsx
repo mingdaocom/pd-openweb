@@ -1,11 +1,14 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
-import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, omit, uniq } from 'lodash';
+import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, uniq } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import sseAjax from 'src/api/sse';
+import agentApi from 'src/api/agent';
+import appManagementAjax from 'src/api/appManagement';
+import departmentAjax from 'src/api/department';
+import organizeAjax from 'src/api/organize';
 import worksheetAjax from 'src/api/worksheet';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { useGlobalStore } from 'src/common/GlobalStore';
@@ -17,14 +20,17 @@ import {
 } from 'src/pages/widgetConfig/config/widget';
 import IconBtn from 'src/pages/worksheet/common/recordInfo/RecordForm/IconBtn';
 import useChat from 'src/pages/worksheet/hooks/useChat';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { emitter } from 'src/utils/common';
 import { controlState, formatAiGenControlValue } from 'src/utils/control';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import { parseStreamingJsonlData } from 'src/utils/sse';
+import mingoTemplateFiles from '../../../../../staticfiles/choroplethData/mingo/MingoTemplateFiles.json';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip } from '../../ChatBot/enum';
+import { buildFormFieldsControls, cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import CreateWorksheetDataMask from './CreateWorksheetDataMask';
 import Recommend from './Recommend';
 import { ConfigPanel } from './Recommend';
@@ -101,6 +107,158 @@ const MingoContentWrap = styled.div`
     }
   }
 `;
+
+function isFullUrl(url = '') {
+  return /^http/i.test(url);
+}
+
+function appendHost(host = '', path = '') {
+  if (!host || !path) return path;
+
+  return `${host.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+}
+
+function getPresetUsersAndFiles(config) {
+  const result = {};
+
+  if (config.includeSamplePeople) {
+    result.users = (mingoTemplateFiles.Users || []).map(user => ({
+      ...user,
+      AvatarUrl:
+        user.AvatarUrl && !isFullUrl(user.AvatarUrl)
+          ? appendHost(get(md, 'global.FileStoreConfig.pictureHost'), user.AvatarUrl)
+          : user.AvatarUrl,
+    }));
+  }
+
+  if (config.includeSampleAttachments) {
+    result.files = (mingoTemplateFiles.Files || []).map(file => {
+      const filePath = file.FilePath || '';
+      const host = /^pic/i.test(filePath)
+        ? get(md, 'global.FileStoreConfig.pictureHost')
+        : get(md, 'global.FileStoreConfig.documentHost');
+
+      return {
+        ...file,
+        FilePath: filePath && !isFullUrl(filePath) ? appendHost(host, filePath) : filePath,
+      };
+    });
+  }
+
+  return result;
+}
+
+function getAvailableControls(controls = []) {
+  return controls.reduce((result, control) => {
+    if (
+      !includes(SHEET_VIEW_HIDDEN_TYPES, control.type) &&
+      !includes(
+        [...SYSTEM_CONTROL, ...WORKFLOW_SYSTEM_CONTROL].map(c => c.controlId).concat(['uaid']),
+        control.controlId,
+      ) &&
+      controlState(control).visible
+    ) {
+      result.push(control);
+    }
+
+    if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
+      result.push(...getAvailableControls(control.relationControls || []));
+    }
+
+    return result;
+  }, []);
+}
+
+function flattenDepartments(departments = []) {
+  return departments.reduce((result, department) => {
+    result.push(department);
+
+    if (department.subDepartments && department.subDepartments.length) {
+      result.push(...flattenDepartments(department.subDepartments));
+    }
+
+    return result;
+  }, []);
+}
+
+function formatDepartments(departments = []) {
+  return flattenDepartments(departments)
+    .slice(0, 3)
+    .map(department => ({
+      DepartmentName: department.departmentName,
+      DepartmentId: department.departmentId,
+    }));
+}
+
+function formatOrgRoles(orgRoles = []) {
+  return orgRoles.slice(0, 3).map(role => ({
+    OrgRoleId: role.organizeId,
+    OrgRoleName: role.organizeName,
+  }));
+}
+
+async function getPresetDepartmentsAndRoles({ controls, projectId }) {
+  const hasDepartment = !!find(controls, { type: WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT });
+  const hasOrgRole = !!find(controls, { type: WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE });
+
+  if (!hasDepartment && !hasOrgRole) return;
+
+  const [departments, orgRoles] = await Promise.all([
+    hasDepartment
+      ? departmentAjax
+          .searchDepartment2(
+            {
+              projectId,
+              keywords: '',
+              includeDisabled: false,
+              pageIndex: 1,
+              pageSize: 3,
+            },
+            { silent: true },
+          )
+          .then(res => formatDepartments(res.item2 || []))
+          .catch(() => [])
+      : Promise.resolve([]),
+    hasOrgRole
+      ? organizeAjax
+          .getOrganizes(
+            {
+              projectId,
+              keywords: '',
+              pageIndex: 1,
+              pageSize: 3,
+              includeDisabled: false,
+            },
+            { silent: true },
+          )
+          .then(res => formatOrgRoles(res.list || []))
+          .catch(() => [])
+      : Promise.resolve([]),
+  ]);
+
+  return {
+    departments,
+    orgRoles,
+  };
+}
+
+async function getPresetRelatedRecords({ controls, worksheetId }) {
+  const hasRelatedRecord = !!find(
+    controls,
+    control => control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && control.dataSource,
+  );
+
+  if (!hasRelatedRecord) return;
+
+  return appManagementAjax
+    .getExampleDataMockSourceData(
+      {
+        worksheetId,
+      },
+      { silent: true },
+    )
+    .catch(() => undefined);
+}
 
 function getDefaultValueOfMessagesOfMingoCreateWorksheetDataBot(storageKey, worksheetId) {
   if (!storageKey || !localStorage.getItem(storageKey)) {
@@ -217,14 +375,15 @@ function MingoContent(props, ref) {
   const [config, setConfig] = useState(() => {
     try {
       const cached = localStorage.getItem(configStorageKey);
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
+      if (cached) return safeParse(cached, 'object');
+    } catch {
+      // Ignore invalid local cache and fall back to default config.
+    }
+
     return { includeSamplePeople: true, includeSampleAttachments: true };
   });
   useEffect(() => {
-    try {
-      localStorage.setItem(configStorageKey, JSON.stringify(config));
-    } catch (e) {}
+    safeLocalStorageSetItem(configStorageKey, JSON.stringify(config));
   }, [config]);
   const storageKey = `MINGO_CREATE_WORKSHEET_DATA_BOT_MESSAGES_${get(md, 'global.Account.accountId')}`;
   const defaultData = useMemo(
@@ -236,6 +395,7 @@ function MingoContent(props, ref) {
     currentMessage: '',
     currentJSONLStr: '',
     JSONLIsPiping: false,
+    sessionId: genBotSessionId(),
   });
   const {
     store: { activeWorksheet },
@@ -259,52 +419,63 @@ function MingoContent(props, ref) {
     reGenerateMessageAndNoUpdateMessages,
   } = useChat({
     defaultMessages: defaultData.messages || [],
-    aiCompletionApi: async (messages, { abortController }) => {
-      return sseAjax.generateExampleData(
-        {
+    aiCompletionApi: async (_, { abortController, agentParams = {} }) => {
+      const availableControls = getAvailableControls(get(worksheetInfo, 'template.controls', []));
+      const [presetDepartmentsAndRoles, presetRelatedRecords] = await Promise.all([
+        getPresetDepartmentsAndRoles({
+          controls: availableControls,
+          projectId: worksheetInfo.projectId,
+        }),
+        getPresetRelatedRecords({
+          controls: availableControls,
           worksheetId,
-          messageList: messages.map(m => omit(m, ['media'])),
-          includeUsers: config.includeSamplePeople,
-          includeFiles: config.includeSampleAttachments,
-        },
+        }),
+      ]);
+
+      return await agentApi.agentExecuteStream(
         {
-          abortController,
-          isReadableStream: true,
+          agentName: 'worksheet-example-data-generator',
+          forceReroute: false,
+          ...agentParams,
+          sessionId: cache.current.sessionId,
+          message: agentParams.message || _l('开始'),
+          context: {
+            userLanguage: window.getCurrentLang() || 'zh-Hans',
+            formFields: JSON.stringify(
+              buildFormFieldsControls(worksheetInfo, {
+                from: 'generate-example-data',
+                includeUsers: config.includeSamplePeople,
+                includeFiles: config.includeSampleAttachments,
+              }),
+            ),
+            presetUsersAndFiles: JSON.stringify(getPresetUsersAndFiles(config)),
+            ...(presetDepartmentsAndRoles
+              ? { presetDepartmentsAndRoles: JSON.stringify(presetDepartmentsAndRoles) }
+              : {}),
+            ...(presetRelatedRecords ? { presetRelatedRecords } : {}),
+          },
         },
+        { abortController },
       );
-      // const systemPrompt = buildSystemPrompt({ worksheetInfo });
-      // return sseAjax.buildWorkSheet(
-      //   {
-      //     appId: 'ab228e89-afd6-4aa1-b0f5-5aeb285bdb94',
-      //     messageList: [
-      //       {
-      //         role: 'system',
-      //         content: systemPrompt,
-      //       },
-      //       ...messages,
-      //     ],
-      //   },
-      //   {
-      //     abortController,
-      //     isReadableStream: true,
-      //   },
-      // );
     },
     onMessagePipe: (messageContent, messageData, messageId) => {
       setSelectedDataMessageId(prev => uniq([...prev, messageId]));
-      if (
-        messageContent &&
-        cache.current.currentMessage.includes('```custom_block_mingo_create_worksheet_data_jsonl\n') &&
-        !cache.current.JSONLIsPiping
-      ) {
-        cache.current.JSONLIsPiping = true;
-      }
+      const jsonlBlockFence = '```custom_block_mingo_create_worksheet_data_jsonl\n';
 
       cache.current.currentMessage += messageContent;
+
+      if (messageContent && cache.current.currentMessage.includes(jsonlBlockFence) && !cache.current.JSONLIsPiping) {
+        cache.current.JSONLIsPiping = true;
+        cache.current.currentJSONLStr = cache.current.currentMessage.slice(
+          cache.current.currentMessage.indexOf(jsonlBlockFence) + jsonlBlockFence.length,
+        );
+      } else if (cache.current.JSONLIsPiping) {
+        cache.current.currentJSONLStr += messageContent;
+      }
+
       let parsedData;
 
       if (cache.current.JSONLIsPiping) {
-        cache.current.currentJSONLStr += messageContent;
         parsedData = parseStreamingJsonlData(
           cache.current.currentJSONLStr,
           !cache.current.currentMessage.includes('\n```'),
@@ -365,10 +536,7 @@ function MingoContent(props, ref) {
         cache.current.handleAbortRequest();
       }
 
-      setError({
-        errorMsg: _l('模型调用失败'),
-        sourceData: eventData,
-      });
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
@@ -380,9 +548,15 @@ function MingoContent(props, ref) {
     }
   }, []);
 
-  const handleSend = (newMessage, { images, fileIds, media, useFileContentFormat } = {}) => {
+  const handleSend = (newMessage, { images, fileIds, media, useFileContentFormat, attachments } = {}) => {
     setIsChatting(true);
-    sendMessage(newMessage, { images, fileIds, media, useFileContentFormat });
+    sendMessage(newMessage, {
+      images,
+      fileIds,
+      media,
+      useFileContentFormat,
+      attachments,
+    });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
@@ -390,6 +564,7 @@ function MingoContent(props, ref) {
 
   const handleAbortRequest = () => {
     abortRequest();
+    cancelStream(cache.current.sessionId);
     cache.current.JSONLIsPiping = false;
     setMessageIdOfIsGeneratingMoreData(undefined);
     const messageId = last(messages)?.id;
@@ -418,6 +593,7 @@ function MingoContent(props, ref) {
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
+      cancelStream(cache.current.sessionId);
       clearMessages();
       // 终止正在进行的 load 请求
       if (cache.current.loadAbortController) {
@@ -452,6 +628,7 @@ function MingoContent(props, ref) {
     <MingoContentWrap className={className}>
       <MessageListWrap>
         <MessageList
+          showAssistantAvatar={false}
           activeMessageId={activeMessageId}
           allowEdit={allowEdit}
           maxWidth={maxWidth}
@@ -493,7 +670,7 @@ function MingoContent(props, ref) {
                     setIsRequesting(true);
                     setLoading(true);
                     setMessageIdOfIsGeneratingMoreData(messageId);
-                    reGenerateMessageAndNoUpdateMessages(messageId, '继续生成10条');
+                    reGenerateMessageAndNoUpdateMessages(messageId, _l('继续生成10条'));
                   }}
                 />
               );
@@ -563,6 +740,8 @@ function MingoContent(props, ref) {
                 fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
                 media: ocrFiles.map(f => f.commonAttachment),
                 useFileContentFormat: true,
+                // 图片与文档都需透传给后端，useChat 会按 mime 映射为 image/doc
+                attachments: files,
               });
             }}
           />

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -9,12 +9,14 @@ import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
 import SheetMove from 'worksheet/common/SheetMove/SheetMove';
-import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util';
 import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
+import { pathCompletion } from 'src/utils/common';
 import CreateNew from './CreateNew';
 import { EditExternalLink } from './ExternalLink';
+
+const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
 
 const Operation = styled(Menu)`
   width: max-content;
@@ -345,6 +347,13 @@ const handleUpdateWorksheetStatus = (status, props) => {
     });
 };
 
+const deleteText = {
+  0: _l('删除工作表%02029'),
+  1: _l('删除自定义页面'),
+  2: _l('删除分组%02012'),
+  3: _l('删除对话机器人'),
+};
+
 export default function MoreOperation(props) {
   const { children, appItem, appPkg, isGroup } = props;
   const { projectId, appId, groupId, activeSheetId, sheetListActions, onChangeEdit } = props;
@@ -356,12 +365,6 @@ export default function MoreOperation(props) {
   const isEditData = canEditData(appPkg?.permissionType); //运营者
   const isWorksheet = appItem.type === 0;
   const isActive = activeSheetId === appItem.workSheetId;
-  const deleteText = {
-    0: _l('删除工作表%02029'),
-    1: _l('删除自定义页面'),
-    2: _l('删除分组%02012'),
-    3: _l('删除对话机器人'),
-  };
 
   const handleCreateAppItem = (type, args) => {
     sheetListActions.createAppItem({
@@ -479,7 +482,7 @@ export default function MoreOperation(props) {
                   icon={<Icon icon="workflow" className="Font18" />}
                   onClick={() => {
                     setPopupVisible(false);
-                    window.open(`/app/${appId}/workflow` + `/${appItem.workSheetId}`, '__blank');
+                    window.open(pathCompletion(`/app/${appId}/workflow` + `/${appItem.workSheetId}`, '__blank'));
                   }}
                 >
                   <span className="text">{_l('查看工作流')}</span>
@@ -506,7 +509,7 @@ export default function MoreOperation(props) {
                 icon={<Icon icon="wysiwyg" className="Font18" />}
                 onClick={() => {
                   setPopupVisible(false);
-                  window.open(`/app/${appId}/logs/${projectId}/${appItem.workSheetId}`, '__blank');
+                  window.open(pathCompletion(`/app/${appId}/logs/${projectId}/${appItem.workSheetId}`, '__blank'));
                 }}
               >
                 <span className="text">{_l('查看日志')}</span>
@@ -784,16 +787,18 @@ export default function MoreOperation(props) {
             onCancel={() => setCreateType('')}
           />
         ) : (
-          <DialogImportExcelCreate
-            projectId={projectId}
-            appId={appId}
-            groupId={appItem.workSheetId}
-            onCancel={() => setCreateType('')}
-            createType="worksheet"
-            refreshPage={() => {
-              sheetListActions.getSheetList({ appId, appSectionId: appItem.parentId });
-            }}
-          />
+          <Suspense fallback={null}>
+            <LoadableDialogImportExcelCreate
+              projectId={projectId}
+              appId={appId}
+              groupId={appItem.workSheetId}
+              onCancel={() => setCreateType('')}
+              createType="worksheet"
+              refreshPage={() => {
+                sheetListActions.getSheetList({ appId, appSectionId: appItem.parentId });
+              }}
+            />
+          </Suspense>
         ))}
     </Fragment>
   );

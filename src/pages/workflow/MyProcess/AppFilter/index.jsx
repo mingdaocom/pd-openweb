@@ -31,13 +31,16 @@ export default class AppFilter extends Component {
       });
     });
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.apkId !== this.props.apkId && _.isEmpty(nextProps.apkId)) {
-      this.setState({
-        processList: [],
-        processType: undefined,
-        processId: undefined,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.apkId !== prevProps.apkId && _.isEmpty(this.props.apkId)) {
+        this.setState({
+          processList: [],
+          processType: undefined,
+          processId: undefined,
+        });
+      }
     }
   }
   getWorkFlowList() {

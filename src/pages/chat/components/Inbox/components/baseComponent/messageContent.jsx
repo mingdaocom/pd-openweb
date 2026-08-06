@@ -7,7 +7,7 @@ import { UserCard } from 'ming-ui';
 import 'src/components/emotion/emotion';
 import UploadFile from 'src/components/UploadFiles';
 import { formatMsgDate } from 'src/pages/chat/utils';
-import { cutStringWithHtml } from 'src/utils/common';
+import { cutStringWithHtml, pathCompletion } from 'src/utils/common';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
 import { SOURCE_TYPE } from '../../constants';
 import Avatar from './avatar';
@@ -172,7 +172,7 @@ export default class BaseMessageComponent extends React.Component {
           <a
             className="fromLink"
             target="_blank"
-            href={fromLink}
+            href={pathCompletion(fromLink)}
             data-title={fromTitle}
             onClick={() => {
               const worksheetId = sourceId.split('|')[0];
@@ -200,7 +200,7 @@ export default class BaseMessageComponent extends React.Component {
     return (
       <div className="mTop10 pBottom10">
         {sourceId ? (
-          <a href={fromLink} target="_blank" className="textTertiary NoUnderline">
+          <a href={pathCompletion(fromLink)} target="_blank" className="textTertiary NoUnderline">
             {formatMsgDate(dateConvertToUserZone(createTime))}
           </a>
         ) : (
@@ -243,7 +243,7 @@ export default class BaseMessageComponent extends React.Component {
         case SOURCE_TYPE.TASK:
           return (
             <div>
-              <a href={fromLink} target="_blank">
+              <a href={pathCompletion(fromLink)} target="_blank">
                 {_l('点击这里')}
               </a>
               <span className="textTertiary mLeft5">{_l('申请任务查看和回复权限')}</span>
@@ -252,7 +252,7 @@ export default class BaseMessageComponent extends React.Component {
         case SOURCE_TYPE.FOLDER:
           return (
             <div>
-              <a href={fromLink} target="_blank">
+              <a href={pathCompletion(fromLink)} target="_blank">
                 {_l('点击这里')}
               </a>
               <span className="textTertiary mLeft5">{_l('申请项目查看和回复权限')}</span>

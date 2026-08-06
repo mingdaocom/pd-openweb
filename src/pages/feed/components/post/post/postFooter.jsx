@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态和回复的脚，左侧是发布时间和来源，右侧由父组件通过children传入
@@ -25,12 +25,7 @@ function PostFooter(props) {
 
   return (
     <div className="postFooter">
-      <a
-        href={`${props.detailUrl}&${getAppFeaturesPath()}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="textTertiary"
-      >
+      <a href={pathCompletion(props.detailUrl)} target="_blank" rel="noopener noreferrer" className="textTertiary">
         {!props.updateTime || props.createTime === props.updateTime ? (
           <span title={_l('点击查看详情')}>{createTimeSpan(props.createTime)}</span>
         ) : (
@@ -58,7 +53,7 @@ function PostFooter(props) {
             href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${location.latitude}&name=${
               location.name || ''
             }&src=uriapi`}
-            className="postLocation Font12 ThemeColor3 Hand"
+            className="postLocation Font12 colorPrimary Hand"
             rel="noopener noreferrer"
             target="_blank"
           >

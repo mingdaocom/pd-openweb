@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import moment from 'moment';
 import ajaxRequest from 'src/api/calendar';
 import preall from 'src/common/preall';
-import { addToken, htmlEncodeReg } from 'src/utils/common';
+import { addToken, htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import './style.css';
 
 class CalendarShare extends Component {
@@ -12,12 +12,8 @@ class CalendarShare extends Component {
 
     this.settings = {
       token: this.getUrlParam('calendartoken'),
-      imgUrl: md.global.Config.WebUrl + 'images/calendar/sharelogo.png',
-      link:
-        md.global.Config.WebUrl +
-        location.pathname.replace(/^\//, '') +
-        '?calendartoken=' +
-        this.getUrlParam('calendartoken'),
+      imgUrl: '/staticfiles/images/calendar/sharelogo.png',
+      link: pathCompletion(location.pathname + '?calendartoken=' + this.getUrlParam('calendartoken')),
     };
   }
 
@@ -227,7 +223,7 @@ class CalendarShare extends Component {
             var src =
               md.global.Config.AjaxApiUrl +
               'code/CreateQrCodeImage?url=' +
-              encodeURIComponent(md.global.Config.WebUrl + 'm/detail/calendar/?calendartoken=' + this.settings.token);
+              encodeURIComponent(pathCompletion('/m/detail/calendar/?calendartoken=' + this.settings.token));
             $('#mFooter .mQRCode,#pcFooter .pcFooterImg').html('<img src="' + addToken(src) + '" />');
           }
 
@@ -304,7 +300,7 @@ class CalendarShare extends Component {
     $('#leaveBtn')
       .off()
       .on('click', function () {
-        if (confirm('您确定要退出当前日程吗？')) {
+        if (confirm(_l('您确定要退出当前日程吗？'))) {
           ajaxRequest
             .removeCalendarWeChatMember({
               calendarID: settings.calendarID,
@@ -324,9 +320,9 @@ class CalendarShare extends Component {
                     .html()
                     .replace(/，$|^，/g, ''),
                 );
-                alert('退出成功！');
+                alert(_l('退出成功！'));
               } else {
-                alert('退出失败！');
+                alert(_l('退出失败！'));
               }
             });
         }
@@ -360,9 +356,9 @@ class CalendarShare extends Component {
                     .html()
                     .replace(/，$|^，/g, ''),
                 );
-              alert('加入成功！');
+              alert(_l('加入成功！'));
             } else {
-              alert('加入失败！失败原因：' + source.msg);
+              alert(_l('加入失败！失败原因：%0', source.msg));
             }
           });
       });
@@ -415,7 +411,7 @@ class CalendarShare extends Component {
       link: settings.link,
       imgUrl: settings.imgUrl,
       success: function () {
-        alert('分享成功！');
+        alert(_l('分享成功！'));
       },
     });
 
@@ -430,7 +426,7 @@ class CalendarShare extends Component {
       link: settings.link,
       imgUrl: settings.imgUrl,
       success: function () {
-        alert('分享成功！');
+        alert(_l('分享成功！'));
       },
     });
   }
@@ -527,28 +523,33 @@ class CalendarShare extends Component {
           <div className="clipLoader"></div>
         </div>
         <div className="main w100 hide" id="calendarMain">
-          <header className="boxSizing Font16 p18 w100">日程</header>
+          <header className="boxSizing Font16 p18 w100">{_l('日程')}</header>
           <div className="content">
             <div className="title boxSizing Font20 p18 w100" id="title"></div>
             <div className="date boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-date"></i>时间
+              <i className="icons icon-date"></i>
+              {_l('时间')}
             </div>
             <div className="dateTime boxSizing Font14 pLeft55 p18 w100" id="dateTime"></div>
             <div className="address boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-address"></i>地点
+              <i className="icons icon-address"></i>
+              {_l('地点')}
             </div>
             <div className="addressDesc boxSizing Font14 pLeft55 p18 w100" id="addressDesc"></div>
             <div className="members boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-members"></i>人员
+              <i className="icons icon-members"></i>
+              {_l('人员')}
             </div>
             <div className="member boxSizing Font14 pLeft55 p18 w100">
               <div className="w100">
-                <span id="createUserName"></span>(发起人)
+                <span id="createUserName"></span>
+                {_l('(发起人)')}
               </div>
               <div className="memberList w100" id="memberList"></div>
             </div>
             <div className="desc boxSizing Relative Font16 pLeft55 p18 w100" id="desc">
-              <i className="icons icon-desc"></i>描述
+              <i className="icons icon-desc"></i>
+              {_l('描述')}
             </div>
             <div className="descContent boxSizing Font14 pLeft55 p18 w100">
               <div className="w100" id="descContent"></div>
@@ -563,49 +564,51 @@ class CalendarShare extends Component {
           <footer className="boxSizing Font16 p18 w100">
             <div className="w100 hide" id="joinFooter">
               <div className="w100" id="joinBox">
-                <div className="footerTitle w100">您是否确认参加本次日程？</div>
+                <div className="footerTitle w100">{_l('您是否确认参加本次日程？')}</div>
                 <a className="join" id="joinBtn">
-                  确认参加
+                  {_l('确认参加')}
                 </a>
               </div>
               <div className="w100" id="leaveBox">
                 <div className="w100 leaveBoxTitle">
-                  <span className="icons"></span>您已加入本次日程
+                  <span className="icons"></span>
+                  {_l('您已加入本次日程')}
                 </div>
                 <a href="" className="wAddCalendar" id="wAddCalendar">
-                  添加到手机日历
+                  {_l('添加到手机日历')}
                 </a>
                 <a className="join leave" id="leaveBtn">
-                  退出日程
+                  {_l('退出日程')}
                 </a>
               </div>
             </div>
             <div className="w100 hide" id="pcFooter">
               <div className="pcFooterImg"></div>
               <div className="pcFooterTitle w100 Font17">
-                <i></i>微信扫描二维码，加入本次日程
+                <i></i>
+                {_l('微信扫描二维码，加入本次日程')}
               </div>
             </div>
             <div className="w100 hide" id="mFooter">
               <a className="addCalendar" id="addCalendar">
-                添加到手机日历
+                {_l('添加到手机日历')}
               </a>
-              <div className="Font18 w100 save">保存二维码图片，加入日程</div>
+              <div className="Font18 w100 save">{_l('保存二维码图片，加入日程')}</div>
               <div className="mQRCode"></div>
               <div className="Font14 mDesc">
-                1.保存此日程的二维码图片到手机
+                {_l('1.保存此日程的二维码图片到手机')}
                 <br />
-                <span>2.使用微信扫一扫中的从相册扫描二维码功能，加入本次日程</span>
+                <span>{_l('2.使用微信扫一扫中的从相册扫描二维码功能，加入本次日程')}</span>
               </div>
             </div>
           </footer>
         </div>
 
         <div className="main w100 hide" id="noCalendarMain">
-          <header className="boxSizing Font16 p18 w100">日程</header>
+          <header className="boxSizing Font16 p18 w100">{_l('日程')}</header>
           <div className="content">
             <div className="icons icon-noCalendar w100"></div>
-            <div className="Font18 w100 noCalendarTitle boxSizing">此日程不存在或分享内容已经被取消</div>
+            <div className="Font18 w100 noCalendarTitle boxSizing">{_l('此日程不存在或分享内容已经被取消')}</div>
           </div>
         </div>
       </Fragment>

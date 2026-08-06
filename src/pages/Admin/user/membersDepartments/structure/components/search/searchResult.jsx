@@ -2,18 +2,20 @@ import React from 'react';
 import _ from 'lodash';
 import filterXSS from 'xss';
 import { LoadDiv } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { formatSearchDeptData } from '../../modules/util';
 
-@withClickAway
-class Result extends React.Component {
+let Result = class Result extends React.Component {
   renderDepartments = (departments = [], keywords) => {
     if (!departments || !departments.length) return null;
     const result = formatSearchDeptData(departments, keywords);
+
     const list = _.map(result, (department, index) => {
       return (
         <div
-          dangerouslySetInnerHTML={{ __html: filterXSS(department.departmentName) }}
+          dangerouslySetInnerHTML={{
+            __html: filterXSS(department.departmentName),
+          }}
           key={`${index}_${department.id}`}
           className="deptItem"
           onClick={() => {
@@ -22,6 +24,7 @@ class Result extends React.Component {
         ></div>
       );
     });
+
     return (
       <div className="searchDepartmentList">
         <div className="title">
@@ -58,6 +61,7 @@ class Result extends React.Component {
       </div>
     );
   };
+
   render() {
     const { keywords, data = {}, isSearching, showResult } = this.props;
 
@@ -85,13 +89,18 @@ class Result extends React.Component {
     } else {
       return (
         <div className="searchResult">
-          <div className="TxtCenter textPlaceholder" style={{ paddingTop: '80px' }}>
+          <div
+            className="TxtCenter textPlaceholder"
+            style={{
+              paddingTop: '80px',
+            }}
+          >
             {_l('无搜索结果')}
           </div>
         </div>
       );
     }
   }
-}
-
+};
+Result = ClickAway.wrap(Result);
 export default Result;

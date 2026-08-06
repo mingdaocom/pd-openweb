@@ -261,7 +261,7 @@ export default function Log(props) {
         return (
           <div className="optionCon">
             <span
-              className="ThemeColor3 Hand"
+              className="colorPrimary Hand"
               onClick={() => {
                 setState({
                   logInfo: record,

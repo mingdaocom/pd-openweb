@@ -2,18 +2,15 @@ import React, { createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import _, { get } from 'lodash';
-import moment from 'moment';
+import _ from 'lodash';
 import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
-import webCache from 'src/api/webCache';
 import MobileChart from 'mobile/CustomPage/ChartContent';
 import { RecordInfoModal } from 'mobile/Record';
-import { loadSDK } from 'src/components/Form/core/utils';
 import TextScanQRCode from 'src/components/Form/MobileForm/components/TextScanQRCode';
 import BulletinBoard from 'src/pages/AppHomepage/Dashboard/BulletinBoard';
 import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
 import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, getCurrentProject, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog, getCurrentProject } from 'src/utils/project';
 import * as appActions from '../App/redux/actions';
 import SelectProject from '../components/SelectProject';
 import TabBar from '../components/TabBar';
@@ -22,8 +19,7 @@ import ApplicationList from './components/ApplicationBox';
 import ApplicationItem from './components/ApplicationItem';
 import EmptyStatus from './components/EmptyStatus';
 import Process from './components/Process';
-import arrowLeftImg from './img/arrowLeft.png';
-import arrowRightImg from './img/arrowRight.png';
+import mingoImg from './img/mingo.png';
 import * as actions from './redux/actions';
 import './index.less';
 
@@ -40,7 +36,6 @@ class AppHome extends React.Component {
 
     this.state = {
       width: document.documentElement.clientWidth,
-      guideStep: 0,
       recentType: 'app',
     };
     this.contentRef = createRef();
@@ -48,31 +43,17 @@ class AppHome extends React.Component {
     this.isSetScrollTop = false;
   }
   componentDidMount() {
-    const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
-    const isAdmin = md.global.Account.projects[0]
-      ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
-      : false;
-    const isMaturity = moment().isBefore(maturityTime);
     $('html').addClass('appHomeMobile');
     this.getProject();
-    if (window.isWxWork && isAdmin && isMaturity) {
-      this.getWebCache();
-    }
 
     window.addEventListener('popstate', this.closePage);
-    loadSDK();
-    window.addEventListener('popstate', this.onQueryChange);
 
     // 清除工作表滚动条高度
     this.props.updateAppScrollY(0);
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
-    // 异步延迟执行，确保 popstate 优先执行
-    setTimeout(() => {
-      window.removeEventListener('popstate', this.closePage);
-    }, 0);
-    window.removeEventListener('popstate', this.onQueryChange);
+    window.removeEventListener('popstate', this.closePage);
   }
 
   componentDidUpdate() {
@@ -92,10 +73,6 @@ class AppHome extends React.Component {
 
   handleScroll = e => {
     this.props.updateAppHomeScrollY(e.target.scrollTop);
-  };
-
-  onQueryChange = () => {
-    handleReplaceState('page', 'collectRecord', () => this.setState({ collectRecord: {} }));
   };
 
   getProject = (isPullRefresh = false) => {
@@ -118,30 +95,6 @@ class AppHome extends React.Component {
   };
   closePage = () => {
     window.close();
-  };
-  getWebCache = () => {
-    webCache
-      .get({
-        key: 'workwxFirstEnter',
-      })
-      .then(res => {
-        if (!get(res, 'data')) {
-          this.setState({ guideStep: 1 });
-        }
-      });
-  };
-  addWebCache = () => {
-    webCache
-      .add(
-        {
-          key: 'workwxFirstEnter',
-          value: 'true',
-        },
-        {
-          silent: true,
-        },
-      )
-      .then(() => {});
   };
   filterSearchResult = (apps = [], keyWords) => {
     return apps.filter(
@@ -215,6 +168,12 @@ class AppHome extends React.Component {
             }}
           />
         </div>
+        <div
+          className="mingoEntry flexRow alignItemsCenter justifyContentCenter"
+          onClick={() => window.mobileNavigateTo('/mobile/mingo')}
+        >
+          <img src={mingoImg} alt="Mingo" />
+        </div>
       </div>
     );
   };
@@ -242,46 +201,24 @@ class AppHome extends React.Component {
     );
   };
 
-  renderGuide() {
-    const { guideStep } = this.state;
+  renderHeader = () => {
+    const isAppLibrary = window.platformENV.isOverseas || window.platformENV.isLocal;
 
-    if (guideStep == 1) {
-      return (
-        <div className="guideWrapper">
-          <div className="guide guide1" />
-          <img className="guideImg Absolute" src={arrowLeftImg} />
-          <div className="text Absolute Font18 textWhite bold">
-            {_l('感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。')}
-          </div>
+    return (
+      <div className="appHomeHeader flexRow alignItemsCenter">
+        <SelectProject className="flex overflowHidden" changeProject={this.getProject} />
+        {isAppLibrary && (
           <div
-            className="ok Absolute Font18 textWhite bold"
-            onClick={() => {
-              this.addWebCache();
-              this.setState({ guideStep: 2 });
-            }}
+            className="appMarketEntry flexRow alignItemsCenter justifyContentCenter"
+            onClick={() => window.mobileNavigateTo('/mobile/appBox')}
           >
-            {_l('知晓了')}
+            <Icon icon="application_library" className="Font22 mRight4" />
+            <span className="Font14 Bold">{_l('模板库')}</span>
           </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="guideWrapper">
-          <div className="guide guide2" />
-          <img className="guide2Img Absolute" src={arrowRightImg} />
-          <div className="text2 Absolute Font18 textWhite bold">{_l('您也可从模板库添加一个应用')}</div>
-          <div
-            className="ok2 Absolute Font18 textWhite bold"
-            onClick={() => {
-              this.setState({ guideStep: 0 });
-            }}
-          >
-            {_l('知晓了')}
-          </div>
-        </div>
-      );
-    }
-  }
+        )}
+      </div>
+    );
+  };
 
   // 应用收藏/最近使用/记录收藏 title
   renderTitle = ({ type = 'collectAppList', wrapTitle, icon, showMore, moreText, iconClass }) => {
@@ -341,6 +278,7 @@ class AppHome extends React.Component {
           {markedAppItems.slice(0, 6).map((item, index) => {
             return (
               <ApplicationItem
+                key={item.id}
                 className="collectAppList"
                 direction="horizontal"
                 index={index}
@@ -368,7 +306,10 @@ class AppHome extends React.Component {
       .filter(_.identity);
 
     if (_.isEmpty(recentAppIds) && _.isEmpty(recentAppItems)) return;
-    let list = recentType === 'app' ? recentApps.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay)) : recentAppItems;
+    let list =
+      recentType === 'app'
+        ? recentApps.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay))
+        : recentAppItems;
     list = _.isEmpty(list)
       ? list
       : list.concat([{ id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }]);
@@ -390,6 +331,7 @@ class AppHome extends React.Component {
             list.slice(0, 6).map((item, index) => {
               return (
                 <ApplicationItem
+                  key={`${item.id}-${index}`}
                   className={cx('recentList', { empty: item.id === 'empty' })}
                   direction="horizontal"
                   index={index}
@@ -434,7 +376,6 @@ class AppHome extends React.Component {
                 key={favoriteId}
                 className="flexRow mBottom14 alignItemsCenter"
                 onClick={() => {
-                  handlePushState('page', 'collectRecord');
                   addBehaviorLog('worksheetRecord', worksheetId, { rowId });
                   this.setState({ collectRecord: item });
                 }}
@@ -593,7 +534,7 @@ class AppHome extends React.Component {
   };
 
   render() {
-    const { guideStep, searchValue } = this.state;
+    const { searchValue } = this.state;
 
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') ||
@@ -603,13 +544,12 @@ class AppHome extends React.Component {
     return (
       <WaterMark projectId={projectObj.projectId}>
         <div className="listConBox h100">
-          <SelectProject changeProject={this.getProject} />
+          {this.renderHeader()}
           {this.renderSearchApp()}
           {!searchValue && this.renderContent()}
           {searchValue && this.renderSearchResult()}
           <TabBar action="appHome" />
         </div>
-        {guideStep ? this.renderGuide() : null}
       </WaterMark>
     );
   }

@@ -18,18 +18,26 @@ export default class Delay extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -42,6 +50,10 @@ export default class Delay extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
       });
   }
@@ -80,10 +92,6 @@ export default class Delay extends Component {
       return;
     }
 
-    if (saveRequest) {
-      return;
-    }
-
     if (data.actionId === '300') {
       if (data.fieldControlType === 16 && data.fieldControlName) {
         data.time = null;
@@ -91,6 +99,10 @@ export default class Delay extends Component {
         data.unit = TIME_TYPE.DAY;
         data.time = data.time || '8:00';
       }
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
+      return;
     }
 
     flowNode
@@ -216,7 +228,7 @@ export default class Delay extends Component {
                 !data.minuteFieldValue.fieldNodeId &&
                 (!data.secondFieldValue.fieldValue || data.secondFieldValue.fieldValue === '0') &&
                 !data.secondFieldValue.fieldNodeId)
-            )
+            ) && !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

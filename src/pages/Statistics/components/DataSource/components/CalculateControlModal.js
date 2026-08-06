@@ -6,7 +6,8 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon, TagTextarea } from 'ming-ui';
-import { isNumberControl, textNormTypes } from 'statistics/common';
+import { isNumberControl } from 'statistics/common/controlUtils';
+import { textNormTypes } from 'statistics/common/reportConfigUtils';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
 import { normTypes } from '../../../enum';
 

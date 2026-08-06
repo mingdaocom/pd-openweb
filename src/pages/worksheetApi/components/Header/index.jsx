@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+﻿import React, { Fragment, memo, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
@@ -6,7 +6,10 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import Share from 'worksheet/components/Share';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { navigateTo } from 'src/router/navigateTo';
+import { browserIsMobile } from 'src/utils/common';
 import { TAB_TYPE } from '../../core/enum';
 import Beta from '../Beta';
 
@@ -26,6 +29,7 @@ const HeaderWrap = styled.header`
   .shareButtonBox {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
   }
   .shareButton {
     height: 36px;
@@ -55,6 +59,10 @@ const HeaderWrap = styled.header`
 
   .appName {
     display: inline;
+  }
+
+  .flexNone {
+    flex: none;
   }
 
   .worksheetApiTabsBox {
@@ -96,6 +104,7 @@ const TABS_OPTS = [
   { tabIndex: TAB_TYPE.API_V3, name: _l('API V3') },
   { tabIndex: TAB_TYPE.API_V2, name: _l('API V2') },
 ];
+const isMobile = browserIsMobile();
 
 const getIconColor = ({ iconColor, navColor }) => {
   const lightColor = generate(iconColor)[0];
@@ -116,14 +125,14 @@ const CommonHeader = props => {
     e.stopPropagation();
     const lang = window.getCurrentLang();
     window.open(
-      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}`,
+      `${md.global.Config.OpenApiDocUrl}/application_v3/appkey-sign/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}`,
       '_blank',
     );
   };
 
   return (
     <HeaderWrap className="flexRow">
-      <div className="appInfoBox">
+      <div className="ellipsis">
         {data && (
           <Fragment>
             <span
@@ -143,66 +152,74 @@ const CommonHeader = props => {
             >
               {dataApp.name}
             </span>
+            <span>{_l('API说明')}</span>
           </Fragment>
         )}
-        {_l('API说明')}
       </div>
-      <div className="worksheetApiTabsBox flex">
-        {!isSharePage &&
-          TABS_OPTS.map((item, i) => (
-            <div
-              key={i}
-              className={cx('worksheetApiTab', {
-                active: tabIndex === item.tabIndex,
-              })}
-              onClick={() => updateTabIndex(item.tabIndex)}
-            >
-              <span>
-                {item.name}
-                {item.tabIndex === TAB_TYPE.API_V3 && <Beta />}
-              </span>
-            </div>
-          ))}
-      </div>
-      <div className="shareButtonBox">
-        {tabIndex === TAB_TYPE.API_V3 && (
-          <div className="shareButton Hand textSecondary flexRow valignWrapper mRight16" onClick={externalLink}>
-            <Icon icon="external_collaboration" className="mRight8 Font18" />
-            <span className="Font14">{_l('打开')}</span>
+      {isMobile && isSharePage ? (
+        <CreateByMingDaoYun className="flexNone" />
+      ) : (
+        <React.Fragment>
+          <div className="worksheetApiTabsBox flex">
+            {!isSharePage &&
+              TABS_OPTS.map((item, i) => (
+                <div
+                  key={i}
+                  className={cx('worksheetApiTab', {
+                    active: tabIndex === item.tabIndex,
+                  })}
+                  onClick={() => updateTabIndex(item.tabIndex)}
+                >
+                  <span>
+                    {item.name}
+                    {item.tabIndex === TAB_TYPE.API_V3 && <Beta />}
+                  </span>
+                </div>
+              ))}
           </div>
-        )}
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-          <a
-            className="shareButton Hand textSecondary flexRow valignWrapper"
-            target="_blank"
-            href="https://apifox.mingdao.com/"
-          >
-            <Icon icon="play_arrow" className="mRight8 Font18" />
-            <span className="Font14">{_l('调试')}</span>
-          </a>
-        )}
-        {!isSharePage && tabIndex !== TAB_TYPE.API_V3 && (
-          <div
-            className="shareButton Hand textSecondary flexRow valignWrapper mLeft16"
-            onClick={() => setShareVisible(true)}
-          >
-            <Icon icon="share" className="mRight8 Font18" />
-            <span className="Font14">{_l('分享')}</span>
+
+          <div className="shareButtonBox">
+            {isSharePage && <PublicAppLangDropdown className="mRight16" appId={appId} projectId={dataApp.projectId} />}
+            {tabIndex === TAB_TYPE.API_V3 && (
+              <div className="shareButton Hand textSecondary flexRow valignWrapper mRight16" onClick={externalLink}>
+                <Icon icon="external_collaboration" className="mRight8 Font18" />
+                <span className="Font14">{_l('打开')}</span>
+              </div>
+            )}
+            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+              <a
+                className="shareButton Hand textSecondary flexRow valignWrapper"
+                target="_blank"
+                href="https://apifox.mingdao.com/"
+              >
+                <Icon icon="play_arrow" className="mRight8 Font18" />
+                <span className="Font14">{_l('调试')}</span>
+              </a>
+            )}
+            {!isSharePage && tabIndex !== TAB_TYPE.API_V3 && (
+              <div
+                className="shareButton Hand textSecondary flexRow valignWrapper mLeft16"
+                onClick={() => setShareVisible(true)}
+              >
+                <Icon icon="share" className="mRight8 Font18" />
+                <span className="Font14">{_l('分享')}</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {shareVisible && (
-        <Share
-          title={_l('分享文档')}
-          from="worksheetApi"
-          isCharge={true}
-          params={{
-            appId,
-            sourceId: _.get(appInfo, 'apiRequest.appKey') || getId(),
-            title: _l('API说明'),
-          }}
-          onClose={() => setShareVisible(false)}
-        />
+          {shareVisible && (
+            <Share
+              title={_l('分享文档')}
+              from="worksheetApi"
+              isCharge={true}
+              params={{
+                appId,
+                sourceId: _.get(appInfo, 'apiRequest.appKey') || getId(),
+                title: _l('API说明'),
+              }}
+              onClose={() => setShareVisible(false)}
+            />
+          )}
+        </React.Fragment>
       )}
     </HeaderWrap>
   );

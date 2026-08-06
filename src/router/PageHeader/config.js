@@ -1,4 +1,6 @@
-export const PAGE_HEADER_ROUTE_CONFIG = {
+import { addSubPathOfRoutes } from 'src/utils/common';
+
+export const PAGE_HEADER_ROUTE_CONFIG = addSubPathOfRoutes({
   home: {
     path: ['/dashboard', '/app/my/(group|owned)?/:projectId?/:groupType?/:groupId?', '/favorite', '/app/lib/'],
     component: () => import('src/pages/PageHeader/AppCenterHeader'),
@@ -40,7 +42,7 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     component: () => import('src/pages/PageHeader/NativeHeader'),
   },
   user: {
-    path: ['user', '/user_:userId?'],
+    path: ['/user', '/user_:userId?'],
     component: () => import('src/pages/PageHeader/NetManageHeader'),
   },
   group: {
@@ -112,4 +114,4 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     isExact: true,
     component: () => import('src/pages/PageHeader/AppCenterHeader'),
   },
-};
+});

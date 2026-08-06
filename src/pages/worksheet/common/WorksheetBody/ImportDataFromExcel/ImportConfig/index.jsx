@@ -4,13 +4,11 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Button, Dialog, Icon, Radio, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import './index.less';
 
 const titleLineArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class ImportConfig extends Component {
   static propTypes = {
     hideImportConfig: PropTypes.func,
@@ -81,6 +79,7 @@ export default class ImportConfig extends Component {
         ),
       ).filter(item => item.value);
     }
+
     this.state = {
       fileList: props.fileList || [],
       titleLine: maxColumnNumber + 1,
@@ -242,7 +241,7 @@ export default class ImportConfig extends Component {
                     return (
                       <Radio
                         className={cx('sheetItem Block', {
-                          ThemeBGColor5: !disabled && item.sheetNumber === importSheetIndex,
+                          bgColorPrimaryTransparent: !disabled && item.sheetNumber === importSheetIndex,
                         })}
                         text={item.sheetName}
                         value={item.sheetNumber}

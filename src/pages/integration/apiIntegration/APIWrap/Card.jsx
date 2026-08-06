@@ -231,7 +231,7 @@ export default function Card(props) {
                       {o.level <= 0 && !_.includes([22, 36], o.type) && o.type < 10000000 && !o.dataSource && (
                         <Icon
                           icon="ic_title"
-                          className={cx('Font16', o.attribute === 1 ? 'ThemeColor3' : 'textDisabled titileIcon', {
+                          className={cx('Font16', o.attribute === 1 ? 'colorPrimary' : 'textDisabled titileIcon', {
                             Hand: canEdit,
                           })}
                           onClick={() => {

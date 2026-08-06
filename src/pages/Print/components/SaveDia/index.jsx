@@ -129,7 +129,7 @@ export default class SaveDia extends React.Component {
                         href="javascript:void(0)"
                         class="remove"
                         tabIndex="-1"
-                        title="删除"
+                        title={_l('删除')}
                         onClick={e => {
                           this.setState({
                             printData: {

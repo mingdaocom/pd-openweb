@@ -1,9 +1,24 @@
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import './less/PositionContainer.less';
+
+function getDomNode(node) {
+  if (!node) {
+    return null;
+  }
+
+  if (node.nodeType) {
+    return node;
+  }
+
+  if (node.current) {
+    return getDomNode(node.current);
+  }
+
+  return null;
+}
 
 class PositionContainer extends Component {
   static propTypes = {
@@ -61,19 +76,22 @@ class PositionContainer extends Component {
       document.body.removeEventListener('click', this.newDestroy);
     }
   }
-  componentWillReceiveProps(nextProps) {
-    let { visible, bounding } = nextProps;
-    this.bounding = bounding;
-    if (visible) {
-      if (this.popup) {
-        this.renderLayer(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      let { visible, bounding } = this.props;
+      this.bounding = bounding;
+      if (visible) {
+        if (this.popup) {
+          this.renderLayer(this.props);
+        } else {
+          this.create(this.props);
+          this.show();
+        }
       } else {
-        this.create(nextProps);
-        this.show();
-      }
-    } else {
-      if (this.popup) {
-        this.hide();
+        if (this.popup) {
+          this.hide();
+        }
       }
     }
   }
@@ -117,7 +135,7 @@ class PositionContainer extends Component {
     let { props } = this;
     const exceptions = _.compact(
       _.map(this.props.onClickAwayExceptions, item => {
-        if (item instanceof window.jQuery) {
+        if (window.jQuery && item instanceof window.jQuery) {
           return _.map(item, x => x);
         }
 
@@ -125,12 +143,7 @@ class PositionContainer extends Component {
           return _.map(window.jQuery(item), x => x);
         }
 
-        try {
-          return ReactDom.findDOMNode(item);
-        } catch (err) {
-          console.error(err);
-          return null;
-        }
+        return getDomNode(item);
       }),
     );
 

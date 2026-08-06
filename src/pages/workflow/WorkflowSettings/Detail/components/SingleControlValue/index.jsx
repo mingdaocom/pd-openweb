@@ -44,20 +44,27 @@ export default class SingleControlValue extends Component {
   cacheFile = [];
   updateComponentsKeyMaps = {};
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.item.fieldId !== this.props.item.fieldId) {
-      this.cacheFile = [];
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    if (this.props.item.type === 2 && prevProps.item.fieldValue !== this.props.item.fieldValue && this.tagtextarea && this.tagtextarea.cmObj) {
-      const cursor = this.tagtextarea.cmObj.getCursor();
+    if (prevProps !== this.props) {
+      if (this.props.item.fieldId !== prevProps.item.fieldId) {
+        this.cacheFile = [];
+      }
+    }
 
+    if (
+      this.props.item.type === 2 &&
+      prevProps.item.fieldValue !== this.props.item.fieldValue &&
+      this.tagtextarea &&
+      this.tagtextarea.cmObj
+    ) {
+      const cursor = this.tagtextarea.cmObj.getCursor();
       this.tagtextarea.setValue(this.props.item.fieldValue);
       this.tagtextarea.cmObj.setCursor(cursor);
     }
   }
+  /**
+   * 更新单个字段的值
+   */
 
   /**
    * 更新单个字段的值
@@ -91,7 +98,7 @@ export default class SingleControlValue extends Component {
 
     return (
       <div
-        className={cx('actionControlBox flex ThemeBorderColor3 ellipsis actionCustomBox', {
+        className={cx('actionControlBox flex borderColorPrimary ellipsis actionCustomBox', {
           clearBorderRadius: !hideOtherField,
           actionCustomBoxError: !item.nodeName || !item.fieldValueName,
         })}
@@ -110,7 +117,7 @@ export default class SingleControlValue extends Component {
           />
         </span>
         <i
-          className="icon-delete actionControlDel ThemeColor3"
+          className="icon-delete actionControlDel colorPrimary"
           onClick={() =>
             this.updateSingleControlValue({ nodeId: '', nodeName: '', fieldValueId: '', fieldValueName: '' }, i)
           }
@@ -127,7 +134,7 @@ export default class SingleControlValue extends Component {
 
     return (
       <div
-        className={cx('actionControlBox flex ThemeBorderColor3 ellipsis actionCustomBox', {
+        className={cx('actionControlBox flex borderColorPrimary ellipsis actionCustomBox', {
           clearBorderRadius: !hideOtherField,
         })}
       >
@@ -143,7 +150,7 @@ export default class SingleControlValue extends Component {
           </div>
         </span>
         <i
-          className="icon-delete actionControlDel ThemeColor3"
+          className="icon-delete actionControlDel colorPrimary"
           onClick={() =>
             this.updateSingleControlValue(
               {
@@ -458,7 +465,7 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={_l('请输入...')}
@@ -490,9 +497,10 @@ export default class SingleControlValue extends Component {
               this.tagtextarea = tagtextarea;
             }}
             renderTag={tag => {
-              const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
+              const key = tag.replace(/^\$|\$$/g, '');
+              const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
               const nodeObj = formulaMap[ids[0]] || {};
-              const controlObj = formulaMap[ids.join('-')] || {};
+              const controlObj = formulaMap[key] || {};
 
               return (
                 <Tag
@@ -524,7 +532,7 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={item.type === 3 ? _l('填写手机号') : _l('填写座机号')}
@@ -569,7 +577,7 @@ export default class SingleControlValue extends Component {
             <input
               type="text"
               className={cx(
-                'flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10',
+                'flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10',
                 { clearBorderRadius: !hideOtherField },
                 { errorBorder: isError },
               )}
@@ -592,7 +600,7 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={item.type === 6 ? _l('填写数字') : _l('填写金额')}
@@ -820,7 +828,7 @@ export default class SingleControlValue extends Component {
                           // onClick={() => this.previewAttachments(o)}
                         />
                       )}
-                      <span className="ThemeHoverColor3 pointer">
+                      <span className="hoverColorPrimary pointer">
                         <span className="ellipsis InlineBlock mLeft5" style={{ maxWidth: 200 }}>
                           {o.originalFileName || o.originalFilename}
                         </span>
@@ -828,7 +836,7 @@ export default class SingleControlValue extends Component {
                       </span>
                       <Icon
                         icon="close"
-                        className="pointer textSecondary ThemeHoverColor3 mLeft10"
+                        className="pointer textSecondary hoverColorPrimary mLeft10"
                         onClick={() => {
                           const newFieldValue = JSON.parse(item.fieldValue);
 
@@ -871,7 +879,7 @@ export default class SingleControlValue extends Component {
             this.renderSelectFieldsValue(item, i)
           ) : (
             <div
-              className={cx('actionControlBox flex ThemeBorderColor3 actionControlBoxClear', {
+              className={cx('actionControlBox flex borderColorPrimary actionControlBoxClear', {
                 clearBorderRadius: !hideOtherField,
               })}
             >
@@ -892,7 +900,7 @@ export default class SingleControlValue extends Component {
               {item.fieldValue && (
                 <Icon
                   icon="cancel"
-                  className="Font16 textSecondary ThemeHoverColor3 Absolute"
+                  className="Font16 textSecondary hoverColorPrimary Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
                 />
@@ -914,7 +922,7 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className={cx('actionControlBox flex ThemeBorderColor3', { clearBorderRadius: !hideOtherField })}>
+            <div className={cx('actionControlBox flex borderColorPrimary', { clearBorderRadius: !hideOtherField })}>
               <DateTimeRange
                 selectedValue={rangeValue.length ? [moment(rangeValue[0]), moment(rangeValue[1])] : null}
                 timePicker={item.type === 18}
@@ -953,7 +961,7 @@ export default class SingleControlValue extends Component {
             this.renderSelectFieldsValue(item, i)
           ) : (
             <div
-              className={cx('actionControlBox flex ThemeBorderColor3 actionControlBoxClear', {
+              className={cx('actionControlBox flex borderColorPrimary actionControlBoxClear', {
                 clearBorderRadius: !hideOtherField,
               })}
             >
@@ -989,7 +997,7 @@ export default class SingleControlValue extends Component {
               {cityText && (
                 <Icon
                   icon="cancel"
-                  className="Font16 textSecondary ThemeHoverColor3 Absolute"
+                  className="Font16 textSecondary hoverColorPrimary Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => {
                     this.setState({ search: '', keywords: '' });
@@ -1049,7 +1057,7 @@ export default class SingleControlValue extends Component {
             <Fragment>
               {!item.nodeId && (
                 <div
-                  className={cx('actionControlBox flex ThemeBorderColor3 actionControlUsers', {
+                  className={cx('actionControlBox flex borderColorPrimary actionControlUsers', {
                     clearBorderRadius: !hideOtherField,
                   })}
                   onClick={evt => {
@@ -1209,13 +1217,13 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className={cx('actionControlBox flex ThemeBorderColor3', { clearBorderRadius: !hideOtherField })}>
+            <div className={cx('actionControlBox flex borderColorPrimary', { clearBorderRadius: !hideOtherField })}>
               <TimePicker
                 className="triggerConditionTime"
                 showNow={false}
                 bordered={false}
                 suffixIcon={null}
-                clearIcon={<Icon icon="cancel" className="Font16 textSecondary ThemeHoverColor3" />}
+                clearIcon={<Icon icon="cancel" className="Font16 textSecondary hoverColorPrimary" />}
                 inputReadOnly
                 placeholder={_l('请选择时间')}
                 format={timeFormat}

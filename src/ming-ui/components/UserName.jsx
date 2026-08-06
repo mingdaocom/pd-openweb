@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserCard } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 
 /**
  * 用户姓名，正常用户可以点到其详情页。带 hover 的层
@@ -54,7 +55,7 @@ class UserName extends React.Component {
       >
         <a
           className={cx({ textSecondary: !user.accountId }, className)}
-          href={disabled || isSecretary ? 'javascript:void(0);' : '/user_' + user.accountId}
+          href={disabled || isSecretary ? 'javascript:void(0);' : pathCompletion('/user_' + user.accountId)}
           target="_blank"
           onClick={e => (disabled || isSecretary) && e.preventDefault()}
         >

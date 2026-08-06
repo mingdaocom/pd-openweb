@@ -2,16 +2,15 @@ import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
-import DeclareConfirm from 'src/pages/Mobile/components/DeclareConfirm';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
 import weixinCode from 'src/pages/privateImageInstall/images/weixin.png';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import socketInit from '../socket';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
 import genRouteComponent from './genRouteComponent';
@@ -19,11 +18,7 @@ import globalEvents from './globalEvents';
 import PageHeaderRoute from './PageHeader';
 import './index.less';
 
-@preall
-@errorBoundary(true)
-@withRouter
-@DeclareConfirm
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
 
@@ -146,7 +141,7 @@ export default class App extends Component {
               <Route
                 path="*"
                 render={() => {
-                  window.location.replace('/404');
+                  location.href = md.global.Config.PlatformUrl + '404';
                   return null;
                 }}
               />
@@ -169,3 +164,5 @@ export default class App extends Component {
     );
   }
 }
+
+export default preall(ErrorBoundary.wrap(withRouter(App), true));

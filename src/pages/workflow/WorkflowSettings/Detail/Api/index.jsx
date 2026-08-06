@@ -5,7 +5,8 @@ import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { pathCompletion } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { DetailFooter, DetailHeader, FindResult, ProcessParameters, SelectAuthAccount } from '../components';
 
 export default class Api extends Component {
@@ -21,18 +22,26 @@ export default class Api extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -46,6 +55,10 @@ export default class Api extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.subProcessVariables.length) {
           result.subProcessVariables
             .filter(item => item.dataSource)
@@ -83,10 +96,6 @@ export default class Api extends Component {
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     let hasError = 0;
 
-    if (saveRequest) {
-      return;
-    }
-
     subProcessVariables.forEach(item => {
       if (item.type === 10000008) {
         const { fieldValueId, nodeId, required } = fields.find(o => o.fieldId === item.controlId);
@@ -114,6 +123,10 @@ export default class Api extends Component {
 
     if (hasAuth && !authId && !authIdAccounts.length) {
       alert(_l('必须选择一个账户'), 2);
+      return;
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -156,7 +169,7 @@ export default class Api extends Component {
         >
           {!data.appId ? (
             <span
-              className="textSecondary ThemeHoverColor3 pointer alignItemsCenter"
+              className="textSecondary hoverColorPrimary pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={this.selectIntegrationApi}
             >
@@ -170,7 +183,7 @@ export default class Api extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 textSecondary ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary hoverColorPrimary pointer"
                     onClick={this.selectIntegrationApi}
                   />
                 </span>
@@ -196,8 +209,8 @@ export default class Api extends Component {
                   </span>
                   <Icon
                     icon="task-new-detail"
-                    className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 pointer"
-                    onClick={() => window.open(`/integrationApi/${data.appId}`)}
+                    className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark pointer"
+                    onClick={() => window.open(pathCompletion(`/integrationApi/${data.appId}`))}
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
@@ -209,7 +222,7 @@ export default class Api extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 textSecondary ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary hoverColorPrimary pointer"
                     onClick={this.selectIntegrationApi}
                   />
                 </span>
@@ -286,7 +299,11 @@ export default class Api extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.appId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.appId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

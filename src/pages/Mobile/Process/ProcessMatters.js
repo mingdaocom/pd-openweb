@@ -12,7 +12,6 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import Back from '../components/Back';
 import Card from './Card';
 import Filter from './Filter';
@@ -151,17 +150,9 @@ export default class ProcessMatters extends Component {
         this.setState({ showPassword: true });
       },
     });
-    window.addEventListener('popstate', this.onQueryChange);
+
     localStorage.removeItem('currentProcessTab');
   }
-  componentWillUnmount() {
-    this.actionDeleteHandler && this.actionDeleteHandler.close();
-    window.addEventListener('popstate', this.onQueryChange);
-  }
-  onQueryChange = () => {
-    if (!this.state.previewRecord || _.isEmpty(this.state.previewRecord)) return;
-    handleReplaceState('page', 'processRecord', () => this.setState({ previewRecord: {} }));
-  };
   getTodoList() {
     const param = {};
     const { loading, isMore, topTab, bottomTab, searchValue, sortParam, queryParam } = this.state;
@@ -584,7 +575,6 @@ export default class ProcessMatters extends Component {
                 <Card
                   item={item}
                   type={filter ? filter.type : null}
-                  time={createTimeSpan(item.workItem.receiveTime)}
                   currentTab={topTab ? topTab.id : bottomTab.id}
                   showApproveChecked={false}
                   batchApproval={batchApproval}
@@ -592,7 +582,6 @@ export default class ProcessMatters extends Component {
                     return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
                   }}
                   onClick={() => {
-                    handlePushState('page', 'processRecord');
                     this.setState({
                       previewRecord: { instanceId: item.id, workId: item.workId },
                     });
@@ -610,7 +599,6 @@ export default class ProcessMatters extends Component {
                     <Card
                       item={item}
                       type={filter ? filter.type : null}
-                      time={createTimeSpan(item.workItem.receiveTime)}
                       currentTab={topTab ? topTab.id : bottomTab.id}
                       showApproveChecked={false}
                       batchApproval={batchApproval}
@@ -618,7 +606,6 @@ export default class ProcessMatters extends Component {
                         return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
                       }}
                       onClick={() => {
-                        handlePushState('page', 'processRecord');
                         this.setState({
                           previewRecord: { instanceId: item.id, workId: item.workId },
                         });
@@ -792,7 +779,6 @@ export default class ProcessMatters extends Component {
             <Card
               item={item}
               type={filter ? filter.type : null}
-              time={createTimeSpan(item.workItem.receiveTime)}
               currentTab={topTab ? topTab.id : bottomTab.id}
               approveChecked={!_.isEmpty(_.find(approveCards, { workId: item.workId }))}
               batchApproval={batchApproval}
@@ -800,7 +786,6 @@ export default class ProcessMatters extends Component {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
               }}
               onClick={() => {
-                handlePushState('page', 'processRecord');
                 this.setState({
                   previewRecord: { instanceId: item.id, workId: item.workId },
                 });
@@ -1011,11 +996,10 @@ export default class ProcessMatters extends Component {
           instanceId={previewRecord.instanceId}
           workId={previewRecord.workId}
           onClose={data => {
-            if (data.id) {
+            if (data?.id) {
               this.handleApproveDone(data);
             }
 
-            history.back();
             this.setState({
               previewRecord: {},
             });

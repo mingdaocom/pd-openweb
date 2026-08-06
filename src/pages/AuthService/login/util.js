@@ -4,7 +4,7 @@ import projectApi from 'src/api/project';
 import workWeiXinController from 'src/api/workWeiXin';
 import { cacheDefaultCountry, loginSuccessRedirect } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import { setPssId } from 'src/utils/pssId';
 import { IntegrationAccountType, LoginResult } from './config.js';
@@ -123,14 +123,16 @@ export const loginCallback = ({ data, onChange }) => {
       ].includes(data.accountResult)
     ) {
       let type = LoginResult.firstLoginResetPassword === data.accountResult ? 1 : 2;
+
       //需要重置密码
       if (request.ReturnUrl) {
-        location.href = `/resetPassword?state=${data.state}&type=${type}&ReturnUrl=${encodeURIComponent(
-          request.ReturnUrl,
-        )}`;
+        location.href = pathCompletion(
+          `/resetPassword?state=${data.state}&type=${type}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`,
+        );
       } else {
-        location.href = `/resetPassword?state=${data.state}&type=${type}`;
+        location.href = pathCompletion(`/resetPassword?state=${data.state}&type=${type}`);
       }
+
       return;
     }
 
@@ -139,7 +141,7 @@ export const loginCallback = ({ data, onChange }) => {
 
     // 注销
     if (data.accountResult === LoginResult.cancellation) {
-      location.href = '/cancellation';
+      location.href = pathCompletion('/cancellation');
       return;
     }
 
@@ -178,7 +180,7 @@ export const loginCallback = ({ data, onChange }) => {
             warnTxt: _l(
               '错误次数过多，出于安全考虑，暂时锁定您的账户，请 %0 分钟后尝试，或%1重置密码%2解除锁定',
               t,
-              '<a href="/findPassword" target="_blank">',
+              `<a href="${pathCompletion('/findPassword', { hasDomain: false })}" target="_blank">`,
               '</a>',
             ),
           },
@@ -266,22 +268,22 @@ export const ssoLogin = (returnUrl = '') => {
           // 钉钉
           if (item1 === 1) {
             const url = encodeURIComponent(pathname.replace(/^\//, '') + search);
-            location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
+            location.href = pathCompletion(`/sso/sso?t=2&p=${item2}&ret=${url}`);
           }
 
           // 企业微信
           if (item1 === 3) {
-            location.href = `/auth/workwx?p=${item2}&url=${url}`;
+            location.href = pathCompletion(`/auth/workwx?p=${item2}&url=${url}`);
           }
 
           // welink
           if (item1 === 4) {
-            location.href = `/auth/welink?p=${item2}&url=${url}`;
+            location.href = pathCompletion(`/auth/welink?p=${item2}&url=${url}`);
           }
 
           // 飞书
           if (item1 === 6) {
-            location.href = `/auth/feishu?p=${item2}&url=${url}`;
+            location.href = pathCompletion(`/auth/feishu?p=${item2}&url=${url}`);
           }
         });
     }
@@ -295,7 +297,7 @@ export const getWorkWeiXinCorpInfoByApp = (projectId, returnUrl = '') => {
     })
     .then(result => {
       const { corpId, state, agentId, scanUrl } = result;
-      const redirect_uri = encodeURIComponent(`${location.origin}/auth/workwx?url=${encodeURIComponent(returnUrl)}`);
+      const redirect_uri = encodeURIComponent(pathCompletion(`/auth/workwx?url=${encodeURIComponent(returnUrl)}`));
       const url = `${scanUrl}/wwopen/sso/qrConnect?appid=${corpId}&agentid=${agentId}&redirect_uri=${redirect_uri}&state=${state}`;
       location.href = url;
     });

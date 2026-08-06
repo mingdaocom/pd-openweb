@@ -4,10 +4,19 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Skeleton } from 'ming-ui';
-import * as actions from 'worksheet/redux/actions/gunterview';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
+import {
+  isGroupingScrollLocked,
+  setChartScrollLock,
+  setGroupingScrollLock,
+} from 'worksheet/views/GunterView/scrollState';
+import {
+  filterButtonBySheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import Header from './components/Header';
 import SpeedCreateTime from './components/SpeedCreateTime';
 import TimeBlock from './components/TimeBlock';
@@ -43,16 +52,16 @@ class GunterChart extends Component {
     });
 
     if (!isGunterExport) {
-      window.chartScrollLock = true;
+      setChartScrollLock(true);
       scroll.on('scroll', this.handleScroll);
       scroll.on('scroll', this.linkageScroll);
       scroll.on('scrollStart', () => {
-        window.chartScrollLock = true;
-        window.groupingScrollLock = false;
+        setChartScrollLock(true);
+        setGroupingScrollLock(false);
       });
       scroll.on('scrollEnd', () => {
-        window.chartScrollLock = false;
-        window.groupingScrollLock = true;
+        setChartScrollLock(false);
+        setGroupingScrollLock(true);
       });
     }
 
@@ -62,52 +71,64 @@ class GunterChart extends Component {
 
     this.props.updateChartScroll(scroll);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.gunterView.zoom !== this.props.gunterView.zoom) {
-      window.isZoom = true;
-      const { chartScroll, periodList } = nextProps.gunterView;
-      const newWidth = periodList.reduce((count, item) => count + item.width, 0);
-      const oldWidth = this.props.gunterView.periodList.reduce((count, item) => count + item.width, 0);
-      const diff = oldWidth - newWidth;
-      chartScroll.refresh();
-      chartScroll.scrollTo(chartScroll.x + diff / 2, chartScroll.y);
-      chartScroll._execEvent('scroll');
-      setTimeout(() => {
-        chartScroll._execEvent('scroll');
-      }, 0);
-      return;
-    }
 
-    if (
-      nextProps.gunterView.periodType !== this.props.gunterView.periodType ||
-      nextProps.gunterView.loading !== this.props.gunterView.loading ||
-      nextProps.gunterView.isRefresh !== this.props.gunterView.isRefresh
-    ) {
-      setTimeout(() => {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.gunterView.zoom !== prevProps.gunterView.zoom) {
         window.isZoom = true;
-        const { chartScroll } = nextProps.gunterView;
+        const { chartScroll, periodList } = this.props.gunterView;
+        const newWidth = periodList.reduce((count, item) => count + item.width, 0);
+        const oldWidth = prevProps.gunterView.periodList.reduce((count, item) => count + item.width, 0);
+        const diff = oldWidth - newWidth;
         chartScroll.refresh();
-        chartScroll.scrollTo(isGunterExport ? 0 : chartScroll.maxScrollX / 2, chartScroll.y);
-        chartScroll._execEvent('scroll');
-      }, 0);
-      this.headerEl = null;
-      this.timeDotWrapperEl = null;
-    }
+        chartScroll.scrollTo(chartScroll.x + diff / 2, chartScroll.y);
 
-    if (nextProps.gunterView.groupingVisible !== this.props.gunterView.groupingVisible) {
-      const { chartScroll, groupingScroll } = nextProps.gunterView;
-      chartScroll.refresh();
-      chartScroll._execEvent('scroll');
-      if (nextProps.gunterView.groupingVisible) {
+        chartScroll._execEvent('scroll');
+
         setTimeout(() => {
-          const controlHeader = document.querySelector(`.gunterView-${nextProps.base.viewId} .groupingControlHeader`);
-          groupingScroll.refresh();
-          groupingScroll._execEvent('scroll');
-          if (controlHeader) {
-            controlHeader.style.width = `${groupingScroll.scrollerWidth}px`;
-            controlHeader.classList.remove('hide');
-          }
+          chartScroll._execEvent('scroll');
         }, 0);
+        return;
+      }
+
+      if (
+        this.props.gunterView.periodType !== prevProps.gunterView.periodType ||
+        this.props.gunterView.loading !== prevProps.gunterView.loading ||
+        this.props.gunterView.isRefresh !== prevProps.gunterView.isRefresh
+      ) {
+        setTimeout(() => {
+          window.isZoom = true;
+          const { chartScroll } = this.props.gunterView;
+          chartScroll.refresh();
+          chartScroll.scrollTo(isGunterExport ? 0 : chartScroll.maxScrollX / 2, chartScroll.y);
+
+          chartScroll._execEvent('scroll');
+        }, 0);
+        this.headerEl = null;
+        this.timeDotWrapperEl = null;
+      }
+
+      if (this.props.gunterView.groupingVisible !== prevProps.gunterView.groupingVisible) {
+        const { chartScroll, groupingScroll } = this.props.gunterView;
+        chartScroll.refresh();
+
+        chartScroll._execEvent('scroll');
+
+        if (this.props.gunterView.groupingVisible) {
+          setTimeout(() => {
+            const controlHeader = document.querySelector(
+              `.gunterView-${this.props.base.viewId} .groupingControlHeader`,
+            );
+            groupingScroll.refresh();
+
+            groupingScroll._execEvent('scroll');
+
+            if (controlHeader) {
+              controlHeader.style.width = `${groupingScroll.scrollerWidth}px`;
+              controlHeader.classList.remove('hide');
+            }
+          }, 0);
+        }
       }
     }
   }
@@ -199,7 +220,7 @@ class GunterChart extends Component {
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
 
-    if (window.groupingScrollLock) {
+    if (isGroupingScrollLocked()) {
       return;
     }
 
@@ -283,12 +304,13 @@ class GunterChart extends Component {
               onClick={this.handleUpdateGroupingVisible}
               onMouseOver={() => {
                 if (!groupingVisible) return;
-                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor =
-                  'var(--color-primary)';
+                const el = document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`);
+                if (el) el.style.borderColor = 'var(--color-primary)';
               }}
               onMouseOut={() => {
                 if (!groupingVisible) return;
-                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor = null;
+                const el = document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`);
+                if (el) el.style.borderColor = null;
               }}
             >
               <Icon className="textDisabled" icon="a-arrowback" />
@@ -301,16 +323,7 @@ class GunterChart extends Component {
 }
 
 function GunterChartContainer(props) {
-  const {
-    gunterView,
-    base,
-    worksheetInfo,
-    views,
-    sheetButtons,
-    printList,
-    sheetSwitchPermit,
-    ...rest
-  } = props;
+  const { gunterView, base, worksheetInfo, views, sheetButtons, printList, sheetSwitchPermit, ...rest } = props;
   const { viewId } = base;
   const { worksheetId } = worksheetInfo;
   const currentView = views.find(o => o.viewId === viewId) || {};
@@ -334,18 +347,11 @@ function GunterChartContainer(props) {
     return buttons;
   }, [currentView, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
 
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
 
-  return (
-    <GunterChart
-      {...rest}
-      gunterView={gunterView}
-      base={base}
-      buttonsCheckStatus={buttonsCheckStatus}
-    />
-  );
+  return <GunterChart {...rest} gunterView={gunterView} base={base} buttonsCheckStatus={buttonsCheckStatus} />;
 }
 
 export default connect(

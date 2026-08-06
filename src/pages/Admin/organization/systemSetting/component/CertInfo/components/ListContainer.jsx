@@ -34,7 +34,7 @@ export default function ListContainer(props) {
         </div>
       ))}
       {!showMore && list.length > 5 && (
-        <div className="ThemeColor3 adminHoverColor pointer bold mTop6" onClick={() => setShowMore(true)}>
+        <div className="colorPrimary adminHoverColor pointer bold mTop6" onClick={() => setShowMore(true)}>
           {_l('展开更多')}
         </div>
       )}

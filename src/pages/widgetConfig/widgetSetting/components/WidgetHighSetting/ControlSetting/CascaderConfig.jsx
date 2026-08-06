@@ -135,7 +135,7 @@ export default function CascaderConfig(props) {
             >
               <i
                 className={cx('icon-filter Font22 LineHeight34', {
-                  ThemeColor3: filters && filters.length,
+                  colorPrimary: filters && filters.length,
                 })}
               ></i>
             </div>

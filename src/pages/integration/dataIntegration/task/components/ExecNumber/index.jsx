@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+﻿import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Dialog, Switch } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
@@ -113,17 +113,18 @@ export default ({ projectId }) => {
               </Fragment>
             )}
           </span>
+
           {!window.platformENV.isLocal &&
             (licenseType === 1 ? (
               <PurchaseExpandPack
-                className="mLeft10 NoUnderline ThemeHoverColor2"
+                className="mLeft10 NoUnderline hoverColorPrimaryDark"
                 text={_l('购买升级包')}
                 type="dataSync"
                 projectId={projectId}
               />
             ) : (
               <span
-                className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"
+                className="colorPrimary hoverColorPrimaryDark mLeft10 NoUnderline"
                 onClick={() => {
                   window.platformENV.isOverseas
                     ? versionUpgradeModal({ projectId })

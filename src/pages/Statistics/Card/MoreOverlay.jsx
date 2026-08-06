@@ -7,7 +7,7 @@ import favoriteApi from 'src/api/favorite';
 import sheetApi from 'src/api/worksheet';
 import reportApi from 'statistics/api/report';
 import Share from 'src/pages/worksheet/components/Share';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
 import { reportTypes } from '../Charts/common';
 import PageMove from '../components/PageMove';
 
@@ -23,9 +23,14 @@ export default class MoreOverlay extends Component {
       placement: 'bottomRight',
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.favorite !== this.props.favorite) {
-      this.setState({ favorite: nextProps.favorite });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.favorite !== prevProps.favorite) {
+        this.setState({
+          favorite: this.props.favorite,
+        });
+      }
     }
   }
   handleExportExcel = exportType => {
@@ -282,7 +287,7 @@ export default class MoreOverlay extends Component {
               data-event="export"
               popupClassName="chartMenu chartSubOperate_export"
               title={_l('导出Excel%06002')}
-              icon={<Icon className="textTertiary Font18 mRight5" icon="worksheet_export" />}
+              icon={<Icon className="textTertiary Font18 mLeft5 mRight5" icon="worksheet_export" />}
               popupOffset={[0, 0]}
             >
               <Menu.Item
@@ -316,7 +321,7 @@ export default class MoreOverlay extends Component {
               const printFilter = [filters, filtersGroup].filter(n => !_.isEmpty(n));
               this.handleUpdateDropdownVisible(false);
               sessionStorage.setItem(`printFilter-${report.id}`, JSON.stringify(printFilter));
-              window.open(`/printPivotTable/${report.id}/${encodeURIComponent(themeColor || '')}`);
+              window.open(pathCompletion(`/printPivotTable/${report.id}/${encodeURIComponent(themeColor || '')}`));
             }}
           >
             <div className="flexRow valignWrapper">
@@ -341,7 +346,7 @@ export default class MoreOverlay extends Component {
               data-event="copy"
               popupClassName="chartMenu chartSubOperate_copy"
               title={_l('复制到')}
-              icon={<Icon className="textTertiary Font18 mRight5" icon="content-copy" />}
+              icon={<Icon className="textTertiary Font18 mLeft5 mRight5" icon="content-copy" />}
               popupOffset={[0, 0]}
             >
               <Menu.Item data-event="curStatistic" style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>

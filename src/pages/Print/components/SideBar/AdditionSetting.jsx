@@ -41,7 +41,7 @@ const AdditionSettingConfig = [
 ];
 
 const QrCodeOption = [
-  { text: _l('对外公开分享链接'), value: 0 },
+  { text: _l('公开分享链接'), value: 0 },
   { text: _l('内部成员访问链接'), value: 1 },
 ];
 

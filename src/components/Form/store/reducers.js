@@ -17,7 +17,7 @@ export const initialState = {
 export const reducer = (state, action) => {
   switch (action.type) {
     case 'SET_RENDER_DATA':
-      return { ...state, renderData: action.payload };
+      return state.renderData === action.payload ? state : { ...state, renderData: action.payload };
     case 'SET_ERROR_ITEMS':
       return { ...state, errorItems: action.payload };
     case 'SET_UNIQUE_ERROR_ITEMS':

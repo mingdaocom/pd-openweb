@@ -2,8 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, intlTelInput, LoadDiv, RadioGroup, Support } from 'ming-ui';
+import { Icon, Input, LoadDiv, RadioGroup, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { dialogSelectUser } from 'ming-ui/functions';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
@@ -33,9 +34,14 @@ export default class AddUser extends Component {
   componentDidMount() {
     this.itiFn();
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.addUserVisible !== nextProps.addUserVisible) {
-      this.setState({ addUserVisible: nextProps.addUserVisible });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.addUserVisible !== this.props.addUserVisible) {
+        this.setState({
+          addUserVisible: this.props.addUserVisible,
+        });
+      }
     }
   }
   componentWillUnmount() {
@@ -46,17 +52,18 @@ export default class AddUser extends Component {
   itiFn = () => {
     if (this.mobile) {
       this.iti && this.iti.destroy();
-      this.iti = intlTelInput(this.mobile, {
+      this.iti = createIntlTelInput(this.mobile, {
         customPlaceholder: '',
         separateDialCode: true,
         showSelectedDialCode: true,
+        showDialCodeInput: true,
       });
     }
   };
 
   itiAutonomouslyFn = val => {
     this.itiAutonomously && this.itiAutonomously.destroy();
-    this.itiAutonomously = intlTelInput(this.autonomously, {
+    this.itiAutonomously = createIntlTelInput(this.autonomously, {
       customPlaceholder: '',
       separateDialCode: true,
       showSelectedDialCode: true,
@@ -366,7 +373,7 @@ export default class AddUser extends Component {
           >
             <Tooltip placement="bottomLeft" align={{ offset: [-10, 0] }} title={_l('从通讯录添加')}>
               <span
-                className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
+                className="icon-topbar-addressList Font16 selectUser hoverColorPrimary"
                 onClick={this.dialogSelectUserHandler}
               />
             </Tooltip>
@@ -382,7 +389,7 @@ export default class AddUser extends Component {
               </span>
               <Tooltip title={_l('从通讯录添加')}>
                 <span
-                  className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
+                  className="icon-topbar-addressList Font16 selectUser hoverColorPrimary"
                   onClick={this.dialogSelectUserHandler}
                 />
               </Tooltip>

@@ -1,29 +1,29 @@
-import React, { Component, forwardRef, useImperativeHandle, useMemo } from 'react';
+import React, { Component, forwardRef, lazy, Suspense, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import reportApi from '../api/report';
 import login from 'src/api/login';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { configureStore } from 'src/redux/configureStore';
-import { fillUrl } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesPath } from 'src/utils/app';
-import { getFilledRequestParams } from 'src/utils/common';
-import ChartDialog from '../ChartDialog';
+import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
 import charts from '../Charts';
 import { reportTypes } from '../Charts/common';
-import { chartNav, fillValueMap, isOptionControl } from '../common';
+import { chartNav } from '../common/chartNav';
+import { isOptionControl } from '../common/controlUtils';
+import { fillValueMap } from '../common/reportDataUtils';
 import { Abnormal, Loading, WithoutData } from '../components/ChartStatus';
 import Sort from '../components/Sort';
 import MoreOverlay from './MoreOverlay';
 import './Card.less';
 
+const ChartDialog = lazy(() => import('../ChartDialog'));
 let isCheckLogin = true;
 
 class Card extends Component {
@@ -50,13 +50,16 @@ class Card extends Component {
   componentDidMount() {
     this.getData(this.props);
   }
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.needUpdate !== this.props.needUpdate ||
-      !_.isEqual(nextProps.filtersGroup, this.props.filtersGroup) ||
-      !_.isEqual(nextProps.linkageFiltersGroup, this.props.linkageFiltersGroup)
-    ) {
-      this.getData(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.needUpdate !== prevProps.needUpdate ||
+        !_.isEqual(this.props.filtersGroup, prevProps.filtersGroup) ||
+        !_.isEqual(this.props.linkageFiltersGroup, prevProps.linkageFiltersGroup)
+      ) {
+        this.getData(this.props);
+      }
     }
   }
   componentWillUnmount = () => {
@@ -110,37 +113,51 @@ class Card extends Component {
     this.setState({ loading: true });
     this.abortRequest();
     const api = sourceType === 3 || isEmbed ? 'getFavoriteData' : refresh ? 'refreshData' : 'getData';
-    this.request = reportApi[api]({
-      reportId: report.id,
-      pageId,
-      version: '6.5',
-      reload,
-      sorts,
-      filters: printFilter
-        ? printFilter
-        : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
-      ...getFilledRequestParams({}),
-    });
+    this.request = reportApi[api](
+      {
+        reportId: report.id,
+        pageId,
+        version: '6.5',
+        reload,
+        sorts,
+        filters: printFilter
+          ? printFilter
+          : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
+        ...getFilledRequestParams({}),
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
+      },
+      {
+        silent: true,
+      },
+    );
     this.request
       .then(result => {
         result.reportId = report.id;
-        this.setState({
-          reportData: fillValueMap(result, pageId),
-          loading: false,
-        });
-        this.props.onLoad(result);
+        this.setState(
+          {
+            reportData: fillValueMap(result, pageId),
+            loading: false,
+          },
+          () => {
+            this.props.onLoad(result);
+          },
+        );
       })
-      .catch(() => {
-        if (!window.shareState.id) return;
+      .catch(error => {
+        if (error.errorCode === 1) return;
         const result = {
           reportId: report.id,
           status: 0,
         };
-        this.setState({
-          reportData: result,
-          loading: false,
-        });
-        this.props.onLoad(result);
+        this.setState(
+          {
+            reportData: result,
+            loading: false,
+          },
+          () => {
+            this.props.onLoad(result);
+          },
+        );
       });
     needTimingRefresh && needRefresh && this.initInterval();
   };
@@ -179,9 +196,7 @@ class Card extends Component {
         })
         .then(result => {
           if (result.id) {
-            window.open(
-              fillUrl(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`),
-            );
+            window.open(pathCompletion(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}`));
           }
         });
     } else {
@@ -593,45 +608,47 @@ class Card extends Component {
         </div>
         {this.renderBody()}
         {dialogVisible && (
-          <ChartDialog
-            {...this.props}
-            linkageFiltersGroup={isLinkageFilter && linkageFiltersGroup}
-            report={{
-              ...report,
-              name: reportData.name,
-              desc: reportData.desc,
-            }}
-            pageId={pageId}
-            customPageConfig={customPageConfig}
-            themeColor={themeColor}
-            activeData={activeData}
-            worksheetId={reportData.appId}
-            settingVisible={settingVisible}
-            scopeVisible={scopeVisible}
-            sheetVisible={sheetVisible}
-            permissions={permissions}
-            dialogVisible={dialogVisible}
-            updateDialogVisible={({ dialogVisible, isRequest, reportId, reportName, reportDesc }) => {
-              this.setState({ dialogVisible });
-              if (reportName !== reportData.name || reportDesc !== reportData.desc) {
-                this.setState({
-                  reportData: {
-                    ...reportData,
-                    name: reportName,
-                    desc: reportDesc,
-                  },
-                });
-              }
+          <Suspense fallback={null}>
+            <ChartDialog
+              {...this.props}
+              linkageFiltersGroup={isLinkageFilter && linkageFiltersGroup}
+              report={{
+                ...report,
+                name: reportData.name,
+                desc: reportData.desc,
+              }}
+              pageId={pageId}
+              customPageConfig={customPageConfig}
+              themeColor={themeColor}
+              activeData={activeData}
+              worksheetId={reportData.appId}
+              settingVisible={settingVisible}
+              scopeVisible={scopeVisible}
+              sheetVisible={sheetVisible}
+              permissions={permissions}
+              dialogVisible={dialogVisible}
+              updateDialogVisible={({ dialogVisible, isRequest, reportId, reportName, reportDesc }) => {
+                this.setState({ dialogVisible });
+                if (reportName !== reportData.name || reportDesc !== reportData.desc) {
+                  this.setState({
+                    reportData: {
+                      ...reportData,
+                      name: reportName,
+                      desc: reportDesc,
+                    },
+                  });
+                }
 
-              if (isRequest) {
-                this.getData({
-                  ...this.props,
-                  report: { id: reportId },
-                });
-              }
-            }}
-            onRemove={onRemove}
-          />
+                if (isRequest) {
+                  this.getData({
+                    ...this.props,
+                    report: { id: reportId },
+                  });
+                }
+              }}
+              onRemove={onRemove}
+            />
+          </Suspense>
         )}
       </div>
     );

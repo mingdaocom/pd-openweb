@@ -327,13 +327,13 @@ function ViewControl(props) {
             }}
           >
             <Tooltip placement="bottom" title={_l('查找')}>
-              <i className={cx('icon icon-search textTertiary Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
+              <i className={cx('icon icon-search textTertiary Font18 pointer hoverColorPrimary mTop2 mRight15')} />
             </Tooltip>
           </SearchRecord>
         )}
       <Tooltip placement="bottom" title={_l('刷新视图')}>
         <i
-          className={cx('icon icon-task-later refresh textTertiary Font18 pointer ThemeHoverColor3 mTop2')}
+          className={cx('icon icon-task-later refresh textTertiary Font18 pointer hoverColorPrimary mTop2')}
           onClick={() => {
             if (cache.current.isRefreshing) {
               alert(_l('刷新过于频繁，请稍后再试'), 3);
@@ -411,6 +411,8 @@ function ViewControl(props) {
           updateViewShowcount={updateViewShowcount}
           updateWorksheetInfo={updateWorksheetInfo}
           onClickAwayExceptions={[
+            '.ant-dropdown',
+            '.ant-dropdown-menu',
             '.ant-select-dropdown',
             '.ChooseWidgetDialogWrap',
             '.dropConOption',

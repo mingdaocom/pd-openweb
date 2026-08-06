@@ -76,14 +76,6 @@
         color: var(--color-text-disabled) !important;
       }
     }
-    .processConfigInterval {
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-      height: 36px;
-      box-sizing: border-box;
-      text-align: center;
-      width: 60px;
-    }
     .startConditionWrap {
       right: inherit !important;
       left: 0;
@@ -100,16 +92,6 @@
       border-color: var(--color-border-primary);
       border-style: solid;
       border-width: 1px 1px 1px 0;
-    }
-    .workflowSetName {
-      display: inline-block;
-      height: 36px;
-      line-height: 36px;
-      border: 1px solid var(--color-primary);
-      border-radius: 3px;
-      cursor: pointer;
-      color: var(--color-primary);
-      padding: 0 16px;
     }
     .workflowConfigDropdown {
       .ming.Item {
@@ -129,12 +111,15 @@
     background: var(--color-background-primary);
     font-size: 14px;
     li {
+      display: flex;
+      align-items: center;
       cursor: pointer;
       height: 42px;
-      line-height: 42px;
       position: relative;
       border-radius: 3px;
+      overflow: hidden;
       .icon {
+        flex-shrink: 0;
         margin-left: 10px;
         margin-right: 10px;
         color: var(--color-text-secondary);
@@ -142,6 +127,13 @@
           margin-right: 7px !important;
           font-size: 17px;
         }
+      }
+      .tabText {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       &:hover:not(.active) {
         background: var(--color-background-hover);

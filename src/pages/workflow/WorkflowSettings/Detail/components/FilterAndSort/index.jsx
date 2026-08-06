@@ -40,7 +40,7 @@ export default ({
       ) : (
         <div className="addActionBtn mTop15">
           <span
-            className="ThemeBorderColor3"
+            className="borderColorPrimary"
             onClick={() =>
               updateSource(
                 openNewFilter ? { filters: [{ conditions: [[{}]], spliceType: 2 }] } : { conditions: [[{}]] },
@@ -59,7 +59,7 @@ export default ({
             {_l('筛选器现已支持且或组合；手动切换后，不会丢失您现有的配置，可以直接在现有筛选条件的基础上进一步配置')}
           </div>
           <span
-            className="ThemeColor3 ThemeHoverColor2 pointer"
+            className="colorPrimary hoverColorPrimaryDark pointer"
             onClick={() => updateSource({ conditions: [], filters: switchFilterConditions(data.conditions) })}
           >
             {_l('使用支持且或组合的筛选器')}

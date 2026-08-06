@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';

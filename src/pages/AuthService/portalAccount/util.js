@@ -1,6 +1,6 @@
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import externalPortalAjax from 'src/api/externalPortal';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 
 export const urlList = [
@@ -14,29 +14,21 @@ export const urlList = [
   'mobile/discuss/',
   'mobile/addDiscuss/',
   'printForm/',
-  'printFormOld/',
 ];
 
+//获取当前自定义域名后缀：theportal.cn 取根路径后第一段，否则取 /portal/ 后第一段
 export const getSuffix = url => {
-  const urlPathname = new URL(decodeURIComponent(url));
-  const pathname = urlPathname.pathname;
-  const addressSuffix = pathname.replace(window.subPath, '').split('/')[1] || '';
-  return addressSuffix;
-};
+  const urlObj = new URL(decodeURIComponent(url));
+  const pathname = urlObj.pathname;
+  const hostname = urlObj.hostname;
 
-export const replacePorTalUrl = url => {
-  //是外部门户 当前环境以自定义后缀访问
-  if (
-    md.global.Account.isPortal &&
-    md.global.Account.addressSuffix &&
-    getSuffix(location.href) === md.global.Account.addressSuffix &&
-    url.indexOf(md.global.Account.addressSuffix) < 0 &&
-    url.indexOf('app/') >= 0
-  ) {
-    url = url.replace('app/' + md.global.Account.appId, md.global.Account.addressSuffix);
+  if (hostname.indexOf('theportal.cn') >= 0) {
+    const segments = pathname.replace(/^\/+/, '').split('/').filter(Boolean);
+    return segments[0] || '';
   }
 
-  return url;
+  const match = pathname.match(/\/portal\/([^/]+)/);
+  return match ? match[1] : '';
 };
 
 export const getAppId = params => {
@@ -52,9 +44,9 @@ export const getAppId = params => {
 export const toApp = appId => {
   //手机端来源
   if (browserIsMobile()) {
-    window.location.replace(`${window.subPath || ''}/mobile/app/${appId}`);
+    window.location.replace(pathCompletion(`/mobile/app/${appId}`));
   } else {
-    window.location.replace(`${window.subPath || ''}/app/${appId}`); //进入应用
+    window.location.replace(pathCompletion(`/app/${appId}`)); //进入应用
   }
 };
 
@@ -84,27 +76,26 @@ export const getCurrentId = cb => {
   }
 };
 
+//外部门户已登录的情况下，customLink要去除，且h5的模式下，直接走/portal/app/${md.global.Account.appId}
 export const resetPortalUrl = () => {
   window.localStorage.removeItem(`${md.global.Account.appId}_portalCustomLink`);
   const customLink = getCurrentExt(md.global.Account.appId, md.global.Account.addressSuffix);
-  const hasCustomLink = location.href.indexOf(`/${customLink}`) >= 0;
 
-  const getLink = () => {
-    return location.href.replace(
-      `${window.subPath || ''}/${md.global.Account.addressSuffix}`,
-      `${window.subPath || ''}/app/${md.global.Account.appId}`,
-    );
-  };
+  let targetUrl = pathCompletion(location.pathname);
 
-  if (hasCustomLink) {
+  if (customLink) {
+    targetUrl = targetUrl.replace(`/${customLink}`, '');
+  }
+
+  // 仅当目标 URL 与当前 URL 不同时才跳转，避免同页重复刷新导致无限循环
+  if (new URL(targetUrl, location.origin).pathname !== location.pathname) {
     window.isWaiting = true;
-    location.href = (browserIsMobile() ? getLink() : location.href).replace(`/${customLink}`, '');
-  } else if (getSuffix(location.href) === md.global.Account.addressSuffix && browserIsMobile()) {
-    window.isWaiting = true;
-    location.href = getLink();
+    location.href = targetUrl;
+    return;
   }
 };
 
+//获取当前自定义链接的后缀
 export const getCurrentExt = (appId, suffix) => {
   const request = getRequest();
   const { ReturnUrl = '', customLink } = request;

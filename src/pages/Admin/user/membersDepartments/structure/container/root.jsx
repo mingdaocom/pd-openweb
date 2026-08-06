@@ -22,9 +22,11 @@ class Root extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isShowExport !== this.props.isShowExport) {
-      nextProps.handleShowHeader(!nextProps.isShowExport);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.isShowExport !== prevProps.isShowExport) {
+        this.props.handleShowHeader(!this.props.isShowExport);
+      }
     }
   }
 

@@ -37,7 +37,7 @@ export default class OperatorIcon extends Component {
         />
         <Icon
           icon="cancel"
-          className="textTertiary Font20 Absolute ThemeHoverColor3 pointer"
+          className="textTertiary Font20 Absolute hoverColorPrimary pointer"
           style={{ right: 10, top: 10, zIndex: 10 }}
           onClick={onClose}
         />
@@ -46,7 +46,7 @@ export default class OperatorIcon extends Component {
           <ToolbarIconWrap
             isMobile={isMobile}
             icon="gpsFixed"
-            className="textTertiary Absolute ThemeHoverColor3 pointer flexRow gpsFixedIcon"
+            className="textTertiary Absolute hoverColorPrimary pointer flexRow gpsFixedIcon"
             onClick={() => setPosition(defaultLocation.position.lng, defaultLocation.position.lat)}
           >
             <Icon icon="gps_fixed" className="Font18" />
@@ -58,11 +58,11 @@ export default class OperatorIcon extends Component {
             isMobile={isMobile}
             icon="plusMinus"
           >
-            <div className="ThemeHoverColor3" onClick={() => setZoom('plus')}>
+            <div className="hoverColorPrimary" onClick={() => setZoom('plus')}>
               <Icon icon="plus" className="Font14" />
             </div>
             <div className="w100 mTop2" style={{ height: 1, border: '1px solid var(--color-border-primary)' }}></div>
-            <div className="ThemeHoverColor3 pTop3" style={{ height: 19 }} onClick={() => setZoom('minus')}>
+            <div className="hoverColorPrimary pTop3" style={{ height: 19 }} onClick={() => setZoom('minus')}>
               <Icon icon="minus" className="Font14" />
             </div>
           </ToolbarIconWrap>

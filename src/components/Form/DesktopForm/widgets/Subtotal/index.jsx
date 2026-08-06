@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import { formatNumberThousand, formatStrZero } from 'src/utils/control';
+import { getDatePickerConfigs } from 'src/utils/controlCommon';
 
 const Tips = styled.div`
   max-width: 230;

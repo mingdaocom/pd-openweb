@@ -86,8 +86,8 @@ export default function WeChatSettings(props) {
           ? {
               style: { borderTop: '1px solid var(--color-border-primary)', paddingTop: '4px', height: '36px' },
               text: (
-                <AddControl className="hand ThemeColor3" onClick={() => setAddControl({ visible: true, key })}>
-                  <i className="icon icon-plus mRight5 ThemeColor3"></i>
+                <AddControl className="hand colorPrimary" onClick={() => setAddControl({ visible: true, key })}>
+                  <i className="icon icon-plus mRight5 colorPrimary"></i>
                   {_l('新建文本字段')}
                 </AddControl>
               ),

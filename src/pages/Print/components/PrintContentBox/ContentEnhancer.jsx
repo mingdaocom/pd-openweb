@@ -5,6 +5,15 @@ import { getControlsForPrint, isRelationControl } from '../../core/util';
 import Content from '../Content';
 import { getApproval, getApprovalDetail, getAttributeName } from './utils';
 
+const uniqByProcessId = arr => {
+  const map = {};
+  return arr.filter(item => {
+    if (map[item.processId]) return false;
+    map[item.processId] = true;
+    return true;
+  });
+};
+
 const ContentEnhancer = props => {
   const {
     rowValue,
@@ -70,15 +79,6 @@ const ContentEnhancer = props => {
 
   const updateApprovalAjax = ajaxMap => {
     approvalAjaxRef.current = ajaxMap;
-  };
-
-  const uniqByProcessId = arr => {
-    const map = {};
-    return arr.filter(item => {
-      if (map[item.processId]) return false;
-      map[item.processId] = true;
-      return true;
-    });
   };
 
   const syncApprovalChecked = (approval, map) => {

@@ -280,7 +280,7 @@ function PasteEdit(props) {
   usePasteText(
     text => {
       if (
-        document.activeElement.tagName.toLowerCase() === 'input' &&
+        (document.activeElement?.tagName || '').toLowerCase() === 'input' &&
         document.activeElement.className.indexOf('inputHelper') < 0
       )
         return;

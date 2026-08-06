@@ -255,7 +255,7 @@ function ExplanDetail(props) {
             }
             popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
           >
-            <Icon icon="moreop" className="Font18 textTertiary hoverTextPrimaryLight Hand" />
+            <Icon icon="moreop" className="Font18 textTertiary hoverColorPrimaryLight Hand" />
           </Trigger>
         );
       },
@@ -265,7 +265,7 @@ function ExplanDetail(props) {
   return (
     <Fragment>
       <div className="exclusiveCompHeader explanDetailHeader">
-        <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
+        <span className="icon-backspace Font22 hoverColorPrimary" onClick={() => history.go(-1)}></span>
         <span className="explanDetailLabel">{_l('管理算力')}</span>
         <span className="explanDetailName textSecondary">
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}

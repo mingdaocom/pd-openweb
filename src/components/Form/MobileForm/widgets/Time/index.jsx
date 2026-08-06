@@ -106,30 +106,30 @@ const Time = props => {
             unit === '6'
               ? {
                   hour: {
-                    format: _l('hh 时'),
-                    caption: 'Hour',
+                    format: 'hh',
+                    caption: _l('时'),
                     step: 1,
                   },
                   minute: {
-                    format: _l('mm 分'),
-                    caption: 'Min',
+                    format: 'mm',
+                    caption: _l('分'),
                     step: timeInterval,
                   },
                   second: {
-                    format: _l('ss 秒'),
-                    caption: 'Second',
+                    format: 'ss',
+                    caption: _l('秒'),
                     step: 1,
                   },
                 }
               : {
                   hour: {
-                    format: _l('hh 时'),
-                    caption: 'Hour',
+                    format: 'hh',
+                    caption: _l('时'),
                     step: 1,
                   },
                   minute: {
-                    format: _l('mm 分'),
-                    caption: 'Min',
+                    format: 'mm',
+                    caption: _l('分'),
                     step: timeInterval,
                   },
                 }

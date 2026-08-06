@@ -172,7 +172,7 @@ function Disposition(props) {
         workflowConfig: _.get(props.flowData || {}, 'workflowConfig'),
         ownerList: _.get(props.flowData || {}, 'ownerList'),
       },
-      flowNodes: _.get(flowData, 'flowNodes'),
+      flowNodes: _.get(props.flowData || {}, 'flowNodes'),
     });
   useEffect(() => {
     const flowData = props.flowData || {};
@@ -308,7 +308,7 @@ function Disposition(props) {
             />
             <br />
             <span
-              className="Relative textTertiary pointer addBtn mTop12 ThemeHoverColor3 InlineBlock"
+              className="Relative textTertiary pointer addBtn mTop12 hoverColorPrimary InlineBlock"
               onClick={e => {
                 addMembers(e);
               }}

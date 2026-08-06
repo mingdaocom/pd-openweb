@@ -30,7 +30,6 @@ const Wrap = styled.div`
     min-width: 0;
   }
 `;
-
 const Drag = styled.div(
   ({ left }) => `
   position: absolute;
@@ -44,9 +43,7 @@ const Drag = styled.div(
   }
 `,
 );
-
-@connect()
-export default class WindowChat extends Component {
+let WindowChat = class WindowChat extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -54,26 +51,35 @@ export default class WindowChat extends Component {
       dragMaskVisible: false,
     };
   }
+
   componentDidMount() {
     globalEvents();
     socket.socketInitEvent.call(this);
     document.body.addEventListener('keydown', this.closeChatPanel);
   }
+
   componentWillUnmount() {
     document.body.removeEventListener('keydown', this.closeChatPanel);
   }
+
   closeChatPanel = e => {
     if ((e.key === 'Escape' || e.keyCode === 26) && _.isEmpty(window.closeFns)) {
       const closeEl = document.querySelector('.ChatPanel .icon-close');
       closeEl && closeEl.click();
     }
   };
+
   render() {
     const { sessionListWidth, dragMaskVisible } = this.state;
     return (
       <Wrap className="flexRow w100 h100 overflowHidden">
         <DocumentTitle title={_l('消息')} />
-        <div className="flexRow sessionListWrap" style={{ width: sessionListWidth }}>
+        <div
+          className="flexRow sessionListWrap"
+          style={{
+            width: sessionListWidth,
+          }}
+        >
           <SessionListDrawer embed={true} />
         </div>
         {dragMaskVisible && (
@@ -93,16 +99,26 @@ export default class WindowChat extends Component {
         <Drag
           left={sessionListWidth}
           onMouseDown={() => {
-            this.setState({ dragMaskVisible: true });
+            this.setState({
+              dragMaskVisible: true,
+            });
           }}
         />
         <div className="flex bgSecondary Relative">
           <ChatPanel embed={true} />
           <div className="flexRow alignItemsCenter justifyContentCenter h100">
-            <Icon icon="chat-full" className="textDisabled" style={{ fontSize: 100 }} />
+            <Icon
+              icon="chat-full"
+              className="textDisabled"
+              style={{
+                fontSize: 100,
+              }}
+            />
           </div>
         </div>
       </Wrap>
     );
   }
-}
+};
+WindowChat = connect()(WindowChat);
+export default WindowChat;

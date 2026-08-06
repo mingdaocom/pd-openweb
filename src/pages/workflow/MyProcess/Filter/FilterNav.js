@@ -17,11 +17,14 @@ export default class FilterNav extends Component {
       currentIndex,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.data, this.props.data)) {
-      this.state = {
-        currentIndex: 0,
-      };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.data, prevProps.data)) {
+        this.state = {
+          currentIndex: 0,
+        };
+      }
     }
   }
   render() {

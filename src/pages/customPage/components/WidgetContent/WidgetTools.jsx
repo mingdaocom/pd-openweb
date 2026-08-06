@@ -1,15 +1,15 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import reportConfig from 'statistics/api/reportConfig';
 import { getTranslateInfo } from 'src/utils/app';
 import { containerWidgets } from '../../enum';
 import * as actions from '../../redux/action';
 import { componentCountLimit } from '../../util';
-import Tools from './Tools';
+
+const Tools = lazy(() => import('./Tools'));
 
 const WidgetTools = props => {
   const {
@@ -73,8 +73,8 @@ const WidgetTools = props => {
         if (enumType === 'analysis') {
           setLoading(true);
           if (loading) return;
-          reportConfig
-            .copyReport({ reportId: widget.value, sourceType: 1 })
+          import('statistics/api/reportConfig')
+            .then(({ default: reportConfig }) => reportConfig.copyReport({ reportId: widget.value, sourceType: 1 }))
             .then(data =>
               copyWidget({
                 ..._.omit(widget, ['id', 'uuid']),
@@ -162,26 +162,28 @@ const WidgetTools = props => {
           ) : (
             <Fragment>
               {title && <div className="titleSign" style={{ backgroundColor: iconColor }} />}
-              <span className="flex overflow_ellipsis">{translateInfo.title || title}</span>
+              <span className="flex overflow_ellipsis">{title ? translateInfo.title || title : ''}</span>
             </Fragment>
           )}
         </div>
       )}
       {editable && (
-        <Tools
-          appId={ids.appId}
-          pageId={ids.worksheetId}
-          widget={widget}
-          updateWidget={updateWidget}
-          layoutType={layoutType}
-          titleVisible={titleVisible}
-          allComponents={allComponents}
-          handleToolClick={(clickType, result) => handleToolClick(clickType, { widget, result })}
-          updatePageInfo={updatePageInfo}
-          getChartData={getChartData}
-          setChartData={setChartData}
-          activeContainerInfo={activeContainerInfo}
-        />
+        <Suspense fallback={null}>
+          <Tools
+            appId={ids.appId}
+            pageId={ids.worksheetId}
+            widget={widget}
+            updateWidget={updateWidget}
+            layoutType={layoutType}
+            titleVisible={titleVisible}
+            allComponents={allComponents}
+            handleToolClick={(clickType, result) => handleToolClick(clickType, { widget, result })}
+            updatePageInfo={updatePageInfo}
+            getChartData={getChartData}
+            setChartData={setChartData}
+            activeContainerInfo={activeContainerInfo}
+          />
+        </Suspense>
       )}
     </Fragment>
   );

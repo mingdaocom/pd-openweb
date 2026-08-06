@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
+import { browserIsMobile } from 'src/utils/common';
 
 /**
  * 使用方法
@@ -19,7 +20,7 @@ export default function (Comp, props = {}) {
 
   const root = createRoot(div);
 
-  const handlePopState = () => !window.isMingDaoApp && destroy();
+  const handlePopState = () => !browserIsMobile() && destroy();
 
   function destroy() {
     if (destroyed) return;

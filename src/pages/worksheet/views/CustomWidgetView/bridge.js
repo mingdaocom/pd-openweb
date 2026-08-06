@@ -27,10 +27,16 @@ export default class WidgetBridge {
     }
   };
   mountPropertyOnWindow(propertyName, propertyValue) {
+    let safeValue;
+    try {
+      safeValue = JSON.parse(JSON.stringify(propertyValue, (_, val) => (typeof val === 'function' ? undefined : val)));
+    } catch {
+      safeValue = {};
+    }
     this.sendWidgetBridge({
       action: 'set-window',
       key: propertyName,
-      value: propertyValue,
+      value: safeValue,
     });
   }
   handleWidgetContainerMessage = async e => {

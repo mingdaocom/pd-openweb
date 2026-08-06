@@ -103,13 +103,7 @@ class KcLeft extends Component {
       }
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.keywords !== this.state.keywords) {
-      this.setState({
-        keywords: nextProps.keywords,
-      });
-    }
-  }
+
   shouldComponentUpdate(nextProps, nextState) {
     return !(
       shallowEqual(nextProps, this.props) &&
@@ -118,7 +112,15 @@ class KcLeft extends Component {
       nextState.roots === this.state.roots
     );
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.keywords !== this.state.keywords) {
+        this.setState({
+          keywords: this.props.keywords,
+        });
+      }
+    }
+
     safeLocalStorageSetItem(
       'foldedProjects_' + md.global.Account.accountId + '_kc',
       this.state.foldedProjects.join(','),
@@ -392,7 +394,7 @@ class KcLeft extends Component {
               }
               placement="bottom"
             >
-              <i class="icon-help ThemeColor4"></i>
+              <i class="icon-help colorPrimaryLight"></i>
             </Tooltip>
           </span>
           <span class="usageSize">
@@ -443,7 +445,7 @@ class KcLeft extends Component {
       .concat(projectRoots.toArray().filter(p => !p.isStared));
     const companyNameComp = (
       <div
-        className={cx('folderProjectTitle ThemeColor10', {
+        className={cx('folderProjectTitle textPrimary', {
           folded: isFolded,
           isLoading,
           hide: this.state.noneProjects,
@@ -451,16 +453,16 @@ class KcLeft extends Component {
         onClick={() => this.toggleFoldProject(projectId)}
       >
         <span
-          className={project && project.licenseType === 0 ? 'contentName ThemeColor8' : 'contentName ThemeColor9'}
+          className={project && project.licenseType === 0 ? 'contentName textTertiary' : 'contentName textSecondary'}
           title={project ? project.companyName : _l('个人')}
         >
           <span className="companyName ellipsis">{project ? project.companyName : _l('个人')}</span>
           {project && project.licenseType === 0 && _l('（到期）')}
         </span>
         {isLoading ? (
-          <span className="clipLoader ThemeColor8" />
+          <span className="clipLoader textTertiary" />
         ) : (
-          <span className="slide ThemeColor8">
+          <span className="slide textTertiary">
             {(isFolded ? _l('展开') : isLoading) || (projectRoots.length ? _l('隐藏') : _l('无'))}
           </span>
         )}
@@ -477,18 +479,18 @@ class KcLeft extends Component {
         >
           {!projectRoots.length
             ? this.state.noneProjects && (
-                <li className="nullData ThemeColor9">
+                <li className="nullData textSecondary">
                   <span>
                     {_l('点击 " + " 号，创建共享文件夹')}
-                    <i className="icon-restart arrow ThemeColor8" />
+                    <i className="icon-restart arrow textTertiary" />
                   </span>
                 </li>
               )
             : _.map(projectRoots, root => (
                 <Item
                   key={root.id}
-                  className={cx('folderItem ani500 fadeIn ThemeHoverBGColor7', {
-                    ThemeBGColor8: this.checkRootIsActive(root.id),
+                  className={cx('folderItem ani500 fadeIn hoverBgTertiary', {
+                    bgColorPrimaryTransparent: this.checkRootIsActive(root.id),
                     folded: isFolded,
                   })}
                   onClick={() => {
@@ -504,15 +506,15 @@ class KcLeft extends Component {
                 >
                   <span
                     className={cx(
-                      'ThemeColor8 folderListIcon',
+                      'textTertiary folderListIcon',
                       this.checkRootIsActive(root.id) ? 'icon-folder-open' : 'icon-task-folder-solid',
                     )}
                   />
                   <span>
-                    <span className="folderListName ellipsis ThemeColor10">{root.name}</span>
+                    <span className="folderListName ellipsis textPrimary">{root.name}</span>
                     {(this.state.folderSetting === root.id || this.state.settingsOption === root.id) && (
                       <span
-                        className="folderSetting icon-settings ThemeColor8 ThemeHoverColor9"
+                        className="folderSetting icon-settings textTertiary hoverTextSecondary"
                         onClick={event => this.handleRootSettings(root, event)}
                       >
                         {this.state.settingsOption === root.id ? (
@@ -526,21 +528,21 @@ class KcLeft extends Component {
                           >
                             <MenuItem
                               icon={<Icon icon="task-star" />}
-                              className="settingItem ThemeHoverColor3"
+                              className="settingItem hoverColorPrimary"
                               onClick={() => this.handleStarRoot(root)}
                             >
                               {root.isStared ? _l('取消标星') : _l('标星')}
                             </MenuItem>
                             <MenuItem
                               icon={<Icon icon="group" />}
-                              className="settingItem ThemeHoverColor3"
+                              className="settingItem hoverColorPrimary"
                               onClick={() => this.handleEditRoot(root.id)}
                             >
                               {_l('共享设置')}
                             </MenuItem>
                             <MenuItem
                               icon={<Icon icon="knowledge-log" />}
-                              className="settingItem ThemeHoverColor3"
+                              className="settingItem hoverColorPrimary"
                               onClick={() => {
                                 getRootLog(root.name, root.id);
                                 this.setState({ settingsOption: '', isClick: false });
@@ -550,7 +552,7 @@ class KcLeft extends Component {
                             </MenuItem>
                             <MenuItem
                               icon={<Icon icon="knowledge-recycle" />}
-                              className="settingItem ThemeHoverColor3"
+                              className="settingItem hoverColorPrimary"
                               onClick={() => {
                                 navigateTo('/apps/kc/recycled/' + root.id);
                                 this.setState({ settingsOption: '' });
@@ -560,7 +562,7 @@ class KcLeft extends Component {
                             </MenuItem>
                             <MenuItem
                               icon={<Icon icon={cx(this.state.isCreator ? 'trash' : 'groupExit')} />}
-                              className="settingItem ThemeHoverColor3"
+                              className="settingItem hoverColorPrimary"
                               onClick={() => this.handleRemoveRoot(root, this.state.isCreator, false)}
                             >
                               {this.state.isCreator ? _l('删除文件夹') : _l('退出文件夹')}
@@ -611,15 +613,15 @@ class KcLeft extends Component {
     const selectOptions = this.state.selectOptions && (
       <Menu className="optionsLayer" onClickAway={() => this.setState({ selectOptions: false })}>
         <MenuItem
-          className="allFolder ellipsis ThemeHoverColor3"
+          className="allFolder ellipsis hoverColorPrimary"
           onClick={() => this.filterRoots(ROOT_FILTER_TYPE.ALL)}
         >
           {_l('全部共享文件夹')}
         </MenuItem>
-        <MenuItem className="myCreateRoot ThemeHoverColor3" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.OWN)}>
+        <MenuItem className="myCreateRoot hoverColorPrimary" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.OWN)}>
           {_l('我拥有的')}
         </MenuItem>
-        <MenuItem className="myAddFolder ThemeHoverColor3" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.JOIN)}>
+        <MenuItem className="myAddFolder hoverColorPrimary" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.JOIN)}>
           {_l('我加入的')}
         </MenuItem>
       </Menu>
@@ -648,20 +650,20 @@ class KcLeft extends Component {
     return (
       <div className="kcLeft">
         <div className="leftNavHairGlass bgTertiary Fixed" />
-        <MDLeftNav className="yunFileNav ThemeBGColor9 snowFixedContainer">
+        <MDLeftNav className="yunFileNav bgPrimary snowFixedContainer">
           <div className="flexColumn">
             <div className="fileMenuTop">
               <div
                 className={cx(
                   'fileSearch Relative boderRadAll_5',
-                  this.state.focusSearch ? 'ThemeBorderColor3' : 'ThemeBorderColor8',
+                  this.state.focusSearch ? 'borderColorPrimary' : 'borderSecondary',
                 )}
               >
-                <span className="icon-search btnFileSearch ThemeColor9" title={_l('搜索')} />
+                <span className="icon-search btnFileSearch textSecondary" title={_l('搜索')} />
                 <input
                   type="text"
                   id="smartSearchFile"
-                  className="fileSearchBox boxSizing ThemeColor9"
+                  className="fileSearchBox boxSizing textSecondary"
                   value={keywords}
                   placeholder={searchName}
                   onKeyDown={this.searchNodes}
@@ -672,16 +674,18 @@ class KcLeft extends Component {
               </div>
               <List className="typeList">
                 <Item
-                  icon={<Icon icon="attachment" className="ThemeColor9 ThemeHoverColor3 LineHeight40" />}
+                  icon={<Icon icon="attachment" className="textSecondary hoverColorPrimary LineHeight40" />}
                   onClick={() => navigateTo('/apps/kc/my')}
-                  className={cx('ThemeHoverBGColor7 myFileNav', { ThemeBGColor8: this.getType() === PICK_TYPE.MY })}
+                  className={cx('hoverBgTertiary myFileNav', {
+                    bgColorPrimaryTransparent: this.getType() === PICK_TYPE.MY,
+                  })}
                   onMouseOver={() => this.setState({ isHover: true })}
                   onMouseLeave={() => this.setState({ isHover: false })}
                 >
-                  <span className="ThemeColor10 Font13">{_l('我的文件')}</span>
+                  <span className="textPrimary Font13">{_l('我的文件')}</span>
                   {this.state.isHover || this.state.isClick ? (
                     <span
-                      className="myFolderSetting icon-settings ThemeColor8 ThemeHoverColor9"
+                      className="myFolderSetting icon-settings textTertiary hoverTextSecondary"
                       onClick={evt => {
                         this.setState({ isClick: true });
                         evt.stopPropagation();
@@ -695,7 +699,7 @@ class KcLeft extends Component {
                         >
                           <MenuItem
                             icon={<Icon icon="knowledge-log" />}
-                            className="settingItem ThemeHoverColor3"
+                            className="settingItem hoverColorPrimary"
                             onClick={() => {
                               getRootLog(_l('我的文件'), PICK_TYPE.MY);
                               this.setState({ settingsOption: '', isClick: false });
@@ -705,7 +709,7 @@ class KcLeft extends Component {
                           </MenuItem>
                           <MenuItem
                             icon={<Icon icon="knowledge-recycle" />}
-                            className="settingItem ThemeHoverColor3"
+                            className="settingItem hoverColorPrimary"
                             onClick={() => {
                               navigateTo('/apps/kc/recycled/my');
                               this.setState({ isClick: false, isHover: false });
@@ -723,30 +727,30 @@ class KcLeft extends Component {
                   )}
                 </Item>
                 <Item
-                  icon={<Icon icon="access_time" className="ThemeColor9 ThemeHoverColor3 LineHeight40" />}
+                  icon={<Icon icon="access_time" className="textSecondary hoverColorPrimary LineHeight40" />}
                   onClick={() => navigateTo('/apps/kc/recent')}
-                  className={cx('ThemeHoverBGColor7', { ThemeBGColor8: this.getType() === PICK_TYPE.RECENT })}
+                  className={cx('hoverBgTertiary', { bgColorPrimaryTransparent: this.getType() === PICK_TYPE.RECENT })}
                 >
-                  <span className="ThemeColor10 Font13">{_l('最近使用')}</span>
+                  <span className="textPrimary Font13">{_l('最近使用')}</span>
                 </Item>
                 <Item
-                  icon={<Icon icon="task-star" className="ThemeColor9 ThemeHoverColor3 LineHeight40" />}
+                  icon={<Icon icon="task-star" className="textSecondary hoverColorPrimary LineHeight40" />}
                   onClick={() => navigateTo('/apps/kc/stared')}
-                  className={cx('ThemeHoverBGColor7', { ThemeBGColor8: this.getType() === PICK_TYPE.STARED })}
+                  className={cx('hoverBgTertiary', { bgColorPrimaryTransparent: this.getType() === PICK_TYPE.STARED })}
                 >
-                  <span className="ThemeColor10 Font13">{_l('星标文件')}</span>
+                  <span className="textPrimary Font13">{_l('星标文件')}</span>
                 </Item>
               </List>
             </div>
             <Splitter className="fileHr" />
             <div className="folderHeader">
               <span className="folderCheckedType left" onClick={this.handleSelectFile}>
-                <span className="selectOptions ThemeColor8">{selectName}</span>
-                <i className="icon-arrow-down font10 iconArrowDown ThemeColor9" />
+                <span className="selectOptions textTertiary">{selectName}</span>
+                <i className="icon-arrow-down font10 iconArrowDown textSecondary" />
                 {selectOptions}
               </span>
               <span className="addNewFolder right">
-                <span className="ThemeColor9 ThemeHoverColor10" onClick={this.handleAddNewRoot}>
+                <span className="textSecondary hoverTextPrimary" onClick={this.handleAddNewRoot}>
                   +
                 </span>
               </span>

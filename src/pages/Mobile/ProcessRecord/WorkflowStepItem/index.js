@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
-import { MobileFlowChart } from 'src/pages/workflow/components/FlowChart';
+
+const MobileFlowChart = lazy(() =>
+  import('src/pages/workflow/components/FlowChart').then(module => ({ default: module.MobileFlowChart })),
+);
 
 const Wrap = styled.ul`
   padding: 0 17px 50px;
@@ -32,6 +35,7 @@ class WorkflowStepItem extends Component {
           )}
         </div>
         <Steps
+          appId={appId}
           worksheetId={worksheetId}
           rowId={recordId}
           currentWork={currentWork}
@@ -41,12 +45,14 @@ class WorkflowStepItem extends Component {
           status={status}
         />
         {visible && (
-          <MobileFlowChart
-            appId={appId}
-            processId={processId}
-            instanceId={currentWork.instanceId}
-            onClose={() => this.setState({ visible: false })}
-          />
+          <Suspense fallback={null}>
+            <MobileFlowChart
+              appId={appId}
+              processId={processId}
+              instanceId={currentWork.instanceId}
+              onClose={() => this.setState({ visible: false })}
+            />
+          </Suspense>
         )}
       </Wrap>
     );

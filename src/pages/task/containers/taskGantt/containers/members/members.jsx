@@ -79,7 +79,7 @@ class Members extends Component {
     const members = [];
 
     for (let i = 0; i < users.length && i < 3; i++) {
-      members.push(`<span class="ThemeColor3">${users[i].fullname}</span>`);
+      members.push(`<span class="colorPrimary">${users[i].fullname}</span>`);
     }
 
     const message = members.join('、') + (users.length > 3 ? _l('等%0人', users.length) : '');
@@ -124,7 +124,7 @@ class Members extends Component {
         <div className="flexColumn">
           <header>
             {_l('人员列表 (%0)', accountTasksKV.length)}
-            <i className="icon-invite Font18 ThemeColor3 pointer" onClick={evt => this.addMembers(evt)} />
+            <i className="icon-invite Font18 colorPrimary pointer" onClick={evt => this.addMembers(evt)} />
           </header>
           <ul
             className="ganttMembersList flex"

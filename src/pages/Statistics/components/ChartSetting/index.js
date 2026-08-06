@@ -5,13 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import * as actions from 'statistics/redux/actions';
 import { reportTypes } from '../../Charts/common';
-import {
-  chartType,
-  filterDisableParticleSizeTypes,
-  funnelCurvatureList,
-  funnelShapeList,
-  getAxisText,
-} from '../../common';
+import { chartType, funnelCurvatureList, funnelShapeList } from '../../common/chartTypeConfig';
+import { filterDisableParticleSizeTypes, getAxisText } from '../../common/reportConfigUtils';
 import Accumulate from './components/Accumulate';
 import AreaScope from './components/AreaScope';
 import Filter from './components/Filter';
@@ -23,24 +18,16 @@ import XAxis from './components/XAxis';
 import YAxis from './components/YAxis';
 import './index.less';
 
-@connect(
-  state => ({
-    ..._.pick(state.statistics, ['currentReport', 'reportData', 'axisControls', 'worksheetInfo', 'filterItem']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ChartSetting extends Component {
+let ChartSetting = class ChartSetting extends Component {
   constructor(props) {
     super(props);
   }
+
   handleChangeStyle = (data, isRequest = false) => {
     const { style } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
-        style: {
-          ...style,
-          ...data,
-        },
+        style: { ...style, ...data },
       },
       isRequest,
     );
@@ -50,14 +37,12 @@ export default class ChartSetting extends Component {
     this.props.changeFilterItem(filterItem);
     this.props.changeCurrentReport(
       {
-        filter: {
-          ...currentReport.filter,
-          filterControls: conditions,
-        },
+        filter: { ...currentReport.filter, filterControls: conditions },
       },
       true,
     );
   };
+
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
     const isFunnelChart = reportType == reportTypes.FunnelChart;
@@ -77,7 +62,11 @@ export default class ChartSetting extends Component {
     return (
       <div className={isFunnelChart ? 'mBottom15' : 'mBottom20'}>
         {isFunnelChart && <div className="mBottom15 Bold Font13">{_l('图形')}</div>}
-        <div className={cx('mBottom10 Font13', isFunnelChart ? 'mBottom8' : 'mBottom10', { Bold: !isFunnelChart })}>
+        <div
+          className={cx('mBottom10 Font13', isFunnelChart ? 'mBottom8' : 'mBottom10', {
+            Bold: !isFunnelChart,
+          })}
+        >
           {chartType[reportType].title}
         </div>
         {[reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) ? (
@@ -102,12 +91,13 @@ export default class ChartSetting extends Component {
             {chartType[reportType].items.map(item => (
               <div
                 key={item.value}
+                title={item.name}
                 className={cx('flex centerAlign pointer textSecondary', {
                   active: displaySetup.showChartType == item.value,
                 })}
                 onClick={() => handleClick(item)}
               >
-                {item.name}
+                <span className="ellipsis">{item.name}</span>
               </div>
             ))}
           </div>
@@ -115,6 +105,7 @@ export default class ChartSetting extends Component {
       </div>
     );
   }
+
   renderShape() {
     const { style } = this.props.currentReport;
     return (
@@ -124,25 +115,24 @@ export default class ChartSetting extends Component {
           {funnelShapeList.map(item => (
             <div
               key={item.value}
+              title={item.name}
               className={cx('flex centerAlign pointer textSecondary', {
                 active: (style.funnelShape || 'funnel') == item.value,
               })}
               onClick={() => {
                 this.props.changeCurrentReport({
-                  style: {
-                    ...style,
-                    funnelShape: item.value,
-                  },
+                  style: { ...style, funnelShape: item.value },
                 });
               }}
             >
-              {item.name}
+              <span className="ellipsis">{item.name}</span>
             </div>
           ))}
         </div>
       </div>
     );
   }
+
   renderCurvature() {
     const { style } = this.props.currentReport;
     return (
@@ -152,25 +142,24 @@ export default class ChartSetting extends Component {
           {funnelCurvatureList.map(item => (
             <div
               key={item.value}
+              title={item.name}
               className={cx('flex centerAlign pointer textSecondary', {
                 active: (style.funnelCurvature || 2) == item.value,
               })}
               onClick={() => {
                 this.props.changeCurrentReport({
-                  style: {
-                    ...style,
-                    funnelCurvature: item.value,
-                  },
+                  style: { ...style, funnelCurvature: item.value },
                 });
               }}
             >
-              {item.name}
+              <span className="ellipsis">{item.name}</span>
             </div>
           ))}
         </div>
       </div>
     );
   }
+
   renderAccumulate() {
     const { reportData, currentReport, worksheetInfo, changeCurrentReport } = this.props;
     return (
@@ -182,6 +171,7 @@ export default class ChartSetting extends Component {
       />
     );
   }
+
   renderPivotTableAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { lines = [], columns = [] } = currentReport.pivotTable || {};
@@ -201,10 +191,7 @@ export default class ChartSetting extends Component {
           onUpdateList={(lines, id) => {
             changeCurrentReport(
               {
-                pivotTable: {
-                  ...currentReport.pivotTable,
-                  lines,
-                },
+                pivotTable: { ...currentReport.pivotTable, lines },
                 sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
               },
               true,
@@ -224,10 +211,7 @@ export default class ChartSetting extends Component {
           onUpdateList={(columns, id) => {
             changeCurrentReport(
               {
-                pivotTable: {
-                  ...currentReport.pivotTable,
-                  columns,
-                },
+                pivotTable: { ...currentReport.pivotTable, columns },
                 sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
               },
               true,
@@ -244,13 +228,26 @@ export default class ChartSetting extends Component {
           allControls={worksheetInfo.columns}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
-            changeCurrentReport(
-              {
-                yaxisList,
-                sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
-              },
-              true,
-            );
+            const specificValue = _.find(yaxisList, {
+              normType: 7,
+            });
+
+            const data = {
+              yaxisList,
+              sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
+            };
+
+            if (specificValue) {
+              const columnSummary = _.get(currentReport, 'pivotTable.columnSummary') || {};
+              const controlList = columnSummary.controlList.filter(item => item.controlId !== specificValue.controlId);
+              data.pivotTable = {
+                ...currentReport.pivotTable,
+                columnSummary: { ...columnSummary, controlList },
+                showColumnTotal: controlList.length ? true : false,
+              };
+            }
+
+            changeCurrentReport(data, true);
           }}
           onAdd={this.props.addYaxisList}
           onRemove={({ controlId }) => {
@@ -260,6 +257,7 @@ export default class ChartSetting extends Component {
       </Fragment>
     );
   }
+
   renderChartAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { reportType, xaxes = {}, yaxisList, split = {}, rightY, formulas = [] } = currentReport;
@@ -282,10 +280,7 @@ export default class ChartSetting extends Component {
               allControls={worksheetInfo.columns}
               onChangeCurrentReport={data => {
                 yaxisList[0] = data.yaxisList[0];
-                this.props.changeYaxisList({
-                  ...data,
-                  yaxisList,
-                });
+                this.props.changeYaxisList({ ...data, yaxisList });
               }}
               onRemoveAxis={() => {
                 if (yaxisList.length === 1) {
@@ -311,10 +306,7 @@ export default class ChartSetting extends Component {
               allControls={worksheetInfo.columns}
               onChangeCurrentReport={data => {
                 yaxisList[1] = data.yaxisList[0];
-                this.props.changeYaxisList({
-                  ...data,
-                  yaxisList,
-                });
+                this.props.changeYaxisList({ ...data, yaxisList });
               }}
               onRemoveAxis={() => {
                 yaxisList[1] = {};
@@ -335,10 +327,7 @@ export default class ChartSetting extends Component {
               allControls={worksheetInfo.columns}
               onChangeCurrentReport={data => {
                 yaxisList[2] = data.yaxisList[0];
-                this.props.changeYaxisList({
-                  ...data,
-                  yaxisList,
-                });
+                this.props.changeYaxisList({ ...data, yaxisList });
               }}
               onRemoveAxis={() => {
                 yaxisList[2] = null;
@@ -366,10 +355,7 @@ export default class ChartSetting extends Component {
               allControls={worksheetInfo.columns}
               onChangeCurrentReport={data => {
                 yaxisList[0] = data.yaxisList[0];
-                this.props.changeYaxisList({
-                  ...data,
-                  yaxisList,
-                });
+                this.props.changeYaxisList({ ...data, yaxisList });
               }}
               onRemoveAxis={() => {
                 if (yaxisList.length === 1) {
@@ -396,10 +382,7 @@ export default class ChartSetting extends Component {
               allControls={worksheetInfo.columns}
               onChangeCurrentReport={data => {
                 yaxisList[1] = data.yaxisList[0];
-                this.props.changeYaxisList({
-                  ...data,
-                  yaxisList,
-                });
+                this.props.changeYaxisList({ ...data, yaxisList });
               }}
               onRemoveAxis={() => {
                 yaxisList[1] = null;
@@ -502,6 +485,7 @@ export default class ChartSetting extends Component {
       </Fragment>
     );
   }
+
   renderChartValueAxis() {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { config, formulas = [] } = currentReport;
@@ -520,10 +504,7 @@ export default class ChartSetting extends Component {
           changeValueAxis={(data, isRequest) => {
             this.props.changeConfig(
               {
-                min: {
-                  ...config.min,
-                  ...data,
-                },
+                min: { ...config.min, ...data },
               },
               isRequest,
             );
@@ -547,10 +528,7 @@ export default class ChartSetting extends Component {
           changeValueAxis={(data, isRequest) => {
             this.props.changeConfig(
               {
-                max: {
-                  ...config.max,
-                  ...data,
-                },
+                max: { ...config.max, ...data },
               },
               isRequest,
             );
@@ -564,6 +542,7 @@ export default class ChartSetting extends Component {
       </Fragment>
     );
   }
+
   renderTargetValueAxis() {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { yaxisList, config = {}, formulas = [] } = currentReport;
@@ -591,11 +570,13 @@ export default class ChartSetting extends Component {
             }}
             changeValueAxis={(data, isRequest) => {
               const current = targetList[index] || {};
-              targetList[index] = {
-                ...current,
-                ...data,
-              };
-              this.props.changeConfig({ targetList }, isRequest);
+              targetList[index] = { ...current, ...data };
+              this.props.changeConfig(
+                {
+                  targetList,
+                },
+                isRequest,
+              );
             }}
             removeValueAxis={() => {
               this.props.removeTargetValueAxis(index);
@@ -605,6 +586,7 @@ export default class ChartSetting extends Component {
       </div>
     );
   }
+
   render() {
     const { currentReport, axisControls, projectId, worksheetInfo, filterItem, sourceType } = this.props;
     const { reportType, displaySetup, filter } = currentReport;
@@ -632,4 +614,11 @@ export default class ChartSetting extends Component {
       </div>
     );
   }
-}
+};
+ChartSetting = connect(
+  state => ({
+    ..._.pick(state.statistics, ['currentReport', 'reportData', 'axisControls', 'worksheetInfo', 'filterItem']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ChartSetting);
+export default ChartSetting;

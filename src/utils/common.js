@@ -78,18 +78,11 @@ export function getLRUWorksheetConfig(key, id) {
  * 后端 key value 存储服务
  * 存
  */
-export function KVSet(key, value, { needEncode = true, expireTime } = {}) {
-  let newKey = key;
-  let newValue = value;
-
-  if (needEncode) {
-    newKey = btoa(key);
-    newValue = btoa(unescape(encodeURIComponent(value)));
-  }
-
+export function KVSet(key, value, { expireTime } = {}) {
   return webCache.add({
-    key: newKey,
-    value: newValue,
+    key,
+    value,
+    moduleType: 2,
     expireTime: expireTime || moment(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)).format('YYYY-MM-DD HH:mm:ss'),
   });
 }
@@ -101,16 +94,8 @@ export const debouncedKVSet = _.debounce(KVSet, 1000);
  * 取
  */
 
-export function KVGet(key, { needEncode = true } = {}) {
-  let newKey = key;
-
-  if (needEncode) {
-    newKey = btoa(key);
-  }
-
-  return webCache
-    .get({ key: newKey })
-    .then(res => (get(res, 'data') ? decodeURIComponent(escape(atob(get(res, 'data')))) : ''));
+export function KVGet(key) {
+  return webCache.get({ key, moduleType: 2 }).then(res => get(res, 'data') || '');
 }
 
 /**
@@ -118,14 +103,8 @@ export function KVGet(key, { needEncode = true } = {}) {
  * 清空
  */
 
-export function KVClear(key, { needEncode = true } = {}) {
-  let newKey = key;
-
-  if (needEncode) {
-    newKey = btoa(key);
-  }
-
-  return webCache.clear({ key: newKey }, { silent: true });
+export function KVClear(key) {
+  return webCache.clear({ key, moduleType: 2 }, { silent: true });
 }
 
 export function saveTempRecordValueToLocal(key, id, value, max = 5) {
@@ -721,6 +700,10 @@ export const browserIsMobile = () => {
   }
 };
 
+export const getDefaultThemeMode = () => {
+  return browserIsMobile() ? 'system' : 'light';
+};
+
 /**
  * 获取URL里的参数，返回一个参数对象
  * @param  {string} str url中 ? 之后的部分，可以包含 ?
@@ -970,18 +953,63 @@ export const getToken = (files, type = 0, args = {}, options = {}) => {
 };
 
 /**
- * 路由添加子路径
+ * 路由添加子路径，返回新的路由对象
  */
-export function addSubPathOfRoutes(routes, subPath) {
-  if (!subPath) {
+export function addSubPathOfRoutes(routes) {
+  if (!getCurrentSubPath()) {
     return routes;
   }
 
   const newRoutes = _.cloneDeep(routes);
+
   Object.keys(newRoutes).forEach(key => {
-    newRoutes[key].path = subPath + newRoutes[key].path;
+    newRoutes[key].path = addSubPathOfRoute(newRoutes[key].path);
   });
+
   return newRoutes;
+}
+
+/**
+ * 子路径处理
+ */
+export const getCurrentSubPath = () => window.subPath || window.__customSubPath__ || '';
+
+const hasSubPath = (route, subPath) =>
+  !!subPath && (route === subPath || route.startsWith(`${subPath}/`) || route.startsWith(`${subPath}?`));
+
+const getPathWithSubPath = (route, subPath = getCurrentSubPath()) =>
+  subPath && !hasSubPath(route, subPath) ? subPath + route : route;
+
+export function getPathWithoutSubPath(url = '', subPath = getCurrentSubPath()) {
+  const route = String(url).startsWith(location.origin) ? String(url).slice(location.origin.length) : String(url);
+  const pathname = route.split(/(?=[?#])/)[0];
+
+  if (hasSubPath(pathname, subPath)) {
+    return (pathname.slice(subPath.length) || '/') + route.slice(pathname.length);
+  }
+
+  return route;
+}
+
+/**
+ * 路由添加子路径，返回新的路由路径
+ */
+export function addSubPathOfRoute(route) {
+  const subPath = getCurrentSubPath();
+
+  if (!subPath) {
+    return route;
+  }
+
+  if (_.isArray(route)) {
+    return route.map(addSubPathOfRoute);
+  }
+
+  if (hasSubPath(route, subPath)) {
+    return route;
+  }
+
+  return subPath + route;
 }
 
 /**
@@ -1412,4 +1440,103 @@ export const getLatestCreateTimestampOfWithSaveShortcut = () => {
   }
 
   return Math.max(...timestamps);
+};
+
+/**
+ * 获取应用界面特性是否可见
+ */
+export const getAppFeaturesVisible = () => {
+  const { s, tb, tr, ln, rp, td, ss, ac, ch } = qs.parse(location.search.substr(1));
+
+  return {
+    s: s !== 'no', // 回首页按钮
+    tb: tb !== 'no', // 应用分组
+    tr: tr !== 'no', // 导航右侧内容（应用扩展信息）
+    ln: ln !== 'no', // 左侧导航
+    rp: rp !== 'no', // chart
+    td: td !== 'no', // 待办
+    ss: ss !== 'no', // 超级搜索
+    ac: ac !== 'no', // 账户
+    ch: ch !== 'no', // 消息侧边栏
+  };
+};
+
+/**
+ * 获取应用界面特性路径
+ */
+export const getAppFeaturesPath = () => {
+  const { s, tb, tr, ln, rp, td, ss, ac, ch } = getAppFeaturesVisible();
+
+  return [
+    s ? '' : 's=no',
+    tb ? '' : 'tb=no',
+    tr ? '' : 'tr=no',
+    ln ? '' : 'ln=no',
+    rp ? '' : 'rp=no',
+    td ? '' : 'td=no',
+    ss ? '' : 'ss=no',
+    ac ? '' : 'ac=no',
+    ch ? '' : 'ch=no',
+  ]
+    .filter(o => o)
+    .join('&');
+};
+
+// 路径补全
+export const pathCompletion = (url, parameters = { hasDomain: true, localHasDomain: false }) => {
+  if (!url || url.startsWith('#') || url.startsWith('http')) return url;
+
+  const { hasDomain, localHasDomain } = parameters;
+  const hash = url.split('#')[1] || '';
+  const hash2 = url.split('#')[2] || '';
+  // 隐藏功能项参数
+  const hideOptions = getAppFeaturesPath();
+  // AI 实时预览（src/components/Agent/AppBuilder/PreviewFrame.jsx）会在 iframe URL 上挂 previewMode=ai，
+  // 用于让工作表渲染层在 views 暂时为空时给出伪「全部」视图。navigateTo / pathCompletion
+  // 默认会重写 query 丢掉非白名单参数（如 AppPkgHeader.completePara 跳 ?flag=Date.now()），
+  // 所以这里跟 hideOptions 一样把 previewMode 透传，确保它在 iframe 路由跳转后依然保留。
+  const currentPreviewMode = qs.parse(location.search.substr(1)).previewMode;
+  const previewModeOption = currentPreviewMode === 'ai' ? 'previewMode=ai' : '';
+
+  url = url.split('#')[0];
+
+  // 外部门户自定义域名后缀：PC 用 /suffix 路径，移动端用 /app/appId 路径
+  const { isPortal, addressSuffix, appId } = _.get(window.md, 'global.Account') || {};
+
+  if (isPortal && addressSuffix) {
+    const isMobile = browserIsMobile();
+
+    if (!isMobile && url.includes('/app/') && !url.includes(`/${addressSuffix}`)) {
+      url = url.replace(/\/app\/.*?(\/.*)?$/, `/${addressSuffix}$1`);
+    } else if (isMobile && appId && addressSuffix && url.includes(`/${addressSuffix}`)) {
+      url = url.replace(`/${addressSuffix}`, `/app/${appId}`);
+    }
+  }
+
+  // 隐藏功能项补充
+  if (hideOptions && url.indexOf(hideOptions) < 0) {
+    url = url + (url.indexOf('?') > -1 ? '&' : '?') + hideOptions;
+  }
+
+  if (previewModeOption && url.indexOf(previewModeOption) < 0) {
+    url = url + (url.indexOf('?') > -1 ? '&' : '?') + previewModeOption;
+  }
+
+  const shouldCompleteDomain = hasDomain && (!location.origin.includes('localhost:') || localHasDomain) && !isPortal;
+
+  if (shouldCompleteDomain) {
+    url = location.origin + getPathWithSubPath(url);
+  } else {
+    url = getPathWithSubPath(url);
+  }
+
+  // 只替换路径中多余的 //，保留协议部分的 ://
+  url = url.replace(/(^|[^:])\/(?=\/)/g, '$1');
+
+  if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
+    url = url + '#publicapp' + window.publicAppAuthorization + (hash2 ? `#${hash2}` : ``);
+    return url;
+  }
+
+  return url + (hash ? `#${hash}` : '');
 };

@@ -1,15 +1,63 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import agentAjax from 'src/api/agent.js';
 import certificationApi from 'src/api/certification.js';
 import projectSettingAjax from 'src/api/projectSetting';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
 import SelectCertification from 'src/pages/certification/components/SelectCertification';
 import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import { PERMISSION_ENUM } from '../../enum';
+
+const AccountBalanceHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+const DashedText = styled.span`
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+`;
+
+const AIWelfarePointLine = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 22px;
+`;
+
+const AIWelfarePointValue = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  .monthlyRemaining {
+    color: var(--color-primary);
+    font-weight: 600;
+    cursor: pointer;
+  }
+`;
+
+const AI_WELFARE_FREE_GIFT_BY_VERSION = {
+  1: 50,
+  2: 100,
+  3: 200,
+};
 
 // 组织管理首页-账户信用点卡片
 export default function AccountBalance(props) {
@@ -21,10 +69,56 @@ export default function AccountBalance(props) {
     isTrial,
     isFree,
     trialAuthenticate,
+    refreshFlag,
     updateData = () => {},
   } = props;
+  const [agentBillingFreeQuota, setAgentBillingFreeQuota] = useState({});
   const { balanceInfo } = data;
   const hasBalance = authority.includes(PERMISSION_ENUM.FINANCE);
+  const hasBalanceInfo = !_.isEmpty(balanceInfo) && hasBalance;
+  const versionIdV2 = _.get(data, 'currentLicense.version.versionIdV2');
+  const freeGift = data.licenseType === 2 ? 100 : AI_WELFARE_FREE_GIFT_BY_VERSION[versionIdV2] || 0;
+
+  const renderAIWelfarePointValue = () => {
+    if (isFree) {
+      return <span className="Bold">{formatNumberThousand(agentBillingFreeQuota.remainingCredits)}</span>;
+    }
+
+    const { giftRemaining = 0, monthlyRemaining = 0 } = agentBillingFreeQuota;
+    const monthlyRemainingNode = (
+      <Tooltip
+        title={_l('每月1日00:00自动刷新为 %0 福利点，不累加', formatNumberThousand(freeGift))}
+        placement="bottom"
+      >
+        <span className="monthlyRemaining">{formatNumberThousand(monthlyRemaining)}</span>
+      </Tooltip>
+    );
+
+    return (
+      <AIWelfarePointValue className="Bold">
+        {giftRemaining > 0 && (
+          <Fragment>
+            <span>{formatNumberThousand(giftRemaining)}</span>
+            <span className="textTertiary">+</span>
+          </Fragment>
+        )}
+        {monthlyRemainingNode}
+      </AIWelfarePointValue>
+    );
+  };
+
+  const getAgentBillingFreeQuota = useCallback(() => {
+    if (!projectId || !isMingdaoSaas) return;
+
+    agentAjax
+      .getAgentBillingFreeQuota({ projectId }, { silent: true })
+      .then(res => {
+        setAgentBillingFreeQuota(res.data || {});
+      })
+      .catch(() => {
+        setAgentBillingFreeQuota({});
+      });
+  }, [isMingdaoSaas, projectId]);
 
   // 设置信用点警告提醒
   const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, noticeTypes, closeDialog = () => {} }) => {
@@ -114,23 +208,56 @@ export default function AccountBalance(props) {
       return;
     }
 
-    location.assign(`/admin/valueaddservice/${projectId}`);
+    location.assign(pathCompletion(`/admin/valueaddservice/${projectId}`));
   };
+
+  useEffect(() => {
+    getAgentBillingFreeQuota();
+  }, [getAgentBillingFreeQuota, refreshFlag]);
 
   return (
     <div className="infoCard">
       <div>
-        <div className="Font16 bold textPrimary mBottom6 valignWrapper mBottom6">
-          {_l('信用点')}
-          <Tooltip
-            title={_l(
-              '账户余额已升级为“信用点”；信用点用于系统中发送邮件、短信等计费服务自动扣费。为避免系统功能不可用，请确保账户信用点余额充足。',
-            )}
-            placement="bottom"
-          >
-            <Icon icon="help" className="mLeft6 hoverColorPrimary helpIcon" />
-          </Tooltip>
-        </div>
+        <AccountBalanceHeader className="mBottom6">
+          <div className="Font16 bold textPrimary valignWrapper">
+            {_l('信用点')}
+            <Tooltip
+              title={
+                <div>
+                  {isMingdaoSaas ? (
+                    <Fragment>
+                      <div>
+                        {_l(
+                          '「信用点」用于系统中Mingo AI功能、发送邮件、短信等计费服务自动扣费。为避免系统功能不可用，请确保账户信用点余额充足。',
+                        )}
+                      </div>
+                      <div className="mTop12">
+                        {_l(
+                          '其中「AI 福利点」为平台赠送额度（1福利点=1个信用点），仅抵扣 Mingo AI功能费用；使用时会优先消耗 AI 福利点，额度用尽后再从通用信用点扣费。',
+                        )}
+                      </div>
+                    </Fragment>
+                  ) : (
+                    <div>
+                      {_l(
+                        '「信用点」用于发送邮件、短信等计费服务自动扣费。为避免系统功能不可用，请确保账户信用点余额充足。',
+                      )}
+                    </div>
+                  )}
+                  <div className="mTop12">{_l('在「管理」中可查看扣费标准，或关闭自动扣费。')}</div>
+                </div>
+              }
+              placement="bottom"
+            >
+              <Icon icon="help" className="mLeft6 hoverColorPrimary helpIcon" />
+            </Tooltip>
+          </div>
+          {hasBalanceInfo && (
+            <DashedText className="Font13 textSecondary" onClick={setEarlyWarning}>
+              {balanceInfo.noticeEnabled ? _l('预警（<%0）', balanceInfo.balanceLimit || 0) : _l('信用点余额预警')}
+            </DashedText>
+          )}
+        </AccountBalanceHeader>
         <div className="mBottom6 flexRow alignItemsCenter">
           <span className="Font28 textPrimary Bold Hand">
             {data.hideBalance ? '*****' : formatNumberThousand(data.balance)}
@@ -141,15 +268,11 @@ export default function AccountBalance(props) {
             onClick={() => updateData({ hideBalance: !data.hideBalance })}
           />
         </div>
-        {!_.isEmpty(balanceInfo) && hasBalance && (
-          <div className="Font14">
-            {!!balanceInfo.noticeEnabled && (
-              <span className="textSecondary mRight8">{_l('预警（<%0信用点）', balanceInfo.balanceLimit || 0)}</span>
-            )}
-            <span className="colorPrimary Hand hoverColor" onClick={setEarlyWarning}>
-              {balanceInfo.noticeEnabled ? _l('设置') : _l('信用点余额预警')}
-            </span>
-          </div>
+        {isMingdaoSaas && (
+          <AIWelfarePointLine className="Font14">
+            <span>{_l('AI 福利点:')}</span>
+            {renderAIWelfarePointValue()}
+          </AIWelfarePointLine>
         )}
       </div>
       <div className="buttons">

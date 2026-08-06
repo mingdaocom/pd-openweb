@@ -34,15 +34,17 @@ export default class RowDetail extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.data &&
-      (nextProps.data.rowid !== this.props.data.rowid ||
-        (this.props.isMobile && !_.isEqual(nextProps.data, this.props.data)))
-    ) {
-      this.setState({
-        flag: Math.random(),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.data &&
+        (this.props.data.rowid !== prevProps.data.rowid ||
+          (prevProps.isMobile && !_.isEqual(this.props.data, prevProps.data)))
+      ) {
+        this.setState({
+          flag: Math.random(),
+        });
+      }
     }
   }
 

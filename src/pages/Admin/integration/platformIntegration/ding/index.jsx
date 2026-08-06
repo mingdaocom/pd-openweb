@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Button, Icon, Input, LoadDiv, MdLink, Radio, Support, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { pathCompletion } from 'src/utils/common';
 import CancelIntegration from '../components/CancelIntegration';
 import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
@@ -264,14 +265,14 @@ export default class Ding extends React.Component {
           {!this.state.isCloseDing && this.state.show2 && (
             <React.Fragment>
               <p className="mTop16 Font14 textSecondary">
-                {_l('完成步骤 1 后，填入CorpId、AgentId、ClientId、ClientScret后可对接应用与同步通讯录')}
+                {_l('完成步骤 1 后，填入CorpId、AgentId、ClientId、ClientSecret后可对接应用与同步通讯录')}
               </p>
               <div className="mTop25 infoList">
                 <ul>
                   <li>{this.inputRender('CorpId', 466, 'CorpId')}</li>
                   <li className="mTop16">{this.inputRender('AgentId', 446, 'AgentId')}</li>
                   <li className="mTop16">{this.inputRender('AppKey', 446, 'ClientId')}</li>
-                  <li className="mTop16">{this.inputRender('AppSecret', 445, 'ClientScret')}</li>
+                  <li className="mTop16">{this.inputRender('AppSecret', 445, 'ClientSecret')}</li>
                 </ul>
               </div>
               <div className="TxtRight mTop30">
@@ -498,7 +499,7 @@ export default class Ding extends React.Component {
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && CorpId && AppKey && AppSecret && AgentId) && (
-              <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
+              <i className="icon-backspace Font22 hoverColorPrimary pointer mRight10" onClick={this.props.onClose} />
             )}
             <div className={cx('tabBox', { singleTab: !(this.state.status === 1 && !this.state.isCloseDing) })}>
               {TABS.map(({ key, label }) => {
@@ -536,7 +537,7 @@ export default class Ding extends React.Component {
                   projectId={projectId}
                   scanEnabled={intergrationScanEnabled}
                   disabled={isCloseDing}
-                  href={`/dingSyncCourse/${projectId}`}
+                  href={pathCompletion(`/dingSyncCourse/${projectId}`)}
                   updateScanEnabled={intergrationScanEnabled => this.setState({ intergrationScanEnabled })}
                   customNameIcon={customNameIcon}
                   updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}

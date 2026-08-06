@@ -36,12 +36,14 @@ export default class Inbox extends React.Component {
     updateNow: undefined,
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.inboxType !== this.props.inboxType || nextProps.count !== this.props.count) {
-      this.setState({
-        filter: null,
-        type: getInitialLoadType(nextProps.inboxType),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.inboxType !== prevProps.inboxType || this.props.count !== prevProps.count) {
+        this.setState({
+          filter: null,
+          type: getInitialLoadType(this.props.inboxType),
+        });
+      }
     }
   }
 

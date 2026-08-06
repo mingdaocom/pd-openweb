@@ -138,7 +138,7 @@ export default function DepartmentFullName(props) {
         {departmentInfos.slice(0, 6).map(item => renderItem(item))}
         {expand && departmentInfos.slice(6).map(item => renderItem(item))}
         {departmentInfos.length > 6 && (
-          <div className="Hand Font14 colorPrimary hoverTextPrimaryLight" onClick={() => setData({ expand: !expand })}>
+          <div className="Hand Font14 colorPrimary hoverColorPrimaryLight" onClick={() => setData({ expand: !expand })}>
             {expand ? _l('收起') : _l('展开')}
           </div>
         )}

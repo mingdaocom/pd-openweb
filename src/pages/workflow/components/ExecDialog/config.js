@@ -34,6 +34,7 @@ export const ACTION_LIST = {
   17: { id: 'return', text: _l('退回'), icon: 'repeal-o', sort: 4 },
   18: { id: 'urge', text: _l('催办'), icon: 'start_time', sort: 9 },
   19: { id: 'taskRevoke', text: _l('撤回'), icon: 'repeal-o', sort: 10 },
+  20: { id: 'taskRevokeEntrust', text: _l('撤回委托'), icon: 'repeal-o', sort: 11 },
 };
 
 export const OPERATION_LIST = {
@@ -48,6 +49,7 @@ export const MOBILE_OPERATION_LIST = {
   16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add' },
   17: { id: 'return', text: _l('退回'), icon: 'repeal-o' },
   19: { id: 'taskRevoke', text: _l('撤回'), icon: 'repeal-o' },
+  20: { id: 'taskRevokeEntrust', text: _l('撤回委托'), icon: 'repeal-o' },
 };
 
 export const ACTION_TO_TEXT = {

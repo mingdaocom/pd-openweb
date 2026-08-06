@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { pathCompletion } from 'src/utils/common';
 
 export default class DetailDialog extends Component {
   constructor(props) {
@@ -20,8 +21,8 @@ export default class DetailDialog extends Component {
               return (
                 <li className="LineHeight35" key={item.sourceId}>
                   <span className="InlineBlock pLeft40 Width200 color_b overflow_ellipsis">{item.sourceName}</span>
-                  <span className="InlineBlock Hand ThemeColor3">
-                    <a href={url + item.sourceId + urlDetail} target="_blank">
+                  <span className="InlineBlock Hand colorPrimary">
+                    <a href={pathCompletion(url + item.sourceId + urlDetail)} target="_blank">
                       {_l('查看%0', typeName)}
                     </a>
                   </span>

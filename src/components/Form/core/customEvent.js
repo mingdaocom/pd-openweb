@@ -13,9 +13,9 @@ import {
   SPLICE_TYPE_ENUM,
   VOICE_FILE_LIST,
 } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { getDefaultCount } from 'src/utils/control';
-import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
+import { isSheetDisplay } from 'src/utils/controlCommon';
 import { FORM_ERROR_TYPE } from './config.js';
 import {
   calcDefaultValueFunction,
@@ -115,6 +115,11 @@ const canSearchMore = currentControl => {
   return !_.includes([29, 34], currentControl.type) || (currentControl.type === 29 && currentControl.enumDefault === 1);
 };
 
+// 多条关联卡片需要一次取回匹配记录，否则 count>1 时只会拿到第一页的 1 条用于赋值。
+const isMultipleRelateCard = control => {
+  return control.type === 29 && control.enumDefault === 2 && String(_.get(control, 'advancedSetting.showtype')) === '1';
+};
+
 // 获取查询工作表数据
 const getSearchWorksheetData = async props => {
   const { formData, recordId, queryConfig = {}, control, appId } = props;
@@ -142,7 +147,10 @@ const getSearchWorksheetData = async props => {
       status: 1,
       getType: 7,
       worksheetId: sourceId,
-      pageSize: isSheetDisplay(currentControl) || currentControl.type === 34 ? queryCount : 1,
+      pageSize:
+        isSheetDisplay(currentControl) || currentControl.type === 34 || isMultipleRelateCard(currentControl)
+          ? queryCount
+          : 1,
       id,
       getAllControls: true,
       sortControls: moreSort,
@@ -507,7 +515,7 @@ const handleSearchApi = async props => {
       hint: _l('信用点不足，请联系管理员充值'),
       explainText: <div></div>,
       onOk: () => {
-        location.href = `/admin/valueaddservice/${projectId}`;
+        location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
       },
     });
     return;

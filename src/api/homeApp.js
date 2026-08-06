@@ -724,6 +724,18 @@ export default {
     return mdyAPI('HomeApp', 'RecentApps', args, options);
   },
   /**
+   * 搜索我加入组织应用，最近访问应用优先展示。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {string} args.keywords 搜索关键字。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  searchMyApps: function (args, options = {}) {
+    return mdyAPI('HomeApp', 'SearchMyApps', args, options);
+  },
+  /**
    * 获取工作台ids（测试用）
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数

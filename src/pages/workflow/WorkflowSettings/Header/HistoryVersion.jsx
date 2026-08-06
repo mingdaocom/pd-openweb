@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, MenuItem, ScrollView, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import process from '../../api/process';
+import { pathCompletion } from 'src/utils/common';
 
 const HistoryBox = styled.span`
   border-bottom: 1px dashed var(--color-text-secondary);
@@ -101,7 +102,9 @@ const MenuBox = styled.div`
 `;
 
 const openPublishVersion = (id, isIntegration, isPlugin) => {
-  location.href = isIntegration ? `/integrationApi/${id}` : isPlugin ? `/workflowplugin/${id}` : `/workflowedit/${id}`;
+  location.href = pathCompletion(
+    isIntegration ? `/integrationApi/${id}` : isPlugin ? `/workflowplugin/${id}` : `/workflowedit/${id}`,
+  );
 };
 
 export const restoreVision = ({ id, date, index, versionName, currentFlowId, isIntegration, isPlugin }) => {
@@ -211,7 +214,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
           <div className="Font12 mTop5">
             {item.publishVersion && item.active && (
               <Fragment>
-                <span className="ThemeColor3">{_l('组织使用中')}</span>
+                <span className="colorPrimary">{_l('组织使用中')}</span>
                 <span className="mLeft5 mRight5">|</span>
               </Fragment>
             )}
@@ -250,7 +253,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
           >
             <Icon
               icon="more_horiz"
-              className={cx('Font16 textSecondary ThemeHoverColor3 pointer', { active: item.id === selectId })}
+              className={cx('Font16 textSecondary hoverColorPrimary pointer', { active: item.id === selectId })}
             />
           </Trigger>
         </div>
@@ -268,8 +271,8 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
         <div onClick={() => setVisible(true)}>{customBtn()}</div>
       ) : (
         <Tooltip title={_l('查看历史版本')}>
-          <HistoryBox className="ThemeHoverColor3 ThemeHoverBorderColor3" onClick={() => setVisible(true)}>
-            {_l('版本')}
+          <HistoryBox className="hoverColorPrimary hoverBorderColorPrimary" onClick={() => setVisible(true)}>
+            {_l('版本%26016')}
           </HistoryBox>
         </Tooltip>
       )}
@@ -277,10 +280,10 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       {visible && (
         <HistoryListBox className={cx('flexColumn', wrapClassName)}>
           <header className="Font16 bold flexRow alignItemsCenter mBottom12">
-            <div className="flex">{_l('版本')}</div>
+            <div className="flex">{_l('版本%26016')}</div>
             <Icon
               icon="delete"
-              className="textSecondary ThemeHoverColor3 pointer Font20"
+              className="textSecondary hoverColorPrimary pointer Font20"
               onClick={() => setVisible(false)}
             />
           </header>

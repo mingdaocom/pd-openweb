@@ -32,6 +32,12 @@ const HeaderComp = styled.div`
   }
 `;
 
+const removePromptCancelAddRecordDialog = () => {
+  if ($('.promptCancelAddRecord')) {
+    $('.promptCancelAddRecord').parent().remove();
+  }
+};
+
 function NewRecord(props) {
   const {
     visible,
@@ -127,12 +133,6 @@ function NewRecord(props) {
       autoFill,
       rowStatus: 21,
     });
-  };
-
-  const removePromptCancelAddRecordDialog = () => {
-    if ($('.promptCancelAddRecord')) {
-      $('.promptCancelAddRecord').parent().remove();
-    }
   };
 
   const content = abnormal ? (
@@ -348,6 +348,7 @@ function NewRecord(props) {
 
       if (cache.current.formChanged && !promptCancelAddRecord && allowDraft) {
         Dialog.confirm({
+          width: 520,
           dialogClasses: 'promptCancelAddRecord',
           title: <span>{_l('是否将本次已填写内容保存为草稿？')}</span>,
           footer: (

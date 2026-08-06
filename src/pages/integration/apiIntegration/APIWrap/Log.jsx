@@ -13,6 +13,7 @@ import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import Search from 'src/pages/workflow/components/Search/index.jsx';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
 import LogDialog from '../../components/LogDialog';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   background: var(--color-background-primary);
@@ -247,14 +248,14 @@ export default function Log(props) {
         // 来源有工作表和工作流，需要同时显示应用名称。显示为链接 ，点击可以跳转到对应的工作表和工作流；
         return (
           <div className="Bold WordBreak fromTxt">
-            <a target="_blank" className="" href={`/app/${record.apkId}`}>
+            <a target="_blank" className="" href={pathCompletion(`/app/${record.apkId}`)}>
               {record.apkName}
             </a>
             {record.primaryName && record.apkName && `-`}
             <a
               target="_blank"
               className=""
-              href={`/${record.type === 1 ? 'worksheet' : 'workflowedit'}/${record.primaryId}`}
+              href={pathCompletion(`/${record.type === 1 ? 'worksheet' : 'workflowedit'}/${record.primaryId}`)}
             >
               {record.primaryName}
             </a>
@@ -338,7 +339,7 @@ export default function Log(props) {
         return (
           <div className="optionCon">
             <span
-              className="ThemeColor3 Hand overflow_ellipsis WordBreak"
+              className="colorPrimary Hand overflow_ellipsis WordBreak"
               onClick={() => {
                 setState({
                   id: record.id,
@@ -502,11 +503,11 @@ export default function Log(props) {
               onClick={e => {
                 selectUsers(e);
               }}
-              className="textDisabled Font18 ThemeHoverColor3 mLeft3 add Absolute"
+              className="textDisabled Font18 hoverColorPrimary mLeft3 add Absolute"
             />
             <Icon
               icon="cancel"
-              className="textDisabled Font18 ThemeHoverColor3 mLeft3 closeIcon Absolute"
+              className="textDisabled Font18 hoverColorPrimary mLeft3 closeIcon Absolute"
               onClick={() => {
                 setState({ user: {}, loading: false, isAll: false });
               }}

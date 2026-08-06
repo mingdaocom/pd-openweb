@@ -1,11 +1,9 @@
 ﻿import { Parser } from 'hot-formula-parser';
 import _ from 'lodash';
 import moment from 'moment';
-import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
+import { telIsValidNumber } from 'ming-ui/components/PhoneNumberInput/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
@@ -20,6 +18,7 @@ import {
   toFixed,
 } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
+import { getShowFormat, isSheetDisplay } from 'src/utils/controlCommon';
 import { dateConvertToServerZone, dateServerZoneToAppZone, getContactInfo } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, TIME_UNIT } from '../config';
@@ -38,7 +37,6 @@ import {
   isRelateMoreList,
   replaceStr,
   validateIdCardBirthDate,
-  validateIdCardCheckCode,
 } from './helper';
 
 export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
@@ -228,8 +226,8 @@ export const getCurrentValue = (item, data, control) => {
 };
 
 /**
- * 严格验证大陆身份证号码
- * 包含地址码、出生日期、顺序码和校验码的完整验证
+ * 基本验证大陆身份证号码
+ * 验证地址码、出生日期和号码格式，兼容校验码不符合规则的历史真实证件
  */
 const validateMainlandIdCard = idCard => {
   const result = Reg.idCardNumber.test(idCard);
@@ -243,11 +241,6 @@ const validateMainlandIdCard = idCard => {
     return false;
   }
 
-  // 验证校验码（第18位）
-  if (!validateIdCardCheckCode(idCard)) {
-    return false;
-  }
-
   return true;
 };
 
@@ -256,9 +249,9 @@ const Reg = {
   telPhoneNumber: /^[+]?([\d\s()-]+)$/,
   // 邮箱地址
   emailAddress: /^[\w-+&]+(\.[\w-+&]+)*@[\w-+]+(\.[\w-+]+)*\.[\w-+]+$/i,
-  // 身份证号码
+  // 身份证号码，末四位不能为 0000
   idCardNumber:
-    /^(?!\d{14}0000$)(?:11|12|13|14|15|21|22|23|31|32|33|34|35|36|37|41|42|43|44|45|46|50|51|52|53|54|61|62|63|64|65|71|81|82|91)\d{4}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+    /^(?!\d{14}0000$)(?:11|12|13|14|15|21|22|23|31|32|33|34|35|36|37|41|42|43|44|45|46|50|51|52|53|54|61|62|63|64|65|71|81|82|83|91)\d{4}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
   hkCardNumber: /^[A-Z]{1}(\d{6})(\(\d\)|\d)?$/,
   moCardNumber: /^[A-Z]{1}\d{6}([A-Z]|\d)?$/,
   twCardNumber: /^[A-Z][1-2]\d{8}$/,
@@ -653,9 +646,11 @@ export const parseNewFormula = (data, currentItem = {}) => {
 
     if (_.includes([9, 10, 11], column.type)) {
       const optionValue = getControlValue(data, { type: 31 }, controlId);
+
       if (optionValue === '' && nullzero !== '1') {
         columnIsUndefined = true;
       }
+
       return nullzero === '1' && optionValue === '' ? 0 : optionValue;
     }
 
@@ -1066,6 +1061,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       if (item.type === 7) {
         // 证件号不允许首尾空格，使用原始值校验，避免去空格后误判通过
         const credValue = (item.value || '').toString();
+
         if (!value) {
           errorType = '';
         } else if (item.enumDefault === 1 && !Validator.isIdCardNumber(credValue)) {
@@ -1124,19 +1120,13 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
                 ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
                 : '';
 
-              if (
-                (minDate && mAppTime < moment(minDate)) ||
-                (maxDate && mAppTime > moment(maxDate))
-              ) {
+              if ((minDate && mAppTime < moment(minDate)) || (maxDate && mAppTime > moment(maxDate))) {
                 errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
                 errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(appTimeZoneValue, minDate, maxDate);
               }
             }
 
-            if (
-              allowweek.indexOf(mAppTime.day() === 0 ? '7' : mAppTime.day()) === -1 &&
-              !errorType
-            ) {
+            if (allowweek.indexOf(mAppTime.day() === 0 ? '7' : mAppTime.day()) === -1 && !errorType) {
               errorType = FORM_ERROR_TYPE.DATE;
             }
 

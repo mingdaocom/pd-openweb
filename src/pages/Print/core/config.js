@@ -1,3 +1,5 @@
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+
 export const fromType = {
   PRINT: 'print', // 打印
   FORM_SET: 'formSet', // 设置
@@ -82,6 +84,9 @@ export const SYST_PRINT_TXT = {
 };
 
 export const UN_PRINT_CONTROL = [43]; //不支持打印的type 文本识别 43
+
+// 打印不支持的系统字段
+export const FILTER_SYS = ALL_SYS.filter(o => !['ownerid', 'caid', 'ctime', 'utime'].includes(o));
 
 export const APPROVAL_SYS = [
   {
@@ -187,6 +192,37 @@ export const POSITION_OPTION = [
     value: '0',
   },
 ];
+
+export const DEFAULT_PRINT_PAPER_SIZE = 'A4';
+export const DEFAULT_PRINT_PAPER_DIRECTION = 'vertical';
+
+export const PAPER_SIZE_OPTIONS = [
+  { value: 'A3', width: 297, height: 420 },
+  { value: 'A4', width: 210, height: 297 },
+  { value: 'A5', width: 148, height: 210 },
+  { value: 'B3', width: 353, height: 500 },
+  { value: 'B4', width: 250, height: 353 },
+  { value: 'B5', width: 176, height: 250 },
+].map(item => ({
+  ...item,
+  text: `${item.value} ( ${item.width} x ${item.height} mm )`,
+}));
+
+export const PAPER_DIRECTION_OPTIONS = [
+  {
+    label: _l('纵向'),
+    value: DEFAULT_PRINT_PAPER_DIRECTION,
+    icon: 'vertical1',
+  },
+  {
+    label: _l('横向'),
+    value: 'horizontal',
+    icon: 'horizontal2',
+  },
+];
+
+export const BASE_PRINT_PAGE_WIDTH = 720;
+export const BASE_PRINT_CONTENT_WIDTH = 728;
 
 export const PRINT_FILE_OPTIONS = [
   {

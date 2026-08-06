@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { bool, func, number, oneOfType, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 
@@ -170,6 +169,19 @@ const ScaleBox = styled.div`
       }
     }
   }
+  &.singleOption {
+    .scaleContent {
+      width: 100%;
+      .contentItem {
+        transform: none;
+        text-align: left;
+        .scaleText {
+          width: 100%;
+          text-align: left;
+        }
+      }
+    }
+  }
 `;
 const PortraitScaleBox = styled.div`
   display: flex;
@@ -254,6 +266,8 @@ export default function Steps(props) {
   const barRef = useRef();
   const selectedOption = _.find(options, i => i.key === value);
   const filterOptions = options.filter(i => !i.isDeleted && (i.key === value || !i.hide));
+  const isSingleOption = filterOptions.length === 1;
+  const scaleTotal = isSingleOption ? 100 : (100 / (filterOptions.length - 1)) * filterOptions.length;
 
   const getCurrent = value => {
     return _.findIndex(filterOptions, i => i.key === value);
@@ -267,8 +281,8 @@ export default function Steps(props) {
   }, [value]);
 
   useEffect(() => {
-    setWidth(currentValue >= 0 ? (currentValue / (filterOptions.length - 1)) * 100 : 0);
-  }, [currentValue]);
+    setWidth(currentValue >= 0 && filterOptions.length > 1 ? (currentValue / (filterOptions.length - 1)) * 100 : 0);
+  }, [currentValue, filterOptions.length]);
 
   const currentColor =
     enumDefault2 === 1
@@ -303,7 +317,7 @@ export default function Steps(props) {
             )}
           </PortraitBar>
           <PortraitScaleBox
-            total={(100 / (filterOptions.length - 1)) * filterOptions.length}
+            total={scaleTotal}
             disabled={disabled}
             onClick={e => {
               if (disabled) return;
@@ -425,7 +439,8 @@ export default function Steps(props) {
           )}
         </Bar>
         <ScaleBox
-          total={(100 / (filterOptions.length - 1)) * filterOptions.length}
+          className={isSingleOption ? 'singleOption' : undefined}
+          total={scaleTotal}
           disabled={disabled}
           isMobile={isMobile}
           onClick={e => {

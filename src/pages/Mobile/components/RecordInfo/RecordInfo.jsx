@@ -26,6 +26,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getTranslateInfo } from 'src/utils/app';
 import { emitter } from 'src/utils/common';
 import { getRowGetType, KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
@@ -37,12 +38,7 @@ import { Abnormal, Loading } from './RecordState';
 import './RecordInfo.less';
 
 const imgAndVideoReg = /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4|gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i;
-
-@connect(
-  state => ({ ..._.pick(state.mobile, ['relationRow']) }),
-  dispatch => bindActionCreators({ ..._.pick(actions, ['updateRelationRows', 'updateActionParams']) }, dispatch),
-)
-export default class RecordInfo extends Component {
+let RecordInfo = class RecordInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -61,9 +57,12 @@ export default class RecordInfo extends Component {
       recordId: props.recordId,
       currentTab: {},
       restoreVisible: false,
-      payConfig: {}, // 支付相关
-      currentRecordIndex: 0, //  当前记录在列表中第几条
-      isRecordLock: false, // 记录是否锁定
+      payConfig: {},
+      // 支付相关
+      currentRecordIndex: 0,
+      //  当前记录在列表中第几条
+      isRecordLock: false,
+      // 记录是否锁定
       editLockedUser: null,
       landPageWorksheetInfo: {},
     };
@@ -73,8 +72,10 @@ export default class RecordInfo extends Component {
     this.confirmHandler = null;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
     this.draftType = 'save'; // save: 保存  submit: 提交,
+
     this.chatCountRef = createRef();
   }
+
   get isPublicShare() {
     return (
       _.get(window, 'shareState.isPublicRecord') ||
@@ -97,14 +98,22 @@ export default class RecordInfo extends Component {
   }
 
   customwidget = React.createRef();
+
   componentDidMount() {
     emitter.addListener('MOBILE_RELOAD_RECORD_INFO', this.debounceRefresh);
     this.loadRecord();
     this.getPayConfig();
+
     if (this.props.isLandPage) {
-      worksheetApi.getWorksheetInfo({ worksheetId: this.props.worksheetId }).then(res => {
-        this.setState({ landPageWorksheetInfo: res });
-      });
+      worksheetApi
+        .getWorksheetInfo({
+          worksheetId: this.props.worksheetId,
+        })
+        .then(res => {
+          this.setState({
+            landPageWorksheetInfo: res,
+          });
+        });
     }
   }
 
@@ -125,10 +134,7 @@ export default class RecordInfo extends Component {
         currentTab,
       );
       this.setState({
-        currentTab: {
-          ...currentTab,
-          value: !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
-        },
+        currentTab: { ...currentTab, value: !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value },
       });
     } else if (this.ignoreUpdateRelationCount && !_.isEqual(relationRow, prevProps.relationRow)) {
       this.ignoreUpdateRelationCount = false;
@@ -137,13 +143,13 @@ export default class RecordInfo extends Component {
 
   componentWillUnmount() {
     this.recordEditLock?.destroy();
+    emitter.removeListener('MOBILE_RELOAD_RECORD_INFO', this.debounceRefresh);
   }
 
   getIsEditLockOpen = recordInfo => {
     const { from } = this.props;
     const featureType = getFeatureStatus(recordInfo.projectId, VersionProductType.editProtect);
     const rowEditLock = safeParse(_.get(recordInfo, 'advancedSetting.roweditlock')) || {};
-
     return (
       featureType === '1' &&
       from !== RECORD_INFO_FROM.DRAFT &&
@@ -152,14 +158,12 @@ export default class RecordInfo extends Component {
       rowEditLock.isopen === '1'
     );
   };
-
   refreshEvent = ({ worksheetId, recordId }) => {
     if (worksheetId === this.props.worksheetId && recordId === this.props.recordId) {
       this.refreshRecord();
     }
-  };
+  }; // 获取支付信息
 
-  // 获取支付信息
   getPayConfig = () => {
     const { worksheetId, viewId, enablePayment, from } = this.props;
     const { recordId } = this.state;
@@ -172,10 +176,12 @@ export default class RecordInfo extends Component {
         isOtherPayment: location.search.includes('payshare=true'),
       })
       .then(res => {
-        this.setState({ payConfig: res, random: Date.now() });
+        this.setState({
+          payConfig: res,
+          random: Date.now(),
+        });
       });
   };
-
   loadRecord = async ({ needReLoadSheetSwitch = true } = {}, cb = _.noop) => {
     const {
       from,
@@ -204,7 +210,11 @@ export default class RecordInfo extends Component {
         instanceId,
         workId,
         recordId,
-        getType: !isRelateRecord && getRowGetType(from, { discussId: !!this.discussId }),
+        getType:
+          !isRelateRecord &&
+          getRowGetType(from, {
+            discussId: !!this.discussId,
+          }),
         getRules: true,
         controls,
         relationWorksheetId,
@@ -212,12 +222,13 @@ export default class RecordInfo extends Component {
       });
 
       if (needReLoadSheetSwitch) {
-        switchPermit = await worksheetApi.getSwitchPermit({ worksheetId });
+        switchPermit = await worksheetApi.getSwitchPermit({
+          worksheetId,
+        });
       }
 
-      data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
+      data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName; // 设置隐藏字段的 hidden 属性
 
-      // 设置隐藏字段的 hidden 属性
       data.formData = replaceControlsTranslateInfo(appId, worksheetId, data.formData)
         .filter(c => c.controlId !== 'daid')
         .map(c => {
@@ -233,9 +244,8 @@ export default class RecordInfo extends Component {
             ...c,
             hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
           };
-        });
+        }); // 封面配置
 
-      // 封面配置
       const { coverid } = data.advancedSetting;
       const formStyleControl = _.find(data.formData, i => i.controlId === coverid) || {};
       const recordInfo = {
@@ -263,7 +273,10 @@ export default class RecordInfo extends Component {
           worksheetId,
           recordId,
           rowEditLock: safeParse(_.get(recordInfo, 'advancedSetting.roweditlock')) || {},
-          updateLockedUser: userInfo => this.setState({ editLockedUser: userInfo }),
+          updateLockedUser: userInfo =>
+            this.setState({
+              editLockedUser: userInfo,
+            }),
           onLockCallBack: () => this.handleCancelSave(),
           onRefreshRecord: () => this.handleCancelSave(this.refreshRecord),
         });
@@ -296,6 +309,7 @@ export default class RecordInfo extends Component {
         (...args) => {
           cb(...args);
           this.getPortalConfigSet();
+
           if (_.isFunction(this.props.updateRow) && !data.isViewData && _.isFunction(this.props.onClose)) {
             const rowData = safeParse(data.rowData);
             this.props.updateRow({
@@ -335,7 +349,6 @@ export default class RecordInfo extends Component {
       });
     }
   };
-
   updateRecordLock = () => {
     const { recordInfo } = this.state;
 
@@ -347,7 +360,10 @@ export default class RecordInfo extends Component {
         },
         (err, resdata) => {
           if (resdata) {
-            this.setState({ isRecordLock: resdata.sys_lock });
+            this.setState({
+              isRecordLock: resdata.sys_lock,
+            });
+
             const entityName = recordInfo.entityName || _l('记录');
 
             if (resdata.sys_lock) {
@@ -360,13 +376,13 @@ export default class RecordInfo extends Component {
       );
     }
   };
-
   refreshRecord = () => {
     if (this.state.isEditRecord || this.state.refreshBtnNeedLoading) {
       return;
     }
 
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+
     this.setState({ refreshBtnNeedLoading: true }, () => {
       addBehaviorLog('worksheetRecord', this.props.worksheetId, { rowId: this.state.recordBase?.recordId }); // 埋点
       this.loadRecord(
@@ -399,6 +415,7 @@ export default class RecordInfo extends Component {
     let portalConfigSet = {};
     const { id: windowAppId, portalConfig = {} } = window?.appInfo || {};
     const isSameApp = appId === windowAppId;
+
     const isPublic =
       this.isPublicShare ||
       _.get(window, 'shareState.isPublicForm') ||
@@ -413,7 +430,9 @@ export default class RecordInfo extends Component {
       if (appId && (showDiscuss || showApprove)) {
         // 非同一个应用且讨论或审批没有关闭 去获取外部门户讨论设置
         try {
-          portalConfigSet = await externalPortalApi.getConfig({ appId });
+          portalConfigSet = await externalPortalApi.getConfig({
+            appId,
+          });
         } catch (e) {
           console.log(e);
         }
@@ -432,19 +451,25 @@ export default class RecordInfo extends Component {
       return;
     }
 
-    this.setState({ formChanged: true });
+    this.setState({
+      formChanged: true,
+    });
     const { viewId, recordId } = recordBase;
 
     if (viewId) {
-      const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
+      const tempRecordValue = getRecordTempValue(data, undefined, {
+        updateControlIds: ids,
+      });
       saveTempRecordValueToLocal(
         'recordInfo',
         viewId + '-' + recordId,
-        JSON.stringify({ create_at: Date.now(), value: tempRecordValue }),
+        JSON.stringify({
+          create_at: Date.now(),
+          value: tempRecordValue,
+        }),
       );
     }
   };
-
   loadTempValue = updateTime => {
     const { recordBase, tempFormData, formChanged } = this.state;
     const { recordId, viewId } = recordBase;
@@ -455,7 +480,9 @@ export default class RecordInfo extends Component {
       if (tempData && !formChanged) {
         const savedData = safeParse(tempData);
         if (_.isEmpty(savedData)) return;
-        this.setState({ isSettingTempData: true });
+        this.setState({
+          isSettingTempData: true,
+        });
         const { create_at, value } = savedData;
         const tempRecordCreateTime = new Date(create_at);
         const recordUpdateTime = new Date(updateTime);
@@ -485,7 +512,9 @@ export default class RecordInfo extends Component {
               ),
             )
           ) {
-            this.setState({ isSettingTempData: false });
+            this.setState({
+              isSettingTempData: false,
+            });
             return;
           }
 
@@ -511,12 +540,16 @@ export default class RecordInfo extends Component {
             () => {},
           );
           setTimeout(() => {
-            this.customwidget.current.dataFormat.controlIds = tempFormData
-              .filter(c => value[c.controlId] && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34))
-              .map(c => c.controlId);
+            if (this.customwidget.current && this.customwidget.current.dataFormat) {
+              this.customwidget.current.dataFormat.controlIds = tempFormData
+                .filter(c => value[c.controlId] && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34))
+                .map(c => c.controlId);
+            }
           }, 300);
         } else {
-          this.setState({ isSettingTempData: false });
+          this.setState({
+            isSettingTempData: false,
+          });
         }
       }
     };
@@ -544,12 +577,21 @@ export default class RecordInfo extends Component {
       return;
     }
 
-    this.submitOptions = { callback, noSave, ignoreError };
-    this.setState({ submitLoading: true });
-    this.customwidget.current.submitFormData({ ignoreAlert, silent, ignoreDialog });
-  };
+    this.submitOptions = {
+      callback,
+      noSave,
+      ignoreError,
+    };
+    this.setState({
+      submitLoading: true,
+    });
+    this.customwidget.current.submitFormData({
+      ignoreAlert,
+      silent,
+      ignoreDialog,
+    });
+  }; // 保存记录后终止子表内请求
 
-  // 保存记录后终止子表内请求
   abortChildTable = () => {
     Object.keys(this.cellObjs).forEach(key => {
       if (_.get(this, `cellObjs.${key}.cell.updateAbortController`)) {
@@ -557,13 +599,10 @@ export default class RecordInfo extends Component {
       }
     });
   };
-
   handleCancelSave = (cb = () => {}) => {
     const { updateEditStatus = () => {} } = this.props;
     const { recordBase } = this.state;
-
     this.recordEditLock?.cancelEditLock();
-
     this.confirmHandler && this.confirmHandler.close();
     removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
     updateEditStatus(false);
@@ -596,7 +635,9 @@ export default class RecordInfo extends Component {
       submitLoading: true,
     });
     const isDraftSave = draftType === 'save';
-    this.submitOptions = { ignoreError: isDraftSave };
+    this.submitOptions = {
+      ignoreError: isDraftSave,
+    };
     this.customwidget.current.submitFormData({
       ignoreAlert: isDraftSave,
       ignoreError: isDraftSave,
@@ -616,8 +657,12 @@ export default class RecordInfo extends Component {
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
 
     if (error && !ignoreError) {
-      callback({ error: true });
-      this.setState({ submitLoading: false });
+      callback({
+        error: true,
+      });
+      this.setState({
+        submitLoading: false,
+      });
       return;
     }
 
@@ -625,13 +670,19 @@ export default class RecordInfo extends Component {
 
     if (hasError && !ignoreError) {
       alert(_l('请正确填写%0', recordInfo.entityName), 3);
-      callback({ error: true });
-      this.setState({ submitLoading: false });
+      callback({
+        error: true,
+      });
+      this.setState({
+        submitLoading: false,
+      });
       return;
     }
 
     if (noSave) {
-      this.setState({ submitLoading: false });
+      this.setState({
+        submitLoading: false,
+      });
       callback();
       return;
     }
@@ -657,7 +708,9 @@ export default class RecordInfo extends Component {
             }
           },
           onSubmitEnd: () => {
-            this.setState({ submitLoading: false });
+            this.setState({
+              submitLoading: false,
+            });
             onClose();
           },
           onSubmitSuccess: rowData => {
@@ -666,10 +719,11 @@ export default class RecordInfo extends Component {
               updateDraftList(recordBase.recordId);
             } else if (location.pathname.includes('mobile/record')) {
               // 新开页提交成功后刷新成正常记录
-              location.href = `${location.origin}/mobile/record/${recordBase.appId}/${recordBase.worksheetId}/${rowData.rowid}`;
-            }
+              location.href = pathCompletion(
+                `/mobile/record/${recordBase.appId}/${recordBase.worksheetId}/${rowData.rowid}`,
+              );
+            } // 更新记录列表
 
-            // 更新记录列表
             if (_.isFunction(addNewRecord)) {
               addNewRecord(rowData);
             }
@@ -681,8 +735,11 @@ export default class RecordInfo extends Component {
               submitLoading: false,
             });
           }, 600);
+
           if (err) {
-            callback({ error: err });
+            callback({
+              error: err,
+            });
           }
         },
       );
@@ -695,7 +752,12 @@ export default class RecordInfo extends Component {
         worksheetId: recordBase.worksheetId,
         viewId: recordBase.viewId,
         recordId: recordBase.recordId,
-        getType: isDraft || isRelateRecord ? undefined : getRowGetType(from, { discussId: !!this.discussId }),
+        getType:
+          isDraft || isRelateRecord
+            ? undefined
+            : getRowGetType(from, {
+                discussId: !!this.discussId,
+              }),
         projectId: recordInfo.projectId,
         instanceId,
         workId,
@@ -715,30 +777,47 @@ export default class RecordInfo extends Component {
         },
       },
       (err, resdata, logId) => {
-        this.setState({ submitLoading: false });
+        this.setState({
+          submitLoading: false,
+        });
+
         if (!err) {
-          const formData = tempFormData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
+          const formData = tempFormData.map(c =>
+            _.assign({}, c, {
+              value: resdata[c.controlId],
+            }),
+          );
           updateRow({
             recordId: recordBase.recordId,
             rowData: _.omit(resdata, ['allowedit', 'allowdelete']),
             isViewData: resdata.isviewdata,
           });
           updateEditStatus(false);
-          updateRelateRecord && updateRelateRecord(formData);
-          // 更新草稿列表
+          updateRelateRecord && updateRelateRecord(formData); // 更新草稿列表
+
           if (_.isFunction(updateDraftList)) {
-            updateDraftList(recordBase.recordId, Object.assign(recordInfo, { formData }));
+            updateDraftList(
+              recordBase.recordId,
+              Object.assign(recordInfo, {
+                formData,
+              }),
+            );
           }
 
           this.setState({
             isEditRecord: false,
             random: Date.now(),
-            recordInfo: Object.assign(recordInfo, { formData }),
+            recordInfo: Object.assign(recordInfo, {
+              formData,
+            }),
             tempFormData: formData,
           });
           this.recordEditLock?.cancelEditLock();
+
           if (_.isFunction(callback)) {
-            callback({ logId });
+            callback({
+              logId,
+            });
           }
 
           if (!workflow) {
@@ -747,6 +826,7 @@ export default class RecordInfo extends Component {
           }
 
           this.refreshSubList(data, updateControlIds);
+
           if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
             this.refreshEvents.loadCustomBtns();
           }
@@ -755,7 +835,9 @@ export default class RecordInfo extends Component {
             onClose();
           }
         } else {
-          callback({ error: err });
+          callback({
+            error: err,
+          });
         }
       },
     );
@@ -765,10 +847,13 @@ export default class RecordInfo extends Component {
       .filter(c => _.find(updateControlIds, id => c.controlId === id))
       .forEach(c => {
         if (_.isFunction(this.refreshEvents[c.controlId])) {
-          this.refreshEvents[c.controlId]({ noLoading: true });
+          this.refreshEvents[c.controlId]({
+            noLoading: true,
+          });
         }
       });
   };
+
   renderRecordBtns() {
     const {
       getDataType,
@@ -779,6 +864,7 @@ export default class RecordInfo extends Component {
       instanceId,
       workId,
       isLandPage,
+      appDetail,
     } = this.props;
     const {
       formChanged,
@@ -790,7 +876,6 @@ export default class RecordInfo extends Component {
       tempFormData,
       landPageWorksheetInfo,
     } = this.state;
-
     return (
       <RecordFooter
         isDraft={isDraft || from === RECORD_INFO_FROM.DRAFT}
@@ -804,6 +889,7 @@ export default class RecordInfo extends Component {
         instanceId={instanceId}
         formData={tempFormData}
         worksheetInfo={isLandPage ? landPageWorksheetInfo : worksheetInfo}
+        appDetail={appDetail}
         loadRecord={() => {
           this.loadRecord();
           this.getPayConfig();
@@ -857,7 +943,9 @@ export default class RecordInfo extends Component {
                       className="flex mLeft6 mRight6 Font13 bold flex ellipsis"
                       color="primary"
                       onClick={() => {
-                        this.handleTriggerSave({ draftType: 'submit' });
+                        this.handleTriggerSave({
+                          draftType: 'submit',
+                        });
                         actionHandler.close();
                       }}
                     >
@@ -868,7 +956,9 @@ export default class RecordInfo extends Component {
               ),
             });
           } else {
-            this.handleTriggerSave({ draftType: 'submit' });
+            this.handleTriggerSave({
+              draftType: 'submit',
+            });
           }
         }}
         onCancelSave={() => {
@@ -889,7 +979,15 @@ export default class RecordInfo extends Component {
                     <Button
                       className="flex mLeft6 bold flex ellipsis Font13"
                       color="primary"
-                      onClick={() => this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined)}
+                      onClick={() =>
+                        this.handleTriggerSave(
+                          getDataType === 21
+                            ? {
+                                draftType: 'save',
+                              }
+                            : undefined,
+                        )
+                      }
                     >
                       {_l('保存')}
                     </Button>
@@ -907,7 +1005,13 @@ export default class RecordInfo extends Component {
             return;
           }
 
-          this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined);
+          this.handleTriggerSave(
+            getDataType === 21
+              ? {
+                  draftType: 'save',
+                }
+              : undefined,
+          );
         }}
         onUpdate={(changedValue, record) => {
           let newValue = { ...changedValue };
@@ -926,12 +1030,15 @@ export default class RecordInfo extends Component {
               this.refreshEvents[key]();
             }
           });
-          this.setState({ tempFormData: newFormData });
+          this.setState({
+            tempFormData: newFormData,
+          });
         }}
         {...this.props}
       />
     );
   }
+
   renderFooter() {
     const { footer, isDraft } = this.props;
     const {
@@ -947,7 +1054,9 @@ export default class RecordInfo extends Component {
     if (_.isFunction(this.props.renderFooter)) {
       return (
         <div className="flexRow alignItemsCenter bgPrimary pAll10 footer">
-          {this.props.renderFooter({ onSubmit: this.handleSubmit })}
+          {this.props.renderFooter({
+            onSubmit: this.handleSubmit,
+          })}
         </div>
       );
     }
@@ -955,7 +1064,10 @@ export default class RecordInfo extends Component {
     if (footer && !recordBase.viewId) {
       return React.cloneElement(footer, {
         onSubmit: this.handleSubmit,
-        handleClickFlow: () => this.setState({ random: Date.now() }),
+        handleClickFlow: () =>
+          this.setState({
+            random: Date.now(),
+          }),
       });
     }
 
@@ -978,6 +1090,7 @@ export default class RecordInfo extends Component {
 
     return this.renderRecordBtns();
   }
+
   renderChatCount() {
     const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo, tempFormData } = this.state;
     const {
@@ -992,7 +1105,6 @@ export default class RecordInfo extends Component {
     const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { appId, worksheetId, viewId, recordId } = recordBase;
     const { switchPermit } = recordInfo;
-
     const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId);
     const logVisible = isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId);
 
@@ -1046,26 +1158,30 @@ export default class RecordInfo extends Component {
   loadSwitchRecord = props => {
     const { currentSheetRows = [], loadNextPageRecords = () => {}, loadedRecordsOver } = props || this.props;
     const { recordId, loading, isNextRecord } = this.state;
-
     if (loading || _.isEmpty(currentSheetRows)) return;
 
     const index = _.findIndex(currentSheetRows, record => {
       return record && record.rowid === recordId;
     });
+
     const newIndex = isNextRecord ? index + 1 : index - 1;
 
     if (!currentSheetRows[newIndex]) {
       if (!loadedRecordsOver && currentSheetRows.length >= 20) {
         loadNextPageRecords();
       } else {
-        this.setState({ currentRecordIndex: index });
+        this.setState({
+          currentRecordIndex: index,
+        });
       }
 
       return;
     }
 
     const newRecordId = currentSheetRows[newIndex].rowid;
+
     addBehaviorLog('worksheetRecord', this.props.worksheetId, { rowId: newRecordId }); // 埋点
+
     this.setState(
       {
         recordId: newRecordId,
@@ -1080,7 +1196,6 @@ export default class RecordInfo extends Component {
       },
     );
   };
-
   handleDeleteSuccess = rowid => {
     const { isModal, onClose = () => {}, deleteRow, deleteCallback = () => {} } = this.props;
 
@@ -1091,16 +1206,15 @@ export default class RecordInfo extends Component {
       deleteCallback(rowid);
       onClose();
     } else {
-      window.history.back();
       this.loadRecord(); //兼容商家小票返回商家
     }
   };
-
   updateRecordOwner = newOwner => {
     const { recordInfo } = this.state;
-    this.setState({ recordInfo: { ...recordInfo, ownerAccount: newOwner } });
+    this.setState({
+      recordInfo: { ...recordInfo, ownerAccount: newOwner },
+    });
   };
-
   renderSwitchRecord = () => {
     const { getDataType, isSubList, currentSheetRows = [], loadedRecordsOver } = this.props;
     const { isEditRecord, currentTab, currentRecordIndex } = this.state;
@@ -1113,17 +1227,22 @@ export default class RecordInfo extends Component {
       _.includes([29, 51], currentTab.type)
     )
       return null;
-
     const needLoad = !loadedRecordsOver && currentSheetRows.length >= 20;
     const hidePre = (!needLoad && !currentSheetRows[currentRecordIndex - 1]) || currentRecordIndex === 0;
     const hideNext = !needLoad && !currentSheetRows[currentRecordIndex + 1];
-
     return (
       <Fragment>
         {!hidePre && (
           <div
             className="switchRecordEntryWrap"
-            onClick={() => this.setState({ isNextRecord: false }, this.loadSwitchRecord)}
+            onClick={() =>
+              this.setState(
+                {
+                  isNextRecord: false,
+                },
+                this.loadSwitchRecord,
+              )
+            }
           >
             <i className="icon icon-arrow-up-border Font20 LineHeight40" />
           </div>
@@ -1131,7 +1250,14 @@ export default class RecordInfo extends Component {
         {!hideNext && (
           <div
             className="switchRecordEntryWrap mLeft10"
-            onClick={() => this.setState({ isNextRecord: true }, this.loadSwitchRecord)}
+            onClick={() =>
+              this.setState(
+                {
+                  isNextRecord: true,
+                },
+                this.loadSwitchRecord,
+              )
+            }
           >
             <i className="icon icon-arrow-down-border Font20 LineHeight42" />
           </div>
@@ -1139,6 +1265,7 @@ export default class RecordInfo extends Component {
       </Fragment>
     );
   };
+
   render() {
     const {
       recordId,
@@ -1187,7 +1314,9 @@ export default class RecordInfo extends Component {
         return renderAbnormal(recordInfo);
       } else {
         const { resultCode, entityName } = recordInfo;
+
         const name = entityName || _l('记录');
+
         const errorMsg = resultCode === 7 ? _l('无权限查看%0', name) : _l('%0已被删除或分享已关闭', name);
         return <Abnormal errorMsg={errorMsg} onClose={onClose} />;
       }
@@ -1198,7 +1327,13 @@ export default class RecordInfo extends Component {
     const hideStep =
       (recordInfo.switchPermit || []).find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
     return (
-      <Wrap {...(useWaterMark ? { projectId: recordInfo.projectId } : {})}>
+      <Wrap
+        {...(useWaterMark
+          ? {
+              projectId: recordInfo.projectId,
+            }
+          : {})}
+      >
         <div
           className={cx(
             'recordInfoForm mobileSheetRowRecord flexColumn h100',
@@ -1222,7 +1357,12 @@ export default class RecordInfo extends Component {
             refreshBtnNeedLoading={refreshBtnNeedLoading}
             recordBase={recordBase}
             editLockedUser={editLockedUser}
-            registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+            registerCell={({ item, cell }) =>
+              (this.cellObjs[item.controlId] = {
+                item,
+                cell,
+              })
+            }
             controlProps={{
               discussId: this.discussId,
               isCharge,
@@ -1231,6 +1371,7 @@ export default class RecordInfo extends Component {
               },
               refreshRecord: this.refreshRecord,
               updateRelationControls: (controlId, newControls) => {
+                if (!this.customwidget.current || !this.customwidget.current.dataFormat) return;
                 this.customwidget.current.dataFormat.data = this.customwidget.current.dataFormat.data.map(item => {
                   if (item.type === 34 && item.controlId === controlId) {
                     return { ...item, relationControls: newControls };
@@ -1246,12 +1387,18 @@ export default class RecordInfo extends Component {
                 isEdit: false,
                 selectedRecordIds: [],
               });
+
               if (isEditRecord) {
                 this.props.updateRelationRows([], 0);
               }
 
-              this.ignoreUpdateRelationCount = !isEditRecord;
-              this.setState({ currentTab: { id: tab.controlId, ...tab } });
+              this.ignoreUpdateRelationCount = !isEditRecord && currentTab.type === 29;
+              this.setState({
+                currentTab: {
+                  id: tab.controlId,
+                  ...tab,
+                },
+              });
             }}
             externalPortalConfig={externalPortalConfig}
             recordInfo={recordInfo}
@@ -1289,7 +1436,9 @@ export default class RecordInfo extends Component {
               onUpdate={() => {
                 if (!this.recordEditLock || this.recordEditLock?.checkAndLock()) {
                   removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
-                  this.setState({ restoreVisible: false });
+                  this.setState({
+                    restoreVisible: false,
+                  });
                 }
               }}
               onCancel={() => {
@@ -1306,4 +1455,9 @@ export default class RecordInfo extends Component {
       </Wrap>
     );
   }
-}
+};
+RecordInfo = connect(
+  state => ({ ..._.pick(state.mobile, ['relationRow']) }),
+  dispatch => bindActionCreators({ ..._.pick(actions, ['updateRelationRows', 'updateActionParams']) }, dispatch),
+)(RecordInfo);
+export default RecordInfo;

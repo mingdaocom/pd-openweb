@@ -105,7 +105,7 @@ export default function ReviewFreeMap(props) {
                   {o.controlName}
                 </span>
                 <span className="iconBox InlineBlock TxtBottom LineHeight36">
-                  <Icon className="Font18 ThemeColor3" type="arrow_forward" />
+                  <Icon className="Font18 colorPrimary" type="arrow_forward" />
                 </span>
                 <Dropdown
                   key={o.controlId + '_Dropdown_' + props.type}

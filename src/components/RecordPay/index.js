@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';

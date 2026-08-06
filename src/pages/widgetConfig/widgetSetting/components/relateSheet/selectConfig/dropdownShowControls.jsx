@@ -108,9 +108,15 @@ export default function DropdownShowControls(props) {
               <div className={cx('relateCoverSetting', { active: !!coverCid })}>
                 <span className="icon-picture mRight6"></span>
                 <span>
-                  {coverCid
-                    ? _l('封面：%0', filterControls.find(c => c.controlId === coverCid)?.controlName)
-                    : _l('设置封面')}
+                  {coverCid ? (
+                    filterControls.find(c => c.controlId === coverCid) ? (
+                      _l('封面：%0', filterControls.find(c => c.controlId === coverCid)?.controlName)
+                    ) : (
+                      <span className="Red">{_l('封面：已删除')}</span>
+                    )
+                  ) : (
+                    _l('设置封面')
+                  )}
                 </span>
               </div>
             </Trigger>

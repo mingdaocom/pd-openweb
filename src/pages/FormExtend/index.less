@@ -434,10 +434,13 @@
         border-radius: 5px;
         padding: 4px;
         .positionItem {
-          width: 45px;
+          min-width: 45px;
           height: 30px;
+          padding: 0 12px;
           line-height: 30px;
           text-align: center;
+          white-space: nowrap;
+          box-sizing: border-box;
           cursor: pointer;
           &.isActive {
             background: var(--color-background-primary);

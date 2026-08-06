@@ -3,6 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { Dialog, Dropdown, Support } from 'ming-ui';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
+import { pathCompletion } from 'src/utils/common';
 
 export default function EncryptSettingDialog(props) {
   const { data = {}, encryData = [], isDeleteRule, globalSheetInfo: { projectId } = {}, onCancel, onChange } = props;
@@ -24,7 +25,7 @@ export default function EncryptSettingDialog(props) {
       <Support
         type={3}
         text={_l('前往组织后台')}
-        href={`${location.origin}/admin/data/${projectId}/isShowEncryptRules`}
+        href={pathCompletion(`/admin/data/${projectId}/isShowEncryptRules`)}
       />
       {_l('进行配置')}
     </span>

@@ -3,6 +3,7 @@ import { Icon, ScrollView } from 'ming-ui';
 import settingGroup from 'src/pages/Group/settingGroup';
 import { closeGroup, openGroup } from '../api';
 import { config } from '../config';
+import { pathCompletion } from 'src/utils/common';
 
 export default class GroupDetail extends React.Component {
   constructor(props) {
@@ -87,7 +88,7 @@ export default class GroupDetail extends React.Component {
               <div className="Font18 clearfix">
                 {name}
                 <i
-                  className="Font16 textTertiary icon-settings TxtMiddle mLeft10 Hand ThemeHoverColor3"
+                  className="Font16 textTertiary icon-settings TxtMiddle mLeft10 Hand hoverColorPrimary"
                   onClick={this.openSettingDialog}
                 />
               </div>
@@ -98,7 +99,7 @@ export default class GroupDetail extends React.Component {
           <div className="detail-btns mTop24">
             <a
               href="javascript:void 0;"
-              className="detail-btn ThemeBGColor3 ThemeHoverBGColor2 NoUnderline"
+              className="detail-btn bgColorPrimary hoverBgColorPrimaryDark NoUnderline"
               onClick={() => {
                 config.callback({ groupId });
               }}
@@ -107,7 +108,7 @@ export default class GroupDetail extends React.Component {
               {_l('发消息')}
             </a>
             <a
-              href={'/feed?groupId=' + groupId}
+              href={pathCompletion('/feed?groupId=' + groupId)}
               target="_blank"
               className="detail-btn textSecondary mLeft10 NoUnderline"
             >
@@ -163,7 +164,7 @@ export default class GroupDetail extends React.Component {
           {isOpen === false ? _l('关闭') : _l('开启')}
           {isOpen === false ? (
             <span
-              className="ThemeHoverColor3 Right Hand"
+              className="hoverColorPrimary Right Hand"
               onClick={() => {
                 this.openGroup();
               }}

@@ -36,14 +36,22 @@ export default class Start extends Component {
     this.getNodeDetail();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  /**
+   * 获取节点详情
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -59,6 +67,10 @@ export default class Start extends Component {
         { isIntegration },
       )
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.appType === APP_TYPE.PBC && !flowInfo.child && !result.controls.length) {
           result.controls = [
             {
@@ -143,10 +155,6 @@ export default class Start extends Component {
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
-
-    if (saveRequest) {
-      return;
-    }
 
     if (!flowInfo.child) {
       if (!appId && (appType === APP_TYPE.SHEET || appType === APP_TYPE.DATE)) {
@@ -249,6 +257,10 @@ export default class Start extends Component {
       }
     }
 
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
+      return;
+    }
+
     flowNode
       .saveNode(
         {
@@ -340,7 +352,7 @@ export default class Start extends Component {
     return (
       <div className="addActionBtn mTop25">
         <span
-          className={isNatural ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
+          className={isNatural ? 'borderColorPrimary' : 'textDisabled borderTertiary'}
           onClick={() => isNatural && this.updateSource({ operateCondition: [[{}]] })}
         >
           <i className="icon-add Font16" />
@@ -477,24 +489,25 @@ export default class Start extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            flowInfo.child ||
-            (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.EVENT_PUSH], data.appType) && data.appId) ||
-            (data.appType === APP_TYPE.WEBHOOK && data.controls.length) ||
-            _.includes(
-              [
-                APP_TYPE.LOOP,
-                APP_TYPE.USER,
-                APP_TYPE.DEPARTMENT,
-                APP_TYPE.CUSTOM_ACTION,
-                APP_TYPE.EXTERNAL_USER,
-                APP_TYPE.PBC,
-                APP_TYPE.PARAMETER,
-                APP_TYPE.APPROVAL_START,
-                APP_TYPE.LOOP_PROCESS,
-                APP_TYPE.CHATBOT,
-              ],
-              data.appType,
-            )
+            (flowInfo.child ||
+              (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.EVENT_PUSH], data.appType) && data.appId) ||
+              (data.appType === APP_TYPE.WEBHOOK && data.controls.length) ||
+              _.includes(
+                [
+                  APP_TYPE.LOOP,
+                  APP_TYPE.USER,
+                  APP_TYPE.DEPARTMENT,
+                  APP_TYPE.CUSTOM_ACTION,
+                  APP_TYPE.EXTERNAL_USER,
+                  APP_TYPE.PBC,
+                  APP_TYPE.PARAMETER,
+                  APP_TYPE.APPROVAL_START,
+                  APP_TYPE.LOOP_PROCESS,
+                  APP_TYPE.CHATBOT,
+                ],
+                data.appType,
+              )) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={() => {
             if (data.appType === APP_TYPE.WEBHOOK) {

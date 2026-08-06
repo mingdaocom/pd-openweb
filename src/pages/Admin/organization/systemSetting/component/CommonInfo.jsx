@@ -37,9 +37,11 @@ export default class CommonInfo extends Component {
     this.getAllData();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.level !== this.props.level) {
-      this.getAllData();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.level !== prevProps.level) {
+        this.getAllData();
+      }
     }
   }
 
@@ -335,7 +337,11 @@ export default class CommonInfo extends Component {
             </div>
             <div className="common-info-row mTop24">
               <div className="common-info-row-label"></div>
-              <Button type="link" className="ThemeColor3 adminHoverColor editBtn" onClick={() => this.updateVisible(1)}>
+              <Button
+                type="link"
+                className="colorPrimary adminHoverColor editBtn"
+                onClick={() => this.updateVisible(1)}
+              >
                 {_l('修改组织信息')}
               </Button>
             </div>
@@ -432,7 +438,7 @@ export default class CommonInfo extends Component {
                   )}
                   <button
                     type="button"
-                    className="ming Button Button--link mLeft12 ThemeColor3 adminHoverColor"
+                    className="ming Button Button--link mLeft12 colorPrimary adminHoverColor"
                     onClick={() => {
                       if (Config.project.licenseType === 0) {
                         AdminCommon.freeUpdateDialog();
@@ -461,7 +467,7 @@ export default class CommonInfo extends Component {
               <div className="common-info-row-label">{_l('职位列表')}</div>
               <button
                 type="button"
-                className="ming Button Button--link ThemeColor3 adminHoverColor"
+                className="ming Button Button--link colorPrimary adminHoverColor"
                 onClick={this.toggleComp.bind(this, 5)}
               >
                 {_l('设置')}
@@ -471,7 +477,7 @@ export default class CommonInfo extends Component {
               <div className="common-info-row-label">{_l('工作地点')}</div>
               <button
                 type="button"
-                className="ming Button Button--link ThemeColor3 adminHoverColor"
+                className="ming Button Button--link colorPrimary adminHoverColor"
                 onClick={this.toggleComp.bind(this, 3)}
               >
                 {_l('设置')}

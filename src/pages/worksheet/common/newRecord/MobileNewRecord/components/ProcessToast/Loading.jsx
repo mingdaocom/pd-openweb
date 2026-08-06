@@ -34,9 +34,10 @@ const Dot = styled.span`
   animation-delay: ${props => props.delay}s;
 `;
 
+const delays = [0.13, 0.26, 0.39, 0.52, 0.65];
+
 const Loading = () => {
   // 定义动画延迟数组
-  const delays = [0.13, 0.26, 0.39, 0.52, 0.65];
 
   return (
     <LoadingWrapper>

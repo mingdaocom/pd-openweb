@@ -37,6 +37,20 @@ import { SettingCollapseWrap } from './styled';
 
 const { Panel } = Collapse;
 
+const renderDefaultFilter = showSplice => {
+  return (
+    <Fragment>
+      <ActionWrap>{_l('在详情页新建或打开记录')}</ActionWrap>
+      {showSplice && (
+        <SpliceWrap>
+          <div className="spliceLine"></div>
+          <Dropdown isAppendToBody disabled={true} data={FILTER_SPLICE_TYPE} value={SPLICE_TYPE_ENUM.AND} />
+        </SpliceWrap>
+      )}
+    </Fragment>
+  );
+};
+
 export default function CustomEvent(props) {
   const { data, onChange, allControls = [] } = props;
   const [visible, setVisible] = useState(false);
@@ -367,19 +381,6 @@ export default function CustomEvent(props) {
   /**
    * 渲染默认条件
    */
-  const renderDefaultFilter = showSplice => {
-    return (
-      <Fragment>
-        <ActionWrap>{_l('在详情页新建或打开记录')}</ActionWrap>
-        {showSplice && (
-          <SpliceWrap>
-            <div className="spliceLine"></div>
-            <Dropdown isAppendToBody disabled={true} data={FILTER_SPLICE_TYPE} value={SPLICE_TYPE_ENUM.AND} />
-          </SpliceWrap>
-        )}
-      </Fragment>
-    );
-  };
 
   /**
    * 渲染配置内容

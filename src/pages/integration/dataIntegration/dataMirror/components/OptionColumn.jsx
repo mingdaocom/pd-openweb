@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrapper = styled.div`
   .optionIcon {
@@ -65,7 +66,7 @@ export default function OptionColumn(props) {
           <OptionMenu>
             <MenuItem
               onClick={() => {
-                window.open(`/dataMirrorPreview/${id}`);
+                window.open(pathCompletion(`/dataMirrorPreview/${id}`));
               }}
             >
               {_l('预览数据')}

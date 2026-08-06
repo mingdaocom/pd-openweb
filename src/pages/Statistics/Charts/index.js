@@ -1,39 +1,39 @@
-import BarChart from './BarChart';
-import BidirectionalBarChart from './BidirectionalBarChart';
-import { reportTypes } from './common';
-import CountryLayer from './CountryLayer';
-import DualAxes from './DualAxes';
-import FunnelChart from './FunnelChart';
-import GaugeChart from './GaugeChart';
-import LineChart from './LineChart';
-import NumberChart from './NumberChart';
-import PieChart from './PieChart';
-import PivotTable from './PivotTable';
-import ProgressChart from './ProgressChart';
-import RadarChart from './RadarChart';
-import ScatterChart from './ScatterChart';
-import TopChart from './TopChart';
+import React, { lazy, Suspense } from 'react';
+import { Loading } from '../components/ChartStatus';
+import { reportTypes } from './reportTypes';
 import VerificationDataLength from './VerificationDataLength';
-import WordCloudChart from './WordCloudChart';
-import WorldMap from './WorldMap';
+
+const createChart = (loader, { verifyLength = false } = {}) => {
+  const LazyChart = lazy(() =>
+    loader().then(component => ({
+      default: verifyLength ? VerificationDataLength(component.default) : component.default,
+    })),
+  );
+
+  return props => (
+    <Suspense fallback={<Loading />}>
+      <LazyChart {...props} />
+    </Suspense>
+  );
+};
 
 const charts = {
-  [reportTypes.LineChart]: VerificationDataLength(LineChart),
-  [reportTypes.BarChart]: VerificationDataLength(BarChart),
-  [reportTypes.PieChart]: VerificationDataLength(PieChart),
-  [reportTypes.NumberChart]: NumberChart,
-  [reportTypes.RadarChart]: VerificationDataLength(RadarChart),
-  [reportTypes.FunnelChart]: VerificationDataLength(FunnelChart),
-  [reportTypes.DualAxes]: VerificationDataLength(DualAxes),
-  [reportTypes.PivotTable]: PivotTable,
-  [reportTypes.CountryLayer]: CountryLayer,
-  [reportTypes.BidirectionalBarChart]: BidirectionalBarChart,
-  [reportTypes.ScatterChart]: ScatterChart,
-  [reportTypes.WordCloudChart]: VerificationDataLength(WordCloudChart),
-  [reportTypes.GaugeChart]: GaugeChart,
-  [reportTypes.ProgressChart]: ProgressChart,
-  [reportTypes.TopChart]: TopChart,
-  [reportTypes.WorldMap]: WorldMap,
+  [reportTypes.LineChart]: createChart(() => import('./LineChart'), { verifyLength: true }),
+  [reportTypes.BarChart]: createChart(() => import('./BarChart'), { verifyLength: true }),
+  [reportTypes.PieChart]: createChart(() => import('./PieChart'), { verifyLength: true }),
+  [reportTypes.NumberChart]: createChart(() => import('./NumberChart')),
+  [reportTypes.RadarChart]: createChart(() => import('./RadarChart'), { verifyLength: true }),
+  [reportTypes.FunnelChart]: createChart(() => import('./FunnelChart'), { verifyLength: true }),
+  [reportTypes.DualAxes]: createChart(() => import('./DualAxes'), { verifyLength: true }),
+  [reportTypes.PivotTable]: createChart(() => import('./PivotTable')),
+  [reportTypes.CountryLayer]: createChart(() => import('./CountryLayer')),
+  [reportTypes.BidirectionalBarChart]: createChart(() => import('./BidirectionalBarChart')),
+  [reportTypes.ScatterChart]: createChart(() => import('./ScatterChart')),
+  [reportTypes.WordCloudChart]: createChart(() => import('./WordCloudChart'), { verifyLength: true }),
+  [reportTypes.GaugeChart]: createChart(() => import('./GaugeChart')),
+  [reportTypes.ProgressChart]: createChart(() => import('./ProgressChart')),
+  [reportTypes.TopChart]: createChart(() => import('./TopChart')),
+  [reportTypes.WorldMap]: createChart(() => import('./WorldMap')),
 };
 
 export default charts;

@@ -5,22 +5,31 @@ import processAjax from 'src/pages/workflow/api/processVersion';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { renderText as renderCellText } from 'src/utils/control';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { fromType, typeForCon } from '../../core/config';
 
+const getPrintClientId = params => _.get(params, 'clientId') || window.clientId || sessionStorage.getItem('clientId');
+
 export const getAttributeName = (receiveControls, rowValue) => {
-  const { controlValues } = rowValue;
-  let dat = receiveControls.filter(o => ![43, 49].includes(o.type) && o.controlId !== 'wfcotime'); //去除 文本识别 43 接口查询按钮
-  let control = dat.find(it => it.attribute === 1);
+  const { controlValues = [] } = rowValue;
+  const control = receiveControls.find(
+    item => ![43, 49].includes(item.type) && item.controlId !== 'wfcotime' && item.attribute === 1,
+  ); //去除 文本识别 43 接口查询按钮
   if (!control) return '';
 
-  control.value = controlValues.find(it => it.id === control.controlId)?.value;
-  let attributeName = renderCellText(control) || '';
+  const value = controlValues.find(item => item.id === control.controlId)?.value;
 
-  return attributeName;
+  // 系统打印接口返回的日期值已经按字段格式处理，二次解析 EU 等日期格式会得到 Invalid date
+  if ([15, 16].includes(control.type)) {
+    return value || '';
+  }
+
+  return renderCellText({ ...control, value }) || '';
 };
 
 export const getApproval = ({ rowId, approvalIds, params, updateApprovalAjax }) => {
   const { from, printType, type, worksheetId, appId } = params;
+  const clientId = getPrintClientId(params);
 
   if (printType && printType === 'flow') return Promise.resolve([]);
 
@@ -29,10 +38,12 @@ export const getApproval = ({ rowId, approvalIds, params, updateApprovalAjax }) 
       startAppId: worksheetId,
       startSourceId: rowId,
       complete: true,
+      clientId,
     }),
     instance.getTodoList2({
       startAppId: worksheetId,
       startSourceId: rowId,
+      clientId,
     }),
   ];
 
@@ -60,6 +71,7 @@ export const getApproval = ({ rowId, approvalIds, params, updateApprovalAjax }) 
         instance.get2({
           id: item.id,
           workId: item.workId,
+          clientId,
         });
 
       if (_.has(ajaxWithProcessIdMap, item.process.parentId)) {
@@ -110,10 +122,11 @@ const formatRelationRows = (res, controls) => {
 
   res.forEach((item, i) => {
     const { data: controlGroup, rowIds = [] } = item || {};
-    const controlId = controls[i]?.controlId;
+    const control = controls[i] || {};
+    const controlId = control.controlId;
     if (!controlId || !_.isArray(controlGroup)) return;
 
-    controlGroup.forEach((item, j) => {
+    controlGroup.forEach((relationData, j) => {
       const rowId = rowIds[j];
       if (!rowId) return;
 
@@ -121,7 +134,22 @@ const formatRelationRows = (res, controls) => {
         result[rowId] = {};
       }
 
-      result[rowId][controlId] = item;
+      const relationAppId = _.get(relationData, 'worksheet.appId') || control.appId;
+      const relationWorksheetId = _.get(relationData, 'worksheet.worksheetId') || control.dataSource;
+
+      result[rowId][controlId] = {
+        ...relationData,
+        template: relationData.template
+          ? {
+              ...relationData.template,
+              controls: replaceControlsTranslateInfo(
+                relationAppId,
+                relationWorksheetId,
+                relationData.template.controls,
+              ),
+            }
+          : relationData.template,
+      };
     });
   });
 

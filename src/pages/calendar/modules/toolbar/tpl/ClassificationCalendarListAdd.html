@@ -1,7 +1,7 @@
 ﻿<li catid="{{!it ? category.catID : ''}}">
     <div class="classificationListColumn">{{=_l('名称')}}</div>
     <div class="classificationListColumnOperation">
-        <input type="text" class="classificationListName ThemeBorderColor3" value="{{!it ? category.catName : ''}}" placeholder="{{=_l('请输入分类日程名称')}}"/>
+        <input type="text" class="classificationListName borderColorPrimary" value="{{!it ? category.catName : ''}}" placeholder="{{=_l('请输入分类日程名称')}}"/>
         <div class="classificationListDropdown">            
             <span class="{{!it ? it.colorClass(category.color) : 'colorBlockGreen'}} colorBlock"></span>
             <i class="icon-arrow-down-border iconDown"></i>

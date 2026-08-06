@@ -1,0 +1,456 @@
+.connectAiDialog {
+  .mui-dialog-header {
+    padding: 18px 24px 0 !important;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary-transparent-light) 0%,
+      var(--color-background-secondary) 100%
+    );
+    border-bottom: 1px solid var(--color-border-secondary);
+  }
+
+  .mui-dialog-close-btn {
+    top: 18px !important;
+    right: 20px !important;
+
+    .Icon {
+      font-size: 20px;
+      color: var(--color-text-secondary) !important;
+    }
+  }
+
+  .mui-dialog-body {
+    padding: 0 24px 24px !important;
+  }
+
+  .tabBar {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    margin: 0 -4px;
+    border-bottom: 1px solid var(--color-border-secondary);
+  }
+
+  .tabItem {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tabItem.active {
+    color: var(--color-primary);
+  }
+
+  .tabItem.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--color-primary);
+  }
+
+  .tabItem .Icon {
+    width: 18px;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .tabPanel {
+    padding-top: 16px;
+  }
+
+  .quickConnectCard,
+  .configCard,
+  .installCard {
+    border: 1px solid var(--color-border-primary);
+    border-radius: 16px;
+    background: var(--color-background-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .quickConnectCard {
+    padding: 16px 18px;
+  }
+
+  .quickConnectToolsRow {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .manualInstallHint {
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .quickConnectLabel {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 34px;
+  }
+
+  .quickConnectList {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .toolItem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 160px;
+    height: 34px;
+    padding: 0 16px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .toolItem span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toolItem:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .toolItem.active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-transparent-light);
+  }
+
+  .installOptionRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .recommendTag {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 4px;
+    background: var(--color-primary-transparent-light);
+    color: var(--color-primary);
+    font-size: 11px;
+    line-height: 18px;
+    font-weight: 600;
+  }
+
+  .toolIcon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .configCard {
+    margin-top: 20px;
+    padding: 24px;
+  }
+
+  .cardTitle {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .segmentWrap {
+    display: flex;
+    padding: 4px;
+    margin-top: 18px;
+    border-radius: 8px;
+    background: var(--color-background-disabled);
+  }
+
+  .installModeWrap {
+    margin-top: 0;
+  }
+
+  .segmentItem {
+    flex: 1;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .segmentItem.active {
+    color: var(--color-primary);
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
+    line-height: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .configHint {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .fieldLabel {
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .required {
+    margin-right: 4px;
+    color: var(--color-error);
+  }
+
+  .connectAiSelect {
+    width: 100%;
+    margin-top: 10px;
+
+    .ant-select-selector {
+      border-radius: 8px !important;
+      border-color: var(--color-border-primary) !important;
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+      box-shadow: none !important;
+    }
+
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      line-height: 34px !important;
+    }
+  }
+
+  .codeDataCard {
+    display: flex;
+    margin-top: 22px;
+    padding: 16px 14px;
+    background: var(--color-background-inverse);
+    border-radius: 8px;
+    color: var(--color-text-inverse);
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 20px;
+    &:hover {
+      .copyBtn {
+        visibility: visible;
+      }
+    }
+
+    .codeDataText {
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-bottom: 0;
+    }
+
+    .copyBtn {
+      visibility: hidden;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 20px;
+      padding: 0 8px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 4px;
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      font-size: 12px;
+      cursor: pointer;
+    }
+  }
+
+  .installCard {
+    margin-top: 20px;
+    min-height: 190px;
+    padding: 24px;
+  }
+
+  .cliDisabledCard {
+    min-height: 460px;
+  }
+
+  .installTitle {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .installDesc {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  .cliDisabledState {
+    min-height: 300px;
+    padding: 48px 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .cliDisabledIcon {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--color-background-tertiary);
+    color: var(--color-text-disabled);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .Icon {
+      font-size: 34px;
+    }
+  }
+
+  .cliDisabledTitle {
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .cliDisabledDesc {
+    margin-top: 12px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .skillModuleList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .skillModuleItem {
+    padding: 14px 16px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    .Checkbox-text {
+      font-size: 14px !important;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    &:hover,
+    &.active {
+      border-color: var(--color-primary);
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      background: var(--color-background-secondary);
+      color: var(--color-text-tertiary);
+
+      &:hover {
+        border-color: var(--color-border-primary);
+      }
+
+      .textSecondary,
+      .skillAbilityList {
+        color: var(--color-text-tertiary);
+      }
+    }
+  }
+
+  .skillModuleLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .skillModuleTipIcon {
+    color: var(--color-warning);
+    font-size: 14px;
+  }
+
+  .skillModuleContent {
+    margin-left: 28px;
+    margin-top: 2px;
+    .skillModuleDivider {
+      height: 1px;
+      margin: 10px 0;
+      background: var(--color-border-secondary);
+    }
+    .skillAbilityList {
+      padding-left: 12px;
+      li {
+        list-style: disc;
+      }
+    }
+  }
+
+  .installActions {
+    margin-top: 16px;
+  }
+
+  .installActions .installOptionRow {
+    flex: none;
+    margin-bottom: 12px;
+  }
+
+  .installBtn {
+    height: 44px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .installTip {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px;
+  }
+}
+
+.connectAiSelectDropdown {
+  .extraCreate {
+    padding: 5px 12px;
+    line-height: 22px;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-top: 1px solid var(--color-border-secondary);
+  }
+}

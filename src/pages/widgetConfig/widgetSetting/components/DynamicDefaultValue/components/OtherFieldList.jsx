@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { renderText as renderCellText } from 'src/utils/control';
+import { CUR_DEPARTMENT, CUR_ROLE, CUR_USER } from '../config';
 import { FieldInfo, OtherFieldList, RelateControl } from '../styled';
 import { getControlType, getDateType, getTypeList, showClear } from '../util';
 import OtherField from './OtherField';
@@ -23,7 +24,21 @@ const getValue = (item, type) => {
     return item.relateSheetName || JSON.parse(item.staticValue);
   }
 
-  return typeof item.staticValue === 'string' ? JSON.parse(item.staticValue) : item.staticValue;
+  const value = typeof item.staticValue === 'string' ? JSON.parse(item.staticValue) : item.staticValue;
+
+  if (_.includes(['email', 'phone', 'user'], type) && _.get(value, 'accountId') === 'user-self') {
+    return { ...value, name: CUR_USER[0].text };
+  }
+
+  if (type === 'department' && _.get(value, 'departmentId') === 'user-departments') {
+    return { ...value, departmentName: CUR_DEPARTMENT[0].text };
+  }
+
+  if (type === 'role' && _.get(value, 'organizeId') === 'user-role') {
+    return { ...value, organizeName: CUR_ROLE[0].text };
+  }
+
+  return value;
 };
 
 const parseValue = value => {

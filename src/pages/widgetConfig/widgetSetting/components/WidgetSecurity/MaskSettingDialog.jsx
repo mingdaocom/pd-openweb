@@ -136,6 +136,23 @@ const getMaskTypeByType = type => {
   }
 };
 
+const originErr = {
+  mdErr: false,
+  meErr: false,
+  mlErr: false,
+};
+const renderShowValue = (item = {}) => {
+  const selectValue = _.find(DISPLAY_MASK, i => i.value === item.value) || {};
+  return (
+    <span>
+      {selectValue.text}
+      <span className="mLeft10 subText" style={{ color: 'var(--color-text-tertiary)' }}>
+        {selectValue.subText}
+      </span>
+    </span>
+  );
+};
+
 export default function MaskSettingDialog(props) {
   const { data = {}, onCancel, onChange } = props;
   let originAdvanceData = _.pick(getAdvanceSetting(data), [
@@ -154,28 +171,11 @@ export default function MaskSettingDialog(props) {
     ...(!originAdvanceData.masktype ? { masktype: getMaskTypeByType(data.type) } : {}),
     ...(!originAdvanceData.defaultmask ? { defaultmask: '1' } : {}),
   });
-  const originErr = {
-    mdErr: false,
-    meErr: false,
-    mlErr: false,
-  };
   const [err, setErr] = useSetState({ ...originErr });
   // status  掩盖：true，解密：false
   const [testInfo, setTestInfo] = useSetState({ text: '', maskText: '', status: false, visible: !!detail.masklen });
 
   const { masktype, maskmid = '', masklen = '', maskwords = '', defaultmask = '1' } = detail;
-
-  const renderShowValue = (item = {}) => {
-    const selectValue = _.find(DISPLAY_MASK, i => i.value === item.value) || {};
-    return (
-      <span>
-        {selectValue.text}
-        <span className="mLeft10 subText" style={{ color: 'var(--color-text-tertiary)' }}>
-          {selectValue.subText}
-        </span>
-      </span>
-    );
-  };
 
   const handleTest = () => {
     if (!testInfo.text) return;

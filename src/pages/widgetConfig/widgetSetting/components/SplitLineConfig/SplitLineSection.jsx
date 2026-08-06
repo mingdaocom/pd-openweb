@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
@@ -7,6 +7,22 @@ import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/Widget
 import { browserIsMobile } from 'src/utils/common';
 import { getExpandWidgetIds } from './config';
 import { SectionItemWrap } from './style';
+
+const getFormItemMap = (container, widgetIds, worksheetId) => {
+  if (!container) return {};
+
+  const prefix = `formItem-${worksheetId}-`;
+  const idSet = new Set(widgetIds.map(id => `${prefix}${id}`));
+  const itemMap = {};
+
+  container.querySelectorAll('.customFormItem').forEach(item => {
+    if (idSet.has(item.id)) {
+      itemMap[item.id.slice(prefix.length)] = item;
+    }
+  });
+
+  return itemMap;
+};
 
 export default function SplitLineSection(props) {
   // fromType = 'display' 表单详情
@@ -17,18 +33,23 @@ export default function SplitLineSection(props) {
     activeWidget = {},
     from,
     fromType,
-    renderData = [],
+    expandWidgetIds: propsExpandWidgetIds,
     setNavVisible,
     worksheetId,
   } = props;
-  const { enumDefault2 = 0, controlName, controlId } = data;
+  const { enumDefault2 = 0, controlName, controlId, sectionId } = data;
   const { theme = '#1677ff', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
   const [visible, setVisible] = useState(enumDefault2 !== 2);
-  const curControls = fromType === 'display' ? renderData : _.flatten(widgets);
-  const expandWidgetIds = getExpandWidgetIds(curControls, data, from);
+  const expandWidgetIds = useMemo(() => {
+    return _.isArray(propsExpandWidgetIds)
+      ? propsExpandWidgetIds
+      : getExpandWidgetIds(_.flatten(widgets || []), { controlId, sectionId }, from);
+  }, [propsExpandWidgetIds, widgets, controlId, sectionId, from]);
   const $ref = useRef();
   let $originIds = useRef([]);
+  const expandTimerRef = useRef();
+  const navTimerRef = useRef();
 
   useEffect(() => {
     handleExpand(enumDefault2 !== 2);
@@ -46,6 +67,13 @@ export default function SplitLineSection(props) {
     }
   }, [expandWidgetIds]);
 
+  useEffect(() => {
+    return () => {
+      clearTimeout(expandTimerRef.current);
+      clearTimeout(navTimerRef.current);
+    };
+  }, []);
+
   const handleExpand = tempVisible => {
     if (hidetitle === '1' && enumDefault2 == 0) return;
     // 不折叠不能点击
@@ -54,38 +82,38 @@ export default function SplitLineSection(props) {
 
     if (expandWidgetIds.length > 0) {
       setVisible(currentVisible);
-      const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.reverse();
+      const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.slice().reverse();
 
-      for (var i = 0; i < expandWidgetIds.length; i++) {
-        (function (i) {
-          const timer = setTimeout(() => {
-            const listItem =
-              fromType === 'display'
-                ? ($($ref.current)
-                    .closest('.customFieldsContainer')
-                    .find(`.customFormItem#formItem-${worksheetId}-${tempIds[i]}`) || [])[0]
-                : document.getElementById(`widget-${tempIds[i]}`);
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = setTimeout(() => {
+        const customFieldsContainer =
+          fromType === 'display' ? $ref.current && $ref.current.closest('.customFieldsContainer') : null;
+        const formItemMap = fromType === 'display' ? getFormItemMap(customFieldsContainer, tempIds, worksheetId) : {};
 
-            if (listItem) {
-              if (currentVisible) {
-                $(listItem).slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
-              } else {
-                $(listItem).slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
-              }
+        for (let i = 0; i < tempIds.length; i++) {
+          const listItem =
+            fromType === 'display' ? formItemMap[tempIds[i]] : document.getElementById(`widget-${tempIds[i]}`);
 
-              clearTimeout(timer);
-              if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
-                listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
-              }
+          if (listItem) {
+            const $listItem = $(listItem).stop(true, true);
+
+            if (currentVisible) {
+              $listItem.slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
+            } else {
+              $listItem.slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
             }
-          }, 100);
-        })(i);
-      }
+
+            if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
+              listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
+            }
+          }
+        }
+      }, 100);
 
       if (_.isFunction(setNavVisible)) {
-        const timer = setTimeout(() => {
+        clearTimeout(navTimerRef.current);
+        navTimerRef.current = setTimeout(() => {
           setNavVisible();
-          clearTimeout(timer);
         }, 300);
       }
     }

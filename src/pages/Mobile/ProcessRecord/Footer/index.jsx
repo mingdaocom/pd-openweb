@@ -7,6 +7,7 @@ import instanceApi from 'src/pages/workflow/api/instance';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import verifyPassword from 'src/components/verifyPassword';
 import { ACTION_LIST, ACTION_TO_METHOD, MOBILE_OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
+import { canDirectSubmitApproveAction } from 'src/pages/workflow/components/ExecDialog/utils';
 import OtherAction from '../OtherAction';
 import './index.less';
 
@@ -101,6 +102,7 @@ export default class Footer extends Component {
   handleClick = id => {
     const { onSubmit, instance } = this.props;
     const { ignoreRequired, encrypt, auth } = (instance || {}).flowNode || {};
+    const btnDescMap = (instance || {}).btnDescMap || {};
 
     /**
      * 填写
@@ -140,16 +142,18 @@ export default class Footer extends Component {
       return;
     }
 
+    /**
+     * 撤回委托
+     */
+    if (id === 'taskRevokeEntrust') {
+      this.request('operation', { operationType: 20 }, true);
+      return;
+    }
+
     const openOperatorDialog = () => {
       if (_.includes(['pass', 'overrule', 'return'], id)) {
-        const typeList = auth[id === 'pass' ? 'passTypeList' : 'overruleTypeList'];
-
-        if (typeList.length === 1 && typeList[0] === 101) {
-          if (!encrypt) {
-            this.handleAction({ action: id });
-          } else {
-            this.safeAuthentication(() => this.handleAction({ action: id }));
-          }
+        if (canDirectSubmitApproveAction({ action: id, auth, encrypt, btnDescMap })) {
+          this.handleAction({ action: id });
         } else {
           this.setState({ action: id, otherActionVisible: true });
         }
@@ -198,6 +202,7 @@ export default class Footer extends Component {
               this.setState({ isRequest: false, isUrged: true });
             }
           } else {
+            this.setState({ isRequest: false });
             onSave();
             onClose({ id: instanceId, workId });
           }
@@ -374,7 +379,7 @@ export default class Footer extends Component {
   get getHandleBtnConfig() {
     const { instance } = this.props;
     const { operationTypeList } = instance;
-    const baseActionList = [3, 4, 5, 9, 17, 18, 19];
+    const baseActionList = [3, 4, 5, 9, 17, 18, 19, 20];
     let actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
     let newOperationTypeList = operationTypeList[1]
       .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))

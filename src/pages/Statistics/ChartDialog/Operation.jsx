@@ -5,6 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { reportTypes } from '../Charts/common';
 import Sort from '../components/Sort';
 import * as actions from '../redux/actions.js';
@@ -17,6 +19,8 @@ const Operation = ({
   currentReport,
   reportData,
   sourceType,
+  appId,
+  projectId,
   base,
   onChangeScopeVisible,
   onChangeSheetVisible,
@@ -33,6 +37,15 @@ const Operation = ({
   const { pivotTableColumnWidthConfig } = style || {};
   return (
     <div className="flexRow valignWrapper">
+      {_.get(window, 'shareState.isPublicChart') && !window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        <div className="valignWrapper textSecondary">
+          <CreateByMingDaoYun />
+        </div>
+      )}
+      {_.get(window, 'shareState.isPublicChart') && (
+        <PublicAppLangDropdown className="mLeft16" appId={appId} projectId={projectId} />
+      )}
+
       {sheetVisible && !settingVisible ? (
         <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')} placement="bottom">
           <Icon

@@ -124,7 +124,7 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
                   <React.Fragment>
                     <span>{_l('有正在被使用的同步任务，请在')}</span>
                     <span
-                      className="mLeft5 mRight5 pointer ThemeColor3 ThemeHoverColor2"
+                      className="mLeft5 mRight5 pointer colorPrimary hoverColorPrimaryDark"
                       onClick={() => {
                         const confirmElement = document.getElementsByClassName('delErrorConfirm')[0];
                         confirmElement && document.body.removeChild(confirmElement.parentNode);

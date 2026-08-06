@@ -7,6 +7,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
+import RecordLoggingSettingDialog, { getRecordLoggingRangeText, LOGGING_RANGE } from '../RecordLoggingSettingDialog';
 import lookPng from './img/e.png';
 
 const Wrap = styled.div`
@@ -16,6 +17,30 @@ const Wrap = styled.div`
   }
   .subCheckbox {
     width: 190px;
+    align-items: center;
+  }
+  /* 操作权限：多选项同一行时，勾选框 / 文案 / 齿轮垂直居中 */
+  .rolePermissionInlineRow {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-right: 16px;
+    vertical-align: middle;
+    :global(.ming.Checkbox) {
+      display: inline-flex !important;
+      align-items: center;
+      line-height: 1;
+    }
+    :global(.ming.Checkbox .Checkbox-box) {
+      flex-shrink: 0;
+      align-self: center;
+    }
+    :global(.ming.Icon) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
   }
   .line {
     width: 100%;
@@ -29,6 +54,12 @@ const Wrap = styled.div`
     font-size: 12px;
     color: var(--color-text-tertiary);
   }
+  .recordLoggingRangeText {
+    color: var(--color-text-secondary);
+  }
+  .recordLoggingSettingIcon:hover {
+    color: var(--color-primary) !important;
+  }
 `;
 
 export default function Set(props) {
@@ -36,6 +67,7 @@ export default function Set(props) {
   const [sheet, setState] = useState(props.sheet);
   const [loading, setLoading] = useState(true);
   const [componentData, setComponentData] = useState({});
+  const [showRecordLoggingDialog, setShowRecordLoggingDialog] = useState(false);
   useEffect(() => {
     setState(props.sheet);
     getComponent(props.sheet);
@@ -59,13 +91,24 @@ export default function Set(props) {
         <div className="">
           <span className="Bold">{title}</span>
           <span
-            className="mLeft5 Hand ThemeHoverColor3 optionTxt"
+            className="mLeft5 Hand hoverColorPrimary optionTxt"
             onClick={() => {
               let data = {};
               actionList.map(o => {
-                data[o.key] = {
-                  enable: isNotAll,
-                };
+                const prev = sheet[o.key] || {};
+                const nextEnable = isNotAll;
+                data[o.key] =
+                  o.key === 'recordLogging' && nextEnable
+                    ? {
+                        ...prev,
+                        enable: true,
+                        Range: prev.Range || LOGGING_RANGE.ALL,
+                        AllowExport: _.isBoolean(prev.AllowExport) ? prev.AllowExport : false,
+                      }
+                    : {
+                        ...prev,
+                        enable: nextEnable,
+                      };
               });
               changeSheetOptionInfo(data);
             }}
@@ -77,16 +120,27 @@ export default function Set(props) {
           {actionList.length > 0 &&
             actionList.map(o => {
               return (
-                <div className="subCheckbox mTop20 InlineBlock flexRow alignItemsCenter">
+                <div className="rolePermissionInlineRow">
                   <Checkbox
-                    className={'InlineBlock TxtMiddle'}
+                    className="TxtMiddle"
                     checked={(sheet[o.key] || {}).enable}
                     size="small"
                     onClick={() => {
+                      const prev = sheet[o.key] || {};
+                      const nextEnable = !prev.enable;
                       changeSheetOptionInfo({
-                        [o.key]: {
-                          enable: !(sheet[o.key] || {}).enable,
-                        },
+                        [o.key]:
+                          o.key === 'recordLogging' && nextEnable
+                            ? {
+                                ...prev,
+                                enable: true,
+                                Range: prev.Range || LOGGING_RANGE.ALL,
+                                AllowExport: _.isBoolean(prev.AllowExport) ? prev.AllowExport : false,
+                              }
+                            : {
+                                ...prev,
+                                enable: nextEnable,
+                              },
                       });
                     }}
                   >
@@ -96,6 +150,19 @@ export default function Set(props) {
                     <Tooltip title={o.tips}>
                       <i className="icon-info_outline Font16 textTertiary mLeft3 TxtMiddle" />
                     </Tooltip>
+                  )}
+                  {o.key === 'recordLogging' && (sheet[o.key] || {}).enable && (
+                    <React.Fragment>
+                      <span className="recordLoggingRangeText mLeft5">{getRecordLoggingRangeText(sheet[o.key])}</span>
+                      <Icon
+                        icon="settings"
+                        className="recordLoggingSettingIcon Font16 Hand textTertiary mLeft8 TxtMiddle InlineBlock"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setShowRecordLoggingDialog(true);
+                        }}
+                      />
+                    </React.Fragment>
                   )}
                 </div>
               );
@@ -115,7 +182,7 @@ export default function Set(props) {
         <div className="">
           <span className="Bold">{title}</span>
           <span
-            className="mLeft5 Hand ThemeHoverColor3 optionTxt"
+            className="mLeft5 Hand hoverColorPrimary optionTxt"
             onClick={() => {
               changeSheetOptionInfo({
                 [key]: isAll
@@ -233,7 +300,7 @@ export default function Set(props) {
         )}
         {renderList(
           _l('记录'),
-          recordActionList.filter(o => (props.isForPortal ? !['recordShare', 'recordLogging'].includes(o.key) : true)),
+          recordActionList.filter(o => (props.isForPortal ? !['recordShare'].includes(o.key) : true)),
         )}
         {(componentData.customeButtons || []).length > 0 &&
           renderAcitionList(_l('动作'), componentData.customeButtons, sheet.unableCustomButtons, 'unableCustomButtons')}
@@ -246,6 +313,12 @@ export default function Set(props) {
           )}
         {featureType && rednerPay()}
       </div>
+      <RecordLoggingSettingDialog
+        visible={showRecordLoggingDialog}
+        value={sheet.recordLogging}
+        onChange={next => changeSheetOptionInfo({ recordLogging: next })}
+        onClose={() => setShowRecordLoggingDialog(false)}
+      />
     </Wrap>
   );
 }

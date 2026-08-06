@@ -230,7 +230,7 @@ export default function MapSetting(props) {
             <Dropdown
               data={filterAndFormatterControls({
                 controls: columns,
-                filter: l => l.type === 11,
+                filter: l => _.includes([9, 11], l.type),
                 formatter: ({ controlName, controlId, type }) => ({
                   text: controlName,
                   value: controlId,

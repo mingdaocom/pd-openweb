@@ -1,26 +1,9 @@
 import React from 'react';
 import { Input } from 'antd';
-import { defaultTitleStyles, replaceTitleColor } from 'src/pages/customPage/components/ConfigSideWrap/util';
 
 export default props => {
-  const { themeColor, currentReport, customPageConfig = {}, onChangeCurrentReport, onChangeStyle } = props;
-  const pageTitleStyles = customPageConfig.titleStyles || {};
-  const { name, desc, style } = currentReport;
-  const { titleStyles = defaultTitleStyles } = style;
-  const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
-  // eslint-disable-next-line no-unused-vars
-  const { color } = replaceTitleColor(newTitleStyles, themeColor);
-
-  // eslint-disable-next-line no-unused-vars
-  const handleChange = data => {
-    onChangeStyle({
-      titleStyles: {
-        ...newTitleStyles,
-        ...data,
-        index: Date.now(),
-      },
-    });
-  };
+  const { currentReport, onChangeCurrentReport } = props;
+  const { name, desc } = currentReport;
 
   return (
     <div className="mBottom12">

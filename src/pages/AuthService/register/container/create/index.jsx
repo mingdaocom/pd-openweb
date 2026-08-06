@@ -24,6 +24,8 @@ export default function (props) {
     geoCountryRegionCode: _.get(md, 'global.Config.DefaultRegion') || 'CN',
   });
   const companyNameRef = useRef();
+  const submittingRef = useRef(false);
+  const companyName = _.get(props, 'company.companyName');
 
   useEffect(() => {
     fixedDataAjax.loadExtraDatas({ langType: getCurrentLangCode() }).then(res => {
@@ -32,16 +34,29 @@ export default function (props) {
         extraList: res,
       });
     });
-  }, []);
+  }, [setState]);
 
   useEffect(() => {
-    if (companyNameRef.current) companyNameRef.current.value = _.get(props, 'company.companyName');
-  }, [_.get(props, 'company.companyName')]);
+    if (companyNameRef.current) companyNameRef.current.value = companyName;
+  }, [companyName]);
 
   // 提交企业网络信息
   const submitCompanyInfo = () => {
-    validateCompanyInfoRequiredField().then(res => {
+    if (submittingRef.current || props.lineLoading) return;
+
+    submittingRef.current = true;
+    const resetSubmitting = () => {
+      submittingRef.current = false;
+    };
+
+    const finishSubmit = () => {
+      resetSubmitting();
+      onChange({ lineLoading: false });
+    };
+
+    const handleValidation = res => {
       if (!res) {
+        resetSubmitting();
         return;
       }
 
@@ -72,23 +87,32 @@ export default function (props) {
         .then(data => {
           window.localStorage.removeItem('RegFrom');
           window.localStorage.removeItem('Referrer');
-          onChange({ lineLoading: false });
 
           if (data.actionResult == ActionResult.success) {
             setPssId(data.sessionId);
-            registerSuc(props, 'enterpriseRegister.createSuccess');
-          } else if (data.actionResult == ActionResult.userInfoNotFound) {
-            alert(_l('账号不存在'), 3);
-          } else if (data.actionResult == ActionResult.userFromError) {
-            alert(_l('账号来源类型受限'), 3);
+            const projectId =
+              data.projectId ||
+              _.get(data, 'project.projectId') ||
+              _.get(data, 'company.projectId') ||
+              _.get(data, 'userCard.user.projectId');
+
+            registerSuc({ ...props, projectId: projectId || props.projectId }, 'enterpriseRegister.createSuccess');
           } else {
-            alert(_l('操作失败'), 3);
+            finishSubmit();
+
+            if (data.actionResult == ActionResult.userInfoNotFound) {
+              alert(_l('账号不存在'), 3);
+            } else if (data.actionResult == ActionResult.userFromError) {
+              alert(_l('账号来源类型受限'), 3);
+            } else {
+              alert(_l('操作失败'), 3);
+            }
           }
         })
-        .catch(() => {
-          onChange({ lineLoading: false });
-        });
-    });
+        .catch(finishSubmit);
+    };
+
+    validateCompanyInfoRequiredField().then(handleValidation, resetSubmitting);
   };
 
   // 企业网络基本信息 字段验证
@@ -161,7 +185,7 @@ export default function (props) {
 
     return (
       <React.Fragment>
-        <Wrap className="messageBox mTop5">
+        <Wrap className="messageBox createOrgForm">
           <div className={cx('mesDiv', renderClassName('companyName', companyName))}>
             <input
               type="text"
@@ -275,15 +299,16 @@ export default function (props) {
       <div className="titleHeader">
         {!location.href.match(/enterpriseRegister(\.htm)?\?type=create/i) && (
           <span className="mTop40 Font15 InlineBlock Hand backspaceT" onClick={() => onChange({ step: 'createOrAdd' })}>
-            <span className="Font16 backspace textTertiary"></span> {_l('返回')}
+            <span className="Font16 backspace textSecondary"></span> {_l('返回')}
           </span>
         )}
         <div className="title mTop24">{_l('创建组织')}</div>
-        <p className="mTop15 textTertiary Font15">{_l('您当前账号默认成为组织的管理员')}</p>
+        <p className="mTop15 textSecondary Font15">{_l('您当前账号默认成为组织的管理员')}</p>
       </div>
       {renderCon()}
       <span
-        className="btnForRegister Hand"
+        className={cx('btnForRegister createOrgBtn', { Hand: !props.lineLoading, disabled: props.lineLoading })}
+        aria-disabled={props.lineLoading}
         onClick={() => {
           if (props.lineLoading) return;
           submitCompanyInfo();

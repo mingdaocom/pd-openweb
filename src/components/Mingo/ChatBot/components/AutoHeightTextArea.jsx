@@ -1,4 +1,14 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import styled from 'styled-components';
+
+const TextArea = styled.textarea`
+  min-height: ${({ $minHeight }) => $minHeight}px;
+  max-height: ${({ $maxHeight }) => $maxHeight}px;
+  height: ${({ $height }) => $height}px;
+  resize: none;
+  overflow: ${({ $height, $maxHeight }) => ($height >= $maxHeight ? 'auto' : 'hidden')};
+  transition: height 0.1s ease;
+`;
 
 const AutoHeightTextArea = forwardRef(
   (
@@ -43,12 +53,7 @@ const AutoHeightTextArea = forwardRef(
 
       // 计算新的高度
       const scrollHeight = textArea.scrollHeight;
-      let newHeight = Math.max(minHeight, scrollHeight);
-
-      // 如果设置了最大高度，限制高度不超过最大值
-      if (maxHeight > 0) {
-        newHeight = Math.min(newHeight, maxHeight);
-      }
+      const newHeight = Math.min(Math.max(minHeight, scrollHeight), maxHeight);
 
       // 设置新的高度
       textArea.style.height = `${newHeight}px`;
@@ -81,7 +86,7 @@ const AutoHeightTextArea = forwardRef(
     };
 
     return (
-      <textarea
+      <TextArea
         ref={textAreaRef}
         value={value}
         onChange={handleChange}
@@ -92,15 +97,10 @@ const AutoHeightTextArea = forwardRef(
         disabled={disabled}
         className={className}
         rows="1"
-        style={{
-          minHeight: `${minHeight}px`,
-          maxHeight: maxHeight > 0 ? `${maxHeight}px` : 'none',
-          height: `${textAreaHeight}px`,
-          resize: 'none',
-          overflow: textAreaHeight >= maxHeight ? 'auto' : 'hidden',
-          transition: 'height 0.1s ease',
-          ...style,
-        }}
+        $minHeight={minHeight}
+        $maxHeight={maxHeight}
+        $height={textAreaHeight}
+        style={style}
         {...props}
       />
     );

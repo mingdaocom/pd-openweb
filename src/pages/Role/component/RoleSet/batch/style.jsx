@@ -33,6 +33,37 @@ export const Wrap = styled.div`
     .hasSet {
       color: var(--color-success);
     }
+    .rolePermissionInlineRow {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 8px;
+      vertical-align: middle;
+      & > .ant-checkbox-wrapper {
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1 !important;
+      }
+      & .ant-checkbox {
+        top: 0 !important;
+      }
+      & .ant-checkbox + span {
+        line-height: 1.2;
+        display: inline-flex;
+        align-items: center;
+      }
+      :global(.ming.Icon) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+      .recordLoggingRangeText {
+        color: var(--color-text-secondary);
+      }
+      .recordLoggingSettingIcon:hover {
+        color: var(--color-primary) !important;
+      }
+    }
   }
   .footer {
     border-top: 1px solid var(--color-border-secondary);

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -71,7 +71,7 @@ const Wrap = styled.div`
     font-size: 13px;
   }
   .actionControlBox:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
-  .actionControlBox:not(.ThemeBorderColor3) {
+  .actionControlBox:not(.borderColorPrimary) {
     border-color: var(--color-border-primary) !important;
   }
   .showRefreshLogBtn {
@@ -81,8 +81,30 @@ const Wrap = styled.div`
     }
   }
 `;
+const renderList = fields => {
+  return (
+    <div className="flexRow mBottom20">
+      <div className="title textSecondary">{_l('可用返回参数')}</div>
+      <div className="txt flex">
+        <div className="flexRow line">
+          <div className="flex textTertiary">{_l('参数名')}</div>
+          <div className="flex textTertiary">{_l('参考值')}</div>
+        </div>
+        {fields.map(o => {
+          return (
+            <div className="flexRow line">
+              <div className="flex WordBreak">{o.controlName}</div>
+              <div className="flex WordBreak">{o.value}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
-//连接鉴权设置
+const LoadableWorkflowDetail = lazy(() => import('src/pages/workflow/WorkflowSettings/Detail')); //连接鉴权设置
+
 function ConnectAuth(props) {
   const [{ node, showEdit, loading, showRefreshLog, tokenLoading }, setState] = useSetState({
     showEdit: false,
@@ -92,42 +114,41 @@ function ConnectAuth(props) {
     tokenLoading: false,
   });
   const testIndex = 0;
-  const [Component, setComponent] = useState(null);
   const refreshTime = useRef(null);
-
   useEffect(() => {
     getNodeInfo();
-  }, []);
+  }, []); // 获取连接详情
 
-  useEffect(() => {
-    if (showEdit && !Component) {
-      import('src/pages/workflow/WorkflowSettings/Detail').then(component => {
-        setComponent(component.default);
-      });
-    }
-  }, [showEdit]);
-
-  // 获取连接详情
   const getInfo = () => {
     if (!node || !node.id) {
       return;
     }
 
     Promise.all([
-      flowNodeAjax.get({ processId: props.connectId }, { isIntegration: true }),
+      flowNodeAjax.get(
+        {
+          processId: props.connectId,
+        },
+        {
+          isIntegration: true,
+        },
+      ),
       flowNodeAjax.getNodeDetail(
-        { processId: props.id, nodeId: node.id, flowNodeType: node.typeId },
-        { isIntegration: true },
+        {
+          processId: props.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+        },
+        {
+          isIntegration: true,
+        },
       ),
     ]).then(res => {
       //更新鉴权认证节点
       const list = _.toArray((res[0] || {}).flowNodeMap || {});
+
       setState({
-        node: {
-          ...node,
-          ...(list.find(o => o.typeId === 22) || {}),
-          ...res[1],
-        },
+        node: { ...node, ...(list.find(o => o.typeId === 22) || {}), ...res[1] },
       });
     });
   };
@@ -140,33 +161,16 @@ function ConnectAuth(props) {
           nodeId: node.id,
           flowNodeType: node.typeId,
         },
-        { isIntegration: true },
+        {
+          isIntegration: true,
+        },
       )
       .then(res => {
-        setState({ node: { ...node, ...res }, loading: false });
+        setState({
+          node: { ...node, ...res },
+          loading: false,
+        });
       });
-  };
-
-  const renderList = fields => {
-    return (
-      <div className="flexRow mBottom20">
-        <div className="title textSecondary">{_l('可用返回参数')}</div>
-        <div className="txt flex">
-          <div className="flexRow line">
-            <div className="flex textTertiary">{_l('参数名')}</div>
-            <div className="flex textTertiary">{_l('参考值')}</div>
-          </div>
-          {fields.map(o => {
-            return (
-              <div className="flexRow line">
-                <div className="flex WordBreak">{o.controlName}</div>
-                <div className="flex WordBreak">{o.value}</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
   };
 
   const renderBasic = () => {
@@ -222,29 +226,38 @@ function ConnectAuth(props) {
           ..._.pick(node, ['webHookNodes', 'expireAfterSeconds', 'name']),
           ...obj,
         },
-        { isIntegration: true },
+        {
+          isIntegration: true,
+        },
       )
       .then(() => {
-        setState({ node: { ...node, ...obj } });
+        setState({
+          node: { ...node, ...obj },
+        });
       });
   };
 
   const checkNumberControl = (evt, isBlur) => {
     let num = evt.target.value.replace(/[^\d]/g, '');
     evt.target.value = num;
+
     if (isBlur) {
       num = parseInt(num || '0');
+
       if (num > 2628000) {
         num = 2628000;
       }
 
       evt.target.value = num;
-      updateSource({ expireAfterSeconds: num });
+      updateSource({
+        expireAfterSeconds: num,
+      });
     }
   };
 
   const updateAjaxParameter = (obj, i, isBlur) => {
     const webHookNodes = _.cloneDeep(node.webHookNodes);
+
     Object.keys(obj).forEach(key => {
       if (key === 'method' && _.includes([1, 4, 5], obj[key])) {
         webHookNodes[i].contentType = 1;
@@ -254,9 +267,14 @@ function ConnectAuth(props) {
 
       webHookNodes[i][key] = obj[key];
     });
-    setState({ node: { ...node, webHookNodes } });
+    setState({
+      node: { ...node, webHookNodes },
+    });
+
     if (isBlur) {
-      updateSource({ webHookNodes });
+      updateSource({
+        webHookNodes,
+      });
     }
   };
 
@@ -268,7 +286,9 @@ function ConnectAuth(props) {
     }
 
     updateAjaxParameter(
-      { retryControls: [{ ..._.get(node.webHookNodes[testIndex], 'retryControls[0]'), [key]: value }] },
+      {
+        retryControls: [{ ..._.get(node.webHookNodes[testIndex], 'retryControls[0]'), [key]: value }],
+      },
       testIndex,
       isBlur,
     );
@@ -276,9 +296,9 @@ function ConnectAuth(props) {
 
   const renderTokenRefreshCondition = () => {
     const refreshType = _.get(node.webHookNodes[testIndex], 'retryControls[0].type');
+
     const refreshName = _.get(node.webHookNodes[testIndex], 'retryControls[0].name') || '';
     const refreshValue = _.get(node.webHookNodes[testIndex], 'retryControls[0].value') || '';
-
     return (
       <Fragment>
         <div className="Font13 mTop25">
@@ -288,7 +308,19 @@ function ConnectAuth(props) {
             checked={!!refreshType}
             onClick={checked =>
               updateAjaxParameter(
-                checked ? { retryControls: [] } : { retryControls: [{ type: 10001, name: '', value: '' }] },
+                checked
+                  ? {
+                      retryControls: [],
+                    }
+                  : {
+                      retryControls: [
+                        {
+                          type: 10001,
+                          name: '',
+                          value: '',
+                        },
+                      ],
+                    },
                 testIndex,
                 true,
               )
@@ -301,22 +333,44 @@ function ConnectAuth(props) {
           <div className="flexRow mTop10">
             <Dropdown
               className="flowDropdown mRight10"
-              style={{ width: 115 }}
+              style={{
+                width: 115,
+              }}
               data={[
-                { text: _l('状态码'), value: 10001 },
-                { text: _l('错误码'), value: 10002 },
+                {
+                  text: _l('状态码'),
+                  value: 10001,
+                },
+                {
+                  text: _l('错误码'),
+                  value: 10002,
+                },
               ]}
               value={refreshType}
               border
               onChange={value =>
-                updateAjaxParameter({ retryControls: [{ type: value, name: '', value: '' }] }, testIndex, true)
+                updateAjaxParameter(
+                  {
+                    retryControls: [
+                      {
+                        type: value,
+                        name: '',
+                        value: '',
+                      },
+                    ],
+                  },
+                  testIndex,
+                  true,
+                )
               }
             />
             {refreshType === 10002 && (
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
-                style={{ width: 180 }}
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                style={{
+                  width: 180,
+                }}
                 placeholder={_l('请输入错误码字段名称，如 code')}
                 value={refreshName}
                 onChange={evt => updateTokenRefreshValue(evt, 'name')}
@@ -325,7 +379,7 @@ function ConnectAuth(props) {
             )}
             <input
               type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
               placeholder={
                 refreshType === 10001
                   ? _l('请输入指定刷新 token 的 HTTP 状态码，如：400,401(多个状态码用英文逗号隔开)')
@@ -343,12 +397,16 @@ function ConnectAuth(props) {
 
   const onGetRefreshTokenLogs = () => {
     if (tokenLoading) return;
-    setState({ tokenLoading: true });
+    setState({
+      tokenLoading: true,
+    });
     Oauth2Ajax.refreshClientCredentials(
       {
         id: props.id,
       },
-      { isIntegration: true },
+      {
+        isIntegration: true,
+      },
     ).then(res => {
       if (res) {
         alert(_l('刷新成功'));
@@ -356,7 +414,9 @@ function ConnectAuth(props) {
         alert(_l('刷新失败'), 2);
       }
 
-      setState({ tokenLoading: false });
+      setState({
+        tokenLoading: false,
+      });
     });
   };
 
@@ -387,8 +447,10 @@ function ConnectAuth(props) {
               <div className="mTop15 flexRow alignItemsCenter">
                 <input
                   type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-                  style={{ width: 115 }}
+                  className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                  style={{
+                    width: 115,
+                  }}
                   ref={refreshTime}
                   defaultValue={node.expireAfterSeconds}
                   onKeyUp={evt => checkNumberControl(evt)}
@@ -402,7 +464,11 @@ function ConnectAuth(props) {
                 <Button
                   type="ghostgray"
                   className="showRefreshLogBtn"
-                  onClick={() => setState({ showRefreshLog: true })}
+                  onClick={() =>
+                    setState({
+                      showRefreshLog: true,
+                    })
+                  }
                 >
                   {_l('查看日志')}
                 </Button>
@@ -524,23 +590,29 @@ function ConnectAuth(props) {
         {props.canEdit && (props.connectType !== 2 || props.allowEdit) && renderBtn()}
       </CardTopWrap>
       {node && node.appType === 31 ? renderBasic() : renderOAuth()}
-      {showEdit && props.canEdit && Component && (
+      {showEdit && props.canEdit && (
         <div className="workflowSettings">
-          <Component
-            companyId={localStorage.getItem('currentProjectId')}
-            processId={props.id}
-            relationId={props.relationId}
-            relationType={props.relationType}
-            selectNodeId={node.id} //gengxindonghua
-            selectNodeType={node.typeId}
-            closeDetail={() => setState({ showEdit: false })}
-            hasAuth={props.hasAuth}
-            customNodeName={_l('鉴权方式')}
-            isIntegration
-            updateNodeData={() => {
-              getInfo();
-            }}
-          />
+          <Suspense fallback={null}>
+            <LoadableWorkflowDetail
+              companyId={localStorage.getItem('currentProjectId')}
+              processId={props.id}
+              relationId={props.relationId}
+              relationType={props.relationType}
+              selectNodeId={node.id} //gengxindonghua
+              selectNodeType={node.typeId}
+              closeDetail={() =>
+                setState({
+                  showEdit: false,
+                })
+              }
+              hasAuth={props.hasAuth}
+              customNodeName={_l('鉴权方式')}
+              isIntegration
+              updateNodeData={() => {
+                getInfo();
+              }}
+            />
+          </Suspense>
         </div>
       )}
       {showRefreshLog && (
@@ -548,7 +620,11 @@ function ConnectAuth(props) {
           {...props}
           showRefreshLog={showRefreshLog}
           processId={props.id}
-          onClose={() => setState({ showRefreshLog: false })}
+          onClose={() =>
+            setState({
+              showRefreshLog: false,
+            })
+          }
         />
       )}
     </Wrap>

@@ -7,6 +7,7 @@ import { Icon, SvgIcon } from 'ming-ui';
 import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
 import { getIcons } from 'src/pages/workflow/WorkflowSettings/utils.js';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
+import { pathCompletion } from 'src/utils/common';
 import { getWidgetInfo, toEditWidgetPage } from '../../../util';
 import { REFERENCE_TYPE } from './config';
 import { ExtraTime } from './styled';
@@ -146,6 +147,40 @@ export const WorksheetField = props => {
   return <Fragment>{groupList.map(l => renderItem(l))}</Fragment>;
 };
 
+const renderWorkflowItem = item => {
+  return (
+    <Fragment>
+      {(item.references || []).map(i => {
+        return (
+          <div className="referenceItem">
+            <div className="ruleContent">
+              <div className="flex overflow_ellipsis textPrimary Bold">{i.parentName}</div>
+              <div className="ruleStatus flexCenter justifyContentRight">
+                <div
+                  className="point"
+                  style={{ background: i.enabled ? 'var(--color-task)' : 'var(--color-text-placeholder)' }}
+                ></div>
+                <div className="mLeft6">{i.enabled ? _l('开启') : _l('关闭')}</div>
+              </div>
+            </div>
+            {(i.referenceItems || []).map(r => {
+              return (
+                <div
+                  className="flexCenter overflow_ellipsis mTop8 pointer controlName"
+                  onClick={() => window.open(pathCompletion(`/workflowedit/${i.parentId}/1/${r.type}/${r.id}`))}
+                >
+                  <i className={`${getIcons(r.type, r.appType, r.actionId)}`} />
+                  <span className="flex overflow_ellipsis mLeft6">{r.name || _l('分支')}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </Fragment>
+  );
+};
+
 export const WorksheetWorkflow = props => {
   const { appType, list = [], loading, workflowLoadings, refreshItemWorkflowReference } = props;
   const [expandKeys, setExpandKeys] = useState([]);
@@ -155,40 +190,6 @@ export const WorksheetWorkflow = props => {
       setExpandKeys(list.map(i => i.appId));
     }
   }, [loading]);
-
-  const renderItem = item => {
-    return (
-      <Fragment>
-        {(item.references || []).map(i => {
-          return (
-            <div className="referenceItem">
-              <div className="ruleContent">
-                <div className="flex overflow_ellipsis textPrimary Bold">{i.parentName}</div>
-                <div className="ruleStatus flexCenter justifyContentRight">
-                  <div
-                    className="point"
-                    style={{ background: i.enabled ? 'var(--color-task)' : 'var(--color-text-placeholder)' }}
-                  ></div>
-                  <div className="mLeft6">{i.enabled ? _l('开启') : _l('关闭')}</div>
-                </div>
-              </div>
-              {(i.referenceItems || []).map(r => {
-                return (
-                  <div
-                    className="flexCenter overflow_ellipsis mTop8 pointer controlName"
-                    onClick={() => window.open(`${location.origin}/workflowedit/${i.parentId}/1/${r.type}/${r.id}`)}
-                  >
-                    <i className={`${getIcons(r.type, r.appType, r.actionId)}`} />
-                    <span className="flex overflow_ellipsis mLeft6">{r.name || _l('分支')}</span>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </Fragment>
-    );
-  };
 
   const renderExtra = item => {
     return (
@@ -221,7 +222,7 @@ export const WorksheetWorkflow = props => {
         {list.map(l => {
           return (
             <Panel header={renderHeader(l)} key={l.appId} extra={renderExtra(l)}>
-              {renderItem(l)}
+              {renderWorkflowItem(l)}
             </Panel>
           );
         })}
@@ -229,7 +230,27 @@ export const WorksheetWorkflow = props => {
     );
   }
 
-  return <Fragment>{list.map(l => renderItem(l))}</Fragment>;
+  return <Fragment>{list.map(l => renderWorkflowItem(l))}</Fragment>;
+};
+
+const renderRuleItem = i => {
+  return (
+    <Fragment>
+      {(i.references || []).map(item => {
+        return (
+          <div className="referenceItem">
+            <div
+              className="flex overflow_ellipsis Bold pointer hoverColorPrimary"
+              onClick={() => window.open(pathCompletion(`/worksheet/formSet/edit/${item.parentId}/display`))}
+            >
+              {item.name}
+            </div>
+            <div className="mTop6">{item.type === 0 ? _l('交互规则') : _l('验证规则')}</div>
+          </div>
+        );
+      })}
+    </Fragment>
+  );
 };
 
 export const WorksheetRules = props => {
@@ -239,26 +260,6 @@ export const WorksheetRules = props => {
   useEffect(() => {
     setExpandKeys(list.map(i => i.disabled));
   }, [loading]);
-
-  const renderItem = i => {
-    return (
-      <Fragment>
-        {(i.references || []).map(item => {
-          return (
-            <div className="referenceItem">
-              <div
-                className="flex overflow_ellipsis Bold pointer ThemeHoverColor3"
-                onClick={() => window.open(`${location.origin}/worksheet/formSet/edit/${item.parentId}/display`)}
-              >
-                {item.name}
-              </div>
-              <div className="mTop6">{item.type === 0 ? _l('交互规则') : _l('验证规则')}</div>
-            </div>
-          );
-        })}
-      </Fragment>
-    );
-  };
 
   return (
     <SettingCollapseWrap
@@ -274,7 +275,7 @@ export const WorksheetRules = props => {
       {list.map(l => {
         return (
           <Panel header={l.disabled ? _l('关闭') : _l('开启')} key={l.disabled}>
-            {renderItem(l)}
+            {renderRuleItem(l)}
           </Panel>
         );
       })}
@@ -306,8 +307,8 @@ export const WorksheetView = props => {
                 {item.parentId === globalSheetInfo.worksheetId && `（${_l('本表')}）`}
               </div>
               <div
-                className="flexRow pLeft22 mTop8 ThemeHoverColor3 pointer flexCenter"
-                onClick={() => window.open(`${location.origin}/worksheet/${item.parentId}/view/${item.id}`)}
+                className="flexRow pLeft22 mTop8 hoverColorPrimary pointer flexCenter"
+                onClick={() => window.open(pathCompletion(`/worksheet/${item.parentId}/view/${item.id}`))}
               >
                 <Icon style={{ color, fontSize: '16px', marginRight: '6px' }} icon={icon} />
                 <div className="flex overflow_ellipsis Bold">{item.name}</div>

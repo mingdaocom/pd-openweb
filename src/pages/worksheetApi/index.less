@@ -126,6 +126,19 @@ html {
   box-sizing: border-box;
 }
 
+.worksheetApiMobileUnsupported {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  background: var(--color-background-secondary);
+  text-align: center;
+  .icon-pc-mac-circle {
+    font-size: 100px;
+  }
+}
+
 .worksheetApiLine {
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
   .descBox {
@@ -297,25 +310,6 @@ html {
   overflow-x: auto;
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
   flex: 1;
-
-  .react-json-view {
-    background: transparent !important;
-  }
-}
-
-.worksheetApiContentJsonViewBox {
-  padding: 16px 20px;
-  border-radius: 4px;
-  background: #303336;
-  overflow-x: auto;
-  .react-json-view {
-    background: transparent !important;
-    .variable-value {
-      div {
-        word-break: break-all;
-      }
-    }
-  }
 }
 
 .errorBox {

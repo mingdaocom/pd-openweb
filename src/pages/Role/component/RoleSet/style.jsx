@@ -34,6 +34,24 @@ export const Wrap = styled.div`
       margin-right: 10px !important;
     }
 
+    .actionListCon {
+      :global(.ming.Checkbox) {
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
+      }
+      :global(.ming.Checkbox .Checkbox-box) {
+        flex-shrink: 0;
+        align-self: center;
+      }
+      :global(.ming.Icon) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+    }
+
     .authTable {
       .tableHeader {
         background-color: var(--color-background-secondary);

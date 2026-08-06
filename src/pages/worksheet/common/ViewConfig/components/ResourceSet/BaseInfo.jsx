@@ -172,7 +172,7 @@ export default function BaseInfo(props) {
                 <WrapNullTxt className="textTertiary pAll15">
                   {_l('关联的工作表中没有可选字段，请先去添加一个')}
                   <span
-                    className="ThemeColor3 Hand"
+                    className="colorPrimary Hand"
                     onClick={() => {
                       toEditWidgetPage(
                         {

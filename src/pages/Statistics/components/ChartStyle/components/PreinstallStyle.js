@@ -102,6 +102,7 @@ const PreinstallStyle = props => {
       <div className="mBottom10">{_l('预设样式')}</div>
       <div className="chartTypeSelect flexRow valignWrapper">
         <div
+          title={_l('主题')}
           className="flex centerAlign pointer textSecondary"
           onClick={() => {
             const isLight = isLightColor(iconColor);
@@ -114,18 +115,19 @@ const PreinstallStyle = props => {
           }}
         >
           <ColorBlock style={{ backgroundColor: iconColor }}></ColorBlock>
-          {_l('主题')}
+          <span className="ellipsis">{_l('主题')}</span>
         </div>
         {styles.map(item => (
           <div
             key={item.value}
+            title={item.name}
             className="flex centerAlign pointer textSecondary"
             onClick={() => {
               handleChangePivotTableStyle(item.config);
             }}
           >
             <ColorBlock style={{ backgroundColor: item.color }}></ColorBlock>
-            {item.name}
+            <span className="ellipsis">{item.name}</span>
           </div>
         ))}
       </div>
@@ -156,12 +158,13 @@ const PreinstallStyle = props => {
         {widthModels.map(item => (
           <div
             key={item.value}
+            title={item.name}
             className={cx('flex centerAlign pointer textSecondary', { active: pcWidthModel === item.value })}
             onClick={() => {
               onChangeStyle({ pcWidthModel: item.value }, true);
             }}
           >
-            {item.name}
+            <span className="ellipsis">{item.name}</span>
           </div>
         ))}
       </div>
@@ -170,12 +173,13 @@ const PreinstallStyle = props => {
         {widthModels.map(item => (
           <div
             key={item.value}
+            title={item.name}
             className={cx('flex centerAlign pointer textSecondary', { active: mobileWidthModel === item.value })}
             onClick={() => {
               onChangeStyle({ mobileWidthModel: item.value });
             }}
           >
-            {item.name}
+            <span className="ellipsis">{item.name}</span>
           </div>
         ))}
       </div>

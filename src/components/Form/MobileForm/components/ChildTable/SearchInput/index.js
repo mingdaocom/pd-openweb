@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import './index.less';
 
@@ -14,29 +15,45 @@ export default class SearchInput extends Component {
     onOk: PropTypes.func,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
+    debounceTime: PropTypes.number,
   };
   static defaultProps = {
     style: {},
     onClear: () => {},
+    onOk: () => {},
     onFocus: () => {},
     onBlur: () => {},
+    debounceTime: 500,
   };
   constructor(props) {
     super(props);
     this.state = {
       isFocus: false,
     };
+    this.handleDebouncedOk = _.debounce(value => {
+      this.props.onOk(value);
+    }, props.debounceTime);
   }
-  componentWillReceiveProps(nextProps) {
-    if (typeof nextProps.active !== 'undefined') {
-      this.setState({
-        isFocus: nextProps.active,
-      });
-    }
 
-    if (this.props.viewId !== nextProps.viewId) {
-      this.setState({ value: '', isFocus: false });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (typeof this.props.active !== 'undefined') {
+        this.setState({
+          isFocus: this.props.active,
+        });
+      }
+
+      if (prevProps.viewId !== this.props.viewId) {
+        this.handleDebouncedOk.cancel();
+        this.setState({
+          value: '',
+          isFocus: false,
+        });
+      }
     }
+  }
+  componentWillUnmount() {
+    this.handleDebouncedOk.cancel();
   }
   clear() {
     this.setState({ value: '' });
@@ -96,11 +113,14 @@ export default class SearchInput extends Component {
             style={isFocus && inputWidth ? { width: inputWidth } : {}}
             onKeyUp={e => {
               if (e.keyCode === 13) {
+                this.handleDebouncedOk.cancel();
                 onOk(e.target.value);
               }
             }}
             onChange={e => {
-              this.setState({ value: e.target.value });
+              const value = e.target.value;
+              this.setState({ value });
+              this.handleDebouncedOk(value);
             }}
             onFocus={() => {
               this.setState({ isFocus: true });
@@ -113,6 +133,7 @@ export default class SearchInput extends Component {
               }
 
               if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
+                this.handleDebouncedOk.cancel();
                 onOk('');
               }
             }}
@@ -122,6 +143,7 @@ export default class SearchInput extends Component {
               hide: !value,
             })}
             onClick={() => {
+              this.handleDebouncedOk.cancel();
               this.setState({ value: '', isFocus: false }, () => {
                 onClear();
               });

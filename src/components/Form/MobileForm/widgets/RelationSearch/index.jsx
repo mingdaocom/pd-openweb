@@ -7,7 +7,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/utils/control';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from '../../../core/enum';
 import SearchInput from '../../components/ChildTable/SearchInput';
@@ -165,15 +165,9 @@ export default function RelationSearch(props) {
   });
   const handleOpenRecord = useCallback(needOpenRecordId => {
     addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
-    handlePushState('page', `relateRecord-${recordId}`);
     setRecordInfoVisible(true);
     setOpenRecordId(needOpenRecordId);
   });
-
-  const onQueryChange = () => {
-    if (!recordInfoVisible) return;
-    handleReplaceState('page', `relateRecord-${recordId}`, () => setRecordInfoVisible(false));
-  };
 
   useEffect(() => {
     loadRecords();
@@ -200,13 +194,6 @@ export default function RelationSearch(props) {
       setState(oldState => ({ ...oldState, loading: false, records: [] }));
     }
   });
-
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, [recordInfoVisible]);
 
   if (!loading && control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) {
     return <div className="customFormNull" />;

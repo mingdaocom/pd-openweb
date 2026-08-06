@@ -36,7 +36,7 @@ export default function DropConfig(props) {
             <span>{_l('为选项赋分值')}</span>
           </Checkbox>
           {!!enumDefault && (
-            <div className="pointer textSecondary ThemeHoverColor3" onClick={() => setVisible(true)}>
+            <div className="pointer textSecondary hoverColorPrimary" onClick={() => setVisible(true)}>
               {hasScore && <span className="mRight6">{_l('已设置')}</span>}
               <span className="icon-settings Font15"></span>
             </div>

@@ -8,6 +8,7 @@ import moment from 'moment';
 import { Icon } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
+import { setRecordDragging } from 'worksheet/views/GunterView/scrollState';
 import { percentageToTime, timeToPercentage } from 'worksheet/views/GunterView/util';
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
@@ -61,14 +62,7 @@ const getLastWorkEndTime = (time, dayOff) => {
   return current.format('YYYY-MM-DD');
 };
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll', 'grouping']),
-    ..._.pick(state.sheet, ['controls', 'base', 'isCharge', 'worksheetInfo', 'views', 'sheetSwitchPermit']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class RowBlock extends Component {
+let RowBlock = class RowBlock extends Component {
   constructor(props) {
     super(props);
     const { base } = props;
@@ -85,17 +79,42 @@ export default class RowBlock extends Component {
     this.timer = null;
     this.gunterChartWrapperEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.style, this.props.style)) {
-      this.$ref.current.style.transform = null;
-    }
 
-    if (nextProps.row.resetTime !== this.props.row.resetTime) {
-      this.$ref.current.style.transform = null;
-      this.$ref.current.style.left = `${nextProps.row.left}px`;
-      this.$ref.current.style.width = `${nextProps.row.width}px`;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.style, prevProps.style)) {
+        this.$ref.current.style.transform = null;
+      }
+
+      if (this.props.row.resetTime !== prevProps.row.resetTime) {
+        this.$ref.current.style.transform = null;
+        this.$ref.current.style.left = `${this.props.row.left}px`;
+        this.$ref.current.style.width = `${this.props.row.width}px`;
+      }
     }
   }
+
+  componentWillUnmount() {
+    this.removeDocumentDragListeners();
+    setRecordDragging(false);
+    clearInterval(this.timer);
+  }
+
+  setDocumentDragListeners = (onMouseMove, onMouseUp) => {
+    this.removeDocumentDragListeners();
+    this.documentDragListeners = { onMouseMove, onMouseUp };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  removeDocumentDragListeners = () => {
+    if (!this.documentDragListeners) return;
+    const { onMouseMove, onMouseUp } = this.documentDragListeners;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    this.documentDragListeners = null;
+  };
+
   openScroll(x, changValue) {
     const { left, right } = this.gunterChartWrapperEl.getBoundingClientRect();
     const { chartScroll, viewConfig, row } = this.props;
@@ -113,6 +132,7 @@ export default class RowBlock extends Component {
 
           this.handleAutoUpdateTime(-1);
           chartScroll.scrollTo(chartScroll.x + viewConfig.minDayWidth, 0);
+
           chartScroll._execEvent('scroll');
         }, 200);
       }
@@ -132,6 +152,7 @@ export default class RowBlock extends Component {
 
           this.handleAutoUpdateTime(1);
           chartScroll.scrollTo(chartScroll.x - viewConfig.minDayWidth, 0);
+
           chartScroll._execEvent('scroll');
         }, 200);
       }
@@ -140,35 +161,48 @@ export default class RowBlock extends Component {
     }
 
     if (this.isScroll) {
-      row.dragStartTime = null;
-      row.dragEndTime = null;
+      this.props.updateGroupingRow(
+        {
+          ...row,
+          dragStartTime: null,
+          dragEndTime: null,
+        },
+        row.rowid,
+      );
       this.closeScroll();
     }
   }
+
   closeScroll() {
     this.isScroll = false;
-    this.setState({ dragStartTime: null, dragEndTime: null });
+    this.setState({
+      dragStartTime: null,
+      dragEndTime: null,
+    });
     clearInterval(this.timer);
   }
+
   handleAutoUpdateTime = value => {
     const { row } = this.props;
     const { dragStartTime, dragEndTime } = this.state;
     this.props.updateRecordDragTime(row, dragStartTime, dragEndTime, value);
   };
   handleUpdateRecordTime = (start, end) => {
-    const { row, updateRecordTime } = this.props;
-    // if (this.isScroll) {
+    const { row, updateRecordTime } = this.props; // if (this.isScroll) {
     //   this.setState({ dragStartTime: start, dragEndTime: end });
     // } else {
     // console.log(row.dragStartTime, row.dragBeforeStartTime, start);
     // updateRecordTime(row, row.dragStartTime || start, row.dragEndTime || end);
     // }
+
     updateRecordTime(row, start, end);
   };
+
   handleChange(value) {
     const [start, end] = this.getAllTime(value);
     this.handleUpdateRecordTime(start, end);
   }
+
   getAllTime(value) {
     const { row, viewConfig } = this.props;
     const { minDayWidth, onlyWorkDay, periodType, startType, endType, startFormat, endFormat, dayOff } = viewConfig;
@@ -205,7 +239,6 @@ export default class RowBlock extends Component {
         const startTime = moment(startDayTime ? startDayTime : currentStartTime)
           .add(startHours, 'h')
           .format('YYYY-MM-DD HH:mm');
-
         const endIsZero = !moment(row.endTime).minute() && !moment(row.endTime).hour();
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
@@ -227,7 +260,6 @@ export default class RowBlock extends Component {
         const endTime = moment(endDayTime ? endDayTime : currentEndTime)
           .add(endHours, 'h')
           .format('YYYY-MM-DD HH:mm');
-
         return [startTime, endTime];
       } else if ((startType === 16 || endType === 16) && periodType === PERIOD_TYPE.day) {
         if (isStartHour && !isStartDayOff) {
@@ -261,10 +293,12 @@ export default class RowBlock extends Component {
       }
     }
   }
+
   handleChangeStart(value) {
     const [start, end] = this.getStartTime(value);
     this.handleUpdateRecordTime(start, end);
   }
+
   getStartTime(value) {
     const { row, viewConfig } = this.props;
     const { minDayWidth, onlyWorkDay, periodType, startType, startFormat, dayOff } = viewConfig;
@@ -311,10 +345,12 @@ export default class RowBlock extends Component {
       return [startTime, null];
     }
   }
+
   handleChangeEnd(value) {
     const [start, end] = this.getEndTime(value);
     this.handleUpdateRecordTime(start, end);
   }
+
   getEndTime(value) {
     const { row, viewConfig } = this.props;
     const { minDayWidth, onlyWorkDay, periodType, endType, endFormat, dayOff } = viewConfig;
@@ -364,12 +400,14 @@ export default class RowBlock extends Component {
       return [null, endTime];
     }
   }
+
   formatRemainder(value) {
     const { viewConfig } = this.props;
     const { minDayWidth } = viewConfig;
     const diff = value % minDayWidth;
     return value - diff;
   }
+
   getIsSurpassBoundary(x) {
     const { left, right } = this.gunterChartWrapperEl.getBoundingClientRect();
 
@@ -379,9 +417,10 @@ export default class RowBlock extends Component {
 
     return false;
   }
+
   handleMouseDown = event => {
     if (event.target.classList.contains('recordTitle')) return;
-    window.isDrag = true;
+    setRecordDragging(true);
     event.stopPropagation();
     const { row, viewConfig } = this.props;
     const { startType, endType, periodType, milepost, minDayWidth } = viewConfig;
@@ -391,8 +430,9 @@ export default class RowBlock extends Component {
     let { left } = $(this.$ref.current).position();
     let x = event.clientX - left;
 
-    document.onmousemove = event => {
+    const handleMouseMove = event => {
       if (this.getIsSurpassBoundary(event.clientX)) return;
+
       if (this.isScroll) {
         left = $(this.$ref.current).position().left - minDayWidth;
         x = event.clientX - left;
@@ -407,23 +447,29 @@ export default class RowBlock extends Component {
           currentChangeStartTime: start,
           currentChangeEndTime: end,
         });
-        this.$ref.current.style.transform = `translateX(${changValue}px)`;
-        // this.$ref.current.style.left = `${left + changValue}px`;
-      }
-      // this.openScroll(event.clientX, changValue);
+        this.$ref.current.style.transform = `translateX(${changValue}px)`; // this.$ref.current.style.left = `${left + changValue}px`;
+      } // this.openScroll(event.clientX, changValue);
     };
 
-    document.onmouseup = () => {
-      // this.closeScroll();
-      changValue && this.handleChange(changValue);
-      this.setState({ tooltipVisible: false, currentChangeStartTime: null, currentChangeEndTime: null });
-      window.isDrag = changValue ? true : false;
-      document.onmousemove = null;
-      document.onmouseup = null;
+    const handleMouseUp = () => {
+      try {
+        // this.closeScroll();
+        changValue && this.handleChange(changValue);
+        this.setState({
+          tooltipVisible: false,
+          currentChangeStartTime: null,
+          currentChangeEndTime: null,
+        });
+        setRecordDragging(!!changValue);
+      } finally {
+        this.removeDocumentDragListeners();
+      }
     };
+
+    this.setDocumentDragListeners(handleMouseMove, handleMouseUp);
   };
   handleMouseDownStart = event => {
-    window.isDrag = true;
+    setRecordDragging(true);
     event.stopPropagation();
     const { viewConfig } = this.props;
     const { minDayWidth, startType, periodType } = viewConfig;
@@ -432,7 +478,7 @@ export default class RowBlock extends Component {
     const x = event.clientX;
     let changValue = null;
 
-    document.onmousemove = event => {
+    const handleMouseMove = event => {
       const originalLeft = event.clientX - (x - left);
       const newLeft = isHours ? originalLeft : this.formatRemainder(originalLeft);
       const newWidth = width + (x - event.clientX) + (originalLeft - newLeft);
@@ -454,16 +500,24 @@ export default class RowBlock extends Component {
       this.$ref.current.style.left = `${newLeft}px`;
     };
 
-    document.onmouseup = () => {
-      changValue && this.handleChangeStart(changValue);
-      this.setState({ tooltipVisible: false, currentChangeStartTime: null, currentChangeEndTime: null });
-      window.isDrag = changValue ? true : false;
-      document.onmousemove = null;
-      document.onmouseup = null;
+    const handleMouseUp = () => {
+      try {
+        changValue && this.handleChangeStart(changValue);
+        this.setState({
+          tooltipVisible: false,
+          currentChangeStartTime: null,
+          currentChangeEndTime: null,
+        });
+        setRecordDragging(!!changValue);
+      } finally {
+        this.removeDocumentDragListeners();
+      }
     };
+
+    this.setDocumentDragListeners(handleMouseMove, handleMouseUp);
   };
   handleMouseDownEnd = event => {
-    window.isDrag = true;
+    setRecordDragging(true);
     event.stopPropagation();
     const { viewConfig } = this.props;
     const { minDayWidth, endType, periodType } = viewConfig;
@@ -472,7 +526,7 @@ export default class RowBlock extends Component {
     const { width } = this.props.style;
     let changValue = null;
 
-    document.onmousemove = event => {
+    const handleMouseMove = event => {
       const originalLeft = event.clientX - x + width;
       const newWidth = isHours ? originalLeft : this.formatRemainder(originalLeft);
 
@@ -492,13 +546,21 @@ export default class RowBlock extends Component {
       this.$ref.current.style.width = `${newWidth}px`;
     };
 
-    document.onmouseup = () => {
-      changValue && this.handleChangeEnd(changValue);
-      this.setState({ tooltipVisible: false, currentChangeStartTime: null, currentChangeEndTime: null });
-      window.isDrag = changValue ? true : false;
-      document.onmousemove = null;
-      document.onmouseup = null;
+    const handleMouseUp = () => {
+      try {
+        changValue && this.handleChangeEnd(changValue);
+        this.setState({
+          tooltipVisible: false,
+          currentChangeStartTime: null,
+          currentChangeEndTime: null,
+        });
+        setRecordDragging(!!changValue);
+      } finally {
+        this.removeDocumentDragListeners();
+      }
     };
+
+    this.setDocumentDragListeners(handleMouseMove, handleMouseUp);
   };
   handleMouseEnter = event => {
     const { style } = this.props;
@@ -508,6 +570,7 @@ export default class RowBlock extends Component {
       tooltipLeft: event.clientX - left - style.width / 2,
     });
   };
+
   renderPopoverContent() {
     const {
       viewConfig,
@@ -521,25 +584,32 @@ export default class RowBlock extends Component {
       removeRecord = () => {},
       buttonsCheckStatus,
     } = this.props;
-    const newRow = {
-      ...row,
-      [viewConfig.startId]: row.originalStartTime,
-      [viewConfig.endId]: row.originalEndTime,
-    };
+    const newRow = { ...row, [viewConfig.startId]: row.originalStartTime, [viewConfig.endId]: row.originalEndTime };
     const { appId, projectId } = worksheetInfo;
-    const view = _.find(views, { viewId: base.viewId }) || {};
-    const titleId = view.viewtitle ? view.viewtitle : _.get(_.find(controls, { attribute: 1 }), 'controlId');
+    const view =
+      _.find(views, {
+        viewId: base.viewId,
+      }) || {};
+    const titleId = view.viewtitle
+      ? view.viewtitle
+      : _.get(
+          _.find(controls, {
+            attribute: 1,
+          }),
+          'controlId',
+        );
     const coverControl = view.coverCid
-      ? _.find(controls, { controlId: view.coverCid }) || {}
-      : _.find(controls, { type: 14 }) || {};
+      ? _.find(controls, {
+          controlId: view.coverCid,
+        }) || {}
+      : _.find(controls, {
+          type: 14,
+        }) || {};
     const cover = row[coverControl.controlId];
     const showControls = [viewConfig.startId, viewConfig.endId].concat(view.showControls);
     const formData = sortControlByIds(
       controls.map(c => {
-        return {
-          ...c,
-          value: newRow[c.controlId] || undefined,
-        };
+        return { ...c, value: newRow[c.controlId] || undefined };
       }),
       view.controlsSorts || [],
     );
@@ -569,16 +639,16 @@ export default class RowBlock extends Component {
             : '',
           fields: showControls
             .concat([titleId])
-            .map(id => _.find(formData, { controlId: id }))
+            .map(id =>
+              _.find(formData, {
+                controlId: id,
+              }),
+            )
             .filter(_ => _),
           rawRow: newRow,
           rowId: row.rowid,
           formData,
-          recordColorConfig: {
-            ...getRecordColorConfig(view),
-            showLine: false,
-            showBg: false,
-          },
+          recordColorConfig: { ...getRecordColorConfig(view), showLine: false, showBg: false },
         }}
         isCharge={isCharge}
         currentView={{ ...view, appId, projectId }}
@@ -591,14 +661,21 @@ export default class RowBlock extends Component {
           removeRecord(recordId);
         }}
         onCopySuccess={data => {
-          const { rows } = _.find(this.props.grouping, { key: groupKey });
-          const index = _.findIndex(rows, { rowid: row.rowid });
+          const { rows } = _.find(this.props.grouping, {
+            key: groupKey,
+          });
+
+          const index = _.findIndex(rows, {
+            rowid: row.rowid,
+          });
+
           this.props.addNewRecord(data, index + 1);
         }}
         buttonsCheckStatus={buttonsCheckStatus}
       />
     );
   }
+
   renderMilepost(color) {
     return (
       <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
@@ -609,21 +686,36 @@ export default class RowBlock extends Component {
       </svg>
     );
   }
+
   renderTitle() {
     const { row, controls, viewConfig, base } = this.props;
-    const titleControl = _.find(controls, { attribute: 1 });
+
+    const titleControl = _.find(controls, {
+      attribute: 1,
+    });
+
     const value = row[titleControl?.controlId] || row.titleValue;
+
     const emptyValue = _l('未命名');
+
     const title = _.get(viewConfig, 'viewtitle')
       ? renderTitleByViewtitle(row, controls, {
-          advancedSetting: { viewtitle: _.get(viewConfig, 'viewtitle') },
+          advancedSetting: {
+            viewtitle: _.get(viewConfig, 'viewtitle'),
+          },
           appId: base.appId,
         })
       : titleControl
-        ? renderCellText({ ...titleControl, value }, { appId: base.appId })
+        ? renderCellText(
+            { ...titleControl, value },
+            {
+              appId: base.appId,
+            },
+          )
         : emptyValue;
     return <span className="recordTitle overflow_ellipsis">{title || emptyValue}</span>;
   }
+
   render() {
     const { tooltipVisible } = this.state;
     const { row, style, onClick, viewConfig, searchRecordId, disable } = this.props;
@@ -642,12 +734,16 @@ export default class RowBlock extends Component {
         }}
         visible={isMobile ? false : tooltipVisible}
         onVisibleChange={tooltipVisible => {
-          this.setState({ tooltipVisible });
+          this.setState({
+            tooltipVisible,
+          });
         }}
       >
         <div
           ref={this.$ref}
-          className={cx(isMilepost ? 'milepostRecordBlock' : 'recordBlock', { disable: dragDisable })}
+          className={cx(isMilepost ? 'milepostRecordBlock' : 'recordBlock', {
+            disable: dragDisable,
+          })}
           style={{
             backgroundColor: row.color,
             width: isMilepost ? 0 : style.width,
@@ -658,7 +754,14 @@ export default class RowBlock extends Component {
           onMouseEnter={this.handleMouseEnter}
           onClick={onClick}
         >
-          {row.rowid === searchRecordId && <Icon className={cx('forward', { isMilepost })} icon="forward1" />}
+          {row.rowid === searchRecordId && (
+            <Icon
+              className={cx('forward', {
+                isMilepost,
+              })}
+              icon="forward1"
+            />
+          )}
           {isMilepost && this.renderMilepost(row.color)}
           {!disable && !isMilepost && (
             <Fragment>
@@ -666,11 +769,19 @@ export default class RowBlock extends Component {
                 <div
                   onMouseDown={this.handleMouseDownStart}
                   className="dragStart"
-                  style={{ borderColor: row.color }}
+                  style={{
+                    borderColor: row.color,
+                  }}
                 ></div>
               )}
               {!endDisable && (
-                <div onMouseDown={this.handleMouseDownEnd} className="dragEnd" style={{ borderColor: row.color }}></div>
+                <div
+                  onMouseDown={this.handleMouseDownEnd}
+                  className="dragEnd"
+                  style={{
+                    borderColor: row.color,
+                  }}
+                ></div>
               )}
             </Fragment>
           )}
@@ -679,4 +790,12 @@ export default class RowBlock extends Component {
       </Popover>
     );
   }
-}
+};
+RowBlock = connect(
+  state => ({
+    ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll', 'grouping']),
+    ..._.pick(state.sheet, ['controls', 'base', 'isCharge', 'worksheetInfo', 'views', 'sheetSwitchPermit']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(RowBlock);
+export default RowBlock;

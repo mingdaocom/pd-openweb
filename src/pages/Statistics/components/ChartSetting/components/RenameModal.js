@@ -9,11 +9,14 @@ export default class RenameModal extends Component {
       rename: props.rename,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.rename !== this.props.rename) {
-      this.setState({
-        rename: nextProps.rename,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.rename !== prevProps.rename) {
+        this.setState({
+          rename: this.props.rename,
+        });
+      }
     }
   }
   handleSave = () => {

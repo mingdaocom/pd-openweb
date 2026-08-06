@@ -42,8 +42,8 @@ class VoteResult extends React.Component {
               </div>
             ) : undefined}
             <div className="clearfix">
-              <div className="left outBar ThemeBGColor5">
-                <div className="inBar ThemeBGColor3" style={{ width: o.percentage + '%' }} />
+              <div className="left outBar bgColorPrimaryTransparent">
+                <div className="inBar bgColorPrimary" style={{ width: o.percentage + '%' }} />
               </div>
               <div className="left">
                 {o.count && !voteItem.Anonymous ? (

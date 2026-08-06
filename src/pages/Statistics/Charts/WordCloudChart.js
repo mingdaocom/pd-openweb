@@ -3,9 +3,11 @@ import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { formatChartData } from './BarChart';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
+import loadG2Plot from './loadG2Plot';
 
 export default class extends Component {
   constructor(props) {
@@ -19,59 +21,80 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.WordCloudChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderWordCloudChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.WordCloudChart && this.WordCloudChart.destroy();
+    this.isUnmounted = true;
+    this.destroyWordCloudChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
-
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup } = prevProps.reportData;
+    const shouldRecreate = this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const WordCloudChartConfig = this.getComponentConfig(nextProps);
-      this.WordCloudChart && this.WordCloudChart.update(WordCloudChartConfig);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.g2plotComponent) {
+      return;
     }
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.WordCloudChart && this.WordCloudChart.destroy();
-      this.renderWordCloudChart(nextProps);
+    if (shouldRecreate) {
+      this.renderWordCloudChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.WordCloudChart) {
+      const WordCloudChartConfig = this.getComponentConfig(this.props);
+      this.WordCloudChart.update(WordCloudChartConfig);
     }
   }
+  destroyWordCloudChart = () => {
+    if (this.WordCloudChart) {
+      this.WordCloudChart.destroy();
+      this.WordCloudChart = null;
+    }
+  };
   renderWordCloudChart(props) {
     const { reportData } = props;
     const { displaySetup, style } = reportData;
+
+    if (!this.chartEl || !this.g2plotComponent) {
+      return;
+    }
+
     const WordCloudChartConfig = this.getComponentConfig(props);
     const { WordCloud } = this.g2plotComponent;
 
-    if (this.chartEl) {
-      this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.WordCloudChart.on('element:click', this.handleClick);
-      }
-
-      this.WordCloudChart.render();
+    this.destroyWordCloudChart();
+    this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.WordCloudChart.on('element:click', this.handleClick);
     }
+
+    this.WordCloudChart.render();
   }
   handleClick = data => {
     const { reportData, isMobile } = this.props;
@@ -144,6 +167,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.WordCloudChart || !this.g2plotComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {

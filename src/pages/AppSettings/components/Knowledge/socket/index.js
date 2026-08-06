@@ -58,7 +58,7 @@ const getCommon = ({ knowledgeId, knowledgeName, knowledgeStatus, chunkCount }) 
   return {
     key: knowledgeId,
     className: 'customNotification',
-    closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
+    closeIcon: <Icon icon="close" className="Font20 textTertiary hoverColorPrimary" />,
     duration: 5,
     message: title,
     description: <div dangerouslySetInnerHTML={{ __html: filterXSS(description) }} />,

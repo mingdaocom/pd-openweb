@@ -1,10 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
 import addFriends from 'src/components/addFriends';
-import createCalendar from 'src/components/createCalendar/createCalendar';
-import createTask from 'src/components/createTask/createTask';
-import createFeed from 'src/pages/feed/components/createFeed';
-import createGroup from 'src/pages/Group/createGroup';
+import createCalendar from 'src/components/createCalendar/load';
+import createTask from 'src/components/createTask/load';
+import createFeed from 'src/pages/feed/components/createFeed/load';
+import createGroup from 'src/pages/Group/createGroup/load';
+import { pathCompletion } from 'src/utils/common';
 import './index.less';
 
 export default function UserMenu({ onClose = () => {} }) {
@@ -35,7 +36,7 @@ export default function UserMenu({ onClose = () => {} }) {
           </li>
         )}
         {knowledgeVisible && (
-          <li onClick={() => window.open('/apps/kcupload')}>
+          <li onClick={() => window.open(pathCompletion('/apps/kcupload'))}>
             <i className="icon icon-cloud_upload" />
             {_l('上传文件')}
           </li>

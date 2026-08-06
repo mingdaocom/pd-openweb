@@ -281,7 +281,7 @@ export default props => {
       <SortableItemBox className="flexRow mTop10 alignItemsCenter">
         <DragHandle>
           <Tooltip title={dragging ? '' : _l('拖拽调整排序')}>
-            <i className="icon-drag Font16 textSecondary ThemeHoverColor3" style={{ cursor: 'move' }} />
+            <i className="icon-drag Font16 textSecondary hoverColorPrimary" style={{ cursor: 'move' }} />
           </Tooltip>
         </DragHandle>
         <div className="flex mLeft10 Font13 workflowPrintItem flexRow alignItemsCenter">
@@ -482,7 +482,7 @@ export default props => {
           <div className="mRight10 mTop12">{_l('代理人')}</div>
           <Member companyId={companyId} leastOne accounts={data.processConfig.initiatorMaps[initiator]} />
           <div
-            className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
+            className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
               mLeft8: data.processConfig.initiatorMaps[initiator].length,
             })}
             style={{ height: 28 }}
@@ -531,7 +531,7 @@ export default props => {
           <div className="flexRow alignItemsCenter">
             <Member companyId={companyId} leastOne accounts={data.processConfig.agents} />
             <div
-              className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
+              className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
                 mLeft8: data.processConfig.agents.length,
               })}
               style={{ height: 28 }}
@@ -715,7 +715,7 @@ export default props => {
                 overflow: { adjustX: true, adjustY: true },
               }}
             >
-              <span className={cx('textSecondary', { 'pointer ThemeHoverColor3': !!printList.length })}>
+              <span className={cx('textSecondary', { 'pointer hoverColorPrimary': !!printList.length })}>
                 {printList.length ? `+ ${_l('添加打印模板')}` : _l('无打印模板')}
               </span>
             </Trigger>

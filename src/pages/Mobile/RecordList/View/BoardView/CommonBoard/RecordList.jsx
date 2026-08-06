@@ -22,7 +22,6 @@ const RecordList = props => {
     addBoardViewRecord,
     viewData,
     viewRootEl,
-    updateViewCard,
     delBoardViewRecord,
   } = props;
   const { viewControl } = view;
@@ -87,7 +86,6 @@ const RecordList = props => {
                 allowAdd={worksheetInfo.allowAdd}
                 sheetSwitchPermit={sheetSwitchPermit}
                 viewRootEl={viewRootEl}
-                updateViewCard={updateViewCard}
                 onDeleteSuccess={() => delBoardViewRecord({ key: itemFirstGroup.key, rowId: _row.rowid })}
                 onClick={() =>
                   openRecord(

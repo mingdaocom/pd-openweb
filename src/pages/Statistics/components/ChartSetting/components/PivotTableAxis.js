@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import { isAreaControl, isDisplayModes, isNumberControl, isTimeControl } from 'statistics/common/controlUtils';
 import {
   addCalculateControlHighlight,
   areaParticleSizeDropdownData,
@@ -14,20 +15,18 @@ import {
   emptyShowTypes,
   filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
+  textNormTypes,
+  xaxisEmptyShowTypes,
+} from 'statistics/common/reportConfigUtils';
+import {
   filterTimeData,
   filterTimeGatherParticle,
   formatTimeFormats,
-  isAreaControl,
-  isDisplayModes,
-  isNumberControl,
-  isTimeControl,
-  textNormTypes,
   timeDataParticle,
   timeFormats,
   timeGatherParticle,
   timeParticleSizeDropdownData,
-  xaxisEmptyShowTypes,
-} from 'statistics/common';
+} from 'statistics/common/timeUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { normTypes } from '../../../enum';
@@ -85,10 +84,19 @@ const renderOverlay = ({
   const isRelate = axis.type === 29;
   const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(axis.controlId, disableParticleSizeTypes);
   const areaParticleSizeDropdownData = filterAreaParticleSizeDropdownData(axis);
-  const showtype = _.get(axis, 'advancedSetting.showtype');
-  const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: axis.type }) : [];
-  const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: axis.type });
 
+  const showtype = _.get(axis, 'advancedSetting.showtype');
+
+  const timeDataList = isTime
+    ? filterTimeData(timeDataParticle, {
+        showtype,
+        controlType: axis.type,
+      })
+    : [];
+  const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, {
+    showtype,
+    controlType: axis.type,
+  });
   return (
     <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
       <Menu.Item
@@ -113,9 +121,14 @@ const renderOverlay = ({
             popupOffset={[0, -15]}
           >
             <Menu.Item
-              style={{ width: 120, color: !xaxisEmpty ? 'var(--color-primary) !important' : null }}
+              style={{
+                width: 120,
+                color: !xaxisEmpty ? 'var(--color-primary) !important' : null,
+              }}
               onClick={() => {
-                onChangeData(axis.controlId, { xaxisEmpty: false });
+                onChangeData(axis.controlId, {
+                  xaxisEmpty: false,
+                });
               }}
             >
               {_l('不显示')}
@@ -155,10 +168,15 @@ const renderOverlay = ({
           >
             {emptyShowTypes.map(item => (
               <Menu.Item
-                style={{ width: 120, color: item.value === emptyShowType ? 'var(--color-primary) !important' : null }}
+                style={{
+                  width: 120,
+                  color: item.value === emptyShowType ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
-                  onChangeData(axis.controlId, { emptyShowType: item.value });
+                  onChangeData(axis.controlId, {
+                    emptyShowType: item.value,
+                  });
                 }}
               >
                 {item.text}
@@ -184,7 +202,9 @@ const renderOverlay = ({
           >
             {displayModes.map(item => (
               <Menu.Item
-                style={{ color: item.value === displayMode ? 'var(--color-primary) !important' : null }}
+                style={{
+                  color: item.value === displayMode ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
                   onChangeData(axis.controlId, {
@@ -201,10 +221,15 @@ const renderOverlay = ({
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes.map(item => (
             <Menu.Item
-              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
+              style={{
+                width: 120,
+                color: item.value === normType ? 'var(--color-primary) !important' : null,
+              }}
               key={item.value}
               onClick={() => {
-                onChangeData(axis.controlId, { normType: item.value });
+                onChangeData(axis.controlId, {
+                  normType: item.value,
+                });
               }}
             >
               {item.text}
@@ -217,10 +242,15 @@ const renderOverlay = ({
           {(control.enumDefault === 1 ? normTypes : textNormTypes).map(item => (
             <Menu.Item
               className="valignWrapper"
-              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
+              style={{
+                width: 120,
+                color: item.value === normType ? 'var(--color-primary) !important' : null,
+              }}
               key={item.value}
               onClick={() => {
-                onChangeData(axis.controlId, { normType: item.value });
+                onChangeData(axis.controlId, {
+                  normType: item.value,
+                });
               }}
             >
               <div className="flex">{item.text}</div>
@@ -282,15 +312,22 @@ const renderOverlay = ({
               </Fragment>
             )}
           </Menu.SubMenu>
-          {_.find(timeDataParticle, { value: particleSizeType }) && (
+          {_.find(timeDataParticle, {
+            value: particleSizeType,
+          }) && (
             <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
               {formatTimeFormats(particleSizeType).map(item => (
                 <Menu.Item
                   className="valignWrapper"
-                  style={{ width: 200, color: item.value === showFormat ? 'var(--color-primary) !important' : null }}
+                  style={{
+                    width: 200,
+                    color: item.value === showFormat ? 'var(--color-primary) !important' : null,
+                  }}
                   key={item.value}
                   onClick={() => {
-                    onChangeData(axis.controlId, { showFormat: item.value });
+                    onChangeData(axis.controlId, {
+                      showFormat: item.value,
+                    });
                   }}
                 >
                   <div className="flex">{item.getTime()}</div>
@@ -300,15 +337,25 @@ const renderOverlay = ({
                 className="valignWrapper"
                 style={{
                   width: 200,
-                  color: !_.find(timeFormats, { value: showFormat }) ? 'var(--color-primary) !important' : null,
+                  color: !_.find(timeFormats, {
+                    value: showFormat,
+                  })
+                    ? 'var(--color-primary) !important'
+                    : null,
                 }}
                 key="customShowFormat"
                 onClick={() => {
                   openShowFormatDialog({
-                    showformat: _.find(timeFormats, { value: showFormat }) ? '' : showFormat,
+                    showformat: _.find(timeFormats, {
+                      value: showFormat,
+                    })
+                      ? ''
+                      : showFormat,
                     onOk: value => {
                       document.querySelector('.textRegexpVerifyDialog .Button--link').click();
-                      onChangeData(axis.controlId, { showFormat: value });
+                      onChangeData(axis.controlId, {
+                        showFormat: value,
+                      });
                     },
                   });
                 }}
@@ -324,7 +371,10 @@ const renderOverlay = ({
           {areaParticleSizeDropdownData.map(item => (
             <Menu.Item
               disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-              style={{ width: 120, color: item.value === particleSizeType ? 'var(--color-primary) !important' : null }}
+              style={{
+                width: 120,
+                color: item.value === particleSizeType ? 'var(--color-primary) !important' : null,
+              }}
               key={item.value}
               onClick={() => {
                 onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
@@ -368,7 +418,9 @@ const renderOverlay = ({
           <Divider className="mTop5 mBottom5" />
           <Menu.Item
             onClick={() => {
-              onChangeData(axis.controlId, { hide: !hide });
+              onChangeData(axis.controlId, {
+                hide: !hide,
+              });
             }}
           >
             {_l('在表格中%0', hide ? _l('显示') : _l('隐藏'))}
@@ -394,9 +446,18 @@ const renderSortableItem = props => {
     onShowControl,
     onSelectReNameId,
   } = props;
+
   if (!item) return null;
-  const axis = _.find(axisControls, { controlId: item.controlId }) || {};
-  const control = _.find(allControls, { controlId: item.controlId }) || {};
+
+  const axis =
+    _.find(axisControls, {
+      controlId: item.controlId,
+    }) || {};
+  const control =
+    _.find(allControls, {
+      controlId: item.controlId,
+    }) || {};
+
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
   const overlayProps = {
@@ -415,7 +476,7 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent className="mBottom12">
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer textDisabled ThemeHoverColor3" icon="drag" />
+        <Icon className="sortableDrag Font20 pointer textDisabled hoverColorPrimary" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
         {axis.controlId ? (
@@ -423,12 +484,27 @@ const renderSortableItem = props => {
             <span className="textPrimary flex ellipsis">
               {verifyNumber &&
                 ![10000000, 10000001].includes(axis.type) &&
-                `${_.get(_.find(normTypes.concat(textNormTypes), { value: item.normType }), 'text')}: `}
+                `${_.get(
+                  _.find(normTypes.concat(textNormTypes), {
+                    value: item.normType,
+                  }),
+                  'text',
+                )}: `}
               {item.rename || axis.controlName}
               {!verifyNumber && (
                 <Fragment>
-                  {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
-                  {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+                  {isTime &&
+                    ` (${
+                      _.find(timeParticleSizeDropdownData, {
+                        value: item.particleSizeType || 1,
+                      }).text
+                    })`}
+                  {isArea &&
+                    ` (${
+                      _.find(areaParticleSizeDropdownData, {
+                        value: item.particleSizeType || 1,
+                      }).text
+                    })`}
                 </Fragment>
               )}
             </span>
@@ -456,10 +532,7 @@ const renderSortableItem = props => {
   );
 };
 
-@connect(state => ({
-  ..._.pick(state.statistics, ['worksheetInfo']),
-}))
-export default class PivotTableAxis extends Component {
+let PivotTableAxis = class PivotTableAxis extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -468,11 +541,17 @@ export default class PivotTableAxis extends Component {
       currentControl: {},
     };
   }
+
   handleVerification = (data, isAlert = false) => {
     const { type, list, axisList, verifyNumber } = this.props;
     const isAxis = ['lines', 'columns'].includes(type);
 
-    if (!isTimeControl(data.type) && _.find(isAxis ? axisList : list, { controlId: data.controlId })) {
+    if (
+      !isTimeControl(data.type) &&
+      _.find(isAxis ? axisList : list, {
+        controlId: data.controlId,
+      })
+    ) {
       isAlert && alert(_l('字段不可重复添加，如需使用，请使用“计算字段”添加'), 2);
       isAlert && addCalculateControlHighlight();
       return false;
@@ -494,7 +573,14 @@ export default class PivotTableAxis extends Component {
   };
   handleSelectReNameId = (id, particleSizeType) => {
     const { verifyNumber } = this.props;
-    const data = verifyNumber ? { controlId: id } : { controlId: id, particleSizeType };
+    const data = verifyNumber
+      ? {
+          controlId: id,
+        }
+      : {
+          controlId: id,
+          particleSizeType,
+        };
     const currentControl = _.find(this.props.list, data) || {};
     this.setState({
       resetNameVisible: true,
@@ -504,14 +590,17 @@ export default class PivotTableAxis extends Component {
   handleShowControl = id => {
     const { worksheetInfo, list } = this.props;
     const { columns } = worksheetInfo;
-    const column = _.find(columns, { controlId: id }) || {};
-    const currentControl = _.find(list, { controlId: id }) || {};
+    const column =
+      _.find(columns, {
+        controlId: id,
+      }) || {};
+    const currentControl =
+      _.find(list, {
+        controlId: id,
+      }) || {};
     this.setState({
       showControlVisible: true,
-      currentControl: {
-        ...currentControl,
-        relationControls: column.relationControls,
-      },
+      currentControl: { ...currentControl, relationControls: column.relationControls },
     });
   };
   handleChangeRename = name => {
@@ -543,10 +632,7 @@ export default class PivotTableAxis extends Component {
     const { list } = this.props;
     const newList = list.map(item => {
       if (item.controlId === controlId) {
-        return {
-          ...item,
-          ...data,
-        };
+        return { ...item, ...data };
       }
 
       return item;
@@ -556,6 +642,7 @@ export default class PivotTableAxis extends Component {
   handleSortEnd = newList => {
     this.props.onUpdateList(newList);
   };
+
   renderModal() {
     const { resetNameVisible, showControlVisible, currentControl } = this.state;
     return (
@@ -576,7 +663,9 @@ export default class PivotTableAxis extends Component {
           relationControls={currentControl.relationControls || []}
           fields={currentControl.fields || []}
           onUpdateXaxisFields={fields => {
-            this.handleChangeData(currentControl.controlId, { fields });
+            this.handleChangeData(currentControl.controlId, {
+              fields,
+            });
           }}
           onHideDialogVisible={() => {
             this.setState({
@@ -587,6 +676,7 @@ export default class PivotTableAxis extends Component {
       </Fragment>
     );
   }
+
   render() {
     const { type, name, list, axisControls, allControls, disableParticleSizeTypes, verifyNumber } = this.props;
     const otherProps = {
@@ -616,4 +706,6 @@ export default class PivotTableAxis extends Component {
       </div>
     );
   }
-}
+};
+PivotTableAxis = connect(state => ({ ..._.pick(state.statistics, ['worksheetInfo']) }))(PivotTableAxis);
+export default PivotTableAxis;

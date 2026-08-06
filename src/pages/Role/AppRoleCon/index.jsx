@@ -75,11 +75,13 @@ class Con extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.appRole.quickTag, nextProps.appRole.quickTag) && !!nextProps.appRole.quickTag.tab) {
-      this.setState({
-        tab: nextProps.appRole.quickTag.tab || 'user',
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.appRole.quickTag, this.props.appRole.quickTag) && !!this.props.appRole.quickTag.tab) {
+        this.setState({
+          tab: this.props.appRole.quickTag.tab || 'user',
+        });
+      }
     }
   }
 

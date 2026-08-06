@@ -243,6 +243,7 @@ function DetailView(props) {
                 const editingElements = document.getElementsByClassName('editingBar');
                 const isEditing =
                   !![...editingElements].filter(el => el.style.overflow === '').length || window.cellTextIsBlurring;
+
                 if (isEditing) {
                   alert(_l('请先保存或取消当前更改'), 3);
                   return;

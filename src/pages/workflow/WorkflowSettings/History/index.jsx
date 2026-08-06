@@ -8,6 +8,7 @@ import { MdLink, ScrollView } from 'ming-ui';
 import api from '../../api/instance';
 import processVersion from '../../api/processVersion';
 import ArchivedList from 'src/components/ArchivedList';
+import { pathCompletion } from 'src/utils/common';
 import chatbot from '../../apiV2/chatbot';
 import Detail from '../Detail';
 import { APP_TYPE } from '../enum';
@@ -27,7 +28,6 @@ const MenuIcon = styled.i`
   justify-content: center;
   cursor: pointer;
 `;
-
 const DrawerBox = styled.div`
   width: 280px;
   background-color: var(--color-background-primary);
@@ -44,12 +44,9 @@ const DrawerBox = styled.div`
     }
   }
 `;
-
-@withRouter
-class History extends Component {
+let History = class History extends Component {
   constructor(props) {
     super(props);
-
     const { operator, operatorId } = props.match.params;
     let ids = [];
 
@@ -83,10 +80,9 @@ class History extends Component {
   pageSize = 20;
   filterPara = {};
 
-  componentWillMount() {
+  componentDidMount() {
     const { flowInfo } = this.props;
     const { instanceId } = this.state;
-
     this.getData();
     this.getProcessAccumulation();
     instanceId && this.getInstance();
@@ -95,7 +91,6 @@ class History extends Component {
 
   getChatBotHistory = () => {
     const { flowInfo } = this.props;
-
     chatbot
       .getAllConversationList({
         pageIndex: 1,
@@ -103,10 +98,11 @@ class History extends Component {
         chatbotId: flowInfo.id,
       })
       .then(res => {
-        this.setState({ chatBotHistory: res });
+        this.setState({
+          chatBotHistory: res,
+        });
       });
   };
-
   getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
     const { pageIndex, workId, instanceId, requestPending, archivedItem, selectConversationId } = this.state;
@@ -121,13 +117,14 @@ class History extends Component {
       conversationId: selectConversationId,
       ...filterPara,
     };
-
     if (requestPending) return;
-
-    this.setState({ requestPending: true });
-
+    this.setState({
+      requestPending: true,
+    });
     api
-      .getHistoryList(para, { isIntegration: location.href.indexOf('integration') > -1 })
+      .getHistoryList(para, {
+        isIntegration: location.href.indexOf('integration') > -1,
+      })
       .then(res => {
         this.setState({
           data: pageIndex === 1 ? res : this.state.data.concat(res),
@@ -137,42 +134,56 @@ class History extends Component {
         callback();
       })
       .finally(() => {
-        this.setState({ requestPending: false });
+        this.setState({
+          requestPending: false,
+        });
       });
   };
 
   getInstance() {
     const { instanceId } = this.state;
-
-    api.getInstance({ instanceId }).then(res => {
-      this.setState({ instanceData: res });
-    });
+    api
+      .getInstance({
+        instanceId,
+      })
+      .then(res => {
+        this.setState({
+          instanceData: res,
+        });
+      });
   }
-
   /**
    * 筛选条件变化
    */
+
   handleFilter = para => {
     this.filterPara = para;
-    this.setState({ pageIndex: 1, batchIds: [], data: null }, () => {
-      this.getData();
-    });
+    this.setState(
+      {
+        pageIndex: 1,
+        batchIds: [],
+        data: null,
+      },
+      () => {
+        this.getData();
+      },
+    );
   };
 
   renderInstanceContent() {
     const { isPlugin } = this.props;
     const { instanceId, instanceData } = this.state;
-
     if (!instanceId || instanceData === null) return null;
-
     return (
       <div className="instanceContent">
         <div className="instanceContentBox flexRow ellipsis Font14">
           <div className="flex bold">
             <span
-              className="ThemeColor3 ThemeHoverColor2 mRight10 pointer"
+              className="colorPrimary hoverColorPrimaryDark mRight10 pointer"
               onClick={() =>
-                window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${instanceData.process.id}`)
+                window.open(
+                  pathCompletion(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${instanceData.process.id}`),
+                )
               }
             >
               {instanceData.process.name}
@@ -180,10 +191,17 @@ class History extends Component {
             {_l('触发了以下子流程')}
           </div>
           <MdLink
-            className="pointer textSecondary ThemeHoverColor3 Font16 mLeft20"
+            className="pointer textSecondary hoverColorPrimary Font16 mLeft20"
             to={`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${this.props.flowInfo.id}/2`}
             onClick={() => {
-              this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);
+              this.setState(
+                {
+                  workId: '',
+                  instanceId: '',
+                  instanceData: null,
+                },
+                this.handleFilter,
+              );
             }}
           >
             <i className="icon-delete" />
@@ -192,27 +210,37 @@ class History extends Component {
       </div>
     );
   }
-
   /**
    * 获取流程堆积量
    */
+
   getProcessAccumulation() {
     const { flowInfo } = this.props;
-
-    processVersion.getDifferenceByProcessId({ processId: flowInfo.id }).then(accumulation => {
-      this.setState({ accumulation });
-    });
+    processVersion
+      .getDifferenceByProcessId({
+        processId: flowInfo.id,
+      })
+      .then(accumulation => {
+        this.setState({
+          accumulation,
+        });
+      });
   }
-
   /**
    * 立即恢复
    */
+
   onRecovery = (waiting, hours) => {
     const { flowInfo } = this.props;
-
-    processVersion.updateWaiting({ processId: flowInfo.id, waiting, hours }).then(() => {
-      this.getProcessAccumulation();
-    });
+    processVersion
+      .updateWaiting({
+        processId: flowInfo.id,
+        waiting,
+        hours,
+      })
+      .then(() => {
+        this.getProcessAccumulation();
+      });
   };
 
   renderTalksDrawer() {
@@ -237,19 +265,25 @@ class History extends Component {
           <div className="flexRow alignItemsCenter mTop15 mLeft20 mRight15">
             <div className="Font12 bold flex textSecondary">{_l('历史对话')}</div>
             {selectConversationId && (
-              <div className="textSecondary ThemeHoverColor3 pointer mRight10" onClick={() => selectFunc('')}>
+              <div className="textSecondary hoverColorPrimary pointer mRight10" onClick={() => selectFunc('')}>
                 {_l('重置')}
               </div>
             )}
             <i
-              className="icon-menu_left Font20 textTertiary ThemeHoverColor3 pointer"
-              onClick={() => this.setState({ showTalksDrawer: false })}
+              className="icon-menu_left Font20 textTertiary hoverColorPrimary pointer"
+              onClick={() =>
+                this.setState({
+                  showTalksDrawer: false,
+                })
+              }
             />
           </div>
           <ScrollView className="flex h100 mTop10 pLeft10 pRight10">
             {chatBotHistory.map(item => (
               <div
-                className={cx('listItem', { active: selectConversationId === item.conversationId })}
+                className={cx('listItem', {
+                  active: selectConversationId === item.conversationId,
+                })}
                 key={item.conversationId}
                 onClick={() => selectFunc(item.conversationId)}
               >
@@ -273,9 +307,11 @@ class History extends Component {
       debugEvents: selectNodeObj.debugEvents,
       instanceId: selectActionId,
       isPlugin,
-      closeDetail: () => this.setState({ selectNodeObj: {} }),
+      closeDetail: () =>
+        this.setState({
+          selectNodeObj: {},
+        }),
     };
-
     return (
       <Fragment>
         <ScrollView className="workflowHistoryWrap flex">
@@ -287,15 +323,28 @@ class History extends Component {
               onClick={() => {
                 if (match.params.operator) {
                   location.replace(
-                    `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
+                    pathCompletion(
+                      `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
+                    ),
                   );
                 } else {
-                  this.setState({ selectActionId: '' }, () => {
-                    this.contentScroll.scrollTo({ top: scrollTop });
-                  });
+                  this.setState(
+                    {
+                      selectActionId: '',
+                    },
+                    () => {
+                      this.contentScroll.scrollTo({
+                        top: scrollTop,
+                      });
+                    },
+                  );
                 }
               }}
-              openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
+              openNodeDetail={selectNodeObj =>
+                this.setState({
+                  selectNodeObj,
+                })
+              }
             />
           </div>
         </ScrollView>
@@ -309,7 +358,6 @@ class History extends Component {
     const { flowInfo, isPlugin } = this.props;
     const { data, hasMoreData, accumulation, requestPending, batchIds, archivedItem, cacheKey } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
-
     return (
       <ScrollView className="workflowHistoryWrap flex" ref={contentScroll => (this.contentScroll = contentScroll)}>
         <div className="lastPublishInfo">
@@ -319,7 +367,15 @@ class History extends Component {
               archivedItem={archivedItem}
               onChange={archivedItem => {
                 this.filterPara = {};
-                this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date(), data: null }, this.getData);
+                this.setState(
+                  {
+                    archivedItem,
+                    pageIndex: 1,
+                    cacheKey: +new Date(),
+                    data: null,
+                  },
+                  this.getData,
+                );
               }}
             />
           ) : (
@@ -331,8 +387,12 @@ class History extends Component {
                   <Fragment>
                     {_l('只展示该发布版本的流程历史')}
                     <span
-                      className="ThemeColor3 ThemeHoverColor2 mLeft10 pointer"
-                      onClick={() => (location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${parentId}`)}
+                      className="colorPrimary hoverColorPrimaryDark mLeft10 pointer"
+                      onClick={() =>
+                        (location.href = pathCompletion(
+                          `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${parentId}`,
+                        ))
+                      }
                     >
                       {_l('打开当前流程')}
                     </span>
@@ -348,7 +408,15 @@ class History extends Component {
                 archivedItem={archivedItem}
                 onChange={archivedItem => {
                   this.filterPara = {};
-                  this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date(), data: null }, this.getData);
+                  this.setState(
+                    {
+                      archivedItem,
+                      pageIndex: 1,
+                      cacheKey: +new Date(),
+                      data: null,
+                    },
+                    this.getData,
+                  );
                 }}
               />
             </Fragment>
@@ -366,9 +434,16 @@ class History extends Component {
             onFilter={this.handleFilter}
             archivedItem={archivedItem}
             onRefresh={callback => {
-              this.setState({ pageIndex: 1, batchIds: [], data: null }, () => {
-                this.getData(callback);
-              });
+              this.setState(
+                {
+                  pageIndex: 1,
+                  batchIds: [],
+                  data: null,
+                },
+                () => {
+                  this.getData(callback);
+                },
+              );
               this.getProcessAccumulation();
             }}
             expireType={flowInfo.expireType}
@@ -382,18 +457,27 @@ class History extends Component {
             updateSource={(item, index) => {
               const newData = [].concat(data);
               newData[index] = item;
-              this.setState({ data: newData });
+              this.setState({
+                data: newData,
+              });
             }}
             getMore={() => this.getData()}
             hasMoreData={hasMoreData}
             requestPending={requestPending}
             batchIds={batchIds}
             onClick={selectActionId =>
-              this.setState({ selectActionId, scrollTop: this.contentScroll.getScrollInfo().scrollTop })
+              this.setState({
+                selectActionId,
+                scrollTop: this.contentScroll.getScrollInfo().scrollTop,
+              })
             }
             onRecovery={this.onRecovery}
             onRefreshAccumulation={() => this.getProcessAccumulation()}
-            onUpdateBatchIds={batchIds => this.setState({ batchIds })}
+            onUpdateBatchIds={batchIds =>
+              this.setState({
+                batchIds,
+              })
+            }
           />
         </div>
       </ScrollView>
@@ -403,15 +487,18 @@ class History extends Component {
   render() {
     const { flowInfo } = this.props;
     const { selectActionId, showTalksDrawer } = this.state;
-
     return (
       <div className="flexRow flex minHeight0">
         {flowInfo.startAppType !== APP_TYPE.CHATBOT || flowInfo.parentId ? null : showTalksDrawer ? (
           this.renderTalksDrawer()
         ) : (
           <MenuIcon
-            className="icon-menu_right textTertiary ThemeHoverColor3 mLeft24 mTop20 Font20"
-            onClick={() => this.setState({ showTalksDrawer: true })}
+            className="icon-menu_right textTertiary hoverColorPrimary mLeft24 mTop20 Font20"
+            onClick={() =>
+              this.setState({
+                showTalksDrawer: true,
+              })
+            }
           />
         )}
 
@@ -419,6 +506,6 @@ class History extends Component {
       </div>
     );
   }
-}
-
+};
+History = withRouter(History);
 export default connect(state => state.workflow)(History);

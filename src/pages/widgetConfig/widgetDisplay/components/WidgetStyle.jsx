@@ -115,6 +115,15 @@ export function CloseIcon(props) {
   );
 }
 
+const renderShowValue = item => {
+  return (
+    <DropItemWrap className="flexCenter" backgroundColor={item.color}>
+      {item.color ? <div className="itemBox"></div> : <img src={item.img} className="itemBox" />}
+      {item.text}
+    </DropItemWrap>
+  );
+};
+
 export function WidgetStyleSetting(props) {
   const {
     allControls = [],
@@ -167,15 +176,6 @@ export function WidgetStyleSetting(props) {
   const relateSearchUnSupport = controlData => {
     const tempData = controlData || titleControl;
     return tempData && !_.includes(SUPPORT_RELATE_SEARCH, _.get(tempData, 'type'));
-  };
-
-  const renderShowValue = item => {
-    return (
-      <DropItemWrap className="flexCenter" backgroundColor={item.color}>
-        {item.color ? <div className="itemBox"></div> : <img src={item.img} className="itemBox" />}
-        {item.text}
-      </DropItemWrap>
-    );
   };
 
   return (
@@ -457,11 +457,7 @@ export function WidgetStyleSetting(props) {
             <div className="settingItemTitle">{_l('默认分组名称')}</div>
             <SectionItem>
               <div className="label">{_l('名称')}</div>
-              <Input
-                value={deftabname}
-                className="flex"
-                onChange={e => handleChange({ deftabname: e.target.value.trim() })}
-              />
+              <Input value={deftabname} className="flex" onChange={e => handleChange({ deftabname: e.target.value })} />
             </SectionItem>
 
             <SectionItem>

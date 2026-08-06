@@ -66,7 +66,10 @@ function ChooseWorksheet(props) {
                       size={16}
                     />
                     <div
-                      className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'textPrimary')}
+                      className={cx(
+                        'flex mLeft5 overflow_ellipsis WordBreak Bold',
+                        hs ? 'colorPrimary' : 'textPrimary',
+                      )}
                     >
                       {o.tableName}
                     </div>

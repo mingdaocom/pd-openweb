@@ -13,7 +13,6 @@ import verifyPassword from 'src/components/verifyPassword';
 import { getTranslateInfo } from 'src/utils/app';
 import instanceAJAX from '../../../../apiV2/instance';
 import { ACTION_TO_TEXT } from '../../config';
-import './index.less';
 
 const Member = styled.span`
   align-items: center;
@@ -213,16 +212,23 @@ export default class OtherAction extends Component {
   renderHeader = () => {
     const { action, data } = this.props;
     const btnMap = data.btnMap || {};
+    const btnDescMap = data.btnDescMap || {};
     const translateInfo = getTranslateInfo(_.get(data, 'app.id'), data.parentId, _.get(data, 'flowNode.id'));
+    const btnDesc = {
+      pass: translateInfo.btndescmap_4 || btnDescMap[4] || '',
+      overrule: translateInfo.btndescmap_5 || btnDescMap[5] || '',
+      return: translateInfo.btndescmap_17 || btnDescMap[17] || '',
+    };
 
     return (
-      <header className="flexRow">
-        <div className="headerText Font17">
+      <header>
+        <div className="headerText Font17 flexRow">
           {(ACTION_TO_TEXT[action] || {}).headerText}
           {action === 'pass' && (translateInfo[`btnmap_4`] || btnMap[4] || _l('同意'))}
           {action === 'overrule' && (translateInfo[`btnmap_5`] || btnMap[5] || _l('拒绝'))}
           {action === 'return' && (translateInfo[`btnmap_17`] || btnMap[17] || _l('退回'))}
         </div>
+        {!!btnDesc[action] && <div className="mTop8 Font13 textSecondary">{btnDesc[action]}</div>}
       </header>
     );
   };
@@ -390,11 +396,11 @@ export default class OtherAction extends Component {
                 {!!entrustList[user.accountId] && (
                   <Tooltip
                     placement="bottomLeft"
-                    overlayInnerStyle={{ padding: '12px 16px', width: 240 }}
+                    overlayInnerStyle={{ padding: '12px 16px', minWidth: 240, width: 'max-content' }}
                     align={{ offset: [5, 15] }}
                     title={() => (
                       <Fragment>
-                        <div className="Font15 bold textPrimary">
+                        <div className="Font15 bold">
                           {_l('%0发起了委托', entrustList[user.accountId].principal.fullName)}
                         </div>
                         <div className="mTop10 flexRow alignItemsCenter">
@@ -410,7 +416,7 @@ export default class OtherAction extends Component {
                         </div>
                         <div className="mTop10 flexRow Font13 alignItemsCenter">
                           <div className="textSecondary">{_l('委托截止')}</div>
-                          <div className="mLeft15 textPrimary">{entrustList[user.accountId].endDate}</div>
+                          <div className="mLeft15">{entrustList[user.accountId].endDate}</div>
                         </div>
                       </Fragment>
                     )}
@@ -424,7 +430,7 @@ export default class OtherAction extends Component {
 
           <i
             className={cx(
-              'Font26 textSecondary ThemeHoverColor3 pointer mTop10 InlineBlock relative',
+              'Font26 textSecondary hoverColorPrimary pointer mTop10 InlineBlock relative',
               !_.includes(['after', 'before', 'addApprove', 'pass'], action) && !!selectedUsers.length
                 ? 'icon-task-folder-charge'
                 : 'icon-task-add-member-circle',

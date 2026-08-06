@@ -2,8 +2,10 @@ import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import copy from 'copy-to-clipboard';
 import { Dialog, Menu, MenuItem } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
+import projectSettingAjax from 'src/api/projectSetting';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
+import { CLEAR_CACHE_PROCESS_TYPE } from 'src/pages/Admin/enum';
 import {
   deleteDepartment,
   disabledAndEnabledDepartments,
@@ -21,7 +23,12 @@ const handleDialogCallback = (dispatch, payload) => {
 
   switch (type) {
     case 'EDIT': {
-      dispatch(editDepartment({ newDepartments, expandedKeys }));
+      dispatch(
+        editDepartment({
+          newDepartments,
+          expandedKeys,
+        }),
+      );
       dispatch(loadUsers(departmentId, pageIndex));
       break;
     }
@@ -31,8 +38,7 @@ const handleDialogCallback = (dispatch, payload) => {
   }
 };
 
-@withClickAway
-class DiaActionTree extends React.Component {
+let DiaActionTree = class DiaActionTree extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -54,11 +60,16 @@ class DiaActionTree extends React.Component {
       departmentId,
       isLevel0: false,
       callback: (departmentInfo, parentId) => {
-        dispatch(getFullTree({ departmentId: departmentInfo.departmentId, parentId, isGetAll: true }));
+        dispatch(
+          getFullTree({
+            departmentId: departmentInfo.departmentId,
+            parentId,
+            isGetAll: true,
+          }),
+        );
       },
     });
   };
-
   openSettingDialog = () => {
     const { departmentId, projectId, pageIndex, expandedKeys, dispatch, newDepartments } = this.props;
     this.props.closeAction();
@@ -79,12 +90,27 @@ class DiaActionTree extends React.Component {
     });
   };
 
+  clearDepartmentCache = e => {
+    e.stopPropagation();
+    const { departmentId, projectId } = this.props;
+    this.props.closeAction();
+    projectSettingAjax
+      .clearItemCache({ projectId, itemId: departmentId, processType: CLEAR_CACHE_PROCESS_TYPE.DEPARTMENT })
+      .then(data => {
+        if (data) {
+          alert(_l('刷新中，请稍后查看'));
+        } else {
+          alert(_l('刷新失败'), 2);
+        }
+      });
+  };
+
   // 删除部门
+
   deleteCurrentDepartment = department => {
     const { dispatch, users = [] } = this.props;
-    this.props.closeAction();
+    this.props.closeAction(); // 如果部门有子部门和用户，还是保持以往交互，先tost 提示用户调整。
 
-    // 如果部门有子部门和用户，还是保持以往交互，先tost 提示用户调整。
     if (department.haveSubDepartment || users.length) {
       dispatch(deleteDepartment(department.departmentId));
       return;
@@ -100,9 +126,8 @@ class DiaActionTree extends React.Component {
         dispatch(deleteDepartment(department.departmentId));
       },
     });
-  };
+  }; // 停用部门二次确认
 
-  // 停用部门二次确认
   handleDisableDepartmentConfirm = department => {
     this.props.closeAction();
     Dialog.confirm({
@@ -124,12 +149,12 @@ class DiaActionTree extends React.Component {
         this.handleDisableDepartment(department);
       },
     });
-  };
+  }; // 停用/启用部门
 
-  // 停用/启用部门
   handleDisableDepartment = department => {
     const { departmentId, dispatch, newDepartments, parentData = {}, departments } = this.props;
     this.props.closeAction();
+
     if (department.disabled) {
       const allParentIds = getParentsId(newDepartments, departmentId).filter(id => id !== departmentId);
       const existDisabledDepartment = allParentIds.some(id => departments[id]?.disabled);
@@ -157,6 +182,7 @@ class DiaActionTree extends React.Component {
           >
             {_l('复制 ID')}
           </MenuItem>
+          <MenuItem onClick={this.clearDepartmentCache}>{_l('刷新部门成员信息')}</MenuItem>
         </Menu>
       );
     }
@@ -177,6 +203,7 @@ class DiaActionTree extends React.Component {
         >
           {_l('复制 ID')}
         </MenuItem>
+        <MenuItem onClick={this.clearDepartmentCache}>{_l('刷新部门成员信息')}</MenuItem>
         <MenuItem
           onClick={() =>
             !item.disabled ? this.handleDisableDepartmentConfirm(item) : this.handleDisableDepartment(item)
@@ -184,13 +211,19 @@ class DiaActionTree extends React.Component {
         >
           {item.disabled ? _l('恢复使用') : _l('停用')}
         </MenuItem>
-        <MenuItem onClick={() => this.deleteCurrentDepartment(item)} style={{ color: 'var(--color-error)' }}>
+        <MenuItem
+          onClick={() => this.deleteCurrentDepartment(item)}
+          style={{
+            color: 'var(--color-error)',
+          }}
+        >
           {_l('删除')}
         </MenuItem>
       </Menu>
     );
   }
-}
+};
+DiaActionTree = ClickAway.wrap(DiaActionTree);
 
 const mapStateToProps = state => {
   const {
@@ -200,7 +233,6 @@ const mapStateToProps = state => {
   } = state;
   const { departmentId, projectId } = current;
   const { expandedKeys, newDepartments, departments, users } = entities;
-
   return {
     expandedKeys,
     departmentId,
@@ -213,5 +245,4 @@ const mapStateToProps = state => {
 };
 
 const connectedDiaActionTree = connect(mapStateToProps)(DiaActionTree);
-
 export default connectedDiaActionTree;

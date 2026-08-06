@@ -6,7 +6,7 @@ import * as actions from 'src/pages/chat/redux/actions';
 import * as ajax from 'src/pages/chat/utils/ajax';
 import * as socketEvent from 'src/pages/chat/utils/socketEvent.js';
 import PortalMg from 'src/pages/Portal/PortalMg.jsx';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import './index.less';
 
 const Wrap = styled.div`
@@ -50,15 +50,18 @@ class PortalMessage extends Component {
     socketEvent.socketInitEvent.call(this);
     this.getChatCount();
   }
-  componentWillReceiveProps(nextProps) {
-    const { sessionList = [] } = nextProps;
-    const count = (sessionList.find(o => o.value === 'worksheet') || {}).count;
-    const countProps = ((this.props.sessionList || []).find(o => o.value === 'worksheet') || {}).count;
 
-    if (count > 0 && countProps !== count) {
-      this.setState({
-        count,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { sessionList = [] } = this.props;
+      const count = (sessionList.find(o => o.value === 'worksheet') || {}).count;
+      const countProps = ((prevProps.sessionList || []).find(o => o.value === 'worksheet') || {}).count;
+
+      if (count > 0 && countProps !== count) {
+        this.setState({
+          count,
+        });
+      }
     }
   }
   getChatCount = () => {

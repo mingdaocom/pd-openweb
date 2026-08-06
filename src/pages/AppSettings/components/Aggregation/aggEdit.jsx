@@ -15,7 +15,7 @@ export default function AggregationEdit(props) {
   const [{ loading, projectId, name }, setState] = useSetState({
     loading: true,
     projectId: '',
-    name,
+    name: '',
   });
   useEffect(() => {
     getData();

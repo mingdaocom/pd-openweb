@@ -616,7 +616,7 @@ BatchTask.DelTask = function () {
 
         // 如果没有任务了 收起批量的层
         if ($('#taskList .selectTask').length <= 0) {
-          $('#taskList .selectTask').removeClass('selectTask ThemeBGColor6');
+          $('#taskList .selectTask').removeClass('selectTask bgColorPrimaryTransparent');
           $('#batchTask').removeClass('slideLeft');
           $('#tasks').removeClass('slideDetail');
         }
@@ -899,7 +899,7 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
         <div>
           <div className="footer">
             <a
-              className="noText ThemeHoverColor3"
+              className="noText hoverColorPrimary"
               onClick={() => {
                 $('.afterUpdate').parent().remove();
               }}
@@ -907,7 +907,7 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
               {_l('取消')}
             </a>
             <a
-              className="yesText boderRadAll_3 ThemeBGColor3"
+              className="yesText boderRadAll_3 bgColorPrimary"
               onClick={() => {
                 // 批量修改任务负责人
                 BatchTask[type](args, true);
@@ -1104,10 +1104,10 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
   if (type == 'ctrl') {
     // 节点赋值
     config.$prevNode = _this;
-    _this.toggleClass('selectTask ThemeBGColor6');
+    _this.toggleClass('selectTask bgColorPrimaryTransparent');
 
     if ($('#taskList .selectTask').length <= 0) {
-      _this.toggleClass('selectTask ThemeBGColor6');
+      _this.toggleClass('selectTask bgColorPrimaryTransparent');
     }
   } else {
     // 直接shift 没有选中过
@@ -1117,19 +1117,19 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
 
     if (type == 'shift') {
       // 移除全部样式
-      $('#taskList table tr').removeClass('selectTask ThemeBGColor6');
+      $('#taskList table tr').removeClass('selectTask bgColorPrimaryTransparent');
     }
 
-    _this.addClass('selectTask ThemeBGColor6');
-    config.$prevNode.addClass('selectTask ThemeBGColor6');
+    _this.addClass('selectTask bgColorPrimaryTransparent');
+    config.$prevNode.addClass('selectTask bgColorPrimaryTransparent');
 
     if (!config.$prevNode.is(_this)) {
       if ($('.listStageTaskContent').length < 2) {
         // 向下
         if (_this.offset().top > config.$prevNode.offset().top) {
-          _this.prevUntil(config.$prevNode).addClass('selectTask ThemeBGColor6');
+          _this.prevUntil(config.$prevNode).addClass('selectTask bgColorPrimaryTransparent');
         } else {
-          _this.nextUntil(config.$prevNode).addClass('selectTask ThemeBGColor6');
+          _this.nextUntil(config.$prevNode).addClass('selectTask bgColorPrimaryTransparent');
         }
 
         config.$prevNode = _this;
@@ -1158,7 +1158,7 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
 
         // 循环
         while (prevTop <= thisTop) {
-          $tr.addClass('selectTask ThemeBGColor6');
+          $tr.addClass('selectTask bgColorPrimaryTransparent');
           $next = $tr.next();
           if ($next.length <= 0 && prevTop <= thisTop) {
             $tr = $tr.closest('.listStageTaskContent').next().next().find('tr:first');
@@ -1184,7 +1184,7 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
   if (type === 'ctrl') {
     // 节点赋值
     config.$prevNode = _this;
-    _this.toggleClass('selectTask ThemeBGColor6');
+    _this.toggleClass('selectTask bgColorPrimaryTransparent');
   } else {
     // 直接shift 没有选中过
     if (!config.$prevNode) {
@@ -1193,7 +1193,7 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
 
     if (type === 'shift') {
       // 移除全部样式
-      $('.singleFolderTask  .singleTreeTask').removeClass('selectTask ThemeBGColor6');
+      $('.singleFolderTask  .singleTreeTask').removeClass('selectTask bgColorPrimaryTransparent');
     }
 
     if (!config.$prevNode.is(_this)) {
@@ -1221,7 +1221,7 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
         $task = $singleTreeTask.eq(i);
 
         if ($task.offset().top >= prevTop) {
-          $task.addClass('selectTask ThemeBGColor6');
+          $task.addClass('selectTask bgColorPrimaryTransparent');
         }
 
         if ($task.offset().top >= thisTop) {
@@ -1229,7 +1229,7 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
         }
       }
     } else {
-      _this.parent().find('.singleTreeTask').addClass('selectTask ThemeBGColor6');
+      _this.parent().find('.singleTreeTask').addClass('selectTask bgColorPrimaryTransparent');
     }
   }
 };
@@ -1239,7 +1239,7 @@ BatchTask.shiftCtrlKeyStage = function (_this, type) {
   if (type === 'ctrl') {
     // 节点赋值
     config.$prevNode = _this;
-    _this.toggleClass('selectTask ThemeBGColor6');
+    _this.toggleClass('selectTask bgColorPrimaryTransparent');
   } else {
     let $prevNode = config.$prevNode;
 
@@ -1257,7 +1257,7 @@ BatchTask.shiftCtrlKeyStage = function (_this, type) {
 
     if (type === 'shift') {
       // 移除全部样式
-      $('#taskList .selectTask').removeClass('selectTask ThemeBGColor6');
+      $('#taskList .selectTask').removeClass('selectTask bgColorPrimaryTransparent');
     }
 
     // 用到的变量
@@ -1277,7 +1277,7 @@ BatchTask.shiftCtrlKeyStage = function (_this, type) {
 
     // 循环
     while (prevTop <= thisTop) {
-      $prevNode.addClass('selectTask ThemeBGColor6');
+      $prevNode.addClass('selectTask bgColorPrimaryTransparent');
       $prevNode = $prevNode.next();
       if ($prevNode.length <= 0) {
         prevTop = 1000000;

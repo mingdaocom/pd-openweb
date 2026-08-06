@@ -6,7 +6,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { renderFieldStyleValue } from 'statistics/common';
+import { renderFieldStyleValue } from 'statistics/common/controlUtils';
 import * as actions from 'statistics/redux/actions';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -56,38 +56,27 @@ const Con = styled.div`
     }
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.statistics, [
-      'base',
-      'currentReport',
-      'tableData',
-      'reportData',
-      'axisControls',
-      'worksheetInfo',
-      'loading',
-      'reportSingleCacheLoading',
-    ]),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ChartSheet extends Component {
+let ChartSheet = class ChartSheet extends Component {
   constructor(props) {
     super(props);
     this.state = {
       reutrnVisible: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.loading && !nextProps.loading) {
-      this.getTableData(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.loading && !this.props.loading) {
+        this.getTableData(this.props);
+      }
     }
   }
+
   get isRequestTableData() {
     const { currentReport } = this.props;
     return ![reportTypes.PivotTable].includes(currentReport.reportType);
   }
+
   componentDidMount() {
     const { loading } = this.props;
 
@@ -95,6 +84,7 @@ export default class ChartSheet extends Component {
       this.getTableData(this.props);
     }
   }
+
   getTableData(props) {
     const { base, getTableData } = props;
 
@@ -106,6 +96,7 @@ export default class ChartSheet extends Component {
       reutrnVisible: base.match ? false : true,
     });
   }
+
   getTitle() {
     const { base, tableData, currentReport, reportData } = this.props;
     const isNumberChart = reportTypes.NumberChart === currentReport.reportType;
@@ -125,7 +116,6 @@ export default class ChartSheet extends Component {
         return renderFieldStyleValue(item.controlType, map[key] || key);
       })
       .filter(_ => _);
-
     const columnsNames = columns
       .map(item => {
         const map = valueMap[item.cid] || {};
@@ -133,9 +123,9 @@ export default class ChartSheet extends Component {
         return renderFieldStyleValue(item.controlType, map[key] || key);
       })
       .filter(_ => _);
-
     return linesNames.concat(columnsNames).join('-');
   }
+
   handleCloseReportSingleCacheId = () => {
     this.props.changeBase({
       reportSingleCacheId: null,
@@ -150,6 +140,7 @@ export default class ChartSheet extends Component {
       match: base.match,
     });
   };
+
   renderHeaderName() {
     const { base, currentReport } = this.props;
     const beforeVisible = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(currentReport.reportType);
@@ -176,11 +167,17 @@ export default class ChartSheet extends Component {
       return <div className="flex Font15 bold">{_l('以表格显示')}</div>;
     }
   }
+
   renderHeaderAction() {
     const { base, reportSingleCacheLoading, currentReport, worksheetInfo, onClose } = this.props;
     const { appType = 1 } = currentReport || {};
+
     const viewId = _.get(currentReport, ['filter', 'viewId']);
-    const view = _.find(worksheetInfo.views, { viewId });
+
+    const view = _.find(worksheetInfo.views, {
+      viewId,
+    });
+
     const showExport = isOpenPermit(permitList.export, worksheetInfo.switches, viewId);
     return (
       <div className="valignWrapper">
@@ -203,7 +200,9 @@ export default class ChartSheet extends Component {
               icon="download"
               className="Font22 textTertiary pointer mLeft12 hoverHighlight"
               onClick={() => {
-                emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', { allowExportStatistics: false });
+                emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', {
+                  allowExportStatistics: false,
+                });
               }}
             />
           )}
@@ -218,6 +217,7 @@ export default class ChartSheet extends Component {
       </div>
     );
   }
+
   renderHeader() {
     return (
       <div className="valignWrapper mBottom16">
@@ -226,6 +226,7 @@ export default class ChartSheet extends Component {
       </div>
     );
   }
+
   renderBody() {
     const { currentReport, tableData, worksheetInfo, base, reportSingleCacheLoading, settingVisible } = this.props;
     const Chart = charts[reportTypes.PivotTable];
@@ -274,12 +275,35 @@ export default class ChartSheet extends Component {
       );
     }
   }
+
   render() {
     const { style, isSmall, base } = this.props;
     return (
-      <Con className={cx('chartSheet flexColumn', { small: isSmall, pTop10: base.reportSingleCacheId })} style={style}>
+      <Con
+        className={cx('chartSheet flexColumn', {
+          small: isSmall,
+          pTop10: base.reportSingleCacheId,
+        })}
+        style={style}
+      >
         {this.renderBody()}
       </Con>
     );
   }
-}
+};
+ChartSheet = connect(
+  state => ({
+    ..._.pick(state.statistics, [
+      'base',
+      'currentReport',
+      'tableData',
+      'reportData',
+      'axisControls',
+      'worksheetInfo',
+      'loading',
+      'reportSingleCacheLoading',
+    ]),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ChartSheet);
+export default ChartSheet;

@@ -3,7 +3,7 @@ import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
@@ -99,4 +99,4 @@ function Search(props) {
   );
 }
 
-export default withClickAway(Search);
+export default ClickAway.wrap(Search);

@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import {
   addOtherParam,
@@ -19,7 +20,7 @@ if (code) {
     if (checkOriginUrl(url)) {
       location.replace(decodeURIComponent(url));
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     ajax.post({
@@ -38,7 +39,7 @@ if (code) {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           });
         }
@@ -54,7 +55,7 @@ if (code) {
     if (checkOriginUrl(newUrl)) {
       location.replace(decodeURIComponent(newUrl));
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     const hosts = location.host.split('.');
@@ -69,7 +70,10 @@ if (code) {
         const { agentId, state, callBackUrl, isLark } = result.data;
         const defaultCallBackUrl = isLark ? 'https://accounts.larksuite.com' : 'https://open.feishu.cn/open-apis';
         const redirect_uri = encodeURIComponent(
-          `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}&open_in_browser=true`,
+          pathCompletion(`/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}&open_in_browser=true`, {
+            hasDomain: true,
+            localHasDomain: true,
+          }),
         );
         location.replace(
           `${

@@ -115,7 +115,7 @@ const OptionItem = props => {
           <Tooltip placement="bottom" title={_l('编辑')}>
             <Icon
               icon="edit"
-              className="textTertiary ThemeHoverColor3 Font16 pointer"
+              className="textTertiary hoverColorPrimary Font16 pointer"
               onClick={() => handleClick('edit')}
             />
           </Tooltip>

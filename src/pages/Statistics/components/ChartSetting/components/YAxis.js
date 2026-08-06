@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
-import { addCalculateControlHighlight, emptyShowTypes, isNumberControl, isOptionControl } from 'statistics/common';
+import { isNumberControl, isOptionControl } from 'statistics/common/controlUtils';
+import { addCalculateControlHighlight, emptyShowTypes } from 'statistics/common/reportConfigUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { normTypes } from '../../../enum';
 import RenameModal from './RenameModal';
@@ -151,7 +152,7 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent>
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer textDisabled ThemeHoverColor3" icon="drag" />
+        <Icon className="sortableDrag Font20 pointer textDisabled hoverColorPrimary" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
         {axis ? (

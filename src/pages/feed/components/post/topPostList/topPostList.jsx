@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -28,7 +27,7 @@ class TopPostList extends React.Component {
     comp._isMounted = true;
     comp.nextItem = _.debounce(() => {
       if (!comp._isMounted) return;
-      const el = ReactDom.findDOMNode(comp);
+      const el = comp.root;
 
       if (!el || !comp.props.topPostIds) {
         return;
@@ -80,6 +79,7 @@ class TopPostList extends React.Component {
   handleChangeItem(pageIndex) {
     this.setState({ pageIndex }, this.nextItem);
   }
+  renderRoot = props => <div {...props} ref={root => (this.root = root)} />;
   render() {
     const { groupId, projectId, listType } = this.props.options;
     if (!this.props.topPostIds.length || listType !== postEnum.LIST_TYPE.project || groupId || projectId === '')
@@ -97,6 +97,7 @@ class TopPostList extends React.Component {
     );
     return (
       <PostCard
+        component={this.renderRoot}
         className="topPostList ani300 zoomInUp"
         onMouseEnter={() => this.focus()}
         onMouseLeave={() => this.blur()}

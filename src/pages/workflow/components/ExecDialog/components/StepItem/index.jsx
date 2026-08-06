@@ -9,12 +9,15 @@ import { Icon, Linkify, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile, getIconNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToUserZone } from 'src/utils/project';
+import { getOperationLogActionText } from '../../utils';
 import './index.less';
 
 const UNNECESSARY_OPERATION_CODE = 22;
+const CANCEL_ENTRUST_OPERATION_CODE = 14;
 const OVERRULE = 5;
 
 const getWaitText = (type, principal) => {
@@ -54,6 +57,7 @@ const OPERATION_LOG_ACTION = {
   9: _l('添加审批人'),
   10: _l('被移除'),
   13: _l('撤回后重新发起'),
+  14: _l('取消当前委托'),
   16: _l('审批前加签'),
   17: _l('同意并加签'),
   18: _l('修改申请内容'),
@@ -123,6 +127,7 @@ export default class StepItem extends Component {
    */
   renderDetail = item => {
     let { data, currentWork, status } = this.props;
+    const { appId } = this.props;
     let { workId, flowNode = {} } = data || {};
     const {
       type,
@@ -145,7 +150,7 @@ export default class StepItem extends Component {
       return (
         <Fragment>
           <div className="flexRow alignItemsCenter">
-            <div className="userName">{workItemAccount.fullName}</div>
+            <div className="userName actionUserName">{workItemAccount.fullName}</div>
             <div className="action ellipsis action-13">{_l('撤回')}</div>
             <div className="flex" />
           </div>
@@ -203,6 +208,28 @@ export default class StepItem extends Component {
 
     if (workItemLog) {
       const { action, actionTargetName } = workItemLog;
+      const isCancelEntrust = action === CANCEL_ENTRUST_OPERATION_CODE;
+
+      if (isCancelEntrust && _.includes([3, 4], type)) {
+        return (
+          <Fragment>
+            <div className="flexRow alignItemsCenter">
+              <div className="userName">
+                {workItemAccount.fullName + `(${(principal?.fullName || '') + OPERATION_LOG_ACTION[action]})`}
+              </div>
+              <div className="flex" />
+            </div>
+          </Fragment>
+        );
+      }
+
+      const translateInfo = getTranslateInfo(appId, data.parentId, flowNode.id);
+      const operationLogActionText = getOperationLogActionText(
+        action,
+        action === 17 ? _.omit(flowNode.btnMap, 17) : flowNode.btnMap,
+        OPERATION_LOG_ACTION,
+        translateInfo,
+      );
 
       /**
        * 填写节点
@@ -211,7 +238,7 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName">
+              <div className="userName actionUserName">
                 {workItemAccount.fullName +
                   (principal ? _l('(%0委托)', principal.fullName) : '') +
                   (administrator ? _l('(%0操作)', administrator.fullName) : '')}
@@ -221,7 +248,7 @@ export default class StepItem extends Component {
                   ? UNNECESSARY_OPERATION[type]
                   : !operationTime && !!logIds
                     ? _l('暂存')
-                    : OPERATION_LOG_ACTION[action] + (_.includes([2], action) ? actionTargetName : '')}
+                    : operationLogActionText + (_.includes([2], action) ? actionTargetName : '')}
               </div>
               {this.renderLogsContent(item)}
               <div className="flex" />
@@ -238,7 +265,7 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName">
+              <div className="userName actionUserName">
                 {workItemAccount.fullName +
                   (principal ? _l('(%0委托)', principal.fullName) : '') +
                   (administrator ? _l('(%0操作)', administrator.fullName) : '')}
@@ -251,7 +278,7 @@ export default class StepItem extends Component {
                 ) : !operationTime && !!logIds ? (
                   _l('暂存')
                 ) : (
-                  OPERATION_LOG_ACTION[action] + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')
+                  operationLogActionText + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')
                 )}
               </div>
               {this.renderLogsContent(item)}
@@ -293,7 +320,7 @@ export default class StepItem extends Component {
       <Fragment>
         <Tooltip title={_l('查看更新记录')}>
           <span
-            className="pointer mLeft5 textSecondary ThemeHoverColor3 flexRow"
+            className="pointer mLeft5 textSecondary hoverColorPrimary flexRow"
             onClick={() => this.setState({ showLogDialog: true })}
           >
             <Icon type="visibility" className="Font16" />
@@ -330,7 +357,7 @@ export default class StepItem extends Component {
       <Fragment>
         {fields && !!fields.length && (
           <div className="mTop4">
-            <span className="Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
+            <span className="Font14 colorPrimary">{_l('填写%0个字段', fields.length)}</span>
             {!!fields.length && !browserIsMobile() && (
               <Tooltip
                 placement="bottom"
@@ -390,7 +417,7 @@ export default class StepItem extends Component {
             .map((o, index) => {
               return (
                 <div
-                  className="fileItemDoc ThemeHoverColor3 pointer"
+                  className="fileItemDoc hoverColorPrimary pointer"
                   key={index}
                   onClick={() => this.previewAttachments(o)}
                 >
@@ -701,7 +728,7 @@ export default class StepItem extends Component {
 
             {isCC && workItems.length > 5 && (
               <div
-                className="TxtCenter pointer ThemeColor3 ThemeHoverColor2 mTop10 mBottom10"
+                className="TxtCenter pointer colorPrimary hoverColorPrimaryDark mTop10 mBottom10"
                 onClick={() => this.setState({ showMore: !showMore })}
               >
                 {showMore ? _l('收起') : _l('展开')}

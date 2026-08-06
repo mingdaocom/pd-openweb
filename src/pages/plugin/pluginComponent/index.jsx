@@ -11,7 +11,7 @@ import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import {
@@ -276,7 +276,7 @@ export default function PluginComponent(props) {
 
       pluginApi.create({ projectId: currentProjectId, pluginType: 1, name: _l('未命名') }, API_EXTENDS).then(res => {
         if (res) {
-          window.open(`/workflowplugin/${res.id}`);
+          window.open(pathCompletion(`/workflowplugin/${res.id}`));
         }
       });
     }

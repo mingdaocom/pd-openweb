@@ -9,6 +9,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import SearchMember from 'src/pages/chat/components/SearchMember';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
+import { pathCompletion } from 'src/utils/common';
 import Avatar from '../ChatList/Avatar';
 import RenderAddressBook from '../ChatList/Toolbar/RenderAddressBook';
 import SessionList from '../SessionList';
@@ -42,7 +43,7 @@ const SessionListDrawer = props => {
             icon="home_page"
             iconClassName="Font20 textSecondary"
             onClick={() => {
-              location.href = '/dashboard';
+              location.href = pathCompletion('/dashboard');
             }}
           />
         ) : (
@@ -78,7 +79,7 @@ const SessionListDrawer = props => {
                 tooltip={_l('新窗口打开')}
                 className="Font19 pointer textSecondary mRight10"
                 onClick={() => {
-                  window.open('/windowChat');
+                  window.open(pathCompletion('/windowChat'));
                 }}
               />
               <BgIconButton

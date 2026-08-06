@@ -5,6 +5,7 @@ import { Checkbox, Dropdown, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import {
@@ -34,18 +35,26 @@ export default class GetMoreRecord extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -59,6 +68,10 @@ export default class GetMoreRecord extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, ...extra })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({
           data: _.isEmpty(extra) ? result : { ...result, name: data.name },
           cacheKey: +new Date(),
@@ -169,7 +182,7 @@ export default class GetMoreRecord extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -558,8 +571,8 @@ export default class GetMoreRecord extends Component {
           <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
           {isAggregationSheet && (
             <div
-              className="ThemeColor3 ThemeHoverColor2 pointer"
-              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+              className="colorPrimary hoverColorPrimaryDark pointer"
+              onClick={() => window.open(pathCompletion(`/app/${this.props.relationId}/settings/aggregations`))}
             >
               + {_l('新建聚合表')}
             </div>
@@ -907,7 +920,7 @@ export default class GetMoreRecord extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (_.includes(
+            ((_.includes(
               [
                 ACTION_ID.FROM_WORKSHEET,
                 ACTION_ID.BATCH_UPDATE,
@@ -917,23 +930,24 @@ export default class GetMoreRecord extends Component {
               data.actionId,
             ) &&
               data.appId) ||
-            (_.includes(
-              [
-                ACTION_ID.FROM_RECORD,
-                ACTION_ID.FROM_ARRAY,
-                ACTION_ID.FROM_API_ARRAY,
-                ACTION_ID.FROM_CODE_ARRAY,
-                ACTION_ID.FROM_PBC_INPUT_ARRAY,
-                ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
-                ACTION_ID.FROM_JSON_PARSE_ARRAY,
-                ACTION_ID.FROM_PLUGIN_ARRAY,
-                ACTION_ID.FROM_VECTOR_ARRAY,
-              ],
-              data.actionId,
-            ) &&
-              data.selectNodeId &&
-              data.fields.length) ||
-            (_.includes([ACTION_ID.FROM_ADD, ACTION_ID.FROM_ARTIFICIAL], data.actionId) && data.selectNodeId)
+              (_.includes(
+                [
+                  ACTION_ID.FROM_RECORD,
+                  ACTION_ID.FROM_ARRAY,
+                  ACTION_ID.FROM_API_ARRAY,
+                  ACTION_ID.FROM_CODE_ARRAY,
+                  ACTION_ID.FROM_PBC_INPUT_ARRAY,
+                  ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
+                  ACTION_ID.FROM_JSON_PARSE_ARRAY,
+                  ACTION_ID.FROM_PLUGIN_ARRAY,
+                  ACTION_ID.FROM_VECTOR_ARRAY,
+                ],
+                data.actionId,
+              ) &&
+                data.selectNodeId &&
+                (data.fields || []).length) ||
+              (_.includes([ACTION_ID.FROM_ADD, ACTION_ID.FROM_ARTIFICIAL], data.actionId) && data.selectNodeId)) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

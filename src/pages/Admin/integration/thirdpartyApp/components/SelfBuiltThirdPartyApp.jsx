@@ -238,7 +238,7 @@ export default class SelfBuiltThirdPartyApp extends Component {
       hoveredSecretId: null,
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     this.getProjectApplicationList();
   }
   getColumns = () => {
@@ -381,23 +381,23 @@ export default class SelfBuiltThirdPartyApp extends Component {
     } = this.state;
 
     if (_.isEmpty(appName)) {
-      alert('请输入应用名称', 3);
+      alert(_l('请输入应用名称'), 3);
       return;
     }
 
     if (_.isEmpty(appUrl)) {
-      alert('请输入应用地址', 3);
+      alert(_l('请输入应用地址'), 3);
       return;
     } else if (!RegExpValidator.isUrlRequest(appUrl)) {
-      alert('请正确的 url 地址', 3);
+      alert(_l('请正确的 url 地址'), 3);
       return;
     }
 
     if (_.isEmpty(callbackUrl)) {
-      alert('请输入回调地址', 3);
+      alert(_l('请输入回调地址'), 3);
       return;
     } else if (!RegExpValidator.isUrlRequest(callbackUrl)) {
-      alert('请正确的 url 地址', 3);
+      alert(_l('请正确的 url 地址'), 3);
       return;
     }
 

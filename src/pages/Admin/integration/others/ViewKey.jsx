@@ -104,7 +104,7 @@ export default class ViewKey extends Component {
                     <div className="subLabel flexRow mTop5">
                       <div className="textSecondary breakAll">{this.state[item.key]}</div>
                       <span
-                        className="ThemeColor3 ThemeHoverColor2 mLeft15 pointer"
+                        className="colorPrimary hoverColorPrimaryDark mLeft15 pointer"
                         style={{ whiteSpace: 'nowrap' }}
                         onClick={() => {
                           copy(this.state[item.key]);
@@ -120,7 +120,7 @@ export default class ViewKey extends Component {
               <div>
                 <button
                   type="button"
-                  className="ming Button Button--link ThemeColor3 mTop16 adminHoverColor"
+                  className="ming Button Button--link colorPrimary mTop16 adminHoverColor"
                   onClick={this.handleChangeVisible.bind(this, true)}
                 >
                   {_l('重新生成')}

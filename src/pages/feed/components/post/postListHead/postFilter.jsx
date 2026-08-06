@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -43,14 +42,14 @@ class HomePostFilter extends React.Component {
     this._isMounted = true;
     this.postType = this.props.options.postType;
     if (this.state.isSearchInputExpand) {
-      const searchInput = ReactDom.findDOMNode(this.searchInput);
+      const searchInput = this.searchInput;
       setCaretPosition(searchInput, searchInput.value.length);
     }
   }
 
   componentDidUpdate() {
-    if (this.props.searchKeywords !== this.searchInput.value) {
-      ReactDom.findDOMNode(this.searchInput).value = this.props.searchKeywords;
+    if (this.searchInput && this.props.searchKeywords !== this.searchInput.value) {
+      this.searchInput.value = this.props.searchKeywords;
     }
   }
 
@@ -79,7 +78,7 @@ class HomePostFilter extends React.Component {
 
   focusSearchInput = () => {
     this.setState({ isSearchInputExpand: true });
-    ReactDom.findDOMNode(this.searchInput).focus();
+    this.searchInput.focus();
   };
 
   blurSearchInput = evt => {
@@ -99,7 +98,7 @@ class HomePostFilter extends React.Component {
   };
 
   searchPost = () => {
-    const searchInput = ReactDom.findDOMNode(this.searchInput);
+    const searchInput = this.searchInput;
 
     if (!searchInput) {
       return;
@@ -229,7 +228,7 @@ class HomePostFilter extends React.Component {
                 })}
               >
                 <i
-                  className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'textTertiary')}
+                  className={'icon-calander Font16 ' + (this.props.options.startDate ? 'colorPrimary' : 'textTertiary')}
                 />
               </div>
             </Tooltip>

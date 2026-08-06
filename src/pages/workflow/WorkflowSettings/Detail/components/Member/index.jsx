@@ -202,7 +202,7 @@ export default class Member extends Component {
       <div
         className={cx(
           'flowDetailMemberJob bold',
-          { ThemeColor3: !item.extensionId },
+          { colorPrimary: !item.extensionId },
           { delete: item.extensionId && !item.extensionName },
         )}
         onClick={() => roleExtension[item.roleTypeId].action(index)}

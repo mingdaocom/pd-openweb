@@ -9,17 +9,18 @@ import * as actions from 'src/pages/worksheet/redux/actions';
 import { getRequest } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import Gunter from './index.jsx';
+import { isGunterGroupMultiSelectControl } from './util';
 
 const data = getRequest();
-
-@connect(state => ({ ...state.sheet }), dispatch => bindActionCreators(actions, dispatch))
-export default class MobileGunter extends Component {
+let MobileGunter = class MobileGunter extends Component {
   constructor(props) {
     super(props);
   }
+
   componentDidMount() {
     this.props.initMobileGunter(data);
   }
+
   render() {
     const { loading, views, controls } = this.props;
 
@@ -31,8 +32,12 @@ export default class MobileGunter extends Component {
       );
     }
 
-    const view = _.find(views, { viewId: data.viewId });
+    const view = _.find(views, {
+      viewId: data.viewId,
+    });
+
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
+    const groupControl = controls.find(item => item.controlId === view.viewControl);
     const timeControls = controls.filter(
       item =>
         !SYS.includes(item.controlId) &&
@@ -42,10 +47,26 @@ export default class MobileGunter extends Component {
     const isDelete = begindate && !timeControlsIds.includes(begindate);
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate);
 
+    if (view.viewControl && isGunterGroupMultiSelectControl(groupControl)) {
+      return (
+        <ViewErrorPage
+          icon="gantt"
+          viewName={_l('甘特图')}
+          color="var(--color-cyan)"
+          errorInfo={_l('该字段不支持作为分组')}
+        />
+      );
+    }
+
     if (isDelete || !begindate || !enddate || isDeleteEnd) {
       return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="var(--color-cyan)" />;
     }
 
     return <Gunter view={view} />;
   }
-}
+};
+MobileGunter = connect(
+  state => ({ ...state.sheet }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(MobileGunter);
+export default MobileGunter;

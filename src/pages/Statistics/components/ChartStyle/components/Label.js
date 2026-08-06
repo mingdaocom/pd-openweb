@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input, Radio, Select, Space, Tag } from 'antd';
+import { Checkbox, Input, Select, Tag } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
@@ -21,6 +21,8 @@ export default class Label extends Component {
     const { percent } = displaySetup;
     const rightYDisplaySetup = _.get(rightY, 'display.ydisplay') || {};
     const rightYShowNumber = rightYDisplaySetup.showNumber ?? true;
+    const mobileShowNumber = displaySetup.mobileShowNumber ?? displaySetup.showNumber;
+    const rightYMobileShowNumber = rightYDisplaySetup.mobileShowNumber ?? rightYShowNumber;
 
     const labelPercent = (
       <Fragment>
@@ -139,14 +141,46 @@ export default class Label extends Component {
           <div className="flexRow valignWrapper">
             <Checkbox
               className="mLeft0 mBottom16"
-              checked={displaySetup.showNumber}
-              onChange={() => {
-                onChangeDisplayValue('showNumber', !displaySetup.showNumber);
+              checked={displaySetup.showNumber || mobileShowNumber}
+              onChange={event => {
+                const { checked } = event.target;
+                onChangeDisplaySetup({
+                  showNumber: checked,
+                  mobileShowNumber: checked,
+                });
               }}
             >
               {_l('显示数值')}
             </Checkbox>
           </div>
+          {(displaySetup.showNumber || mobileShowNumber) && (
+            <div className="mBottom16" style={{ marginLeft: 25 }}>
+              <div className="mBottom5 textSecondary">{_l('显示端')}</div>
+              <div className="flexRow valignWrapper">
+                <Checkbox
+                  checked={displaySetup.showNumber}
+                  onChange={event => {
+                    const { checked } = event.target;
+                    onChangeDisplaySetup({
+                      showNumber: checked,
+                    });
+                  }}
+                >
+                  {_l('PC端')}
+                </Checkbox>
+                <Checkbox
+                  checked={mobileShowNumber}
+                  onChange={event => {
+                    onChangeDisplaySetup({
+                      mobileShowNumber: event.target.checked,
+                    });
+                  }}
+                >
+                  {_l('移动端')}
+                </Checkbox>
+              </div>
+            </div>
+          )}
           {labelPercent}
         </Fragment>
       );
@@ -260,7 +294,8 @@ export default class Label extends Component {
     }
 
     if (reportType === reportTypes.ProgressChart) {
-      const { currentValueName = _l('实际'), targetValueName = _l('目标'), showValueType = 1 } = style;
+      const { currentValueName = _l('实际'), targetValueName = _l('目标') } = style;
+      const showValueType = style.showValueType === 3 ? '13' : (style.showValueType ?? 1).toString();
 
       if (displaySetup.showChartType === 1) {
         return (
@@ -317,10 +352,18 @@ export default class Label extends Component {
             <div className="flexRow valignWrapper">
               <Checkbox
                 className="mLeft0 mBottom5"
-                checked={displaySetup.showNumber}
-                onChange={() => {
-                  onChangeDisplaySetup({
-                    showNumber: !displaySetup.showNumber,
+                checked={showValueType && displaySetup.showNumber}
+                onChange={event => {
+                  const { checked } = event.target;
+                  this.props.onChangeCurrentReport({
+                    displaySetup: {
+                      ...displaySetup,
+                      showNumber: checked,
+                    },
+                    style: {
+                      ...style,
+                      showValueType: checked ? '123' : '',
+                    },
                   });
                 }}
               >
@@ -328,26 +371,49 @@ export default class Label extends Component {
               </Checkbox>
             </div>
             {displaySetup.showNumber && (
-              <div className="valignWrapper mBottom16 mLeft25">
-                <Radio.Group
-                  value={showValueType}
-                  onChange={event => {
-                    const { value } = event.target;
-                    onChangeStyle({ showValueType: value });
-                  }}
-                >
-                  <Space direction="vertical">
-                    <Radio value={1} className="Font13">
-                      {_l('数值')}
-                    </Radio>
-                    <Radio value={2} className="Font13">
-                      {_l('百分比')}
-                    </Radio>
-                    <Radio value={3} className="Font13">
-                      {_l('数值/目标值')}
-                    </Radio>
-                  </Space>
-                </Radio.Group>
+              <div className="mLeft25 mBottom16">
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    className="mLeft0 mBottom5"
+                    checked={showValueType.includes('1')}
+                    onChange={event => {
+                      const { checked } = event.target;
+                      onChangeStyle({
+                        showValueType: checked ? showValueType.concat('1') : showValueType.replace('1', ''),
+                      });
+                    }}
+                  >
+                    {_l('数值')}
+                  </Checkbox>
+                </div>
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    className="mLeft0 mBottom5"
+                    checked={showValueType.includes('2')}
+                    onChange={event => {
+                      const { checked } = event.target;
+                      onChangeStyle({
+                        showValueType: checked ? showValueType.concat('2') : showValueType.replace('2', ''),
+                      });
+                    }}
+                  >
+                    {_l('百分比')}
+                  </Checkbox>
+                </div>
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    className="mLeft0 mBottom5"
+                    checked={showValueType.includes('3')}
+                    onChange={event => {
+                      const { checked } = event.target;
+                      onChangeStyle({
+                        showValueType: checked ? showValueType.concat('3') : showValueType.replace('3', ''),
+                      });
+                    }}
+                  >
+                    {_l('目标值')}
+                  </Checkbox>
+                </div>
               </div>
             )}
           </Fragment>
@@ -371,8 +437,6 @@ export default class Label extends Component {
       return false;
     };
 
-    const showMultiple = reportType === reportTypes.LineChart && displaySetup.showNumber;
-
     return (
       <Fragment>
         {reportType === reportTypes.DualAxes ? (
@@ -380,64 +444,141 @@ export default class Label extends Component {
             <div className="flexRow valignWrapper mBottom16">
               <Checkbox
                 className="flexRow mLeft0"
-                checked={displaySetup.showNumber}
-                onChange={() => {
-                  if (displaySetup.showNumber) {
-                    onChangeDisplaySetup({
-                      showDimension: false,
-                      showNumber: false,
-                    });
-                  } else {
-                    onChangeDisplaySetup({
-                      showDimension: true,
-                      showNumber: true,
-                    });
-                  }
+                checked={displaySetup.showNumber || mobileShowNumber}
+                onChange={event => {
+                  const { checked } = event.target;
+                  onChangeDisplaySetup({
+                    showNumber: checked,
+                    mobileShowNumber: checked,
+                  });
                 }}
               >
                 {_l('显示Y轴数据')}
               </Checkbox>
             </div>
+            {(displaySetup.showNumber || mobileShowNumber) && (
+              <div className="mBottom16" style={{ marginLeft: 25 }}>
+                <div className="mBottom5 textSecondary">{_l('显示端')}</div>
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    checked={displaySetup.showNumber}
+                    onChange={event => {
+                      const { checked } = event.target;
+                      onChangeDisplaySetup({
+                        showNumber: checked,
+                      });
+                    }}
+                  >
+                    {_l('PC端')}
+                  </Checkbox>
+                  <Checkbox
+                    checked={mobileShowNumber}
+                    onChange={event => {
+                      onChangeDisplaySetup({
+                        mobileShowNumber: event.target.checked,
+                      });
+                    }}
+                  >
+                    {_l('移动端')}
+                  </Checkbox>
+                </div>
+              </div>
+            )}
             <div className="flexRow valignWrapper mBottom16">
               <Checkbox
                 className="flexRow mLeft0"
-                checked={rightYShowNumber}
-                onChange={() => {
+                checked={rightYShowNumber || rightYMobileShowNumber}
+                onChange={event => {
+                  const { checked } = event.target;
                   onChangeYDisplaySetup({
-                    showNumber: rightYShowNumber ? false : true,
+                    showNumber: checked,
+                    mobileShowNumber: checked,
                   });
                 }}
               >
                 {_l('显示辅助Y轴数据')}
               </Checkbox>
             </div>
+            {(rightYShowNumber || rightYMobileShowNumber) && (
+              <div className="mBottom16" style={{ marginLeft: 25 }}>
+                <div className="mBottom5 textSecondary">{_l('显示端')}</div>
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    checked={rightYShowNumber}
+                    onChange={event => {
+                      onChangeYDisplaySetup({
+                        showNumber: event.target.checked,
+                      });
+                    }}
+                  >
+                    {_l('PC端')}
+                  </Checkbox>
+                  <Checkbox
+                    checked={rightYMobileShowNumber}
+                    onChange={event => {
+                      onChangeYDisplaySetup({
+                        mobileShowNumber: event.target.checked,
+                      });
+                    }}
+                  >
+                    {_l('移动端')}
+                  </Checkbox>
+                </div>
+              </div>
+            )}
           </Fragment>
         ) : (
-          <div className={cx('flexRow valignWrapper', showMultiple ? 'mBottom10' : 'mBottom16')}>
-            <Checkbox
-              className="flexRow mLeft0"
-              checked={displaySetup.showDimension || displaySetup.showNumber}
-              onChange={() => {
-                if (displaySetup.showDimension || displaySetup.showNumber) {
+          <Fragment>
+            <div className={cx('flexRow valignWrapper', 'mBottom10')}>
+              <Checkbox
+                className="flexRow mLeft0"
+                checked={displaySetup.showDimension || displaySetup.showNumber || mobileShowNumber}
+                onChange={event => {
+                  const { checked } = event.target;
                   onChangeDisplaySetup({
-                    showDimension: false,
-                    showNumber: false,
+                    showDimension: checked,
+                    showNumber: checked,
+                    mobileShowNumber: checked,
                   });
-                } else {
-                  onChangeDisplaySetup({
-                    showDimension: true,
-                    showNumber: true,
-                  });
-                }
-              }}
-            >
-              {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
-            </Checkbox>
-          </div>
+                }}
+              >
+                {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
+              </Checkbox>
+            </div>
+            {(displaySetup.showDimension || displaySetup.showNumber || mobileShowNumber) && (
+              <div className="mBottom16" style={{ marginLeft: 25 }}>
+                <div className="mBottom5 textSecondary">{_l('显示端')}</div>
+                <div className="flexRow valignWrapper">
+                  <Checkbox
+                    checked={displaySetup.showDimension || displaySetup.showNumber}
+                    onChange={event => {
+                      const { checked } = event.target;
+                      onChangeDisplaySetup({
+                        showDimension: checked,
+                        showNumber: checked,
+                      });
+                    }}
+                  >
+                    {_l('PC端')}
+                  </Checkbox>
+                  <Checkbox
+                    checked={mobileShowNumber}
+                    onChange={event => {
+                      onChangeDisplaySetup({
+                        mobileShowNumber: event.target.checked,
+                      });
+                    }}
+                  >
+                    {_l('移动端')}
+                  </Checkbox>
+                </div>
+              </div>
+            )}
+          </Fragment>
         )}
-        {reportType === reportTypes.FunnelChart && (
-          <div className="mLeft20 mBottom12">
-            {(displaySetup.showDimension || displaySetup.showNumber) && (
+        {reportType === reportTypes.FunnelChart &&
+          (displaySetup.showDimension || displaySetup.showNumber || mobileShowNumber) && (
+            <div className="mLeft20 mBottom12">
               <Input
                 className="chartInput"
                 defaultValue={style.funnelConversionText || _l('转化率')}
@@ -445,9 +586,8 @@ export default class Label extends Component {
                   onChangeStyle({ funnelConversionText: event.target.value.slice(0, 10) });
                 }}
               />
-            )}
-          </div>
-        )}
+            </div>
+          )}
         {reportType === reportTypes.LineChart && displaySetup.showNumber && (
           <Select
             mode="multiple"

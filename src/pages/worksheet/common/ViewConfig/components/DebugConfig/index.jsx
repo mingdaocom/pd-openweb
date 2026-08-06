@@ -141,6 +141,20 @@ const OPTIONS = [
   },
 ];
 
+const handleCopy = content => {
+  copy(content);
+  alert(_l('复制成功'));
+};
+
+const renderText = (content, renderTxt) => {
+  return (
+    <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
+      <div className="flex">{renderTxt ? renderTxt() : content}</div>
+      <Icon className="Hand mLeft10 Font18" icon={'content-copy'} />
+    </div>
+  );
+};
+
 export default function DebugConfig(params) {
   const tagtextarea = useRef(null);
   const { worksheetId, view = {}, onChangeView } = params;
@@ -179,19 +193,6 @@ export default function DebugConfig(params) {
       version: version + 1,
     });
   }, [params]);
-  const handleCopy = content => {
-    copy(content);
-    alert(_l('复制成功'));
-  };
-
-  const renderText = (content, renderTxt) => {
-    return (
-      <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
-        <div className="flex">{renderTxt ? renderTxt() : content}</div>
-        <Icon className="Hand mLeft10 Font18" icon={'content-copy'} />
-      </div>
-    );
-  };
 
   const renderTemplateTip = () => {
     const selectedTemplate = OPTIONS.find(o => o.value === (templateType || 1));
@@ -209,7 +210,7 @@ export default function DebugConfig(params) {
             <div className="mTop7">
               {_l('已选择%0', OPTIONS.find(it => it.value === (templateType || 1)).text)}
               <span
-                className="editHref ThemeColor3 mLeft25 Hand"
+                className="editHref colorPrimary mLeft25 Hand"
                 onClick={e => {
                   setState({
                     editHref: true,
@@ -232,7 +233,7 @@ export default function DebugConfig(params) {
     return (
       <div className="nextStep mTop20">
         <span
-          className="ThemeColor3 Hand ThemeHoverColor2 Bold"
+          className="colorPrimary Hand hoverColorPrimaryDark Bold"
           onClick={e => {
             setState({
               cur: i + 1,
@@ -280,7 +281,10 @@ export default function DebugConfig(params) {
   const renderContent = i => {
     let serverHost;
 
-    if (window.__api_server__.main !== 'https://www.mingdao.com/api/') {
+    if (
+      window.__api_server__.main !==
+      (window.platformENV.isOverseas ? 'https://www.nocoly.com/wwwapi/' : 'https://www.mingdao.com/api/')
+    ) {
       if (window.__api_server__.main[0] === '/') {
         serverHost = location.origin + window.__api_server__.main;
       } else {
@@ -288,7 +292,7 @@ export default function DebugConfig(params) {
       }
     }
 
-    const lang = getCurrentLang().toLowerCase();
+    const lang = (getCurrentLang() || 'zh-Hans').toLowerCase();
 
     switch (i) {
       case 0:
@@ -401,7 +405,7 @@ export default function DebugConfig(params) {
             <div className="mTop20">
               {_l('请填写本地项目启动后的项目URL进入线上调试')}
               <Support
-                className="InlineBlock ThemeColor3 mLeft5 Hand"
+                className="InlineBlock colorPrimary mLeft5 Hand"
                 type={3}
                 href="https://help.mingdao.com/extensions/developer/view"
                 text={_l('查看开发文档')}

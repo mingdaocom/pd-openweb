@@ -20,7 +20,7 @@ export default props => {
         accounts={accounts}
         updateSource={updateSource}
       />
-      <div className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn" onClick={() => setVisible(true)}>
+      <div className="mTop12 flexRow colorPrimary workflowDetailAddBtn" onClick={() => setVisible(true)}>
         <i className="Font28 icon-task-add-member-circle mRight10" />
         {btnText}
         <SelectUserDropDown

@@ -15,6 +15,7 @@
   border-bottom: 1px solid var(--color-border-secondary);
   font-size: 17px;
   font-weight: 600;
+  flex-shrink: 0;
   .tabBox {
     height: 100%;
     display: flex;
@@ -69,48 +70,6 @@
 
 .Hover_51:hover {
   color: var(--color-link-hover) !important;
-}
-
-.mdAntTabs {
-  color: var(--color-text-title) !important;
-  height: 100%;
-  .ant-tabs-nav {
-    padding: 0 24px 0 8px;
-    height: 56px;
-    font-weight: 600;
-  }
-  .ant-tabs-tab {
-    font-size: 17px;
-    padding: 0 16px;
-    &:hover {
-      background-color: var(--color-background-hover);
-    }
-  }
-  .ant-tabs-tab + .ant-tabs-tab {
-    margin: 0 0 0 4px !important;
-  }
-  .ant-tabs-content {
-    height: 100%;
-    overflow: auto;
-  }
-  &.singleTab {
-    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: var(--color-text-title);
-    }
-    .ant-tabs-ink-bar {
-      display: none !important;
-    }
-  }
-  &.tabStyle {
-    .ant-tabs-tab-active {
-      background: var(--color-background-primary);
-      z-index: 1;
-      border-bottom: 1px solid var(--color-background-disabled);
-    }
-    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: var(--color-text-title);
-    }
-  }
 }
 
 .mdAntTable {

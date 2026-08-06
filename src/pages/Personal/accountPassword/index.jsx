@@ -11,7 +11,7 @@ import accountGuideController from 'src/api/accountGuide';
 import accountSetting from 'src/api/accountSetting';
 import microsoftImg from 'src/pages/Admin/integration/platformIntegration/images/microsoft.png';
 import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
-import { encrypt } from 'src/utils/common';
+import { encrypt, pathCompletion } from 'src/utils/common';
 import common from '../common';
 import { initBindAcoount } from '../components/InitBindAccountDialog';
 import { validateFunc } from '../components/ValidateInfo';
@@ -404,7 +404,10 @@ export default class AccountChart extends React.Component {
           <span className="icon-error1 Font16 mRight8 TxtMiddle" />
           <span>{_l('建议您绑定手机号，绑定后可以直接在官网和 App 登录')}</span>
         </span>
-        <span className="icon-clear Font16 ThemeHoverColor3 Hand" onClick={() => this.setState({ showWarn: false })} />
+        <span
+          className="icon-clear Font16 hoverColorPrimary Hand"
+          onClick={() => this.setState({ showWarn: false })}
+        ></span>
       </div>
     );
   }
@@ -420,7 +423,7 @@ export default class AccountChart extends React.Component {
   renderRedDot = (isShow, key) => {
     return (
       <span
-        className={cx('Right textTertiary hoverTextPrimaryLight Hand redDot', { Hidden: !isShow })}
+        className={cx('Right textTertiary hoverColorPrimaryLight Hand redDot', { Hidden: !isShow })}
         onClick={() => this.handleCancelRed(key)}
       >
         {_l('取消红点提示')}
@@ -432,7 +435,7 @@ export default class AccountChart extends React.Component {
   dealLoagout = () => {
     account.validateLogoffAccount().then(res => {
       if (res === 1) {
-        location.href = '/cancellation';
+        location.href = pathCompletion('/cancellation');
       } else if (res === 20) {
         alert(_l('您是平台唯一管理员，无法注销'), 2);
       } else if (res === 30) {
@@ -484,18 +487,21 @@ export default class AccountChart extends React.Component {
                 {mobilePhone ? (
                   <Fragment>
                     <span
-                      className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
+                      className="Hand colorPrimary hoverColorPrimaryLight mLeft24 mRight24"
                       onClick={() => this.handleChangeAccount('mobile')}
                     >
                       {_l('修改')}
                     </span>
-                    <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('mobile')}>
+                    <span
+                      className="Hand colorPrimary hoverColorPrimaryLight"
+                      onClick={() => this.handleUnBindAccount('mobile')}
+                    >
                       {_l('解绑')}
                     </span>
                   </Fragment>
                 ) : (
                   <span
-                    className="Hand ThemeColor3 Hover_49 mLeft24"
+                    className="Hand colorPrimary hoverColorPrimaryLight mLeft24"
                     onClick={() => {
                       if (needInit) {
                         initBindAcoount({
@@ -545,24 +551,30 @@ export default class AccountChart extends React.Component {
                     {email ? (
                       <Fragment>
                         <span
-                          className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
+                          className="Hand colorPrimary hoverColorPrimaryLight mLeft24 mRight24"
                           onClick={() => this.handleChangeAccount('email')}
                         >
                           {_l('修改')}
                         </span>
                         {isVerify ? (
-                          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('email')}>
+                          <span
+                            className="Hand colorPrimary hoverColorPrimaryLight"
+                            onClick={() => this.handleUnBindAccount('email')}
+                          >
                             {_l('解绑')}
                           </span>
                         ) : (
-                          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleReviewEmail()}>
+                          <span
+                            className="Hand colorPrimary hoverColorPrimaryLight"
+                            onClick={() => this.handleReviewEmail()}
+                          >
                             {_l('验证')}
                           </span>
                         )}
                       </Fragment>
                     ) : (
                       <span
-                        className="Hand ThemeColor3 Hover_49 mLeft24"
+                        className="Hand colorPrimary hoverColorPrimaryLight mLeft24 mRight24"
                         onClick={() => this.handleBindAccount('email')}
                       >
                         {_l('绑定')}
@@ -576,7 +588,7 @@ export default class AccountChart extends React.Component {
             <div className="accountRowItem">
               <div className="accountLabel textSecondary">{_l('密码')}</div>
               <span
-                className="Hand ThemeColor3 hoverTextPrimaryLight"
+                className="Hand colorPrimary hoverColorPrimaryLight"
                 onClick={() => this.setState({ editPasswordVisible: true })}
               >
                 {isNullCredential ? _l('设置') : _l('修改')}
@@ -615,7 +627,7 @@ export default class AccountChart extends React.Component {
                   {!needHide && (
                     <span
                       className={cx(
-                        data.isBind ? 'textSecondary Hover_red' : 'ThemeColor3 hoverTextPrimaryLight',
+                        data.isBind ? 'textSecondary Hover_red' : 'colorPrimary hoverColorPrimaryLight',
                         'Hand',
                       )}
                       onClick={() => this.handleBind(key)}

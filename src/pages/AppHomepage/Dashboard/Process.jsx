@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import todoEmpty from 'staticfiles/images/todolist.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
-import MyProcess from 'src/pages/workflow/MyProcess';
 import { getStateParam, TABS } from 'src/pages/workflow/MyProcess/config';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 
@@ -52,7 +50,6 @@ const Wrapper = styled.div`
     background: var(--color-border-primary);
   }
 `;
-
 const TodoTabList = styled.div`
   height: 48px;
   display: flex;
@@ -118,7 +115,6 @@ const TodoTabList = styled.div`
     }
   }
 `;
-
 const DataListWrapper = styled.div`
   padding: 0 20px;
   overflow: auto;
@@ -193,7 +189,6 @@ const DataListWrapper = styled.div`
     }
   }
 `;
-
 const ProcessSkeleton = styled.div`
   flex: 1;
   padding: 24px 24px 12px 24px;
@@ -204,6 +199,45 @@ const ProcessSkeleton = styled.div`
     border-radius: 11px;
   }
 `;
+const LoadableExecDialog = lazy(() => import('src/pages/workflow/components/ExecDialog'));
+const LoadableMyProcess = lazy(() => import('src/pages/workflow/MyProcess'));
+
+const processList = [
+  {
+    key: 'waitingApproval',
+    icon: 'stamp',
+    shallowIcon: 'stamp_shallow',
+    text: _l('审批'),
+    tab: TABS.WAITING_APPROVE,
+  },
+  {
+    key: 'waitingWrite',
+    icon: 'fill',
+    shallowIcon: 'fill_shallow',
+    text: _l('填写'),
+    tab: TABS.WAITING_FILL,
+  },
+  {
+    key: 'waitingExamine',
+    icon: 'sending',
+    shallowIcon: 'sending_shallow',
+    text: _l('抄送'),
+    tab: TABS.WAITING_EXAMINE,
+  },
+  {
+    key: 'mySponsor',
+    icon: 'adds',
+    shallowIcon: 'adds_shallow',
+    text: _l('发起'),
+    tab: TABS.MY_SPONSOR,
+  },
+  {
+    key: 'finished',
+    icon: 'check_circle',
+    text: _l('已完成'),
+    tab: TABS.COMPLETE,
+  },
+];
 
 export default function Process(props) {
   const {
@@ -217,35 +251,17 @@ export default function Process(props) {
     setFlag,
     currentTheme,
   } = props;
-  const [myProcess, setMyProcess] = useState({ visible: false });
+  const [myProcess, setMyProcess] = useState({
+    visible: false,
+  });
   const [currentTab, setCurrentTab] = useState(0);
   const [todoLoading, setTodoLoading] = useState(true);
   const [todoList, setTodoList] = useState([]);
   const [selectProcess, setSelectProcess] = useState(null);
   const [showViewAll, setShowViewAll] = useState(false);
-
-  const processList = [
-    {
-      key: 'waitingApproval',
-      icon: 'stamp',
-      shallowIcon: 'stamp_shallow',
-      text: _l('审批'),
-      tab: TABS.WAITING_APPROVE,
-    },
-    { key: 'waitingWrite', icon: 'fill', shallowIcon: 'fill_shallow', text: _l('填写'), tab: TABS.WAITING_FILL },
-    {
-      key: 'waitingExamine',
-      icon: 'sending',
-      shallowIcon: 'sending_shallow',
-      text: _l('抄送'),
-      tab: TABS.WAITING_EXAMINE,
-    },
-    { key: 'mySponsor', icon: 'adds', shallowIcon: 'adds_shallow', text: _l('发起'), tab: TABS.MY_SPONSOR },
-    { key: 'finished', icon: 'check_circle', text: _l('已完成'), tab: TABS.COMPLETE },
-  ];
-
   useEffect(() => {
     todoDisplay === 1 && fetchTodoList();
+
     if (flag) {
       getTodoCount().then(data => updateCountData(data));
     }
@@ -271,18 +287,13 @@ export default function Process(props) {
     const { waitingExamine, myProcessCount } = countData;
     const newList = todoList.filter(n => n.workId !== item.workId);
     setTodoList(newList);
-    updateCountData({
-      ...countData,
-      waitingExamine: waitingExamine - 1,
-      myProcessCount: myProcessCount - 1,
-    });
+    updateCountData({ ...countData, waitingExamine: waitingExamine - 1, myProcessCount: myProcessCount - 1 });
   };
 
   const handleSave = item => {
     const { waitingWrite, waitingApproval, waitingDispose, myProcessCount } = countData;
     const newList = todoList.filter(n => n.workId !== item.workId);
     setTodoList(newList);
-
     let param = null;
 
     if (item.flowNodeType === 3) {
@@ -297,12 +308,7 @@ export default function Process(props) {
       };
     }
 
-    updateCountData({
-      ...countData,
-      ...param,
-      waitingDispose: waitingDispose - 1,
-      myProcessCount: myProcessCount - 1,
-    });
+    updateCountData({ ...countData, ...param, waitingDispose: waitingDispose - 1, myProcessCount: myProcessCount - 1 });
   };
 
   const renderTodoList = () => {
@@ -321,7 +327,11 @@ export default function Process(props) {
                     setFlag(+new Date());
                   }}
                 >
-                  <div className={cx('tabItem', { isCur: currentTab === item.tab })}>
+                  <div
+                    className={cx('tabItem', {
+                      isCur: currentTab === item.tab,
+                    })}
+                  >
                     <span className="itemText">{item.text}</span>
                     {!!countData[item.key] && (
                       <div className={item.key !== 'mySponsor' ? 'itemCount' : 'mLeft4 bold textTertiary'}>
@@ -333,7 +343,15 @@ export default function Process(props) {
               );
             })}
           <div className="flex"></div>
-          <div className="viewAll" onClick={() => setMyProcess({ visible: true, activeTab: currentTab })}>
+          <div
+            className="viewAll"
+            onClick={() =>
+              setMyProcess({
+                visible: true,
+                activeTab: currentTab,
+              })
+            }
+          >
             <span>{_l('全部')}</span>
             <Icon icon="arrow-right-border" className="mLeft5 Font16" />
           </div>
@@ -355,7 +373,9 @@ export default function Process(props) {
             themeColor={dashboardColor.themeColor}
             btnColor={dashboardColor.activeColor}
             hoverColor={dashboardColor.hoverColor}
-            className={cx({ displayComplete })}
+            className={cx({
+              displayComplete,
+            })}
           >
             {todoList.map((item, index) => {
               return (
@@ -378,7 +398,15 @@ export default function Process(props) {
               );
             })}
             {showViewAll && (
-              <div className="allBtn" onClick={() => setMyProcess({ visible: true, activeTab: currentTab })}>
+              <div
+                className="allBtn"
+                onClick={() =>
+                  setMyProcess({
+                    visible: true,
+                    activeTab: currentTab,
+                  })
+                }
+              >
                 {_l('查看全部')}
               </div>
             )}
@@ -386,37 +414,40 @@ export default function Process(props) {
         )}
 
         {selectProcess ? (
-          <ExecDialog
-            id={selectProcess.id}
-            workId={selectProcess.workId}
-            onClose={() => setSelectProcess(null)}
-            onRead={() => {
-              if (currentTab === TABS.WAITING_EXAMINE) {
-                handleRead(selectProcess);
-              }
-            }}
-            onSave={() => {
-              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(currentTab)) {
-                handleSave(selectProcess);
-              }
-            }}
-            onError={() => {
-              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(currentTab)) {
-                handleSave(selectProcess);
-              }
-
-              if (currentTab === TABS.MY_SPONSOR || currentTab === TABS.COMPLETE) {
-                const newList = todoList.filter(n => n.workId !== selectProcess.workId);
-                setTodoList(newList);
-                if (currentTab === TABS.MY_SPONSOR) {
-                  const { mySponsor } = countData;
-                  updateCountData({ ...countData, mySponsor: mySponsor - 1 });
+          <Suspense fallback={null}>
+            <LoadableExecDialog
+              id={selectProcess.id}
+              workId={selectProcess.workId}
+              onClose={() => setSelectProcess(null)}
+              onRead={() => {
+                if (currentTab === TABS.WAITING_EXAMINE) {
+                  handleRead(selectProcess);
                 }
-              }
+              }}
+              onSave={() => {
+                if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(currentTab)) {
+                  handleSave(selectProcess);
+                }
+              }}
+              onError={() => {
+                if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(currentTab)) {
+                  handleSave(selectProcess);
+                }
 
-              setSelectProcess(null);
-            }}
-          />
+                if (currentTab === TABS.MY_SPONSOR || currentTab === TABS.COMPLETE) {
+                  const newList = todoList.filter(n => n.workId !== selectProcess.workId);
+                  setTodoList(newList);
+
+                  if (currentTab === TABS.MY_SPONSOR) {
+                    const { mySponsor } = countData;
+                    updateCountData({ ...countData, mySponsor: mySponsor - 1 });
+                  }
+                }
+
+                setSelectProcess(null);
+              }}
+            />
+          </Suspense>
         ) : null}
       </React.Fragment>
     );
@@ -425,7 +456,12 @@ export default function Process(props) {
   if (loading) {
     return (
       <ProcessSkeleton>
-        <div className="skeletonBlock" style={{ height: todoDisplay === 1 ? 192 : 152 }}></div>
+        <div
+          className="skeletonBlock"
+          style={{
+            height: todoDisplay === 1 ? 192 : 152,
+          }}
+        ></div>
       </ProcessSkeleton>
     );
   }
@@ -447,7 +483,10 @@ export default function Process(props) {
                 className="finishedCon"
                 onClick={e => {
                   e.stopPropagation();
-                  setMyProcess({ visible: true, activeTab: TABS.COMPLETE });
+                  setMyProcess({
+                    visible: true,
+                    activeTab: TABS.COMPLETE,
+                  });
                 }}
               >
                 {_l('已完成')}
@@ -460,7 +499,15 @@ export default function Process(props) {
               .map((item, i) => (
                 <React.Fragment key={i}>
                   {item.key === 'finished' && <div className="divider"></div>}
-                  <div className="processItem" onClick={() => setMyProcess({ visible: true, activeTab: item.tab })}>
+                  <div
+                    className="processItem"
+                    onClick={() =>
+                      setMyProcess({
+                        visible: true,
+                        activeTab: item.tab,
+                      })
+                    }
+                  >
                     <div className="countText">
                       {item.key !== 'finished' ? countData[item.key] || 0 : <Icon icon="event_available" />}
                     </div>
@@ -473,15 +520,19 @@ export default function Process(props) {
       )}
 
       {myProcess.visible && (
-        <MyProcess
-          countData={countData}
-          activeTab={myProcess.activeTab}
-          onCancel={() => {
-            setMyProcess({ visible: false });
-            todoDisplay === 1 && fetchTodoList();
-          }}
-          updateCountData={updateCountData}
-        />
+        <Suspense fallback={null}>
+          <LoadableMyProcess
+            countData={countData}
+            activeTab={myProcess.activeTab}
+            onCancel={() => {
+              setMyProcess({
+                visible: false,
+              });
+              todoDisplay === 1 && fetchTodoList();
+            }}
+            updateCountData={updateCountData}
+          />
+        </Suspense>
       )}
     </Wrapper>
   );

@@ -7,6 +7,7 @@ import { Checkbox, Dialog, Dropdown, Radio, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import homeAppAjax from 'src/api/homeApp';
+import { pathCompletion } from 'src/utils/common';
 import { FIELD_TYPE_LIST } from '../../enum';
 import { checkJSON } from '../../utils';
 
@@ -76,10 +77,10 @@ const PLACEHOLDER = {
 // 打开引用的流程
 const openPage = ({ processId, type }) => {
   if (type === 1) {
-    window.open(`/workflowedit/${processId}`);
+    window.open(pathCompletion(`/workflowedit/${processId}`));
   } else {
     homeAppAjax.getAppSimpleInfo({ workSheetId: processId }).then(({ appId, appSectionId }) => {
-      window.open(`/app/${appId}/${appSectionId}/${processId}`);
+      window.open(pathCompletion(`/app/${appId}/${appSectionId}/${processId}`));
     });
   }
 };
@@ -279,7 +280,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     return (
       <input
         type="text"
-        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
         placeholder={_l('字段名（必填）')}
         value={item.controlName}
         maxLength={64}
@@ -293,7 +294,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     return (
       <input
         type="text"
-        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
         placeholder={item.dataSource ? _l('参数名（必填）') : _l('参数名')}
         value={item.alias}
         onChange={e => updateControls('alias', e.target.value, item)}
@@ -314,7 +315,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     return (
       <input
         type="text"
-        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
         placeholder={_l('说明')}
         value={item.desc}
         onChange={evt => updateControls('desc', evt.target.value, item)}
@@ -351,7 +352,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <div className="mLeft10">{renderControlRequired(item)}</div>
             <Tooltip title={_l('编辑')}>
               <span
-                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft2"
+                className="Font16 textSecondary hoverColorPrimary pointer mLeft2"
                 onClick={() => {
                   setControlId(item.controlId);
                   cacheItem = _.cloneDeep(item);
@@ -362,7 +363,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             </Tooltip>
             <Tooltip title={_l('删除')}>
               <span
-                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft10"
+                className="Font16 textSecondary hoverColorPrimary pointer mLeft10"
                 onClick={() => {
                   let controls = [].concat(data.controls);
                   let objArrayIds = [];
@@ -388,7 +389,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             </Tooltip>
             <Tooltip title={_l('添加')}>
               <span
-                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft10"
+                className="Font16 textSecondary hoverColorPrimary pointer mLeft10"
                 onClick={() => addParameters(item)}
               >
                 <i className="icon-add" />
@@ -453,12 +454,12 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
         {renderList(data.controls.filter(o => !o.dataSource))}
 
         <div className="addActionBtn mTop25 flexRow alignItemsCenter">
-          <span className="ThemeBorderColor3" onClick={addParameters}>
+          <span className="borderColorPrimary" onClick={addParameters}>
             <i className="icon-add Font16" />
             {_l('添加参数')}
           </span>
           {!isPlugin && (
-            <div className="ThemeHoverColor3 pointer textSecondary" onClick={() => generateJSON(data, updateSource)}>
+            <div className="hoverColorPrimary pointer textSecondary" onClick={() => generateJSON(data, updateSource)}>
               <i className="Font14 icon-file_upload" />
               {_l('从JSON示例生成')}
             </div>
@@ -478,7 +479,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
                   <div className="Font13">
                     <span
-                      className="ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
+                      className="colorPrimary hoverColorPrimaryDark pointer pointerEventsAuto"
                       onClick={() => openPage(item)}
                     >
                       {PROCESS_TYPE[item.type].title}：{item.processName}
@@ -551,7 +552,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 <div className="mTop10 flexRow alignItemsCenter" key={index}>
                   <input
                     type="text"
-                    className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mRight10"
+                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mRight10"
                     placeholder={_l('选项名')}
                     value={o.value}
                     onChange={e => updateOptions('value', e.target.value, selectItem, index)}
@@ -559,14 +560,14 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                   />
                   <input
                     type="text"
-                    className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                     placeholder={_l('选项值')}
                     value={o.key}
                     onChange={evt => updateOptions('key', evt.target.value, selectItem, index)}
                     onBlur={evt => updateOptions('key', evt.target.value.trim(), selectItem, index, true)}
                   />
                   <i
-                    className="icon-trash Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
+                    className="icon-trash Font16 textSecondary hoverColorPrimary mLeft10 pointer"
                     onClick={() => {
                       let newOptions = selectItem.options.filter((o, i) => i !== index);
 
@@ -578,7 +579,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     }}
                   />
                   <i
-                    className="icon-add Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
+                    className="icon-add Font16 textSecondary hoverColorPrimary mLeft10 pointer"
                     onClick={() =>
                       updateControls('options', selectItem.options.concat({ key: '', value: '' }), selectItem)
                     }
@@ -594,7 +595,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
               <div className="mTop10 flexRow">
                 <input
                   type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                  className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                   placeholder={_l('内容')}
                   value={selectItem.hint}
                   onChange={evt => updateControls('hint', evt.target.value, selectItem)}
@@ -612,7 +613,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 {isIntegration ? (
                   <input
                     type="text"
-                    className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                     placeholder={PLACEHOLDER[selectItem.type]}
                     value={selectItem.workflowDefaultValue}
                     onChange={e => updateControls('workflowDefaultValue', e.target.value, selectItem)}
@@ -623,7 +624,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     {_.includes([2, 6, 16], selectItem.type) && (
                       <input
                         type="text"
-                        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                         placeholder={PLACEHOLDER['2']}
                         value={defaultValue}
                         onChange={e => updateControlAdvancedSettingDefaultValue(e.target.value)}

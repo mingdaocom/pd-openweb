@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -73,25 +73,29 @@ const Wrap = styled.div`
   .send {
     background: var(--color-primary);
     height: 40px;
-    border-radius: 4px;
+    border-radius: 6px;
     line-height: 40px;
-    color: var(--color-white);
+    color: var(--color-text-inverse);
     max-width: 120px;
     margin: 0 auto;
     &:hover {
-      background: var(--color-link-hover);
+      background: var(--color-primary-dark);
+    }
+    &:active {
+      background: var(--color-primary-dark);
     }
   }
 `;
+const LoadableForm = lazy(() => import('src/components/Form'));
 
 export default function Info(props) {
   const [loading, setLoading] = useState(true);
   const {
     pageMode = 3,
     logoImageUrl,
+    logoHeight,
     appId,
     accountId = '',
-
     state = '',
     setStatus,
     isAutoLogin,
@@ -99,8 +103,8 @@ export default function Info(props) {
     registerMode = {},
   } = props;
   const [sending, setSending] = useState(false); //点击
+
   const [cells, setCells] = useState([]);
-  const [Components, setComponents] = useState(null);
   const customwidget = useRef(null);
   useEffect(() => {
     externalPortalAjax
@@ -133,11 +137,8 @@ export default function Info(props) {
         setCells(res);
         setLoading(false);
       });
-
-    import('src/components/Form').then(res => {
-      setComponents(res);
-    });
   }, []);
+
   const onLogin = data => {
     setSending(true);
     window.clientId = '';
@@ -147,15 +148,27 @@ export default function Info(props) {
         .infoLogin(
           {
             state,
-            receiveControls: data.map(c => formatControlToServer(c, { isNewRecord: true })),
+            receiveControls: data.map(c =>
+              formatControlToServer(c, {
+                isNewRecord: true,
+              }),
+            ),
             autoLogin: autoLogin && isAutoLogin,
           },
-          props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+          props.customLink
+            ? {
+                ajaxOptions: {
+                  header: {
+                    'Ex-custom-link-path': props.customLink,
+                  },
+                },
+              }
+            : {},
         )
         .then(res => {
           setSending(false);
-          setAutoLoginKey({ ...res, appId });
-          // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
+          setAutoLoginKey({ ...res, appId }); // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
+
           const { accountResult } = res;
 
           if (statusList.includes(accountResult)) {
@@ -184,14 +197,21 @@ export default function Info(props) {
         isM: browserIsMobile(),
       })}
     >
-      {loading || !Components ? (
-        <LoadDiv className="" style={{ margin: '50px auto' }} />
+      {loading ? (
+        <LoadDiv
+          className=""
+          style={{
+            margin: '50px auto',
+          }}
+        />
       ) : (
         <React.Fragment>
-          {logoImageUrl ? <img src={logoImageUrl} height={48} /> : ''}
-          <h6 className="Font26 Bold mTop20">{_l('请继续完善信息')}</h6>
+          {logoImageUrl ? <img src={logoImageUrl} height={logoHeight || 40} /> : ''}
+          <h6 className="Font28 Bold textPrimary mTop20">{_l('请继续完善信息')}</h6>
           <div className="messageConBox">
-            <Components.default data={cells} ref={customwidget} disableRules />
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableForm data={cells} ref={customwidget} disableRules />
+            </Suspense>
           </div>
           <div
             className={cx('send mTop32 TxtCenter Hand')}

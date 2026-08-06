@@ -9,7 +9,8 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, RichText, ScrollView, Skeleton } from 'ming-ui';
 import { Absolute, BlackBtn, FormTopImgCon, Hr } from 'worksheet/components/Basics';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { pathCompletion } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { themes } from '../enum';
 import * as actions from '../PublicWorksheetConfig/redux/actions';
 import { getDisabledControls, getPageConfig, overridePos } from '../utils';
@@ -192,7 +193,11 @@ class PublicWorksheetConfigForm extends React.Component {
             </BlackBtn>
             <BlackBtn
               onClick={() =>
-                window.open(`/worksheet/form/preview/${worksheetInfo.worksheetId}?url=${encodeURIComponent(shareUrl)}`)
+                window.open(
+                  pathCompletion(
+                    `/worksheet/form/preview/${worksheetInfo.worksheetId}?url=${encodeURIComponent(shareUrl)}`,
+                  ),
+                )
               }
             >
               <i className="icon icon-eye"></i>

@@ -50,8 +50,7 @@ function Setting(props) {
   const { name, maxCount, isAddRecord, searchRecord, openView, allowFilter, allowDraft, allowImport } = config;
 
   const [dataSource, setDataSource] = useState({ views: [] });
-  // eslint-disable-next-line no-unused-vars
-  const [currentViewId, setCurrentViewId] = useState(viewId);
+  const [currentViewId] = useState(viewId);
   const { views } = dataSource;
   const viewIds = components.map(c => c.viewId).filter(id => id !== currentViewId);
 

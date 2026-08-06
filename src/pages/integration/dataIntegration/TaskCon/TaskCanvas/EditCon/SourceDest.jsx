@@ -11,6 +11,7 @@ import SelectTables from 'src/pages/integration/dataIntegration/components/Selec
 import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
 import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
 import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
+import { pathCompletion } from 'src/utils/common';
 import { WrapL } from './style';
 
 const Wrap = styled.div`
@@ -68,31 +69,30 @@ export default class SourceDest extends Component {
   componentDidMount() {
     this.initData(this.props, true);
   }
-  componentWillReceiveProps(nextProps) {
-    if (
-      _.get(nextProps, ['node', 'nodeConfig', 'config', 'dsType']) !==
-        _.get(this.props, ['node', 'nodeConfig', 'config', 'dsType']) ||
-      _.get(nextProps, ['node', 'nodeId']) !== _.get(this.props, ['node', 'nodeId'])
-    ) {
-      const isNext =
-        _.get(nextProps, ['node', 'nodeConfig', 'config', 'appId']) !==
-          _.get(this.props, ['node', 'nodeConfig', 'config', 'appId']) ||
-        _.get(nextProps, ['node', 'nodeConfig', 'config', 'dbName']) !==
-          _.get(this.props, ['node', 'nodeConfig', 'config', 'dbName']); //表｜库更改，重新获取数据
-      this.setState(
-        {
-          ...initData,
-        },
-        () => {
-          this.initData(nextProps, isNext);
-        },
-      );
-    }
 
-    if (!_.isEqual(this.props.node, nextProps.node)) {
-      this.setState({
-        node: nextProps.node,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        _.get(this.props, ['node', 'nodeConfig', 'config', 'dsType']) !==
+          _.get(prevProps, ['node', 'nodeConfig', 'config', 'dsType']) ||
+        _.get(this.props, ['node', 'nodeId']) !== _.get(prevProps, ['node', 'nodeId'])
+      ) {
+        const isNext =
+          _.get(this.props, ['node', 'nodeConfig', 'config', 'appId']) !==
+            _.get(prevProps, ['node', 'nodeConfig', 'config', 'appId']) ||
+          _.get(this.props, ['node', 'nodeConfig', 'config', 'dbName']) !==
+            _.get(prevProps, ['node', 'nodeConfig', 'config', 'dbName']); //表｜库更改，重新获取数据
+
+        this.setState({ ...initData }, () => {
+          this.initData(this.props, isNext);
+        });
+      }
+
+      if (!_.isEqual(prevProps.node, this.props.node)) {
+        this.setState({
+          node: this.props.node,
+        });
+      }
     }
   }
 
@@ -146,7 +146,7 @@ export default class SourceDest extends Component {
         this.setState({
           loading: false,
           dbList: (res || []).map(a => {
-            return { ...a, text: a.appName, value: a.appId, disabled: !isValidName(a.appName, true) }; //允许横线
+            return { ...a, text: a.appName, value: a.appId };
           }),
         });
       });
@@ -519,7 +519,7 @@ export default class SourceDest extends Component {
       tbParam.searchNull = () => {
         return (
           <div
-            className="ThemeColor3 Hand"
+            className="colorPrimary Hand"
             onClick={() => {
               this.onChangeConfig(
                 {
@@ -538,7 +538,7 @@ export default class SourceDest extends Component {
               );
             }}
           >
-            <Icon icon="add1" className="Font12 mRight10 ThemeColor3" />
+            <Icon icon="add1" className="Font12 mRight10 colorPrimary" />
             <span className="mLeft10">
               {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表')}
             </span>
@@ -771,19 +771,21 @@ export default class SourceDest extends Component {
                           !_.get(node, 'nodeConfig.config.createTable') && (
                             <Icon
                               icon="task-new-detail"
-                              className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                              className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark Hand"
                               onClick={e => {
                                 e.stopPropagation();
                                 if (!_.get(worksheetInfo, 'sectionId')) {
                                   this.getWorksheetInfo(workSheetId, worksheetInfo => {
                                     window.open(
-                                      !_.get(worksheetInfo, 'sectionId')
-                                        ? `/app/${dbValue}`
-                                        : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
+                                      pathCompletion(
+                                        !_.get(worksheetInfo, 'sectionId')
+                                          ? `/app/${dbValue}`
+                                          : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
+                                      ),
                                     );
                                   });
                                 } else {
-                                  window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
+                                  window.open(pathCompletion(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`));
                                 }
                               }}
                             />

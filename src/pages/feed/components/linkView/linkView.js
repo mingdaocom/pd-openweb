@@ -121,8 +121,8 @@ var LinkView = function (el, param) {
         ${
           data.error
             ? `<div class='nullPrompt'>
-            ${_l('抱歉，您输入的链接没有搜索到相关内容，请尝试重新')}<span class='ThemeColor3'>[${_l('预览')}]</span>
-            ${_l('或手工')}<span class='ThemeColor3'>[${_l('编辑')}]</span>
+            ${_l('抱歉，您输入的链接没有搜索到相关内容，请尝试重新')}<span class='colorPrimary'>[${_l('预览')}]</span>
+            ${_l('或手工')}<span class='colorPrimary'>[${_l('编辑')}]</span>
             </div>
             `
             : ''

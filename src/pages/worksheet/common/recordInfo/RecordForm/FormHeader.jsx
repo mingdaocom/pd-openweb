@@ -11,6 +11,7 @@ import { getTranslateInfo } from 'src/utils/app';
 import { controlState } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { handleChangeOwner, updateRecordOwner } from '../crtl';
+import { pathCompletion } from 'src/utils/common';
 
 export default function FormHeader(props) {
   const {
@@ -77,7 +78,7 @@ export default function FormHeader(props) {
       {!isPublicShare && !hideFormHeader && (
         <div className="worksheetNameCon mTop12">
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
-            <a className="worksheetName textTertiary InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
+            <a className="worksheetName textTertiary InlineBlock" target="_blank" href={pathCompletion(`/worksheet/${worksheetId}`)}>
               {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </a>
           ) : (
@@ -147,7 +148,7 @@ export default function FormHeader(props) {
                       }}
                       appId={appId}
                       projectId={projectId}
-                      headClick={() => {}}
+                      headClick={() => { }}
                     />
                   </span>
                   <span className="textPrimary mLeft4">{ownerAccount.fullname}</span>

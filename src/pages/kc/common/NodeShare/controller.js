@@ -5,13 +5,13 @@ import shareAjax from 'src/api/share';
 import worksheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { pathCompletion } from 'src/utils/common';
 
 function login() {
   window.nativeAlert(_l('请先登录'));
-  location.href =
-    md.global.Config.WebUrl +
-    'login?ReturnUrl=' +
-    encodeURIComponent(window.location.href.replace('checked=login', ''));
+  location.href = pathCompletion(
+    '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', '')),
+  );
 }
 
 function getParams() {

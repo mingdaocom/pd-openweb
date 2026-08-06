@@ -10,20 +10,18 @@ import './index.less';
 const lineHeight = 32;
 const groupingBlockHeight = 7;
 const rowBlockHeight = 14;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['gunterView']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class TimeBlock extends Component {
+let TimeBlock = class TimeBlock extends Component {
   constructor(props) {
     super(props);
   }
+
   renderRow(row, groupKey, index) {
     const { buttonsCheckStatus } = this.props;
-    const style = { top: index * lineHeight + (lineHeight / 2 - rowBlockHeight / 2), left: row.left, width: row.width };
+    const style = {
+      top: index * lineHeight + (lineHeight / 2 - rowBlockHeight / 2),
+      left: row.left,
+      width: row.width,
+    };
     return (
       <RecordWrapper
         key={row.rowid}
@@ -34,6 +32,7 @@ export default class TimeBlock extends Component {
       />
     );
   }
+
   renderGroupingItem(item) {
     const { gunterView, updateGroupSubVisible } = this.props;
     const { withoutArrangementVisible } = gunterView;
@@ -66,10 +65,16 @@ export default class TimeBlock extends Component {
       </Fragment>
     );
   }
+
   render() {
     const { grouping } = this.props.gunterView;
     return (
       <div className="timeBlockWrapper">{grouping.map(item => item.width > 0 && this.renderGroupingItem(item))}</div>
     );
   }
-}
+};
+TimeBlock = connect(
+  state => ({ ..._.pick(state.sheet, ['gunterView']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(TimeBlock);
+export default TimeBlock;

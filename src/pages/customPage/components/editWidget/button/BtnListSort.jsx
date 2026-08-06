@@ -64,7 +64,7 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
     <Fragment>
       <Tooltip title={_l('按钮排序')}>
         <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
-          <Icon className="Font24 textTertiary ThemeHoverColor3" icon="import_export" />
+          <Icon className="Font24 textTertiary hoverColorPrimary" icon="import_export" />
         </SortableBtnIconWrap>
       </Tooltip>
       <Modal

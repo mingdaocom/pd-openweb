@@ -77,8 +77,8 @@ class Dropdown extends Component {
   };
 
   static defaultProps = {
-    noData: '无数据',
-    placeholder: '请选择',
+    noData: _l('无数据'),
+    placeholder: _l('请选择'),
     renderValue: '{{value}}',
     onClick: () => true,
   };
@@ -101,11 +101,13 @@ class Dropdown extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value != undefined) {
-      this.setState({
-        value: nextProps.value,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value != undefined) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
     }
   }
 
@@ -170,8 +172,8 @@ class Dropdown extends Component {
             {value != undefined ? (
               <span
                 className={cx('value', {
-                  ThemeHoverColor3: this.props.hoverTheme,
-                  ThemeHoverBorderColor3: this.props.hoverTheme,
+                  hoverColorPrimary: this.props.hoverTheme,
+                  hoverBorderColorPrimary: this.props.hoverTheme,
                 })}
               >
                 {this.props.renderValue.replace(

@@ -37,12 +37,12 @@ class DateTable extends Component {
 
         if (item.current) {
           classList.push('current');
-          labelClassList.push('ThemeBGColor3');
+          labelClassList.push('bgColorPrimary');
         }
 
         if (item.inRange) {
           classList.push('in-range');
-          classList.push('ThemeBeforeBGColor6');
+          classList.push('bgColorPrimary');
           // start
           if (item.start) {
             classList.push('cell-start');
@@ -66,7 +66,7 @@ class DateTable extends Component {
 
         if (item.now) {
           classList.push('now');
-          classList.push('ThemeColor3');
+          classList.push('colorPrimary');
         }
 
         const classNames = classList.join(' ');

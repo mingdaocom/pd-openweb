@@ -5,16 +5,14 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { AILoading, Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import flowNode from '../../../api/flowNode';
 import { NODE_TYPE } from '../../enum';
 import logDialog from '../../History/components/logDialog';
 import CopyNode from './CopyNode';
 import 'rc-trigger/assets/index.css';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const Box = styled.span`
   color: ${props => (props.isBranch ? 'var(--color-text-secondary)' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
@@ -37,12 +35,8 @@ const TestResultBox = styled.div`
   &:hover {
     .icon-wysiwyg {
       color: var(--color-link-hover);
+      display: block;
     }
-  }
-  .icon-loading_button {
-    color: var(--color-text-tertiary);
-    display: inline-block;
-    animation: rotate 1.2s linear infinite;
   }
   .icon-ok {
     color: var(--color-task);
@@ -436,9 +430,9 @@ export default class NodeOperate extends Component {
           <TestResultBox className="testResultBox">
             {status === 1 && <i className="icon-ok" />}
             {status === 2 && <i className="icon-error" />}
-            {_.includes([1, 2], status) && (
-              <i
-                className="icon-wysiwyg"
+            {_.includes([0, 1, 2], status) && (
+              <Icon
+                icon="wysiwyg"
                 onMouseDown={evt => {
                   evt.stopPropagation();
 

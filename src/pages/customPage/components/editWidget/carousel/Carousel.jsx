@@ -11,8 +11,8 @@ import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { getBarCodeValue } from 'src/components/Form/core/utils';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { browserIsMobile } from 'src/utils/common';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project';
 import { getUrlList } from './util';
 
 const CarouselComponent = styled(Carousel)`
@@ -179,6 +179,14 @@ function Explain(props) {
   );
 }
 
+const renderLoading = () => {
+  return (
+    <div className="flexRow valignWrapper w100 h100">
+      <LoadDiv />
+    </div>
+  );
+};
+
 export default function CarouselPreview(props) {
   const { componentConfig = {}, config = {}, customPageConfig = {}, editable } = props;
   const [loading, setLoading] = useState(true);
@@ -264,17 +272,6 @@ export default function CarouselPreview(props) {
     }
   }, [worksheetId, viewId, image, title, subTitle, url, config.displayMode]);
 
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => setPreviewRecord({}));
-  };
-
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
   const contentWidth = _.get(contentRef.current, 'clientWidth');
   const contentHeight = _.get(contentRef.current, 'clientHeight');
   const style = {
@@ -300,24 +297,20 @@ export default function CarouselPreview(props) {
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: rowid }); // 埋点
 
       if (window.isMingDaoApp) {
-        location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
+        location.href = pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`);
         return;
       }
 
       if (openMode === 1) {
-        if (isMobile) {
-          handlePushState('page', 'recordDetail');
-        }
-
         setPreviewRecord({ appId, rowId: rowid });
       }
 
       if (openMode === 2) {
-        location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
+        location.href = pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`);
       }
 
       if (openMode === 3) {
-        window.open(`/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`);
+        window.open(pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`));
       }
     }
 
@@ -382,14 +375,6 @@ export default function CarouselPreview(props) {
         </div>
       );
     }
-  };
-
-  const renderLoading = () => {
-    return (
-      <div className="flexRow valignWrapper w100 h100">
-        <LoadDiv />
-      </div>
-    );
   };
 
   const renderFileImage = (record, data) => {

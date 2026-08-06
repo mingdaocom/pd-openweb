@@ -179,6 +179,7 @@ function RecordForm(props) {
     masterRecordRowId,
     loadRowsWhenChildTableStoreCreated,
     formDidMountFlag,
+    onFormDataReady = () => {},
     onWidgetChange = () => {},
     onManualWidgetChange = () => {},
     widgetStyle = {},
@@ -189,6 +190,16 @@ function RecordForm(props) {
     onRefresh = () => {},
   } = props;
   let { formdata = [] } = props;
+  const { isSubList, worksheetId, recordId, recordTitle, allowEdit, viewId = '' } = recordbase;
+  const [runtimeFormData, setRuntimeFormData] = useState({});
+  const runtimeData =
+    runtimeFormData.recordId === recordId && runtimeFormData.formFlag === formFlag ? runtimeFormData.data : undefined;
+  const runtimeControlMap = {};
+
+  (runtimeData || []).forEach(item => {
+    runtimeControlMap[item.controlId] = item;
+  });
+
   formdata.forEach(item => {
     item.defaultState = {
       required: item.required,
@@ -204,7 +215,6 @@ function RecordForm(props) {
       };
     });
   });
-  const { isSubList, worksheetId, recordId, recordTitle, allowEdit, viewId = '' } = recordbase;
   const viewContext = useContext(ViewContext);
   const dealFrom = recordId && from !== 21 ? 3 : 2;
   const getRulesData = updateRulesData({
@@ -213,6 +223,11 @@ function RecordForm(props) {
     data: formdata,
     recordId,
   })
+    .map(control => {
+      const runtimeControl = runtimeControlMap[control.controlId];
+
+      return runtimeControl && runtimeControl.store ? { ...control, store: runtimeControl.store } : control;
+    })
     .filter(control => controlState(control, dealFrom).visible)
     .map(c =>
       Object.assign((!ignoreLock && isLock) || isRecordLock ? { ...c, disabled: true } : c, {
@@ -623,10 +638,13 @@ function RecordForm(props) {
                     entityName={recordinfo.entityName}
                     isCharge={get(viewContext, 'isCharge') || recordbase.isCharge}
                     onFormDataReady={dataFormat => {
+                      setRuntimeFormData({ recordId, formFlag, data: dataFormat.getDataSource() });
                       setNavVisible();
                       if (!recordId) {
                         onChange(dataFormat.getDataSource(), [], { noSaveTemp: true });
                       }
+
+                      onFormDataReady(dataFormat);
                     }}
                     onWidgetChange={onWidgetChange}
                     onManualWidgetChange={onManualWidgetChange}
@@ -712,6 +730,7 @@ RecordForm.propTypes = {
   updateRecordDialogOwner: PropTypes.func,
   updateRows: PropTypes.func,
   onChange: PropTypes.func,
+  onFormDataReady: PropTypes.func,
   onRelateRecordsChange: PropTypes.func,
   onSave: PropTypes.func,
   saveDraft: PropTypes.func,

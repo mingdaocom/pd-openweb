@@ -181,6 +181,89 @@ export default {
     return mdyAPI('DataLimit', 'DeleteAppLimit', args, options);
   },
   /**
+   * 获取 AI 模型授权规则列表。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.ruleName 规则名称。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAIModelAuthRuleList: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'GetAIModelAuthRuleList', args, options);
+  },
+  /**
+   * 获取 AI 模型授权规则详情。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.ruleId 规则 ID。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAIModelAuthRule: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'GetAIModelAuthRule', args, options);
+  },
+  /**
+   * 新增 AI 模型授权规则。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 规则 ID，新增时可为空。
+   * @param {string} args.name 规则名称。
+   * @param {boolean} args.allModels 是否授权全部模型。
+   * @param {array} args.modelIds 指定授权模型 ID。
+   * @param {boolean} args.allApps 是否适用全部应用。
+   * @param {array} args.appIds 指定适用应用 ID。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addAIModelAuthRule: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'AddAIModelAuthRule', args, options);
+  },
+  /**
+   * 更新 AI 模型授权规则。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 规则 ID，新增时可为空。
+   * @param {string} args.name 规则名称。
+   * @param {boolean} args.allModels 是否授权全部模型。
+   * @param {array} args.modelIds 指定授权模型 ID。
+   * @param {boolean} args.allApps 是否适用全部应用。
+   * @param {array} args.appIds 指定适用应用 ID。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateAIModelAuthRule: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'UpdateAIModelAuthRule', args, options);
+  },
+  /**
+   * 修改 AI 模型授权规则状态。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.ruleId 规则 ID。
+   * @param {boolean} args.isEnable 是否启用。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editAIModelAuthRuleStatus: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'EditAIModelAuthRuleStatus', args, options);
+  },
+  /**
+   * 删除 AI 模型授权规则。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.ruleId 规则 ID。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  deleteAIModelAuthRule: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'DeleteAIModelAuthRule', args, options);
+  },
+  /**
    * 列表额度管理页数据
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id

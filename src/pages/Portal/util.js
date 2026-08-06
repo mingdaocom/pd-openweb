@@ -1,7 +1,8 @@
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import api from 'src/api/homeApp';
 import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import { navigateToLogout } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 
 export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   //工作表老路由id补齐
@@ -10,32 +11,20 @@ export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
       let url = '';
 
       if (rowId) {
-        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          url = `/app/${appId}/${workSheetId}/row/${rowId}`;
-        } else {
-          url = `/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`;
-        }
+        url = `/app/${appId}/${workSheetId}/row/${rowId}`;
       } else if (viewId) {
-        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          url = `/app/${appId}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
-        } else {
-          url = `/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
-        }
+        url = `/app/${appId}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
       } else if (appSectionId) {
-        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          url = `/app/${appId}/${appSectionId}/${workSheetId}`;
-        } else {
-          url = `/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`;
-        }
+        url = `/app/${appId}/${appSectionId}/${workSheetId}`;
       }
 
-      location.href = `${window.subPath || ''}${url}`;
+      location.href = pathCompletion(url);
     }
   });
 };
 
 export function formatPortalHref(props) {
-  // 外部门户 并且应用id对应不上 自定义后缀也对应不上
+  // 外部门户 并且应用id对应不上 自定义域名后缀也对应不上
   if (
     md.global.Account.isPortal &&
     ![md.global.Account.appId, md.global.Account.addressSuffix].includes(_.get(props, 'computedMatch.params.appId')) &&

@@ -9,10 +9,7 @@ export const IconWrap = styled.div`
   justify-content: center;
   align-items: center;
   line-height: normal;
-  margin-left: -3px;
-  &:hover {
-    box-shadow: inset 0 0 20px 20px rgba(0, 0, 0, 0.1);
-  }
+  margin-left: 10px;
 `;
 
 export const TopBar = styled.div`
@@ -24,10 +21,9 @@ export const TopBar = styled.div`
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
   background-color: var(--color-background-primary);
   z-index: 1;
-  .textDisabled {
-    &:hover {
-      color: var(--color-text-tertiary) !important;
-    }
+  .simpleHeaderBackIcon {
+    line-height: 1;
+    cursor: pointer;
   }
   .valignWrapper {
     &.isAbsolute {

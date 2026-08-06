@@ -112,10 +112,17 @@ export default class ProjectContacts extends React.Component {
     this.fetchDepartments();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({}, this.fetchDepartments);
-    if (!_.isEqual(this.props.projectId, nextProps.projectId)) {
-      this.setState({ pageIndex: 1, groupId: '', groupList: [], keywords: '' });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({}, this.fetchDepartments);
+      if (!_.isEqual(prevProps.projectId, this.props.projectId)) {
+        this.setState({
+          pageIndex: 1,
+          groupId: '',
+          groupList: [],
+          keywords: '',
+        });
+      }
     }
   }
 

@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { DatePicker } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Icon, Modal, Radio, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
+import { Dropdown, Icon, MdAntDatePicker, Modal, Radio, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
 import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import PointImg from 'src/pages/workflow/asset/point.png';
@@ -125,6 +120,24 @@ const ENTRUST_SCOPE = [
   { text: _l('指定应用的工作流'), value: 2 },
 ];
 
+const disabledDateTime = date => {
+  const hours = moment().hours();
+  const minutes = moment().minutes();
+
+  if (!date || moment(date).isSame(moment(), 'd')) {
+    return {
+      disabledHours: () => Array.from(Array(hours), (_, k) => k),
+      disabledMinutes: () =>
+        !date || moment(date).isSame(moment(), 'h') ? Array.from(Array(minutes), (_, k) => k) : [],
+    };
+  }
+
+  return {
+    disabledHours: () => [],
+    disabledMinutes: () => [],
+  };
+};
+
 export default function TodoEntrustModal(props) {
   const {
     type = 1,
@@ -137,8 +150,6 @@ export default function TodoEntrustModal(props) {
   const projectOptions = md.global.Account.projects.map(item => {
     return { text: item.companyName, value: item.projectId };
   });
-  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-
   const isEdit = !_.isEmpty(editEntrustData);
   const [formData, setFormData] = useState(
     isEdit
@@ -183,24 +194,6 @@ export default function TodoEntrustModal(props) {
         setAuthApps(newAuthApps);
       },
     });
-  };
-
-  const disabledDateTime = date => {
-    const hours = moment().hours();
-    const minutes = moment().minutes();
-
-    if (!date || moment(date).isSame(moment(), 'd')) {
-      return {
-        disabledHours: () => Array.from(Array(hours), (_, k) => k),
-        disabledMinutes: () =>
-          !date || moment(date).isSame(moment(), 'h') ? Array.from(Array(minutes), (_, k) => k) : [],
-      };
-    }
-
-    return {
-      disabledHours: () => [],
-      disabledMinutes: () => [],
-    };
   };
 
   const onAddOrChangeMember = (userType = 'trustee') => {
@@ -391,14 +384,13 @@ export default function TodoEntrustModal(props) {
         <div className="entrustDateWrapper">
           <div className="mTop10 mRight16 dateItem">
             <div className="Font13 mBottom5">{_l('开始')}</div>
-            <DatePicker
+            <MdAntDatePicker
               style={{ width: '100%', borderRadius: '3px' }}
               placeholder={_l('此刻')}
               showTime
               disabledDate={date => moment().isAfter(date)}
               disabledTime={disabledDateTime}
               format="YYYY-MM-DD HH:mm"
-              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
               defaultValue={isEdit ? moment(formData.startDate || formData.createDate) : formData.startDate}
               allowClear={true}
               onChange={startDate => updateDataSource({ startDate })}
@@ -409,7 +401,7 @@ export default function TodoEntrustModal(props) {
               {_l('结束')}
               <span className="Red bold mLeft4">*</span>
             </div>
-            <DatePicker
+            <MdAntDatePicker
               style={{ width: '100%', borderRadius: '3px' }}
               placeholder={_l('请选择日期')}
               showTime
@@ -419,7 +411,6 @@ export default function TodoEntrustModal(props) {
               format="YYYY-MM-DD HH:mm"
               defaultValue={formData.endDate}
               allowClear={true}
-              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
               onChange={endDate => updateDataSource({ endDate })}
             />
           </div>
@@ -429,7 +420,7 @@ export default function TodoEntrustModal(props) {
       <FormItem>
         <span className="bold">{_l('委托范围')}</span>
         <div className="flexRow alignItemsCenter mTop16">
-          {ENTRUST_SCOPE.map(item => {
+          {ENTRUST_SCOPE.filter(item => (item.value === 2 ? formData.companyId : true)).map(item => {
             return (
               <Radio
                 text={item.text}

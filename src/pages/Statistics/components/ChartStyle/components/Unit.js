@@ -506,16 +506,18 @@ export default function unitPanelGenerator(props) {
               <div className="mBottom8">{_l('卡片内容')}</div>
               <div className="chartTypeSelect flexRow valignWrapper">
                 <div
+                  title={_l('原值')}
                   className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 0 })}
                   onClick={() => onChangeStyle({ tooltipValueType: 0 })}
                 >
-                  {_l('原值')}
+                  <span className="ellipsis">{_l('原值')}</span>
                 </div>
                 <div
+                  title={_l('显示单位')}
                   className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 1 })}
                   onClick={() => onChangeStyle({ tooltipValueType: 1 })}
                 >
-                  {_l('显示单位')}
+                  <span className="ellipsis">{_l('显示单位')}</span>
                 </div>
               </div>
             </div>

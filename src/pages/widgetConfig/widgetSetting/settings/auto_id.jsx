@@ -154,18 +154,35 @@ const TIME_MODE = [
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
-function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
+function SortableItem({
+  data,
+  rule,
+  allControls,
+  deleteRule,
+  updateRule,
+  renderDragHandle,
+  globalSheetControls = [],
+  globalSheetInfo = {},
+  ...rest
+}) {
   const [{ numberConfigVisible, timeFormatVisible }, setVisible] = useSetState({
     numberConfigVisible: false,
     timeFormatVisible: false,
   });
-  const { controlId, rcid, relationControlName, controlName, controlType, format, type, repeatType } = rule;
+  const { controlId, rcid, relationControlName, controlType, format, type, repeatType } = rule;
+  const relationControls = rcid
+    ? rcid === globalSheetInfo.worksheetId
+      ? globalSheetControls
+      : _.get(getControlByControlId(allControls, rcid), 'relationControls', [])
+    : [];
+  const currentControl = getControlByControlId(rcid ? relationControls : allControls, controlId);
+  const controlName = _.get(currentControl, 'controlName');
   const $addControl = useRef(null);
   const $addTime = useRef(null);
 
   const getControlInfo = () => {
     if (!controlId) return _l('请选择字段');
-    if (!controlName || (!rcid && isEmpty(getControlByControlId(allControls, controlId)))) {
+    if (isEmpty(currentControl)) {
       return (
         <div className="delWrap">
           <AutoIcon style={{ color: 'var(--color-error)' }} icon="delete" type="delete" />
@@ -225,9 +242,15 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
             <SelectControlWithRelate
               {...rest}
               allControls={allControls}
+              globalSheetControls={globalSheetControls}
+              globalSheetInfo={globalSheetInfo}
               filter={controls => _.filter(controls, isAutoNumberSelectableControl)}
               onClick={({ fieldId, relateSheetControlId, ...rest }) =>
-                updateRule({ controlId: fieldId, rcid: relateSheetControlId, ...rest })
+                updateRule({
+                  controlId: fieldId,
+                  rcid: relateSheetControlId,
+                  ...rest,
+                })
               }
             />
           }
@@ -337,7 +360,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
               data={data}
               renderDragHandle={() => (
                 <DragHandle>
-                  <i className="icon-drag textSecondary ThemeHoverColor3 pointer"></i>
+                  <i className="icon-drag textSecondary hoverColorPrimary pointer"></i>
                 </DragHandle>
               )}
               updateRule={obj => updateRule(index, obj)}

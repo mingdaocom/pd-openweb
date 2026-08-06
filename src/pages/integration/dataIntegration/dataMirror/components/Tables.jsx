@@ -472,7 +472,7 @@ export default function Tables(props) {
                 </span>
                 <Icon
                   icon="edit"
-                  className={cx('Font18 textSecondary mLeft5 ThemeHoverColor3 Hand')}
+                  className={cx('Font18 textSecondary mLeft5 hoverColorPrimary Hand')}
                   onClick={() => {
                     setState({
                       showInput: item.worksheetId,

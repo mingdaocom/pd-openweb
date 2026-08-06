@@ -28,18 +28,26 @@ export default class SubProcess extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -60,6 +68,10 @@ export default class SubProcess extends Component {
         instanceId,
       })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({
           data: _.isEmpty(obj) ? result : { ...result, name: data.name, executeType: data.executeType },
           cacheKey: +new Date(),
@@ -97,7 +109,7 @@ export default class SubProcess extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -235,7 +247,7 @@ export default class SubProcess extends Component {
           {!!(data.processList || []).length && (
             <Dropdown
               className="flowSubProcessDropdown"
-              renderTitle={() => <span className="ThemeColor3">{_l('选择已有流程')}</span>}
+              renderTitle={() => <span className="colorPrimary">{_l('选择已有流程')}</span>}
               menuStyle={{ left: 'inherit', right: 0 }}
               data={clearSubProcess.concat(
                 data.processList.map(item => {
@@ -319,7 +331,11 @@ export default class SubProcess extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.selectNodeId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.selectNodeId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

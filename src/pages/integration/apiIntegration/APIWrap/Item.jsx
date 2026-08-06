@@ -193,7 +193,7 @@ export default function Item(props) {
           </div>
           <WrapBtn className="TxtCenter mTop40">
             <span
-              className="Hand textSecondary Bold ThemeHoverColor3"
+              className="Hand textSecondary Bold hoverColorPrimary"
               onClick={() => {
                 onCancel();
               }}

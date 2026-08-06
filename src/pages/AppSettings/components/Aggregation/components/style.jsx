@@ -364,7 +364,7 @@ export const WrapS = styled(Menu)`
       color: var(--color-error) !important;
     }
   }
-  .ming.Item.ThemeColor3 .Item-content:not(.disabled):hover {
+  .ming.Item.colorPrimary .Item-content:not(.disabled):hover {
     color: var(--color-primary) !important;
   }
   .Red.ming.MenuItem .Item-content:not(.disabled):hover {

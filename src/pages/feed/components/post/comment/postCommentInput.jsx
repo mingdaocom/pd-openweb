@@ -4,8 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import 'src/components/autoTextarea/autoTextarea';
 import { SOURCE_TYPE } from 'src/components/comment/config';
@@ -13,8 +12,6 @@ import Emotion from 'src/components/emotion/emotion';
 import MentionsInput from 'src/components/MentionsInput';
 import UploadFiles from 'src/components/UploadFiles';
 import { addComment } from '../../../redux/postActions';
-
-const ClickAway = createDecoratedComponent(withClickAway);
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;
@@ -51,15 +48,13 @@ class PostCommentInput extends React.Component {
     this.initTextarea();
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (nextState.isReshare !== this.state.isReshare) {
-      this.resetSelectGroup();
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const postItem = this.props.postItem;
     const isToComment = !!postItem.commentID;
+
+    if (prevState.isReshare !== this.state.isReshare) {
+      this.resetSelectGroup();
+    }
 
     if (prevState.isEditing !== this.state.isEditing) {
       const textarea = this.textarea;
@@ -177,7 +172,7 @@ class PostCommentInput extends React.Component {
                     _.remove(comp.state.attachments);
                     _.remove(comp.state.kcAttachments);
                     // 卸载上传组件
-                    $('#' + uploadID).removeClass('ThemeColor3');
+                    $('#' + uploadID).removeClass('colorPrimary');
                     comp.setState({
                       isReshare: false,
                       uploadAttachmentObj: false,
@@ -258,11 +253,11 @@ class PostCommentInput extends React.Component {
   }
 
   handleMouseover = () => {
-    $(this.faceBtn).removeClass('icon-smile').addClass('icon-smilingFace ThemeColor3');
+    $(this.faceBtn).removeClass('icon-smile').addClass('icon-smilingFace colorPrimary');
   };
 
   handleMouseout = () => {
-    $(this.faceBtn).addClass('icon-smile').removeClass('icon-smilingFace ThemeColor3');
+    $(this.faceBtn).addClass('icon-smile').removeClass('icon-smilingFace colorPrimary');
   };
 
   handleOpenUploadFiles() {
@@ -281,7 +276,7 @@ class PostCommentInput extends React.Component {
     const dropElementID = 'cm_' + postItem.postID + '_' + postItem.commentID + 'C';
     const $Attachment_updater = $(`#${dropElementID}`).parent();
 
-    if (!$Attachment_updater.hasClass('ThemeColor3')) {
+    if (!$Attachment_updater.hasClass('colorPrimary')) {
       $Attachment_updater.click();
     }
 
@@ -362,7 +357,7 @@ class PostCommentInput extends React.Component {
                     this.handleOpenUploadFiles();
                   }}
                   className={cx('left Hand commentUploadAttachment mRight12', {
-                    ThemeColor3: this.state.showAttachment,
+                    colorPrimary: this.state.showAttachment,
                   })}
                 >
                   <i
@@ -386,7 +381,7 @@ class PostCommentInput extends React.Component {
                 <Tooltip title={_l('同时转发此条')}>
                   <span>
                     <i
-                      className={cx('relayBtn icon-forward2 Font19 ThemeColor3', {
+                      className={cx('relayBtn icon-forward2 Font19 colorPrimary', {
                         hoverRelayBtn: !this.state.isReshare,
                       })}
                       onClick={this.handleReshareToggle}

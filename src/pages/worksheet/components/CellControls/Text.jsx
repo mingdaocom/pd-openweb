@@ -6,18 +6,16 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Linkify, Textarea } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { accMul, browserIsMobile, emitter, isKeyBoardInputChar } from 'src/utils/common';
 import { formatNumberFromInput, formatStrZero, renderText, toFixed } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
-import CellErrorTips from './comps/CellErrorTip';
+import CellErrorTips, { CellErrorTipTrigger } from './comps/CellErrorTip';
 import { FROM } from './enum';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const InputCon = styled.div`
   box-sizing: border-box;
   padding: 0 6px;
@@ -68,7 +66,17 @@ Input.propTypes = {
   onChange: PropTypes.func,
 };
 
-function getPopupContainer(popupContainer, rows) {
+function getPopupContainer(popupContainer, rows, isMultipleLine) {
+  // 表格 main-center 设置了 overflow:hidden，多行文本编辑弹层超出单元格高度时会被裁剪，
+  // 也会被底部统计行/footer 遮挡。逃逸到外层 .customFieldsContainer 可绕开裁剪。
+  if (isMultipleLine) {
+    const escape = popupContainer().closest('.customFieldsContainer');
+
+    if (escape) {
+      return () => escape;
+    }
+  }
+
   if (_.get(rows, 'length') && _.get(rows, 'length') <= 5 && popupContainer().closest('.customFieldsContainer')) {
     return () =>
       _.get(rows, 'length') && _.get(rows, 'length') <= 5 && popupContainer().closest('.customFieldsContainer');
@@ -111,39 +119,58 @@ export default class Text extends React.Component {
 
   tempKey = [];
 
-  componentWillReceiveProps(nextProps) {
-    const valueChanged = nextProps.cell.value !== this.props.cell.value;
-    const rowChanged = !isEqual(get(nextProps, 'row.rowid'), get(this.props, 'row.rowid'));
-    const nextState = {};
-
-    if (valueChanged || rowChanged) {
-      nextState.value = nextProps.cell.value;
-    }
-
-    if ((valueChanged && !nextProps.isediting) || rowChanged) {
-      nextState.oldValue = nextProps.cell.value;
-    }
-
-    if (!_.isEmpty(nextState)) {
-      this.setState(nextState);
-    }
-
-    // 数值类小数点自动配置，聚焦时去零
-    if (
-      nextProps.isediting !== this.props.isediting &&
-      nextProps.isediting &&
-      _.get(nextProps, 'cell.advancedSetting.dotformat') === '1'
-    ) {
-      this.setState({ value: formatStrZero(nextProps.cell.value) });
-    }
-  }
-
   componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const valueChanged = this.props.cell.value !== prevProps.cell.value;
+      const rowChanged = !isEqual(get(this.props, 'row.rowid'), get(prevProps, 'row.rowid'));
+      const nextState = {}; // 子表场景：失焦后 ChildTable 的 300ms debounce + DataFormat 清洗会让 cell.value 异步回灌；
+      // 这段窗口内阻断 props → state 同步，避免脏值/清洗后空值覆盖用户输入。
+      // 窗口结束后恢复正常同步，确保外部 row 恢复（如取消保存）能反向覆盖到本地。
+      // 子表场景：失焦后 ChildTable 的 300ms debounce + DataFormat 清洗会让 cell.value 异步回灌；
+      // 这段窗口内阻断 props → state 同步，避免脏值/清洗后空值覆盖用户输入。
+      // 窗口结束后恢复正常同步，确保外部 row 恢复（如取消保存）能反向覆盖到本地。
+      const isSubList = !!this.props.isSubList;
+      const inPostBlurWindow = isSubList && this.postBlurUntil && Date.now() < this.postBlurUntil;
+      const errorCleared = !!prevProps.error && !this.props.error;
+      const allowValueSync = !inPostBlurWindow || rowChanged || errorCleared;
+
+      if ((valueChanged || rowChanged) && allowValueSync) {
+        this.postBlurUntil = null;
+        nextState.value = this.props.cell.value;
+      }
+
+      if ((valueChanged && !this.props.isediting && allowValueSync) || rowChanged) {
+        nextState.oldValue = this.props.cell.value;
+      }
+
+      if (!_.isEmpty(nextState)) {
+        this.setState(nextState);
+      } // 数值类小数点自动配置，聚焦时去零
+
+      // 数值类小数点自动配置，聚焦时去零
+      if (
+        this.props.isediting !== prevProps.isediting &&
+        this.props.isediting &&
+        _.get(this.props, 'cell.advancedSetting.dotformat') === '1'
+      ) {
+        this.setState({
+          value: formatStrZero(this.props.cell.value),
+        });
+      }
+    }
+
     const { value } = this.state;
 
     if (!prevProps.isediting && this.props.isediting) {
+      // 新的一次编辑会话开始，复位失焦标记，供 handleBlur 重入守卫使用
+      this.hadBlur = false;
       if (this.isNumberPercent && value) {
-        this.setState({ value: accMul(value, 100) }, this.focus);
+        this.setState(
+          {
+            value: accMul(value, 100),
+          },
+          this.focus,
+        );
       } else {
         this.focus();
       }
@@ -216,6 +243,10 @@ export default class Text extends React.Component {
   };
 
   handleBlur = () => {
+    // 重入守卫：同一次编辑会话只处理一次失焦。
+    // Safari 下一次失焦可能触发多次（onClickAway + input blur 等），而百分比换算非幂等，
+    // 二次进入会把已转好的真实值(如 0.88)再除以 100 → 0.0088 → toFixed 成 0.01，造成多一次错误更新。
+    if (this.hadBlur) return;
     this.hadBlur = true;
     const { isSubList, cell, error, ignoreErrorMessage, updateCell, updateEditingStatus, onValidate } = this.props;
     this.tempKey = [];
@@ -254,6 +285,18 @@ export default class Text extends React.Component {
 
     if (blurError && !blurIgnoreError) {
       updateEditingStatus(false);
+      // 子表场景：除唯一性冲突外，保留用户输入并触发 row 更新（让主记录详情表单的 dirty 检测能感知到本次修改）。
+      // DataFormat 可能会把非法值清洗为空，但 state.value 已由 CWRP 闸门锁定，视觉上仍保留用户输入；
+      // 校验兜底由 CellControls 失焦写入的 cellErrors + getSubListErrorOfStore 合并完成。
+      const blurErrorType = blurValidateResult && blurValidateResult.errorType;
+
+      if (isSubList && blurErrorType !== 'UNIQUE') {
+        this.postBlurUntil = Date.now() + 500;
+        updateCell({ value });
+        this.setState({ oldValue: value, value });
+        return;
+      }
+
       this.setState({
         value: oldValue,
       });
@@ -460,8 +503,12 @@ export default class Text extends React.Component {
       onClick,
       ignoreErrorMessage,
       appId,
+      isSubList,
     } = this.props;
     const { rows } = this.context || {};
+    // 子表第一行的提示朝下展示，会落在底部统计行上，需要改挂到表格根容器；
+    // 多行文本编辑框会向下撑开，提示仍跟随编辑框底部展示（编辑弹层本身已逃逸出表格）
+    const showErrorTipAsPopup = isSubList && rowIndex === 0 && !this.isMultipleLine;
     let { value, forceShowFullValue } = this.state;
     const isMobile = browserIsMobile();
     const disabledInput = cell.advancedSetting.dismanual === '1';
@@ -564,7 +611,7 @@ export default class Text extends React.Component {
             onChange={this.handleChange}
           />
         )}
-        {error && (
+        {error && !showErrorTipAsPopup && (
           <CellErrorTips
             color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
@@ -578,13 +625,13 @@ export default class Text extends React.Component {
         )}
       </ClickAwayable>
     );
-    return (
+    const editTrigger = (
       <Trigger
         action={['click']}
         popup={editcontent}
         getPopupContainer={
           this.isMultipleLine || includes(className, 'lastFixedColumn')
-            ? getPopupContainer(popupContainer, rows)
+            ? getPopupContainer(popupContainer, rows, this.isMultipleLine)
             : popupContainer
         }
         popupClassName="filterTrigger"
@@ -687,6 +734,21 @@ export default class Text extends React.Component {
           )}
         </EditableCellCon>
       </Trigger>
+    );
+
+    if (!showErrorTipAsPopup) {
+      return editTrigger;
+    }
+
+    return (
+      <CellErrorTipTrigger
+        visible={isediting}
+        error={error}
+        color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+        popupContainer={popupContainer}
+      >
+        {editTrigger}
+      </CellErrorTipTrigger>
     );
   }
 }

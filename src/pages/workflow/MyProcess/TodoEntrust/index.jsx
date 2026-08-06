@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Motion, spring } from 'react-motion';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import delegationApi from '../../api/delegation';
 import TodoEntrustList from './TodoEntrustList';
 import TodoEntrustModal from './TodoEntrustModal';
 
-const RedDot = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 100%;
-  background-color: var(--color-error);
-`;
-
 const IconWrapper = styled.div`
   display: inline-flex;
-  margin-right: 24px;
+  margin-right: 15px;
   cursor: pointer;
 
   .iconText {
@@ -44,59 +33,45 @@ export default function TodoEntrust() {
   const [delegationList, setDelegationList] = useState([]);
   const entrustCount = delegationList.length;
 
-  useEffect(() => {
-    getData();
+  const getData = useCallback(() => {
+    delegationApi.getList().then(res => res && setDelegationList(res));
   }, []);
 
-  const getData = () => {
-    delegationApi.getList().then(res => res && setDelegationList(res));
-  };
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   const onEntrustIconClick = () => {
-    entrustCount === 0 ? setTodoEntrustModalVisible(true) : setEntrustListVisible(true);
+    setEntrustListVisible(true);
   };
 
   return (
     <React.Fragment>
       <Tooltip title={_l('待办委托')} popupPlacement="bottom">
         <IconWrapper onClick={onEntrustIconClick}>
-          <div className="relative">
-            <Icon icon="lift" className="Font22 textSecondary" />
-            {entrustCount > 0 && <RedDot />}
-          </div>
+          <Icon icon="lift" className="Font22 textSecondary" />
           <div className="iconText nowrap">{_l('委托')}</div>
+          {entrustCount > 0 && <span className="iconText">{entrustCount}</span>}
         </IconWrapper>
       </Tooltip>
 
-      <Motion
-        style={{
-          x: spring(entrustListVisible ? 0 : 460, {
-            stiffness: 300,
-            damping: 30,
-            precision: 0.01,
-          }),
-        }}
+      <Dialog
+        className="todoEntrustDialog"
+        visible={entrustListVisible}
+        width={1280}
+        type="fixed"
+        footer={null}
+        onOk={() => {}}
+        onCancel={() => setEntrustListVisible(false)}
       >
-        {({ x }) => (
-          <TodoEntrustList
-            posX={x}
-            visible={entrustListVisible}
-            delegationList={delegationList}
-            setDelegationList={setDelegationList}
-            onClose={() => setEntrustListVisible(false)}
-            onClickAway={() => {
-              entrustListVisible && setEntrustListVisible(false);
-            }}
-            onClickAwayExceptions={[
-              '.mdModalWrap',
-              '.dropdownTrigger',
-              '.mui-dialog-container',
-              '.ant-picker-dropdown',
-              '.userCardSite',
-            ]}
-          />
-        )}
-      </Motion>
+        <TodoEntrustList
+          visible={entrustListVisible}
+          delegationList={delegationList}
+          onUpdate={getData}
+          onClose={() => setEntrustListVisible(false)}
+        />
+      </Dialog>
+
       {todoEntrustModalVisible && (
         <TodoEntrustModal setTodoEntrustModalVisible={setTodoEntrustModalVisible} onUpdate={getData} />
       )}

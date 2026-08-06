@@ -4,8 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { UserHead } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { quickSelectUser } from 'ming-ui/functions';
 import { dealUserRange } from 'src/components/Form/core/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -14,7 +13,7 @@ import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTip from './comps/CellErrorTip';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const ClickAwayable = ClickAway;
 
 function getPopupContainer(popupContainer, rows) {
   try {
@@ -54,21 +53,25 @@ export default class User extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: safeParse(nextProps.cell.value, 'array') });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: safeParse(this.props.cell.value, 'array'),
+        });
+      }
 
-    const single = nextProps.cell.enumDefault === 0;
+      const single = this.props.cell.enumDefault === 0;
 
-    if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
-      this.pickUser();
-    }
-
-    if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
-      setTimeout(() => {
+      if (this.cell.current && single && !prevProps.isediting && this.props.isediting) {
         this.pickUser();
-      }, 200);
+      }
+
+      if (!single && !prevProps.isediting && this.props.isediting && _.isEmpty(prevProps.cell.value)) {
+        setTimeout(() => {
+          this.pickUser();
+        }, 200);
+      }
     }
   }
 

@@ -2,13 +2,12 @@ import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Icon, Support, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import ViewConfigCon from './ViewConfig';
 import './ViewConfig.less';
 
-@withClickAway
-export default class ViewConfig extends React.Component {
+let ViewConfig = class ViewConfig extends React.Component {
   constructor(props) {
     super(props);
     const { view, worksheetId } = props;
@@ -18,13 +17,16 @@ export default class ViewConfig extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { view } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { view, worksheetId } = this.props;
 
-    if (nextProps.viewId !== this.props.viewId) {
-      this.state = {
-        name: view.name,
-      };
+      if (this.props.viewId !== prevProps.viewId) {
+        this.setState({
+          name: view.name,
+          isManageView: view.viewId === worksheetId,
+        });
+      }
     }
   }
 
@@ -41,13 +43,7 @@ export default class ViewConfig extends React.Component {
   handleNameSave() {
     const { name } = this.state;
     const { worksheetId, view, appId } = this.props;
-    this.props.updateCurrentView({
-      ...view,
-      name,
-      appId,
-      worksheetId,
-      editAttrs: ['name'],
-    });
+    this.props.updateCurrentView({ ...view, name, appId, worksheetId, editAttrs: ['name'] });
   }
 
   handleFocus = () => {
@@ -61,7 +57,6 @@ export default class ViewConfig extends React.Component {
     const { view } = this.props;
     const { icon, color } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[view.viewType]);
-
     return (
       <div className="viewTitle">
         {isCustomize ? (
@@ -71,7 +66,13 @@ export default class ViewConfig extends React.Component {
             size={18}
           />
         ) : (
-          <Icon className="mRight5 Font20" style={{ color }} icon={icon} />
+          <Icon
+            className="mRight5 Font20"
+            style={{
+              color,
+            }}
+            icon={icon}
+          />
         )}
         {isManageView ? (
           <Fragment>
@@ -128,6 +129,7 @@ export default class ViewConfig extends React.Component {
       </div>
     );
   }
+
   render() {
     return (
       <div className="worksheetViewConfig">
@@ -138,4 +140,6 @@ export default class ViewConfig extends React.Component {
       </div>
     );
   }
-}
+};
+ViewConfig = ClickAway.wrap(ViewConfig);
+export default ViewConfig;

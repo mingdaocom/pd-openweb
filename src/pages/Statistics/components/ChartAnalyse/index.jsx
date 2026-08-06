@@ -15,24 +15,16 @@ import DataContrast from './components/DataContrast';
 import OriginalData from './components/OriginalData';
 import PeriodTarget from './components/PeriodTarget';
 
-@connect(
-  state => ({
-    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData', 'base']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ChartAnalyse extends Component {
+let ChartAnalyse = class ChartAnalyse extends Component {
   constructor(props) {
     super(props);
   }
+
   handleChangeDisplaySetup = (data, isRequest = false) => {
     const { displaySetup } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
-        displaySetup: {
-          ...displaySetup,
-          ...data,
-        },
+        displaySetup: { ...displaySetup, ...data },
       },
       isRequest,
     );
@@ -41,14 +33,12 @@ export default class ChartAnalyse extends Component {
     const { style } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
-        style: {
-          ...style,
-          ...data,
-        },
+        style: { ...style, ...data },
       },
       isRequest,
     );
   };
+
   renderAutoLinkage() {
     const { reportId, worksheetInfo, currentReport } = this.props;
     return (
@@ -62,16 +52,19 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
+
   renderOriginalData() {
     const { worksheetInfo, currentReport, base } = this.props;
     const { displaySetup, filter, style } = currentReport;
     const aggregationSheet = base.appType === 2;
-
     return (
       <Collapse.Panel
         key="originalData"
         header={_l('查看原始数据')}
-        className={cx({ collapsible: !displaySetup.showRowList, hideArrowIcon: aggregationSheet })}
+        className={cx({
+          collapsible: !displaySetup.showRowList,
+          hideArrowIcon: aggregationSheet,
+        })}
         extra={
           <Switch
             size="small"
@@ -100,6 +93,7 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
+
   renderAuxiliaryLine() {
     const { currentReport } = this.props;
     return (
@@ -108,14 +102,15 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
+
   renderDataContrast() {
     const { currentReport, reportData, base } = this.props;
     const { reportType, displaySetup, filter, style } = currentReport;
     const { rangeType } = filter || {};
     const isNumberChart = reportType === reportTypes.NumberChart;
-    const mapKeys = Object.keys(reportData.map || []);
-    // const xAxisisTime = isTimeControl(xaxes.controlType);
+    const mapKeys = Object.keys(reportData.map || []); // const xAxisisTime = isTimeControl(xaxes.controlType);
     // const contrastVisible = ((mapKeys.length < 2 && xAxisisTime) || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType));
+
     const contrastVisible =
       mapKeys.length < 2 || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType);
     const switchChecked = displaySetup.contrastType || displaySetup.contrast;
@@ -129,7 +124,9 @@ export default class ChartAnalyse extends Component {
       <Collapse.Panel
         header={_l('数据对比')}
         key="dataContrast"
-        className={cx({ collapsible: isNumberChart ? !switchChecked : false })}
+        className={cx({
+          collapsible: isNumberChart ? !switchChecked : false,
+        })}
         extra={
           isNumberChart ? (
             <Switch
@@ -165,10 +162,7 @@ export default class ChartAnalyse extends Component {
             numberChartStyle={numberChartStyle}
             onChangeNumberStyle={data => {
               this.handleChangeStyle({
-                numberChartStyle: {
-                  ...numberChartStyle,
-                  ...data,
-                },
+                numberChartStyle: { ...numberChartStyle, ...data },
               });
             }}
           />
@@ -176,6 +170,7 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
+
   renderPeriodTarget() {
     const { currentReport } = this.props;
     const { displaySetup } = currentReport;
@@ -190,14 +185,18 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
+
   renderExpandIcon(panelProps) {
     return (
       <Icon
-        className={cx('Font18 mRight5 textTertiary', { 'icon-arrow-active': panelProps.isActive })}
+        className={cx('Font18 mRight5 textTertiary', {
+          'icon-arrow-active': panelProps.isActive,
+        })}
         icon="arrow-down-border"
       />
     );
   }
+
   render() {
     const { sourceType, currentReport } = this.props;
     const { reportType } = currentReport;
@@ -215,4 +214,9 @@ export default class ChartAnalyse extends Component {
       </div>
     );
   }
-}
+};
+ChartAnalyse = connect(
+  state => ({ ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData', 'base']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ChartAnalyse);
+export default ChartAnalyse;

@@ -28,7 +28,7 @@ class CalendarPart extends Component {
 
     return (
       <div className={`${rangeClassName}-part ${rangeClassName}-${direction}`}>
-        <div style={{ outline: 'none' }}>
+        <div>
           <CalendarHeader {...newProps} direction={direction} onValueChange={props.onValueChange} />
           <div className={`${prefixCls}-body`}>
             <DateTable

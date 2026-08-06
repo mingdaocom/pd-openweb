@@ -1,6 +1,6 @@
 import { AT_ALL_TEXT } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
-import { htmlEncodeReg } from './common';
+import { htmlEncodeReg, pathCompletion } from './common';
 
 function escapeHTML(s) {
   return s
@@ -99,8 +99,7 @@ export default args => {
             // 外部门户
             replaceStr += ' <a>@' + name + '</a> ';
           } else {
-            replaceStr +=
-              ' <a data-accountid="' + aid + '" target="_blank" href="/user_' + aid + '">@' + name + '</a> ';
+            replaceStr += ` <a data-accountid="${aid}" target="_blank" href="${pathCompletion('/user_' + aid, { hasDomain: false })}">@${name}</a> `;
           }
         }
       }
@@ -122,14 +121,7 @@ export default args => {
             replaceStr +=
               ' <span class="textDisabled" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
           } else {
-            replaceStr +=
-              ' <a target="_blank" data-groupid="' +
-              rGroup.groupID +
-              '" href="/group/groupValidate?gID=' +
-              rGroup.groupID +
-              '">@' +
-              htmlEncodeReg(rGroup.groupName) +
-              '</a> ';
+            replaceStr += ` <a target="_blank" data-groupid="${rGroup.groupID}" href="${pathCompletion('/group/groupValidate?gID=' + rGroup.groupID, { hasDomain: false })}">@${htmlEncodeReg(rGroup.groupName)}</a> `;
           }
         }
       }
@@ -167,7 +159,7 @@ export default args => {
       function (id, name) {
         const category = findCategory(id);
         name = category ? category.catName : _l('未知话题');
-        return '<a target="_blank" href="/feed?catId=' + id + '">#' + htmlEncodeReg(name) + '#</a>';
+        return `<a target="_blank" href="${pathCompletion('/feed?catId=' + id, { hasDomain: false })}">#${htmlEncodeReg(name)}#</a>`;
       },
       function (id, name) {
         const category = findCategory(id);
@@ -181,7 +173,7 @@ export default args => {
     message,
     'tid',
     getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/task/task_' + id + '">' + htmlEncodeReg(name) + '</a>';
+      return `<a target="_blank" href="${pathCompletion('/apps/task/task_' + id, { hasDomain: false })}">${htmlEncodeReg(name)}</a>`;
     }),
   );
   // 项目
@@ -189,7 +181,7 @@ export default args => {
     message,
     'fid',
     getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/task/folder_' + id + '">' + htmlEncodeReg(name) + '</a>';
+      return `<a target="_blank" href="${pathCompletion('/apps/task/folder_' + id, { hasDomain: false })}">${htmlEncodeReg(name)}</a>`;
     }),
   );
   // 日程
@@ -197,7 +189,7 @@ export default args => {
     message,
     ['[CALENDAR]', '[CALENDAR]'],
     getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/calendar/detail_' + id + '">' + htmlEncodeReg(name) + '</a>';
+      return `<a target="_blank" href="${pathCompletion('/apps/calendar/detail_' + id, { hasDomain: false })}">${htmlEncodeReg(name)}</a>`;
     }),
   );
   // 问答中心
@@ -205,7 +197,7 @@ export default args => {
     message,
     ['[STARTANSWER]', '[ENDANSWER]'],
     getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/feeddetail?itemID=' + id + '">' + htmlEncodeReg(name) + '</a>';
+      return `<a target="_blank" href="${pathCompletion('/feeddetail?itemID=' + id, { hasDomain: false })}">${htmlEncodeReg(name)}</a>`;
     }),
   );
   // 文档版本
@@ -213,13 +205,7 @@ export default args => {
     message,
     ['[docversion]', '[docversion]'],
     getReplaceHtmlFunc(function (id, name) {
-      return (
-        '<a href="/feeddetail?itemID=' +
-        id +
-        '" target="_blank">' +
-        (htmlEncodeReg(name.split('|')[0]) || '文件') +
-        '</a>'
-      );
+      return `<a href="${pathCompletion('/feeddetail?itemID=' + id, { hasDomain: false })}" target="_blank">${htmlEncodeReg(name.split('|')[0]) || _l('文件')}</a>`;
     }),
   );
 
@@ -234,7 +220,7 @@ export default args => {
     let urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=])?[^ <>[\]*(){},\u4E00-\u9FA5]+/gi;
 
     message = message.replace(urlReg, function (m) {
-      return '<a target="_blank" href="' + m + '">' + m + '</a>';
+      return `<a target="_blank" href="${m}">${m}</a>`;
     });
   }
 

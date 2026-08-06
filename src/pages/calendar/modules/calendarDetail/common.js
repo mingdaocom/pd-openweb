@@ -2,6 +2,7 @@
 import moment from 'moment';
 import AjaxRequest from 'src/api/calendar';
 import createShare from 'src/components/createShare/createShare';
+import { pathCompletion } from 'src/utils/common';
 import { FREQUENCY, RECURLAYERS, RECURTYPE, REMINDTYPE, WEEKDAYS } from './constant';
 import afterRefreshOp from './lib/afterRefreshOp';
 import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
@@ -62,12 +63,12 @@ export function getCalendarDetail(calnedarId, recurTime) {
       } else if (code === 1) {
         reject({
           type: 'DENIED',
-          message: '无权限查看该日程',
+          message: _l('无权限查看该日程'),
         });
       } else {
         reject({
           type: 'DELETED',
-          message: '该日程已被删除',
+          message: _l('该日程已被删除'),
         });
       }
     });
@@ -273,7 +274,7 @@ export const shareCalendar = function (params, callback) {
     isCreate: false,
     calendarOpt: {
       title: _l('分享日程'),
-      openURL: md.global.Config.WebUrl + 'm/detail/calendar/',
+      openURL: pathCompletion('/m/detail/calendar/'),
       isAdmin: createUser === md.global.Account.accountId,
       keyStatus,
       name: title,

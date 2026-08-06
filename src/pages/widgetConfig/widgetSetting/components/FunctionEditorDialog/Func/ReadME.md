@@ -6,7 +6,7 @@
 
 函数文件最外层声明了名为 `executeMdFunction` 函数变量
 
-函数接受一个参数，参数为 Base64 转码后的字符串，字符串原始值为序列化后的对象{control: ..., formData: ...}
+函数接受一个参数，参数为 Base64 转码后的字符串，字符串原始值为序列化后的对象`{control: ..., formData: ..., langCode?: string}`
 
 函数正常返回一个 数值 或 字符串，计算错误时返回 undefined
 
@@ -33,8 +33,69 @@
 
 直接 require mdfunction.bundle.js 文件
 模块返回两个方法 run 和 runWithString，
-run 参数为 `{ control: ..., formData: ... }` 对象，runWithString 方法参数为序列化过的 `{ control: ..., formData: ... }` 字符串  
+run 参数为 `{ control: ..., formData: ..., langCode?: string }` 对象，runWithString 方法参数为序列化过的 `{ control: ..., formData: ..., langCode?: string }` 字符串
 计算正确返回一个数值或字符串，计算错误返回 `undefined`
+
+`langCode` 为可选参数，使用语种 code，当前支持：
+
+- `vi`
+- `uz`
+- `uk`
+- `tr`
+- `zh_hant`
+- `th`
+- `sv`
+- `sw`
+- `es`
+- `sl`
+- `sk`
+- `si`
+- `zh_hans`
+- `sr`
+- `ru`
+- `ro`
+- `pt`
+- `pl`
+- `no`
+- `ne`
+- `mn`
+- `ms`
+- `mk`
+- `lt`
+- `lv`
+- `lo`
+- `ky`
+- `ko`
+- `km`
+- `kk`
+- `ja`
+- `it`
+- `in`
+- `is`
+- `hu`
+- `hi`
+- `el`
+- `de`
+- `ka`
+- `fr`
+- `fi`
+- `tl_ph`
+- `et`
+- `en`
+- `nl`
+- `da`
+- `cs`
+- `hr`
+- `my`
+- `bg`
+- `bn`
+- `be`
+- `hy`
+- `am`
+- `sq`
+- `af`
+
+传入 `langCode` 时，函数库内部的运行期文案会优先使用内置语言表；不传时仍按原有 `_l()` 逻辑处理。
 
 ### 示例
 

@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
-import { genUrl, insertPortal, parseLink } from '../../util';
+import { addIframePermissions, CUSTOM_PAGE_IFRAME_ALLOW, genUrl, insertPortal, parseLink } from '../../util';
 
 const PreviewWrap = styled.div`
   height: 100%;
@@ -88,7 +88,7 @@ function PreviewContent(props) {
   if (iframeReg.test(value)) {
     return (
       <div className="iframeWrap">
-        <div dangerouslySetInnerHTML={{ __html: value }}></div>
+        <div dangerouslySetInnerHTML={{ __html: addIframePermissions(value) }}></div>
       </div>
     );
   }
@@ -106,11 +106,15 @@ function PreviewContent(props) {
   const renderContent = () => {
     if (imgReg.test(value)) return <div className="picBg" style={{ backgroundImage: `url(${value})` }}></div>;
     if (videoReg.test(value)) return <video src={value} controls></video>;
-    if (hrefReg.test(value)) return <iframe ref={ref} src={parseLink(value)}></iframe>;
+    if (hrefReg.test(value)) {
+      return <iframe ref={ref} allow={CUSTOM_PAGE_IFRAME_ALLOW} allowFullScreen src={parseLink(value)}></iframe>;
+    }
   };
 
   return <PreviewWrap>{renderContent()}</PreviewWrap>;
 }
+
+const source = { key: 'source', value: { type: 'static', data: 'embedUrl' } };
 
 export function PreviewWraper(props) {
   const { value, reload, newTab, param = [] } = props;
@@ -118,7 +122,6 @@ export function PreviewWraper(props) {
   const [now, setNow] = useState(0);
 
   const data = { key: 'now', value: { type: 'static', data: now } };
-  const source = { key: 'source', value: { type: 'static', data: 'embedUrl' } };
 
   const handleReLoad = () => {
     setNow(Date.now());

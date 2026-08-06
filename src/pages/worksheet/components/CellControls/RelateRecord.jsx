@@ -55,9 +55,13 @@ export default class RelateRecord extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.cell.value !== nextProps.cell.value) {
-      this.setState({ records: this.parseValue(nextProps.cell.value) });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.cell.value !== this.props.cell.value) {
+        this.setState({
+          records: this.parseValue(this.props.cell.value),
+        });
+      }
     }
   }
 

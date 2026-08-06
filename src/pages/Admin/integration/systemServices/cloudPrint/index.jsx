@@ -86,7 +86,7 @@ export default function CloudPrint(props) {
     <div className="orgManagementWrap adminCloudPrintContainer">
       <div className="orgManagementHeader">
         <span className="Font17 Bold flexRow alignItemsCenter">
-          <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={onBack} />
+          <i className="icon-backspace Font22 hoverColorPrimary pointer mRight10" onClick={onBack} />
           {_l('云打印')}
         </span>
       </div>

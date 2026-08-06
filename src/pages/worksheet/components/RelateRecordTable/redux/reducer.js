@@ -24,7 +24,7 @@ const initialTableState = {
   pageIndex: 1,
   pageSize: localStorage.getItem('relateRecordTablePageSize')
     ? Number(localStorage.getItem('relateRecordTablePageSize'))
-    : 20,
+    : 50,
   count: 0,
 };
 
@@ -114,7 +114,11 @@ function changes(state = cloneDeep(initialChanges), action) {
     case 'UPDATE_RECORD':
       return {
         ...state,
-        addedRecords: state.addedRecords.map(r => (r.rowid === get(action, 'newRecord.rowid') ? action.newRecord : r)),
+        // 合并而非整体替换：来自记录详情/操作菜单的更新会 omit allowedit/allowdelete，
+        // 若整体替换会丢失这两个权限标记（及 isNew 等本地字段），导致删除按钮消失
+        addedRecords: state.addedRecords.map(r =>
+          r.rowid === get(action, 'newRecord.rowid') ? assign({}, r, action.newRecord) : r,
+        ),
       };
     case 'DELETE_RECORDS':
       return {
@@ -156,7 +160,8 @@ function records(state = [], action) {
     case 'UPDATE_ROWS_WITH_CHANGES':
       return state.map(r => (includes(action.rowIds, r.rowid) ? assign({}, r, action.changes) : r));
     case 'UPDATE_RECORD':
-      return state.map(r => (r.rowid === get(action, 'newRecord.rowid') ? action.newRecord : r));
+      // 合并而非整体替换：更新数据可能 omit allowedit/allowdelete，整体替换会清空这两个权限标记
+      return state.map(r => (r.rowid === get(action, 'newRecord.rowid') ? assign({}, r, action.newRecord) : r));
     case 'UPDATE_RECORD_BY_RECORD_ID':
       return state.map(r => (r.rowid === action.recordId ? assign({}, r, action.changes) : r));
     case 'APPEND_RECORDS':
@@ -203,6 +208,20 @@ function lastAction(state, action) {
   return action;
 }
 
+function rowsSummary(state = { types: {}, values: {} }, action) {
+  switch (action.type) {
+    case 'UPDATE_ROWS_SUMMARY':
+      return {
+        types: typeof action.types !== 'undefined' ? action.types : state.types,
+        values: typeof action.values !== 'undefined' ? action.values : state.values,
+      };
+    case 'RESET':
+      return { types: state.types, values: {} };
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   initialized,
   loading,
@@ -213,5 +232,6 @@ export default combineReducers({
   records,
   tableState,
   changes,
+  rowsSummary,
   lastAction,
 });

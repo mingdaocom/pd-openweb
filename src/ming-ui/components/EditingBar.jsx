@@ -102,7 +102,7 @@ export default function EditingBar(props) {
     }
 
     if (cache.current.okDisabled) return;
-    if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
+    if (includes(['input', 'textarea'], (document.activeElement?.tagName || '').toLowerCase())) {
       document.activeElement.blur();
       document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
     }
@@ -152,7 +152,7 @@ export default function EditingBar(props) {
                 shortcut={saveShortCut && !okDisabled ? (window.isMacOs ? '⌘S' : 'Ctrl+S') : ''}
               >
                 <OkButton
-                  className={cx({ disabled: okDisabled }, isBlack ? 'textBlack' : 'ThemeColor3')}
+                  className={cx({ disabled: okDisabled }, isBlack ? 'textBlack' : 'colorPrimary')}
                   onMouseDown={onOkMouseDown}
                   onClick={okDisabled ? () => {} : onUpdate}
                 >

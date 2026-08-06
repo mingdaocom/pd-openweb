@@ -6,23 +6,19 @@ import { reportTypes } from 'statistics/Charts/common';
 import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { fillUrl } from 'src/router/navigateTo';
-import { getAppFeaturesPath, getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getTranslateInfo } from 'src/utils/app';
+import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { isAreaControl, isNumberControl, isTimeControl } from '../common/controlUtils';
 import {
-  fillValueMap,
   filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
-  filterTimeParticleSizeDropdownData,
   getNewReport,
   initConfigDetail,
-  isAreaControl,
-  isNumberControl,
-  isTimeControl,
   isXAxisControl,
-  mergeReportData,
-} from '../common';
+} from '../common/reportConfigUtils';
+import { fillValueMap, mergeReportData } from '../common/reportDataUtils';
+import { filterTimeParticleSizeDropdownData } from '../common/timeUtils';
 
 export const changeBase = data => {
   return dispatch => {
@@ -444,11 +440,7 @@ export const getReportSingleCacheId = data => {
       .then(result => {
         if (!result.id) return;
         if (isPersonal) {
-          window.open(
-            fillUrl(
-              `/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}&${getAppFeaturesPath()}`,
-            ),
-          );
+          window.open(pathCompletion(`/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}`));
         } else {
           dispatch(
             changeBase({
@@ -1015,7 +1007,7 @@ export const removeXaxes = () => {
 export const addXaxes = (control, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { xaxes, displaySetup, reportType } = currentReport;
+    const { xaxes, split, displaySetup, reportType } = currentReport;
     const isTime = isTimeControl(control.type);
     const isArea = isAreaControl(control.type);
     const showtype = _.get(control, 'advancedSetting.showtype');
@@ -1032,8 +1024,11 @@ export const addXaxes = (control, isRequest = true) => {
           }
 
           if (isArea) {
-            const data = filterAreaParticleSizeDropdownData(control)[0];
-            return _.get(data, 'value');
+            const splitParticleSizeType = split.particleSizeType;
+            const dropdownData = filterAreaParticleSizeDropdownData(control).filter(
+              item => item.value !== splitParticleSizeType,
+            );
+            return _.get(dropdownData[0], 'value');
           }
 
           return 0;
@@ -1402,7 +1397,7 @@ export const removeYaxisList = id => {
 export const changeSplit = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { sorts, split } = currentReport;
+    const { xaxes, sorts, split } = currentReport;
     const deleteId = split.controlId
       ? split.particleSizeType
         ? `${split.controlId}-${split.particleSizeType}`
@@ -1432,8 +1427,11 @@ export const changeSplit = (data, isRequest = true) => {
       }
 
       if (isArea) {
-        const dropdownData = filterAreaParticleSizeDropdownData(data)[0];
-        param.split.particleSizeType = _.get(dropdownData, 'value');
+        const xaxesParticleSizeType = xaxes.particleSizeType;
+        const dropdownData = filterAreaParticleSizeDropdownData(data).filter(
+          item => item.value !== xaxesParticleSizeType,
+        );
+        param.split.particleSizeType = _.get(dropdownData[0], 'value');
       }
     }
 

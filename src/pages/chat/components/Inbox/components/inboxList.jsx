@@ -1,4 +1,4 @@
-﻿import React, { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Divider } from 'antd';
 import _ from 'lodash';
@@ -12,8 +12,7 @@ import { LOADTYPES, NAMES, TYPES } from '../constants';
 import { isWithinOneHour } from '../util';
 import Message from './inboxMessage';
 
-@connect()
-export default class InboxList extends React.Component {
+let InboxList = class InboxList extends React.Component {
   static propTypes = {
     inboxFavorite: PropTypes.bool,
     type: PropTypes.oneOf(_.values(TYPES)),
@@ -30,28 +29,30 @@ export default class InboxList extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.fetchInboxList();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      !_.isEqual(_.omit(nextProps, 'count', 'requestNow'), _.omit(this.props, 'count', 'requestNow')) ||
-      (nextProps.count && nextProps.count !== this.props.count) ||
-      (nextProps.requestNow && !isWithinOneHour(nextProps.requestNow))
-    ) {
-      this.setState(
-        {
-          pageIndex: 1,
-          isLoading: true,
-          list: [],
-          hasMoreData: true,
-        },
-        () => {
-          this.fetchInboxList();
-          this.props.dispatch(actions.updateInoxRequestNow(nextProps.inboxType));
-        },
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(_.omit(this.props, 'count', 'requestNow'), _.omit(prevProps, 'count', 'requestNow')) ||
+        (this.props.count && this.props.count !== prevProps.count) ||
+        (this.props.requestNow && !isWithinOneHour(this.props.requestNow))
+      ) {
+        this.setState(
+          {
+            pageIndex: 1,
+            isLoading: true,
+            list: [],
+            hasMoreData: true,
+          },
+          () => {
+            this.fetchInboxList();
+            prevProps.dispatch(actions.updateInoxRequestNow(this.props.inboxType));
+          },
+        );
+      }
     }
   }
 
@@ -59,12 +60,10 @@ export default class InboxList extends React.Component {
     const { pageIndex, list } = this.state;
     const { clearUnread, inboxFavorite, type, filter } = this.props;
     const { user, startTime, endTime, appId } = filter || {};
-
     this.setState({
       failed: false,
       isLoading: true,
     });
-
     this.ajaxRequest = inboxController.getInboxMessage({
       pageIndex,
       pageSize: location.href.includes('windowChat') ? 20 : 10,
@@ -124,7 +123,11 @@ export default class InboxList extends React.Component {
     if (list.length) {
       return this.state.list.map((inboxItem, index) => (
         <Fragment key={inboxItem.inboxId}>
-          <Message {...{ inboxItem }} />
+          <Message
+            {...{
+              inboxItem,
+            }}
+          />
           {index === count - 1 && (
             <Divider className="inboxDivider Font13" plain>
               {_l('以上为新消息')}
@@ -192,4 +195,6 @@ export default class InboxList extends React.Component {
       </ScrollView>
     );
   }
-}
+};
+InboxList = connect()(InboxList);
+export default InboxList;

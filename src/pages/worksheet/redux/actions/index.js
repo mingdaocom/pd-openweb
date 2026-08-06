@@ -48,7 +48,7 @@ import { isHaveCharge } from './util';
 
 export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
-    const { base } = getState().sheet;
+    const { base, quickFilter } = getState().sheet;
     const { chartId } = base || {};
     if (!get(view, 'fastFilters')) return;
     const newFastFilters = handleConditionsDefault(
@@ -58,7 +58,8 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
     const fastFiltersHasDefaultValue = some(newFastFilters, validate);
 
     if ((fastFiltersHasDefaultValue || forceUpdate) && !chartId) {
-      if (get(view, 'advancedSetting.enablebtn') !== '1') {
+      // clicksearch=1（"在执行查询后显示数据"）下保留手动查询语义：默认值只回填到 quickFilterWithDefault（输入框预设），不写入 quickFilter，避免自动触发查询导致空状态变成"没有符合条件的记录"。
+      if (get(view, 'advancedSetting.clicksearch') !== '1') {
         dispatch(
           updateQuickFilter(
             newFastFilters.filter(validate).map(condition => ({
@@ -79,6 +80,11 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
 
       dispatch(updateQuickFilterWithDefault(newFastFilters));
     } else {
+      // 配置中取消快速筛选默认值时，条件还在但 newFastFilters 全部无有效默认值，旧的 quickFilter 仍是按默认值生成的过滤，需要主动清空并刷新视图，避免列表沿用旧请求。
+      if (!chartId && !_.isEmpty(quickFilter)) {
+        dispatch(updateQuickFilter([], view));
+      }
+
       dispatch(updateQuickFilterWithDefault(view.fastFilters));
     }
   };
@@ -89,7 +95,9 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
     const actionColumn = flatten(
       (worksheetInfo.views || []).map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
     );
-    const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
+    // 分组（group）中也包含自定义按钮，需一并触发加载
+    const needLoadCustomButtons =
+      !get(window, 'shareState.shareId') && find(actionColumn, c => ['btn', 'group'].includes(c.type));
     const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');
 
     if (!needLoadCustomButtons && !needLoadPrintList) {
@@ -206,7 +214,8 @@ let worksheetRequest = null;
 export function loadWorksheet(worksheetId, setRequest) {
   return (dispatch, getState) => {
     const { base = {}, appPkgData = {}, views = [] } = getState().sheet;
-    const { appId, viewId, chartId } = base;
+    const { viewId, chartId } = base;
+    const appId = base.type === 'single' ? base.singleAppId : base.appId;
 
     if (worksheetRequest && worksheetRequest.abort && base.type !== 'single') {
       worksheetRequest.abort();
@@ -268,13 +277,28 @@ export function loadWorksheet(worksheetId, setRequest) {
             ? _.find(views, l => l.viewId === worksheetId)
             : undefined;
 
+        // AI 实时预览（PreviewFrame）会把 previewMode=ai 拼到 iframe URL 上：表已建好但视图还在建时，
+        // res.views 还是空数组，工作表会渲染「无视图」错误页。
+        // 这里在 store 注入一个内置「全部」表格视图（viewType=0）兜底，
+        // 让下游 Sheet / SheetView / ViewControl 都能拿到一个 view 对象正常渲染。
+        // 普通工作表打开（views 为空属于真实异常）不会触发，避免掩盖问题。
+        const isAIPreview = /[?&]previewMode=ai(?:&|$)/.test(typeof location !== 'undefined' ? location.search : '');
+        const aiPreviewViews =
+          isAIPreview && _.isEmpty(res.views) && !chartId
+            ? [{ viewId: '__preview_all__', viewType: 0, name: _l('全部'), advancedSetting: {} }]
+            : [];
+
         dispatch({
           type: 'WORKSHEET_INIT',
           value: Object.assign(
             {
               ...res,
+              // res.views 兜 null/undefined：AI 刚建好的无视图工作表后端可能不回 views 字段，
+              // 直接 .map 会抛错，且外层 .catch 的判断恒为 false（不会派发 INIT_FAIL），
+              // 导致 WORKSHEET_INIT 永不派发、loading 卡死在骨架屏。
               views: (manageView ? [manageView] : []).concat(
-                res.views.map(v => ({ ...v, viewType: !chartId ? v.viewType : 0 })),
+                (res.views || []).map(v => ({ ...v, viewType: !chartId ? v.viewType : 0 })),
+                aiPreviewViews,
               ),
             },
             {
@@ -330,7 +354,7 @@ export function loadWorksheet(worksheetId, setRequest) {
 
           dispatch({
             type: 'WORKSHEET_UPDATE_VIEWS',
-            views: infoRes.views,
+            views: isAIPreview && _.isEmpty(infoRes.views) && !chartId ? [...aiPreviewViews] : infoRes.views,
           });
 
           infoRes.template.controls = newControls;
@@ -454,6 +478,33 @@ export const updateView = view => ({
   view,
 });
 
+const SAVE_WORKSHEET_VIEW_NON_EDITABLE_ATTRS = [
+  'appId',
+  'worksheetId',
+  'workSheetId',
+  'viewId',
+  'projectId',
+  'appSectionId',
+  'groupId',
+  'createAccountId',
+  'version',
+  'isApp',
+  'pluginInfo',
+  'editAttrs',
+  'editAdKeys',
+];
+
+function getSaveViewEditAttrs(saveParams = {}) {
+  const attrs = Array.isArray(saveParams.editAttrs) ? saveParams.editAttrs : Object.keys(saveParams);
+
+  return attrs.filter(
+    (attr, index) =>
+      attr &&
+      !SAVE_WORKSHEET_VIEW_NON_EDITABLE_ATTRS.includes(attr) &&
+      attrs.findIndex(item => item === attr) === index,
+  );
+}
+
 // 更新单个视图
 export function saveView(viewId, newConfig, cb) {
   return (dispatch, getState) => {
@@ -461,7 +512,7 @@ export function saveView(viewId, newConfig, cb) {
     const { base, views, navGroupFilters, worksheetInfo } = sheet;
     const view = _.find(views, v => v.viewId === viewId);
     const saveParams = { ...newConfig };
-    const editAttrs = Object.keys(saveParams).filter(o => 'editAdKeys' !== o);
+    const editAttrs = getSaveViewEditAttrs(saveParams);
 
     if (!view) {
       console.error('can not find view');
@@ -482,10 +533,10 @@ export function saveView(viewId, newConfig, cb) {
     dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: true });
     worksheetAjax
       .saveWorksheetView({
+        ...saveParams,
         ..._.pick(base, ['appId', 'worksheetId']),
         viewId,
         editAttrs,
-        ...saveParams,
       })
       .then(data => {
         // 使用后端返回的编辑后的值 更新当前视图

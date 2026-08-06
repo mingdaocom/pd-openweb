@@ -18,13 +18,16 @@ export default class Guidance extends Component {
   componentDidMount() {
     this.saveGuide();
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.sheetListVisible !== nextProps.sheetListVisible) {
-      setTimeout(() => {
-        this.setState({
-          guide: this.state.guide,
-        });
-      }, 500);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.sheetListVisible !== this.props.sheetListVisible) {
+        setTimeout(() => {
+          this.setState({
+            guide: this.state.guide,
+          });
+        }, 500);
+      }
     }
   }
   getGuideTextList(guide) {

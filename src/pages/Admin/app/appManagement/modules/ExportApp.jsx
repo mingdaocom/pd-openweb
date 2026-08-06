@@ -308,7 +308,7 @@ export default class ExportApp extends React.Component {
               {_l('立即导出')}
             </button>
             <div
-              className="Right mRight40 textTertiary hoverTextPrimaryLight Hand LineHeight36"
+              className="Right mRight40 textTertiary hoverColorPrimaryLight Hand LineHeight36"
               onClick={() => this.props.closeDialog()}
             >
               {_l('取消')}

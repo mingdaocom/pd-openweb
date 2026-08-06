@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
 import { ROLE_CONFIG, sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { pathCompletion } from 'src/utils/common';
 import Back from '../components/Back';
 import * as actions from './redux/actions';
 import './index.less';
@@ -55,7 +56,7 @@ class Members extends Component {
               },
               ({ data }) => {
                 if (data) {
-                  this.props.history.push('/mobile/dashboard');
+                  this.props.history.push(pathCompletion('/mobile/dashboard', { hasDomain: false }));
                 }
               },
             ),
@@ -82,7 +83,9 @@ class Members extends Component {
           <Card
             className="mTop10 Relative"
             onClick={() => {
-              this.props.history.push(`/mobile/membersList/${params.appId}/${item.roleId}`);
+              this.props.history.push(
+                pathCompletion(`/mobile/membersList/${params.appId}/${item.roleId}`, { hasDomain: false }),
+              );
             }}
           >
             <div className="flexRow alignItemsCenter">
@@ -136,7 +139,7 @@ class Members extends Component {
       <div className="memberListCon">
         <Card
           onClick={() => {
-            this.props.history.push(`/mobile/applyList/${params.appId}`);
+            this.props.history.push(pathCompletion(`/mobile/applyList/${params.appId}`, { hasDomain: false }));
           }}
         >
           <div className="flexRow alignItemsCenter">
@@ -189,7 +192,7 @@ class Members extends Component {
           <Back
             className="low"
             onClick={() => {
-              this.props.history.push(`/mobile/app/${detail.id}`);
+              this.props.history.push(pathCompletion(`/mobile/app/${detail.id}`, { hasDomain: false }));
             }}
           />
         </div>

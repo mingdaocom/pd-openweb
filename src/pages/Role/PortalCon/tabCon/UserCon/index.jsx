@@ -12,6 +12,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import { AddWrap, WrapNav, WrapTableCon } from 'src/pages/Role/style';
+import { getTranslateInfo } from 'src/utils/app';
 import PendingReview from './PendingReview';
 import User from './User';
 
@@ -76,6 +77,14 @@ const list = [
     roleId: 'pendingReview',
   },
 ];
+
+const getTranslatedRoleInfo = (appId, role = {}) => getTranslateInfo(appId, null, role.roleId);
+
+const getTranslatedRoleName = (appId, role = {}) => getTranslatedRoleInfo(appId, role).name || role.name;
+
+const getTranslatedRoleDescription = (appId, role = {}) =>
+  getTranslatedRoleInfo(appId, role).description || role.description;
+
 class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -103,29 +112,33 @@ class Con extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { portal = {} } = this.props;
-    const { roleList = [] } = portal;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { portal = {} } = prevProps;
+      const { roleList = [] } = portal;
 
-    if (!_.isEqual(nextProps.portal.roleList, roleList)) {
-      this.setState({
-        navList: nextProps.portal.roleList,
-      });
-    }
+      if (!_.isEqual(this.props.portal.roleList, roleList)) {
+        this.setState({
+          navList: this.props.portal.roleList,
+        });
+      }
 
-    const listType = _.get(nextProps, ['match', 'params', 'listType']);
+      const listType = _.get(this.props, ['match', 'params', 'listType']);
 
-    if (listType === 'pending' && !_.isEqual(listType, _.get(this.props, ['match', 'params', 'listType']))) {
-      this.setState({
-        roleId: 'pendingReview',
-      });
+      if (listType === 'pending' && !_.isEqual(listType, _.get(prevProps, ['match', 'params', 'listType']))) {
+        this.setState({
+          roleId: 'pendingReview',
+        });
+      }
     }
   }
 
   renderCon = () => {
     const { roleId } = this.state;
     const { portal = {} } = this.props;
+    const { appId } = this.props;
     const { commonCount = 0, count = 0 } = portal;
+    const role = this.props.portal.roleList.find(o => o.roleId === roleId) || {};
 
     switch (roleId) {
       case 'pendingReview':
@@ -135,9 +148,7 @@ class Con extends React.Component {
           <User
             {...this.props}
             roleId={roleId}
-            title={
-              roleId === 'all' ? _l('全部') : (this.props.portal.roleList.find(o => o.roleId === roleId) || {}).name
-            }
+            title={roleId === 'all' ? _l('全部') : getTranslatedRoleName(appId, role)}
             commonCount={roleId === 'all' ? commonCount : count}
           />
         );
@@ -215,7 +226,13 @@ class Con extends React.Component {
               onChange={keywords => {
                 this.setState({
                   keywords,
-                  navList: roleList.filter(o => o.name.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0),
+                  navList: roleList.filter(
+                    o =>
+                      (o.name || '').toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0 ||
+                      (getTranslatedRoleName(appId, o) || '')
+                        .toLocaleLowerCase()
+                        .indexOf(keywords.toLocaleLowerCase()) >= 0,
+                  ),
                 });
               }}
             />
@@ -245,6 +262,8 @@ class Con extends React.Component {
                 }
 
                 let num = (roleCountList.find(it => it.roleId === o.roleId) || {}).count;
+                const roleName = getTranslatedRoleName(appId, o);
+                const roleDescription = getTranslatedRoleDescription(appId, o);
                 return (
                   <li
                     className={cx('flexRow alignItemsCenter navRoleLi', { cur: roleId === o.roleId })}
@@ -270,8 +289,8 @@ class Con extends React.Component {
                       );
                     }}
                   >
-                    <span className="flex Font14 overflow_ellipsis breakAll InlineBlock" title={o.name}>
-                      {o.name}
+                    <span className="flex Font14 overflow_ellipsis breakAll InlineBlock" title={roleName}>
+                      {roleName}
                     </span>
 
                     <div className={cx('optionNs Relative', { hasOption: optList.length > 0 })}>
@@ -289,8 +308,8 @@ class Con extends React.Component {
                       )}
                       {num > 0 && <span className="num">{num}</span>}
                     </div>
-                    {!!o.description && (
-                      <Tooltip title={o.description}>
+                    {!!roleDescription && (
+                      <Tooltip title={roleDescription}>
                         <i className="icon-info_outline Font16 textTertiary mLeft7" />
                       </Tooltip>
                     )}

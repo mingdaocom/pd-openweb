@@ -40,23 +40,23 @@ class PostCommentList extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const postItem = nextProps.postItem;
-    const defaultCount = nextProps.defaultCount;
-    const totalCount = parseInt(postItem.commentCount, 10);
-    const isExpand =
-      (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount);
-    this.setState({
-      isExpand,
-      loading: false,
-      likedUsers:
-        postItem.postID === this.props.postItem.postID && postItem.likeCount === this.props.postItem.likeCount
-          ? this.state.likedUsers
-          : null,
-    });
-  }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const postItem = this.props.postItem;
+      const defaultCount = this.props.defaultCount;
+      const totalCount = parseInt(postItem.commentCount, 10);
+      const isExpand =
+        (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount);
+      this.setState({
+        isExpand,
+        loading: false,
+        likedUsers:
+          postItem.postID === prevProps.postItem.postID && postItem.likeCount === prevProps.postItem.likeCount
+            ? this.state.likedUsers
+            : null,
+      });
+    }
 
-  componentDidUpdate() {
     if (this.props.showLikedUsers && !this.state.likedUsers) {
       this.fetchLikedUsers();
     }

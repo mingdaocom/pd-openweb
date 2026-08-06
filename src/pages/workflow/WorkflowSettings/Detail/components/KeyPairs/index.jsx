@@ -88,15 +88,13 @@ export default ({
   };
 
   const renderTag = (tag, i) => {
-    const ids = tag
-      .replace(/\$/g, '')
-      .split(/([a-zA-Z0-9#]{24,32})-/)
-      .filter(item => item);
+    const key = tag.replace(/^\$|\$$/g, '');
+    const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
     const nodeObj = formulaMap[ids[0]] || {};
-    const controlObj = formulaMap[ids.join('-')] || {};
+    const controlObj = formulaMap[key] || {};
 
     return (
-      <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox">
+      <div className="actionControlBox flex borderColorPrimary clearBorderRadius ellipsis actionCustomBox">
         <span className="flexRow pTop3">
           <Tag
             flowNodeType={nodeObj.type}
@@ -108,7 +106,7 @@ export default ({
           />
         </span>
         <i
-          className="icon-delete actionControlDel ThemeColor3"
+          className="icon-delete actionControlDel colorPrimary"
           onClick={() => updateKeyValues({ key: 'value', value: '', i })}
         />
       </div>
@@ -229,7 +227,7 @@ export default ({
             {!onlyFile && (
               <input
                 type="text"
-                className="mTop10 ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                className="mTop10 borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
                 style={{ width: 140 }}
                 placeholder={keyPlaceholder}
                 value={item.name}
@@ -254,7 +252,7 @@ export default ({
             <div className={cx('flex mRight8 relative', { hasNodeList: flowNodeList.length })} style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
                 <TextareaBox
-                  className="mTop10 ThemeBorderColor3 Font13"
+                  className="mTop10 borderColorPrimary Font13"
                   maxHeight={250}
                   minHeight={0}
                   placeholder={pairsPlaceholder}
@@ -288,7 +286,7 @@ export default ({
 
               {!!flowNodeList.length && (
                 <NodeListIcon ref={menuBtn} onClick={() => setIndex(i)}>
-                  <i className="icon-arrow-down-border Font16 ThemeHoverColor3 pointer textDisabled" />
+                  <i className="icon-arrow-down-border Font16 hoverColorPrimary pointer textDisabled" />
                 </NodeListIcon>
               )}
 
@@ -297,7 +295,7 @@ export default ({
             </div>
             {!onlyFile && (
               <i
-                className="icon-trash Font16 mTop20 ThemeHoverColor3 pointer textDisabled"
+                className="icon-trash Font16 mTop20 hoverColorPrimary pointer textDisabled"
                 onClick={() => deleteKeys(i)}
               />
             )}
@@ -308,7 +306,7 @@ export default ({
       {btnText && (
         <div className="mTop10 flexRow alignItemsCenter">
           <span
-            className="ThemeHoverColor3 pointer textSecondary"
+            className="hoverColorPrimary pointer textSecondary"
             onClick={() =>
               updateSource({
                 [sourceKey]: source.concat(

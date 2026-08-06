@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, EditingBar, LoadDiv, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
+import { pathCompletion } from 'src/utils/common';
 import {
   addFlowNode,
   deleteFlowNode,
@@ -21,7 +22,6 @@ import End from './End';
 import nodeModules from './nodeModules';
 import './index.less';
 
-@errorBoundary
 class EditFlow extends Component {
   constructor(props) {
     super(props);
@@ -250,7 +250,7 @@ class EditFlow extends Component {
           args.typeId === NODE_TYPE.LOOP &&
           _.includes([ACTION_ID.CONDITION_LOOP, ACTION_ID.COUNT_LOOP], args.actionId)
         ) {
-          window.open(`/workflowedit/${subProcessId}`);
+          window.open(pathCompletion(`/workflowedit/${subProcessId}`));
         }
       }),
     );
@@ -653,7 +653,7 @@ class EditFlow extends Component {
           <Tooltip title={_l('画布概览')}>
             <span>
               <i
-                className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
+                className={cx('icon-map hoverColorPrimary', { colorPrimary: showThumbnail })}
                 onClick={() => {
                   if (Object.keys(flowNodeMap).length > 500) {
                     alert(_l('节点数量过多此功能不可用'), 2);
@@ -669,7 +669,7 @@ class EditFlow extends Component {
           <Tooltip title={_l('缩小')}>
             <span>
               <i
-                className={cx('icon-minus ThemeHoverColor3', { disabled: scale === 50 })}
+                className={cx('icon-minus hoverColorPrimary', { disabled: scale === 50 })}
                 onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
               />
             </span>
@@ -681,14 +681,14 @@ class EditFlow extends Component {
           <Tooltip title={_l('放大')}>
             <span>
               <i
-                className={cx('icon-add ThemeHoverColor3', { disabled: scale === 100 })}
+                className={cx('icon-add hoverColorPrimary', { disabled: scale === 100 })}
                 onClick={() => scale < 100 && this.setState({ scale: scale + 10, refreshThumbnail: +new Date() })}
               />
             </span>
           </Tooltip>
           <Tooltip title={_l('适应高度')}>
             <span>
-              <i className="icon-settings_overscan ThemeHoverColor3" onClick={this.fullDisplay} />
+              <i className="icon-settings_overscan hoverColorPrimary" onClick={this.fullDisplay} />
             </span>
           </Tooltip>
         </div>
@@ -723,4 +723,4 @@ class EditFlow extends Component {
   }
 }
 
-export default connect(state => state.workflow)(EditFlow);
+export default connect(state => state.workflow)(ErrorBoundary.wrap(EditFlow));

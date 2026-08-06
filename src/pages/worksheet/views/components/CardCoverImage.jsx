@@ -226,6 +226,7 @@ export default function CardCoverImage(props) {
                 recordId: rowId,
                 viewId,
                 worksheetId,
+                projectId,
                 ...options,
               });
             }

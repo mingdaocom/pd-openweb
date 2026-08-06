@@ -50,7 +50,7 @@ export default class RoleSearchBox extends Component {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           type="text"
-          className="searchInput ThemeColor10 w100"
+          className="searchInput textPrimary w100"
           placeholder={_l('搜索')}
           value={searchValue}
         />

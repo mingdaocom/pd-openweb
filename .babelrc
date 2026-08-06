@@ -2,12 +2,6 @@
   "plugins": [
     "@babel/plugin-transform-runtime",
     [
-      "@babel/plugin-proposal-decorators",
-      {
-        "legacy": true
-      }
-    ],
-    [
       "import",
       {
         "libraryName": "ming-ui/functions",
@@ -42,12 +36,6 @@
         "style": "css"
       },
       "import-antd"
-    ],
-    [
-      "babel-plugin-direct-import",
-      {
-        "modules": ["lodash"]
-      }
     ]
   ],
   "env": {
@@ -59,7 +47,7 @@
           {
             "modules": false,
             "targets": {
-              "browsers": ["last 2 versions"]
+              "chrome": "58"
             }
           }
         ],
@@ -74,7 +62,7 @@
           {
             "modules": false,
             "targets": {
-              "browsers": ["> 0.6% in CN"]
+              "chrome": "58"
             }
           }
         ],

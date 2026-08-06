@@ -104,7 +104,7 @@ export default class FindPassword extends React.Component {
               } else if (data.actionResult == actionResult.userInfoNotFound) {
                 _this.updateWarn([{ tipDom: 'inputAccount', warnTxt: _l('账号不存在') }]);
               } else if (data.actionResult == actionResult.samePassword) {
-                return alert('新密码不可与旧密码一样', 3);
+                return alert(_l('新密码不可与旧密码一样'), 3);
               } else if (data.actionResult === actionResult.accountFrequentLoginError) {
                 //需要前端图形验证码
                 new captcha(cb, isOk => {
@@ -113,7 +113,7 @@ export default class FindPassword extends React.Component {
                 });
               } else if (data.actionResult === actionResult.fieldRequired) {
                 //前端图形验证码校验失败
-                return alert('图形验证码校验失败', 3);
+                return alert(_l('图形验证码校验失败'), 3);
               } else {
                 let msg = '';
                 msg = _l('操作失败');
@@ -167,8 +167,26 @@ export default class FindPassword extends React.Component {
 
     return (
       <React.Fragment>
+        {!window.isMingDaoApp && (
+          <span
+            className="mTop40 Font15 InlineBlock Hand backspaceT"
+            onClick={() => {
+              let request = getRequest();
+              let returnUrl = request.ReturnUrl;
+              this.updateWarn([]);
+              if (returnUrl) {
+                navigateTo('/login?ReturnUrl=' + encodeURIComponent(returnUrl));
+              } else {
+                navigateTo('/login');
+              }
+            }}
+          >
+            <span className="backspace"></span>
+            {_l('返回')}
+          </span>
+        )}
         <div className="titleHeader">
-          <div className="title mTop40 Bold">{_l('重置密码')}</div>
+          <div className="title mTop20 Bold">{_l('重置密码')}</div>
         </div>
         <From {...this.state} onChange={data => this.setState(data)} keys={keys} type="findPassword" />
         <React.Fragment>
@@ -182,33 +200,6 @@ export default class FindPassword extends React.Component {
             {_l('确认')}
           </span>
         </React.Fragment>
-        {!window.isMingDaoApp ? (
-          <React.Fragment>
-            <div className="flexRow alignItemsCenter justifyContentCenter footerCon" style={{ marginTop: '125px' }}>
-              <span
-                className="changeBtn Hand TxtRight"
-                onClick={() => {
-                  let request = getRequest();
-                  let returnUrl = request.ReturnUrl;
-                  this.updateWarn([]);
-                  if (returnUrl) {
-                    navigateTo('/login?ReturnUrl=' + encodeURIComponent(returnUrl));
-                  } else {
-                    navigateTo('/login');
-                  }
-                }}
-              >
-                {_l('返回登录页面')}
-              </span>
-              <span className="lineCenter mLeft24"></span>
-              <div className="mLeft16 TxtLeft">
-                <ChangeLang className="justifyContentLeft" />
-              </div>
-            </div>
-          </React.Fragment>
-        ) : (
-          <div style={{ marginTop: '125px' }}></div>
-        )}
       </React.Fragment>
     );
   };
@@ -220,6 +211,7 @@ export default class FindPassword extends React.Component {
         <WrapBg />
         <div className="loginBox">
           <div className="loginContainer">
+            <ChangeLang className="authServiceLang" />
             <Header />
             <Wrap>{this.renderCon()}</Wrap>
           </div>

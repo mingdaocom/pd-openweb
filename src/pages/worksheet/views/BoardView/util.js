@@ -104,10 +104,10 @@ export const getTargetName = (value, controls = {}, { type }) => {
   if (_.includes([26, 27, 48], type)) {
     return value;
   } else if ([9, 11].includes(type)) {
-    const findItem = _.find(controls.options || [], i => i.key === JSON.parse(value || [])[0]);
-    return findItem.value;
+    const findItem = _.find(controls.options || [], i => i.key === safeParse(value || '[]', 'array')[0]);
+    return findItem && findItem.value;
   } else if (type === 29) {
-    return JSON.parse(value || {}).name;
+    return safeParse(value || '{}').name;
   } else if (type === 28) {
     return _l('%0 级', value);
   }

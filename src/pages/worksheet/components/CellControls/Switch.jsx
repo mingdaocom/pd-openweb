@@ -17,6 +17,7 @@ export default class Switch extends React.Component {
     className: PropTypes.string,
     style: PropTypes.shape({}),
     updateCell: PropTypes.func,
+    onValidate: PropTypes.func,
     cell: PropTypes.shape({ value: PropTypes.string }),
     onClick: PropTypes.func,
   };
@@ -28,9 +29,13 @@ export default class Switch extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value === '1' });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: this.props.cell.value === '1',
+        });
+      }
     }
   }
 
@@ -45,7 +50,7 @@ export default class Switch extends React.Component {
   };
 
   handleChange = checked => {
-    const { cell, updateCell } = this.props;
+    const { cell, updateCell, onValidate } = this.props;
 
     if (cell.required && checked) {
       alert(_l('%0为必填字段', cell.controlName), 3);
@@ -57,9 +62,16 @@ export default class Switch extends React.Component {
         value: !checked,
       },
       () => {
+        const newValue = checked ? '0' : '1';
+
         updateCell({
-          value: checked ? '0' : '1',
+          value: newValue,
         });
+        // 检查框即时提交、不走编辑/失焦校验流程，必填报错后重新勾选需主动重新校验，
+        // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+        if (_.isFunction(onValidate)) {
+          onValidate(newValue);
+        }
       },
     );
   };

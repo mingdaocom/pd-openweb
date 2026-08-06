@@ -94,7 +94,9 @@ export default class AppImportUpgrade extends Component {
                 <div className="logsItem">
                   <img className="avatar" src={creater.avatar} />
                   <div className="flex flexColumn pTop2">
-                    <div className="textTertiary mBottom8">{_l(`${creater.fullName} 操作导入升级`)}</div>
+                    <div className="textTertiary mBottom8">
+                      <span className="mRight3">{creater.fullName}</span> {_l('操作导入升级')}
+                    </div>
                     <div>{fileName}</div>
                   </div>
                   <div className="textTertiary Font12 mRight20 pTop2">

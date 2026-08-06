@@ -22,9 +22,15 @@ class TaskControl extends Component {
     this.formatData(this.props.taskControls[this.props.taskId] || []);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.taskControls[nextProps.taskId], this.props.taskControls[this.props.taskId])) {
-      this.formatData(nextProps.taskControls[nextProps.taskId] || []);
+  /**
+   * 格式化数据
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.taskControls[this.props.taskId], prevProps.taskControls[prevProps.taskId])) {
+        this.formatData(this.props.taskControls[this.props.taskId] || []);
+      }
     }
   }
 
@@ -256,7 +262,7 @@ class TaskControl extends Component {
           <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
             <span className="taskDetailFold">
               <i
-                className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                className={cx('pointer colorPrimary', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
                 onClick={this.updateTaskFoldStatus}
               />
             </span>

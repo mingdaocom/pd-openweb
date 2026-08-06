@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import {
   addOtherParam,
@@ -24,7 +25,7 @@ function start() {
       if (checkOriginUrl(url)) {
         location.replace(decodeURIComponent(url));
       } else {
-        location.replace(isMobile ? `/mobile` : `/app`);
+        location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
       }
     } else {
       ajax.post({
@@ -42,10 +43,9 @@ function start() {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           } else {
-            window.alert('登录失败');
             login();
           }
         },
@@ -57,7 +57,7 @@ function start() {
       if (checkOriginUrl(newRet)) {
         location.replace(newRet);
       } else {
-        location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+        location.replace(pathCompletion(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
       }
     } else {
       // 企业微信
@@ -69,7 +69,10 @@ function start() {
         async: true,
         success: result => {
           const { corpId, state } = result.data;
-          const redirect_uri = encodeURIComponent(`${location.origin}/sso/workweixin?ret=${newRet || ''}&i=${i || ''}`);
+          const redirect_uri = encodeURIComponent(pathCompletion(`/sso/workweixin?ret=${newRet || ''}&i=${i || ''}`), {
+            hasDomain: true,
+            localHasDomain: true,
+          });
           location.replace(
             `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&scope=snsapi_base#wechat_redirect`,
           );
@@ -81,12 +84,12 @@ function start() {
     if (checkLogin()) {
       // expDate && checkLogin() && isBefore(expDate)
       if (newRet) {
-        location.replace(`/${replenishRet(newRet, pc_slide)}`);
+        location.replace(pathCompletion(`/${replenishRet(newRet, pc_slide)}`));
       } else {
         if (i) {
-          location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+          location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
         } else {
-          location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
+          location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`));
         }
       }
     } else {
@@ -113,9 +116,11 @@ function start() {
                 corpId: corpId,
                 onSuccess: function (result) {
                   const { code } = result;
-                  const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(newRet || '')}&i=${
-                    i || ''
-                  }&code=${code}&pc_slide=${pc_slide}`;
+                  const dingdingLoginUrl = pathCompletion(
+                    `/sso/dingding?state=${state}&ret=${encodeURIComponent(newRet || '')}&i=${
+                      i || ''
+                    }&code=${code}&pc_slide=${pc_slide}`,
+                  );
 
                   if (dd.pc && !isPcSlide) {
                     if (clientWorkingPattern === 1) {

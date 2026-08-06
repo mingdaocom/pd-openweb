@@ -4,32 +4,34 @@ import { Tooltip } from 'ming-ui/antd-components';
 import LinkImg from './image/link.png';
 import './index.less';
 
+const validate = str => {
+  var illegalChars = /[/\\:*?"<>|]/g;
+  var valid = illegalChars.test(str);
+  if (valid) {
+    alert(_l('链接名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+    return false;
+  }
+
+  return true;
+};
+const validateUrl = url => {
+  if (!url.match('://') && !url.match(/^mailto:/)) {
+    return true;
+  } else if (url.match(/^http/)) {
+    return true;
+  }
+
+  alert(_l('当前只支持 http:// 和 https:// 开头的链接'), 3);
+  return false;
+};
+const handleClose = () => {
+  $('.addLinkFileDialog').parent().remove();
+};
+
 function AddLinkFile(props) {
   const { isEdit, showTitleTip = true, data = {}, callback } = props;
   const [name, setName] = useState(data.name);
   const [link, setLink] = useState(data.originLinkUrl);
-
-  const validate = str => {
-    var illegalChars = /[/\\:*?"<>|]/g;
-    var valid = illegalChars.test(str);
-    if (valid) {
-      alert(_l('链接名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
-      return false;
-    }
-
-    return true;
-  };
-
-  const validateUrl = url => {
-    if (!url.match('://') && !url.match(/^mailto:/)) {
-      return true;
-    } else if (url.match(/^http/)) {
-      return true;
-    }
-
-    alert(_l('当前只支持 http:// 和 https:// 开头的链接'), 3);
-    return false;
-  };
 
   const save = () => {
     if (name === '') {
@@ -58,10 +60,6 @@ function AddLinkFile(props) {
     }
 
     handleClose();
-  };
-
-  const handleClose = () => {
-    $('.addLinkFileDialog').parent().remove();
   };
 
   return (

@@ -2,7 +2,6 @@ import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 
@@ -102,7 +101,7 @@ BgIconButton.propTypes = {
   icon: PropTypes.node.isRequired,
   text: PropTypes.string,
   onClick: PropTypes.func.isRequired,
-  tooltip: PropTypes.string,
+  tooltip: PropTypes.node,
   popupPlacement: PropTypes.string,
   style: PropTypes.shape({}),
   iconStyle: PropTypes.shape({}),

@@ -9,6 +9,7 @@ import dataMirrorApi from 'src/pages/integration/api/dw.js';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from 'src/pages/integration/config.js';
 import { SORT_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import { pathCompletion } from 'src/utils/common';
 import OptionColumn from './OptionColumn';
 
 const FilterContent = styled.div`
@@ -158,6 +159,8 @@ const NoDataWrapper = styled.div`
 let ajaxPromise;
 let sortFlag = 0;
 
+const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
+
 export default function MirrorList(props) {
   const { flag } = props;
   const [fetchState, setFetchState] = useSetState({
@@ -168,7 +171,6 @@ export default function MirrorList(props) {
     sort: { fieldName: '', sortDirection: null },
   });
   const [mirrorList, setMirrorList] = useState([]);
-  const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
   useEffect(() => {
     onFetch(fetchState);
@@ -312,7 +314,7 @@ export default function MirrorList(props) {
                 className="titleIcon Relative"
                 style={{ background: _.get(item, 'dataSourceIcon.iconBgColor') }}
                 onClick={() => {
-                  window.open('/integration/sourceDetail/' + item.dataSourceId);
+                  window.open(pathCompletion('/integration/sourceDetail/' + item.dataSourceId));
                 }}
               >
                 <svg className="icon svg-icon" aria-hidden="true">
@@ -339,7 +341,7 @@ export default function MirrorList(props) {
         return (
           <div className="pRight8">
             <span>{item.creator}</span>
-            <span className="textTertiary">{` 创建于 ${formatDate(item.createDate)}`}</span>
+            <span className="textTertiary">{_l(' 创建于 %0', formatDate(item.createDate))}</span>
           </div>
         );
       },

@@ -16,7 +16,8 @@ import { maskValue } from 'src/pages/Admin/security/account/utils';
 import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
 import store from 'src/redux/configureStore';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, getPathWithoutSubPath, pathCompletion } from 'src/utils/common';
+import { EnlargeImage } from './EnlargeImage';
 import placements from './placements';
 import './css/userCard.less';
 
@@ -74,6 +75,7 @@ const BusinessCardWrap = styled.div`
     .avatar {
       width: 44px;
       height: 44px;
+      cursor: zoom-in;
     }
     &:hover {
       text-decoration: none;
@@ -170,32 +172,117 @@ class UserCard extends React.Component {
       isMobile: browserIsMobile(),
       wrapKey: uuidv4(),
       preSourceId: props.sourceId,
+      enlargeImageVisible: false,
     };
   }
 
   componentDidMount() {
     if (this.state.visible) {
       this.fetchData();
+      this.addOutsideMouseDownListener();
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    const { data, preSourceId } = this.state;
+  componentDidUpdate(prevProps, prevState) {
+    const { data, preSourceId, visible, enlargeImageVisible } = this.state;
 
     if (
-      (!this.state.visible && nextState.visible && _.isEmpty(data)) ||
-      (nextProps.sourceId &&
-        preSourceId &&
-        nextProps.sourceId !== preSourceId &&
-        !this.state.visible &&
-        nextState.visible)
+      (!prevState.visible && visible && _.isEmpty(data)) ||
+      (this.props.sourceId && preSourceId && this.props.sourceId !== preSourceId && !prevState.visible && visible)
     ) {
       this.fetchData();
     }
 
-    if (nextProps.disabled !== this.props.disabled) {
+    if (prevProps.disabled !== this.props.disabled && visible) {
       this.setState({ visible: false });
     }
+
+    if (visible && !enlargeImageVisible) {
+      this.addOutsideMouseDownListener();
+    } else {
+      this.removeOutsideMouseDownListener();
+    }
+  }
+
+  componentWillUnmount() {
+    this.removeOutsideMouseDownListener();
+  }
+
+  addOutsideMouseDownListener = () => {
+    if (this.outsideMouseDownHandler) return;
+
+    this.outsideMouseDownHandler = event => {
+      const { visible, enlargeImageVisible } = this.state;
+
+      if (!visible || enlargeImageVisible) return;
+
+      const target = event.target;
+      const rootNode = this.triggerRef && this.triggerRef.getRootDomNode ? this.triggerRef.getRootDomNode() : undefined;
+      const popupNode =
+        this.triggerRef && this.triggerRef.getPopupDomNode ? this.triggerRef.getPopupDomNode() : undefined;
+
+      if ((rootNode && rootNode.contains(target)) || (popupNode && popupNode.contains(target))) {
+        return;
+      }
+
+      this.closeCard();
+    };
+
+    document.addEventListener('mousedown', this.outsideMouseDownHandler);
+  };
+
+  removeOutsideMouseDownListener = () => {
+    if (!this.outsideMouseDownHandler) return;
+
+    document.removeEventListener('mousedown', this.outsideMouseDownHandler);
+    this.outsideMouseDownHandler = null;
+  };
+
+  closeCard = () => {
+    this.setState({ visible: false, wrapKey: uuidv4() });
+
+    if (this.props.onClose) {
+      this.props.onClose();
+    }
+  };
+
+  changePopupVisible = visible => {
+    if (visible) {
+      this.setState({ visible });
+      return;
+    }
+
+    this.closeCard();
+  };
+
+  setEnlargeImageVisible = enlargeImageVisible => {
+    if (this.state.enlargeImageVisible === enlargeImageVisible) return;
+
+    this.setState({ enlargeImageVisible });
+  };
+
+  handleEnlargeImageMouseDown = e => {
+    e.stopPropagation();
+
+    if (this.triggerRef && this.triggerRef.onPopupMouseDown) {
+      this.triggerRef.onPopupMouseDown(e);
+    }
+  };
+
+  renderEnlargeImage() {
+    const { data, enlargeImageVisible } = this.state;
+
+    if (!enlargeImageVisible || !data.avatar) return null;
+
+    return (
+      <span
+        onMouseDownCapture={this.handleEnlargeImageMouseDown}
+        onTouchStartCapture={this.handleEnlargeImageMouseDown}
+        onClick={e => e.stopPropagation()}
+      >
+        <EnlargeImage url={data.avatar} onCancel={() => this.setEnlargeImageVisible(false)} />
+      </span>
+    );
   }
 
   formatData = function (result) {
@@ -211,6 +298,10 @@ class UserCard extends React.Component {
       status,
       groupName: type === 2 ? result.name : null,
       [type === 1 ? 'accountId' : 'groupId']: result[type === 1 ? 'accountId' : 'groupId'] || id,
+      avatar:
+        result.avatar === 'defaultnill.png'
+          ? 'https://p1.mingdaoyun.cn/UserAvatar/default.png?imageView2/1/w/100/h/100/q/90'
+          : result.avatar,
     };
   };
 
@@ -218,7 +309,8 @@ class UserCard extends React.Component {
     const { sourceId = '', disabled, accountId, groupId, type, projectId } = this.props;
     const { isMobile } = this.state;
     const id = (type === 1 ? accountId : groupId) || sourceId;
-    const isPublic = location.pathname.startsWith('/public/') || location.pathname.startsWith('/app/lib/');
+    const pathname = getPathWithoutSubPath(location.pathname);
+    const isPublic = pathname.startsWith('/public/') || pathname.startsWith('/app/lib/');
 
     if (isMobile || disabled || !id || isPublic || !md.global.Account.accountId) return;
 
@@ -272,6 +364,7 @@ class UserCard extends React.Component {
         <span className="arrowBoxUserCard">
           <span className="arrow" />
         </span>
+        {this.renderEnlargeImage()}
       </CardContentBoxWrap>
     );
   }
@@ -303,7 +396,7 @@ class UserCard extends React.Component {
       type !== 1 ||
       !data.isContact
       ? 'javascript:void(0);'
-      : '/user_' + data.accountId;
+      : pathCompletion('/user_' + data.accountId);
   };
 
   openChat = () => {
@@ -315,13 +408,13 @@ class UserCard extends React.Component {
 
     if (type === 1) {
       if (isNewPageChat) {
-        window.open(`/windowChat?id=${data.accountId}&type=${type}`);
+        window.open(pathCompletion(`/windowChat?id=${data.accountId}&type=${type}`));
       } else {
         store.dispatch(actions.addUserSession(data.accountId));
       }
     } else if (type === 2) {
       if (isNewPageChat) {
-        window.open(`/windowChat?id=${data.groupId}&type=${type}`);
+        window.open(pathCompletion(`/windowChat?id=${data.groupId}&type=${type}`));
       } else {
         store.dispatch(actions.addGroupSession(data.groupId));
       }
@@ -363,7 +456,7 @@ class UserCard extends React.Component {
             </span>
 
             <div className="cardContent-wrapper">
-              <span className="name overflow_ellipsis TxtCenter">{_l('企业小秘书')}</span>
+              <span className="name overflow_ellipsis mLeft12">{_l('企业小秘书')}</span>
             </div>
           </BusinessCardWrap>
         );
@@ -377,14 +470,20 @@ class UserCard extends React.Component {
       return (
         <BusinessCardWrap>
           <div className="cardHeader flexRow mBottom10">
-            <a href={url} className="imgLink" target="_blank" onClick={e => flag && e.preventDefault()}>
+            <div
+              className="imgLink"
+              onClick={e => {
+                e.stopPropagation();
+                this.setEnlargeImageVisible(true);
+              }}
+            >
               <img src={data.avatar} className="circle avatar" />
-            </a>
+            </div>
             <div className="flex mLeft12 minWidth0">
               <a
                 className={cx('name ellipsis bold', {
-                  ThemeColor3: flag,
-                  ThemeHoverColor3: !flag,
+                  colorPrimary: flag,
+                  hoverColorPrimary: !flag,
                 })}
                 target="_blank"
                 href={url}
@@ -416,12 +515,12 @@ class UserCard extends React.Component {
             </div>
 
             <div className="Font20">
-              <Tooltip title={_l('复制用户ID ')}>
+              <Tooltip title={_l('复制ID')}>
                 <span
                   className="Hand"
                   onClick={e => {
                     e.stopPropagation();
-                    copy(data.accountId);
+                    copy(type === 2 ? data.groupId : data.accountId);
                     alert(_l('复制成功'));
                   }}
                 >
@@ -449,7 +548,7 @@ class UserCard extends React.Component {
                 !hideChat && (
                   <Tooltip title={_l('发消息')}>
                     <span className="Hand mLeft10" onClick={this.openChat}>
-                      <span className="actionButton icon-chat-session ThemeColor3" />
+                      <span className="actionButton icon-chat-session colorPrimary" />
                     </span>
                   </Tooltip>
                 )}
@@ -480,7 +579,7 @@ class UserCard extends React.Component {
   }
 
   render() {
-    const { isMobile, visible, wrapKey } = this.state;
+    const { isMobile, visible, wrapKey, enlargeImageVisible } = this.state;
     const { className, disabled } = this.props;
     const isPublic = location.pathname.includes('/public/') || location.href.includes('#publicapp');
 
@@ -501,11 +600,11 @@ class UserCard extends React.Component {
         overflow: { adjustX: true, adjustY: true },
       },
       onPopupVisibleChange: visible => {
-        this.setState({ visible });
-        if (!visible) this.setState({ wrapKey: uuidv4() });
-        if (!visible && this.props.onClose) {
-          this.props.onClose();
+        if (!visible && enlargeImageVisible) {
+          return;
         }
+
+        this.changePopupVisible(visible);
       },
       zIndex: 10002,
     };

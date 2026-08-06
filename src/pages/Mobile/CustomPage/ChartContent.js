@@ -9,7 +9,8 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import report from 'statistics/api/report';
 import { reportTypes } from 'statistics/Charts/common';
-import { fillValueMap, version } from 'statistics/common';
+import { version } from 'statistics/common/reportConfigUtils';
+import { fillValueMap } from 'statistics/common/reportDataUtils';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
 import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
 import { getFilledRequestParams } from 'src/utils/common';
@@ -210,7 +211,7 @@ function ChartComponent(props) {
       <Fragment>
         <div className="titleWrapper flexRow valignWrapper pAll15">
           <div className="Font13 textTertiary flex Bold">{_l('筛选与排序')}</div>
-          <Icon className="Font20" icon="cancel" onClick={handleOpenFilterModal} />
+          <Icon className="Font20 textTertiary" icon="cancel" onClick={handleOpenFilterModal} />
         </div>
         <div className="flex scrollView">
           {data.appType === 1 && (

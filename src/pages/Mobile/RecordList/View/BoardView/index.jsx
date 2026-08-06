@@ -9,9 +9,9 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import { getTargetName } from 'worksheet/views/BoardView/util';
 import { getViewSelectFields, hasSecondGroupControl } from 'worksheet/views/BoardView/util';
 import ViewEmpty from 'worksheet/views/components/ViewEmpty';
+import { pathCompletion } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import ViewErrorPage from '../components/ViewErrorPage';
 import CommonBoard from './CommonBoard';
 import GroupBoard from './GroupBoard';
@@ -71,6 +71,7 @@ const MobileBoardView = props => {
     sheetSwitchPermit,
     base = {},
     boardView,
+    appDetail,
     updatePreviewRecordId,
     updateBoardViewRecord,
     updateMultiSelectBoard,
@@ -96,15 +97,6 @@ const MobileBoardView = props => {
   // 是否已缩小
   const [isZoomedOut, setIsZoomedOut] = useState(false);
   const [updateRowParam, setUpdateRowParam] = useState({});
-  const [viewCardUpdateMap, setViewCardHeightMap] = useState({});
-
-  const updateViewCard = (rowid, height) => {
-    if (viewCardUpdateMap[rowid] === height) return;
-    setViewCardHeightMap(prev => ({
-      ...prev,
-      [rowid]: height,
-    }));
-  };
 
   const handleZoom = e => {
     e.stopPropagation();
@@ -126,19 +118,14 @@ const MobileBoardView = props => {
     }
 
     if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-      window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-        item.rowid
-      }`;
+      window.location.href = pathCompletion(
+        `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`,
+      );
       return;
     }
 
-    handlePushState('page', 'recordDetail');
     updatePreviewRecordId(item.rowid);
     setUpdateRowParam(updateRowParam);
-  };
-
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => updatePreviewRecordId(''));
   };
 
   const updateRow = ({ recordId, rowData }) => {
@@ -188,13 +175,7 @@ const MobileBoardView = props => {
   };
 
   useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
     initBoardViewData(hasSecondGroup);
-    setViewCardHeightMap({});
-
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
   }, [viewId]);
 
   if (sheetRowLoading) {
@@ -211,15 +192,9 @@ const MobileBoardView = props => {
   return (
     <Container scale={isZoomedOut ? 0.6 : 1}>
       {hasSecondGroup ? (
-        <GroupBoard
-          {...props}
-          controlId={controlId}
-          control={control}
-          openRecord={openRecord}
-          updateViewCard={updateViewCard}
-        />
+        <GroupBoard {...props} controlId={controlId} control={control} openRecord={openRecord} />
       ) : (
-        <CommonBoard {...props} openRecord={openRecord} updateViewCard={updateViewCard} />
+        <CommonBoard {...props} openRecord={openRecord} />
       )}
       <div className="zoomBox" onClick={handleZoom}>
         <Icon className={isZoomedOut ? 'icon-zoom_in2' : 'icon-zoom_out'} />
@@ -230,6 +205,7 @@ const MobileBoardView = props => {
         enablePayment={worksheetInfo.enablePayment}
         worksheetInfo={worksheetInfo}
         appId={base.appId}
+        appDetail={appDetail?.detail}
         worksheetId={base.worksheetId}
         viewId={base.viewId || view.viewId}
         rowId={previewRecordId}
@@ -254,6 +230,7 @@ export default connect(
       'previewRecordId',
       'currentSheetRows',
       'isCharge',
+      'appDetail',
     ]),
   }),
   dispatch =>

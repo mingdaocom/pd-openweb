@@ -75,6 +75,7 @@ const declareConfirm = Component => {
     }
     componentDidMount() {
       const { confirm } = this.state;
+
       if (confirm) {
         privateLegalApi.getDeclareByAcountId().then(declareId => {
           if (declareId) {
@@ -84,15 +85,18 @@ const declareConfirm = Component => {
           } else {
             this.setState({ confirm: false });
           }
+
           this.setState({ loading: false });
         });
       }
     }
     handleOpenModal = event => {
       const { target } = event;
+
       if (target.className.includes('agreement')) {
         this.setState({ declareModal: true, type: 'agreement' });
       }
+
       if (target.className.includes('privacy')) {
         this.setState({ declareModal: true, type: 'privacy' });
       }
@@ -143,7 +147,7 @@ const declareConfirm = Component => {
             <iframe
               className="w100 h100"
               style={{ border: 'none' }}
-              src={`${md.global.Config.WebUrl}legalportal/${url[type]}?hideHeader=1`}
+              src={`${md.global.Config.PlatformUrl}legalportal/${url[type]}?hideHeader=1`}
             />
           </div>
         </CenterPopup>
@@ -242,6 +246,7 @@ const declareConfirm = Component => {
 
       if (confirm) {
         const isMobile = browserIsMobile();
+
         if (isMobile) {
           return (
             <Fragment>

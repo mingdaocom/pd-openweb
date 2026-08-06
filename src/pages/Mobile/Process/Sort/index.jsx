@@ -70,7 +70,11 @@ export default props => {
         </div>
         <div className="body flex">
           {SORT_LIST.map(item => (
-            <div className="flexRow valignWrapper pTop10 pBottom10" onClick={() => setIsAscValue(item.value)}>
+            <div
+              key={item.value}
+              className="flexRow valignWrapper pTop10 pBottom10"
+              onClick={() => setIsAscValue(item.value)}
+            >
               <div className="flex">{item.name}</div>
               {isAscValue === item.value && <Icon icon="done" className="Font18 colorPrimary" />}
             </div>

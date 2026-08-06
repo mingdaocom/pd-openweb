@@ -46,7 +46,7 @@
           li {
             height: 37px;
             line-height: 37px;
-            display: block;
+            // display: block;
             padding: 0 16px;
             font-weight: 500;
 
@@ -169,6 +169,100 @@
   position: fixed !important;
 }
 
+.customBtnRowActionList {
+  width: 100%;
+  /* 最后一行分割线与下方区域的 2px（对齐批量侧 divider 的 mBottom2） */
+  padding-bottom: 2px;
+}
+
+.customBtnRowActionList .customBtnRowActionItem.customBtn,
+.customBtnRowActionDragLayerWrap .customBtnRowActionItem.customBtn {
+  margin-top: 0;
+  padding-left: 8px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+
+  &:hover {
+    position: relative;
+    z-index: 1;
+    border-radius: 6px;
+    background: var(--color-background-hover);
+    box-shadow: none;
+  }
+
+  * {
+    cursor: pointer;
+  }
+
+  /* 停用仅弱化左侧名称区；右侧删除等操作保持可用态配色 */
+  &.disabledCustomBtn span.con {
+    color: var(--color-text-disabled);
+
+    .icon,
+    .svgIconForBtn {
+      color: var(--color-text-disabled) !important;
+    }
+  }
+}
+
+.customBtnRowActionList .customBtnGroupedDragRow {
+  border-radius: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  /*
+   * 与批量侧「分割线上下各 2px」一致（等价 .customBtnGroupedBlockDivider + .mTop2 + .mBottom2）
+   * 上行内容 ↔ 2px ↔ 线 ↔ 2px ↔ 下行内容；中间 DropGap 非激活时压成 0 避免多 1px
+   */
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--color-border-secondary);
+
+  * {
+    cursor: pointer;
+  }
+}
+
+/* DOM 顺序 Gap–Row 交替：第 4、6… 个子节点为第 2、3… 行，补分割线之上的 2px */
+.customBtnRowActionList > .customBtnGroupedDragRow:nth-child(even):not(:nth-child(2)) {
+  padding-top: 2px;
+}
+
+/* 行间投放缝：未拖拽命中时不占位，否则会在「线—下行」之间多出 DropGap 的 1px */
+.customBtnRowActionList > .customBtnGroupedDropGap:not(.isActive) {
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  transition: none;
+}
+
+.customBtnRowActionDelete {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  margin-right: 8px;
+
+  .icon-trash {
+    opacity: 0;
+    color: var(--color-text-tertiary);
+  }
+}
+
+.customBtnRowActionItem:hover .customBtnRowActionDelete .icon-trash,
+.customBtnRowActionItem.isPreview .customBtnRowActionDelete .icon-trash {
+  opacity: 1;
+}
+
+.customBtnRowActionItem .customBtnRowActionDelete:hover .icon-trash {
+  color: var(--color-error);
+}
+
+.customBtnRowActionDropGap {
+  margin: 0;
+}
+
 .deleteCustomBtnDialogTitle {
   .mui-dialog-default-title {
     color: var(--color-error) !important;
@@ -179,4 +273,524 @@
   .Radio {
     padding: 6px 0;
   }
+}
+
+.customBtnGroupedWrap {
+  width: 100%;
+}
+
+/* 分段之间仅用 .customBtnGroupedBlockDivider，勿再给块加顶边 border，否则会与上一条分割线叠成双线 */
+
+.customBtnGroupedBlock.customBtnGroupedBlockDropInsideActive {
+  .customBtnGroupedGroupHeader {
+    background-color: var(--color-primary-transparent-light);
+  }
+}
+
+.customBtnGroupedGroupHeader {
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 8px 8px;
+  margin-bottom: 0;
+  border-radius: 6px;
+  background: var(--color-background-secondary);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--color-background-hover);
+  }
+
+  .customBtnGroupedGroupCaret {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-left: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    .customBtnGroupedGroupCaretIcon {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+  }
+
+  .customBtnGroupedGroupIconSlot {
+    flex-shrink: 0;
+    min-height: 28px;
+  }
+
+  .customBtnGroupedStyleIcon {
+    margin-left: 0;
+  }
+
+  .customBtnGroupedGroupTitle {
+    flex: 1;
+    min-width: 0;
+    font-weight: 400;
+    line-height: 28px;
+  }
+
+  .customBtnGroupedGroupMore {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-left: 2px;
+    border-radius: 4px;
+    opacity: 0;
+    cursor: pointer;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+  }
+
+  &:hover .customBtnGroupedGroupMore {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  * {
+    cursor: pointer;
+  }
+}
+
+.customBtnGroupedGroupTitleInput {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  box-sizing: border-box;
+  cursor: text;
+}
+
+/* 与 .customBtnGroupedDropGap 一致：仅当前命中的缝出现同一条蓝线，不搞整片淡蓝占位 */
+.customBtnGroupedSegmentReorderGap {
+  position: relative;
+  z-index: 3;
+  min-height: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  margin: -5px 0;
+  transition:
+    background-color 0.12s ease,
+    box-shadow 0.12s ease;
+
+  &.isActive {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &.isActive::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    transform: translateY(-50%);
+    background: var(--color-primary);
+    border-radius: 2px;
+  }
+
+  &.isAfterGroup.isActive {
+    box-shadow: none;
+  }
+}
+
+.customBtnGroupedGroupDropdownMenu.ant-dropdown-menu {
+  min-width: 180px;
+  padding: 8px 0;
+  border-radius: 4px;
+  box-shadow: var(--shadow-lg);
+
+  .ant-dropdown-menu-item-disabled {
+    color: var(--color-text-disabled) !important;
+
+    .icon {
+      color: var(--color-text-disabled) !important;
+    }
+  }
+
+  .ant-dropdown-menu-item-divider {
+    margin: 8px 0;
+    background-color: var(--color-border-secondary) !important;
+  }
+}
+
+.customBtnGroupedGroupMenuItem.ant-dropdown-menu-item {
+  display: flex !important;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px;
+  font-size: 13px;
+  line-height: 44px;
+
+  .ant-dropdown-menu-title-content {
+    display: flex;
+    align-items: center;
+    line-height: 18px;
+  }
+
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.customBtnGroupedGroupMenuItemDanger.ant-dropdown-menu-item-danger .icon {
+  color: var(--color-error) !important;
+}
+
+.customBtnGroupedDropGap {
+  min-height: 1px;
+  height: 1px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  transition:
+    min-height 0.12s ease,
+    height 0.12s ease,
+    margin 0.12s ease,
+    background-color 0.12s ease,
+    box-shadow 0.12s ease;
+
+  /* 列表行间投放：拖到哪条缝，哪条出现明显蓝条 */
+  &.isActive {
+    min-height: 2px;
+    height: 2px;
+    margin: 4px 0;
+    background: var(--color-primary);
+    border-radius: 2px;
+    box-shadow: none;
+  }
+}
+
+/* 空分组 / 收起空分组：保持 20px 命中高度，激活时只在中间画插入线 */
+.customBtnGroupedSegmentEmptyExpanded > .customBtnGroupedDropGap.isActive,
+.customBtnGroupedCollapsedDropStripEmpty > .customBtnGroupedDropGap.isActive {
+  height: 20px;
+  min-height: 20px;
+  margin: 0;
+  background-color: transparent;
+  background-image: linear-gradient(var(--color-primary), var(--color-primary));
+  background-size: 100% 2px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* 空分组：不占文档流高度，非拖拽时不拦截点击 */
+.customBtnGroupedDropGapFlowless:not(.isHitVisible) {
+  pointer-events: none;
+}
+
+.customBtnGroupedSegmentEmptyExpanded {
+  position: relative;
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+
+  > .customBtnGroupedDropGap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    min-height: 20px;
+    height: 20px;
+    z-index: 1;
+  }
+}
+
+/* 收起分组时仍保留投放条，否则无法把未分组动作拖入该分组 */
+.customBtnGroupedCollapsedDropStrip {
+  display: flex;
+  flex-direction: column;
+  // gap: 4px;
+  // margin-top: 4px;
+  // margin-bottom: 2px;
+}
+
+.customBtnGroupedBlockDivider {
+  width: 100%;
+  height: 0;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.customBtnGroupedCollapsedDropStripEmpty {
+  position: relative;
+  display: block;
+  height: 0;
+  min-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  gap: 0;
+  overflow: visible;
+
+  > .customBtnGroupedDropGap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    min-height: 20px;
+    height: 20px;
+    z-index: 1;
+  }
+}
+
+.customBtnGroupedEmptyHitArea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 20px;
+  z-index: 2;
+}
+
+.customBtnGroupedRow {
+  margin-top: 0;
+}
+
+.customBtnGroupedWrap .customBtnGroupedStyleIcon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 18px;
+  vertical-align: middle;
+
+  svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* 自定义动作列表：全宽浅色横线分隔（与截图一致）；勿写死 background，否则会盖住 .customBtn 的 hover */
+.customBtnGroupedWrap .customBtnGroupedDragRow .customBtn.customBtnGroupedRow {
+  margin-top: 0;
+  padding-left: 8px;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+
+  /* 停用仅弱化左侧；右侧「更多」等保持 tertiary/hover 配色 */
+  &.disabledCustomBtn span.con {
+    color: var(--color-text-disabled);
+
+    .icon,
+    .svgIconForBtn {
+      color: var(--color-text-disabled) !important;
+    }
+  }
+
+  &:hover {
+    position: relative;
+    z-index: 1;
+    border-radius: 6px;
+    background: var(--color-background-hover);
+    box-shadow: none;
+  }
+}
+
+.customBtnGroupedWrap .customBtnGroupedRowMore {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  margin-right: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.customBtnGroupedWrap .customBtn.customBtnGroupedRow:hover .customBtnGroupedRowMore,
+.customBtnGroupedWrap .customBtnGroupedRowMore.ant-dropdown-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 分组内动作行：缩进 + hover 浅灰底 */
+.customBtnGroupedSegment.isGroupBody {
+  margin-top: 0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+  background: var(--color-background-primary);
+
+  .customBtnGroupedDragRow .customBtn.customBtnGroupedRow {
+    padding-left: 38px;
+
+    &:hover {
+      position: relative;
+      z-index: 1;
+      border-radius: 6px;
+      background: var(--color-background-hover);
+    }
+  }
+
+  /* 最后一行与容器底边共用一条线，避免双线 */
+  > .customBtnGroupedDragRow:nth-last-child(2) .customBtn.customBtnGroupedRow {
+    border-bottom: none;
+  }
+
+  /* 组内底部投放区保持与普通插入线一致的高度，末尾命中由拖拽逻辑兜底 */
+  > .customBtnGroupedDropGap:last-child {
+    min-height: 2px;
+    height: 2px;
+  }
+
+  > .customBtnGroupedDropGap:last-child.isActive {
+    margin: 0;
+    background-color: transparent;
+    background-image: linear-gradient(var(--color-primary), var(--color-primary));
+    background-size: 100% 2px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: 0;
+  }
+}
+
+.customBtnGroupedDraggingGroupBodyHidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 分组标题与下方列表连成一块：顶行圆角 */
+.customBtnGroupedBlockWithGroup .customBtnGroupedGroupHeader.customBtnGroupedGroupHeaderExpanded {
+  margin-bottom: 0;
+}
+
+/* 分组收起时底部投放区与标题同属一块描边 */
+.customBtnGroupedBlockWithGroup .customBtnGroupedGroupHeader + .customBtnGroupedCollapsedDropStrip {
+  margin-top: 0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
+.customBtnGroupedDragRow {
+  border-radius: inherit;
+  cursor: pointer;
+
+  * {
+    cursor: pointer;
+  }
+}
+
+.customBtnGroupedDragLayerWrap {
+  box-sizing: border-box;
+}
+
+.customBtnGroupedDragFloatCard {
+  box-sizing: border-box;
+  background: var(--color-background-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* 与内行同色、无内边距，避免出现「白色一圈」 */
+.customBtnGroupedDragFloatCard.customBtnGroupedDragFloatCardBtn {
+  padding: 0;
+  background: var(--color-background-hover);
+}
+
+.customBtnGroupedDragPreviewBtnRow {
+  min-height: 44px;
+  padding: 0 10px 0 32px;
+  border-radius: 8px;
+  background: var(--color-background-hover);
+  gap: 6px;
+  border: none;
+}
+
+.customBtnGroupedDragPreviewMore {
+  flex-shrink: 0;
+}
+
+/* 分组拖拽预览：去掉白底内边距，避免外圈白条 */
+.customBtnGroupedDragFloatCard.customBtnGroupedDragFloatCardGroup {
+  padding: 0;
+  background: var(--color-background-primary);
+}
+
+.customBtnGroupedDragPreviewGroupTop {
+  min-height: 40px;
+  padding: 6px 10px 6px 40px;
+  border-radius: 6px;
+  background: var(--color-background-hover);
+  gap: 8px;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.customBtnGroupedDragPreviewGroupIcon {
+  flex-shrink: 0;
+}
+
+.customBtnGroupedDragPreviewChildRow {
+  margin-top: 0;
+  padding: 8px 10px 8px 36px;
+  min-height: 44px;
+  gap: 8px;
+  background: var(--color-background-primary);
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border-secondary);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.customBtnGroupedAddGroup {
+  width: auto;
+  padding: 4px 0;
+  color: var(--color-primary);
+  background: transparent;
+  user-select: none;
+
+  &:hover {
+    opacity: 0.88;
+  }
+
+  &:active {
+    opacity: 0.75;
+  }
+}
+
+.customBtnGroupedAddGroupIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border-radius: 3px;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.customBtnGroupedAddGroupIcon .customBtnGroupedAddGroupPlus {
+  color: var(--color-white) !important;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.customBtnGroupedAddGroupText {
+  color: var(--color-primary);
 }

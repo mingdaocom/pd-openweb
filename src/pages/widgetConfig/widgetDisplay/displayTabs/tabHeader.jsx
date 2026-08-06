@@ -8,6 +8,7 @@ import { Icon, SvgIcon } from 'ming-ui';
 import { DRAG_ACCEPT, DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
 import { DropdownOverlay } from '../../styled';
 import { fixedBottomWidgets, putControlByOrder } from '../../util';
+import { createTemplateDialog, supportCreateTemplate } from '../../util/createTemplate';
 import { deleteSection } from '../../util/data';
 import { batchCopyWidgets } from '../../util/data';
 import { batchRemoveItems, insertNewLine } from '../../util/drag';
@@ -128,6 +129,23 @@ export function TabHeaderItem(props) {
                   {_l('复制')}
                 </div>
               </div>
+              {supportCreateTemplate(data) && (
+                <div
+                  className="dropdownContent"
+                  onClick={e => {
+                    e.stopPropagation();
+                    if (fixedBottomWidgets(data)) {
+                      createTemplateDialog({ ...props, templateControls: [data] });
+                      setVisible(false);
+                    }
+                  }}
+                >
+                  <div className="item">
+                    <Icon icon="borg" />
+                    {_l('创建字段模板')}
+                  </div>
+                </div>
+              )}
               <div
                 className="dropdownContent"
                 onClick={e => {

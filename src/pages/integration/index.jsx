@@ -2,14 +2,15 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
+import { Support } from 'ming-ui';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { integrationConfig } from 'src/pages/integration/config.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
+import { addSubPathOfRoute, emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject } from 'src/utils/project';
 import { getFeatureStatus } from 'src/utils/project';
@@ -56,7 +57,7 @@ const getRoutes = param => {
       components.push(
         <Route
           key={i}
-          path={path}
+          path={addSubPathOfRoute(path)}
           component={() => {
             return (window.platformENV.isOverseas || window.platformENV.isLocal) &&
               !md.global.Config.EnableDataPipeline &&
@@ -68,9 +69,15 @@ const getRoutes = param => {
                   ) : (
                     <span>
                       {_l('数据集成服务未部署，请参考')}
-                      <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
-                        {_l('帮助')}
-                      </a>
+                      <Support
+                        type={3}
+                        href={
+                          window.platformENV.isOverseas
+                            ? 'https://docs-pd.nocoly.com/faq/integrate/flink'
+                            : 'https://docs-pd.mingdao.com/faq/integrate/flink'
+                        }
+                        text={_l('帮助')}
+                      />
                     </span>
                   ),
                   dialogType: 'content',

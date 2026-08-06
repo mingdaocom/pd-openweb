@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
@@ -65,10 +65,6 @@ const Content = styled.div`
     &.error {
       border-color: var(--color-error);
     }
-  }
-  .react-json-view {
-    word-break: break-all;
-    border-radius: 2px;
   }
 `;
 
@@ -392,7 +388,7 @@ const LogDialog = props => {
 
               {window.platformENV.isPlatform && (
                 <div
-                  className="ThemeColor3 ThemeHoverColor2 Font14 flexRow alignItemsCenter pointer pLeft16"
+                  className="colorPrimary hoverColorPrimaryDark Font14 flexRow alignItemsCenter pointer pLeft16"
                   style={{ height: 40 }}
                   onClick={() => GetHelp({ type: 2, instanceId, flowNodeId: nodeId, chatbotId: processId })}
                 >
@@ -407,7 +403,7 @@ const LogDialog = props => {
                   <Fragment key={index}>
                     <div className={cx('flexRow alignItemsCenter workflowSectionName', { mTop24: index !== 0 })}>
                       <div
-                        className="pAll3 pointer Font0 mRight7 textTertiary ThemeHoverColor3"
+                        className="pAll3 pointer Font0 mRight7 textTertiary hoverColorPrimary"
                         onClick={() => {
                           if (_.includes(folds, index)) {
                             setFolds(folds.filter(o => o !== index));
@@ -463,7 +459,7 @@ const LogDialog = props => {
                                 {moment(item.ctime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                               </div>
                               <i
-                                className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
+                                className="icon-copy Font16 textTertiary hoverColorPrimary pointer"
                                 onClick={() => copyText(item.text)}
                               />
                             </div>
@@ -480,27 +476,20 @@ const LogDialog = props => {
                                   <div className="bold mLeft6">{_l('配置信息')}</div>
                                   <i
                                     className={cx(
-                                      'Font14 textTertiary ThemeHoverColor3 pointer mLeft6',
+                                      'Font14 textTertiary hoverColorPrimary pointer mLeft6',
                                       showConfigInfo ? 'icon-arrow-down' : 'icon-arrow-right-tip',
                                     )}
                                     onClick={() => setShowConfigInfo(!showConfigInfo)}
                                   />
                                   <div className="flex" />
                                   <i
-                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary hoverColorPrimary pointer"
                                     onClick={() => copyText(JSON.stringify(item.toolCall))}
                                   />
                                 </div>
                                 {showConfigInfo && (
                                   <div className="mTop6">
-                                    <JsonView
-                                      src={item.toolCall}
-                                      theme="summerfruit:inverted"
-                                      enableClipboard={false}
-                                      displayDataTypes={false}
-                                      displayObjectSize={false}
-                                      name={null}
-                                    />
+                                    <JsonView theme="transparent" data={item.toolCall} enableClipboard={false} />
                                   </div>
                                 )}
                               </div>
@@ -515,19 +504,16 @@ const LogDialog = props => {
                                     {moment(item.ctime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                                   </div>
                                   <i
-                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary hoverColorPrimary pointer"
                                     onClick={() => copyText(item.toolCall.arguments)}
                                   />
                                 </div>
                                 <div className="mTop6">
                                   {convertObjectData(item.toolCall.arguments) ? (
                                     <JsonView
-                                      src={convertObjectData(item.toolCall.arguments)}
-                                      theme="summerfruit:inverted"
+                                      theme="transparent"
+                                      data={convertObjectData(item.toolCall.arguments)}
                                       enableClipboard={false}
-                                      displayDataTypes={false}
-                                      displayObjectSize={false}
-                                      name={null}
                                     />
                                   ) : (
                                     item.toolCall.arguments
@@ -545,19 +531,16 @@ const LogDialog = props => {
                                     {moment(item.utime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                                   </div>
                                   <i
-                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary hoverColorPrimary pointer"
                                     onClick={() => copyText(item.toolCall.responseData)}
                                   />
                                 </div>
                                 <div className="mTop6 breakAll">
                                   {convertObjectData(item.toolCall.responseData) ? (
                                     <JsonView
-                                      src={convertObjectData(item.toolCall.responseData)}
-                                      theme="summerfruit:inverted"
+                                      theme="transparent"
+                                      data={convertObjectData(item.toolCall.responseData)}
                                       enableClipboard={false}
-                                      displayDataTypes={false}
-                                      displayObjectSize={false}
-                                      name={null}
                                     />
                                   ) : (
                                     item.toolCall.responseData

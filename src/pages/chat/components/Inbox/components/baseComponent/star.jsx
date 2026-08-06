@@ -57,7 +57,7 @@ export default class Star extends React.Component {
         ) : (
           <Icon
             icon="star-hollow"
-            className="Font18 Hand ThemeHoverColor3"
+            className="Font18 Hand hoverColorPrimary"
             style={{ color: 'var(--color-border-tertiary)' }}
             hint={_l('加星')}
             onClick={this.clickHandler('1')}

@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { pathCompletion } from 'src/utils/common';
 import { ApprovalProcessSettings } from '../components';
 
 export default props => {
@@ -21,8 +22,8 @@ export default props => {
           </div>
           {data.triggerName && (
             <i
-              className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
-              onClick={() => window.open(`/workflowedit/${data.triggerId}`)}
+              className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark pointer pointerEventsAuto"
+              onClick={() => window.open(pathCompletion(`/workflowedit/${data.triggerId}`))}
             />
           )}
           <div className="flex" />

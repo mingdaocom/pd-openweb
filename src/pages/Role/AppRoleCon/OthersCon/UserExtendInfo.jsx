@@ -6,6 +6,7 @@ import { Dropdown, Icon, Menu, MenuItem, Support, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
+import { pathCompletion } from 'src/utils/common';
 
 const OPTIONS = [
   { text: _l('或'), value: 0 },
@@ -106,7 +107,7 @@ export default function UserExtendInfo(props) {
 
   const openWorksheet = () => {
     homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId }) => {
-      window.open(`/app/${appId}/${appSectionId}/${worksheetId}`);
+      window.open(pathCompletion(`/app/${appId}/${appSectionId}/${worksheetId}`));
     });
   };
 
@@ -232,10 +233,10 @@ export default function UserExtendInfo(props) {
         {data.worksheetName || ''}
         <Icon
           icon="task-new-detail"
-          className="mLeft8 textSecondary pointer ThemeHoverColor3"
+          className="mLeft8 textSecondary pointer hoverColorPrimary"
           onClick={openWorksheet}
         />
-        <span className="editBtn pointer ThemeHoverColor3 ThemeHoverBorderColor3" onClick={() => onChangeStep(2)}>
+        <span className="editBtn pointer hoverColorPrimary hoverBorderColorPrimary" onClick={() => onChangeStep(2)}>
           {_l('编辑')}
         </span>
       </div>

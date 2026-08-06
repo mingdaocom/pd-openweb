@@ -1,4 +1,4 @@
-import React, { Fragment, PureComponent } from 'react';
+import React, { Fragment, lazy, PureComponent, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { match } from 'path-to-regexp';
 import styled from 'styled-components';
@@ -9,11 +9,10 @@ import TaskCenterController from 'src/api/taskCenter';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
 import { formatMsgDate } from 'src/pages/chat/utils';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import logDialog from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
 import { MSG_DONE_TEXT, MSGTYPES } from '../../constants';
 import { formatInboxItem, linkifySanitizedHtml } from '../../util';
@@ -31,12 +30,22 @@ const Dot = styled.span`
   border-radius: 50%;
   margin-top: -2px;
 `;
-
 const Done = styled.span`
   color: var(--color-success);
   display: inline-flex;
   align-items: center;
 `;
+const LoadableExecDialog = lazy(() => import('src/pages/workflow/components/ExecDialog'));
+const LoadableAddressBook = lazy(() => import('src/pages/chat/lib/addressBook'));
+
+const removeWebUrlPrefix = href => {
+  const url = (href || '').toLocaleLowerCase();
+  const webUrl = (md.global.Config.WebUrl || '').toLocaleLowerCase().replace(/\/+$/, '');
+
+  if (!webUrl || !url.startsWith(webUrl)) return url;
+
+  return url.slice(webUrl.length) || '/';
+};
 
 /**
  * 系统消息
@@ -44,11 +53,11 @@ const Done = styled.span`
  * @param {any} props
  * @returns
  */
+
 export default class SystemMessage extends PureComponent {
   state = {
     showAddressBook: false,
     processInfo: null,
-    Components: null,
   };
 
   componentDidMount() {
@@ -57,14 +66,14 @@ export default class SystemMessage extends PureComponent {
     if (this.msg) {
       $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
-        const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
+        const href = removeWebUrlPrefix($(evt.target).attr('href'));
+        const hrefWithoutQuery = href.split('?')[0];
 
         if ($(evt.target).attr('t') === 'taskCmd') {
           var opValue = $this.attr('opvalue');
           var taskId = $this.attr('taskid');
           var opUser = $this.attr('opuser');
           var func = opValue === '1' ? 'agreeApplyJoinTask' : 'refuseJoinTask';
-
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
@@ -77,11 +86,9 @@ export default class SystemMessage extends PureComponent {
               alert(_l('操作失败'), 2);
             }
           });
-
           return;
-        }
+        } // 群组 和 好友
 
-        // 群组 和 好友
         if (href.indexOf('addresslist') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
@@ -95,54 +102,56 @@ export default class SystemMessage extends PureComponent {
               });
             });
           } else {
-            import('src/pages/chat/lib/addressBook').then(res => {
-              that.setState({ Components: res, showAddressBook: true });
+            that.setState({
+              showAddressBook: true,
             });
           }
 
           return;
-        }
+        } // 工作流
 
-        // 工作流
         if (href.indexOf('workflowinstance') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
-          const ids = href.slice(href.indexOf('workflowinstance') + 17).split('/');
+          const ids = hrefWithoutQuery.slice(hrefWithoutQuery.indexOf('workflowinstance') + 17).split('/');
           const div = document.createElement('div');
-
           const root = createRoot(div);
-
           root.render(
-            <ExecDialog
-              id={ids[0]}
-              workId={ids[1]}
-              onLoad={() => {
-                const refreshBtn = document.querySelector('.ChatPanel-active .inboxHeader .refreshBtn');
-                refreshBtn && refreshBtn.click();
-              }}
-              onClose={() => {
-                root.unmount();
-              }}
-            />,
+            <Suspense fallback={null}>
+              <LoadableExecDialog
+                id={ids[0]}
+                workId={ids[1]}
+                onLoad={() => {
+                  const refreshBtn = document.querySelector('.ChatPanel-active .inboxHeader .refreshBtn');
+                  refreshBtn && refreshBtn.click();
+                }}
+                onClose={() => {
+                  root.unmount();
+                }}
+              />
+            </Suspense>,
           );
           return;
         }
 
-        // 工作表导入
         if (href.indexOf('excelerrorpage') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
-          const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
-          new ErrorDialog({ fileKey: id[0] });
+          const id = hrefWithoutQuery.slice(hrefWithoutQuery.indexOf('excelerrorpage') + 15).split('/');
+          ErrorDialog({
+            fileKey: id[0],
+          });
           return;
         }
 
-        // 工作表导入
         if (href.indexOf('excelbatcherrorpage') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
-          const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
-          new ErrorDialog({ fileKey: id[1], isBatch: true });
+          const id = hrefWithoutQuery.slice(hrefWithoutQuery.indexOf('excelbatcherrorpage') + 15).split('/');
+          ErrorDialog({
+            fileKey: id[1],
+            isBatch: true,
+          });
           return;
         }
 
@@ -158,15 +167,16 @@ export default class SystemMessage extends PureComponent {
         if (href.indexOf('importattachmentserrorpage') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
-          const arr = href.split('/');
-          new ErrorDialog({ fileKey: arr[arr.length - 1], isAttachment: true });
-
+          const arr = hrefWithoutQuery.split('/');
+          ErrorDialog({
+            fileKey: arr[arr.length - 1],
+            isAttachment: true,
+          });
           return;
         }
 
-        const matchedAppPath = (location.pathname.match(/\/app\/([\w-]{36})/) || '')[0];
+        const matchedAppPath = (location.pathname.match(/\/app\/([\w-]{36})/) || '')[0]; // 应用首页
 
-        // 应用首页
         if (
           matchedAppPath &&
           /\/app\/[\w-]{36}$/.test(href) &&
@@ -175,32 +185,37 @@ export default class SystemMessage extends PureComponent {
           evt.preventDefault();
           evt.stopPropagation();
           navigateTo(new URL(href.startsWith('http') ? href : location.origin + href).pathname + '?from=system');
-        }
+        } // 浏览应用埋点
 
-        // 浏览应用埋点
         if (/\/app\/([\w-]{36})$/.test(href)) {
           evt.preventDefault();
           const appId = (href.match(/[\w-]{36}/) || '')[0];
           addBehaviorLog('app', appId);
           return;
-        }
+        } // map应用审核 || 人事
 
-        // map应用审核 || 人事
         if (href.indexOf('admin/applications/') > -1 || href.indexOf('hr/check/') > -1) {
           evt.preventDefault();
           evt.stopPropagation();
           window.open(href);
           return;
-        }
+        } // 反馈给 HAP
 
-        // 反馈给 HAP
         if (href.indexOf('agent/feedback/') > -1) {
           const agentParams = match('/agent/feedback/:processId/:nodeId/:instanceId');
-          const { processId, nodeId, instanceId } = agentParams(href)?.params || {};
+          const agentMatch = agentParams(href);
+
+          if (!agentMatch) return;
+
+          const { processId, nodeId, instanceId } = agentMatch.params;
 
           evt.preventDefault();
           evt.stopPropagation();
-          logDialog({ processId, nodeId, instanceId });
+          logDialog({
+            processId,
+            nodeId,
+            instanceId,
+          });
         }
       });
     }
@@ -209,9 +224,10 @@ export default class SystemMessage extends PureComponent {
   getWorkflowDetail = () => {
     const { processId = null } = this.props;
     if (!processId || this.state.processInfo) return;
-
     processAjax
-      .getProcessById({ id: processId })
+      .getProcessById({
+        id: processId,
+      })
       .then(res => {
         this.setState({
           processInfo: {
@@ -234,15 +250,13 @@ export default class SystemMessage extends PureComponent {
 
   render() {
     const { Message = {}, createTime, inboxType, app = null, processId = null, status, readTime } = this.props;
-    const { showAddressBook, processInfo, Components } = this.state;
+    const { showAddressBook, processInfo } = this.state;
     const { typeName, isFavorite, inboxId } = formatInboxItem(this.props);
     const parse = Emotion.parse;
-
     const starProps = {
       isFavorite,
       inboxId,
     };
-
     delete xss.whiteList.video;
     let content = Message.content || '';
     const xssOptions = {
@@ -255,9 +269,8 @@ export default class SystemMessage extends PureComponent {
       content = content
         .replace(/<a data-accountid=[^>]*/gi, '<a') //不能点击用户
         .replace(/<a href="\/app\/[^>]*/gi, '<a'); //不能点击应用
-    }
+    } // 直接进到外部门户审批列表
 
-    // 直接进到外部门户审批列表
     if (content.indexOf('/admin/expansionservice') === -1) {
       content = content.replace(/\/portaluser.*?>/g, `/role/external/pending" >`);
     }
@@ -275,35 +288,70 @@ export default class SystemMessage extends PureComponent {
       [MSGTYPES.WorkFlowTaskMessage, MSGTYPES.WorkFlowUserTaskMessage, MSGTYPES.WorkFlowSendTaskMessage].includes(
         inboxType,
       ) && !!status;
-
-    const isApiErrorMessage = content.includes('integrationApi') && !app;
-
     const value = xss(content.replace(/[\r\n]/g, '<br />'), xssOptions);
     const linkifyValue = parse(linkifySanitizedHtml(value, xssOptions));
 
+    const renderIcon = () => {
+      if (hasApp && app.status === 1) {
+        return (
+          <span
+            className="msgIcon flexRow alignItemsCenter justifyContentCenter"
+            style={{
+              background: app.color,
+            }}
+          >
+            <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
+          </span>
+        );
+      }
+
+      if (content.includes('integrationApi') && !app) {
+        return (
+          <span
+            className="msgIcon flexRow alignItemsCenter justifyContentCenter Font20"
+            style={{
+              background: 'var(--color-primary)',
+              color: 'var(--color-white)',
+            }}
+          >
+            <i className="icon-connect" />
+          </span>
+        );
+      }
+
+      if (
+        [
+          MSGTYPES.WorkFlowMessage,
+          MSGTYPES.WorkFlowTaskMessage,
+          MSGTYPES.WorkFlowUserTaskMessage,
+          MSGTYPES.WorkFlowSendTaskMessage,
+          MSGTYPES.WorkFlowSendMessage,
+        ].includes(inboxType) &&
+        !this.props.accountId &&
+        !app
+      ) {
+        return (
+          <span className="msgIcon flexRow alignItemsCenter justifyContentCenter Font20">
+            <i className="chat_workflow" />
+          </span>
+        );
+      }
+
+      return <Avatar {...this.props} />;
+    };
+
     return (
       <div className="messageItem">
-        <div className="Left">
-          {hasApp && app.status === 1 ? (
-            <span className="msgIcon flexRow alignItemsCenter justifyContentCenter" style={{ background: app.color }}>
-              <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
-            </span>
-          ) : isApiErrorMessage ? (
-            <span
-              className="msgIcon flexRow alignItemsCenter justifyContentCenter Font20"
-              style={{ background: '#1677ff', color: '#fff' }}
-            >
-              <i className="icon-connect" />
-            </span>
-          ) : (
-            <Avatar {...this.props} />
-          )}
-        </div>
+        <div className="Left">{renderIcon()}</div>
         <div className="itemMain">
           <Star {...starProps} />
           <div className="pRight25">
             <div className="textMsg">
-              <span dangerouslySetInnerHTML={{ __html: typeName }} />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: typeName,
+                }}
+              />
               {typeName && <span className="mRight5 textTertiary">:</span>}
               <span
                 dangerouslySetInnerHTML={{
@@ -335,7 +383,7 @@ export default class SystemMessage extends PureComponent {
                       <a
                         className="textTertiary hoverColorPrimary inboxAppName"
                         target="_blank"
-                        href={`/app/${app.id}`}
+                        href={pathCompletion(`/app/${app.id}`)}
                         onMouseEnter={this.getWorkflowDetail}
                       >
                         {app.name}
@@ -350,7 +398,7 @@ export default class SystemMessage extends PureComponent {
                               <a
                                 target="_blank"
                                 className="textTertiary hoverColorPrimary"
-                                href={`/workflowedit/${processInfo.id}`}
+                                href={pathCompletion(`/workflowedit/${processInfo.id}`)}
                               >
                                 {processInfo.name}
                               </a>
@@ -367,11 +415,17 @@ export default class SystemMessage extends PureComponent {
         </div>
 
         {showAddressBook && (
-          <Components.default
-            showNewFriends={true}
-            showAddressBook={true}
-            closeDialog={() => this.setState({ showAddressBook: false })}
-          />
+          <Suspense fallback={null}>
+            <LoadableAddressBook
+              showNewFriends={true}
+              showAddressBook={true}
+              closeDialog={() =>
+                this.setState({
+                  showAddressBook: false,
+                })
+              }
+            />
+          </Suspense>
         )}
       </div>
     );

@@ -202,16 +202,18 @@ class WidgetConfigRuleItem extends React.Component {
     initWorksheetRuleList(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { initGlobalRuleInfo, initWorksheetRuleList, ruleList, saveIndex } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { initGlobalRuleInfo, initWorksheetRuleList, ruleList, saveIndex } = this.props;
 
-    if (!_.isUndefined(ruleList) && _.isUndefined(this.props.ruleList)) {
-      initGlobalRuleInfo(nextProps);
-      initWorksheetRuleList(nextProps);
-    }
+      if (!_.isUndefined(ruleList) && _.isUndefined(prevProps.ruleList)) {
+        initGlobalRuleInfo(this.props);
+        initWorksheetRuleList(this.props);
+      }
 
-    if (saveIndex !== this.props.saveIndex) {
-      initGlobalRuleInfo(nextProps);
+      if (saveIndex !== prevProps.saveIndex) {
+        initGlobalRuleInfo(this.props);
+      }
     }
   }
 

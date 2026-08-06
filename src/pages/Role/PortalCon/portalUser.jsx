@@ -9,6 +9,7 @@ import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import externalPortalAjax from 'src/api/externalPortal';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
+import { translatePortalRoleOptions } from 'src/pages/Role/PortalCon/tabCon/util-pure';
 import { formatDataForPortalControl, formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util.js';
 import { canEditData } from 'src/pages/worksheet/redux/actions/util';
 
@@ -91,7 +92,11 @@ export default function User(props) {
               return;
             }
 
-            let data = _.get(res, 'template.controls').map(it => {
+            if (_.get(res, 'template.controls')) {
+              res.template.controls = translatePortalRoleOptions(appId, res.template.controls);
+            }
+
+            let data = _.get(res, 'template.controls', []).map(it => {
               return { ...it, value: (_.get(res, 'data').find(item => item.rowid === id) || {})[it.controlId] };
             });
             setState({
@@ -103,7 +108,7 @@ export default function User(props) {
         alert(_l('暂无权限操作'), 3);
       }
     });
-  }, []);
+  }, [appId, id, setState]);
   //拒绝
   const editAppApplyStatus = rowIds => {
     externalPortalAjax

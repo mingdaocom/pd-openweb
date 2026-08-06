@@ -1,4 +1,4 @@
-import React, { cloneElement, Fragment, useEffect, useState } from 'react';
+import React, { cloneElement, Fragment, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
@@ -30,32 +30,47 @@ const Drag = styled.div(
 
 const defaultWidth = 400;
 const rightToolbarWidth = 52;
+// 拖拽可调宽的上下限（抽屉宽度本身）。mingo 侧滑层最大 640，其余抽屉沿用 800。
+const MAX_DRAWER_WIDTH_BY_TYPE = { mingo: 640 };
+const DEFAULT_MAX_DRAWER_WIDTH = 800;
+const MIN_DRAWER_WIDTH = 250;
 const getBodyWidth = () => _.get(document.body, 'clientWidth', window.innerWidth || 0);
 
 const ToolbarDrawer = props => {
   const { type, fixing, visible, width, onClose } = props;
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
   const bodyWidth = getBodyWidth();
+  const maxDrawerWidth = MAX_DRAWER_WIDTH_BY_TYPE[type] || DEFAULT_MAX_DRAWER_WIDTH;
+  // 注：min/maxDrawerWidht 是 dragLeft（左侧留白）的边界，与抽屉宽度反向——
+  // dragLeft 越小抽屉越宽，故抽屉最大宽 → dragLeft 下界 minDrawerWidht。
+  const minDrawerWidht = bodyWidth - maxDrawerWidth - rightToolbarWidth;
+  const maxDrawerWidht = bodyWidth - MIN_DRAWER_WIDTH - rightToolbarWidth;
+  const clampDragLeft = v => Math.min(Math.max(v, minDrawerWidht), maxDrawerWidht);
   const drawerWidth = bodyWidth - width - rightToolbarWidth;
-  const [dragLeft, setDragLeft] = useState(drawerWidth);
+  // 初始按上限 clamp：之前拖到超过新上限（如 mingo 历史宽 > 640）的，打开即收回到上限
+  const [dragLeft, setDragLeft] = useState(clampDragLeft(drawerWidth));
   const drawerWidht = bodyWidth - dragLeft - rightToolbarWidth;
-  const minDrawerWidht = bodyWidth - 800 - rightToolbarWidth;
-  const maxDrawerWidht = bodyWidth - 250 - rightToolbarWidth;
 
-  const handleResize = () => {
-    setDragLeft(getBodyWidth() - width - rightToolbarWidth);
-  };
+  // 以 localStorage 中持久化的宽度为实时基准（拖拽只更新本地存储，width prop 在 DrawerWrap 重渲染前是旧值），
+  // 并按当前窗口宽度重新换算 dragLeft 与边界，避免窗口缩放后丢弃用户刚拖好的宽度。
+  const handleResize = useCallback(() => {
+    const bodyW = getBodyWidth();
+    const savedWidth = Number(localStorage.getItem(`${type}DrawerWidth`)) || width;
+    const minLeft = bodyW - maxDrawerWidth - rightToolbarWidth;
+    const maxLeft = bodyW - MIN_DRAWER_WIDTH - rightToolbarWidth;
+    setDragLeft(Math.min(Math.max(bodyW - savedWidth - rightToolbarWidth, minLeft), maxLeft));
+  }, [type, width, maxDrawerWidth]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [handleResize]);
 
   useEffect(() => {
     if (visible) {
       handleResize();
     }
-  }, [visible]);
+  }, [visible, handleResize]);
 
   const renderDrag = () => {
     return (

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, PopupWrapper, Radio } from 'ming-ui';
+import { MobileSearch, PopupWrapper, Radio } from 'ming-ui';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
 
@@ -66,19 +66,10 @@ export default class MobileRadio extends Component {
           onClear={() => this.onChange('')}
         >
           <div className="flexColumn h100">
-            <div className="mobileCheckboxSearchWrapper">
-              <Icon icon="h5_search" className="textSecondary Font14" />
-              <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
-                <input
-                  className="w100"
-                  type="search"
-                  placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
-                  value={keywords}
-                  onChange={evt => this.setState({ keywords: evt.target.value })}
-                />
-              </form>
-              {keywords && <Icon icon="workflow_cancel textDisabled" onClick={() => this.setState({ keywords: '' })} />}
-            </div>
+            <MobileSearch
+              placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
+              onSearch={keywords => this.setState({ keywords })}
+            />
             <List className="flex" style={{ overflow: 'auto' }}>
               {data
                 .filter(
@@ -114,7 +105,7 @@ export default class MobileRadio extends Component {
                     this.onChange(`add_${keywords}`);
                   }}
                 >
-                  <span className="ellipsis ThemeColor3 Font15">{_l('添加新的选项：') + keywords}</span>
+                  <span className="ellipsis colorPrimary Font15">{_l('添加新的选项：') + keywords}</span>
                 </List.Item>
               )}
             </List>

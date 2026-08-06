@@ -1,29 +1,20 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
+import { isGunterGroupMultiSelectControl } from 'src/pages/worksheet/views/GunterView/util.js';
 import { getAdvanceSetting } from 'src/utils/control';
 import ViewErrorPage from '../components/ViewErrorPage';
 
+const LoadableGunterView = lazy(() => import('src/pages/worksheet/views/GunterView'));
+
 class MobileGunterView extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      Component: null,
-    };
-  }
-
-  componentDidMount() {
-    import('src/pages/worksheet/views/GunterView').then(component => {
-      this.setState({ Component: component.default });
-    });
-  }
-
   render() {
-    const { Component } = this.state;
     const { view = {}, controls = [] } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
+    const groupControl = controls.find(item => item.controlId === view.viewControl);
     const timeControls = controls.filter(
       item =>
         !SYS.includes(item.controlId) &&
@@ -32,6 +23,17 @@ class MobileGunterView extends Component {
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate);
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate);
+
+    if (view.viewControl && isGunterGroupMultiSelectControl(groupControl)) {
+      return (
+        <ViewErrorPage
+          icon="gantt"
+          viewName={_l('甘特图')}
+          color="var(--color-cyan)"
+          errorInfo={_l('该字段不支持作为分组')}
+        />
+      );
+    }
 
     if (
       isDelete ||
@@ -44,9 +46,11 @@ class MobileGunterView extends Component {
       return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="var(--color-cyan)" />;
     }
 
-    if (!Component) return null;
-
-    return <Component {...this.props} layoutType="mobile" />;
+    return (
+      <Suspense fallback={<LoadDiv className="mTop10" />}>
+        <LoadableGunterView {...this.props} layoutType="mobile" />
+      </Suspense>
+    );
   }
 }
 

@@ -22,14 +22,14 @@ export default class Delay extends Component {
     }
 
     return (
-      !!timerNode.numberFieldValue.fieldValue ||
-      !!timerNode.numberFieldValue.fieldControlId ||
-      !!timerNode.hourFieldValue.fieldValue ||
-      !!timerNode.hourFieldValue.fieldControlId ||
-      !!timerNode.minuteFieldValue.fieldValue ||
-      !!timerNode.minuteFieldValue.fieldControlId ||
-      !!timerNode.secondFieldValue.fieldValue ||
-      !!timerNode.secondFieldValue.fieldControlId
+      !!timerNode.numberFieldValue?.fieldValue ||
+      !!timerNode.numberFieldValue?.fieldControlId ||
+      !!timerNode.hourFieldValue?.fieldValue ||
+      !!timerNode.hourFieldValue?.fieldControlId ||
+      !!timerNode.minuteFieldValue?.fieldValue ||
+      !!timerNode.minuteFieldValue?.fieldControlId ||
+      !!timerNode.secondFieldValue?.fieldValue ||
+      !!timerNode.secondFieldValue?.fieldControlId
     );
   }
 

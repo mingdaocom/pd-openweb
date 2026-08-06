@@ -1,4 +1,5 @@
-﻿import React from 'react';
+import React from 'react';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Dropdown, UserHead, UserName } from 'ming-ui';
@@ -343,6 +344,7 @@ export default class extends React.Component {
               title: '',
               dataIndex: 'action',
               width: 80,
+              fixed: 'right',
               render: (text, record) => {
                 const prop = {
                   record,

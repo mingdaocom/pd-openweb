@@ -2,13 +2,12 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getRequest } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
+import { addSubPathOfRoute, emitter, getRequest } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import { PLUGIN_TYPE } from './config';
 import PluginComponent from './pluginComponent';
@@ -42,10 +41,8 @@ export default class PluginContainer extends React.Component {
   }
 
   getProjectInfo = initProjectId => {
-    const projectInfo = !_.isEmpty(getCurrentProject(initProjectId || localStorage.getItem('currentProjectId')))
-      ? getCurrentProject(initProjectId || localStorage.getItem('currentProjectId'))
-      : _.get(md, 'global.Account.projects.0');
-    return projectInfo || {};
+    const currentProject = getCurrentProject(initProjectId || localStorage.getItem('currentProjectId'));
+    return (!_.isEmpty(currentProject) ? currentProject : _.get(md, 'global.Account.projects.0')) || {};
   };
 
   loadPermissions = initProjectId => {
@@ -91,11 +88,11 @@ export default class PluginContainer extends React.Component {
           <ErrorBoundary>
             <Switch>
               <Route
-                path="/plugin/view"
+                path={addSubPathOfRoute('/plugin/view')}
                 component={() => <PluginComponent {...param} myPermissions={myPermissions} />}
               />
               <Route
-                path="/plugin/node"
+                path={addSubPathOfRoute('/plugin/node')}
                 component={() => (
                   <PluginComponent {...param} myPermissions={myPermissions} pluginType={PLUGIN_TYPE.WORKFLOW} />
                 )}

@@ -68,7 +68,7 @@ $.extend(RootSettings.prototype, {
 
     rootPromise.then(function (root) {
       if (!root) {
-        alert('共享文件夹不存在或已被删除', 3);
+        alert(_l('共享文件夹不存在或已被删除'), 3);
         return _this.settings.reject();
       }
 
@@ -319,18 +319,18 @@ $.extend(RootSettings.prototype, {
 
           if (memberStatus !== 2) {
             $updatePermission.find('.itemLi .selectStatus').hide();
-            $updatePermission.find('.itemLi .itemText').removeClass('ThemeColor3');
+            $updatePermission.find('.itemLi .itemText').removeClass('colorPrimary');
             if (memberPermis == PERMISSION_TYPE.ADMIN) {
               $updatePermission.find('.adminItem .selectStatus').show();
-              $updatePermission.find('.adminItem .itemText').addClass('ThemeColor3');
+              $updatePermission.find('.adminItem .itemText').addClass('colorPrimary');
             } else if (memberPermis == PERMISSION_TYPE.NORMAL) {
               $updatePermission.find('.ordinaryItem .selectStatus').show();
-              $updatePermission.find('.ordinaryItem .itemText').addClass('ThemeColor3');
+              $updatePermission.find('.ordinaryItem .itemText').addClass('colorPrimary');
             }
 
             if (memberPermis == PERMISSION_TYPE.READONLY) {
               $updatePermission.find('.readOnlyItem .selectStatus').show();
-              $updatePermission.find('.readOnlyItem .itemText').addClass('ThemeColor3');
+              $updatePermission.find('.readOnlyItem .itemText').addClass('colorPrimary');
             }
 
             $checkInviter.fadeOut();
@@ -362,11 +362,11 @@ $.extend(RootSettings.prototype, {
           var $this = $(this),
             isApproved = $this.find('i.icon-approved').length;
           if (root.permission == PERMISSION_TYPE.ADMIN || (root.permission == PERMISSION_TYPE.OWNER && !isApproved)) {
-            $this.addClass('ThemeColor3');
+            $this.addClass('colorPrimary');
           }
         },
         mouseout: function () {
-          $(this).removeClass('ThemeColor3');
+          $(this).removeClass('colorPrimary');
         },
       },
       '.memberItem .permission .pointer',
@@ -378,19 +378,19 @@ $.extend(RootSettings.prototype, {
       .on(
         {
           mouseover: function () {
-            if (!$(this).find('.itemText').hasClass('ThemeColor3')) {
-              $(this).addClass('ThemeBGColor3');
+            if (!$(this).find('.itemText').hasClass('colorPrimary')) {
+              $(this).addClass('bgColorPrimary');
             }
           },
           mouseout: function () {
-            $(this).removeClass('ThemeBGColor3');
+            $(this).removeClass('bgColorPrimary');
           },
           click: function () {
             var $this = $(this);
             var changePermision = parseInt($this.data('value'));
             var accountId = $this.closest('ul').data('accountId');
 
-            if ($this.find('.itemText').hasClass('ThemeColor3')) {
+            if ($this.find('.itemText').hasClass('colorPrimary')) {
               return;
             }
 
@@ -421,7 +421,7 @@ $.extend(RootSettings.prototype, {
                     throw new Error();
                   }
 
-                  alert('操作成功');
+                  alert(_l('操作成功'));
                   var $changedMember = $('.folderMemberBox .memberItem[data-account-id="' + accountId + '"]');
                   $changedMember
                     .find('.permission')
@@ -448,7 +448,7 @@ $.extend(RootSettings.prototype, {
                   }
                 })
                 .catch(function () {
-                  alert('操作失败，请稍后重试!', 3);
+                  alert(_l('操作失败，请稍后重试!'), 3);
                 });
             }
           },
@@ -481,7 +481,7 @@ $.extend(RootSettings.prototype, {
               throw new Error();
             }
 
-            alert('操作成功');
+            alert(_l('操作成功'));
             $checkMemberLi
               .find('.memberName .added')
               .removeClass('addedMax')
@@ -497,7 +497,7 @@ $.extend(RootSettings.prototype, {
               .data('memberStatus', MEMBER_STATUS.NORMAL);
           })
           .catch(function () {
-            alert('操作失败，请稍后重试!', 3);
+            alert(_l('操作失败，请稍后重试!'), 3);
           });
       } else {
         Dialog.confirm({
@@ -545,7 +545,7 @@ $.extend(RootSettings.prototype, {
                 throw new Error();
               }
 
-              alert('操作成功');
+              alert(_l('操作成功'));
               $this
                 .removeClass('icon-task-star icon-star-hollow')
                 .addClass(star ? 'icon-task-star' : 'icon-star-hollow');
@@ -562,7 +562,7 @@ $.extend(RootSettings.prototype, {
               _this.settings.resolve(newRoot);
             })
             .catch(function () {
-              alert('操作失败,请稍后重试', 3);
+              alert(_l('操作失败,请稍后重试'), 3);
             });
         } else {
           $this.removeClass('icon-task-star icon-star-hollow').addClass(star ? 'icon-task-star' : 'icon-star-hollow');
@@ -595,7 +595,7 @@ $.extend(RootSettings.prototype, {
                 throw new Error();
               }
 
-              alert('操作成功');
+              alert(_l('操作成功'));
               _this.settings.name = root.name = name;
               _this.settings.resolve(
                 $.extend({}, root, {
@@ -604,7 +604,7 @@ $.extend(RootSettings.prototype, {
               );
             })
             .catch(function () {
-              alert('操作失败，请稍后重试', 3);
+              alert(_l('操作失败，请稍后重试'), 3);
             });
         },
         keydown: function (evt) {
@@ -779,7 +779,7 @@ $.extend(RootSettings.prototype, {
             filterAccountIds: [md.global.Account.accountId],
             callback: function (users) {
               if (!users && users.length <= 0) {
-                alert('请选择托付用户', 2);
+                alert(_l('请选择托付用户'), 2);
                 return;
               }
 
@@ -791,7 +791,7 @@ $.extend(RootSettings.prototype, {
                     throw new Error();
                   }
 
-                  alert('托付成功');
+                  alert(_l('托付成功'));
                   var members = root.members.slice(0);
                   function getNewOwnerObject() {
                     var ownerInMembers = _.find(members, m => newOwner.account === m.accountId);
@@ -824,9 +824,9 @@ $.extend(RootSettings.prototype, {
                 })
                 .catch(function () {
                   if (root.project && root.project.projectId) {
-                    alert('操作失败, 只能托付给本组织的成员', 2);
+                    alert(_l('操作失败, 只能托付给本组织的成员'), 2);
                   } else {
-                    alert('操作失败，只能托付给好友或同事', 2);
+                    alert(_l('操作失败，只能托付给好友或同事'), 2);
                   }
                 });
             },
@@ -843,10 +843,10 @@ $.extend(RootSettings.prototype, {
               throw new Error();
             }
 
-            alert('邀请成功');
+            alert(_l('邀请成功'));
           })
           .catch(function () {
-            alert('邀请失败, 请勿多次发送邀请', 3);
+            alert(_l('邀请失败, 请勿多次发送邀请'), 3);
           });
       });
   },
@@ -922,11 +922,12 @@ $.extend(RootSettings.prototype, {
         }
 
         if (existingUsers && existingUsers.length) {
-          alert(
-            existingUsers.map(function (u) {
+          const existingUserNames = existingUsers
+            .map(function (u) {
               return u.fullname || u.account || '';
-            }) + '已存在列表中',
-          );
+            })
+            .join(',');
+          alert(_l('%0已存在列表中', existingUserNames));
         }
 
         return;
@@ -1008,7 +1009,7 @@ $.extend(RootSettings.prototype, {
           });
         })
         .catch(function () {
-          alert('邀请失败，请稍后重试', 2);
+          alert(_l('邀请失败，请稍后重试'), 2);
           if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
           }
@@ -1018,7 +1019,7 @@ $.extend(RootSettings.prototype, {
         callbackInviteResult({ status: 0 });
       }
 
-      alert('您邀请的用户已在共享文件夹中', 3);
+      alert(_l('您邀请的用户已在共享文件夹中'), 3);
     }
   },
   verifyName: function (name, originalName) {
@@ -1037,14 +1038,14 @@ $.extend(RootSettings.prototype, {
       return false;
     } else {
       if (name && name.length > 255) {
-        alert('文件名称过长,请保持名称在255个字符以内', 3);
+        alert(_l('文件名称过长,请保持名称在255个字符以内'), 3);
         return false;
       }
 
       var illegalChars = /[/\\:*?"<>|]/g,
         valid = illegalChars.test(name);
       if (valid) {
-        alert('名称不能包含以下字符：\\ / : * ? " < > | #', 3);
+        alert(_l('名称不能包含以下字符：\\ / : * ? " < > | #'), 3);
         name = name.replace(illegalChars, '') || (originalName ? originalName : '');
         $txtFolderName.val(name).select();
         return false;

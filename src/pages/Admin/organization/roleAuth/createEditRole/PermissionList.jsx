@@ -149,7 +149,7 @@ export default function PermissionList(props) {
             {hasChildren && (
               <Icon
                 icon={isFolded ? 'arrow-right-tip' : 'arrow-down'}
-                className="Font14 mRight8 pointer textTertiary ThemeHoverColor3"
+                className="Font14 mRight8 pointer textTertiary hoverColorPrimary"
                 onClick={() => {
                   setFoldedId(
                     isFolded ? foldedId.filter(id => id !== item.permissionId) : foldedId.concat(item.permissionId),

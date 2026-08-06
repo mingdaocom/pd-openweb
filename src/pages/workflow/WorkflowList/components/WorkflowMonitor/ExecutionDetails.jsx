@@ -214,8 +214,8 @@ export default class ExecutionDetails extends Component {
       >
         {type !== 'waiting' && (
           <div className="flexColumn manageListOrder">
-            <Icon icon="arrow-up" className={cx({ ThemeColor3: fields === type && !isDesc })} />
-            <Icon icon="arrow-down" className={cx({ ThemeColor3: fields === type && isDesc })} />
+            <Icon icon="arrow-up" className={cx({ colorPrimary: fields === type && !isDesc })} />
+            <Icon icon="arrow-down" className={cx({ colorPrimary: fields === type && isDesc })} />
           </div>
         )}
         {type === 'routerIndex' && (

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   padding: 24px;
@@ -133,7 +134,7 @@ export default function Cite(props) {
                 return (
                   <div className={cx('li flexRow Hand', { borTop: i !== 0 })}>
                     <div className="flex Bold name Font14">
-                      <a target="_blank" className="" href={`/workflowedit/${o.primaryId}`}>
+                      <a target="_blank" className="" href={pathCompletion(`/workflowedit/${o.primaryId}`)}>
                         {o.primaryName}
                       </a>
                     </div>
@@ -155,7 +156,7 @@ export default function Cite(props) {
                 return (
                   <div className={cx('li flexRow Hand', { borTop: i !== 0 })}>
                     <div className="flex Bold name Font14">
-                      <a target="_blank" className="" href={`/worksheet/${o.primaryId}`}>
+                      <a target="_blank" className="" href={pathCompletion(`/worksheet/${o.primaryId}`)}>
                         {o.primaryName}
                       </a>
                     </div>

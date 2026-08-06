@@ -98,24 +98,28 @@ class Textarea extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const $textarea = $(this.textarea);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const $textarea = $(this.textarea); // 处理 isFocus 变化
 
-    // 处理 isFocus 变化
-    if (nextProps.isFocus && !this.props.isFocus) {
-      this.textarea.focus({ preventScroll: true });
-      this.moveCaretToEnd($textarea[0]);
+      // 处理 isFocus 变化
+      if (this.props.isFocus && !prevProps.isFocus) {
+        this.textarea.focus({
+          preventScroll: true,
+        });
+        this.moveCaretToEnd($textarea[0]);
+      }
+
+      this.setState(
+        {
+          defaultValue: this.props.defaultValue,
+        },
+        () => {
+          $(this.textarea).trigger('input');
+          this.adjustHeight($textarea, prevProps.chat);
+        },
+      );
     }
-
-    this.setState(
-      {
-        defaultValue: nextProps.defaultValue,
-      },
-      () => {
-        $(this.textarea).trigger('input');
-        this.adjustHeight($textarea, this.props.chat);
-      },
-    );
   }
 
   moveCaretToEnd(el) {

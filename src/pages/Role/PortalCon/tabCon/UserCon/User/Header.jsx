@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon, MenuItem } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
@@ -29,13 +28,59 @@ export default function (props) {
     setQuickTag,
   } = props;
 
-  const { list, pageIndex, keyWords, baseInfo = {}, fastFilters = [], filters } = portal;
+  const { list, pageIndex, keyWords, baseInfo = {}, fastFilters = [], filters, count } = portal;
 
   const [popupVisible, setPopupVisible] = useState(false);
 
+  const selectedList = list.filter(item => selectedIds.includes(item.rowid));
+  const statusGroups = selectedList.reduce(
+    (acc, item) => {
+      const status = safeParse(item.portal_status, 'array')[0];
+
+      if (status === '5') {
+        acc.unActivated.push(item.rowid);
+      } else if (status === '4') {
+        acc.disabled.push(item.rowid);
+      } else if (status === '1') {
+        acc.enabled.push(item.rowid);
+      } else {
+        acc.other.push(item.rowid);
+      }
+
+      return acc;
+    },
+    { unActivated: [], disabled: [], enabled: [], other: [] },
+  );
+
+  const actionCounts = {
+    changeRole: selectedList.length - statusGroups.unActivated.length,
+    activate: statusGroups.unActivated.length,
+    enable: statusGroups.disabled.length,
+    stop: statusGroups.enabled.length,
+    reinvite: statusGroups.unActivated.length,
+    cancelInviteAndRemove: statusGroups.unActivated.length,
+  };
+  const disabledActions = {
+    changeRole: actionCounts.changeRole <= 0,
+    activate: actionCounts.activate <= 0,
+    enable: actionCounts.enable <= 0,
+    stop: actionCounts.stop <= 0,
+    reinvite: actionCounts.reinvite <= 0,
+    cancelInviteAndRemove: actionCounts.cancelInviteAndRemove <= 0,
+  };
+
   //批量删除用户
-  const deleteRows = () => {
-    externalPortalAjax.removeUsers({ appId, rowIds: selectedIds }).then(() => {
+  const deleteRows = rowIds => {
+    externalPortalAjax.removeUsers({ appId, rowIds }).then(() => {
+      setSelectedIds([]); //清除选择
+      getCount(appId); //重新获取总计数
+      getList(); //重新获取当前页面数据
+    });
+  };
+
+  //批量取消邀请并移除
+  const cancelInvitationRows = rowIds => {
+    externalPortalAjax.cancelInvitation({ appId, rowIds }).then(() => {
       setSelectedIds([]); //清除选择
       getCount(appId); //重新获取总计数
       getList(); //重新获取当前页面数据
@@ -48,7 +93,7 @@ export default function (props) {
       buttonType: 'danger',
       okText: _l('注销'),
       description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
-      onOk: () => deleteRows(),
+      onOk: () => deleteRows(selectedIds),
     });
   };
 
@@ -91,11 +136,20 @@ export default function (props) {
           <span className={cx('Font17 Bold pLeft20 mLeft20 WordBreak overflow_ellipsis mRight20')} title={props.title}>
             {props.title}
           </span>
+          {count > 0 && (
+            <span className="textTertiary TxtMiddle mRight8 overflow_ellipsis breakAll flex-shrink-0">
+              {_l('%0名人员', count)}
+            </span>
+          )}
         </div>
         {selectedIds.length > 0 && (
           <div className="flex-shrink-0">
-            <span className="changeRole InlineBlock Hand" onClick={() => setChangeRoleDialog(true)}>
+            <span
+              className={cx('changeRole InlineBlock mLeft10', disabledActions.changeRole ? 'disabledAction' : 'Hand')}
+              onClick={() => !disabledActions.changeRole && setChangeRoleDialog(true)}
+            >
               {_l('更改角色')}
+              {actionCounts.changeRole > 0 && `(${actionCounts.changeRole})`}
             </span>
             <span className={cx('download InlineBlock Hand mLeft10')} onClick={() => down()}>
               {_l('导出')}
@@ -103,30 +157,29 @@ export default function (props) {
             {(window.platformENV.isOverseas || window.platformENV.isLocal) &&
               !!list.find(o => safeParse(o.portal_status, 'array')[0] === '5') && (
                 <span
-                  className={cx('download InlineBlock Hand mLeft10')}
-                  onClick={() => updateActivationStatus(selectedIds)}
+                  className={cx('download InlineBlock mLeft10', disabledActions.activate ? 'disabledAction' : 'Hand')}
+                  onClick={() => !disabledActions.activate && updateActivationStatus(statusGroups.unActivated)}
                 >
                   {_l('激活')}
+                  {actionCounts.activate > 0 && `(${actionCounts.activate})`}
                 </span>
               )}
             <span
-              className={cx('download InlineBlock Hand mLeft10')}
+              className={cx('download InlineBlock mLeft10', disabledActions.enable ? 'disabledAction' : 'Hand')}
               onClick={() => {
-                let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
-
-                if (_.intersection(NoList, selectedIds).length > 0) {
-                  return alert(_l('未激活的用户不能启用'), 2);
+                if (disabledActions.enable) {
+                  return;
                 }
 
                 Dialog.confirm({
-                  title: <span className="">{_l('启用%0个用户', selectedIds.length || 1)}</span>,
+                  title: <span className="">{_l('启用%0个用户', actionCounts.enable || 1)}</span>,
                   buttonType: '',
                   okText: _l('启用%15005'),
                   description: _l('启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用'),
                   onOk: () => {
                     updateListByStatus({
                       newState: 1,
-                      rowIds: selectedIds,
+                      rowIds: statusGroups.disabled,
                       cb: () => {
                         setSelectedIds([]); //清除选择
                       },
@@ -136,25 +189,60 @@ export default function (props) {
               }}
             >
               {_l('启用%15005')}
+              {actionCounts.enable > 0 && `(${actionCounts.enable})`}
             </span>
             <span
-              className={cx('del InlineBlock Hand mLeft10')}
+              className={cx('download InlineBlock mLeft10', disabledActions.reinvite ? 'disabledAction' : 'Hand')}
               onClick={() => {
-                let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
+                if (disabledActions.reinvite) {
+                  return;
+                }
 
-                if (_.intersection(NoList, selectedIds).length > 0) {
-                  return alert(_l('未激活的用户不能停用'), 2);
+                externalPortalAjax.reinviteExAccount({ appId, rowIds: statusGroups.unActivated }).then(res => {
+                  res ? alert(_l('重新邀请成功')) : alert(_l('重新邀请失败，请稍后再试'), 2);
+                });
+              }}
+            >
+              {_l('重新邀请')}
+              {actionCounts.reinvite > 0 && `(${actionCounts.reinvite})`}
+            </span>
+            <span
+              className={cx(
+                'download InlineBlock mLeft10',
+                disabledActions.cancelInviteAndRemove ? 'disabledAction' : 'Hand',
+              )}
+              onClick={() => {
+                if (disabledActions.cancelInviteAndRemove) {
+                  return;
                 }
 
                 Dialog.confirm({
-                  title: <span className="Red">{_l('停用%0个用户', selectedIds.length || 1)}</span>,
+                  title: <span className="Red">{_l('确认取消邀请该用户吗')}</span>,
+                  buttonType: 'danger',
+                  okText: _l('确定'),
+                  onOk: () => cancelInvitationRows(statusGroups.unActivated),
+                });
+              }}
+            >
+              {_l('取消邀请并移除')}
+              {actionCounts.cancelInviteAndRemove > 0 && `(${actionCounts.cancelInviteAndRemove})`}
+            </span>
+            <span
+              className={cx('del InlineBlock mLeft10', disabledActions.stop ? 'disabledAction' : 'Hand')}
+              onClick={() => {
+                if (disabledActions.stop) {
+                  return;
+                }
+
+                Dialog.confirm({
+                  title: <span className="Red">{_l('停用%0个用户', actionCounts.stop || 1)}</span>,
                   buttonType: 'danger',
                   okText: _l('停用'),
                   description: _l('停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用'),
                   onOk: () => {
                     updateListByStatus({
                       newState: 4,
-                      rowIds: selectedIds,
+                      rowIds: statusGroups.enabled,
                       cb: () => {
                         setSelectedIds([]); //清除选择
                       },
@@ -164,6 +252,7 @@ export default function (props) {
               }}
             >
               {_l('停用')}
+              {actionCounts.stop > 0 && `(${actionCounts.stop})`}
             </span>
             <span className={cx('del InlineBlock Hand mLeft10')} onClick={deleteRowsDialog}>
               {_l('注销')}

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import certImg from 'staticfiles/images/cert.png';
 import { Dialog } from 'ming-ui';
 import certificationApi from 'src/api/certification';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import './index.less';
 
@@ -28,7 +28,9 @@ export const identityInterception = (projectId, isPersonal) => {
     ),
     okText: !isMobile ? _l('立即认证') : _l('确定'),
     onOk: () => {
-      !isMobile && (location.href = isPersonal ? '/personal?type=information' : `/admin/certinfo/${projectId}`);
+      if (!isMobile) {
+        location.href = pathCompletion(isPersonal ? '/personal?type=information' : `/admin/certinfo/${projectId}`);
+      }
     },
     removeCancelBtn: true,
   });

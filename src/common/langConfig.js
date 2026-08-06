@@ -31,6 +31,36 @@ const config = [
     path: '/staticfiles/lang/ja/mdTranslation.js',
     code: 2,
   },
+  {
+    key: 'th',
+    value: 'ภาษาไทย',
+    languageTeam: 'Thai',
+    language: 'th',
+    path: '/staticfiles/lang/th/mdTranslation.js',
+    code: 4,
+  },
+  {
+    key: 'ms',
+    value: 'Bahasa Melayu',
+    languageTeam: 'Malay',
+    language: 'ms',
+    path: '/staticfiles/lang/ms/mdTranslation.js',
+    code: 5,
+  },
 ];
 
 export default config;
+
+const APP_LANG_TO_SYSTEM_LANG = {
+  zh_hans: 'zh-Hans',
+  zh_hant: 'zh-Hant',
+};
+
+const SYSTEM_LANG_TO_APP_LANG = {
+  'zh-Hans': 'zh_hans',
+  'zh-Hant': 'zh_hant',
+};
+
+export const getSystemLangKey = lang => APP_LANG_TO_SYSTEM_LANG[lang] || lang;
+
+export const getAppLangCode = lang => SYSTEM_LANG_TO_APP_LANG[lang] || lang;

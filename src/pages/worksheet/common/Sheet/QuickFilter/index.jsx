@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { arrayOf, func, number, shape, string } from 'prop-types';
-import { refreshSheet, resetQuickFilter, updateQuickFilter } from 'worksheet/redux/actions';
+import { fireWhenViewLoaded, refreshSheet, resetQuickFilter, updateQuickFilter } from 'worksheet/redux/actions';
 import QuickFilter from './QuickFilter';
 
 function Comp(props) {
@@ -33,6 +33,7 @@ export default connect(
         refreshSheet,
         updateQuickFilter,
         resetQuickFilter,
+        fireWhenViewLoaded,
       },
       dispatch,
     ),

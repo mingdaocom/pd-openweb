@@ -12,7 +12,7 @@ import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIODS } from 'worksheet/views/GunterView/config';
 import { getSearchData } from 'worksheet/views/util';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import Zoom from './Zoom';
 import './index.less';
 
@@ -24,7 +24,7 @@ const ToolBarWrap = styled.div(
   right:  ${isMobile ? 'auto' : '20px'};
   background-color: var(--color-background-card);
   border-radius: 26px;
-  height: ${isMobile ? '40px' : '44px'}
+  height: ${isMobile ? '40px' : '44px'};
   padding:${isMobile ? '0 18px' : '0 22px 0 16px'};
   z-index: 10;
   box-shadow: var(--shadow-lg);
@@ -41,7 +41,6 @@ const ToolBarWrap = styled.div(
   }
 `,
 );
-
 const SelectWrap = styled(Select)`
   width: 85px;
   .ant-select-selector {
@@ -69,17 +68,7 @@ const SelectWrap = styled(Select)`
     }
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['base']),
-    ..._.pick(state.sheet.gunterView, ['periodType']),
-    searchData: browserIsMobile() ? getSearchData(state.sheet) : {},
-    mobileViewType: _.get(state.mobile, ['base', 'type']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ToolBar extends Component {
+let ToolBar = class ToolBar extends Component {
   constructor(props) {
     super(props);
   }
@@ -92,7 +81,9 @@ export default class ToolBar extends Component {
     const { periodType, changeViewType, isMobile } = this.props;
     return (
       <SelectWrap
-        className={cx({ mobile: isMobile })}
+        className={cx({
+          mobile: isMobile,
+        })}
         suffixIcon={<Icon className="Font12 textTertiary" icon="arrow-down" />}
         defaultActiveFirstOption={false}
         defaultOpen={false}
@@ -113,7 +104,6 @@ export default class ToolBar extends Component {
 
   changeMobileViewType = () => {
     const { changeViewType } = this.props;
-
     this.actionSheetHandler = ActionSheet.show({
       actions: PERIODS.map(item => ({
         key: item.value,
@@ -134,10 +124,10 @@ export default class ToolBar extends Component {
       },
     });
   };
+
   render() {
     const { searchData, isMobile, mobileViewType, periodType } = this.props;
     const isMobileSingleView = mobileViewType == 'single';
-
     return (
       <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper toolBarWrap">
         {isMobile ? (
@@ -173,9 +163,7 @@ export default class ToolBar extends Component {
               className="textSecondary Font18 mRight14 pointer mLeft24"
               onClick={() => {
                 const { base } = this.props;
-                window.open(
-                  `${window.subPath || ''}/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`,
-                );
+                window.open(pathCompletion(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`));
               }}
             />
           </Tooltip>
@@ -183,4 +171,14 @@ export default class ToolBar extends Component {
       </ToolBarWrap>
     );
   }
-}
+};
+ToolBar = connect(
+  state => ({
+    ..._.pick(state.sheet, ['base']),
+    ..._.pick(state.sheet.gunterView, ['periodType']),
+    searchData: browserIsMobile() ? getSearchData(state.sheet) : {},
+    mobileViewType: _.get(state.mobile, ['base', 'type']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ToolBar);
+export default ToolBar;

@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import ClickAway from 'ming-ui/components/ClickAway';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import sheetAjax from 'src/api/worksheet';
 import WorkSheetItem from './WorkSheetItem';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class QuerySheet extends Component {
   static propTypes = {
     sheetActions: PropTypes.object,
@@ -36,7 +34,7 @@ export default class QuerySheet extends Component {
             <div className="title textDisabled"> {project.projectId ? project.name : _l('个人')} </div>
             {project.worksheets.map((sheet, index) => (
               <WorkSheetItem
-                className="ThemeHoverBGColor3"
+                className="hoverBgColorPrimaryDark"
                 showRight={false}
                 key={index}
                 sheetInfo={sheet}
@@ -64,9 +62,9 @@ export default class QuerySheet extends Component {
     const { workSheetList, isLoading, listVisible } = this.state;
     return (
       <div className="querySheet Relative">
-        <div className="search ThemeBorderColor8">
+        <div className="search borderSecondary">
           <i
-            className="icon icon-search pointer ThemeColor9"
+            className="icon icon-search pointer textSecondary"
             onClick={() => {
               this.setState({ isLoading: true });
               sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then(data => {
@@ -80,7 +78,7 @@ export default class QuerySheet extends Component {
             }}
           />
           <input
-            className="ming Input ThemeColor10 flex"
+            className="ming Input textPrimary flex"
             placeholder={_l('搜索工作表')}
             value={this.state.keyWords}
             onChange={event => {
@@ -91,13 +89,13 @@ export default class QuerySheet extends Component {
             }}
             onFocus={() => {
               $('.worksheet .workSheetLeft .querySheet .search')
-                .removeClass('ThemeBorderColor8')
-                .addClass('ThemeBorderColor3');
+                .removeClass('borderSecondary')
+                .addClass('borderColorPrimary');
             }}
             onBlur={() => {
               $('.worksheet .workSheetLeft .querySheet .search')
-                .removeClass('ThemeBorderColor3')
-                .addClass('ThemeBorderColor8');
+                .removeClass('borderColorPrimary')
+                .addClass('borderSecondary');
             }}
             onKeyUp={() => {
               this.setState({ isLoading: true });
@@ -111,7 +109,7 @@ export default class QuerySheet extends Component {
                 this.setState({ listVisible: false, keyWords: '' });
               }}
             >
-              <Icon icon="cancel ThemeColor8 Font14" />
+              <Icon icon="cancel textTertiary Font14" />
             </span>
           )}
         </div>

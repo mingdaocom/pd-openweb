@@ -1,33 +1,23 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { DndProvider } from 'react-dnd-latest';
 import DocumentTitle from 'react-document-title';
-import { Button, ConfigProvider, Tabs } from 'antd';
+import { Button, ConfigProvider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import reportConfig from '../api/reportConfig';
 import projectController from 'src/api/project';
-import worksheetAjax from 'src/api/worksheet';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
+import worksheetApi from 'src/api/worksheet';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import store from 'src/redux/configureStore';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
 import MoreOverlay from '../Card/MoreOverlay';
 import { reportTypes } from '../Charts/common';
-import { chartNav, getNewReport } from '../common';
-import ChartAnalyse from '../components/ChartAnalyse';
-import ChartSetting from '../components/ChartSetting';
+import { getNewReport } from '../common/reportConfigUtils';
 import { Loading } from '../components/ChartStatus';
-import ChartStyle from '../components/ChartStyle';
-import DataSource from '../components/DataSource';
-import FilterScope from '../components/FilterScope';
 import * as actions from '../redux/actions.js';
 import Chart from './Chart';
 import DisplaySetup from './DisplaySetup';
@@ -35,23 +25,9 @@ import Header from './Header';
 import Operation from './Operation';
 import './index.less';
 
-@connect(
-  state => ({
-    ..._.pick(state.statistics, [
-      'currentReport',
-      'axisControls',
-      'worksheetInfo',
-      'reportData',
-      'filterItem',
-      'detailLoading',
-      'loading',
-      'base',
-      'direction',
-    ]),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class ChartDialog extends Component {
+const LoadableEditorPanel = lazy(() => import('./EditorPanel'));
+const LoadableFilterScope = lazy(() => import('../components/FilterScope'));
+let ChartDialog = class ChartDialog extends Component {
   static propTypes = {
     appId: PropTypes.string,
     projectId: PropTypes.string,
@@ -71,6 +47,7 @@ export default class ChartDialog extends Component {
     sheetVisible: false,
     permissions: true,
   };
+
   constructor(props) {
     super(props);
     const { settingVisible, scopeVisible, sheetVisible, report, worksheetId, viewId, activeData } = props;
@@ -87,24 +64,33 @@ export default class ChartDialog extends Component {
       activeData,
     };
   }
+
   componentDidMount() {
     this.getReportConfigDetail();
+
     if (!window.shareState.shareId) {
       this.getProjectInfo();
     }
   }
+
   componentWillUnmount() {
     this.props.destroy();
     delete window[`filterReportId-${this.state.reportId}`];
   }
-  componentWillReceiveProps(nextProps) {
-    const { activeData } = this.state;
 
-    if (!nextProps.loading && this.props.loading && !_.isEmpty(activeData)) {
-      this.props.requestOriginalData(activeData);
-      this.setState({ activeData: null });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { activeData } = this.state;
+
+      if (!this.props.loading && prevProps.loading && !_.isEmpty(activeData)) {
+        prevProps.requestOriginalData(activeData);
+        this.setState({
+          activeData: null,
+        });
+      }
     }
   }
+
   getReportConfigDetail(reportType) {
     const {
       base,
@@ -144,9 +130,20 @@ export default class ChartDialog extends Component {
   }
 
   getProjectInfo() {
-    projectController.getProjectInfo({ projectId: this.props.projectId }, { silent: true }).then(res => {
-      this.setState({ geoCountryRegionCode: res.geoCountryRegionCode });
-    });
+    projectController
+      .getProjectInfo(
+        {
+          projectId: this.props.projectId,
+        },
+        {
+          silent: true,
+        },
+      )
+      .then(res => {
+        this.setState({
+          geoCountryRegionCode: res.geoCountryRegionCode,
+        });
+      });
   }
 
   handleCancel = () => {
@@ -163,22 +160,17 @@ export default class ChartDialog extends Component {
     const { appType } = this.props.base;
     const data = getNewReport(this.props);
     delete data.filter.filterControls;
-    reportConfig
-      .saveReportConfig({
-        ...data,
-        appType,
-      })
-      .then(result => {
-        const { updateDialogVisible } = this.props;
-        updateDialogVisible({
-          dialogVisible: false,
-          isRequest: true,
-          reportId: result.reportId,
-          reportName: data.name,
-          reportType: data.reportType,
-          worksheetId: data.appId,
-        });
+    reportConfig.saveReportConfig({ ...data, appType }).then(result => {
+      const { updateDialogVisible } = this.props;
+      updateDialogVisible({
+        dialogVisible: false,
+        isRequest: true,
+        reportId: result.reportId,
+        reportName: data.name,
+        reportType: data.reportType,
+        worksheetId: data.appId,
       });
+    });
   };
   handleVerifySave = () => {
     const { loading, currentReport, reportData } = this.props;
@@ -230,15 +222,16 @@ export default class ChartDialog extends Component {
     const { filterItem, currentReport, worksheetInfo } = this.props;
     const { filter } = currentReport;
     const { appId } = this.props;
-
-    this.setState({ saveLoading: true });
+    this.setState({
+      saveLoading: true,
+    });
 
     if (_.isEmpty(filter.filterId) && _.isEmpty(filterItem)) {
       this.handleSave();
       return;
     }
 
-    worksheetAjax
+    worksheetApi
       .saveWorksheetFilter({
         name: '',
         type: '',
@@ -258,11 +251,12 @@ export default class ChartDialog extends Component {
       sheetVisible: value,
     });
   };
-  handleUpdateReportType(type) {
+  handleUpdateReportType = type => {
     const { currentReport, loading } = this.props;
     if (loading || type === currentReport.reportType) return;
     this.getReportConfigDetail(type);
-  }
+  };
+
   renderHeader() {
     const {
       report,
@@ -283,7 +277,9 @@ export default class ChartDialog extends Component {
     } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
+
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
+
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />
@@ -299,7 +295,9 @@ export default class ChartDialog extends Component {
             <Tooltip title={_l('设置')} placement="bottom">
               <Icon
                 icon="settings"
-                className={cx('Font20 pointer textTertiary', { active: settingVisible })}
+                className={cx('Font20 pointer textTertiary', {
+                  active: settingVisible,
+                })}
                 onClick={() => {
                   this.setState(
                     {
@@ -366,81 +364,7 @@ export default class ChartDialog extends Component {
       </div>
     );
   }
-  renderCharts() {
-    const { geoCountryRegionCode } = this.state;
-    const { projectId, currentReport } = this.props;
-    const { reportType, displaySetup } = currentReport;
-    return (
-      <div className="charts flexRow pLeft20 pRight20">
-        {chartNav
-          .filter(item => {
-            if (item.type === reportTypes.CountryLayer) {
-              return !geoCountryRegionCode || geoCountryRegionCode === 'CN';
-            }
 
-            return true;
-          })
-          .map((item, index) => (
-            <Fragment key={index}>
-              <Tooltip title={item.name}>
-                <div
-                  onClick={() => {
-                    if (item.type === reportTypes.BarChart) {
-                      this.props.changeCurrentReport({
-                        displaySetup: {
-                          ...displaySetup,
-                          showChartType: 1,
-                        },
-                      });
-                    }
-
-                    if (
-                      item.type === reportTypes.WorldMap &&
-                      getFeatureStatus(projectId, VersionProductType.worldMap) === '2'
-                    ) {
-                      buriedUpgradeVersionDialog(projectId, VersionProductType.worldMap);
-                      return;
-                    }
-
-                    this.handleUpdateReportType(item.type);
-                  }}
-                  className={cx('chartItem', {
-                    active:
-                      item.type === reportTypes.BarChart
-                        ? reportType === reportTypes.BarChart && displaySetup.showChartType === 1
-                        : reportType === item.type,
-                  })}
-                >
-                  <Icon icon={item.icon} />
-                </div>
-              </Tooltip>
-              {item.type === reportTypes.BarChart && (
-                <Tooltip title={_l('横向柱图')}>
-                  <div
-                    onClick={() => {
-                      this.props.changeCurrentReport({
-                        displaySetup: {
-                          ...displaySetup,
-                          showChartType: 2,
-                        },
-                      });
-                      if (reportType !== reportTypes.BarChart) {
-                        this.handleUpdateReportType(item.type);
-                      }
-                    }}
-                    className={cx('chartItem', {
-                      active: reportType === reportTypes.BarChart && displaySetup.showChartType === 2,
-                    })}
-                  >
-                    <Icon icon="stats_bar_chart1" />
-                  </div>
-                </Tooltip>
-              )}
-            </Fragment>
-          ))}
-      </div>
-    );
-  }
   renderChart() {
     const { projectId, base, isCharge, themeColor, customPageConfig = {} } = this.props;
     const { settingVisible, scopeVisible } = this.state;
@@ -460,79 +384,7 @@ export default class ChartDialog extends Component {
       />
     );
   }
-  renderSetting() {
-    const { projectId, reportData, currentReport, sourceType, themeColor, customPageConfig = {} } = this.props;
-    const { reportType, xaxes } = currentReport;
-    const { chartIsUnfold } = this.state;
-    const getAnalyseVisible = (function () {
-      if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
-        return false;
-      }
 
-      if (reportType === reportTypes.WorldMap) {
-        return xaxes.controlType !== 40;
-      }
-
-      return true;
-    })();
-
-    if (!chartIsUnfold) {
-      return (
-        <div className="setting flexColumn small">
-          <div className="pAll20">
-            <div className="flexColumn valignWrapper mTop9 mBottom20">
-              <Icon
-                className="textTertiary Font18 pointer"
-                icon="arrow-left-border"
-                onClick={() => {
-                  this.setState({ chartIsUnfold: !chartIsUnfold });
-                }}
-              />
-              <div className="Font18 Bold flex AllBreak mTop15">{_l('图表')}</div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="setting flexColumn">
-        <div className="flexColumn pTop20 pBottom20 h100">
-          <div className="flexRow valignWrapper mTop4 mBottom20 pLeft20 pRight20">
-            <div className="Font18 Bold flex">{_l('图表')}</div>
-            <Icon
-              className="textTertiary Font18 pointer"
-              icon="arrow-right-border"
-              onClick={() => {
-                this.setState({ chartIsUnfold: !chartIsUnfold });
-              }}
-            />
-          </div>
-          <ScrollView className="flex">
-            {this.renderCharts()}
-            <Tabs className="chartTabs pLeft20 pRight20" defaultActiveKey="setting">
-              <Tabs.TabPane tab={_l('配置')} key="setting">
-                <ChartSetting projectId={projectId} sourceType={sourceType} />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab={_l('样式')} key="style" disabled={reportData.status <= 0}>
-                <ChartStyle
-                  projectId={projectId}
-                  sourceType={sourceType}
-                  themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
-                  customPageConfig={customPageConfig}
-                />
-              </Tabs.TabPane>
-              {getAnalyseVisible && (
-                <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>
-                  <ChartAnalyse sourceType={sourceType} reportId={this.state.reportId} />
-                </Tabs.TabPane>
-              )}
-            </Tabs>
-          </ScrollView>
-        </div>
-      </div>
-    );
-  }
   renderHeaderDisplaySetup = () => {
     const { settingVisible } = this.state;
     return <DisplaySetup settingVisible={settingVisible}>{settingVisible && this.renderChartOperation()}</DisplaySetup>;
@@ -548,8 +400,12 @@ export default class ChartDialog extends Component {
           settingVisible={settingVisible}
           scopeVisible={scopeVisible}
           sourceType={sourceType}
+          appId={this.props.appId}
+          projectId={this.props.projectId}
           onChangeScopeVisible={scopeVisible => {
-            this.setState({ scopeVisible });
+            this.setState({
+              scopeVisible,
+            });
           }}
           onChangeSheetVisible={() => {
             if (settingVisible) {
@@ -569,49 +425,80 @@ export default class ChartDialog extends Component {
       </Fragment>
     );
   };
-  renderContent() {
-    const { settingVisible, dataIsUnfold, reportId, scopeVisible } = this.state;
-    const { permissions, permissionType, appId, projectId, sourceType, ownerId, currentReport } = this.props;
 
+  renderContent() {
+    const { settingVisible, dataIsUnfold, reportId, scopeVisible, chartIsUnfold, geoCountryRegionCode } = this.state;
+    const {
+      permissions,
+      permissionType,
+      appId,
+      projectId,
+      sourceType,
+      ownerId,
+      currentReport,
+      reportData,
+      loading,
+      themeColor,
+      customPageConfig = {},
+    } = this.props;
     return (
       <ErrorBoundary>
         {this.renderChart()}
         {settingVisible && permissions && (
-          <div className="ChartDialogSetting flexRow h100">
-            <DndProvider key="statistics" context={window} backend={HTML5Backend}>
-              <DataSource
-                dataIsUnfold={dataIsUnfold}
-                permissionType={permissionType}
-                ownerId={ownerId}
-                appId={appId}
-                projectId={projectId}
-                sourceType={sourceType}
-                onChangeDataIsUnfold={() => {
-                  this.setState({
-                    dataIsUnfold: !dataIsUnfold,
-                  });
-                }}
-                onChangeSheetId={worksheetId => {
-                  this.props.changeSheetId(worksheetId);
-                  this.props.changeBase({ sheetId: worksheetId });
-                  this.setState({ worksheetId, reportId: null });
-                }}
-              />
-              {this.renderSetting()}
-            </DndProvider>
-          </div>
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableEditorPanel
+              appId={appId}
+              projectId={projectId}
+              sourceType={sourceType}
+              permissionType={permissionType}
+              ownerId={ownerId}
+              currentReport={currentReport}
+              reportData={reportData}
+              loading={loading}
+              themeColor={themeColor}
+              customPageConfig={customPageConfig}
+              reportId={reportId}
+              dataIsUnfold={dataIsUnfold}
+              chartIsUnfold={chartIsUnfold}
+              geoCountryRegionCode={geoCountryRegionCode}
+              changeCurrentReport={this.props.changeCurrentReport}
+              onUpdateReportType={this.handleUpdateReportType}
+              onToggleChartUnfold={() => {
+                this.setState({
+                  chartIsUnfold: !chartIsUnfold,
+                });
+              }}
+              onChangeDataIsUnfold={() => {
+                this.setState({
+                  dataIsUnfold: !dataIsUnfold,
+                });
+              }}
+              onChangeSheetId={worksheetId => {
+                this.props.changeSheetId(worksheetId);
+                this.props.changeBase({
+                  sheetId: worksheetId,
+                });
+                this.setState({
+                  worksheetId,
+                  reportId: null,
+                });
+              }}
+            />
+          </Suspense>
         )}
         {scopeVisible && !_.isEmpty(currentReport) && (
           <div className="ChartDialogSetting flexRow h100">
-            <FilterScope id={reportId} projectId={projectId} />
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableFilterScope id={reportId} projectId={projectId} />
+            </Suspense>
           </div>
         )}
       </ErrorBoundary>
     );
   }
+
   render() {
     const { nodialog, detailLoading, className } = this.props;
-
     const content = detailLoading ? <Loading /> : this.renderContent();
 
     if (nodialog) {
@@ -635,7 +522,23 @@ export default class ChartDialog extends Component {
       closable: false,
       title: this.renderHeader(),
     };
-
     return <Dialog {...dialogProps}>{content}</Dialog>;
   }
-}
+};
+ChartDialog = connect(
+  state => ({
+    ..._.pick(state.statistics, [
+      'currentReport',
+      'axisControls',
+      'worksheetInfo',
+      'reportData',
+      'filterItem',
+      'detailLoading',
+      'loading',
+      'base',
+      'direction',
+    ]),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(ChartDialog);
+export default ChartDialog;

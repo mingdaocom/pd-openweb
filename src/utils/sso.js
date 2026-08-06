@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
 
@@ -88,7 +89,7 @@ const interfaceDataDecryption = source => {
 };
 
 export const login = () => {
-  location.href = '/login';
+  location.href = pathCompletion('/login');
 };
 
 export const getScript = (src, func) => {

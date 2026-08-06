@@ -6,7 +6,7 @@ import Trigger from 'rc-trigger';
 import { Button, Checkbox, LoadDiv, UserCard, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import TransferController from 'src/api/transfer';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
 
@@ -60,7 +60,7 @@ const defaultWorksheetState = {
   currentWorksheetType: 5,
 };
 
-export const callDialogSelectUser = function (projectId, callback = () => {}) {
+export const callDialogSelectUser = function (projectId, callback = () => { }) {
   dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
@@ -349,12 +349,14 @@ export default class Detail extends React.Component {
           <UserCard sourceId={user.accountId}>
             <a
               className="Bold overflow_ellipsis"
-              href={`/user_${user.accountId}`}
+              href={pathCompletion(`/user_${user.accountId}`)}
               title={user.fullname}
               target="_blank"
             >
               {user.fullname}
-              {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null}
+              {user.isRelationShip ? (
+                <span className="boderRadAll_3 TxtCenter otherRelationShip">{_l('协')}</span>
+              ) : null}
             </a>
           </UserCard>
           <span className="overflow_ellipsis textDisabled wMax100" title={user.department}>
@@ -433,7 +435,7 @@ export default class Detail extends React.Component {
           </Trigger>
         </ul>
         <span
-          className="Right  ThemeColor3 Font13 Hand adminHoverColor"
+          className="Right  colorPrimary Font13 Hand adminHoverColor"
           onClick={() => {
             this.transferByType();
           }}
@@ -463,7 +465,7 @@ export default class Detail extends React.Component {
             {_l('表单')}
           </span>
           <span
-            className={classNames('ThemeColor3', { active: currentOAType === 2 })}
+            className={classNames('colorPrimary', { active: currentOAType === 2 })}
             onClick={() => {
               this.setState({
                 pageIndex: 1,
@@ -476,7 +478,7 @@ export default class Detail extends React.Component {
             {_l('流程')}
           </span>
           <span
-            className={classNames('ThemeColor3', { active: currentOAType === 3 })}
+            className={classNames('colorPrimary', { active: currentOAType === 3 })}
             onClick={() => {
               this.setState({
                 pageIndex: 1,
@@ -500,7 +502,7 @@ export default class Detail extends React.Component {
       <div className="clearfix oaFilterList mBottom5 Font13">
         <div className="Left typeList">
           <span
-            className={classNames('ThemeColor3', { active: currentWorksheetType === WORKSHEET_TYPES.WORKSHEET })}
+            className={classNames('colorPrimary', { active: currentWorksheetType === WORKSHEET_TYPES.WORKSHEET })}
             onClick={() => {
               this.setState({
                 pageIndex: 1,
@@ -512,7 +514,7 @@ export default class Detail extends React.Component {
             {_l('工作表')}
           </span>
           <span
-            className={classNames('ThemeColor3', { active: currentWorksheetType === WORKSHEET_TYPES.WORKSHEET_ROW })}
+            className={classNames('colorPrimary', { active: currentWorksheetType === WORKSHEET_TYPES.WORKSHEET_ROW })}
             onClick={() => {
               this.setState({
                 pageIndex: 1,
@@ -598,7 +600,7 @@ export default class Detail extends React.Component {
 
                     if (linkUrl) {
                       return (
-                        <a className="TxtMiddle" href={linkUrl} target="_blank">
+                        <a className="TxtMiddle" href={pathCompletion(linkUrl)} target="_blank">
                           {name}
                         </a>
                       );
@@ -613,7 +615,7 @@ export default class Detail extends React.Component {
               </td>
               <td width="20%">
                 <span
-                  className="Hand ThemeColor3 TxtMiddle adminHoverColor"
+                  className="Hand colorPrimary TxtMiddle adminHoverColor"
                   onClick={() => {
                     this.transfer(item);
                   }}
@@ -685,7 +687,7 @@ export default class Detail extends React.Component {
               <th width="20%">
                 {_.keys(selectItems).length ? (
                   <span
-                    className="TxtMiddle Hand ThemeHoverColor2 ThemeColor3 adminHoverColor"
+                    className="TxtMiddle Hand hoverColorPrimaryDark colorPrimary adminHoverColor"
                     onClick={() => {
                       this.transferMultiple();
                     }}

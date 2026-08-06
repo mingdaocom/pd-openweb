@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -122,7 +121,7 @@ export default class EditPostDialog extends React.Component {
         })),
       );
 
-      const textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea').get(0);
+      const textarea = this.textarea;
 
       MentionsInput({
         input: textarea,
@@ -143,7 +142,7 @@ export default class EditPostDialog extends React.Component {
     const { scope } = this.state;
     const { postItem } = this.props;
     const { postID } = postItem;
-    const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
+    const $textarea = $(this.textarea);
     $textarea.get(0).val(data => {
       const postMsg = data;
 
@@ -242,7 +241,7 @@ export default class EditPostDialog extends React.Component {
           id="textarea_Updater_Edit"
           className="textarea_Updater_Edit"
           maxHeight={220}
-          ref={textarea => {
+          manualRef={textarea => {
             this.textarea = textarea;
           }}
         />

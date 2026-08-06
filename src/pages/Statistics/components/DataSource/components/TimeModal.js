@@ -14,7 +14,7 @@ import {
   pastAndFutureData,
   timeTypes,
   unitTypes,
-} from 'statistics/common';
+} from 'statistics/common/timeUtils';
 import { formatNumberFromInput } from 'src/utils/control';
 
 const { RangePicker } = DatePicker;

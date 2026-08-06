@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
@@ -7,6 +7,8 @@ import worksheetAjax from 'src/api/worksheet';
 import 'mobile/index.less';
 import { SHARE_STATE, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import globalEvents from 'src/router/globalEvents';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
@@ -18,8 +20,16 @@ const Header = ({ data, callback, onSubmit }) => {
   return (
     <div className="flexRow flex alignItemsCenter">
       <div className="flex" />
+      <PublicAppLangDropdown className="mRight6" appId={data.appId} projectId={data.projectId} />
       {data.linkState !== 2 && (
-        <div className="worksheetRowEditSave ellipsis" onClick={() => onSubmit({ callback })}>
+        <div
+          className="worksheetRowEditSave ellipsis"
+          onClick={() =>
+            onSubmit({
+              callback,
+            })
+          }
+        >
           {data.submitBtnName || _l('提交')}
         </div>
       )}
@@ -27,31 +37,37 @@ const Header = ({ data, callback, onSubmit }) => {
   );
 };
 
+const MobileHeader = ({ data }) => {
+  return (
+    <div className="worksheetRowEditMobileHeader flexRow alignItemsCenter">
+      <CreateByMingDaoYun />
+      <div className="flex" />
+      <PublicAppLangDropdown appId={data.appId} projectId={data.projectId} />
+    </div>
+  );
+};
+
+const LoadableMobileRecordInfoModal = lazy(() =>
+  import('mobile/Record').then(component => ({
+    default: component.RecordInfoModal,
+  })),
+);
+const LoadableRecordInfoWrapper = lazy(() => import('worksheet/common/recordInfo/RecordInfoWrapper'));
+
 class WorksheetRowEdit extends Component {
   state = {
     loading: true,
     isError: false,
     data: {},
-    Components: null,
   };
 
   componentDidMount() {
     this.getLinkDetail();
-
-    if (browserIsMobile()) {
-      import('mobile/Record').then(res => {
-        this.setState({ Components: { default: res.RecordInfoModal } });
-      });
-    } else {
-      import('worksheet/common/recordInfo/RecordInfoWrapper').then(res => {
-        this.setState({ Components: res });
-      });
-    }
   }
-
   /**
    * 获取详情
    */
+
   getLinkDetail = param => {
     return new Promise((resolve, reject) => {
       const shareId = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
@@ -63,10 +79,14 @@ class WorksheetRowEdit extends Component {
         .then(async data => {
           const getGlobalMeta = () => {
             preall(
-              { type: 'function' },
+              {
+                type: 'function',
+              },
               {
                 allowNotLogin: true,
-                requestParams: { projectId: data.projectId },
+                requestParams: {
+                  projectId: data.projectId,
+                },
               },
             );
             globalEvents();
@@ -92,35 +112,47 @@ class WorksheetRowEdit extends Component {
             }
 
             getGlobalMeta();
-            this.setState({ loading: false, data, isError: false });
+            this.setState({
+              loading: false,
+              data,
+              isError: false,
+            });
             resolve(data);
           } else {
             getGlobalMeta();
-            this.setState({ loading: false, data, isError: true });
+            this.setState({
+              loading: false,
+              data,
+              isError: true,
+            });
             reject(data);
           }
         })
         .catch(err => {
-          this.setState({ loading: false, isError: err.errorCode });
+          this.setState({
+            loading: false,
+            isError: err.errorCode,
+          });
           reject(err);
         });
     });
   };
-
   /**
    * 获取标题
    */
+
   getTitle() {
     const { data } = this.state;
-    const titleControl = _.find(data.receiveControls, item => item.attribute === 1);
-    const title = titleControl ? renderCellText(titleControl) || '' : '';
 
+    const titleControl = _.find(data.receiveControls, item => item.attribute === 1);
+
+    const title = titleControl ? renderCellText(titleControl) || '' : '';
     return title ? `${data.appName}-${title}` : data.appName;
   }
-
   /**
    * 渲染错误
    */
+
   renderError() {
     const { data } = this.state;
 
@@ -130,7 +162,10 @@ class WorksheetRowEdit extends Component {
           validatorPassPromise={(value, captchaResult) => {
             return new Promise((resolve, reject) => {
               if (value) {
-                this.getLinkDetail({ password: value, ...captchaResult }).catch(data => {
+                this.getLinkDetail({
+                  password: value,
+                  ...captchaResult,
+                }).catch(data => {
                   reject(SHARE_STATE[data.resultCode]);
                 });
               } else {
@@ -144,26 +179,40 @@ class WorksheetRowEdit extends Component {
 
     return (
       <div className="flexColumn h100 alignItemsCenter justifyContentCenter">
-        <i className="icon-error1" style={{ color: 'var(--color-warning)', fontSize: 60 }} />
+        <i
+          className="icon-error1"
+          style={{
+            color: 'var(--color-warning)',
+            fontSize: 60,
+          }}
+        />
         <div className="Font17 bold mTop15">{SHARE_STATE[data.resultCode]}</div>
       </div>
     );
   }
-
   /**
    * 渲染已提交
    */
+
   renderComplete() {
     return (
       <div className="flexColumn h100 alignItemsCenter justifyContentCenter">
-        <i className="icon-check_circle" style={{ color: 'var(--color-success)', fontSize: 60 }} />
+        <i
+          className="icon-check_circle"
+          style={{
+            color: 'var(--color-success)',
+            fontSize: 60,
+          }}
+        />
         <div className="Font17 bold mTop15">{_l('提交成功')}</div>
       </div>
     );
   }
 
   render() {
-    const { loading, data, isError, Components } = this.state;
+    const { loading, data, isError } = this.state;
+    const isMobile = browserIsMobile();
+    const RecordInfo = isMobile ? LoadableMobileRecordInfoModal : LoadableRecordInfoWrapper;
 
     if (isError === 300016) {
       return <RestrictAccessStatus />;
@@ -173,54 +222,69 @@ class WorksheetRowEdit extends Component {
       <Fragment>
         {!_.isEmpty(data) && <DocumentTitle title={this.getTitle() || _l('流程分享')} />}
 
-        {loading || !Components ? (
+        {loading ? (
           <LoadDiv className="mTop20" />
         ) : (
           <div className="worksheetRowEdit h100 flexColumn minHeight0">
+            {isMobile && <MobileHeader data={data} />}
             <ScrollView className="flex">
               {isError && this.renderError()}
               {data.linkState === 1 && this.renderComplete()}
               {!isError && data.linkState !== 1 ? (
-                browserIsMobile() ? (
-                  <Components.default
-                    className="full"
-                    visible
-                    appId={data.appId}
-                    worksheetId={data.worksheetId}
-                    rowId={data.rowId}
-                    editable={data.linkState === 0}
-                    hideOtherOperate={data.linkState === 0}
-                    allowEmptySubmit
-                    updateSuccess={() => this.setState({ data: { ...data, linkState: 1 } })}
-                    isEditRecord={data.linkState === 0}
-                    renderFooter={({ onSubmit }) =>
-                      data.linkState !== 2 ? (
-                        <div
-                          className="adm-button adm-button-primary adm-button-shape-default flex mLeft6 mRight6 Font13 bold ellipsis"
-                          onClick={() => onSubmit()}
-                        >
-                          {data.submitBtnName || _l('提交')}
-                        </div>
-                      ) : null
-                    }
-                  />
+                isMobile ? (
+                  <Suspense fallback={<LoadDiv className="mTop10" />}>
+                    <RecordInfo
+                      className="full"
+                      visible
+                      notModal
+                      appId={data.appId}
+                      worksheetId={data.worksheetId}
+                      rowId={data.rowId}
+                      editable={data.linkState === 0}
+                      hideOtherOperate={data.linkState === 0}
+                      allowEmptySubmit
+                      updateSuccess={() =>
+                        this.setState({
+                          data: { ...data, linkState: 1 },
+                        })
+                      }
+                      isEditRecord={data.linkState === 0}
+                      renderFooter={({ onSubmit }) =>
+                        data.linkState !== 2 ? (
+                          <div
+                            className="adm-button adm-button-primary adm-button-shape-default flex mLeft6 mRight6 Font13 bold ellipsis"
+                            onClick={() => onSubmit()}
+                          >
+                            {data.submitBtnName || _l('提交')}
+                          </div>
+                        ) : null
+                      }
+                    />
+                  </Suspense>
                 ) : (
-                  <Components.default
-                    notDialog
-                    from={2}
-                    appId={data.appId}
-                    worksheetId={data.worksheetId}
-                    allowEdit={data.linkState === 0}
-                    hideEditingBar
-                    recordId={data.rowId}
-                    allowEmptySubmit
-                    renderHeader={() => (
-                      <Header
-                        data={data}
-                        callback={({ error }) => !error && this.setState({ data: { ...data, linkState: 1 } })}
-                      />
-                    )}
-                  />
+                  <Suspense fallback={<LoadDiv className="mTop10" />}>
+                    <RecordInfo
+                      notDialog
+                      from={2}
+                      appId={data.appId}
+                      worksheetId={data.worksheetId}
+                      allowEdit={data.linkState === 0}
+                      hideEditingBar
+                      recordId={data.rowId}
+                      allowEmptySubmit
+                      renderHeader={() => (
+                        <Header
+                          data={data}
+                          callback={({ error }) =>
+                            !error &&
+                            this.setState({
+                              data: { ...data, linkState: 1 },
+                            })
+                          }
+                        />
+                      )}
+                    />
+                  </Suspense>
                 )
               ) : null}
             </ScrollView>
@@ -232,5 +296,4 @@ class WorksheetRowEdit extends Component {
 }
 
 const root = createRoot(document.getElementById('app'));
-
 root.render(<WorksheetRowEdit />);

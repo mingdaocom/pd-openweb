@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import filterXSS from 'xss';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
@@ -58,17 +59,19 @@ export default class AppLog extends React.Component {
     this.getList();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      this.updateState({
-        activeTab: 'logs',
-        keyword: '',
-        start: '',
-        end: '',
-        handleType: 0,
-        handleTypeLabel: _l('所有类型'),
-        expendList: [],
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible) {
+        this.updateState({
+          activeTab: 'logs',
+          keyword: '',
+          start: '',
+          end: '',
+          handleType: 0,
+          handleTypeLabel: _l('所有类型'),
+          expendList: [],
+        });
+      }
     }
   }
 
@@ -147,7 +150,7 @@ export default class AppLog extends React.Component {
               }}
               popupAlign={{ points: ['tl', 'tl'] }}
             >
-              <div className="optionItem Hand hoverTextPrimaryLight Width90">
+              <div className="optionItem Hand hoverColorPrimaryLight Width90">
                 <span>{handleTypeLabel}</span>
                 <span className="icon-expand_more mLeft8 textTertiary"></span>
               </div>
@@ -176,7 +179,7 @@ export default class AppLog extends React.Component {
                 }
               >
                 <Tooltip placement="top" title={_l('按日期筛选')}>
-                  <span className="Font18 textTertiary hoverTextPrimaryLight icon-event Hand"></span>
+                  <span className="Font18 textTertiary hoverColorPrimaryLight icon-event Hand"></span>
                 </Tooltip>
               </Trigger>
             )}
@@ -189,7 +192,7 @@ export default class AppLog extends React.Component {
 
             <Tooltip placement="top" title={_l('搜索')}>
               <span
-                className="mLeft24 Font18 hoverTextPrimaryLight textTertiary icon-search Hand"
+                className="mLeft24 Font18 hoverColorPrimaryLight textTertiary icon-search Hand"
                 onClick={() => this.setState({ searchVisible: true }, () => this.search.focus())}
               ></span>
             </Tooltip>
@@ -199,7 +202,7 @@ export default class AppLog extends React.Component {
         <div className="workflowSearchWrap">
           <input
             type="text"
-            className="ThemeBorderColor3"
+            className="borderColorPrimary"
             value={keyword}
             ref={con => (this.search = con)}
             placeholder={_l('搜索应用名称/操作者')}
@@ -258,7 +261,7 @@ export default class AppLog extends React.Component {
               <div className="appLogListItemTop textTertiary">
                 <span className="flexCenter">
                   <span className={cx('Font15 mRight10 mBottom2', optionTypeIcon[item.handleType])}></span>
-                  <span dangerouslySetInnerHTML={{ __html: message }}></span>
+                  <span dangerouslySetInnerHTML={{ __html: filterXSS(message) }}></span>
                   {isAppItem && (
                     <span className="mLeft4 WordBreak">
                       {String(item.appItem.type) === '0'

@@ -8,19 +8,26 @@ export default class ApplyPrivateKey extends Component {
   constructor(props) {
     super(props);
     const request = getRequest();
+    const product = _.toLower(props.product || request.product) === 'hdp' ? 'hdp' : 'hap';
+
     this.state = {
       serverId: request.serverId,
       channel: request.channel || '',
       licenseTemplateVersion: request.ltv || '',
+      product,
       projectName: '',
       job: '',
       scaleId: 1,
-      licenseVersion: 0,
+      licenseVersion: product === 'hdp' ? 5 : 0,
+      submitLoading: false,
     };
   }
 
   handleGenerateKey = event => {
-    const { serverId, channel, licenseTemplateVersion, projectName, scaleId, job, licenseVersion } = this.state;
+    if (this.state.submitLoading) return;
+
+    const { serverId, channel, licenseTemplateVersion, product, projectName, scaleId, job, licenseVersion } =
+      this.state;
 
     if (_.isEmpty(serverId)) {
       alert(_l('请输入服务器 ID'), 3);
@@ -37,6 +44,8 @@ export default class ApplyPrivateKey extends Component {
       return;
     }
 
+    this.setState({ submitLoading: true });
+
     privateGuide
       .applyLicenseCode(
         {
@@ -47,6 +56,7 @@ export default class ApplyPrivateKey extends Component {
           job,
           scaleId,
           licenseVersion,
+          product,
         },
         { silent: true },
       )
@@ -56,6 +66,7 @@ export default class ApplyPrivateKey extends Component {
           this.props.onClose(event, result);
         } else {
           alert(_l('密钥申请失败'), 2);
+          this.setState({ submitLoading: false });
         }
       })
       .catch(({ errorMessage }) => {
@@ -64,13 +75,16 @@ export default class ApplyPrivateKey extends Component {
         } else {
           alert(_l('密钥申请失败'), 2);
         }
+
+        this.setState({ submitLoading: false });
       });
   };
 
   render() {
-    const { serverId, projectName, job, scaleId, licenseVersion } = this.state;
+    const { serverId, product, projectName, job, scaleId, licenseVersion, submitLoading } = this.state;
     const privateVersion = getRequest().v;
-    let showVersion = privateVersion && parseFloat(privateVersion) >= 5.3;
+    const showVersion = privateVersion && parseFloat(privateVersion) >= 5.3;
+    const isHDP = product === 'hdp';
     const dataArr = [
       {
         value: 1,
@@ -105,7 +119,7 @@ export default class ApplyPrivateKey extends Component {
           {_l('返回')}
         </span>
         <div className="applyForm">
-          <div className="Bold Font28 mBottom30">{_l('密钥申请')}</div>
+          <div className="Bold Font28 mBottom30">{_l('%0 密钥申请', product.toUpperCase())}</div>
           <div className="formItem">
             <div className="Font14 Bold mBottom5">{_l('服务器 ID')}</div>
             <div className="mTop16 mBottom24 textSecondary">{serverId}</div>
@@ -139,9 +153,9 @@ export default class ApplyPrivateKey extends Component {
                 radioItemClassName="mBottom10"
                 checkedValue={licenseVersion}
                 data={[
-                  { text: _l('社区版（私有部署免费版）'), value: 0 },
+                  !isHDP && { text: _l('社区版（私有部署免费版）'), value: 0 },
                   { text: _l('专业版试用（有效期30天，每个服务器ID仅可申请1次）'), value: 5 },
-                ]}
+                ].filter(Boolean)}
                 vertical
                 onChange={value => {
                   this.setState({ licenseVersion: value });
@@ -149,7 +163,13 @@ export default class ApplyPrivateKey extends Component {
               />
             </div>
           )}
-          <Button className="generateKey" type="primary" size="large" onClick={this.handleGenerateKey}>
+          <Button
+            className="generateKey"
+            type="primary"
+            size="large"
+            disabled={submitLoading}
+            onClick={this.handleGenerateKey}
+          >
             {_l('生成密钥')}
           </Button>
         </div>

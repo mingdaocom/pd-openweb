@@ -1,193 +1,43 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import intlTelInput, { initIntlTelInput } from 'ming-ui/components/intlTelInput';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import PhoneNumberInput from 'ming-ui/components/PhoneNumberInput';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const PhoneNumberWrap = styled.div`
+  &.customFormControlMobileHover .customFormControlBox {
+    ${props => (props.isEditing ? 'background: transparent !important' : '')}
+  }
 
-const PhoneWrap = styled.div`
-  z-index: 1;
-  visibility: ${props => (props.isEditing || props.showCountry ? 'visible' : 'hidden')};
-  ${props => (props.isCell ? `margin-top: -6px;` : '')};
-  .cellMobileInput {
-    line-height: 30px;
+  .customFormControlBox .ant-input {
+    transition: none !important;
+    animation: none !important;
   }
-  ${props => (props.showCountry && !props.isEditing && props.itiWidth ? `width: ${props.itiWidth};` : '')};
-  input {
-    padding-right: ${props => (props.showCountry && !props.isEditing && props.itiWidth ? '0px !important' : '12px')};
-  }
-  .iti__dropdown-content {
-    max-width: 390px !important;
-    width: ${props => `${props.mobileWidth || 100}px !important`};
-  }
-`;
-
-const MobilePhoneBox = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
 `;
 
 const MobilePhone = props => {
   const {
-    hint,
-    inputClassName,
-    isCellEdit,
     disabled,
     value,
     onChange,
+    inputClassName,
     onBlur = () => {},
     onInputKeydown,
-    enumDefault,
-    advancedSetting,
     isCell,
     triggerCustomEvent,
+    showMaskValue = false,
     renderMaskContent = () => {},
     handleMaskClick = () => {},
-    showMaskValue = false,
     isMaskReadonly = false,
     formItemId,
     createEventHandler = () => {},
-    onSetDialCode = () => {},
-    recordId,
-    flag,
   } = props;
 
-  const [hideCountry, setHideCountry] = useState(false);
   const [originValue, setOriginValue] = useState('');
   const [isEditing, setIsEditing] = useState(isCell || false);
-  const [itiWidth, setItiWidth] = useState('');
-
-  const inputRef = useRef(null);
-  const boxRef = useRef(null);
-  const itiRef = useRef(null);
-  const valueRef = useRef(value);
-
-  const initialCountry = () => {
-    const initialCountry = _.get(md, 'global.Config.DefaultRegion') || 'cn';
-    return advancedSetting.defaultarea ? JSON.parse(advancedSetting.defaultarea).iso2 : initialCountry;
-  };
-
-  const getCountries = (countries = '[]', defaultCountry) => {
-    const preferredCountries = _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'];
-    if (enumDefault === 1) return [...preferredCountries, defaultCountry].filter(_.identity);
-    const allCountries = _.isEmpty(JSON.parse(countries))
-      ? []
-      : [...JSON.parse(countries).map(o => o.iso2), defaultCountry].filter(_.identity);
-    return _.uniq(allCountries);
-  };
-
-  const setValue = () => {
-    if (itiRef.current) {
-      (!isEditing || isCellEdit) && itiRef.current.setNumber(valueRef.current || '');
-      setHideCountry(!_.keys(itiRef.current.getSelectedCountryData()).length);
-      setItiWidth($(inputRef.current).css('padding-left'));
-    }
-
-    // 有些国外号码在插件格式化时会被自动补些数字，导致跟客户录入的数据有出入
-    // 手动取值更新，避开控件本身行为
-    if (inputRef.current && !isEditing) {
-      const currentValue = getItiInputValue(valueRef.current);
-      const inputValue = inputRef.current.value;
-
-      if (currentValue !== inputValue) {
-        inputRef.current.value = currentValue;
-      }
-    }
-  };
-
-  const getItiInputValue = (inputValue = value) => {
-    const showValue = inputValue || '';
-
-    if (showValue && showValue.indexOf('+') > -1) {
-      // 非编辑态iti被隐藏，本身的iti取不到区号
-      const iti = initIntlTelInput();
-      iti.setNumber(showValue);
-      const dialCode = _.get(iti.getSelectedCountryData(), 'dialCode');
-
-      if (dialCode) {
-        const reg = new RegExp(`^\\+${dialCode}\\s?`);
-        return showValue.replace(reg, '');
-      } else {
-        return showValue;
-      }
-    }
-
-    return showValue;
-  };
-
-  const getShowValue = useMemo(() => {
-    const currentValue = getItiInputValue() || '';
-
-    if (currentValue) {
-      return showMaskValue ? dealMaskValue({ ...props, value: currentValue }) : currentValue;
-    } else {
-      return hint;
-    }
-  }, [value, showMaskValue, hint]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      itiRef.current && itiRef.current.destroy();
-      itiRef.current = intlTelInput(inputRef.current, {
-        customPlaceholder: () => hint,
-        initialCountry: initialCountry(),
-        preferredCountries: getCountries(advancedSetting.commcountries),
-        onlyCountries: getCountries(advancedSetting.allowcountries, initialCountry()),
-        separateDialCode: true,
-        showSelectedDialCode: true,
-        countrySearch: true,
-      });
-    }
-
-    window.isPublicWorksheet &&
-      value &&
-      itiRef.current &&
-      onSetDialCode(itiRef.current.getSelectedCountryData().dialCode);
-
-    $(inputRef.current).on('close:countrydropdown keyup paste', () => {
-      setTimeout(() => {
-        handleChange();
-      }, 10);
-    });
-
-    return () => {
-      itiRef.current && itiRef.current.destroy();
-    };
-  }, []);
-
-  useEffect(() => {
-    valueRef.current = value;
-    setValue();
-  }, [value]);
-
-  useEffect(() => {
-    if (!value) {
-      itiRef.current && itiRef.current.setCountry(initialCountry());
-      inputRef.current && setItiWidth($(inputRef.current).css('padding-left'));
-    }
-  }, [recordId, flag]);
-
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current && inputRef.current.focus();
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    if (isCell && props.isEditing !== isEditing) {
-      setIsEditing(props.isEditing);
-    }
-  }, [isCell, props.isEditing]);
 
   useWidgetEvent(
     formItemId,
@@ -199,7 +49,7 @@ const MobilePhone = props => {
           setIsEditing(true);
           break;
         case 'trigger_tab_leave':
-          inputRef.current && inputRef.current.blur();
+          setIsEditing(false);
           break;
         default:
           break;
@@ -207,17 +57,8 @@ const MobilePhone = props => {
     }, []),
   );
 
-  const onFocus = () => {
-    const countryData = itiRef.current.getSelectedCountryData();
-    let currentValue;
-
-    if (!_.keys(countryData).length) {
-      currentValue = $(inputRef.current).val().replace(/ /g, '');
-    } else {
-      currentValue = itiRef.current.getNumber();
-    }
-
-    setOriginValue(currentValue);
+  const handleFocus = () => {
+    setOriginValue(value || '');
     setIsEditing(true);
 
     if (_.isFunction(triggerCustomEvent)) {
@@ -225,90 +66,45 @@ const MobilePhone = props => {
     }
   };
 
-  const handleBlur = () => {
-    // change事件有延时，失焦同样延时执行，等待value更新
-    setTimeout(() => {
-      onBlur(originValue);
-      setIsEditing(false);
-      if (!value) {
-        itiRef.current && itiRef.current.setCountry(initialCountry());
-        inputRef.current && setItiWidth($(inputRef.current).css('padding-left'));
-      }
-    }, 10);
+  const handleBlur = blurValue => {
+    setIsEditing(false);
+    onBlur(originValue || '', blurValue || '');
   };
 
-  const handleChange = _.debounce(() => {
-    const countryData = itiRef.current.getSelectedCountryData();
-    let currentValue;
-
-    if (!_.keys(countryData).length) {
-      currentValue = $(inputRef.current).val().replace(/ /g, '');
-    } else {
-      currentValue = itiRef.current.getNumber();
-    }
-
-    if (!currentValue && !valueRef.current) return;
-
-    currentValue !== valueRef.current && onChange(currentValue);
-  }, 300);
-
-  const hiddenCountry = enumDefault === 1 || hideCountry;
+  const renderMask = maskValue => {
+    return (
+      <span className={cx('InlineBlock overflowHidden', { maskHoverTheme: isMaskReadonly })} onClick={handleMaskClick}>
+        {maskValue}
+        {renderMaskContent()}
+      </span>
+    );
+  };
 
   return (
-    <div className={cx({ customFormControlTel: hiddenCountry, customFormControlMobileHover: !disabled })} ref={boxRef}>
-      <MobilePhoneBox
-        showCountry={!hiddenCountry}
-        isEditing={isEditing}
-        className={cx(
-          'customFormControlBox customFormTextareaBo',
-          { textDisabled: !value },
-          { controlDisabled: disabled },
-          { Hidden: isCell },
-        )}
-        style={{ paddingLeft: hiddenCountry ? '12px' : `${itiWidth}` || '12px', height: '36px' }}
-        onClick={() => {
-          if (!disabled && !isEditing) {
-            setIsEditing(true);
-          }
+    <PhoneNumberWrap className={cx({ customFormControlMobileHover: !disabled })} isEditing={isEditing}>
+      <PhoneNumberInput
+        control={_.pick(props, [
+          'value',
+          'hint',
+          'disabled',
+          'enumDefault',
+          'advancedSetting',
+          'type',
+          'showMaskValue',
+        ])}
+        showMask={isMaskReadonly || showMaskValue}
+        isFocused={isEditing}
+        onChange={onChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        renderMask={renderMask}
+        className={cx('customFormControlBox', { controlDisabled: disabled })}
+        inputClassName={inputClassName}
+        onKeyDown={event => {
+          createEventHandler(event, onInputKeydown);
         }}
-      >
-        <span
-          className={cx('LineHeight20 nowrap InlineBlock overflowHidden', { maskHoverTheme: isMaskReadonly })}
-          style={{ maxWidth: '100%', verticalAlign: 'middle' }}
-          onClick={handleMaskClick}
-        >
-          {getShowValue}
-          {renderMaskContent()}
-        </span>
-      </MobilePhoneBox>
-
-      <PhoneWrap
-        isEditing={isEditing}
-        showCountry={!hiddenCountry}
-        itiWidth={itiWidth}
-        isCell={isCell}
-        disabled={disabled}
-        mobileWidth={_.get(boxRef.current, 'offsetWidth')}
-      >
-        <ClickAwayable onClickAway={() => setIsEditing(false)}>
-          <input
-            type="tel"
-            className={cx(inputClassName || 'customFormControlBox', {
-              controlDisabled: disabled,
-              customFormPhoneBox: !isEditing && itiWidth,
-            })}
-            ref={inputRef}
-            placeholder={hint}
-            disabled={disabled}
-            onFocus={onFocus}
-            onBlur={handleBlur}
-            onKeyDown={event => {
-              createEventHandler(event, onInputKeydown);
-            }}
-          />
-        </ClickAwayable>
-      </PhoneWrap>
-    </div>
+      />
+    </PhoneNumberWrap>
   );
 };
 

@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
+import { pathCompletion } from 'src/utils/common';
 
 const WrapCon = styled.div`
   min-height: 400px;
@@ -8,11 +9,10 @@ const WrapCon = styled.div`
 
 export default function ({ isNetwork, account, companyName, projectId, integrationAccountType, appscheme }) {
   const handleMicrosoftLogin = () => {
-    const url =
-      window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.Config.WebUrl : location.origin + '/';
     const authPathMap = { 1: 'dingding', 6: 'feishu', 7: 'microsoft' };
-    location.href =
-      `${url}auth/${authPathMap[integrationAccountType]}?p=${projectId}` + (appscheme ? '&appscheme=' + appscheme : '');
+    location.href = pathCompletion(
+      `/auth/${authPathMap[integrationAccountType]}?p=${projectId}` + (appscheme ? '&appscheme=' + appscheme : ''),
+    );
   };
 
   return (

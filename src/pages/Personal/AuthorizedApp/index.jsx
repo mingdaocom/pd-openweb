@@ -19,7 +19,7 @@ export default function AuthorizedApp() {
     loading: false,
     passwordDialogVisible: false,
     currentApp: null,
-    password,
+    password: '',
     searchResult: [],
     currentItem: {},
   });
@@ -74,13 +74,13 @@ export default function AuthorizedApp() {
         render: (text, record) => (
           <div>
             <span
-              className="colorPrimary hoverTextPrimaryLight Hand mRight20"
+              className="colorPrimary hoverColorPrimaryLight Hand mRight20"
               onClick={() => setState({ currentItem: record })}
             >
               {_l('查看权限')}
             </span>
             <span
-              className="colorPrimary hoverTextPrimaryLight Hand"
+              className="colorPrimary hoverColorPrimaryLight Hand"
               onClick={() => setState({ currentApp: record, passwordDialogVisible: true })}
             >
               {_l('终止授权')}

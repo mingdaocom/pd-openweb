@@ -65,30 +65,30 @@ const navs = [
   },
 ];
 
+const handleSureSettings = (settingNum, value, successCallback) => {
+  accountSettingApi
+    .editAccountSetting({
+      settingType: common.settingOptions[settingNum],
+      settingValue: value,
+    })
+    .then(data => {
+      if (data) {
+        alert(_l('设置成功'));
+        if (_.isFunction(successCallback)) {
+          successCallback();
+        }
+      } else {
+        alert(_l('操作失败'), 2);
+      }
+    })
+    .catch();
+};
+
 const Setting = props => {
   const { defaultNavType, onClose, setToolbarConfig } = props;
   const [navType, setNavType] = useState(defaultNavType || navs[0].value);
   const [accountSettings, setAccountSettings] = useState({});
   const [loading, setLoading] = useState(true);
-
-  const handleSureSettings = (settingNum, value, successCallback) => {
-    accountSettingApi
-      .editAccountSetting({
-        settingType: common.settingOptions[settingNum],
-        settingValue: value,
-      })
-      .then(data => {
-        if (data) {
-          alert(_l('设置成功'));
-          if (_.isFunction(successCallback)) {
-            successCallback();
-          }
-        } else {
-          alert(_l('操作失败'), 2);
-        }
-      })
-      .catch();
-  };
 
   const handleChangeAccountSettings = param => {
     setAccountSettings(values => ({ ...values, ...param }));

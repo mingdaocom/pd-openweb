@@ -20,9 +20,7 @@ import alreadyDelete from './State/assets/alreadyDelete.png';
 import View from './View';
 import './index.less';
 
-@withRouter
-@AppPermissions
-class RecordList extends Component {
+let RecordList = class RecordList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,11 +28,15 @@ class RecordList extends Component {
       tempViewIdForRecordInfo: undefined,
     };
   }
+
   componentDidMount() {
     const { getFilters } = getRequest();
 
     if (getFilters === 'true') {
-      mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
+      mdAppResponse({
+        sessionId: 'Filter test session',
+        type: 'getFilters',
+      }).then(data => {
         const { value = [] } = data;
         this.props.updateFilterControls(value);
         this.getApp(this.props);
@@ -42,6 +44,7 @@ class RecordList extends Component {
     } else {
       this.props.changeMobileGroupFilters([]);
       this.getApp(this.props);
+
       if (_.get(this.props, ['filters', 'visible'])) {
         this.props.updateFilters({
           visible: false,
@@ -49,6 +52,7 @@ class RecordList extends Component {
       }
     }
   }
+
   getApp(props) {
     const { params } = props.match;
     props.updateBase({
@@ -59,24 +63,31 @@ class RecordList extends Component {
     });
     props.loadWorksheet();
   }
-  componentWillReceiveProps(nextProps) {
-    const { params: newParams } = nextProps.match;
-    const { params } = this.props.match;
 
-    if (newParams.viewId !== params.viewId) {
-      this.props.updateBase({ viewId: newParams.viewId });
-      this.props.resetSheetView();
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { params: newParams } = this.props.match;
+      const { params } = prevProps.match;
 
-    if (newParams.worksheetId !== params.worksheetId) {
-      this.props.emptySheetRows();
-      this.props.emptySheetControls();
-      this.getApp(nextProps);
+      if (newParams.viewId !== params.viewId) {
+        prevProps.updateBase({
+          viewId: newParams.viewId,
+        });
+        prevProps.resetSheetView();
+      }
+
+      if (newParams.worksheetId !== params.worksheetId) {
+        prevProps.emptySheetRows();
+        prevProps.emptySheetControls();
+        this.getApp(this.props);
+      }
     }
   }
+
   componentWillUnmount() {
     this.props.emptySheetControls();
   }
+
   sheetViewOpenRecord = (recordId, viewId) => {
     this.setState({
       previewRecordId: recordId,
@@ -91,22 +102,28 @@ class RecordList extends Component {
     const { now } = this.props;
 
     if (now) {
-      this.props.updateBase({ viewId: view.viewId });
+      this.props.updateBase({
+        viewId: view.viewId,
+      });
       this.props.resetSheetView();
     }
   };
+
   renderContent() {
     const { base, worksheetInfo, sheetSwitchPermit, match, batchOptVisible, appDetail } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
-
     let views = worksheetInfo.views.filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
-    const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+    const view =
+      _.find(views, {
+        viewId,
+      }) ||
+      (!viewId && views[0]) ||
+      {};
     const { params } = match;
-
     let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
 
     try {
@@ -117,7 +134,12 @@ class RecordList extends Component {
     }
 
     if (calendarcids.length <= 0) {
-      calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
+      calendarcids = [
+        {
+          begin: begindate,
+          end: enddate,
+        },
+      ]; //兼容老数据
     }
 
     const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
@@ -126,7 +148,12 @@ class RecordList extends Component {
     if (_.isEmpty(views)) {
       return (
         <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 textTertiary">
-          <img style={{ width: 70 }} src={alreadyDelete} />
+          <img
+            style={{
+              width: 70,
+            }}
+            src={alreadyDelete}
+          />
           {_l('视图已隐藏')}
         </div>
       );
@@ -159,6 +186,7 @@ class RecordList extends Component {
       </Fragment>
     );
   }
+
   render() {
     const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
@@ -167,7 +195,12 @@ class RecordList extends Component {
 
     if (webMobileDisplay) {
       return (
-        <div style={{ background: 'var(--color-background-primary)', height: '100%' }}>
+        <div
+          style={{
+            background: 'var(--color-background-primary)',
+            height: '100%',
+          }}
+        >
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
             <span className="textPrimary Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
@@ -192,8 +225,8 @@ class RecordList extends Component {
       <div className="flexRow justifyContentCenter alignItemsCenter w100 relative h100">{this.renderContent()}</div>
     );
   }
-}
-
+};
+RecordList = withRouter(AppPermissions(RecordList));
 export default connect(
   state => ({
     ..._.pick(

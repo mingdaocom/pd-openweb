@@ -28,13 +28,11 @@ const Box = styled.div`
 `;
 
 export default props => {
-  const DATA = [
-    { text: 'English', value: 'en', display: 'EN' },
-    { text: '简体中文', value: 'zh-Hans', display: 'CN' },
-    { text: '繁體中文', value: 'zh-Hant', display: 'TC' },
-    { text: '日本語', value: 'ja', display: 'JP' },
-  ];
-  const currentValue = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+  const displayMap = { en: 'EN', 'zh-Hans': 'CN', 'zh-Hant': 'TC', ja: 'JP', th: 'TH', ms: 'MS' };
+  const DATA = window
+    .getAllowLangConfig()
+    .map(item => ({ text: item.value, value: item.key, display: displayMap[item.key] }));
+  const currentValue = getCookie('i18n_langtag') || window.getDefaultLangKey();
 
   return (
     <Box className={cx('flexRow alignItemsCenter justifyContentCenter', props.className)}>

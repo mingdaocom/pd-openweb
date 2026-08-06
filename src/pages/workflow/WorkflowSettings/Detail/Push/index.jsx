@@ -102,18 +102,26 @@ export default class Push extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -127,6 +135,10 @@ export default class Push extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, appId, actionId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.pushType === PUSH_TYPE.AUDIO && result.promptSound.type === 0) {
           result.promptSound.type = 1;
         }
@@ -224,11 +236,11 @@ export default class Push extends Component {
     }
 
     if (pushType === PUSH_TYPE.AUDIO && promptSound.type === 2 && !promptSound.content) {
-      alert('内容不允许为空', 2);
+      alert(_l('内容不允许为空'), 2);
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -394,7 +406,7 @@ export default class Push extends Component {
                   <div className="mTop10 flexRow">
                     <input
                       type="text"
-                      className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                      className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                       value={button.name}
                       onChange={evt => this.updateButtonSource({ name: evt.target.value }, index)}
                       onBlur={evt => this.updateButtonSource({ name: evt.target.value.trim() || _l('按钮') }, index)}
@@ -421,7 +433,7 @@ export default class Push extends Component {
             {(data.buttons || []).length < 2 && (
               <div className="addActionBtn mTop25">
                 <span
-                  className="ThemeBorderColor3"
+                  className="borderColorPrimary"
                   onClick={() =>
                     this.updateSource({
                       buttons: (data.buttons || []).concat({
@@ -541,7 +553,7 @@ export default class Push extends Component {
               updateSource={this.updateSource}
             />
             <div
-              className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+              className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
               onClick={() => this.setState({ showSelectUserDialog: true })}
             >
               <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -577,7 +589,7 @@ export default class Push extends Component {
 
     pushList.forEach(item => {
       if (item.value === pushType) {
-        item.className = 'ThemeColor3';
+        item.className = 'colorPrimary';
       }
     });
 
@@ -775,11 +787,12 @@ export default class Push extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && data.content.trim()) ||
-            (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) && data.appId) ||
-            (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId) ||
-            (data.pushType === PUSH_TYPE.NOTIFICATION && (data.title || '').trim()) ||
-            data.pushType === PUSH_TYPE.AUDIO
+            ((_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && data.content.trim()) ||
+              (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) && data.appId) ||
+              (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId) ||
+              (data.pushType === PUSH_TYPE.NOTIFICATION && (data.title || '').trim()) ||
+              data.pushType === PUSH_TYPE.AUDIO) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

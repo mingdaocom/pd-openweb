@@ -376,6 +376,7 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
     const permKey = row.rowid + '-' + item.controlId;
     const base = _.find(controls, c => c.controlId === item.controlId) || {};
     const baseAdv = base.advancedSetting || {};
+
     if (!_.isEqual(item.advancedSetting || {}, baseAdv)) {
       ruleControlAdvancedSettings[permKey] = item.advancedSetting;
     }

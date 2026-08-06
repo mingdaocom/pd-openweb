@@ -75,7 +75,15 @@ export default function OcrDisplay(props) {
   const [visible, setVisible] = useState(false);
   const ocrMap = getAdvanceSetting(data, 'ocrmap');
 
-  const { ocrapitype = '0', ocroriginal = '', ocrmaptype = '0', ocrcid = '' } = getAdvanceSetting(data);
+  const {
+    ocrapitype = '0',
+    ocroriginal = '',
+    ocrmaptype = '0',
+    ocrcid = '',
+    authaccount,
+    requestmap,
+    ocrmap,
+  } = getAdvanceSetting(data);
 
   const FILED_LIST = allControls.filter(i => i.type === 14).map(i => ({ text: i.controlName, value: i.controlId }));
   const batchDisabled = ocrmaptype === '2' && !ocrcid;
@@ -108,8 +116,20 @@ export default function OcrDisplay(props) {
           onChange={value => {
             let newData = handleAdvancedSettingChange(data, { ocrapitype: value, ocrmaptype: '0', ocrcid: '' });
 
-            if (value === '1' && _.isUndefined(data.hint)) {
-              newData = { ...newData, hint: _l('识别文字') };
+            if (value === '1') {
+              newData = handleAdvancedSettingChange(
+                { ...newData, ...(_.isUndefined(data.hint) ? { hint: _l('识别文字') } : {}) },
+                {
+                  ...(ocrcid ? { ocrcid: '' } : {}),
+                  ...(ocrmap ? { ocrmap: '' } : {}),
+                },
+              );
+            } else {
+              newData = handleAdvancedSettingChange(newData, {
+                ...(authaccount ? { authaccount: '' } : {}),
+                ...(requestmap ? { requestmap: '' } : {}),
+                ...(ocroriginal ? { ocroriginal: '' } : {}),
+              });
             }
 
             onChange(newData);

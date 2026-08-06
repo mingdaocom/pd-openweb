@@ -64,7 +64,7 @@ export default class WelinkSyncCourse extends React.Component {
         <p className="Font14 textSecondary mTop24 LineHeight22">
           {_l('中文名')}
           <br />
-          应用Logo建议：
+          {_l('应用Logo建议：')}
           <a
             className="download"
             target="_blank"

@@ -30,11 +30,8 @@ class TaskGantt extends Component {
     config.isRequestComplete = false;
   }
 
-  componentWillMount() {
-    this.getSource();
-  }
-
   componentDidMount() {
+    this.getSource();
     this.socketMonitor();
 
     // 项目下的时间视图
@@ -55,11 +52,17 @@ class TaskGantt extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.taskConfig, this.props.taskConfig)) {
-      config.projectId = nextProps.taskConfig.projectId;
-      config.folderId = nextProps.taskConfig.folderId;
-      this.getSource();
+  /**
+   * 获取数据
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.taskConfig, prevProps.taskConfig)) {
+        config.projectId = this.props.taskConfig.projectId;
+        config.folderId = this.props.taskConfig.folderId;
+        this.getSource();
+      }
     }
   }
 

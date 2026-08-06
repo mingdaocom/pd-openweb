@@ -116,7 +116,7 @@ export default function ControlsDataTable(props) {
         <ColumnHead
           style={style}
           className={cx(className + ' columnHead flexRow alignItemsCenter', {
-            'Hand ThemeHoverColor3': !!control.controlId && canSort,
+            'Hand hoverColorPrimary': !!control.controlId && canSort,
             wrapControlName: wrapControlName,
           })}
           onClick={() => {

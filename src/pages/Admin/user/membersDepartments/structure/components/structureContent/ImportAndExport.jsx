@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -29,17 +29,22 @@ const ImportBtn = styled.div`
 
 const userTemplatePaths = window.platformENV.isPlatform
   ? {
-      0: '/staticfiles/template/成员导入模板.xlsx',
-      1: '/staticfiles/template/User Import Template.xlsx',
-      2: '/staticfiles/template/メンバーインポートテンプレート.xlsx',
-      3: '/staticfiles/template/成員導入模板.xlsx',
+      0: '/staticfiles/template/userImportTemplate/成员导入模板.xlsx',
+      1: '/staticfiles/template/userImportTemplate/User Import Template.xlsx',
+      2: '/staticfiles/template/userImportTemplate/メンバーインポートテンプレート.xlsx',
+      3: '/staticfiles/template/userImportTemplate/成員導入模板.xlsx',
+      4: '/staticfiles/template/userImportTemplate/แม่แบบนำเข้าผู้ใช้.xlsx',
+      5: '/staticfiles/template/userImportTemplate/Templat Import Pengguna.xlsx',
     }
   : {
       0: '/staticfiles/template/private/成员导入模板.xlsx',
       1: '/staticfiles/template/private/User Import Template.xlsx',
       2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
       3: '/staticfiles/template/private/成員導入模板.xlsx',
+      4: '/staticfiles/template/private/แม่แบบการนำเข้าผู้ใช้งาน.xlsx',
+      5: '/staticfiles/template/private/Templat Import Pengguna.xlsx',
     };
+
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -188,6 +193,10 @@ class ImportAndExport extends Component {
   };
   renderImport = () => {
     let { fileName } = this.state;
+    const { projectId } = this.props;
+    const { licenseType } = getCurrentProject(projectId, true);
+    const importLimitTip =
+      licenseType === 1 ? _l('·一次可导入 500 个用户，超过此数量建议您分批导入') : _l('·最多一次可以导入 10 个用户');
 
     return (
       <div className="uploadStep">
@@ -206,7 +215,7 @@ class ImportAndExport extends Component {
         {!fileName && (
           <div className="textSecondary mTop24">{_l('·导入成功后，成员会收到邀请链接，验证后可加入组织')}</div>
         )}
-        {!fileName && <div className="textSecondary">{_l('·最多一次可以导入 100 个用户，否则可能导致失效')}</div>}
+        {!fileName && <div className="textSecondary">{importLimitTip}</div>}
       </div>
     );
   };

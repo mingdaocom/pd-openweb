@@ -87,7 +87,7 @@ export default class EditCardInfo extends Component {
         </div>
         <div className="mTop32 Right">
           <span
-            className="Font14 textTertiary mRight32 hoverTextPrimaryLight Hand"
+            className="Font14 textTertiary mRight32 hoverColorPrimaryLight Hand"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

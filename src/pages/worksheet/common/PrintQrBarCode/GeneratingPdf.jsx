@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import _, { includes } from 'lodash';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
 import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import GeneratingPopup from './GeneratingPopup';
 import { QrPdf } from './print';
@@ -121,7 +121,7 @@ export default function GeneratingPdf(props) {
           }
         });
     } else if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.MEMBER) {
-      execute(rows.current.map(r => `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`));
+      execute(rows.current.map(r => pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`)));
     } else if (config.sourceType === SOURCE_TYPE.CONTROL) {
       if (config.sourceControlId) {
         execute();

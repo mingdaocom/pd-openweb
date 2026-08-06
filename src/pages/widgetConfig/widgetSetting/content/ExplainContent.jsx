@@ -67,7 +67,7 @@ const UserContent = props => {
   );
 };
 
-const DevelopContent = ({ data, allControls, onChange }) => {
+const DevelopContent = ({ data = {}, allControls, onChange }) => {
   const { alias = '', remark, controlId } = data;
   const [value, setValue] = useState(alias);
   const [error, setError] = useState(0);
@@ -95,7 +95,10 @@ const DevelopContent = ({ data, allControls, onChange }) => {
           onChange={e => {
             const tempAlias = e.target.value.trim();
             setValue(tempAlias);
-            if (tempAlias && (allControls || []).filter(o => o && tempAlias === o.alias && o.controlId !== controlId).length > 0) {
+            if (
+              tempAlias &&
+              (allControls || []).filter(o => o && tempAlias === o.alias && o.controlId !== controlId).length > 0
+            ) {
               setError(1);
             } else if (tempAlias && !/^[a-zA-Z]{1}\w*$/.test(tempAlias)) {
               setError(2);
@@ -126,7 +129,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
         </div>
         <Input.TextArea autoSize={false} rows={4} value={remark} onChange={e => onChange({ remark: e.target.value })} />
       </SettingItem>
-      {!controlId.includes('-') && (
+      {controlId && !controlId.includes('-') && (
         <SettingItem>
           <div className="settingItemTitle">{_l('字段ID')}</div>
           <div className="flexRow alignItemsCenter">

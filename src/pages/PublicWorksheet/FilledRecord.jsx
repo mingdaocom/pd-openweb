@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Dialog as MobileDialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
@@ -8,13 +8,13 @@ import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/utils/common';
 import { getTitleTextFromControls } from 'src/utils/control';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
-import RecordDetail from './RecordDetail';
 import { canSubmitByLimitFrequency } from './utils';
 
+const RecordDetail = lazy(() => import('./RecordDetail'));
 const ModalWrapper = styled(Popup)`
   .adm-popup-body {
     display: flex;
@@ -40,13 +40,11 @@ const ModalWrapper = styled(Popup)`
     }
   }
 `;
-
 const DividerLine = styled.div`
   border-right: 2px solid var(--color-text-disabled);
   margin: 0 16px;
   height: 15px;
 `;
-
 const MyWriteButton = styled.div(
   ({ themeBgColor, isMobile }) => `
     width: ${isMobile ? '100%' : 'fit-content'};
@@ -80,8 +78,15 @@ export default function FilledRecord(props) {
     themeBgColor,
   } = publicWorksheetInfo;
   const isMobile = browserIsMobile();
-  const [recordDetail, setRecordDetail] = useState({ visible: false });
-  const [filledRecord, setFilledRecord] = useSetState({ list: [], count: 0, isPayOrder: false, isOpenInvoice: false });
+  const [recordDetail, setRecordDetail] = useState({
+    visible: false,
+  });
+  const [filledRecord, setFilledRecord] = useSetState({
+    list: [],
+    count: 0,
+    isPayOrder: false,
+    isOpenInvoice: false,
+  });
   const [listDialogVisible, setListDialogVisible] = useState(false);
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
@@ -89,7 +94,6 @@ export default function FilledRecord(props) {
     noMore: false,
   });
   const titleControl = formData.filter(c => c.attribute === 1)[0] || {};
-
   useEffect(() => {
     !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange') &&
       (writeScope !== 1 || window.isWeiXin) &&
@@ -118,14 +122,20 @@ export default function FilledRecord(props) {
           isPayOrder: res.isPayOrder,
           isOpenInvoice: res.isOpenInvoice,
         });
-        setFetchState({ loading: false, noMore: res.data.length < 50 });
+        setFetchState({
+          loading: false,
+          noMore: res.data.length < 50,
+        });
       }
     });
   };
 
   const onScrollEnd = () => {
     if (!fetchState.noMore && !fetchState.loading) {
-      setFetchState({ loading: true, pageIndex: fetchState.pageIndex + 1 });
+      setFetchState({
+        loading: true,
+        pageIndex: fetchState.pageIndex + 1,
+      });
     }
   };
 
@@ -147,15 +157,23 @@ export default function FilledRecord(props) {
   };
 
   const onDeleteRow = rowId => {
-    publicWorksheetAjax.deleteWorksheetRows({ appId, rowId }).then(res => {
-      if (res.isSuccess) {
-        const list = filledRecord.list.filter(item => item.rowid !== rowId);
-        setFilledRecord({ list, count: filledRecord.count - 1 });
-        alert(_l('删除成功'));
-      } else {
-        alert(_l('删除失败'), 2);
-      }
-    });
+    publicWorksheetAjax
+      .deleteWorksheetRows({
+        appId,
+        rowId,
+      })
+      .then(res => {
+        if (res.isSuccess) {
+          const list = filledRecord.list.filter(item => item.rowid !== rowId);
+          setFilledRecord({
+            list,
+            count: filledRecord.count - 1,
+          });
+          alert(_l('删除成功'));
+        } else {
+          alert(_l('删除失败'), 2);
+        }
+      });
   };
 
   const onDeleteRecord = rowId => {
@@ -177,7 +195,9 @@ export default function FilledRecord(props) {
     const newRecordList = filledRecord.list.map(item => {
       return item.rowid === rowId ? { ...item, ...updateObj } : item;
     });
-    setFilledRecord({ list: newRecordList });
+    setFilledRecord({
+      list: newRecordList,
+    });
   };
 
   const getOrderStatus = orderStatus => {
@@ -188,17 +208,23 @@ export default function FilledRecord(props) {
     switch (orderStatus) {
       case 1:
         return _l('已支付');
+
       case 2:
         return _l('退款中');
+
       case 3:
         return _l('已退款');
+
       case 4:
         return _l('支付超时');
+
       case 5:
         return _l('部分退款');
+
       case 7:
       case 8:
         return _l('已取消');
+
       default:
         return _l('待支付');
     }
@@ -225,11 +251,17 @@ export default function FilledRecord(props) {
                   className="flex TxtLeft Font17 overflow_ellipsis bold"
                 >
                   {!_.includes([21, 26, 27, 48], titleControl.type)
-                    ? getTitleTextFromControls(formData, item, undefined, { noMask: true })
+                    ? getTitleTextFromControls(formData, item, undefined, {
+                        noMask: true,
+                      })
                     : _l('未命名')}
                 </div>
 
-                <div className={cx('recordFooter', { isMobile })}>
+                <div
+                  className={cx('recordFooter', {
+                    isMobile,
+                  })}
+                >
                   <div title={item.ctime} className="overflow_ellipsis">
                     <span className="textSecondary">{_l('提交时间')}</span>
                     <span className="mLeft10">{item.ctime}</span>
@@ -288,7 +320,11 @@ export default function FilledRecord(props) {
                         className="edit operateBtn"
                         onClick={e => {
                           e.stopPropagation();
-                          setRecordDetail({ visible: true, isEdit: true, rowId: item.rowid });
+                          setRecordDetail({
+                            visible: true,
+                            isEdit: true,
+                            rowId: item.rowid,
+                          });
                         }}
                       >
                         {_l('编辑')}
@@ -325,11 +361,25 @@ export default function FilledRecord(props) {
           themeBgColor={themeBgColor}
           onClick={() => {
             setListDialogVisible(true);
-            setFetchState({ loading: true, pageIndex: 1 });
+            setFetchState({
+              loading: true,
+              pageIndex: 1,
+            });
           }}
         >
-          <span style={{ color: themeBgColor }}>{_l('我的填写')}</span>
-          <span className="mLeft10" style={{ color: themeBgColor }}>
+          <span
+            style={{
+              color: themeBgColor,
+            }}
+          >
+            {_l('我的填写')}
+          </span>
+          <span
+            className="mLeft10"
+            style={{
+              color: themeBgColor,
+            }}
+          >
             {filledRecord.count}
           </span>
         </MyWriteButton>
@@ -340,7 +390,10 @@ export default function FilledRecord(props) {
             className="Hand"
             onClick={() => {
               setListDialogVisible(true);
-              setFetchState({ loading: true, pageIndex: 1 });
+              setFetchState({
+                loading: true,
+                pageIndex: 1,
+              });
             }}
           >
             {_l('查看填写记录')}
@@ -375,13 +428,19 @@ export default function FilledRecord(props) {
       )}
 
       {recordDetail.visible && (
-        <RecordDetail
-          rowId={recordDetail.rowId}
-          isEdit={recordDetail.isEdit}
-          onClose={() => setRecordDetail({ visible: false })}
-          publicWorksheetInfo={publicWorksheetInfo}
-          onRefreshList={(recordId, data) => onUpdateRecord(recordId, data)}
-        />
+        <Suspense fallback={null}>
+          <RecordDetail
+            rowId={recordDetail.rowId}
+            isEdit={recordDetail.isEdit}
+            onClose={() =>
+              setRecordDetail({
+                visible: false,
+              })
+            }
+            publicWorksheetInfo={publicWorksheetInfo}
+            onRefreshList={(recordId, data) => onUpdateRecord(recordId, data)}
+          />
+        </Suspense>
       )}
     </React.Fragment>
   ) : null;

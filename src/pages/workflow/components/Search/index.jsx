@@ -17,11 +17,14 @@ export default class Search extends Component {
     onFocus: _.noop,
   };
   state = { value: '' };
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.props.value) {
-      this.setState({
-        value: nextProps.value,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== prevProps.value) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
     }
   }
   handleChange = value => {
@@ -35,7 +38,7 @@ export default class Search extends Component {
       <div className={cx('workflowSearchWrap', className)}>
         <input
           type="text"
-          className="ThemeBorderColor3"
+          className="borderColorPrimary"
           onFocus={onFocus}
           value={value}
           placeholder={placeholder}

@@ -1,5 +1,6 @@
 import externalPortalAjax from 'src/api/externalPortal';
 import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
+import { translatePortalRoleOptions } from 'src/pages/Role/PortalCon/tabCon/util-pure';
 
 export const getControls = (appId, projectId) => {
   return dispatch => {
@@ -10,7 +11,7 @@ export const getControls = (appId, projectId) => {
       }),
     );
     externalPortalAjax.getUserTemple({ appId }).then((data = []) => {
-      dispatch(setControls(data));
+      dispatch(setControls(translatePortalRoleOptions(appId, data)));
     });
   };
 };

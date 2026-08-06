@@ -48,22 +48,25 @@ class WorksheetRowLand extends Component {
         );
       });
   }
-  componentWillReceiveProps(nextProps) {
-    const params = this.props.match.params;
-    const nextParams = nextProps.match.params;
 
-    if (!nextParams.appId && nextParams.rowId !== params.rowId) {
-      this.setState({
-        loading: true,
-      });
-      this.navigate(nextParams.worksheetId, nextParams.rowId);
-    } else if (nextParams.appId && nextParams.rowId !== params.rowId) {
-      this.setState({
-        appId: nextParams.appId,
-        worksheetId: nextParams.worksheetId,
-        viewId: nextParams.viewId,
-        rowId: nextParams.rowId,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const params = prevProps.match.params;
+      const nextParams = this.props.match.params;
+
+      if (!nextParams.appId && nextParams.rowId !== params.rowId) {
+        this.setState({
+          loading: true,
+        });
+        this.navigate(nextParams.worksheetId, nextParams.rowId);
+      } else if (nextParams.appId && nextParams.rowId !== params.rowId) {
+        this.setState({
+          appId: nextParams.appId,
+          worksheetId: nextParams.worksheetId,
+          viewId: nextParams.viewId,
+          rowId: nextParams.rowId,
+        });
+      }
     }
   }
   navigate(worksheetId, rowId) {

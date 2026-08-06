@@ -86,20 +86,31 @@ export default class Widgets extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.props.value) {
-      if (this.checkFileNeedLoad(nextProps.value)) {
-        this.loadAttachments(nextProps);
-      } else if (this.props.flag !== nextProps.flag) {
-        const initMobileFiles = { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [] };
-        this.setState({ value: nextProps.value, ...initMobileFiles });
-      } else {
-        this.setState({ value: nextProps.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== prevProps.value) {
+        if (this.checkFileNeedLoad(this.props.value)) {
+          this.loadAttachments(this.props);
+        } else if (prevProps.flag !== this.props.flag) {
+          const initMobileFiles = {
+            mobileFiles: [],
+            mobileCamcorderFiles: [],
+            mobileCameraFiles: [],
+          };
+          this.setState({
+            value: this.props.value,
+            ...initMobileFiles,
+          });
+        } else {
+          this.setState({
+            value: this.props.value,
+          });
+        }
       }
-    }
 
-    if (_.get(nextProps, 'advancedSetting.showtype') === '3' && nextProps.formWidth !== this.props.formWidth) {
-      this.detectionShowType();
+      if (_.get(this.props, 'advancedSetting.showtype') === '3' && this.props.formWidth !== prevProps.formWidth) {
+        this.detectionShowType();
+      }
     }
   }
 
@@ -498,14 +509,14 @@ export default class Widgets extends Component {
         <Icon className={cx('textTertiary TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
         <span className="textPrimary Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
         {!!mingdaoAppUploading && (
-          <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">
+          <span className="mLeft5 colorPrimary fileUpdateLoading Font13">
             {_l('%0个附件正在上传', mingdaoAppUploading)}
           </span>
         )}
         {!!mingdaoAppError && (
           <span className="mLeft5 Red fileUpdateLoading Font13">{_l('%0个附件上传失败', mingdaoAppError)}</span>
         )}
-        {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
+        {isComplete === false && uploadStart && <span className="mLeft5 colorPrimary fileUpdateLoading"></span>}
       </Fragment>
     );
 
@@ -784,7 +795,7 @@ export default class Widgets extends Component {
                   <Icon icon="attachment" className="Font16" />
                   <span className="mLeft5 textPrimary addFileName overflow_ellipsis">{addFileName}</span>
                   {isComplete === false && uploadStart && (
-                    <span className="mLeft5 ThemeColor3 fileUpdateLoading">
+                    <span className="mLeft5 colorPrimary fileUpdateLoading">
                       {_l(
                         '(%0/%1个附件上传中...)',
                         $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -

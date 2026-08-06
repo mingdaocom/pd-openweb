@@ -7,7 +7,8 @@ import AI from './components/AI';
 import Base from './components/Base';
 
 const PageWrap = styled.div`
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   background: var(--color-background-secondary);
   padding: 32px 0 60px;
   font-size: 14px;

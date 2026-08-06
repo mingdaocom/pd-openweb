@@ -3,14 +3,14 @@
     <li class="projectFolder" data-fileid="{{=file.fFileID}}" data-id="3" data-projectid="{{=file.projectID}}">
         <div class="folderTitle">
             <i class="titleIcon folderHeadIcon {{=folderIcon }}"></i>
-            <span class="txtProjectName overflow_ellipsis ThemeColor10">{{!file.fFileName}}</span>
-            <input value="{{!file.fFileName }}" title="{{!file.fFileName }}" class="Hidden txtProjectNameEdit overflow_ellipsis ThemeColor10">
+            <span class="txtProjectName overflow_ellipsis textPrimary">{{!file.fFileName}}</span>
+            <input value="{{!file.fFileName }}" title="{{!file.fFileName }}" class="Hidden txtProjectNameEdit overflow_ellipsis textPrimary">
             {{? file.isNotice}}
             <i class="titleIcon folderNewTip circle"></i>
             {{?}}
             <span class="flex"></span>
-            <i class="icon-more_horiz titleIcon moreOp ThemeColor8 ThemeHoverColor10 {{=isFolderOpen ? 'InlineBlock': ''}}"></i>
-            <i class="icon-arrow-down-border initFilp titleIcon downShow animated ThemeColor8 ThemeHoverColor10 {{=isFolderOpen ? ' filp': '' }}"></i>
+            <i class="icon-more_horiz titleIcon moreOp textTertiary hoverTextPrimary {{=isFolderOpen ? 'InlineBlock': ''}}"></i>
+            <i class="icon-arrow-down-border initFilp titleIcon downShow animated textTertiary hoverTextPrimary {{=isFolderOpen ? ' filp': '' }}"></i>
         </div>
         <ul class="projectFolderUl commFolderUl Hidden" {{=isFolderOpen ? 'style="display: block;"': '' }}>
             {{~file.folderList:folder}}

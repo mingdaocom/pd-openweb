@@ -13,7 +13,7 @@ export default function (props) {
   const { listLoading, sort, keyStr, txt, onSort } = props;
   return (
     <div
-      className="item flex flexRow Hand ThemeHoverColor3"
+      className="item flex flexRow Hand hoverColorPrimary"
       onClick={() => {
         if (listLoading) return;
         if (sort.fieldName !== keyStr) {

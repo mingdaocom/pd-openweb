@@ -59,7 +59,7 @@ class SearchBox extends Component {
   };
 
   handleFocus() {
-    $(this.box).addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
+    $(this.box).addClass('borderColorPrimary').removeClass('borderSecondary');
     this.handleReset();
     const { result: { departments = [], users = [] } = {} } = this.props;
 
@@ -80,7 +80,7 @@ class SearchBox extends Component {
   }
 
   handleBlur() {
-    $(this.box).addClass('ThemeBorderColor8').removeClass('ThemeBorderColor3');
+    $(this.box).addClass('borderSecondary').removeClass('borderColorPrimary');
   }
 
   renderResult = () => {
@@ -162,7 +162,7 @@ class SearchBox extends Component {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           type="text"
-          className="searchInput ThemeColor10 w100"
+          className="searchInput textPrimary w100"
           placeholder={_l('搜索')}
         />
         {clearBtn}

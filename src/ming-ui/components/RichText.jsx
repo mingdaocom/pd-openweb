@@ -1,16 +1,65 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import '@mdfe/ckeditor5-custom-build/build/translations/en.js';
-import '@mdfe/ckeditor5-custom-build/build/translations/zh.js';
-import { CKEditor } from '@mdfe/ckeditor5-react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { getToken } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import './less/RichText.less';
+
+let ckeditorPromise;
+
+function loadCkeditor() {
+  if (!ckeditorPromise) {
+    ckeditorPromise = Promise.all([
+      import('@ckeditor/ckeditor5-react'),
+      import('ckeditor5/ckeditor5.js'),
+      import('ckeditor5/translations/en.js'),
+      import('ckeditor5/translations/ja.js'),
+      import('ckeditor5/translations/ms.js'),
+      import('ckeditor5/translations/th.js'),
+      import('ckeditor5/translations/zh-cn.js'),
+      import('ckeditor5/translations/zh.js'),
+      import('ckeditor5/ckeditor5.css'),
+    ]).then(
+      ([
+        reactModule,
+        editorModule,
+        enTranslations,
+        jaTranslations,
+        msTranslations,
+        thTranslations,
+        zhCnTranslations,
+        zhTranslations,
+      ]) => ({
+        CKEditor: reactModule.CKEditor,
+        editorModule,
+        translations: [
+          enTranslations.default || enTranslations,
+          jaTranslations.default || jaTranslations,
+          msTranslations.default || msTranslations,
+          thTranslations.default || thTranslations,
+          zhCnTranslations.default || zhCnTranslations,
+          zhTranslations.default || zhTranslations,
+        ],
+      }),
+    );
+  }
+
+  return ckeditorPromise;
+}
+
+// CKEditor 的语言标识与 HAP 系统语言 key 不完全一致，需要在这里统一映射。
+const CKEDITOR_LANGUAGE_MAP = {
+  en: 'en',
+  ja: 'ja',
+  ms: 'ms',
+  th: 'th',
+  'zh-Hans': 'zh-cn',
+  'zh-Hant': 'zh',
+};
 
 let whiteListClone = Object.assign({}, whiteList, {
   img: ['src'],
@@ -55,6 +104,60 @@ for (let key in whiteListClone) {
     ]),
   ];
 }
+
+const getEditorPlugins = editorModule =>
+  [
+    editorModule.Alignment,
+    editorModule.Autoformat,
+    editorModule.BlockQuote,
+    editorModule.Bold,
+    editorModule.CKFinder,
+    editorModule.CKFinderUploadAdapter,
+    editorModule.CloudServices,
+    editorModule.Code,
+    editorModule.CodeBlock,
+    editorModule.Essentials,
+    editorModule.Paragraph,
+    editorModule.FindAndReplace,
+    editorModule.Heading,
+    editorModule.HorizontalLine,
+    editorModule.HtmlEmbed,
+    editorModule.Image,
+    editorModule.EasyImage,
+    editorModule.ImageResize,
+    editorModule.ImageCaption,
+    editorModule.ImageInsert,
+    editorModule.ImageStyle,
+    editorModule.ImageToolbar,
+    editorModule.ImageUpload,
+    editorModule.Indent,
+    editorModule.IndentBlock,
+    editorModule.Italic,
+    editorModule.Underline,
+    editorModule.Strikethrough,
+    editorModule.Subscript,
+    editorModule.Superscript,
+    editorModule.Link,
+    editorModule.List,
+    editorModule.MediaEmbed,
+    editorModule.PasteFromOffice,
+    editorModule.RemoveFormat,
+    editorModule.SourceEditing,
+    editorModule.Table,
+    editorModule.TableToolbar,
+    editorModule.TableProperties,
+    editorModule.TableCellProperties,
+    editorModule.TableCaption,
+    editorModule.TextTransformation,
+    editorModule.TodoList,
+    editorModule.HeadingButtonsUI,
+    editorModule.ParagraphButtonUI,
+    editorModule.FontFamily,
+    editorModule.Font,
+    editorModule.Highlight,
+    editorModule.HtmlComment,
+    editorModule.GeneralHtmlSupport,
+  ].filter(Boolean);
 
 const Wrapper = styled.div(
   ({ minHeight, maxWidth, maxHeight, dropdownPanelPosition = {}, width }) => `
@@ -316,6 +419,25 @@ class MyUploadAdapter {
   }
 }
 
+const normalizeContent = html => {
+  if (!html || typeof html !== 'string') return html ?? '';
+  try {
+    return html.replace(/<img([^>]*\s)src=(["'])([^"']*)\2/gi, (match, before, quote, src) => {
+      if (src == null || typeof src.replace !== 'function') return match;
+      const normalizedSrc = src.replace(/\?e=[^"']*/, '');
+      return `<img${before ?? ''}src=${quote ?? '"'}${normalizedSrc}${quote ?? '"'}`;
+    });
+  } catch {
+    return html;
+  }
+};
+
+const lang = () => {
+  const currentLang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+
+  return CKEDITOR_LANGUAGE_MAP[currentLang] || 'en';
+};
+
 const RichText = forwardRef((props, ref) => {
   const {
     bucket,
@@ -345,24 +467,14 @@ const RichText = forwardRef((props, ref) => {
     onFocus = () => {},
   } = props;
 
-  const [MDEditor, setComponent] = useState(null);
+  const [ckeditor, setCkeditor] = useState(null);
+  const MDEditor = ckeditor && ckeditor.editorModule;
+  const CKEditor = ckeditor && ckeditor.CKEditor;
   const editorDiv = useRef();
   let editorDom = useRef();
   const lastSavedContentRef = useRef(data ?? '');
 
   // 标准化 HTML 内容用于比对：移除 img src 中的 ?e= 及之后的内容
-  const normalizeContent = html => {
-    if (!html || typeof html !== 'string') return html ?? '';
-    try {
-      return html.replace(/<img([^>]*\s)src=(["'])([^"']*)\2/gi, (match, before, quote, src) => {
-        if (src == null || typeof src.replace !== 'function') return match;
-        const normalizedSrc = src.replace(/\?e=[^"']*/, '');
-        return `<img${before ?? ''}src=${quote ?? '"'}${normalizedSrc}${quote ?? '"'}`;
-      });
-    } catch {
-      return html;
-    }
-  };
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -388,20 +500,6 @@ const RichText = forwardRef((props, ref) => {
     },
   }));
 
-  const lang = () => {
-    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-
-    if (lang === 'zh-Hant') {
-      return 'zh';
-    } else if (lang === 'ja') {
-      return 'ja';
-    } else if (lang !== 'en') {
-      return 'zh-cn';
-    } else {
-      return 'en';
-    }
-  };
-
   const tokenArgs = {
     projectId,
     appId,
@@ -409,8 +507,8 @@ const RichText = forwardRef((props, ref) => {
   };
 
   function initEditor() {
-    import('@mdfe/ckeditor5-custom-build').then(component => {
-      setComponent(component);
+    loadCkeditor().then(component => {
+      setCkeditor(component);
       setTimeout(() => {
         if (!disabled && editorDom && editorDom.current && editorDom.current.editor) {
           editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
@@ -460,12 +558,15 @@ const RichText = forwardRef((props, ref) => {
         </div>
       </div>
     );
-  } else if (MDEditor) {
+  } else if (MDEditor && CKEditor) {
     content = (
       <CKEditor
-        editor={MDEditor.default}
+        editor={MDEditor.ClassicEditor}
         id={id}
         config={{
+          licenseKey: 'GPL',
+          plugins: getEditorPlugins(MDEditor),
+          translations: ckeditor.translations,
           link: {
             addTargetToExternalLinks: true,
             allowedProtocols: ['https?', 'http?', 'ftp?', 'ftps?', 'mailto', 'Notes'],
@@ -543,28 +644,28 @@ const RichText = forwardRef((props, ref) => {
                 model: 'yellowMarker',
                 class: 'marker-yellow',
                 title: _l('黄色标记'),
-                color: 'var(--ck-highlight-marker-yellow)',
+                color: 'var(--ck-content-highlight-marker-yellow)',
                 type: 'marker',
               },
               {
                 model: 'greenMarker',
                 class: 'marker-green',
                 title: _l('绿色标记'),
-                color: 'var(--ck-highlight-marker-green)',
+                color: 'var(--ck-content-highlight-marker-green)',
                 type: 'marker',
               },
               {
                 model: 'pinkMarker',
                 class: 'marker-pink',
                 title: _l('粉色标记'),
-                color: 'var(--ck-highlight-marker-pink)',
+                color: 'var(--ck-content-highlight-marker-pink)',
                 type: 'marker',
               },
               {
                 model: 'blueMarker',
                 class: 'marker-blue',
                 title: _l('蓝色标记'),
-                color: 'var(--ck-highlight-marker-blue)',
+                color: 'var(--ck-content-highlight-marker-blue)',
                 type: 'marker',
               },
             ],
@@ -585,6 +686,7 @@ const RichText = forwardRef((props, ref) => {
               'Times New Roman, Times, serif',
               'Trebuchet MS, Helvetica, sans-serif',
               'Verdana, Geneva, sans-serif',
+              'Calibri, Candara, Arial, sans-serif',
             ],
           },
           table: {
@@ -647,6 +749,8 @@ const RichText = forwardRef((props, ref) => {
               return new MyUploadAdapter(loader, tokenArgs);
             };
           }
+
+          lastSavedContentRef.current = editor.getData();
         }}
         onChange={(event, editor) => {
           const currentData = editor.getData();
@@ -659,11 +763,13 @@ const RichText = forwardRef((props, ref) => {
         onBlur={(event, editor) => {
           window.richTextDialogIsActive = false;
           const currentData = editor.getData();
-          if (normalizeContent(currentData) === normalizeContent(lastSavedContentRef.current)) return;
-          changeSetting && changeSetting(true);
-          if (onSave) {
-            lastSavedContentRef.current = currentData;
-            onSave(currentData);
+
+          if (normalizeContent(currentData) !== normalizeContent(lastSavedContentRef.current)) {
+            changeSetting && changeSetting(true);
+            if (onSave) {
+              lastSavedContentRef.current = currentData;
+              onSave(currentData);
+            }
           }
 
           onBlur();

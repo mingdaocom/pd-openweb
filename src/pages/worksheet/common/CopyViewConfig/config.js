@@ -17,7 +17,7 @@ export const VIEW_TYPE_OPTIONS = [
 export const DEFAULT_KEYS = ['FastFilter', 'Show', 'CardSet', 'ColStyle'];
 
 export const COPY_CONFIGS_BY_GROUP = [
-  { types: ['Show', 'ColStyle', 'CardSet'], title: _l('显示设置') },
+  { types: ['Show', 'ColStyle', 'CardSet', 'Group'], title: _l('显示设置') },
   { types: ['Filter', 'Sort', 'RecordColor', 'Controls'], title: _l('记录设置') },
   { types: ['FastFilter', 'NavGroup', 'ActionSet', 'ActionSet', 'Print'], title: _l('用户操作') },
   { types: ['MobileSet', 'urlParams'], title: _l('其他') },
@@ -41,6 +41,12 @@ export const COPY_CONFIGS = [
     key: 'CardSet',
     label: _l('卡片设置'),
     datakey: 13,
+  },
+  {
+    icon: 'group_segment',
+    key: 'Group',
+    label: _l('分组'),
+    datakey: 14,
   },
   {
     icon: 'worksheet_filter',
@@ -107,12 +113,12 @@ export const COPY_CONFIGS = [
 export const VIEW_TYPE_FILTER_CONFIG = {
   sheet: ['CardSet'],
   board: ['ColStyle', 'NavGroup', 'MobileSet', 'Show'],
-  calendar: ['ColStyle', 'NavGroup', 'MobileSet', 'Show'],
+  calendar: ['ColStyle', 'NavGroup', 'MobileSet', 'Show', 'Group'],
   gallery: ['ColStyle', 'Show'],
-  detail: ['ColStyle', 'NavGroup', 'MobileSet', 'Show'],
-  structure: ['ColStyle', 'MobileSet', 'Show'],
-  map: ['ColStyle', 'MobileSet', 'Show'],
+  detail: ['ColStyle', 'NavGroup', 'MobileSet', 'Show', 'Group'],
+  structure: ['ColStyle', 'MobileSet', 'Show', 'Group'],
+  map: ['ColStyle', 'MobileSet', 'Show', 'Group'],
   gunter: ['ColStyle', 'NavGroup', 'MobileSet', 'Show'],
-  resource: ['ColStyle', 'NavGroup', 'MobileSet', 'Show', 'CardSet'],
-  customize: ['ColStyle', 'MobileSet', 'Show', 'CardSet'],
+  resource: ['ColStyle', 'NavGroup', 'MobileSet', 'Show', 'CardSet', 'Group'],
+  customize: ['ColStyle', 'MobileSet', 'Show', 'CardSet', 'Group'],
 };

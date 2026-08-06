@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import _ from 'lodash';
 import { element, string } from 'prop-types';
 import projectApi from 'src/api/project';

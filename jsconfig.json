@@ -3,8 +3,11 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "ming-ui": ["./src/ming-ui"],
+      "ming-ui/*": ["./src/ming-ui/*"],
       "worksheet/*": ["./src/pages/worksheet/*"],
-      "ming-ui/*": ["./src/ming-ui/*"]
+      "mobile/*": ["./src/pages/Mobile/*"],
+      "statistics/*": ["./src/pages/Statistics/*"]
     }
   },
   "exclude": ["src/library", "node_modules"],

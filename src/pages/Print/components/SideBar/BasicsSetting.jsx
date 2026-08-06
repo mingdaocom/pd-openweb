@@ -81,9 +81,9 @@ export default function BasicsSetting(props) {
 
   const renderDrop = () => {
     return (
-      <div className="TxtTop valignWrapper">
-        <span className="TxtMiddle">{_l('文字大小')}</span>
-        <div className="mLeft12 forSizeBox">
+      <div>
+        <div className="mBottom8">{_l('文字大小')}</div>
+        <div className="forSizeBox">
           {FONT_OPTION.map(l => (
             <span
               key={`printSideNav-fontSizeOption-${l.fontSize}`}
@@ -100,10 +100,10 @@ export default function BasicsSetting(props) {
 
   const renderNameWidth = () => {
     return (
-      <div className="valignWrapper mTop15">
-        <span>{_l('名称宽度')}</span>
+      <div className="mTop20">
+        <div className="mBottom8">{_l('名称宽度')}</div>
         <Slider
-          className="flex mLeft12 nameSlider"
+          className="nameSlider"
           itemcolor="var(--color-primary)"
           showInput={false}
           min={50}

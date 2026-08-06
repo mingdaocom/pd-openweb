@@ -13,6 +13,7 @@ import jobAjax from 'src/api/job';
 import workSiteController from 'src/api/workSite';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { pathCompletion } from 'src/utils/common';
 import { getEllipsisDep } from '../../constant';
 import TextInput from '../TextInput';
 
@@ -79,10 +80,15 @@ export default class BaseFormInfo extends Component {
     actType === 'edit' && this.updateBaseInfo(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.baseInfo, this.props.baseInfo)) {
-      this.setState({ jobList: nextProps.baseInfo.jobList, worksiteList: nextProps.baseInfo.worksiteList });
-      this.updateBaseInfo(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.baseInfo, prevProps.baseInfo)) {
+        this.setState({
+          jobList: this.props.baseInfo.jobList,
+          worksiteList: this.props.baseInfo.worksiteList,
+        });
+        this.updateBaseInfo(this.props);
+      }
     }
   }
 
@@ -413,7 +419,7 @@ export default class BaseFormInfo extends Component {
         }
       >
         <Icon
-          className="Font16 Hand textTertiary TxtMiddle ThemeHoverColor"
+          className="Font16 Hand textTertiary TxtMiddle hoverColorPrimary"
           icon="moreop"
           onClick={e => {
             e.stopPropagation();
@@ -542,7 +548,7 @@ export default class BaseFormInfo extends Component {
 
                 {typeCursor !== 2 && (
                   <Icon
-                    className="Font26 Hand textTertiary mAll5 TxtMiddle ThemeHoverColor"
+                    className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary"
                     icon={useMultiJobs && departmentItem.departmentId ? 'Circle-replace' : 'task_add-02'}
                     onClick={e => this.dialogSelectDeptFn(e, departmentItem)}
                   />
@@ -560,7 +566,7 @@ export default class BaseFormInfo extends Component {
             {['single', 'allJobs'].includes(type) && hasPermission(authority, PERMISSION_ENUM.BASIC_SETTING) && (
               <span
                 className="textTertiary hoverColorPrimary Hand Right"
-                onClick={() => location.assign(`/admin/sysinfo/${projectId}?level5`)}
+                onClick={() => location.assign(pathCompletion(`/admin/sysinfo/${projectId}?level5`))}
               >
                 {_l('管理')}
               </span>
@@ -637,7 +643,7 @@ export default class BaseFormInfo extends Component {
           : this.renderDepartmentJob()}
         {typeCursor !== 2 && (
           <div
-            className="colorPrimary ThemeHoverColor2 flexRow alignItemsCenter mTop20 Hand"
+            className="colorPrimary hoverColorPrimaryDark flexRow alignItemsCenter mTop20 Hand"
             style={{ width: 'fit-content' }}
             onClick={this.handleAddMultipleJob}
           >
@@ -670,7 +676,7 @@ export default class BaseFormInfo extends Component {
               })}
               {typeCursor !== 2 && (
                 <Icon
-                  className="Font26 Hand textTertiary mAll5 TxtMiddle ThemeHoverColor"
+                  className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary"
                   icon="task_add-02"
                   onClick={e => this.dialogSelectRoleFn(e)}
                 />
@@ -687,7 +693,7 @@ export default class BaseFormInfo extends Component {
               <span
                 className="textTertiary hoverColorPrimary Hand Right"
                 onClick={() => {
-                  location.assign(`/admin/sysinfo/${projectId}?level3`);
+                  location.assign(pathCompletion(`/admin/sysinfo/${projectId}?level3`));
                 }}
               >
                 {_l('管理')}

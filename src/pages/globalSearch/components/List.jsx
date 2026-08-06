@@ -4,7 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Avatar, Icon } from 'ming-ui';
 import store from 'src/redux/configureStore';
-import { getClassNameByExt } from 'src/utils/common';
+import { getClassNameByExt, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { GLOBAL_SEARCH_LIST_SETTING } from '../enum';
 import { getImgUrl } from '../utils';
@@ -253,8 +253,8 @@ export default function List(props) {
                         text={
                           settingInfo.descKeys
                             ? settingInfo.descKeys
-                                .map(l => (l === 'position' ? (item[l] ? item[l].slice(1) : '') : item[l]))
-                                .join(' | ') || ''
+                              .map(l => (l === 'position' ? (item[l] ? item[l].slice(1) : '') : item[l]))
+                              .join(' | ') || ''
                             : item[prefix + 'Content'] || ''
                         }
                       />
@@ -269,7 +269,7 @@ export default function List(props) {
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
           <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
-            href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}`}
+            href={pathCompletion(`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}`)}
             className="text mLeft24 textTertiary"
             onClick={clickShowHandle}
           >

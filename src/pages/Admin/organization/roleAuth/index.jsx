@@ -23,7 +23,7 @@ export default class RoleAuth extends React.Component {
     Config.setPageTitle(_l('组织 - 管理员'));
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const projectId = _.get(this.props, 'match.params.projectId');
     roleApi.isSuperAdmin({ projectId }).then(isSuperAdmin => {
       this.setState({ isSuperAdmin });

@@ -180,7 +180,7 @@ export default function SmsSignature(props) {
             }
           >
             <div className={cx('mTop10', { Visibility: item.auditStatus === SIGN_STATUS.REVIEWING })}>
-              <Icon icon="moreop" className="Font20 textTertiary pointer ThemeHoverColor3" />
+              <Icon icon="moreop" className="Font20 textTertiary pointer hoverColorPrimary" />
             </div>
           </Trigger>
         </div>

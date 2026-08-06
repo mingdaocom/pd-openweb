@@ -2,10 +2,53 @@ import styled from 'styled-components';
 
 export const Wrap = styled.div`
   &.messageBox {
+    &.createOrgForm {
+      margin-top: 24px;
+
+      .mesDiv {
+        margin-top: 28px;
+        height: 48px;
+
+        &.mesDivDrop {
+          height: 48px;
+          min-height: 48px;
+        }
+      }
+
+      .controlDropdown {
+        height: 48px !important;
+        min-height: 48px !important;
+      }
+
+      .Dropdown--border,
+      .dropdownTrigger .Dropdown--border {
+        height: 48px !important;
+        min-height: 48px !important;
+      }
+
+      .Dropdown--input {
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 0 5px !important;
+
+        .Dropdown--placeholder,
+        .icon-arrow-down-border,
+        .value {
+          line-height: 48px !important;
+        }
+
+        .value {
+          display: flex !important;
+          align-items: center;
+        }
+      }
+    }
+
     .mesDiv.errorDiv:not(.errorDivCu) {
       .title {
         color: var(--color-error) !important;
-        top: -9;
+        top: -1px;
+        transform: translateY(-50%);
       }
       input[type='text']:not(.iti__search-input),
       input[type='password'],
@@ -18,7 +61,8 @@ export const Wrap = styled.div`
     }
     .mesDiv:not(.hasValue) {
       .title {
-        top: 20px !important;
+        top: 50% !important;
+        transform: translateY(-50%);
       }
       input:not(.iti__search-input) .icon-arrow-down-border,
       .Dropdown--input .icon-arrow-down-border {
@@ -35,10 +79,12 @@ export const Wrap = styled.div`
           transition: all 0.3s;
         }
         &.active {
-          border: 2px solid var(--color-primary) !important;
+          border: 1px solid var(--color-primary) !important;
+          box-shadow: var(--shadow-sm);
           .title {
             color: var(--color-primary) !important;
-            top: -9;
+            top: -1px;
+            transform: translateY(-50%);
           }
           .Dropdown--placeholder {
             opacity: 1;
@@ -47,12 +93,14 @@ export const Wrap = styled.div`
       }
       &.errorDiv {
         .title {
-          top: -9px !important;
+          top: -1px !important;
+          transform: translateY(-50%);
         }
       }
       &.hasValue {
         .title {
-          top: -9px !important;
+          top: -1px !important;
+          transform: translateY(-50%);
         }
       }
     }
@@ -66,7 +114,7 @@ export const WrapCon = styled.div`
   width: 100%;
   padding: 6px 0;
   box-shadow: 0px 8px 16px rgb(0 0 0 / 24%);
-  border-radius: 2px;
+  border-radius: 6px;
   overflow: auto;
   max-height: 400px;
   .cover {
@@ -82,9 +130,9 @@ export const WrapCon = styled.div`
     &:hover,
     &.isCur {
       background: var(--color-primary);
-      color: var(--color-white);
-      .ThemeColor3 {
-        color: var(--color-white) !important;
+      color: var(--color-text-inverse);
+      .colorPrimary {
+        color: var(--color-text-inverse) !important;
       }
     }
   }
@@ -95,7 +143,7 @@ export const WrapConDp = styled.div`
     height: auto;
     .itemT {
       background: var(--color-background-secondary);
-      border-radius: 4px 4px 4px 4px;
+      border-radius: 6px;
       padding: 3px 8px 3px 10px;
       border: 1px solid var(--color-border-secondary);
       line-height: 20px;
@@ -108,12 +156,12 @@ export const WrapConDp = styled.div`
     }
     span.itemSpan {
       color: var(--color-text-title) !important;
-      font-size: 15px;
+      font-size: 14px;
     }
     .ming.Item .Item-content:not(.disabled):hover {
       span.itemSpan {
-        color: var(--color-white) !important;
-        font-size: 15px;
+        color: var(--color-text-inverse) !important;
+        font-size: 14px;
       }
     }
     .Dropdown--border,
@@ -122,16 +170,16 @@ export const WrapConDp = styled.div`
     }
     .Dropdown--input {
       height: auto !important;
-      min-height: 40px;
+      min-height: 48px;
       padding: 4px !important;
       .Dropdown--placeholder {
-        line-height: 42px !important;
+        line-height: 40px !important;
       }
       .icon-arrow-down-border {
-        line-height: 52px !important;
+        line-height: 40px !important;
       }
       .value {
-        line-height: 42px !important;
+        line-height: 40px !important;
         display: flex !important;
         & > div {
           flex: 1 !important;

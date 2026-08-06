@@ -36,7 +36,7 @@ const SkeletonWrap = styled.div`
 `;
 
 const RecordCardIO = props => {
-  const { viewRootEl, updateViewCard, colNum, ...rest } = props;
+  const { viewRootEl, colNum, ...rest } = props;
   const recordCardRef = useRef(null);
   const [observerEnabled, setObserverEnabled] = useState(false);
 
@@ -60,7 +60,6 @@ const RecordCardIO = props => {
   useEffect(() => {
     if (shouldRender && recordCardRef?.current?.cardWrap) {
       const height = recordCardRef.current.cardWrap.getBoundingClientRect()?.height;
-      updateViewCard(props.data?.rowid, height);
       setRealCardHeight(height);
       setSkeletonRows(Math.floor(height / 40));
     }

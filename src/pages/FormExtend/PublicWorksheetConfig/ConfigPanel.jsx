@@ -11,6 +11,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { H2, Hr, Tip9e } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { isFullLineControl } from '../../widgetConfig/util/widgets';
@@ -71,15 +72,26 @@ const PayButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 36px;
-  line-height: 36px;
+  width: 100px;
+  min-height: 36px;
+  line-height: 17px;
   margin-left: 10px;
+  padding: 3px 8px;
+  box-sizing: border-box;
   border-radius: 3px;
   color: var(--color-primary);
   background: var(--color-primary-transparent);
   font-weight: 700;
   cursor: pointer;
+  i {
+    flex-shrink: 0;
+  }
+  .payButtonText {
+    min-width: 0;
+    text-align: center;
+    word-break: break-word;
+    white-space: normal;
+  }
   &:hover {
     color: var(--color-link-hover);
     background: var(--color-primary-transparent);
@@ -353,11 +365,11 @@ class ConfigPanel extends React.Component {
                         return;
                       }
 
-                      location.href = `/worksheet/form/edit/${worksheetInfo.worksheetId}/pay`;
+                      location.href = pathCompletion(`/worksheet/form/edit/${worksheetInfo.worksheetId}/pay`);
                     }}
                   >
                     <i className="icon icon-sp_payment_white Font20 mRight5" />
-                    {_l('支付')}
+                    <span className="payButtonText">{_l('支付')}</span>
                   </PayButton>
                 )}
               </div>

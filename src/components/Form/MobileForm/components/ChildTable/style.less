@@ -10,8 +10,10 @@
   margin: 2px 0 12px;
   min-height: 0 !important;
   .operates {
+    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     margin-bottom: 6px;
     .operateBtnBox {
       display: flex;
@@ -188,7 +190,7 @@
 .expandChildTable {
   font-size: 16px;
   .adm-popup-body {
-    padding-left: 20px;
+    width: 100%;
   }
   .controlLabelName {
     font-size: 1em;
@@ -201,13 +203,19 @@
     }
   }
   .expandChildTableHeader {
-    padding: 16px 0 0;
+    padding: 16px 16px 0;
     align-items: center;
-    padding-right: 20px;
+    .mobileSearchInputComp.inputBlur {
+      background-color: transparent !important;
+    }
   }
+
   .operates {
+    display: flex;
+    justify-content: flex-end;
     height: 36px;
     align-items: center;
+    margin: 6px 0;
     .operateBtnBox {
       display: flex;
       align-items: center;
@@ -220,11 +228,15 @@
       }
     }
   }
-  .mobileChildTableCon {
-    margin-right: 20px;
-  }
+
   .expandChildTableCon {
     overflow-x: hidden;
     overflow-y: auto;
+  }
+}
+
+.mobileSubList {
+  .errorRow {
+    background-color: var(--color-error-bg) !important;
   }
 }

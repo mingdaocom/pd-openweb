@@ -12,13 +12,14 @@ import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import CustomFields from 'src/components/Form';
 import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
 import { checkMobileVerify, getControlsByTab } from 'src/components/Form/core/utils';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { TIME_TYPE } from '../FormExtend/enum';
 import CountDown from '../FormExtend/PublicWorksheetConfig/CountDown';
 import { getLimitWriteTimeDisplayText } from '../FormExtend/utils';
-import { getRgbaByColor } from '../widgetConfig/util';
 import { addWorksheetRow } from './action';
 import { FILL_STATUS } from './enum';
 import FilledRecord from './FilledRecord';
@@ -489,24 +490,26 @@ export default class FillWorksheet extends React.Component {
             </Button>
           </div>
         )}
+
         {!window.platformENV.isOverseas &&
           !window.platformENV.isLocal &&
           worksheetId &&
           footer !== 'no' &&
           window.top === window.self && (
             <div className="mingdaoCon">
+              <PublicAppLangDropdown className="mRight16" appId={appId} projectId={projectId} placement="topLeft" />
               {_l('由 %0 创建的表单', projectName || '')}
               {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
               {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
                 <a
-                  className="mLeft3"
+                  className="mLeft16 nowrap"
                   target="_blank"
-                  href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
+                  href={`/public/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
                 >
                   {_l('举报')}
                 </a>
               )}
-              <div className="Right">
+              <div className="Right nowrap">
                 <CreateByMingDaoYun mode={1} />
               </div>
             </div>

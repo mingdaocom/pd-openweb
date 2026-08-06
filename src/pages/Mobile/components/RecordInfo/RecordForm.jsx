@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, PullToRefreshWrapper } from 'ming-ui';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
@@ -16,9 +16,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
-import { getRequest } from 'src/utils/common';
 import { controlState, getTitleTextFromControls } from 'src/utils/control';
-import { handleReplaceState } from 'src/utils/project';
 import RecordOwner from './components/RecordOwner';
 
 const LockWrap = styled.div`
@@ -37,12 +35,7 @@ const LockWrap = styled.div`
     }
   }
 `;
-
-@connect(
-  state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
-  dispatch => bindActionCreators({ ..._.pick(actions, ['updatePageIndex']) }, dispatch),
-)
-export default class RecordForm extends Component {
+let RecordForm = class RecordForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -55,16 +48,22 @@ export default class RecordForm extends Component {
       !_.get(window, 'shareState.isPublicWorkflowRecord') &&
       !window.isPublicApp;
   }
+
   componentDidMount() {
     if (this.isLoadApprove) {
       this.getApproveTodoList();
-    }
+    } // 兼容ios返回关闭确认支付弹层
 
-    // 兼容ios返回关闭确认支付弹层
-    window.addEventListener('pagehide', () => {
-      $('.mobilePayOrderDialog').parent().parent().remove();
-    });
+    window.addEventListener('pagehide', this.handlePageHide);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('pagehide', this.handlePageHide);
+  }
+
+  handlePageHide = () => {
+    $('.mobilePayOrderDialog').parent().parent().remove();
+  };
 
   getApproveTodoList() {
     const { recordBase } = this.props;
@@ -74,9 +73,12 @@ export default class RecordForm extends Component {
         startSourceId: recordBase.recordId,
       })
       .then(data => {
-        this.setState({ approveCount: data });
+        this.setState({
+          approveCount: data,
+        });
       });
   }
+
   handleScroll = () => {
     const {
       isEditRecord,
@@ -118,7 +120,7 @@ export default class RecordForm extends Component {
       }
     }
 
-    const fixedTopHeight = window.shareState.isPublicRecord ? 0 : 55;
+    const fixedTopHeight = window.shareState.isPublicRecord ? 44 : 55;
 
     if (tabsEl && tabsEl.offsetTop - fixedTopHeight <= scrollTop && !workflow) {
       fixedTabsEl && fixedTabsEl.classList.remove('hide');
@@ -130,7 +132,6 @@ export default class RecordForm extends Component {
       fixedTabsEl && fixedTabsEl.classList.add(isSingleView && !singleHeader ? 'top0' : 'top41');
     }
   };
-
   renderApprove = () => {
     const {
       isEditRecord,
@@ -161,7 +162,12 @@ export default class RecordForm extends Component {
             controlId: 'approve',
             showTabLine: true,
             tabContentNode: (
-              <div className="flexColumn h100" style={{ backgroundColor: 'var(--color-background-secondary)' }}>
+              <div
+                className="flexColumn h100"
+                style={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                }}
+              >
                 <SheetWorkflow
                   appId={recordBase.appId}
                   isCharge={recordInfo.roleType === 2}
@@ -193,7 +199,12 @@ export default class RecordForm extends Component {
           controlName: _l('支付'),
           controlId: 'pay',
           tabContentNode: (
-            <div className="flexColumn h100" style={{ backgroundColor: 'var(--color-background-secondary)' }}>
+            <div
+              className="flexColumn h100"
+              style={{
+                backgroundColor: 'var(--color-background-secondary)',
+              }}
+            >
               <PayLog
                 projectId={recordInfo.projectId}
                 worksheetId={recordBase.worksheetId}
@@ -210,6 +221,7 @@ export default class RecordForm extends Component {
 
     return list;
   };
+
   renderHeader({ formCoverVisible } = {}) {
     const {
       getDataType,
@@ -226,15 +238,17 @@ export default class RecordForm extends Component {
     } = this.props;
     const { advancedSetting, formStyleImggeData, ownerAccount, allowEdit, projectId, entityName } = recordInfo;
     const { worksheetId, recordId, appId } = recordBase || {};
+
     const isPublicShare =
       _.get(window, 'shareState.isPublicRecord') ||
       _.get(window, 'shareState.isPublicView') ||
       _.get(window, 'shareState.isPublicPage');
 
     if (isEditRecord) return null;
-
     const isCoverid = _.get(advancedSetting, 'coverid') && !_.isEmpty(formStyleImggeData);
+
     const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
+
     const showOwner =
       ownerControl &&
       !_.isEmpty(ownerAccount) &&
@@ -260,20 +274,11 @@ export default class RecordForm extends Component {
             className="sheetName bold"
             onClick={() => {
               if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
-              const { page } = getRequest();
-
-              if (window.isMingDaoApp) {
-                handleReplaceState(
-                  'page',
-                  page === 'recordDetail' ? 'recordDetail' : _.isArray(page) ? page[page.length - 1] : '',
-                );
-              }
-
+              onClose && onClose();
               window.mobileNavigateTo &&
                 window.mobileNavigateTo(
                   `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}${recordBase.viewId ? '/' + recordBase.viewId : ''}`,
                 );
-              onClose && onClose();
             }}
           >
             <span className="ellipsis">{recordInfo.worksheetName}</span>
@@ -321,9 +326,8 @@ export default class RecordForm extends Component {
           )}
         </div>
       );
-    }
+    } // 审批详情 header
 
-    // 审批详情 header
     if (header) {
       return <div className="flexRow sheetNameWrap">{header}</div>;
     }
@@ -338,6 +342,7 @@ export default class RecordForm extends Component {
       </div>
     );
   }
+
   renderCustomFields() {
     const {
       customwidget,
@@ -363,7 +368,6 @@ export default class RecordForm extends Component {
       from === RECORD_INFO_FROM.WORKFLOW ||
       from === RECORD_INFO_FROM.DRAFT ||
       location.href.indexOf('/public/workflow') > -1;
-
     return (
       <div
         className={cx('flex customFieldsWrapper h100', {
@@ -426,7 +430,9 @@ export default class RecordForm extends Component {
   renderRecordLock = () => {
     const { recordInfo, updateRecordLock = () => {} } = this.props;
     const { ruleItems = [] } = _.find(recordInfo.rules, r => r.type === 2) || {};
+
     const message = _.get(ruleItems, '0.message');
+
     return (
       <LockWrap>
         <div className="lockContent">
@@ -456,14 +462,16 @@ export default class RecordForm extends Component {
     } = this.props;
     const { entityName } = recordInfo;
     const recordTitle = getTitleTextFromControls(formData);
-
     return (
       <Fragment>
         {this.renderHeader()}
         <div
           ref={ele => (this.formWrap = ele)}
           className="flexColumn flex recordScroll"
-          style={{ overflowX: 'hidden', overflowY: 'auto' }}
+          style={{
+            overflowX: 'hidden',
+            overflowY: 'auto',
+          }}
           onScroll={this.handleScroll}
         >
           <PullToRefreshWrapper disabled={isEditRecord} onRefresh={controlProps.refreshRecord}>
@@ -476,9 +484,15 @@ export default class RecordForm extends Component {
                     : `${entityName}${_l('详情')}`
               }
             />
-            {this.renderHeader({ formCoverVisible: true })}
+            {this.renderHeader({
+              formCoverVisible: true,
+            })}
             {!isEditRecord && (
-              <div className={cx('header', { pTop10: !isModal })}>
+              <div
+                className={cx('header', {
+                  pTop10: !isModal,
+                })}
+              >
                 <div className="title">{this.props.recordTitle || recordTitle}</div>
                 {isRecordLock && this.renderRecordLock()}
                 {editLockedUser && (
@@ -509,10 +523,18 @@ export default class RecordForm extends Component {
             <div className="flex">{this.renderCustomFields()}</div>
             {!_.includes([29, 51], currentTab.type) &&
               workflow &&
-              workflow({ formData, hideStep: this.props.hideStep })}
+              workflow({
+                formData,
+                hideStep: this.props.hideStep,
+              })}
           </PullToRefreshWrapper>
         </div>
       </Fragment>
     );
   }
-}
+};
+RecordForm = connect(
+  state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
+  dispatch => bindActionCreators({ ..._.pick(actions, ['updatePageIndex']) }, dispatch),
+)(RecordForm);
+export default RecordForm;

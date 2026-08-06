@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense } from 'react';
+import { LoadDiv } from 'ming-ui';
+
+const LoadableCustomWidgetView = lazy(() => import('src/pages/worksheet/views/CustomWidgetView'));
 
 export default function MobileCustomWidgetView(props) {
-  const [Component, setComponent] = useState(null);
-
-  useEffect(() => {
-    import('src/pages/worksheet/views/CustomWidgetView').then(component => {
-      setComponent(component.default);
-    });
-  }, []);
-
-  if (!Component) return null;
-
-  return <Component {...props} />;
+  return (
+    <Suspense fallback={<LoadDiv className="mTop10" />}>
+      <LoadableCustomWidgetView {...props} />
+    </Suspense>
+  );
 }

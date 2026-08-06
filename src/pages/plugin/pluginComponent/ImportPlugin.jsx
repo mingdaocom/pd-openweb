@@ -342,7 +342,7 @@ function ImportPlugin(props) {
             {(fileChecking || uploading) && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
-                  <i className="icon-loading_button Font20 ThemeColor3"></i>
+                  <i className="icon-loading_button Font20 colorPrimary"></i>
                 </div>
                 {
                   <span className="textSecondary mLeft10">

@@ -8,9 +8,9 @@ import { Icon, LoadDiv, PullToRefreshWrapper, ScrollView } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordCardIO from 'mobile/RecordList/RecordCard/RecordCardIO';
 import GroupByControl from 'src/pages/Mobile/components/GroupByControl';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { getGroupControlId } from 'src/utils/worksheet';
 import * as actions from '../redux/actions';
 import withoutRows from './assets/withoutRows.png';
@@ -21,15 +21,12 @@ class SheetRows extends Component {
     super(props);
     this.state = {
       scrollViewEl: null,
-      viewCardUpdateMap: {},
     };
   }
 
   scrollViewRef = React.createRef();
 
   componentDidMount() {
-    window.addEventListener('popstate', this.onQueryChange);
-
     this.intervalId = setInterval(() => {
       const scrollInfo = this.scrollViewRef.current?.getScrollInfo?.();
 
@@ -42,34 +39,13 @@ class SheetRows extends Component {
   }
 
   componentWillUnmount() {
-    this.setState({ currentGroupKey: undefined });
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+
     this.props.updatePreviewRecordId('');
-    window.removeEventListener('popstate', this.onQueryChange);
   }
-  onQueryChange = () => {
-    if (!this.props.previewRecordId) return;
-    handleReplaceState('page', 'recordDetail', () => {
-      this.setState({ currentGroupKey: undefined });
-      this.props.updatePreviewRecordId('');
-    });
-  };
-
-  updateViewCard = (rowid, height) => {
-    this.setState(prevState => {
-      const prevMap = prevState.viewCardUpdateMap;
-
-      if (prevMap[rowid] === height) {
-        return null; // 不需要更新
-      }
-
-      return {
-        viewCardUpdateMap: {
-          ...prevMap,
-          [rowid]: height,
-        },
-      };
-    });
-  };
 
   handleEndReached = () => {
     const { sheetRowLoading, sheetView } = this.props;
@@ -116,7 +92,6 @@ class SheetRows extends Component {
         groupDataInfo={groupDataInfo}
         changeBatchOptData={changeBatchOptData}
         viewRootEl={this.state.scrollViewEl}
-        updateViewCard={this.updateViewCard}
         onDeleteSuccess={() => onDeleteSuccess({ rowId: item.rowid })}
         updateRow={this.props.updateRow}
         onClick={() => {
@@ -134,14 +109,13 @@ class SheetRows extends Component {
           }
 
           if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-            window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-              item.rowid
-            }`;
+            window.location.href = pathCompletion(
+              `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`,
+            );
             return;
           }
 
           if (browserIsMobile()) {
-            handlePushState('page', 'recordDetail');
             this.setState({ currentGroupKey: item.groupKey });
             this.props.updatePreviewRecordId(item.rowid);
           }
@@ -222,6 +196,7 @@ class SheetRows extends Component {
       sheetSwitchPermit,
       previewRecordId,
       isCharge,
+      appDetail,
       worksheetInfo = {},
       groupDataInfo = {},
     } = this.props;
@@ -252,6 +227,7 @@ class SheetRows extends Component {
           visible={!!previewRecordId}
           enablePayment={worksheetInfo.enablePayment}
           appId={base.appId}
+          appDetail={appDetail?.detail}
           worksheetId={base.worksheetId}
           viewId={base.viewId || view.viewId}
           rowId={previewRecordId}
@@ -314,6 +290,7 @@ export default connect(
       'previewRecordId',
       'groupDataInfo',
       'isCharge',
+      'appDetail',
     ),
   }),
   dispatch =>
@@ -333,6 +310,6 @@ export default connect(
     ),
 )(SheetRows);
 
-SheetRows.PropTypes = {
+SheetRows.propTypes = {
   colNum: PropTypes.number, // 一行显示几个，默认1个（画廊视图可配置2个）
 };

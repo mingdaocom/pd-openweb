@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { OverlayView } from '@react-google-maps/api';
 import _ from 'lodash';
-import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
+import { Gmap, GmapOverlayView } from 'ming-ui/components/amap/components/GoogleMap';
 import PinMarker from '../components/PinMarker';
 
 const wrapperStyle = {
@@ -21,6 +20,7 @@ const GMap = forwardRef((props, ref) => {
     getLatLngOnClick,
     isCurrentPosition,
     resetAddRecordBtn = () => {},
+    onZoomChange,
   } = props;
   const mapRef = useRef(null);
   const isLockRef = useRef(false);
@@ -110,6 +110,10 @@ const GMap = forwardRef((props, ref) => {
     });
 
     const idleListener = mapRef.current.addListener('idle', () => {
+      if (isZoomingRef.current && onZoomChange) {
+        onZoomChange(mapRef.current.getZoom());
+      }
+
       isZoomingRef.current = false;
     });
 
@@ -119,7 +123,7 @@ const GMap = forwardRef((props, ref) => {
       zoomChangeListener.remove();
       idleListener.remove();
     };
-  }, [isLoaded]);
+  }, [isLoaded, onZoomChange]);
 
   return (
     <Gmap
@@ -146,10 +150,10 @@ const GMap = forwardRef((props, ref) => {
       {markers.map(item => {
         const isCurrent = _.get(markOptions, 'mapViewState.searchData.rowid') === item.record.rowid;
         return (
-          <OverlayView
+          <GmapOverlayView
             key={`Overlay-${item.record.rowid}`}
             position={{ lat: item.position.y, lng: item.position.x }}
-            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            mapPaneName="overlayMouseTarget"
             zIndex={isCurrent ? 9 : 1}
           >
             <PinMarker
@@ -159,7 +163,7 @@ const GMap = forwardRef((props, ref) => {
               marker={item}
               type="GMap"
             />
-          </OverlayView>
+          </GmapOverlayView>
         );
       })}
     </Gmap>

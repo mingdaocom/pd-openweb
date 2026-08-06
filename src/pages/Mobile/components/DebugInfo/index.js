@@ -35,7 +35,7 @@ export default function DebugInfo({ appId, debugRoles = [] }) {
       <div className="flex ellipsis">
         {_l('角色调试：')}
         {debugRoles.map((r, index) => (
-          <Fragment>
+          <Fragment key={r.roleId || r.id || r.name}>
             {r.name}
             {index < debugRoles.length - 1 ? '、' : ''}
           </Fragment>

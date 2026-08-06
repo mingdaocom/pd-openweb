@@ -71,7 +71,7 @@ export default class FileMessage extends Component {
           {},
         );
       } else {
-        alert('权限不足或文件不存在，请联系文件夹管理员或文件上传者', 3);
+        alert(_l('权限不足或文件不存在，请联系文件夹管理员或文件上传者'), 3);
       }
     } else {
       if (message.isPrepare) return;

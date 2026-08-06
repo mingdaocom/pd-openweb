@@ -20,13 +20,21 @@ export default class SelectUserDropDown extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.nodeId !== this.props.nodeId || nextProps.specialType !== this.props.specialType) {
-      this.setState({ fieldsData: [] });
-    }
+  /**
+   * 获取节点人员数据
+   */
 
-    if (nextProps.visible && !this.state.fieldsData.length && !this.props.disabledNodeRole) {
-      this.getUserAppDtos(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.nodeId !== prevProps.nodeId || this.props.specialType !== prevProps.specialType) {
+        this.setState({
+          fieldsData: [],
+        });
+      }
+
+      if (this.props.visible && !this.state.fieldsData.length && !prevProps.disabledNodeRole) {
+        this.getUserAppDtos(this.props);
+      }
     }
   }
 

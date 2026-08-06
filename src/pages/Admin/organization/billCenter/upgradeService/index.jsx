@@ -7,11 +7,11 @@ import moment from 'moment';
 import { Icon, LoadDiv } from 'ming-ui';
 import orderController from 'src/api/order';
 import projectController from 'src/api/project';
+import { pathCompletion } from 'src/utils/common';
 import Config from '../../../config';
 import './style.less';
 
-@withRouter
-export default class UpgradeService extends Component {
+let UpgradeService = class UpgradeService extends Component {
   constructor() {
     super();
     Config.setPageTitle(_l('升级产品'));
@@ -45,9 +45,8 @@ export default class UpgradeService extends Component {
           this.getVersionData();
         }
       });
-  }
+  } //升级版本信息
 
-  //升级版本信息
   getVersionData() {
     orderController
       .getUpgradeVersionData({
@@ -66,7 +65,6 @@ export default class UpgradeService extends Component {
               )
                 ? vertionType
                 : data.versions[0].versionIdV2;
-
             this.setState(
               {
                 versionData: data,
@@ -82,9 +80,8 @@ export default class UpgradeService extends Component {
           alert(_l('获取升级版本失败'), 2);
         }
       });
-  }
+  } // 版本费用
 
-  // 版本费用
   getUpgradeOrderPrice() {
     if (!this.state.versionId) return false;
     orderController
@@ -105,7 +102,7 @@ export default class UpgradeService extends Component {
 
   handleBack() {
     if (!this.props.history.go(-1)) {
-      location.href = `/admin/home/${Config.projectId}`;
+      location.href = pathCompletion(`/admin/home/${Config.projectId}`);
       return;
     }
 
@@ -113,11 +110,15 @@ export default class UpgradeService extends Component {
   }
 
   setStep(step) {
-    this.setState({ step });
+    this.setState({
+      step,
+    });
   }
 
   handleCheckBox(e) {
-    this.setState({ needSalesAssistance: e.target.checked });
+    this.setState({
+      needSalesAssistance: e.target.checked,
+    });
   }
 
   handleChange(item) {
@@ -133,7 +134,9 @@ export default class UpgradeService extends Component {
   }
 
   handlePay() {
-    this.setState({ isPay: true });
+    this.setState({
+      isPay: true,
+    });
     const { versionId, needSalesAssistance } = this.state;
     orderController
       .addUpgradeVersionOrder({
@@ -147,11 +150,13 @@ export default class UpgradeService extends Component {
             msg: _l('订单已创建成功，正在转到付款页...'),
             duration: 500,
             onClose: function () {
-              window.location.href = '/admin/waitingpay/' + Config.projectId + '/' + data.orderId;
+              window.location.href = pathCompletion(`/admin/waitingpay/${Config.projectId}/${data.orderId}`);
             },
           });
         } else {
-          this.setState({ isPay: false });
+          this.setState({
+            isPay: false,
+          });
           alert(_l('操作失败'), 2);
         }
       });
@@ -185,7 +190,11 @@ export default class UpgradeService extends Component {
             <span className="Font17 Bold">{_l('升级版本')}</span>
           </div>
           <div className="warpOneStep">
-            <div className={cx('stepTitle', { color_bd: step !== 1 })}>
+            <div
+              className={cx('stepTitle', {
+                color_bd: step !== 1,
+              })}
+            >
               <div className="stepNum">
                 <span className="Bold Font12">1</span>
               </div>
@@ -258,7 +267,7 @@ export default class UpgradeService extends Component {
                   </div>
                   <button
                     type="button"
-                    className="ming Button Button--link ThemeColor3 pAll0 mTop24"
+                    className="ming Button Button--link colorPrimary pAll0 mTop24"
                     onClick={() => this.setStep(1)}
                   >
                     {_l('修改')}
@@ -269,13 +278,21 @@ export default class UpgradeService extends Component {
           </div>
           <div className="stepDiviceLine"></div>
           <div className="warpTowStep">
-            <div className={cx('stepTitle', { color_bd: step !== 2 })}>
+            <div
+              className={cx('stepTitle', {
+                color_bd: step !== 2,
+              })}
+            >
               <div className="stepNum">
                 <span className="Bold Font12">2</span>
               </div>
               <span>{_l('生成订单')}</span>
             </div>
-            <div className={cx('stepContent', { Hidden: step !== 2 })}>
+            <div
+              className={cx('stepContent', {
+                Hidden: step !== 2,
+              })}
+            >
               <div className="mTop25">
                 <span className="Font13 mRight24 textTertiary">{_l('已选择')}</span>
                 <span className="color_b">{versionName}</span>
@@ -305,4 +322,6 @@ export default class UpgradeService extends Component {
       );
     }
   }
-}
+};
+UpgradeService = withRouter(UpgradeService);
+export default UpgradeService;

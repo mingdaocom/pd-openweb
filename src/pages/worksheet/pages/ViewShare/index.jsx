@@ -52,6 +52,10 @@ const Wrap = styled.div`
   }
 `;
 
+const renderSource = () => {
+  return null;
+};
+
 const Entry = () => {
   const shareId = location.pathname.match(/.*\/public\/view\/(.*)/)[1];
   const { showHeader } = getRequest();
@@ -94,7 +98,7 @@ const Entry = () => {
         window.clientId = clientId;
         clientId && sessionStorage.setItem(shareId, clientId);
         if (result.resultCode === 1) {
-          const { appId, projectId } = result.data;
+          const { appId, projectId, worksheetId, viewId, appName, worksheetName, viewName } = result.data;
           const lang = await shareGetAppLangDetail({
             projectId,
             appId,
@@ -102,9 +106,9 @@ const Entry = () => {
 
           if (lang) {
             window.appInfo = { id: appId };
-            data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
-            data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
-            data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
+            result.data.appName = getTranslateInfo(appId, null, appId).name || appName;
+            result.data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || worksheetName;
+            result.data.viewName = getTranslateInfo(appId, null, viewId).name || viewName;
           }
         }
 
@@ -176,10 +180,6 @@ const Entry = () => {
         </div>
       </div>
     );
-  };
-
-  const renderSource = () => {
-    return null;
   };
 
   if (share.resultCode === 1) {

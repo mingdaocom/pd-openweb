@@ -16,9 +16,13 @@ export default class CustomTableCom extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.dataSource, nextProps.dataSource)) {
-      this.setState({ dataSource: nextProps.dataSource });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.dataSource, this.props.dataSource)) {
+        this.setState({
+          dataSource: this.props.dataSource,
+        });
+      }
     }
   }
 
@@ -63,7 +67,7 @@ export default class CustomTableCom extends Component {
               <div className={`${item.className} flexRow alignItemsCenter`}>
                 <div
                   className={cx({
-                    ThemeHoverColor3: item.sorter,
+                    hoverColorPrimary: item.sorter,
                     pointer: item.sorter,
                     mRight12: !item.explain,
                     mRight0: !!item.explain,
@@ -86,13 +90,13 @@ export default class CustomTableCom extends Component {
                     <Icon
                       icon="arrow-up"
                       className={cx({
-                        ThemeColor3: sorterInfo.order === 'asc' && sorterInfo.sortFiled === item.dataIndex,
+                        colorPrimary: sorterInfo.order === 'asc' && sorterInfo.sortFiled === item.dataIndex,
                       })}
                     />
                     <Icon
                       icon="arrow-down"
                       className={cx({
-                        ThemeColor3: sorterInfo.order === 'desc' && sorterInfo.sortFiled === item.dataIndex,
+                        colorPrimary: sorterInfo.order === 'desc' && sorterInfo.sortFiled === item.dataIndex,
                       })}
                     />
                   </div>
@@ -124,7 +128,12 @@ export default class CustomTableCom extends Component {
             </ScrollView>
           )}
         </div>
-        <PaginationWrap total={total} pageIndex={pageIndex} pageSize={50} onChange={this.props.changePage} />
+        <PaginationWrap
+          total={total}
+          pageIndex={pageIndex}
+          pageSize={this.props.pageSize || 50}
+          onChange={this.props.changePage}
+        />
       </div>
     );
   }

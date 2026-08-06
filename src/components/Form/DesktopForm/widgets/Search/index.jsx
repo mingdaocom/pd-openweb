@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
 import {
   clearValue,
@@ -142,7 +143,7 @@ const Search = props => {
           hint: _l('信用点不足，请联系管理员充值'),
           explainText: <div></div>,
           onOk: () => {
-            location.href = `/admin/valueaddservice/${projectId}`;
+            location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
           },
         });
         return;

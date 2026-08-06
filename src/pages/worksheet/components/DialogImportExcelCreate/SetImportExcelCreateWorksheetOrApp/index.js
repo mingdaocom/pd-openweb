@@ -25,10 +25,12 @@ const ImportLoadingWrap = styled.div`
 
 const getWorksheetList = (list = []) => {
   const filterFn = ({ workSheetInfo = [] } = {}) => workSheetInfo.filter(i => i.type === 0);
+
   return _.reduce(
     list,
     (total, item) => {
       total.push(...filterFn(item));
+
       if (item.childSections && item.childSections.length > 0) {
         item.childSections.forEach(i => total.push(...filterFn(i)));
       }
@@ -40,11 +42,7 @@ const getWorksheetList = (list = []) => {
 };
 
 const { Option } = Select;
-@connect(({ appPkg }) => ({
-  worksheetList: getWorksheetList(appPkg.appGroups || []),
-  projectId: appPkg.projectId,
-}))
-export default class SetImportExcelCreateWorksheetOrApp extends Component {
+let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrApp extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -54,10 +52,12 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
     const { currentSheetInfo = {} } = this.props;
     const { rows = [], selectCells = [], matchControl } = currentSheetInfo;
     const cells = rows.length ? rows[0].cells : [];
+
     const titleCellNumber = _.get(
       _.find(Object.values(matchControl), v => v.attribute === 1),
       'row',
     );
+
     return (
       <div className="selectCellsWrap">
         <div className="bold Font14">{_l('选择导入的列')}</div>
@@ -72,10 +72,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                   selectCells: cells.map(it => it.columnNumber),
                 });
               } else {
-                this.props.updateCurrentSheetInfo({
-                  ...currentSheetInfo,
-                  selectCells: [titleCellNumber],
-                });
+                this.props.updateCurrentSheetInfo({ ...currentSheetInfo, selectCells: [titleCellNumber] });
               }
             }}
           />
@@ -123,7 +120,6 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
       </div>
     );
   };
-
   updateTriggerVisible = (it, action, visible) => {
     const { currentSheetInfo = {} } = this.props;
     let temp = {
@@ -147,7 +143,6 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
     };
     this.props.updateCurrentSheetInfo(temp);
   };
-
   renderSetCell = it => {
     const { currentSheetInfo = {} } = this.props;
     const { selectCells = [], matchControl = {} } = currentSheetInfo;
@@ -268,7 +263,6 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
       </Menu>
     );
   };
-
   renderHeader = rowItem => {
     const { currentSheetInfo = {}, worksheetList = [], createType, projectId, appId } = this.props;
     const { matchControl = [], rowNum, selectCells = [] } = currentSheetInfo;
@@ -281,9 +275,10 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
         ) : (
           rowItemCells.map(it => {
             const control = !_.isEmpty(matchControl) ? matchControl[it.columnNumber] : {};
-            const mapFields = _.get(FILEDS_TYPE_INFO, `${control.type}.mapField`);
-            const cellIcon = mapFields ? _.get(DEFAULT_CONFIG, `${mapFields}.icon`) : 'text_bold2';
 
+            const mapFields = _.get(FILEDS_TYPE_INFO, `${control.type}.mapField`);
+
+            const cellIcon = mapFields ? _.get(DEFAULT_CONFIG, `${mapFields}.icon`) : 'text_bold2';
             return (
               <td key={'td-' + it.columnNumber}>
                 <span className="flexRow alignItemsCenter">
@@ -296,9 +291,17 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       this.updateTriggerVisible(it, 'editFieldVisible', editFieldVisible);
                     }}
                     popupPlacement="bottom"
-                    popupAlign={{ offset: [-26, 0] }}
+                    popupAlign={{
+                      offset: [-26, 0],
+                      overflow: { adjustX: true, adjustY: true },
+                    }}
                     builtinPlacements={{
-                      bottom: { points: ['tl', 'bl'] },
+                      bottom: {
+                        points: ['tl', 'bl'],
+                      },
+                      top: {
+                        points: ['bl', 'tl'],
+                      },
                     }}
                     action={['click']}
                     zIndex={1000}
@@ -313,6 +316,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                           const copyMatchControl = _.map(matchControl, i =>
                             i.controlId === newControl.controlId ? newControl : i,
                           );
+
                           const copyRows = _.map(currentSheetInfo.rows || [], (m, n) => {
                             if (n === 0) {
                               return {
@@ -334,6 +338,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
 
                             return m;
                           });
+
                           this.props.updateCurrentSheetInfo({
                             ...currentSheetInfo,
                             matchControl: copyMatchControl,
@@ -354,9 +359,13 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       this.updateTriggerVisible(it, 'cellActVisible', cellActVisible);
                     }}
                     popupPlacement="bottom"
-                    popupAlign={{ offset: [-130, 10] }}
+                    popupAlign={{
+                      offset: [-130, 10],
+                    }}
                     builtinPlacements={{
-                      bottom: { points: ['tc', 'bc'] },
+                      bottom: {
+                        points: ['tc', 'bc'],
+                      },
                     }}
                     action={['click']}
                     popup={() => this.renderSetCell(it)}
@@ -371,7 +380,6 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
       </tr>
     );
   };
-
   getTableWidth = () => {
     const { currentSheetInfo = {} } = this.props;
     const { rows = [], selectCells = [] } = currentSheetInfo;
@@ -469,7 +477,9 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                     <span className="mRight8">{_l('表头行')}</span>
                     <Select
                       value={currentSheetInfo.rowNum}
-                      style={{ width: '174px' }}
+                      style={{
+                        width: '174px',
+                      }}
                       className="mLeft2 mRight2"
                       onChange={val => {
                         this.props.updateCurrentSheetInfo({ ...currentSheetInfo, rowNum: val });
@@ -494,9 +504,13 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                   <div className="exportCol Hand">
                     <Trigger
                       popupPlacement="bottom"
-                      popupAlign={{ offset: [0, 0] }}
+                      popupAlign={{
+                        offset: [0, 0],
+                      }}
                       builtinPlacements={{
-                        bottom: { points: ['tr', 'br'] },
+                        bottom: {
+                          points: ['tr', 'br'],
+                        },
                       }}
                       action={['click']}
                       popup={this.renderCells}
@@ -552,4 +566,9 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
       </Fragment>
     );
   }
-}
+};
+SetImportExcelCreateWorksheetOrApp = connect(({ appPkg }) => ({
+  worksheetList: getWorksheetList(appPkg.appGroups || []),
+  projectId: appPkg.projectId,
+}))(SetImportExcelCreateWorksheetOrApp);
+export default SetImportExcelCreateWorksheetOrApp;

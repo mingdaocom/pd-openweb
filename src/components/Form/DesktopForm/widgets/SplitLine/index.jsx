@@ -3,7 +3,7 @@ import _ from 'lodash';
 import SplitLineSection from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/SplitLineSection.jsx';
 
 const SplitLine = props => {
-  const { from, renderData, setNavVisible, registerCell, worksheetId } = props;
+  const { from, expandWidgetIds, setNavVisible, registerCell, worksheetId } = props;
   const sectionStyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
 
   return (
@@ -13,7 +13,7 @@ const SplitLine = props => {
       fromType="display"
       worksheetId={worksheetId}
       sectionstyle={sectionStyle}
-      renderData={renderData}
+      expandWidgetIds={expandWidgetIds}
       setNavVisible={setNavVisible}
       registerCell={registerCell}
     />

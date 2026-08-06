@@ -283,6 +283,7 @@ export default class TwofactorContainer extends React.Component {
         <WrapBg />
         <div className="loginBox">
           <div className="loginContainer">
+            <ChangeLang className="authServiceLang" />
             <Header />
             {this.state.loading ? (
               <LoadDiv className="" style={{ margin: '50px auto' }} />
@@ -294,16 +295,6 @@ export default class TwofactorContainer extends React.Component {
                   sendFn={this.sendFn}
                   onSwitchType={this.handleSwitchType}
                 />
-                <React.Fragment>
-                  <div className="tpLogin TxtCenter">
-                    <div className="Clear"></div>
-                  </div>
-                  <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
-                    <div className="mLeft16 TxtLeft">
-                      <ChangeLang className="justifyContentLeft" />
-                    </div>
-                  </div>
-                </React.Fragment>
               </Wrap>
             )}
           </div>

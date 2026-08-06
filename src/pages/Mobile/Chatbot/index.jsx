@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import DocumentTitle from 'react-document-title';
 import { Popup, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import processApi from 'src/pages/workflow/api/process';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import ConversationList from 'src/components/Mingo/modules/WorkflowChatBot/ConversationList';
 import { getRequest } from 'src/utils/common';

@@ -1,10 +1,10 @@
 ﻿import React from 'react';
-import { findDOMNode } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { UserCard } from 'ming-ui';
-import createGroup from 'src/pages/Group/createGroup';
+import createGroup from 'src/pages/Group/createGroup/load';
+import { pathCompletion } from 'src/utils/common';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 
 /**
@@ -42,7 +42,7 @@ class PostMessage extends React.Component {
       return;
     }
 
-    $(findDOMNode(this))
+    $(this.messageNode)
       .find('[data-accountid]')
       .each((i, ele) => {
         const accountId = $(ele).attr('data-accountid');
@@ -57,7 +57,7 @@ class PostMessage extends React.Component {
         );
       });
 
-    $(findDOMNode(this))
+    $(this.messageNode)
       .find('[data-groupid]')
       .each((i, ele) => {
         const groupid = $(ele).attr('data-groupid');
@@ -77,12 +77,13 @@ class PostMessage extends React.Component {
         evt.preventDefault();
         createGroup({
           callback(group) {
-            window.location.href =
+            window.location.href = pathCompletion(
               'group/groupValidate?' +
-              qs.stringify({
-                projectId: group.projectId,
-                gID: group.groupId,
-              });
+                qs.stringify({
+                  projectId: group.projectId,
+                  gID: group.groupId,
+                }),
+            );
           },
         });
       });
@@ -136,6 +137,9 @@ class PostMessage extends React.Component {
     }
 
     return React.createElement(this.props.inline ? 'span' : 'div', {
+      ref: node => {
+        this.messageNode = node;
+      },
       dangerouslySetInnerHTML: { __html: message },
     });
   }

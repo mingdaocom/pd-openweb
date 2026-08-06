@@ -1,71 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, SortableList, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { PRINT_TEMP } from 'src/pages/Print/core/config';
 import { SYS_BTN_LIST } from './config';
+import { actionColumnOptionsFromLayouts, getActionColumnKey } from './groupedLayout/actionColumnUtils';
+import SortableRowActionList from './rowAction/SortableRowActionList';
 import RowBtnList from './RowBtnList.jsx';
 import './CustomBtn.less';
 
-const Item = ({ onDelete, DragHandle, item }) => {
-  // type说明 btn：按钮 print：打印模板 copy:复制 share：分享 sysprint:系统打印 delete：删除
-
-  const renderIcon = (data, key) => {
-    if (key === 'sys') {
-      return (
-        <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex Alpha10')} />
-      );
-    }
-
-    if (key === 'btn') {
-      const { color, icon, iconUrl } = data;
-      return (
-        <React.Fragment>
-          {!!iconUrl && !!icon && icon.endsWith('_svg') ? (
-            <SvgIcon
-              className="mRight12 svgIconForBtn InlineFlex"
-              addClassName="TxtMiddle"
-              url={iconUrl}
-              fill={!color ? 'var(--color-primary)' : color === 'transparent' ? 'var(--color-text-primary)' : color}
-              size={18}
-            />
-          ) : (
-            <Icon
-              icon={icon || 'custom_actions'}
-              style={{ color: color }}
-              className={cx(
-                'mRight12 Font18 InlineFlex',
-                !icon ? 'textDisabled' : !color ? 'ThemeColor3' : color === 'transparent' ? 'textPrimary' : '',
-              )}
-            />
-          )}
-        </React.Fragment>
-      );
-    }
-
-    return <Icon icon="print" className={cx('mRight12 Font18 textSecondary InlineFlex')} />;
-  };
-
-  return (
-    <React.Fragment>
-      <DragHandle className="alignItemsCenter flexRow">
-        <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />
-      </DragHandle>
-      <span className="Hand con overflow_ellipsis alignItemsCenter">
-        <span className="Font13 WordBreak textPrimary Bold flexRow alignItemsCenter">
-          {renderIcon(item, SYS_BTN_LIST.map(o => o.key).includes(item.type) ? 'sys' : item.type)}
-          <span className={cx('flex overflow_ellipsis')}>{item.name || _l('已删除')}</span>
-        </span>
-      </span>
-      <Icon className="Font16 Hand mLeft15 mRight15" icon="trash" onClick={() => onDelete(item.id)} />
-    </React.Fragment>
-  );
-};
-
 export default function (props) {
-  const { viewId, worksheetId, onChange = () => {}, view, btnList } = props;
+  const {
+    viewId,
+    worksheetId,
+    onChange = () => {},
+    view,
+    btnList,
+    detailBtnGroupsJson,
+    detailFlatBtnOrderJson,
+    listBtnGroupsJson,
+    listFlatBtnOrderJson,
+  } = props;
 
   const [{ showBtn, actioncolumn, tempList, tempListAll, items, loading }, setState] = useSetState({
     showBtn: false,
@@ -78,17 +33,40 @@ export default function (props) {
     loading: true,
   });
 
+  const customActionOptions = useMemo(
+    () =>
+      actionColumnOptionsFromLayouts(btnList, [
+        {
+          flatBtnOrderJson: detailFlatBtnOrderJson,
+          groupRaw: detailBtnGroupsJson,
+          source: 'detail',
+          sourceText: _l('详情分组'),
+        },
+        {
+          flatBtnOrderJson: listFlatBtnOrderJson,
+          groupRaw: listBtnGroupsJson,
+          source: 'list',
+          sourceText: _l('批量分组'),
+        },
+      ]),
+    [btnList, detailFlatBtnOrderJson, detailBtnGroupsJson, listFlatBtnOrderJson, listBtnGroupsJson],
+  );
+
   const getItem = (o, printList) => {
     return o.type === 'print'
       ? (printList || tempListAll).find(a => a.id === o.id) || {}
       : o.type === 'btn'
         ? btnList.find(a => a.btnId === o.id) || {}
-        : SYS_BTN_LIST.find(a => a.key === o.id) || {};
+        : o.type === 'group'
+          ? customActionOptions.find(
+              a => a.type === 'group' && a.id === o.id && getActionColumnKey(a) === getActionColumnKey(o),
+            ) || {}
+          : SYS_BTN_LIST.find(a => a.key === o.id) || {};
   };
 
   const getName = (o, printList) => {
     const data = getItem(o, printList);
-    return o.type === 'print' ? data.name : o.type === 'btn' ? data.name : data.txt;
+    return ['print', 'btn', 'group'].includes(o.type) ? data.name : data.txt;
   };
 
   const getItems = printList => {
@@ -97,6 +75,7 @@ export default function (props) {
         ...o,
         ..._.omit(getItem(o), ['key', 'type']),
         name: getName(o, printList),
+        actionKey: getActionColumnKey(o),
       };
     });
   };
@@ -118,7 +97,7 @@ export default function (props) {
 
   useEffect(() => {
     setState({ items: getItems() });
-  }, [actioncolumn, tempListAll]);
+  }, [actioncolumn, tempListAll, customActionOptions]);
 
   useEffect(() => {
     setState({
@@ -131,18 +110,20 @@ export default function (props) {
   const handleMoveApp = list => {
     onChange(
       list.map(o => {
-        return _.pick(o, ['id', 'type']);
+        return _.pick(o, ['id', 'type', 'source']);
       }),
     );
     setState({
       actioncolumn: list.map(o => {
-        return _.pick(o, ['id', 'type']);
+        return _.pick(o, ['id', 'type', 'source']);
       }),
     });
   };
 
-  const onDelete = id => {
-    onChange(actioncolumn.filter(o => o.id !== id));
+  const onDelete = item => {
+    const nextActioncolumn = actioncolumn.filter(o => getActionColumnKey(o) !== getActionColumnKey(item));
+    onChange(nextActioncolumn);
+    setState({ actioncolumn: nextActioncolumn });
   };
 
   if (loading) return '';
@@ -151,22 +132,10 @@ export default function (props) {
     <React.Fragment>
       <div className="customBtnBox mTop13">
         <div>
-          {items.length > 0 && (
-            <SortableList
-              items={items}
-              itemKey="id"
-              useDragHandle
-              onSortEnd={list => handleMoveApp(list)}
-              helperClass={'customBtnSortableList'}
-              itemClassName="customBtn alignItemsCenter"
-              renderItem={options => (
-                <Item {...options} {...options.item} onDelete={onDelete} key={'item_' + options.index} />
-              )}
-            />
-          )}
+          {items.length > 0 && <SortableRowActionList items={items} onSortEnd={handleMoveApp} onDelete={onDelete} />}
         </div>
         <div
-          className="addBtn Hand mTop20 Relative"
+          className="addBtn Hand mTop10 Relative"
           onClick={() => {
             setState({
               showBtn: !showBtn,
@@ -182,8 +151,21 @@ export default function (props) {
               worksheetId={worksheetId}
               viewId={viewId}
               view={view}
+              actioncolumn={actioncolumn}
+              detailBtnGroupsJson={detailBtnGroupsJson}
+              detailFlatBtnOrderJson={detailFlatBtnOrderJson}
+              listBtnGroupsJson={listBtnGroupsJson}
+              listFlatBtnOrderJson={listFlatBtnOrderJson}
               onAdd={data => {
-                onChange([...actioncolumn, data]);
+                // 分组优先级高于单按钮，避免行内操作里重复显示同一个自定义动作。
+                const nextActioncolumn = [
+                  ...(data.type === 'group'
+                    ? actioncolumn.filter(o => !(o.type === 'btn' && (data.btnIds || []).includes(o.id)))
+                    : actioncolumn),
+                  _.pick(data, ['id', 'type', 'source']),
+                ];
+                onChange(nextActioncolumn);
+                setState({ actioncolumn: nextActioncolumn });
               }}
               onClickAway={() => setState({ showBtn: false })}
             />

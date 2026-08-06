@@ -75,7 +75,7 @@ export default class MessageRefer extends Component {
           ) : (
             <div className="text">
               “ {this.renderIcon(type)} {user.full_name}：
-              <span onClick={this.handlePreview.bind(this)} className="ThemeColor3">
+              <span onClick={this.handlePreview.bind(this)} className="colorPrimary">
                 {message.msg}
               </span>{' '}
               ”

@@ -10,7 +10,7 @@ import appManagementAjax from 'src/api/appManagement';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import { downloadFile } from 'src/pages/Admin/util';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 
 const DialogWrap = styled(Dialog)`
@@ -146,7 +146,7 @@ export default function ViewInactive({ projectId }) {
     appManagementAjax
       .isFirstInactiveUsers({
         projectId,
-        toViewUrl: `${md.global.Config.WebUrl}admin/analytics/${projectId}/byUser?inactive=true`,
+        toViewUrl: pathCompletion(`/admin/analytics/${projectId}/byUser?inactive=true`),
       })
       .then(res => {
         setState({ isFirstInactiveUsers: res });
@@ -157,7 +157,7 @@ export default function ViewInactive({ projectId }) {
     appManagementAjax
       .queryInactiveUsers({
         projectId,
-        toViewUrl: `${md.global.Config.WebUrl}admin/analytics/${projectId}/byUser?inactive=true`,
+        toViewUrl: pathCompletion(`/admin/analytics/${projectId}/byUser?inactive=true`),
       })
       .then(({ queryStatus }) => {
         if (queryStatus === 2) {

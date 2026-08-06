@@ -15,15 +15,21 @@ const iconRotate = keyframes`
 const StatusWrapper = styled.div`
   display: flex;
   gap: 20px;
+  min-width: 0;
   ${props => props.from === STATUS_FROM.COLLECTION && 'color: var(--color-text-secondary);'}
   .statusItemBox {
     display: flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
     font-size: 13px;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-all;
     &.failed {
       color: var(--color-error);
+    }
+    .ming.Icon {
+      flex-shrink: 0;
     }
     .icon-agent_loading,
     .icon-clock {
@@ -49,6 +55,7 @@ const StatusWrapper = styled.div`
       animation: ${iconRotate} 0.8s linear infinite;
     }
     .circlePoint {
+      flex: 0 0 8px;
       margin-right: 6px;
       width: 8px;
       height: 8px;

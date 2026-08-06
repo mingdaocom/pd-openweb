@@ -75,6 +75,21 @@ const DeptSelectWrap = styled.div`
   }
 `;
 
+const getDepartmentTree = (data, parentId) => {
+  return data.map(item => {
+    let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
+    return {
+      departmentId,
+      departmentName,
+      userCount,
+      haveSubDepartment,
+      open: subDepartments.length > 0,
+      subDepartments,
+      parentId,
+    };
+  });
+};
+
 export function DeptSelect(props) {
   const {
     projectId = '',
@@ -190,21 +205,6 @@ export function DeptSelect(props) {
           )
         : null,
     );
-  };
-
-  const getDepartmentTree = (data, parentId) => {
-    return data.map(item => {
-      let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
-      return {
-        departmentId,
-        departmentName,
-        userCount,
-        haveSubDepartment,
-        open: subDepartments.length > 0,
-        subDepartments,
-        parentId,
-      };
-    });
   };
 
   const getSearchDepartmentTree = data => {

@@ -185,7 +185,10 @@ export default function RoleDetail(props) {
                 <div className="flex flexColumn justifyContentCenter TxtCenter">
                   <div className="textSecondary mBottom12">{_l('没有任何权限')}</div>
                   {(isSuperAdmin || role.allowAssignSamePermission) && (
-                    <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => onOpenDrawer('editRole')}>
+                    <div
+                      className="colorPrimary hoverColorPrimaryDark pointer"
+                      onClick={() => onOpenDrawer('editRole')}
+                    >
                       {_l('前往编辑')}
                     </div>
                   )}

@@ -20,14 +20,16 @@ export default class NewFriends extends React.Component {
     this.updateApplysFlag = this.updateApplysFlag.bind(this);
   }
 
-  componentWillReceiveProps() {
-    this.setState({
-      loadedRecommends: false,
-      haveRecommends: true,
-      loadedApplys: false,
-      haveApplys: true,
-      firstLoading: true,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        loadedRecommends: false,
+        haveRecommends: true,
+        loadedApplys: false,
+        haveApplys: true,
+        firstLoading: true,
+      });
+    }
   }
 
   updateRecommendsFlag(haveRecommends) {

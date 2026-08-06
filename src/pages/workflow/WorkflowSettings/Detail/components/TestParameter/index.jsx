@@ -116,17 +116,17 @@ export default ({
         {cacheTestMap[key] ? (
           <Fragment>
             <Icon icon="attachment" className="Font16 mRight10 textSecondary" />
-            <span className="ellipsis InlineBlock ThemeColor3" style={{ maxWidth: 200 }}>
+            <span className="ellipsis InlineBlock colorPrimary" style={{ maxWidth: 200 }}>
               {JSON.parse(cacheTestMap[key]).originalFileName || JSON.parse(cacheTestMap[key]).originalFilename}
             </span>
-            <span className="ThemeColor3">
+            <span className="colorPrimary">
               .
               {RegExpValidator.getExtOfFileName(
                 JSON.parse(cacheTestMap[key]).fileExt || JSON.parse(cacheTestMap[key]).ext,
               )}
             </span>
             <span
-              className="ThemeColor3 mLeft20 pointer"
+              className="colorPrimary mLeft20 pointer"
               onClick={() => setTestMap(Object.assign({}, cacheTestMap, { [key]: '' }))}
             >
               {_l('清除')}
@@ -153,7 +153,7 @@ export default ({
               alert(errTip, 2);
             }}
           >
-            <div className="textSecondary ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
+            <div className="textSecondary hoverColorPrimary pointer flexRow alignItemsCenter" style={{ height: 20 }}>
               <Icon icon="attachment" className="Font16 mRight10" />
               {isUploadingIndex === index ? _l('上传中...') : _l('添加附件')}
             </div>

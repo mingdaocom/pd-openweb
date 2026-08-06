@@ -56,7 +56,7 @@ class VersionList extends React.Component {
     const isLastLeft =
       this.state.versionList.length === 1 && versionFile.versionId === this.state.versionList[0].versionId;
 
-    if (confirm(!isLastLeft ? '确认删除该版本？' : '这是该文件的最后一个版本，确认删除？')) {
+    if (confirm(!isLastLeft ? _l('确认删除该版本？') : _l('这是该文件的最后一个版本，确认删除？'))) {
       const removedVersionId = versionFile.versionId;
       kcAjax
         .deleteVersionFile({
@@ -65,7 +65,7 @@ class VersionList extends React.Component {
         })
         .then(outerItem => {
           if (isLastLeft) {
-            alert('删除成功');
+            alert(_l('删除成功'));
             this.props.onClose && this.props.onClose();
             this.props.performRemoveItems && this.props.performRemoveItems([versionFile.id]);
             return;
@@ -97,10 +97,10 @@ class VersionList extends React.Component {
               }
             },
           );
-          alert('成功删除该版本');
+          alert(_l('成功删除该版本'));
         })
         .catch(() => {
-          alert('删除失败', 3);
+          alert(_l('删除失败'), 3);
         });
     }
   };
@@ -109,7 +109,7 @@ class VersionList extends React.Component {
     if (attachment.canDownload) {
       window.open(downloadFile(attachment.downloadUrl));
     } else {
-      alert('您权限不足，无法保存。请联系文件夹管理员或文件上传者', 3);
+      alert(_l('您权限不足，无法保存。请联系文件夹管理员或文件上传者'), 3);
     }
   };
 
@@ -130,7 +130,7 @@ class VersionList extends React.Component {
           <span className="updater ellipsis" title={version.owner.fullname}>
             {version.owner.fullname}
           </span>
-          <span className="createTime">{version.isNew ? '当前版本' : version.createTime}</span>
+          <span className="createTime">{version.isNew ? _l('当前版本') : version.createTime}</span>
           <span className="historyBtn btnDelete">
             {(version.isAdmin || version.isCreateUser || version.owner.accountId === md.global.Account.accountId) &&
               list.length > 1 && (

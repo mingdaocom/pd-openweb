@@ -7,7 +7,7 @@ import { RECORD_COLOR_SHOW_TYPE, VIEW_CONFIG_RECORD_CLICK_ACTION } from 'workshe
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import { isLightColor, isRelateRecordTableControl } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
 import {
@@ -29,7 +29,7 @@ export function filterEmptyChildTableRows(rows = []) {
 }
 
 export function getNewRecordPageUrl({ appId, worksheetId, viewId }) {
-  return `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
+  return pathCompletion(`/app/${appId}/newrecord/${worksheetId}/${viewId}/`);
 }
 
 export function getRelateRecordCountFromValue(value, propsCount) {
@@ -211,6 +211,25 @@ function checkCellIsFilled(control, value) {
   return !checkCellIsEmpty(value);
 }
 
+// 浮点直接累加会积累误差，如 13607.55+13607.55+18143.4+13607.55-65769.82+6803.77 本应为 0，
+// 实际得到 -3.637978807091713e-12。这里按最大小数位放大到整数域求和再还原，避免残差；
+// 数量级超出安全整数或本身就是科学计数法时退回普通求和。
+const sumNumbers = values => {
+  const decimals = _.max(values.map(value => (String(value).split('.')[1] || '').length)) || 0;
+
+  if (!decimals || _.some(values, value => /e/i.test(String(value)))) {
+    return _.sum(values);
+  }
+
+  const multiple = Math.pow(10, decimals);
+  const total = values.reduce((sum, value) => sum + Math.round(value * multiple), 0);
+
+  return Number.isSafeInteger(total) ? total / multiple : _.sum(values);
+};
+
+const getNumberValues = (rows, control) =>
+  rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value));
+
 export const getSummaryResult = (rows, control, summaryType) => {
   let result;
 
@@ -222,14 +241,10 @@ export const getSummaryResult = (rows, control, summaryType) => {
       result = rows.filter(row => !checkCellIsFilled(control, row[control.controlId])).length;
       break;
     case SUMMARY_TYPE.SUM:
-      result = _.sum(
-        rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value)),
-      );
+      result = sumNumbers(getNumberValues(rows, control));
       break;
     case SUMMARY_TYPE.AVERAGE:
-      result =
-        _.sum(rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value))) /
-        rows.length;
+      result = sumNumbers(getNumberValues(rows, control)) / rows.length;
       break;
     case SUMMARY_TYPE.MAXIMUM:
       result = _.max(
@@ -586,16 +601,10 @@ export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId })
     appId = res.appId;
   }
 
-  const appFeaturesPath = getAppFeaturesPath();
-
   if (viewId) {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
+    return pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${recordId}`);
   } else {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
+    return pathCompletion(`/app/${appId}/${worksheetId}/row/${recordId}`);
   }
 }
 

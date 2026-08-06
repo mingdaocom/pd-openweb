@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -8,7 +8,7 @@ import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
-import { emitter } from 'src/utils/common';
+import { emitter, pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import CommonUserHandle from '../components/CommonUserHandle';
 import GlobalSearch from '../components/GlobalSearch';
@@ -178,6 +178,16 @@ function AppCenterHeader(props) {
       }
     }
   }, []);
+
+  // 跟随外部组织切换（右侧 Mingo 等同样 emit CHANGE_CURRENT_PROJECT）：更新头部选中组织，保持两边一致
+  useEffect(() => {
+    const onChangeProject = project => {
+      if (project && project.projectId) setCurrentProject(project);
+    };
+
+    emitter.addListener('CHANGE_CURRENT_PROJECT', onChangeProject);
+    return () => emitter.removeListener('CHANGE_CURRENT_PROJECT', onChangeProject);
+  }, []);
   const [popupVisible, setPopupVisible] = useState();
   let menuContent = (
     <ProjectsMenu>
@@ -261,10 +271,10 @@ function AppCenterHeader(props) {
                       }}
                       popup={
                         <Menu className="Relative">
-                          <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>
+                          <NewMenuItem onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'))}>
                             {_l('加入组织')}
                           </NewMenuItem>
-                          <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=create')}>
+                          <NewMenuItem onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'))}>
                             {_l('创建组织')}
                           </NewMenuItem>
                         </Menu>
@@ -273,16 +283,19 @@ function AppCenterHeader(props) {
                       destroyPopupOnHide
                     >
                       <div ref={createRef}>
-                        <NewMenuItem className="ThemeColor3">
-                          <i className="icon icon-add ThemeColor3 Font16 mRight6"></i>
+                        <NewMenuItem className="colorPrimary">
+                          <i className="icon icon-add colorPrimary Font16 mRight6"></i>
                           <span className="Font15">{_l('加入/创建组织')}</span>
                         </NewMenuItem>
                       </div>
                     </Trigger>
                   ) : (
                     <div ref={createRef}>
-                      <NewMenuItem className="ThemeColor3" onClick={() => window.open('/enterpriseRegister?type=add')}>
-                        <i className="icon icon-add ThemeColor3 Font16 mRight6"></i>
+                      <NewMenuItem
+                        className="colorPrimary"
+                        onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'))}
+                      >
+                        <i className="icon icon-add colorPrimary Font16 mRight6"></i>
                         <span className="Font15">{_l('加入组织')}</span>
                       </NewMenuItem>
                     </div>

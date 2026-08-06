@@ -13,10 +13,11 @@ import privateGuideApi from 'src/api/privateGuide';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import AddMenu from '../AddMenu';
 import LanguageList from '../LanguageList';
 import MyProcessEntry from '../MyProcessEntry';
+import ConnectAiEntry from './ConnectAiEntry';
 import CreateAppItem from './CreateAppItem';
 import './index.less';
 
@@ -37,7 +38,6 @@ const AdminEntry = styled(VerticalMiddle)`
     background: rgba(0, 0, 0, 0.05);
   }
 `;
-
 const EntryWrap = styled.div`
   height: 32px;
   line-height: 32px;
@@ -49,9 +49,7 @@ const EntryWrap = styled.div`
     background: var(--dashboard-search-hover-bg);
   }
 `;
-
-@withRouter
-export default class CommonUserHandle extends Component {
+let CommonUserHandle = class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
     currentProject: PropTypes.shape({}),
@@ -65,7 +63,10 @@ export default class CommonUserHandle extends Component {
   componentDidMount() {
     if ((window.platformENV.isOverseas || window.platformENV.isLocal) && md.global.Account.superAdmin) {
       privateGuideApi.getPlatformRemindInfo().then(data => {
-        this.setState({ newVersion: data.newVersion, isLicense: data.isLicense });
+        this.setState({
+          newVersion: data.newVersion,
+          isLicense: data.isLicense,
+        });
       });
     }
   }
@@ -82,9 +83,10 @@ export default class CommonUserHandle extends Component {
     const hasProjectAdminAuth =
       currentProject.projectId &&
       currentProject.projectId !== 'external' &&
-      hasBackStageAdminAuth({ projectId: currentProject.projectId });
+      hasBackStageAdminAuth({
+        projectId: currentProject.projectId,
+      }); // 获取url参数
 
-    // 获取url参数
     const { tr } = getAppFeaturesVisible();
 
     if (window.isPublicApp || !tr) {
@@ -92,7 +94,11 @@ export default class CommonUserHandle extends Component {
     }
 
     return (
-      <div className={cx('commonUserHandleWrap', { dashboardCommonUserHandleWrap: type === 'dashboard' })}>
+      <div
+        className={cx('commonUserHandleWrap', {
+          dashboardCommonUserHandleWrap: type === 'dashboard',
+        })}
+      >
         {['native', 'integration'].includes(type) && (
           <Fragment>
             {type === 'native' && (
@@ -101,7 +107,9 @@ export default class CommonUserHandle extends Component {
                 content={
                   <AddMenu
                     onClose={() => {
-                      this.setState({ addMenuVisible: false });
+                      this.setState({
+                        addMenuVisible: false,
+                      });
                     }}
                   />
                 }
@@ -122,6 +130,9 @@ export default class CommonUserHandle extends Component {
 
         {type !== 'appPkg' && (
           <Fragment>
+            {type === 'dashboard' && md.global.SysSettings.enableAIConnector !== false && (
+              <ConnectAiEntry projectId={currentProject?.projectId} />
+            )}
             {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
                 <EntryWrap>
@@ -143,7 +154,13 @@ export default class CommonUserHandle extends Component {
                         )
                       }
                     >
-                      <Icon icon="score-up" className="Font20" style={{ color: '#20CA86' }} />
+                      <Icon
+                        icon="score-up"
+                        className="Font20"
+                        style={{
+                          color: '#20CA86',
+                        }}
+                      />
                     </AdminEntry>
                   </Tooltip>
                 )}
@@ -151,10 +168,16 @@ export default class CommonUserHandle extends Component {
                   <Tooltip title={_l('平台授权已失效，点击查看')}>
                     <AdminEntry
                       onClick={() => {
-                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hap/platform';
+                        location.href = md.global.Config.PlatformUrl + 'hap/platform';
                       }}
                     >
-                      <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />
+                      <Icon
+                        icon="error1"
+                        className="Font20"
+                        style={{
+                          color: '#f44336',
+                        }}
+                      />
                     </AdminEntry>
                   </Tooltip>
                 )}
@@ -165,10 +188,10 @@ export default class CommonUserHandle extends Component {
       </div>
     );
   }
-}
-
-@withRouter
-export class LeftCommonUserHandle extends Component {
+};
+CommonUserHandle = withRouter(CommonUserHandle);
+export default CommonUserHandle;
+let LeftCommonUserHandle = class LeftCommonUserHandle extends Component {
   static propTypes = {
     type: string,
   };
@@ -186,7 +209,9 @@ export class LeftCommonUserHandle extends Component {
         })
         .then(data => {
           const { appSettingsEnum } = data;
-          this.setState({ roleEntryVisible: appSettingsEnum === 1 });
+          this.setState({
+            roleEntryVisible: appSettingsEnum === 1,
+          });
         });
     }
   }
@@ -195,8 +220,8 @@ export class LeftCommonUserHandle extends Component {
     const { roleEntryVisible } = this.state;
     const { data, sheet, match } = this.props;
     const { projectId, id, permissionType, isLock, appStatus, sourceType } = data;
-    const isUpgrade = appStatus === 4;
-    // 获取url参数
+    const isUpgrade = appStatus === 4; // 获取url参数
+
     const { tr } = getAppFeaturesVisible();
 
     if (window.isPublicApp || !tr || appStatus === 300016) {
@@ -253,4 +278,6 @@ export class LeftCommonUserHandle extends Component {
       </div>
     );
   }
-}
+};
+LeftCommonUserHandle = withRouter(LeftCommonUserHandle);
+export { LeftCommonUserHandle };

@@ -78,6 +78,8 @@ export default function Container({ isDialog, ...props }) {
     enableState: undefined, // 外部门户开启状态
     encryData: undefined, // 加密规则
     ruleList: undefined, // 业务规则
+    templatePersonalList: undefined, // 个人模板列表
+    templateOrganizationList: undefined, // 组织模板列表
   });
   // 表单样式
   const [styleInfo, setStyle] = useState({
@@ -336,6 +338,24 @@ export default function Container({ isDialog, ...props }) {
     }
   };
 
+  const getTemplateListByPersonal = () => {
+    if (!globalInfo.projectId) return;
+    worksheetAjax
+      .getControlTemplate({ type: 1, pageSize: 100, pageIndex: 1, projectId: globalInfo.projectId, getControls: true })
+      .then(res => {
+        setConfig({ templatePersonalList: _.get(res, 'data.data') || [] });
+      });
+  };
+
+  const getTemplateListByOrganization = () => {
+    if (!globalInfo.projectId) return;
+    worksheetAjax
+      .getControlTemplate({ type: 2, pageSize: 100, pageIndex: 1, projectId: globalInfo.projectId, getControls: true })
+      .then(res => {
+        setConfig({ templateOrganizationList: _.get(res, 'data.data') || [] });
+      });
+  };
+
   useEffect(() => {
     if (_.isEmpty(activeWidget)) return;
     if (_.isUndefined(settingConfig.ruleList)) {
@@ -515,14 +535,19 @@ export default function Container({ isDialog, ...props }) {
   };
 
   const updateQueryConfigs = (value = {}) => {
-    const index = findIndex(queryConfigs, item => item.id === value.id);
-    const newQueryConfigs =
-      index > -1
-        ? queryConfigs.map(item => {
-            return item.id === value.id ? value : item;
-          })
-        : queryConfigs.concat([value]);
-    setQueryConfigs(newQueryConfigs);
+    const values = _.isArray(value) ? value : [value];
+
+    setQueryConfigs(prevQueryConfigs =>
+      values.reduce((newQueryConfigs, item) => {
+        const index = findIndex(newQueryConfigs, queryConfig => queryConfig.id === item.id);
+
+        return index > -1
+          ? newQueryConfigs.map(queryConfig => {
+              return queryConfig.id === item.id ? item : queryConfig;
+            })
+          : newQueryConfigs.concat([item]);
+      }, prevQueryConfigs),
+    );
   };
 
   const handleActiveSet = newWidgets => {
@@ -560,6 +585,8 @@ export default function Container({ isDialog, ...props }) {
     queryConfigs,
     ...settingConfig,
     setConfig,
+    getTemplateListByPersonal,
+    getTemplateListByOrganization,
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
     styleInfo,

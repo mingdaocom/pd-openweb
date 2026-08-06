@@ -33,7 +33,7 @@ export default class LoopContent extends Component {
             </span>
           </div>
           <span
-            className="ThemeColor3 ThemeHoverColor2 pointer"
+            className="colorPrimary hoverColorPrimaryDark pointer"
             onClick={() => {
               this.setState({ isOldCustom: false });
               this.initConfig();
@@ -91,7 +91,7 @@ export default class LoopContent extends Component {
           {_l('每')}
           <input
             type="text"
-            className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
+            className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
             style={{ width: 48, height: 36, textAlign: 'right', minWidth: 48, boxSizing: 'border-box' }}
             defaultValue={data.interval}
             onKeyUp={evt => this.checkNumberControl(evt)}
@@ -174,7 +174,7 @@ export default class LoopContent extends Component {
             return (
               <span
                 key={i}
-                className={cx({ ThemeBGColor3: _.includes(data.weekDays, item.value) })}
+                className={cx({ bgColorPrimary: _.includes(data.weekDays, item.value) })}
                 onClick={() => this.switchWeek(item.value)}
               >
                 {item.text}
@@ -415,7 +415,7 @@ export default class LoopContent extends Component {
               return (
                 <span
                   key={i}
-                  className={cx({ ThemeBGColor3: _.includes(data.config.week.values, item.value) })}
+                  className={cx({ bgColorPrimary: _.includes(data.config.week.values, item.value) })}
                   onClick={() => this.updateFixedConfig('week', item.value)}
                 >
                   {item.text}
@@ -495,7 +495,7 @@ export default class LoopContent extends Component {
       <div className="mTop10 flexRow alignItemsCenter">
         <input
           type="text"
-          className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           placeholder={_l('输入范围')}
           defaultValue={start}
@@ -506,7 +506,7 @@ export default class LoopContent extends Component {
         <span className="mLeft10 mRight10">~</span>
         <input
           type="text"
-          className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           placeholder={_l('输入范围')}
           defaultValue={end}
@@ -586,11 +586,15 @@ export default class LoopContent extends Component {
 
     if (data.config[key].type !== 3) return null;
 
+    const selectedValues = new Set(values);
+
     for (let i = KEYS_ENUM[key].min; i <= KEYS_ENUM[key].max; i++) {
+      const value = i.toString();
+
       list.push({
-        text: i.toString().padStart(2, '0'),
-        value: i.toString(),
-        disabled: _.includes(values, i.toString()),
+        text: value.padStart(2, '0'),
+        value,
+        disabled: selectedValues.has(value),
       });
     }
 
@@ -686,7 +690,7 @@ export default class LoopContent extends Component {
         {_l('从')}
         <input
           type="text"
-          className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15 flex"
+          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15 flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           defaultValue={start}
           onKeyUp={evt => this.checkIncrementStartNumber(evt)}
@@ -696,7 +700,7 @@ export default class LoopContent extends Component {
         <span className="mLeft10 mRight10">{KEYS_ENUM[key].text1}</span>
         <input
           type="text"
-          className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           defaultValue={end}
           onKeyUp={evt => this.checkIncrementNumber(evt)}
@@ -791,7 +795,7 @@ export default class LoopContent extends Component {
         <div className="workflowDetailBox mTop20">
           <div className="Font13">{_l('本节点中配置的所有时间数值均基于 %0 执行。', this.getTimeZoneText())}</div>
           <div className="Font13 bold mTop20">{_l('开始执行时间')}</div>
-          <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
+          <div className="actionControlBox borderColorPrimary mTop10 Relative">
             <DateTime
               selectedValue={data.executeTime ? moment(data.executeTime) : ''}
               timePicker
@@ -821,7 +825,7 @@ export default class LoopContent extends Component {
 
           <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
           <div className="Font13 textSecondary mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
-          <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
+          <div className="actionControlBox borderColorPrimary mTop10 Relative">
             <DateTime
               selectedValue={data.executeEndTime ? moment(data.executeEndTime) : ''}
               timePicker

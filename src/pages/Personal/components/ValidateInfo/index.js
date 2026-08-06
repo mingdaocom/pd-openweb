@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, intlTelInput, VerifyPasswordInput } from 'ming-ui';
+import { Button, Dialog, VerifyPasswordInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import accountController from 'src/api/account';
 import verifyPassword from 'src/components/verifyPassword';
@@ -130,9 +131,11 @@ export default class ValidateInfoCon extends Component {
 
     this.iti && this.iti.destroy();
 
-    this.iti = intlTelInput(this.mobile, {
+    this.iti = createIntlTelInput(this.mobile, {
       separateDialCode: true,
       showSelectedDialCode: true,
+      // 个人账户绑定/修改手机号时需要显示区号入口，提交仍通过 getNumber 输出完整号码。
+      showDialCodeInput: true,
     });
   };
 

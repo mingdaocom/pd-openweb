@@ -96,6 +96,8 @@ const AppDialog = styled(Dialog)`
 const RESULT_IS_DATA = ['getManagerApps', 'getUserApp', 'getMyApp'];
 const NO_PAGE = ['getManagerApps', 'getUserApp', 'getMyApp'];
 
+const onSort = data => data.sort((a, b) => new Date(b.ctime) - new Date(a.ctime));
+
 const SelectApp = props => {
   const {
     projectId,
@@ -223,8 +225,6 @@ const SelectApp = props => {
       setFetchState({ loading: false, noMore: apps.length < 50 || NO_PAGE.includes(ajaxFun) });
     });
   };
-
-  const onSort = data => data.sort((a, b) => new Date(b.ctime) - new Date(a.ctime));
 
   const onSearch = useCallback(
     _.debounce(value => {

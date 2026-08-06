@@ -1,5 +1,5 @@
 import React from 'react';
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -26,6 +26,7 @@ export default function RecordInfoRight(props) {
     workId,
     isCharge,
     updatePayConfig = () => {},
+    worksheetOperationLogPermission,
   } = props;
   const { isSubList, appId, viewId, viewType, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
   let hiddenTabs = [];
@@ -61,8 +62,8 @@ export default function RecordInfoRight(props) {
   }
 
   if (md.global.Account.isPortal || get(window, 'shareState.isPublicChatbot')) {
-    //外部门户 需要判断当前是否开始讨论
-    hiddenTabs.push('logs', 'files'); //外部门户不可见日志和文件
+    // 外部门户不显示文件，日志由 recordLogSwitch 开关控制
+    hiddenTabs.push('files');
     if (!props.allowExAccountDiscuss) {
       hiddenTabs.push('discuss');
     }
@@ -71,6 +72,10 @@ export default function RecordInfoRight(props) {
   if ([...new Set(hiddenTabs)].length >= 6) {
     return '';
   }
+
+  const recordLogPermissionProps = worksheetOperationLogPermission
+    ? pick(worksheetOperationLogPermission, ['allowExport', 'showRequestTypeFilter', 'showOperatorFilter'])
+    : {};
 
   return (
     <div className={`recordInfoInfo ${className || ''}`} style={style}>
@@ -99,6 +104,7 @@ export default function RecordInfoRight(props) {
         exAccountDiscussEnum={props.exAccountDiscussEnum}
         approved={props.approved}
         roleType={roleType}
+        {...recordLogPermissionProps}
         instanceId={instanceId}
         workId={workId}
         isCharge={isCharge}

@@ -135,9 +135,13 @@ class PortalSetting extends React.Component {
     this.setState({ portalSet });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.portalSet, nextProps.portalSet)) {
-      this.setState({ portalSet: nextProps.portalSet });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.portalSet, this.props.portalSet)) {
+        this.setState({
+          portalSet: this.props.portalSet,
+        });
+      }
     }
   }
 
@@ -189,6 +193,7 @@ class PortalSetting extends React.Component {
       backImagePath,
       appId,
       customizeName,
+      logoHeight,
     } = portalSetModel;
 
     smsSignature = smsSignature.trim();
@@ -197,6 +202,7 @@ class PortalSetting extends React.Component {
       alert(_l('外部门户名称不能为空'), 3);
       return false;
     }
+
     if (md.global.SysSettings.enableSmsCustomContent) {
       if (!smsSignature) {
         alert(_l('短信签名不能为空'), 3);
@@ -288,6 +294,7 @@ class PortalSetting extends React.Component {
           pageTitle: pageTitle || appPkg.name,
           logoImageBucket: 4,
           logoImagePath,
+          logoHeight,
           pageMode,
           backGroundType,
           backColor,
@@ -342,7 +349,7 @@ class PortalSetting extends React.Component {
               <span className="">{_l('门户设置')}</span>
               <Icon
                 icon="close"
-                className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
+                className="Right LineHeight25 textTertiary Hand Font22 hoverColorPrimary"
                 onClick={() => {
                   this.closeSetFn(() => {
                     closeSet();

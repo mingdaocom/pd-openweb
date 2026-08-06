@@ -12,6 +12,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { getCurrentProject } from 'src/utils/project';
 import PopupLinks from './components/PopupLinks';
 import ThirdApp from './components/ThirdApp';
+import { pathCompletion } from 'src/utils/common';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#1677ff', href: '/feed', key: 1 },
@@ -62,6 +63,7 @@ const Con = styled.div`
       justify-content: start;
       padding: 0 12px;
       height: 40px;
+      min-height: 40px;
       .name {
         display: none;
       }
@@ -109,16 +111,24 @@ const ModuleEntries = styled.div``;
 
 const ModuleEntry = styled(BaseEntry)`
   margin: 8px 0;
-  height: 48px;
+  min-height: 48px;
+  padding: 4px;
+  box-sizing: border-box;
   position: relative;
   .entryIcon {
     font-size: 24px;
     color: var(--color-text-secondary);
+    flex-shrink: 0;
   }
   .name {
     font-size: 12px;
     color: var(--color-text-primary);
     opacity: 0.8;
+    width: 100%;
+    line-height: 18px;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
   }
   .fullName {
     font-size: 14px;
@@ -213,18 +223,18 @@ const moduleEntries = [
   },
   !window.platformENV.isOverseas && !window.platformENV.isLocal
     ? {
-        type: 'market',
-        icon: 'merchant',
-        name: _l('市场'),
-        fullName: _l('市场'),
-      }
+      type: 'market',
+      icon: 'merchant',
+      name: _l('市场'),
+      fullName: _l('市场'),
+    }
     : {
-        type: 'lib',
-        icon: 'custom_store',
-        name: _l('应用库%01000'),
-        fullName: _l('应用库%01012'),
-        href: '/app/lib',
-      },
+      type: 'lib',
+      icon: 'custom_store',
+      name: _l('应用库%01000'),
+      fullName: _l('应用库%01012'),
+      href: '/app/lib',
+    },
   {
     type: 'cooperation',
     icon: 'cooperation',
@@ -306,22 +316,22 @@ export default function SideNav(props) {
           'lib' === entry.type
             ? projectId === 'external'
               ? entry.href
-              : `${entry.href}?projectId=${projectId}`
-            : entry.href
+              : pathCompletion(`${entry.href}?projectId=${projectId}`, { hasDomain: false })
+            : pathCompletion(entry.href, { hasDomain: false })
         }
         onClick={
           !entry.href
             ? () => {
-                if (entry.type === 'integration') {
-                  const type = localStorage.getItem('integrationUrl');
-                  navigateTo('/integration/' + (type || ''));
-                } else if (entry.type === 'plugin') {
-                  const type = localStorage.getItem('pluginUrl');
-                  navigateTo('/plugin/' + (type || ''));
-                } else if (entry.type === 'market') {
-                  window.open(`${md.global.Config.MarketUrl}/apps`);
-                }
+              if (entry.type === 'integration') {
+                const type = localStorage.getItem('integrationUrl');
+                navigateTo('/integration/' + (type || ''));
+              } else if (entry.type === 'plugin') {
+                const type = localStorage.getItem('pluginUrl');
+                navigateTo('/plugin/' + (type || ''));
+              } else if (entry.type === 'market') {
+                window.open(`${md.global.Config.MarketUrl}/apps`);
               }
+            }
             : _.noop
         }
       >

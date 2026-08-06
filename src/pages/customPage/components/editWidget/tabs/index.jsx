@@ -1,13 +1,15 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import GridLayout from 'react-grid-layout';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { updateComponents, updatePageInfo } from 'src/pages/customPage/redux/action';
 import { getEnumType, getLayout } from 'src/pages/customPage/util';
+import { getTranslateInfo } from 'src/utils/app';
 import { LAYOUT_CONFIG, LayoutContent } from '../../WidgetContent';
 import WidgetTools from '../../WidgetContent/WidgetTools';
 
@@ -143,13 +145,23 @@ const ContentWrap = styled.div`
   }
 `;
 
+const createLoadableWidgetDisplay = loader => lazy(loader);
+
+const LoadableMobileWidgetDisplay = createLoadableWidgetDisplay(() => import('mobile/CustomPage/WidgetDisplay'));
+const LoadableWidgetDisplay = createLoadableWidgetDisplay(() => import('../../WidgetContent/WidgetDisplay'));
+
 export const Tabs = props => {
   const { ids, editable, themeColor, adjustScreen = false, isMobile, widget, setWidget, addRecord } = props;
   const { layoutType, components, customPageConfig = {}, activeContainerInfo = {} } = props;
   const { type, componentConfig = {}, config = {} } = widget;
   const { name, tabs = [], showType = 1, showBorder = true, showName = true } = componentConfig;
+
   const objectId = _.get(config, 'objectId');
-  const historyTab = _.find(tabs, { id: localStorage.getItem(`${objectId}-tab-active`) }) || tabs[0];
+
+  const historyTab =
+    _.find(tabs, {
+      id: localStorage.getItem(`${objectId}-tab-active`),
+    }) || tabs[0];
   const [currentTab, setCurrentTab] = useState(_.get(historyTab, 'id'));
   const isDark = customPageConfig.pageStyleType === 'dark';
   const titleStyles = customPageConfig.titleStyles || defaultTitleStyles;
@@ -161,26 +173,17 @@ export const Tabs = props => {
   const displayRefs = [];
   const elementRef = useRef(null);
   const [width, setWidth] = useState(0);
-  const [WidgetDisplay, setWidgetDisplay] = useState(null);
-
+  const WidgetDisplay = isMobile ? LoadableMobileWidgetDisplay : LoadableWidgetDisplay;
+  const translateInfo = getTranslateInfo(ids.appId, ids.worksheetId, widget.id);
   useEffect(() => {
-    if (isMobile) {
-      import('mobile/CustomPage/WidgetDisplay').then(component => {
-        setWidgetDisplay(component);
-      });
-    } else {
-      import('../../WidgetContent/WidgetDisplay').then(component => {
-        setWidgetDisplay(component);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!_.find(tabs, { id: currentTab })) {
+    if (
+      !_.find(tabs, {
+        id: currentTab,
+      })
+    ) {
       setCurrentTab(_.get(tabs[0], 'id'));
     }
   }, [tabs]);
-
   useEffect(() => {
     if (isTabs) {
       const filterComponents = components.filter(c => c.type === 6);
@@ -194,7 +197,6 @@ export const Tabs = props => {
       }
     }
   }, [currentTab]);
-
   useEffect(() => {
     const handleResize = () => {
       if (elementRef.current) {
@@ -214,7 +216,6 @@ export const Tabs = props => {
       }
     };
   }, []);
-
   useEffect(() => {
     if (!isMobileLayout && !isTabs) {
       handleLayoutChange(getLayout(tabComponents, layoutType));
@@ -226,17 +227,12 @@ export const Tabs = props => {
     const wrap = isTabs
       ? document.querySelector(`.tabs-${objectId} .tabsBody`)
       : document.querySelector(`.card-${objectId} .tabsBody`);
-    const data = {
-      ...config,
-      width: width || (wrap ? wrap.clientWidth : undefined),
-    };
+    const data = { ...config, width: width || (wrap ? wrap.clientWidth : undefined) };
 
     if (adjustScreen) {
       const maxH = _.max(tabComponents.map(item => _.get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
-      return {
-        ...data,
-        rowHeight: wrap ? (wrap.offsetHeight - 20) / maxH - 10 : undefined,
-      };
+
+      return { ...data, rowHeight: wrap ? (wrap.offsetHeight - 20) / maxH - 10 : undefined };
     }
 
     return data;
@@ -245,13 +241,7 @@ export const Tabs = props => {
   const handleLayoutChange = layouts => {
     const res = tabComponents.map((c, index) => {
       const data = layouts[index];
-      return {
-        ...c,
-        [layoutType]: {
-          ...c[layoutType],
-          layout: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH']),
-        },
-      };
+      return { ...c, [layoutType]: { ...c[layoutType], layout: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH']) } };
     });
 
     const getThresholdValue = () => {
@@ -305,11 +295,20 @@ export const Tabs = props => {
       const colWidth = clientWidth / cols;
       return (
         <Fragment>
-          {Array.from({ length: cols }).map((_, index) => {
+          {Array.from({
+            length: cols,
+          }).map((_, index) => {
             const stripeWidth = colWidth - 10;
             const offset = stripeWidth * index + 10 + index * 10;
             return (
-              <div key={index} className="cardDragLine dragLine" style={{ width: stripeWidth, left: offset }}></div>
+              <div
+                key={index}
+                className="cardDragLine dragLine"
+                style={{
+                  width: stripeWidth,
+                  left: offset,
+                }}
+              ></div>
             );
           })}
         </Fragment>
@@ -320,7 +319,6 @@ export const Tabs = props => {
   };
 
   const layout = getLayout(tabComponents, layoutType);
-
   return (
     <ContentWrap
       className={cx('flexColumn h100', {
@@ -346,23 +344,20 @@ export const Tabs = props => {
         {tabs.length ? (
           tabs.map(tab => (
             <div
-              className={cx('tab disableDrag Font15 bold pointer', `tab-${tab.id}`, { active: tab.id === currentTab })}
+              className={cx('tab disableDrag Font15 bold pointer', `tab-${tab.id}`, {
+                active: tab.id === currentTab,
+              })}
               onClick={() => {
                 setCurrentTab(tab.id);
                 localStorage.setItem(`${objectId}-tab-active`, tab.id);
               }}
             >
-              {tab.name}
+              {translateInfo[tab.id] || tab.name}
             </div>
           ))
         ) : (
-          <div
-            className="cardName"
-            style={{
-              ...replaceTitleStyle(titleStyles, themeColor),
-            }}
-          >
-            {name}
+          <div className="cardName" style={{ ...replaceTitleStyle(titleStyles, themeColor) }}>
+            {translateInfo.name || name}
           </div>
         )}
       </div>
@@ -385,14 +380,18 @@ export const Tabs = props => {
             layout={layout}
             isDraggable={editable}
             isResizable={editable}
-            draggableCancel=".childrenDisableDrag,.chartWrapper .drag"
+            draggableCancel=".childrenDisableDrag,.chartWrapper .drag,.mui-dialog-container"
             onResizeStart={() => {
               elementRef.current.classList.add('cardNoSelect');
             }}
             onResize={handleLayoutChange}
             onResizeStop={(layout, oldItem = {}) => {
               elementRef.current.classList.remove('cardNoSelect');
-              const index = _.findIndex(layout, { i: oldItem.i });
+
+              const index = _.findIndex(layout, {
+                i: oldItem.i,
+              });
+
               const getData = _.get(displayRefs[index], ['getData']);
 
               if (getData && typeof getData === 'function') {
@@ -413,7 +412,12 @@ export const Tabs = props => {
                 widgetBgColor: isTransparent ? 'transparent' : customPageConfig.widgetBgColor,
               };
               return (
-                <LayoutContent key={widget.id || index} className={cx('resizableWrap', { disableDrag: !isTabs })}>
+                <LayoutContent
+                  key={widget.id || index}
+                  className={cx('resizableWrap', {
+                    disableDrag: !isTabs,
+                  })}
+                >
                   <WidgetTools
                     ids={ids}
                     enumType={enumType}
@@ -446,10 +450,15 @@ export const Tabs = props => {
                       backgroundColor: widgetConfig.widgetBgColor,
                     }}
                   >
-                    <div className="flex" style={{ height: 'inherit' }}>
-                      {WidgetDisplay &&
-                        (isMobile ? (
-                          <WidgetDisplay.default
+                    <div
+                      className="flex"
+                      style={{
+                        height: 'inherit',
+                      }}
+                    >
+                      {isMobile ? (
+                        <Suspense fallback={<LoadDiv className="mTop10" />}>
+                          <WidgetDisplay
                             ids={ids}
                             widget={widget}
                             pageConfig={widgetConfig}
@@ -458,8 +467,10 @@ export const Tabs = props => {
                             apk={props.apk}
                             addRecord={addRecord}
                           />
-                        ) : (
-                          <WidgetDisplay.default
+                        </Suspense>
+                      ) : (
+                        <Suspense fallback={<LoadDiv className="mTop10" />}>
+                          <WidgetDisplay
                             ids={ids}
                             widget={widget}
                             setWidget={setWidget}
@@ -478,7 +489,8 @@ export const Tabs = props => {
                             }}
                             addRecord={addRecord}
                           />
-                        ))}
+                        </Suspense>
+                      )}
                     </div>
                   </div>
                 </LayoutContent>
@@ -498,5 +510,12 @@ export default connect(
     components: state.customPage.components,
     adjustScreen: state.customPage.adjustScreen,
   }),
-  dispatch => bindActionCreators({ updateComponents, updatePageInfo }, dispatch),
+  dispatch =>
+    bindActionCreators(
+      {
+        updateComponents,
+        updatePageInfo,
+      },
+      dispatch,
+    ),
 )(Tabs);

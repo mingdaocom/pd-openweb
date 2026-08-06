@@ -397,7 +397,7 @@ function ConnectParam(props) {
               {!isParamSchemaLocked && (
                 <div className="">
                   <span
-                    className="Hand ThemeColor3 mTop12 Bold400"
+                    className="Hand colorPrimary mTop12 Bold400"
                     onClick={() => {
                       setState({
                         controls: controls.concat(getDefaultParameters()),

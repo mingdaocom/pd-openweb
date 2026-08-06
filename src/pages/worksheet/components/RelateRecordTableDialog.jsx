@@ -136,10 +136,18 @@ export default function RelateRecordTableDialog(props) {
     allowEdit,
     isDraft,
     onClose,
+    onClosed = () => {},
     reloadTable = () => {},
     onUpdateCount = () => {},
     updateWorksheetControls = () => {},
   } = props;
+
+  // 关闭时先回调 onClosed（内联表格据此读回全屏改过的统计方式），再真正关闭弹层
+  const handleClose = () => {
+    onClosed();
+    onClose();
+  };
+
   const cache = useRef({});
   const [isFullScreen, setIsFullScreen] = useState(openFrom !== 'cell');
   const callFromDialog = openFrom !== 'cell';
@@ -174,7 +182,7 @@ export default function RelateRecordTableDialog(props) {
       bodyStyle={{ padding: 0, position: 'relative' }}
       fullScreen={isFullScreen}
       style={{ transition: 'none' }}
-      onCancel={onClose}
+      onCancel={handleClose}
     >
       <Con>
         <Header>
@@ -182,7 +190,7 @@ export default function RelateRecordTableDialog(props) {
           <div className="flex"></div>
           <Tooltip title={_l('刷新')} shortcut={window.isMacOs ? '⌘⇧R' : 'Ctrl+Shift+R'} placement="bottom">
             <IconBtn
-              className="mRight10 ThemeHoverColor3"
+              className="mRight10 hoverColorPrimary"
               onClick={() => {
                 if (get(cache, 'current.' + control.controlId)) {
                   get(cache, 'current.' + control.controlId)();
@@ -198,10 +206,10 @@ export default function RelateRecordTableDialog(props) {
             placement="bottom"
           >
             <IconBtn
-              className="mRight10 ThemeHoverColor3"
+              className="mRight10 hoverColorPrimary"
               onClick={() => {
                 if (callFromDialog) {
-                  onClose();
+                  handleClose();
                 } else {
                   setIsFullScreen(!isFullScreen);
                 }
@@ -213,10 +221,10 @@ export default function RelateRecordTableDialog(props) {
           {!callFromDialog && (
             <Tooltip title={_l('关闭')} shortcut={'Esc'} placement="bottom">
               <IconBtn
-                className="ThemeHoverColor3"
+                className="hoverColorPrimary"
                 onClick={() => {
                   reloadTable();
-                  onClose();
+                  handleClose();
                 }}
               >
                 <i className="icon icon-close"></i>

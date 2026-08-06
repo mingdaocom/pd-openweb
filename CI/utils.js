@@ -6,7 +6,6 @@ const readline = require('readline');
 const cheerio = require('cheerio');
 const _ = require('lodash');
 const notifier = require('node-notifier');
-const $ = require('gulp-load-plugins')();
 const webpack = require('webpack');
 const minimist = require('minimist');
 const dayjs = require('dayjs');
@@ -23,44 +22,51 @@ function wrapPathBase(base, relativePath) {
   if (_.isString(relativePath)) {
     return path.resolve(base, relativePath);
   }
+
   if (_.isObject(relativePath) && !_.isArray(relativePath)) {
     const newPaths = {};
+
     for (const key in relativePath) {
       if (Object.prototype.hasOwnProperty.call(relativePath, key)) {
         newPaths[key] = wrapPathBase(base, relativePath[key]);
       }
     }
+
     return newPaths;
   }
+
   if (_.isArray(relativePath)) {
     return relativePath.map(rpath => wrapPathBase(base, rpath));
   }
+
   throw new Error(`Invalid path parameter: ${relativePath}`);
 }
 
 function notify(title, message, isError, extra = {}) {
+  const text = message.slice(0, isError ? 1000 : 100);
   const options = {
     ...extra,
     sound: isError,
-    icon: isError
-      ? path.join(require.resolve('gulp-notify'), '..', 'assets', 'gulp-error.png')
-      : path.join(require.resolve('gulp-notify'), '..', 'assets', 'gulp.png'),
     title,
-    message: message.slice(0, 100),
+    message: text,
   };
+
   try {
     notifier.notify(options);
   } catch (err) {
     console.error('Notifier failed:', err);
   }
+
   if (isError) {
-    $.util.log(chalk.red(message.slice(0, 1000)));
+    console.log(chalk.red(text));
   }
 }
 
 const webpackCompile = (err, stats) => {
   if (err) {
-    throw new $.util.PluginError('webpack', err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    error.name = 'WebpackError';
+    throw error;
   }
 
   stats.compilation.warnings = stats.compilation.warnings.filter(w => !/Failed to parse source map/.test(w.details));
@@ -77,12 +83,12 @@ const webpackCompile = (err, stats) => {
     children: false,
   });
 
-  $.util.log('[webpack]', output);
+  console.log('[webpack]', output);
 
   const json = stats.toJson();
 
   if (json.warnings && json.warnings.length) {
-    $.util.log(chalk.yellow(json.warnings.join('\n')));
+    console.log(chalk.yellow(json.warnings.join('\n')));
   }
 
   const isError = !!json.errors.length;
@@ -111,14 +117,32 @@ const webpackCompile = (err, stats) => {
 
 const webpackTaskFactory = (webpackConfigArg, isWatch) => {
   const webpackConfig = _.cloneDeep(webpackConfigArg);
+
   return callback => {
     const webpackCompiler = webpack(webpackConfig);
-    const compile = (err, stats) => {
-      webpackCompile(err, stats);
-      if (isProduction && stats.toJson().errors.length) {
-        process.exit(1);
+    const finish = error => {
+      if (isWatch || !webpackCompiler.close) {
+        callback(error);
+        return;
       }
-      callback();
+
+      webpackCompiler.close(closeError => {
+        callback(error || closeError);
+      });
+    };
+
+    const compile = (err, stats) => {
+      try {
+        webpackCompile(err, stats);
+        if (isProduction && stats.toJson().errors.length) {
+          finish(new Error('Webpack compilation failed'));
+          return;
+        }
+
+        finish();
+      } catch (error) {
+        finish(error);
+      }
     };
 
     if (isWatch) {
@@ -175,6 +199,7 @@ function findEntryMap(type) {
   const entrySet = {};
   fs.readdirSync(htmlTemplatesPath).forEach(filename => {
     const entry = getEntryFromHtml(filename, type);
+
     if (entry && entry.src) {
       entrySet[getEntryName(entry.src, filename)] = entry.src;
     }

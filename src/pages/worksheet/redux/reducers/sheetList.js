@@ -66,15 +66,6 @@ function isUnfold(state = !(localStorage.getItem('sheetListIsUnfold') === 'false
   }
 }
 
-function guidanceVisible(state = false, action) {
-  switch (action.type) {
-    case 'GUIDANCE_VISIBLE':
-      return action.value;
-    default:
-      return state;
-  }
-}
-
 function isValidAppSectionId(state = true, action) {
   switch (action.type) {
     case 'WORKSHEET_APP_SECTION_VALID':
@@ -92,7 +83,6 @@ export default combineReducers({
   loading,
   isCharge,
   isUnfold,
-  guidanceVisible,
   isValidAppSectionId,
   appPkgData,
 });

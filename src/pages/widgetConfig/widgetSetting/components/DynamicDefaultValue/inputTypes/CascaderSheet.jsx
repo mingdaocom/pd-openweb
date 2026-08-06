@@ -21,9 +21,14 @@ export default class CascaderSheet extends Component {
     };
   }
 
-  componentWillReceiveProps(nextprops) {
-    if (_.get(nextprops, 'data.controlId') !== _.get(this.props, 'data.controlId')) {
-      this.setState({ visible: false, cascaderValue: [] });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.get(this.props, 'data.controlId') !== _.get(prevProps, 'data.controlId')) {
+        this.setState({
+          visible: false,
+          cascaderValue: [],
+        });
+      }
     }
   }
   handleClick = () => {
@@ -62,7 +67,7 @@ export default class CascaderSheet extends Component {
         ? []
         : dynamicValue
             .map(i => {
-              let staticValueInfo = JSON.parse(i.staticValue)[0];
+              let staticValueInfo = JSON.parse(i.staticValue)[0] || '';
               staticValueInfo = staticValueInfo.indexOf('rowid') > -1 ? safeParse(staticValueInfo) : staticValueInfo;
               if (_.isObject(staticValueInfo)) {
                 return {

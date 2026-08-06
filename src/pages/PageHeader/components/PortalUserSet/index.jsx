@@ -9,7 +9,7 @@ import { getAppId } from 'src/pages/AuthService/portalAccount/util.js';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
 import 'src/pages/PageHeader/AppPkgHeader/index.less';
 import LanguageList from 'src/pages/PageHeader/components/LanguageList';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { removePssId } from 'src/utils/pssId';
 import PortalMessage from './PortalMessage';
 import PortalUserInfoDrawer from './PortalUserInfoDrawer';
@@ -110,7 +110,9 @@ export default class PortalUserSet extends Component {
         const appId = this.props.appId || getAppId(this.props.match.params);
         window.localStorage.removeItem(`PortalLoginInfo-${appId}`);
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(this.state.url)}${isManualExit ? '&ref=logout' : ''}`; // 跳转到登录
+        location.href = pathCompletion(
+          `/login?ReturnUrl=${encodeURIComponent(this.state.url)}${isManualExit ? '&ref=logout' : ''}`,
+        ); // 跳转到登录
       }
     });
   };
@@ -127,7 +129,11 @@ export default class PortalUserSet extends Component {
       <WrapHeader className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
         <div className={cx('appNameHeaderBoxPortal appNameHeaderBox flexRow noBorder', { isMobile })}>
           <React.Fragment>
-            {isMobile && <div className="flex appName Font16 Hand appNameM">{this.props.name}</div>}
+            {isMobile && (
+              <div className="flex appName Font16 Hand appNameM">
+                <span className="appNameText">{this.props.name}</span>
+              </div>
+            )}
             <PortalMessage color={color} isMobile={isMobile} />
             {!isM && (
               <LanguageList

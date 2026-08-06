@@ -79,7 +79,7 @@ export default class ReplyTo extends React.Component {
     return (
       <Tooltip title={this.state.replayMsg || <LoadDiv />} type="white" mouseEnterDelay={0.3}>
         <i
-          className="mLeft2 mRight2 ThemeColor4 icon-replyto Hand ThemeColor4"
+          className="mLeft2 mRight2 colorPrimaryLight icon-replyto Hand colorPrimaryLight"
           onMouseOver={this.fetchReplyMsg.bind(this)}
         />
       </Tooltip>

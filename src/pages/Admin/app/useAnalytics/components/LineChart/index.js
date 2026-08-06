@@ -4,6 +4,16 @@ import moment from 'moment';
 import { formatFileSize } from 'src/utils/common';
 import { formatter } from '../../util';
 
+let g2plotPromise;
+
+const loadG2Plot = () => {
+  if (!g2plotPromise) {
+    g2plotPromise = import('@antv/g2plot');
+  }
+
+  return g2plotPromise;
+};
+
 const getDualAxesData = (data = []) => {
   if (_.isEmpty(data)) {
     return [{ date: '', value: 10000, value1: 10000, value2: 10000, category: 'virtual' }];
@@ -45,23 +55,42 @@ const getDualAxesData = (data = []) => {
 export default class LineChart extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { data: props.data };
-    this.lineChart = null;
+    this.chart = null;
+    this.chartType = null;
+    this.g2plotComponent = null;
+    this.isMountedComponent = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    this.isMountedComponent = true;
+    loadG2Plot().then(data => {
+      if (!this.isMountedComponent) return;
+
       this.g2plotComponent = data;
       this.renderChart();
     });
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.data, nextProps.data)) {
-      this.setState({ data: nextProps.data }, () => this.renderChart());
+  componentDidUpdate(prevProps) {
+    if (
+      this.g2plotComponent &&
+      (!_.isEqual(prevProps.data, this.props.data) ||
+        !_.isEqual(prevProps.chartInfo, this.props.chartInfo) ||
+        prevProps.currentDimension !== this.props.currentDimension ||
+        prevProps.selectedDate !== this.props.selectedDate)
+    ) {
+      this.renderChart();
     }
   }
   componentWillUnmount() {
-    this.lineChart && this.lineChart.destroy();
+    this.isMountedComponent = false;
+    this.destroyChart();
   }
+  destroyChart = () => {
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = null;
+      this.chartType = null;
+    }
+  };
   getMax = data => {
     let arr = data.map(item => item.value);
     return _.isArray(arr) && !_.isEmpty(arr) ? Math.max(...arr) : 0;
@@ -80,18 +109,24 @@ export default class LineChart extends React.Component {
 
     return Math.ceil(max) * Math.pow(10, bite);
   };
+  getLegendOffsetX = defaultOffset => {
+    const totalTxtWidth = Number(_.get(this.props, 'chartInfo.totalTxtWidth')) || 0;
+
+    return totalTxtWidth ? totalTxtWidth + 12 : defaultOffset;
+  };
   renderChart = () => {
-    const { chartInfo = {}, currentDimension, selectedDate } = this.props;
-    const { type, total, total1, total2, subTypeTotal = [] } = chartInfo;
-    const { data = [] } = this.state;
-    const { Line, DualAxes } = this.g2plotComponent;
-    if (!this.lineChartEle) return;
+    const { chartInfo = {}, currentDimension, selectedDate, data = [] } = this.props;
+    const { type, total, total1, total2, subTypeTotal = [], hideLegendValue } = chartInfo;
+    const { Line, DualAxes } = this.g2plotComponent || {};
+    if (!this.lineChartEle || !Line || !DualAxes) return;
 
     let isAllZero = _.isEmpty(data) || data.every(item => item.value === 0);
     let maxValue = !_.isEmpty(data) && !isAllZero ? Math.max(...data.map(item => item.value)) : 1000;
     const showEveryXaxis =
       (_.includes([0, 1, 5], selectedDate) && currentDimension === '1d') ||
       (_.includes([0, 1, 2, 5], selectedDate) && currentDimension === '1w');
+    let ChartComponent;
+    let chartConfig;
 
     switch (type) {
       case 'app':
@@ -102,7 +137,9 @@ export default class LineChart extends React.Component {
         let max2 = this.getMax(data2);
         let alias1 = data.length && data[0].length ? data[0][0].category : '';
         let alias2 = data.length && data[1].length ? data[1][0].category : '';
-        this.workflowChart = new DualAxes(this.lineChartEle, {
+        const legendOffsetX = this.getLegendOffsetX(50);
+        ChartComponent = DualAxes;
+        chartConfig = {
           data: [data1, data2],
           xField: 'date',
           yField: ['value1', 'value2'],
@@ -160,7 +197,7 @@ export default class LineChart extends React.Component {
           legend: {
             layout: 'horizontal',
             position: 'top-left',
-            offsetX: 50,
+            offsetX: legendOffsetX,
             itemName: {
               formatter: (text, item, index) => {
                 let total = index === 0 ? total1 : total2;
@@ -173,6 +210,9 @@ export default class LineChart extends React.Component {
             },
             itemSpacing: 50,
             itemHeight: 30,
+            maxWidth: Math.max(200, this.lineChartEle.clientWidth - legendOffsetX - 20),
+            maxRow: 2,
+            flipPage: false,
           },
           tooltip: {
             customContent: (title, items) => {
@@ -218,10 +258,12 @@ export default class LineChart extends React.Component {
             </div>`;
             },
           },
-        });
+        };
         break;
       case 'workflow':
-        this.workflowChart = new Line(this.lineChartEle, {
+        const workflowLegendOffsetX = this.getLegendOffsetX(10);
+        ChartComponent = Line;
+        chartConfig = {
           data: isAllZero ? [...data, { value: 1000, category: '工作流执行数' }] : data,
           appendPadding: [0, 20, 0, 0],
           xField: 'date',
@@ -231,19 +273,21 @@ export default class LineChart extends React.Component {
           legend: {
             layout: 'horizontal',
             position: 'top-left',
-            offsetX: 10,
+            offsetX: workflowLegendOffsetX,
             itemName: {
               formatter: () => {
-                return total;
+                return hideLegendValue ? '' : total;
               },
               style: {
                 fontSize: 13,
                 fill: window.themeMode === 'dark' ? '#fafafa' : '#151515',
+                opacity: hideLegendValue ? 0 : 1,
               },
             },
             marker: {
               style: {
                 lineWidth: 0,
+                opacity: hideLegendValue ? 0 : 1,
               },
             },
             itemHeight: 30,
@@ -290,10 +334,12 @@ export default class LineChart extends React.Component {
               };
             },
           },
-        });
+        };
         break;
       case 'attachment':
-        this.workflowChart = new Line(this.lineChartEle, {
+        const attachmentLegendOffsetX = this.getLegendOffsetX(135);
+        ChartComponent = Line;
+        chartConfig = {
           limitInPlot: false,
           xField: 'date',
           yField: 'value',
@@ -318,7 +364,7 @@ export default class LineChart extends React.Component {
           legend: {
             layout: 'horizontal',
             position: 'top-left',
-            offsetX: 135,
+            offsetX: attachmentLegendOffsetX,
             itemName: {
               formatter: (text, item, index) => {
                 const total = (_.find(subTypeTotal, v => v.subType === index + 1) || { size: 0 }).size;
@@ -329,7 +375,10 @@ export default class LineChart extends React.Component {
                 fill: window.themeMode === 'dark' ? '#fafafa' : '#151515',
               },
             },
-            maxWidth: this.lineChartEle.clientWidth <= 1100 ? 800 : 1200,
+            maxWidth: Math.min(
+              this.lineChartEle.clientWidth <= 1100 ? 800 : 1200,
+              Math.max(200, this.lineChartEle.clientWidth - attachmentLegendOffsetX - 20),
+            ),
             maxItemWidth: 200,
             itemHeight: 30,
             flipPage: false,
@@ -367,26 +416,34 @@ export default class LineChart extends React.Component {
             },
           },
           color: ['#27A1E4', '#2EC29B', '#F8A239', '#FB704A', '#8D67D3', '#B97036'],
-        });
+        };
         break;
       default:
+        this.destroyChart();
+        return;
     }
 
     if (_.includes(['1w', '1M'], currentDimension)) {
       const isWeek = currentDimension === '1w';
 
-      this.workflowChart.update({
-        xAxis: {
-          label: {
-            formatter: text => {
-              return isWeek ? `${moment(text).year()} w${moment(text).week()}` : _l('%0月', moment(text).month() + 1);
-            },
+      chartConfig.xAxis = Object.assign({}, chartConfig.xAxis, {
+        label: Object.assign({}, chartConfig.xAxis.label, {
+          formatter: text => {
+            return isWeek ? `${moment(text).year()} w${moment(text).week()}` : _l('%0月', moment(text).month() + 1);
           },
-        },
+        }),
       });
     }
 
-    this.workflowChart.render();
+    if (this.chart && this.chartType === type) {
+      this.chart.update(chartConfig);
+      return;
+    }
+
+    this.destroyChart();
+    this.chart = new ChartComponent(this.lineChartEle, chartConfig);
+    this.chartType = type;
+    this.chart.render();
   };
   render() {
     return <div className="w100 h100" ref={ele => (this.lineChartEle = ele)}></div>;

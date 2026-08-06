@@ -72,13 +72,17 @@ const SHEET_CODE_TYPE = {
 };
 
 const UnNormal = props => {
-  const { resultCode, errorText, type = 'view' } = props;
+  const { resultCode, errorText, type = 'view', renderRefresh: renderRefreshProp } = props;
   const CODE_TYPE = type === 'view' ? VIEW_CODE_TYPE : SHEET_CODE_TYPE;
   let { src, text, renderRefresh } = CODE_TYPE[resultCode] || {
     src: abnormal,
     renderRefresh: true,
     text: _l('服务出错，请刷新重试'),
   };
+
+  if (typeof renderRefreshProp === 'boolean') {
+    renderRefresh = renderRefreshProp;
+  }
 
   if (errorText) {
     text = errorText;

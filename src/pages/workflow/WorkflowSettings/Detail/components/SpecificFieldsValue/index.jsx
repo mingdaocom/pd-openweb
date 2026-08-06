@@ -27,7 +27,7 @@ export default class SpecificFieldsValue extends Component {
     const { data, updateSource } = this.props;
 
     return (
-      <div className={cx('actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox')}>
+      <div className={cx('actionControlBox flex borderColorPrimary clearBorderRadius ellipsis actionCustomBox')}>
         <span className="flexRow pTop3">
           <Tag
             flowNodeType={data.fieldNodeType}
@@ -39,7 +39,7 @@ export default class SpecificFieldsValue extends Component {
           />
         </span>
         <i
-          className="icon-delete actionControlDel ThemeColor3"
+          className="icon-delete actionControlDel colorPrimary"
           onClick={() =>
             updateSource({
               fieldControlId: '',
@@ -102,7 +102,7 @@ export default class SpecificFieldsValue extends Component {
     const { data, updateSource, timePicker, minDate } = this.props;
 
     return (
-      <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
+      <div className="actionControlBox flex borderColorPrimary clearBorderRadius">
         <DateTime
           selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
           timePicker={!!timePicker}
@@ -133,7 +133,7 @@ export default class SpecificFieldsValue extends Component {
     return (
       <input
         type="text"
-        className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+        className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
           clearBorderRadius: hasOtherField,
         })}
         placeholder={PLACEHOLDER[type]}

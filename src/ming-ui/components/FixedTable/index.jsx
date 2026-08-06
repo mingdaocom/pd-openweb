@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import Hammer from 'hammerjs';
 import _, { get, includes } from 'lodash';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { bool, func, number } from 'prop-types';
 import styled from 'styled-components';
 import { useRefStore } from 'worksheet/hooks';
@@ -284,6 +285,25 @@ function FixedTable(props, ref) {
     }
   }, []);
 
+  // 强制 OverlayScrollbars 重新测量。
+  // 子表在记录详情等弹层中挂载时，os 实例可能在容器尺寸/可见性尚未稳定时初始化，
+  // 测出“无溢出”后把滚动条置为隐藏态，导致滚动正常但滚动条不显示。
+  // 在布局绘制后及关键尺寸变化时 update(true) 重新测量即可纠正。
+  const refreshScrollbars = useCallback(() => {
+    if (!conRef.current) {
+      return;
+    }
+
+    ['x', 'y'].forEach(type => {
+      const host = conRef.current.querySelector(`.scroll-${type}`);
+      const osInstance = host && OverlayScrollbars(host);
+
+      if (osInstance && _.isFunction(osInstance.update)) {
+        osInstance.update(true);
+      }
+    });
+  }, []);
+
   // 原始的滚轮处理逻辑
   const performMouseWheel = useCallback(
     e => {
@@ -421,7 +441,7 @@ function FixedTable(props, ref) {
 
   useLayoutEffect(() => {
     cache.didMount = true;
-    document.body.style.overscrollBehaviorX = 'none';
+    if (document.body) document.body.style.overscrollBehaviorX = 'none';
 
     // 初始化滚动元素缓存
     updateScrollElements();
@@ -465,6 +485,11 @@ function FixedTable(props, ref) {
       setScrollX(cache, 0);
     }
   }, [XIsScroll]);
+  // 布局绘制后（下一帧）及尺寸/溢出输入变化时重新测量，纠正初始化时机带来的滚动条不显示
+  useEffect(() => {
+    const raf = requestAnimationFrame(refreshScrollbars);
+    return () => cancelAnimationFrame(raf);
+  }, [refreshScrollbars, YIsScroll, XIsScroll, tableSize.height, tableSize.width, height, width, loading, rowCount]);
   return (
     <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
       <TableBorder

@@ -35,9 +35,28 @@
     color: var(--color-text-title);
     background-color: var(--color-background-primary);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.65;
     word-wrap: break-word;
     padding: 1em 0;
+    // 阅读宽度上限并居中（对齐 Claude 预览）
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  // mermaid 图：居中展示，SVG 随容器自适应；渲染前的占位源码不显示，避免闪现原始文本
+  .markdown-body .md-mermaid {
+    margin: 16px 0;
+    text-align: center;
+    overflow-x: auto;
+
+    &:not([data-processed]) {
+      visibility: hidden;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   .markdown-body a {
@@ -735,6 +754,132 @@
   .markdown-body li {
     display: list-item;
     text-align: match-parent;
+  }
+
+  // —— 对齐 Claude artifact 预览风格（置于上方 github 基样式之后，按源码顺序覆盖）——
+  .markdown-body h1 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 16px 0 8px;
+    padding: 0;
+    border: 0;
+  }
+  .markdown-body h2 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 14px 0 8px;
+    padding: 0;
+    border: 0;
+  }
+  .markdown-body h3,
+  .markdown-body h4 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 12px 0 6px;
+  }
+  .markdown-body h5,
+  .markdown-body h6 {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 12px 0 6px;
+  }
+  .markdown-body p {
+    font-size: 16px;
+    line-height: 1.65;
+    margin: 0 0 12px;
+  }
+  .markdown-body a {
+    color: var(--color-text-title);
+    text-decoration: underline;
+    font-weight: 400;
+  }
+  .markdown-body strong {
+    font-weight: 600;
+  }
+  .markdown-body code,
+  .markdown-body tt {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    font-size: 0.9em;
+    // 行内代码：扒自 Claude 预览（暗红字 + 极淡灰底），刻意保留原值
+    background: rgba(55, 55, 52, 0.05);
+    color: #8d2525;
+    padding: 1px 4px;
+    border-radius: 6px;
+  }
+  .markdown-body pre {
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border: 0;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    overflow-x: auto;
+  }
+  .markdown-body pre code,
+  .markdown-body pre tt {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: 1em;
+  }
+  .markdown-body blockquote {
+    border-left: 4px solid var(--color-border-secondary);
+    padding: 0 0 0 16px;
+    margin: 0 0 12px;
+    color: var(--color-text-secondary);
+    font-style: normal;
+  }
+  .markdown-body table {
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .markdown-body th {
+    border: 0;
+    border-bottom: 1px solid var(--color-border-tertiary);
+    padding: 8px;
+    font-weight: 600;
+    text-align: left;
+    background: transparent;
+  }
+  .markdown-body td {
+    border: 0;
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 8px;
+  }
+  .markdown-body hr {
+    border: 0;
+    border-top: 1px solid var(--color-border-secondary);
+    margin: 12px 0;
+    background: transparent;
+  }
+  .markdown-body ul,
+  .markdown-body ol {
+    padding-left: 32px;
+    margin: 0 0 12px;
+  }
+  // 全局重置 basic.css 里 `li { list-style: none }` 会吃掉项目符号（且优先于 ul 继承来的 disc），
+  // 这里在 li 上显式恢复标记，否则有序/无序列表都没有符号
+  .markdown-body ul > li {
+    list-style-type: disc;
+  }
+  .markdown-body ul ul > li {
+    list-style-type: circle;
+  }
+  .markdown-body ul ul ul > li {
+    list-style-type: square;
+  }
+  .markdown-body ol > li {
+    list-style-type: decimal;
+  }
+  .markdown-body li {
+    line-height: 1.65;
+    margin: 2px 0;
   }
 }
 

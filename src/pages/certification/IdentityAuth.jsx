@@ -47,6 +47,13 @@ const Wrapper = styled.div`
   }
 `;
 
+const handleFocus = e => {
+  e.preventDefault();
+  setTimeout(() => {
+    e.target.focus();
+  }, 200);
+};
+
 function IdentityAuth() {
   const [fullName, setFullName] = useState('');
   const [idNumber, setIdNumber] = useState('');
@@ -54,13 +61,6 @@ function IdentityAuth() {
   const [token, setToken] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
   const { code, certState, certToken } = getRequest() || {};
-
-  const handleFocus = e => {
-    e.preventDefault();
-    setTimeout(() => {
-      e.target.focus();
-    }, 200);
-  };
 
   useEffect(() => {
     if (code !== undefined) {

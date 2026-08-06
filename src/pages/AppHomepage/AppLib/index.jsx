@@ -4,16 +4,16 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import * as actions from 'src/pages/chat/redux/actions';
-import { emitter } from 'src/utils/common';
+import { emitter, pathCompletion } from 'src/utils/common';
 
-@connect()
-class AppLib extends Component {
+let AppLib = class AppLib extends Component {
   constructor(props) {
     super(props);
     this.state = {
       projectId: localStorage.getItem('currentProjectId'),
     };
   }
+
   componentDidMount() {
     $('.loadBoxForWarehouse').hide();
     const { md = {} } = window;
@@ -29,13 +29,18 @@ class AppLib extends Component {
         }
 
         const licenseType = _.get(_.find(projects, item => item.projectId === data.projectId) || {}, 'licenseType');
+
         return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
       },
       MDAppLibraryId: 'containerAppLib',
       getUrl:
-        md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2'
+        (!window.platformENV.isLocal && !window.platformENV.isOverseas) ||
+        md?.global?.SysSettings?.templateLibraryTypes === '2'
           ? __api_server__.main
-          : 'https://pd.mingdao.com/api/',
+          : window.platformENV.isOverseas
+            ? 'https://pd.nocoly.com/wwwapi/'
+            : 'https://pd.mingdao.com/api/',
+      previewWebUrl: window.platformENV.isOverseas ? 'https://pd.nocoly.com/' : undefined,
       installUrl: AppFileServer,
       accountId,
       projects,
@@ -46,8 +51,8 @@ class AppLib extends Component {
       contactUser: accountId => {
         this.props.dispatch(actions.addUserSession(accountId));
       },
-    };
-    //调整成用本地文件
+    }; //调整成用本地文件
+
     import('src/library/applibrary_v2').then(() => {
       if (window.MDLibrary) {
         window.MDLibrary(param);
@@ -66,7 +71,7 @@ class AppLib extends Component {
     const projectId = localStorage.getItem('currentProjectId');
 
     if (projectId !== this.state.projectId) {
-      location.href = `/app/lib?projectId=${projectId}`;
+      location.href = pathCompletion(`/app/lib?projectId=${projectId}`);
     }
   };
 
@@ -82,6 +87,6 @@ class AppLib extends Component {
       </div>
     );
   }
-}
-
+};
+AppLib = connect()(AppLib);
 export default AppLib;

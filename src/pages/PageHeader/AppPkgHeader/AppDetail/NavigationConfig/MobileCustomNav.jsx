@@ -89,7 +89,7 @@ export default function MobileCustomNav(props) {
             <DragHandle>
               <div className="Hand ellipsis textPrimary flexRow">
                 <span className="flex ellipsis"> {item.workSheetName}</span>
-                <i className="icon textTertiary Font16 Right ThemeHoverColor3 dragHandle icon-drag"></i>
+                <i className="icon textTertiary Font16 Right hoverColorPrimary dragHandle icon-drag"></i>
               </div>
             </DragHandle>
           </div>

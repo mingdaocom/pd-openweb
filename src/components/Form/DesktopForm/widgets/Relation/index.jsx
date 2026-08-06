@@ -14,7 +14,7 @@ const Relation = props => {
 
   const handleAdd = () => {
     if (md.global.Account.isPortal) {
-      alert('您不是该组织成员，请联系管理员！', 3);
+      alert(_l('您不是该组织成员，请联系管理员！'), 3);
       return;
     }
 

@@ -5,8 +5,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, Dropdown, MultipleDropdown, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
 import config from '../../config/config';
 import {
@@ -24,8 +23,7 @@ import {
 } from '../../redux/actions';
 import { errorMessage, setStateToStorage } from '../../utils/utils';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class Filter extends Component {
   constructor(props) {
     super(props);
@@ -40,7 +38,7 @@ class Filter extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { folderId, filterUserId, taskFilter } = this.props.taskConfig;
 
     // 获取标签
@@ -89,22 +87,22 @@ class Filter extends Component {
     this.mounted = true;
 
     $('#taskList .listStage').css('paddingRight', 270);
-  }
 
-  componentDidMount() {
     if (this.props.taskConfig.searchKeyWords) {
       this.search.value = this.props.taskConfig.searchKeyWords;
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.taskConfig.searchKeyWords) {
-      this.search.value = '';
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!this.props.taskConfig.searchKeyWords) {
+        this.search.value = '';
+      }
 
-    if (nextProps.taskConfig.lastMyProjectId !== this.props.taskConfig.lastMyProjectId) {
-      // 重新获取计数
-      this.getTwoTypeTaskCount();
+      if (this.props.taskConfig.lastMyProjectId !== prevProps.taskConfig.lastMyProjectId) {
+        // 重新获取计数
+        this.getTwoTypeTaskCount();
+      }
     }
   }
 
@@ -155,7 +153,7 @@ class Filter extends Component {
           </Tooltip>
         ) : undefined}
         {clearOptionsFun ? (
-          <span className="ThemeColor3 filterClear pointer" onClick={clearOptionsFun}>
+          <span className="colorPrimary filterClear pointer" onClick={clearOptionsFun}>
             {_l('清除条件')}
           </span>
         ) : undefined}
@@ -347,7 +345,7 @@ class Filter extends Component {
     return (
       <span
         key={i}
-        className={cx('filterTaskSolidBtn', { ThemeBGColor3: taskFilter === item.taskFilter })}
+        className={cx('filterTaskSolidBtn', { bgColorPrimary: taskFilter === item.taskFilter })}
         onClick={() => this.switchTaskAscription(item.taskFilter)}
       >
         {item.value}
@@ -375,7 +373,7 @@ class Filter extends Component {
           {members.slice(0, openAllCharges ? members.length : 12).map((item, i) => this.renderChargeItem(item, i))}
           {openAllCharges && (
             <div className="mTop10">
-              <span className="pointer ThemeColor3" onClick={() => this.setState({ openAllCharges: false })}>
+              <span className="pointer colorPrimary" onClick={() => this.setState({ openAllCharges: false })}>
                 {_l('收起')}
               </span>
             </div>
@@ -408,7 +406,7 @@ class Filter extends Component {
         <span
           key={item.accountID}
           className={cx('filterMemberItem relative', {
-            ThemeBorderColor3: _.includes(filterSettings.selectChargeIds, item.accountID),
+            borderColorPrimary: _.includes(filterSettings.selectChargeIds, item.accountID),
           })}
           onClick={onClickFun}
         >
@@ -476,11 +474,11 @@ class Filter extends Component {
                 if (item.tagID === tagId) {
                   return (
                     <span key={tagId} className="filterOptions">
-                      <span className="filterOptionsBtn ThemeBorderColor3">
+                      <span className="filterOptionsBtn borderColorPrimary">
                         {item.color && <span className="tagCircle" style={{ background: item.color }} />}
                         {item.tagName}
                       </span>
-                      <span className="filterOptionsDel ThemeBGColor3" onClick={() => this.clearTags(tagId)}>
+                      <span className="filterOptionsDel bgColorPrimary" onClick={() => this.clearTags(tagId)}>
                         <i className="icon-close" />
                       </span>
                     </span>
@@ -570,9 +568,9 @@ class Filter extends Component {
                 if (option.value === key) {
                   return (
                     <span key={i + option.value} className="filterOptions">
-                      <span className="filterOptionsBtn ThemeBorderColor3">{option.label}</span>
+                      <span className="filterOptionsBtn borderColorPrimary">{option.label}</span>
                       <span
-                        className="filterOptionsDel ThemeBGColor3"
+                        className="filterOptionsDel bgColorPrimary"
                         onClick={() => this.clearCustoms(item.controlId, option.value)}
                       >
                         <i className="icon-close" />
@@ -680,7 +678,7 @@ class Filter extends Component {
           <span className={cx('Font16', { Hidden: this.props.showReset })}>{_l('筛选与排序')}</span>
           <span
             className={cx(
-              'filterHeadReset pointer Font13 ThemeColor3 ThemeBorderColor3 ThemeHoverColor2 ThemeHoverBorderColor2',
+              'filterHeadReset pointer Font13 colorPrimary borderColorPrimary hoverColorPrimaryDark hoverBorderColorPrimaryDark',
               {
                 Hidden: !this.props.showReset,
               },
@@ -690,7 +688,7 @@ class Filter extends Component {
             {_l('重置选择')}
           </span>
           <div className="flex" />
-          <i className="icon-delete Font20 ThemeColor3 pointer" onClick={this.props.taskFilterLeave} />
+          <i className="icon-delete Font20 colorPrimary pointer" onClick={this.props.taskFilterLeave} />
         </div>
         <ScrollView className="flex">
           <div className="filterContent">
@@ -704,12 +702,12 @@ class Filter extends Component {
                 }}
                 type="text"
                 placeholder={_l('搜索任务')}
-                className="filterSearch boderRadAll_5 ThemeBorderColor3"
+                className="filterSearch boderRadAll_5 borderColorPrimary"
                 onBlur={evt => this.updateKeyWords(evt.currentTarget.value)}
                 onKeyDown={evt => evt.keyCode === 13 && this.updateKeyWords(evt.currentTarget.value)}
               />
               {searchKeyWords && (
-                <i className="icon-cancel filterSearchClear ThemeColor8" onClick={() => this.updateKeyWords('')} />
+                <i className="icon-cancel filterSearchClear textTertiary" onClick={() => this.updateKeyWords('')} />
               )}
             </div>
 
@@ -745,14 +743,14 @@ class Filter extends Component {
               </div>
               <div className="flexRow">
                 <div
-                  className={cx('taskStatusNoComplete', { ThemeBGColor3: listStatus === 0 })}
+                  className={cx('taskStatusNoComplete', { bgColorPrimary: listStatus === 0 })}
                   onClick={() => this.switchTaskStatus(0)}
                 >
                   {_l('未完成任务')}
                 </div>
                 <div className="flex" />
                 <div
-                  className={cx('taskStatusAll', { ThemeBGColor3: listStatus === -1 })}
+                  className={cx('taskStatusAll', { bgColorPrimary: listStatus === -1 })}
                   onClick={() => this.switchTaskStatus(-1)}
                 >
                   {_l('所有任务')}
@@ -763,7 +761,7 @@ class Filter extends Component {
                   className={cx(
                     'taskStatusBtn',
                     { active: listStatus === -1 || listStatus === 0 },
-                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 2 },
+                    { 'bgColorPrimary borderColorPrimary': listStatus === 2 },
                   )}
                   onClick={() => this.switchTaskStatus(2)}
                 >
@@ -774,7 +772,7 @@ class Filter extends Component {
                   className={cx(
                     'taskStatusBtn',
                     { active: listStatus === -1 || listStatus === 0 },
-                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 3 },
+                    { 'bgColorPrimary borderColorPrimary': listStatus === 3 },
                   )}
                   onClick={() => this.switchTaskStatus(3)}
                 >
@@ -785,7 +783,7 @@ class Filter extends Component {
                   className={cx(
                     'taskStatusBtn',
                     { active: listStatus === -1 },
-                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 1 },
+                    { 'bgColorPrimary borderColorPrimary': listStatus === 1 },
                   )}
                   onClick={() => this.switchTaskStatus(1)}
                 >

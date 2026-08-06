@@ -33,18 +33,21 @@ export default class Files extends Component {
     const { searchText } = this.props;
     this.updateFiles(searchText);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.searchText !== this.props.searchText) {
-      this.setState(
-        {
-          loading: false,
-          pageIndex: 1,
-          files: [],
-        },
-        () => {
-          this.updateFiles(nextProps.searchText);
-        },
-      );
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.searchText !== prevProps.searchText) {
+        this.setState(
+          {
+            loading: false,
+            pageIndex: 1,
+            files: [],
+          },
+          () => {
+            this.updateFiles(this.props.searchText);
+          },
+        );
+      }
     }
   }
   updateFiles(searchText) {

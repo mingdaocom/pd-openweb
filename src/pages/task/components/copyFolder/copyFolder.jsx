@@ -1,16 +1,14 @@
 ﻿import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { errorMessage } from '../../utils/utils';
 import './less/copyFolder.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class CopyFolder extends Component {
   constructor(props) {
     super(props);
@@ -107,7 +105,7 @@ export default class CopyFolder extends Component {
     const folderName = $('#copyFolderName').val().trim();
 
     if (!folderName) {
-      alert('项目标题不能为空');
+      alert(_l('项目标题不能为空'));
       return false;
     }
 
@@ -140,19 +138,11 @@ export default class CopyFolder extends Component {
   }
 
   /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
-  }
-
-  /**
    * 返回网络名称
    * @return {[type]} [description]
    */
   getNetWorkName() {
-    let name = '个人';
+    let name = _l('个人');
 
     md.global.Account.projects.forEach(project => {
       if (project.projectId === this.state.projectId) {
@@ -190,10 +180,8 @@ export default class CopyFolder extends Component {
             <div className="copyTitle copyTitleRight">{_l('归属')}</div>
             <div className="copyNetworkBox">
               <div
-                className="copyNetworkTitle pointer ThemeColor3"
-                onMouseDown={evt =>
-                  this.checkMouseDownIsLeft(evt) && this.setState({ showNetwork: !this.state.showNetwork })
-                }
+                className="copyNetworkTitle pointer colorPrimary"
+                onClick={() => this.setState({ showNetwork: !this.state.showNetwork })}
               >
                 <span className="copyNetworkName overflow_ellipsis">{this.getNetWorkName()}</span>
                 <i className="icon-arrow-down-border" />
@@ -209,14 +197,14 @@ export default class CopyFolder extends Component {
                     return (
                       <li
                         key={i}
-                        className="overflow_ellipsis ThemeColor3 ThemeBGColor3"
+                        className="overflow_ellipsis colorPrimary bgColorPrimary"
                         onClick={() => this.switchNetwork(project.projectId)}
                       >
                         {project.companyName}
                       </li>
                     );
                   })}
-                  <li className="overflow_ellipsis ThemeColor3 ThemeBGColor3" onClick={() => this.switchNetwork('')}>
+                  <li className="overflow_ellipsis colorPrimary bgColorPrimary" onClick={() => this.switchNetwork('')}>
                     {_l('个人')}
                   </li>
                 </ClickAwayable>
@@ -231,7 +219,7 @@ export default class CopyFolder extends Component {
             type="text"
             id="copyFolderName"
             defaultValue={_l('%0-由%1复制', this.props.folderName, md.global.Account.fullname)}
-            className="ThemeBorderColor3"
+            className="borderColorPrimary"
           />
         </div>
 
@@ -239,13 +227,13 @@ export default class CopyFolder extends Component {
           <ul>
             <li>
               <div className="checked checkOperation" id="copyStages">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('看板信息')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyChargeUser">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('负责人')}
               </div>
               <div className="chargeUserBox">
@@ -259,19 +247,19 @@ export default class CopyFolder extends Component {
             </li>
             <li>
               <div className="checked checkOperation" id="copyDesc">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('项目描述')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyFolderMember">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('项目成员')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyFolderCustomContent">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('全部自定义任务内容')}
                 <Tooltip title={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}>
                   <span className="mLeft5 copyTip">
@@ -287,25 +275,25 @@ export default class CopyFolder extends Component {
           <ul>
             <li>
               <div className="checked checkOperation" id="copyAllTask">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('项目下所有任务')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyAllTaskAtts">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('任务附件')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyAllTaskDesc">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('任务描述')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyTaskChargeUser">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('任务负责人')}
               </div>
               <div className="chargeUserBox">
@@ -319,7 +307,7 @@ export default class CopyFolder extends Component {
             </li>
             <li>
               <div className="checkOperation" id="copyAllTaskMember">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('任务参与者')}
               </div>
             </li>

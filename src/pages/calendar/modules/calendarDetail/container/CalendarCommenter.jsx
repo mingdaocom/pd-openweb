@@ -49,7 +49,7 @@ export default class CalendarCommenter extends Component {
         </div>
         {this.state.showCount ? (
           <div className="Right TxtCenter" style={{ width: '40px' }} onClick={() => {}}>
-            <span className="calendarTopicCount ThemeHoverColor3">
+            <span className="calendarTopicCount hoverColorPrimary">
               <Icon icon="textsms" className="Font20 TxtMiddle Hand" />
             </span>
           </div>

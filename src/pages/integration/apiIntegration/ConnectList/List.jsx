@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -131,15 +131,15 @@ function List(props) {
       renderHead: info => {
         return (
           <div
-            className="pRight12 Hand ThemeHoverColor3 flexRow"
+            className="pRight12 Hand hoverColorPrimary flexRow"
             onClick={() =>
               info.onChange({ countSort: info.countSort === 2 ? 0 : info.countSort === 0 ? 1 : 2, pageIndex: 1 })
             }
           >
             <span className="">{_l('API数量')}</span>
             <div className="flexColumn manageListOrder">
-              <Icon icon="arrow-up" className={cx('flex', { ThemeColor3: info.countSort === 2 })} />
-              <Icon icon="arrow-down" className={cx('flex', { ThemeColor3: info.countSort === 1 })} />
+              <Icon icon="arrow-up" className={cx('flex', { colorPrimary: info.countSort === 2 })} />
+              <Icon icon="arrow-down" className={cx('flex', { colorPrimary: info.countSort === 1 })} />
             </div>
           </div>
         );
@@ -171,15 +171,15 @@ function List(props) {
       renderHead: info => {
         return (
           <div
-            className="pRight12 Hand ThemeHoverColor3 flexRow"
+            className="pRight12 Hand hoverColorPrimary flexRow"
             onClick={() =>
               info.onChange({ timeSort: info.timeSort === 2 ? 0 : info.timeSort === 0 ? 1 : 2, pageIndex: 1 })
             }
           >
             <span className="">{_l('创建时间')}</span>
             <div className="flexColumn manageListOrder">
-              <Icon icon="arrow-up" className={cx('flex', { ThemeColor3: info.timeSort === 2 })} />
-              <Icon icon="arrow-down" className={cx('flex', { ThemeColor3: info.timeSort === 1 })} />
+              <Icon icon="arrow-up" className={cx('flex', { colorPrimary: info.timeSort === 2 })} />
+              <Icon icon="arrow-down" className={cx('flex', { colorPrimary: info.timeSort === 1 })} />
             </div>
           </div>
         );

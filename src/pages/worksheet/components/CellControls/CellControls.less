@@ -394,22 +394,26 @@
 
 .control-10,
 .control-11 {
-  &:not(.columnHead) {
+  &:not(.columnHead):not(.sheetSummaryInfo) {
     padding: 6.5px 6px !important;
   }
 }
 .control-14,
 .control-27,
 .control-42 {
-  &:not(.columnHead) {
+  &:not(.columnHead):not(.sheetSummaryInfo) {
     padding: 5px 6px !important;
   }
+}
+/* 附件恒定单行右侧遮盖：去掉右内边距，超出列宽的部分被单元格右边框直接盖住 */
+.control-14:not(.columnHead):not(.sheetSummaryInfo) {
+  padding-right: 0 !important;
 }
 .control-26,
 .control-27,
 .control-34,
 .control-36 {
-  &:not(.columnHead) {
+  &:not(.columnHead):not(.sheetSummaryInfo) {
     padding: 6px 6px !important;
   }
 }
@@ -584,21 +588,14 @@
 
 .cellControlMobilePhoneEdit {
   font-size: 13px;
-  input {
-    border: none;
+
+  .phoneNumberEditWrapper {
     width: 100%;
-  }
-  .customFormControlTel {
-    .iti__selected-country {
-      display: none;
-    }
-    .cellMobileInput {
-      padding-left: 6px !important;
-      padding-top: 2px !important;
-    }
-  }
-  .cellMobileInput {
-    background: transparent;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: none !important;
+    min-height: unset !important;
+    border-radius: 0 !important;
   }
 }
 
@@ -818,4 +815,14 @@
 
 .editableCellCon.showAsText {
   padding: 0 6px !important;
+  // 文本样式下用 flex 纵向居中，避免 inline-block 基线对齐在较高行高时文字贴顶；
+  // cellOptions 改块级并重置行高，防止多选时每行继承单元格行高导致的巨大行距和溢出。
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .cellOptions {
+    display: block;
+    width: 100%;
+    line-height: 1.4;
+  }
 }

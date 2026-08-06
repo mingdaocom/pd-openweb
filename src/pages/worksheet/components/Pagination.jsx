@@ -87,6 +87,7 @@ const pageSizeNums = [
   { text: 30, value: 30 },
   { text: 50, value: 50 },
   { text: 100, value: 100 },
+  { text: 200, value: 200 },
 ];
 
 export default class Pagination extends React.Component {
@@ -170,7 +171,7 @@ export default class Pagination extends React.Component {
         <PageList>
           <div
             key="begin"
-            className={cx('pageIndex', { 'current ThemeColor3': pageIndex === 1 })}
+            className={cx('pageIndex', { 'current colorPrimary': pageIndex === 1 })}
             onClick={() => pageIndex !== 1 && changePageIndex(1)}
           >
             {1}
@@ -186,7 +187,7 @@ export default class Pagination extends React.Component {
             .map((page, i) => (
               <div
                 key={i}
-                className={cx('pageIndex', { 'current ThemeColor3': pageIndex === page })}
+                className={cx('pageIndex', { 'current colorPrimary': pageIndex === page })}
                 onClick={() => pageIndex !== page && changePageIndex(page)}
               >
                 {page}
@@ -200,7 +201,7 @@ export default class Pagination extends React.Component {
           {this.pageNum > 1 && (
             <div
               key="end"
-              className={cx('pageIndex', { 'current ThemeColor3': pageIndex === this.pageNum })}
+              className={cx('pageIndex', { 'current colorPrimary': pageIndex === this.pageNum })}
               onClick={() => pageIndex !== this.pageNum && changePageIndex(this.pageNum)}
             >
               {this.pageNum}

@@ -1025,18 +1025,18 @@ export const updateFolderTop = (folderId, isTop, callback) => {
             $('.topFolderList').remove();
           }
 
-          $li.toggleClass('ThemeBGColor8', currentFolderId === folderId);
+          $li.toggleClass('bgColorPrimaryTransparent', currentFolderId === folderId);
         } else {
           const $newLi = $li
-            .removeClass('ThemeBGColor8')
+            .removeClass('bgColorPrimaryTransparent')
             .clone()
-            .toggleClass('ThemeBGColor8', currentFolderId === folderId);
+            .toggleClass('bgColorPrimaryTransparent', currentFolderId === folderId);
           $li.add($newLi).data('istop', true); // 所有li
           if (topListLength) {
             $('.topFolderList .folderList').prepend($newLi).show();
           } else {
             const topList =
-              '<div class="topFolderList ThemeBorderColor7"><div class="popTops ThemeColor9">' +
+              '<div class="topFolderList borderTertiary"><div class="popTops textSecondary">' +
               _l('置顶项目') +
               '</div><ul class="folderList"></ul></div>';
             $('.navContent').prepend(topList);
@@ -1219,7 +1219,7 @@ export const joinProjectPrompt = folderId => {
     children: (
       <div className="folderInfo">
         <textarea
-          className="ThemeBorderColor3 w100"
+          className="borderColorPrimary w100"
           autofocus={true}
           placeholder={_l('向负责人说明你想要加入项目的原因')}
           style={{

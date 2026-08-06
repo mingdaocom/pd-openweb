@@ -94,21 +94,27 @@ export default class WorkSheetCommentList extends Component {
     this.getFollower();
   }
 
-  componentWillReceiveProps(nextProps) {
-    //内部和外部讨论切换
-    if (nextProps.entityType !== this.props.entityType) {
-      this.setState({ containAttachment: false, focusType: 0, hasFilter: false });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      //内部和外部讨论切换
+      if (this.props.entityType !== prevProps.entityType) {
+        this.setState({
+          containAttachment: false,
+          focusType: 0,
+          hasFilter: false,
+        });
+      }
 
-    if (
-      !_.isEqual(
-        _.pick(nextProps.worksheet, ['worksheetId', 'rowId', 'viewId']),
-        _.pick(this.props.worksheet, ['worksheetId', 'rowId', 'viewId']),
-      ) ||
-      nextProps.formFlag !== this.props.formFlag ||
-      nextProps.entityType !== this.props.entityType
-    ) {
-      this.getFollower(nextProps);
+      if (
+        !_.isEqual(
+          _.pick(this.props.worksheet, ['worksheetId', 'rowId', 'viewId']),
+          _.pick(prevProps.worksheet, ['worksheetId', 'rowId', 'viewId']),
+        ) ||
+        this.props.formFlag !== prevProps.formFlag ||
+        this.props.entityType !== prevProps.entityType
+      ) {
+        this.getFollower(this.props);
+      }
     }
   }
 
@@ -168,7 +174,7 @@ export default class WorkSheetCommentList extends Component {
                     style={{ lineHeight: '40px', height: 40 }}
                   >
                     {item.label}
-                    {isSelected && <Icon icon="done" className="Font14 ThemeColor3 isCheckedIcon" />}
+                    {isSelected && <Icon icon="done" className="Font14 colorPrimary isCheckedIcon" />}
                   </MenuItem>
                 );
               })}
@@ -178,7 +184,7 @@ export default class WorkSheetCommentList extends Component {
                 style={{ lineHeight: '40px', height: 40, borderTop: '1px solid var(--color-border-secondary)' }}
               >
                 {_l('包含附件的讨论')}
-                {containAttachment && <Icon icon="done" className="Font14 ThemeColor3 isCheckedIcon" />}
+                {containAttachment && <Icon icon="done" className="Font14 colorPrimary isCheckedIcon" />}
               </MenuItem>
             </Menu>
           </Wrap>
@@ -189,16 +195,16 @@ export default class WorkSheetCommentList extends Component {
             <Icon
               icon="filter_list"
               className={cx('Font20 textSecondary hoverColorPrimary Hand', {
-                ThemeColor3: focusType !== 0 || containAttachment,
+                colorPrimary: focusType !== 0 || containAttachment,
               })}
             />
           </Tooltip>
           {filterText && !searchActive && (
             <span className="flexRow alignItemsCenter mLeft3">
-              <span className="Font13 ThemeColor3">{filterText}</span>
+              <span className="Font13 colorPrimary">{filterText}</span>
               <Icon
                 icon="close"
-                className="Font14 ThemeColor3 isCheckedIcon mLeft3"
+                className="Font14 colorPrimary isCheckedIcon mLeft3"
                 onClick={e => {
                   e.stopPropagation();
                   this.setState({
@@ -280,7 +286,7 @@ export default class WorkSheetCommentList extends Component {
             className={cx(
               'mLeft8 Font20 textSecondary hoverColorPrimary Hand flexRow alignItemsCenter icon_Hover_21 pLeft5 pRight5',
               {
-                ThemeColor3: isFocus,
+                colorPrimary: isFocus,
               },
             )}
             onClick={e => {
@@ -289,7 +295,7 @@ export default class WorkSheetCommentList extends Component {
             }}
           >
             {focusLoading ? (
-              <LoadDiv size="small" className="ThemeColor3" />
+              <LoadDiv size="small" className="colorPrimary" />
             ) : (
               <Icon icon={isFocus ? 'notification_turn_on' : 'Silent'} className="Font20" />
             )}
@@ -319,11 +325,11 @@ export default class WorkSheetCommentList extends Component {
                   {
                     <Icon
                       icon={'notification_turn_on'}
-                      className={cx('Font20 textTertiary hoverColorPrimary Hand', { ThemeColor3: isFocus })}
+                      className={cx('Font20 textTertiary hoverColorPrimary Hand', { colorPrimary: isFocus })}
                     />
                   }
                   <div className="flex flexColumn mLeft10">
-                    <div className={cx('Bold textPrimary ThemeColor3')}>{_l('关注中')}</div>
+                    <div className={cx('Bold textPrimary colorPrimary')}>{_l('关注中')}</div>
                     <div className={cx('textTertiary')}>{_l('通知所有讨论；取消关注仅@你或回复时通知。')}</div>
                   </div>
                 </div>

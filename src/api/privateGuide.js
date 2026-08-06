@@ -9,6 +9,7 @@ export default {
    * @param {string} args.licenseTemplateVersion 支持的密钥模板版本
    * @param {} args.licenseVersion
    * @param {string} args.channel 申请来源
+   * @param {string} args.product 产品，支持 hap、hdp；未传时按 hap 处理
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -25,6 +26,19 @@ export default {
    **/
   getLicenseList: function (args, options = {}) {
     return mdyAPI('PrivateGuide', 'GetLicenseList', args, options);
+  },
+  /**
+   * 获取当前用户秘钥申请列表
+   * @param {Object} args 请求参数
+   * @param {string} args.product 产品，支持 hap、hdp；未传时按 hap 处理
+   * @param {integer} args.pageIndex 页码，从 1 开始；未传时默认为 1
+   * @param {integer} args.pageSize 每页条数；未传时默认为 50，最大不超过 100
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getApplyLicenseList: function (args, options = {}) {
+    return mdyAPI('PrivateGuide', 'GetApplyLicenseList', args, options);
   },
   /**
    * 获取当前服务器信息

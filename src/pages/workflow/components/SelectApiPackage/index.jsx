@@ -109,7 +109,7 @@ export default ({
             <div className="flex" />
             {allowAdd && !md.global.SysSettings.hideIntegration && (
               <span
-                className="Font15 pointer ThemeColor3 ThemeHoverColor2"
+                className="Font15 pointer colorPrimary hoverColorPrimaryDark"
                 onClick={() => navigateTo('/integration/connectList')}
               >
                 + {_l('添加新连接')}
@@ -132,7 +132,7 @@ export default ({
               </div>
               {allowAdd && (
                 <span
-                  className="selectApiPackageBtn ThemeBGColor3 ThemeHoverBGColor2"
+                  className="selectApiPackageBtn bgColorPrimary hoverBgColorPrimaryDark"
                   onClick={() => navigateTo('/integration/connectList')}
                 >
                   {_l('去集成中心创建')}

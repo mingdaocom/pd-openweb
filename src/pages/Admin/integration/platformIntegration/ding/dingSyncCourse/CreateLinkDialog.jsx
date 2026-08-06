@@ -21,8 +21,7 @@ const CreateLinkDialog = props => {
       setSsoLink(url);
     } else {
       const { pathname } = new URL(appLink);
-      const ret = pathname.replace(/^\//, '');
-      const url = `${baseUrl}&p=${projectId}&ret=${encodeURIComponent(ret)}`;
+      const url = `${baseUrl.split('?')[0]}?p=${projectId}&url=${encodeURIComponent(pathname)}`;
       setSsoLink(url);
     }
   };

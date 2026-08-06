@@ -17,7 +17,7 @@ export default class Amap extends Component {
     mapTools: false,
     mapOptions: { zoom: 18 },
     onAddressChange: () => {},
-    placeholder: '请输入地址',
+    placeholder: _l('请输入地址'),
     inputAlign: 'left',
     autoGeolocation: false,
     mapSearch: true,
@@ -93,15 +93,16 @@ export default class Amap extends Component {
     this.handleCurrPos = this.handleCurrPos.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { defaultAddress } = nextProps;
-    const { lng, lat } = defaultAddress || {};
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { defaultAddress } = this.props;
+      const { lng, lat } = defaultAddress || {};
 
-    if (defaultAddress && lat) {
-      this.setPosition(lng, lat);
+      if (defaultAddress && lat) {
+        this.setPosition(lng, lat);
+      }
     }
-  }
-  componentDidUpdate() {
+
     if (this.props.onUpdate) {
       this.props.onUpdate();
     }

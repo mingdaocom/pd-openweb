@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Button, Dialog, Icon, Input, LoadDiv, Support, Switch, UpgradeIcon } from 'ming-ui';
 import workMicrosoftApi from 'src/api/workMicrosoft';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import CancelIntegration from '../components/CancelIntegration';
 import SyncDialog from '../components/SyncDialog';
 import microsoftImg from '../images/microsoft.png';
@@ -62,7 +62,7 @@ export default function Microsoft(props) {
 
     if (tenantId && state) {
       await workMicrosoftApi.setWorkMicrosoftTenantId({ tenantId, state });
-      history.replaceState(null, '', `/admin/platformintegration/${projectId}`);
+      history.replaceState(null, '', pathCompletion(`/admin/platformintegration/${projectId}`, { hasDomain: false }));
     }
 
     workMicrosoftApi
@@ -78,7 +78,7 @@ export default function Microsoft(props) {
   const onConnectMicrosoft = () => {
     const handleConnect = () => {
       const targetOrigin = 'https://login.microsoftonline.com/organizations/adminconsent';
-      const redirectUrl = `${md.global.Config.WebUrl}microsoftAuth`;
+      const redirectUrl = pathCompletion('/microsoftAuth');
       const url = `${targetOrigin}?client_id=${setting.clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${setting.state}_${projectId}`;
       location.href = url;
     };
@@ -225,7 +225,7 @@ export default function Microsoft(props) {
             </div>
           ) : (
             <Fragment>
-              <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={onClose} />
+              <i className="icon-backspace Font22 hoverColorPrimary pointer mRight10" onClick={onClose} />
               <div className="Font17 bold">{_l('Microsoft Entra 集成')}</div>
             </Fragment>
           )}
@@ -292,7 +292,7 @@ export default function Microsoft(props) {
                         <Support
                           type={3}
                           text={_l('参考帮助文档')}
-                          href="https://help.mingdao.com"
+                          href="https://help.mingdao.com/entra/integration-guide"
                           className="mBottom2"
                         />
                       </div>
@@ -322,7 +322,7 @@ export default function Microsoft(props) {
                       )}
                     </span>
                     <span
-                      className="ThemeColor3 Hand mLeft8 ThemeHoverColor2"
+                      className="colorPrimary Hand mLeft8 hoverColorPrimaryDark"
                       onClick={() => setBindDialogVisible(true)}
                     >
                       {_l('账号绑定关系列表')}

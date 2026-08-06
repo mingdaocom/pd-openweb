@@ -1,41 +1,64 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-let intervall = null;
 export default class CountDown extends Component {
   constructor(props) {
     super(props);
     this.state = {
       endDate: props.endDate || new Date(),
     };
+    this.interval = null;
   }
+
   componentDidMount() {
     this.func();
-    intervall = setInterval(() => {
-      this.func();
-    }, 60000);
+    this.startTimer();
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.endDate !== nextProps.endDate) {
-      this.setState({ endDate: nextProps.endDate }, () => {
-        this.func();
-        intervall = setInterval(() => {
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.endDate !== this.props.endDate) {
+      this.setState(
+        {
+          endDate: this.props.endDate,
+        },
+        () => {
           this.func();
-        }, 60000);
-      });
+          this.startTimer();
+        },
+      );
     }
   }
+
+  componentWillUnmount() {
+    this.clearTimer();
+  }
+
+  startTimer = () => {
+    this.clearTimer();
+    this.interval = setInterval(() => {
+      this.func();
+    }, 60000);
+  };
+
+  clearTimer = () => {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  };
+
   // 时间转换成毫秒数
   getMillsecond = date => {
     return moment(date).valueOf();
   };
+
   func = () => {
     const { endDate = new Date() } = this.state;
     let startDate = new Date();
     let diffValue = this.getMillsecond(endDate) - this.getMillsecond(startDate);
 
     if (diffValue < 0) {
-      clearInterval(intervall);
+      this.clearTimer();
     }
 
     let s = Math.floor((diffValue / 1000) % 60);

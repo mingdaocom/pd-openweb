@@ -73,44 +73,39 @@ class MessageView extends Component {
     const { session } = this.props;
     delete window[`scrollView-${session.id}`];
   }
-  componentWillReceiveProps(nextProps) {
-    const { session, sessionList, currentSession, gotoMessage } = nextProps;
-    const gotoMessageId = gotoMessage[session.id];
 
-    // 右侧点击了搜索消息
-    if (gotoMessageId) {
-      this.handleGotoMessage(gotoMessageId);
-      this.props.dispatch(actions.removeGotoMessage(session.id));
-    }
-
-    // 打开聊天框时，有10条以上的未读消息
-    if (currentSession && currentSession.value) {
-      const topUnread = sessionList.filter(item => item.value == session.id)[0] || {};
-
-      if (!topUnread.messageCount) {
-        return;
-      }
-
-      this.setState({
-        topUnread: topUnread.messageCount > config.MSG_LENGTH_MORE ? topUnread.messageCount : 0,
-      });
-    }
-  }
   componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { session, sessionList, currentSession, gotoMessage } = this.props;
+      const gotoMessageId = gotoMessage[session.id]; // 右侧点击了搜索消息
+
+      // 右侧点击了搜索消息
+      if (gotoMessageId) {
+        this.handleGotoMessage(gotoMessageId);
+        prevProps.dispatch(actions.removeGotoMessage(session.id));
+      } // 打开聊天框时，有10条以上的未读消息
+
+      // 打开聊天框时，有10条以上的未读消息
+      if (currentSession && currentSession.value) {
+        const topUnread = sessionList.filter(item => item.value == session.id)[0] || {};
+
+        if (topUnread.messageCount) {
+          this.setState({
+            topUnread: topUnread.messageCount > config.MSG_LENGTH_MORE ? topUnread.messageCount : 0,
+          });
+        }
+      }
+    }
+
     const { session, messages, sessionList } = prevProps;
     const { id } = session;
     const prevMessage = messages[id];
     const newMessages = this.props.messages[id];
     const topUnread = sessionList.filter(item => item.value == id)[0] || {};
-    const { direction, isDownLoadingMessage } = this.state;
+    const { direction, isDownLoadingMessage } = this.state; // 加载完新消息，存在需要查询的消息
 
-    // 加载完新消息，存在需要查询的消息
     if (this.state.gotoMessageId) {
       this.handleGotoMessage(this.state.gotoMessageId);
-      return;
-    }
-
-    if (!_.isArray(newMessages)) {
       return;
     }
 
@@ -118,29 +113,28 @@ class MessageView extends Component {
     if (!_.isArray(prevMessage)) {
       this.handleScrollEnd();
       return;
-    }
+    } // 加载一页
 
-    // 加载一页
     if (newMessages.length - prevMessage.length >= config.MSG_LENGTH_MORE && direction == 'up') {
       setTimeout(() => {
         if (!this.scrollView) return;
         const { scrollTo, getScrollInfo } = this.scrollView;
         const { scrollHeight } = getScrollInfo();
-        scrollTo({ top: scrollHeight - this.lastScrollHeight });
+        scrollTo({
+          top: scrollHeight - this.lastScrollHeight,
+        });
       }, 0);
       return;
-    }
+    } // 刚发送的消息 & 收到新消息
 
-    // 刚发送的消息 & 收到新消息
     if (newMessages.length - prevMessage.length === 1) {
       const message = newMessages[newMessages.length - 1];
 
       if (message.isMine) {
         isDownLoadingMessage ? this.handleBottomEnd() : this.handleScrollEnd();
       }
-    }
+    } // 已经打开的窗口，有新消息
 
-    // 已经打开的窗口，有新消息
     if (newMessages.length === prevMessage.length) {
       if (topUnread.count) {
         this.handleScrollEnd();
@@ -434,7 +428,7 @@ class MessageView extends Component {
             className="InviteMessage-content"
             onClick={this.handleAddMembers}
             dangerouslySetInnerHTML={{
-              __html: _l('快去%0加入当前%1吧', `<span class="addMember ThemeColor3">${inviteText}</span>`, targetText),
+              __html: _l('快去%0加入当前%1吧', `<span class="addMember colorPrimary">${inviteText}</span>`, targetText),
             }}
           ></div>
         )}
@@ -482,7 +476,7 @@ class MessageView extends Component {
     const { loading, errorParam } = this.state;
     return (
       <div
-        className="ChatPanel-messageInfo ChatPanel-messageLoading ThemeColor3"
+        className="ChatPanel-messageInfo ChatPanel-messageLoading colorPrimary"
         onClick={this.handleLoadMore.bind(this, direction)}
       >
         {loading ? (errorParam ? _l('加载失败，点击重新加载') : _l('加载中...')) : _l('加载更多')}
@@ -509,7 +503,7 @@ class MessageView extends Component {
         className={cx('ChatPanel-unreadTop', { hidden: !topUnread })}
         onClick={this.handleTopUnreadScroll.bind(this)}
       >
-        <span className="ChatPanel-unreadTop-content ThemeColor3">
+        <span className="ChatPanel-unreadTop-content colorPrimary">
           {atId ? _l('有人@了你') : _l('%0条未读消息', topUnread)}
         </span>
         <i className="icon-delete" onClick={this.handleRemoveTopUnread.bind(this)} />
@@ -522,7 +516,7 @@ class MessageView extends Component {
     const message = bottomUnread[bottomUnread.length - 1];
     const { sysType } = message;
     return (
-      <div className="ChatPanel-unreadBottom ThemeBGColor4" onClick={this.handleBottomUnreadScroll.bind(this)}>
+      <div className="ChatPanel-unreadBottom bgColorPrimary" onClick={this.handleBottomUnreadScroll.bind(this)}>
         {sysType ? undefined : (
           <div className="userAvatar">
             <img
@@ -539,7 +533,7 @@ class MessageView extends Component {
   }
   renderIconBottom() {
     return (
-      <div className="ChatPanel-iconBottom icon-bottom ThemeColor3 hidden" onClick={this.handleBottomEnd.bind(this)} />
+      <div className="ChatPanel-iconBottom icon-bottom colorPrimary hidden" onClick={this.handleBottomEnd.bind(this)} />
     );
   }
   render() {

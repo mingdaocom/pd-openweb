@@ -65,9 +65,6 @@ const Wrap = styled.div`
     margin-left: 5px;
     background: var(--color-success);
   }
-  .appIntroWrap {
-    margin: 2px 10px 0 0;
-  }
   .count {
     color: var(--color-white);
     border-radius: 20px;
@@ -191,9 +188,7 @@ export default class UpgradeStatus extends Component {
         <div className="isUpgrade">{_l('升级中')}</div>
         {description && (
           <Tooltip title={pcNaviStyle === 1 ? '' : _l('应用说明')}>
-            <div className="appIntroWrap pointer">
-              <Icon className="appIntroIcon Font16" icon="info" />
-            </div>
+            <Icon className="appIntroIcon pointer Font16 mLeft5" icon="info" />
           </Tooltip>
         )}
       </Fragment>

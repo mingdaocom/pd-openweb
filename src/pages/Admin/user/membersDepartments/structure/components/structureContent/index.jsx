@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { antNotification, Checkbox, Dialog } from 'ming-ui';
+import { Checkbox, Dialog } from 'ming-ui';
 import RoleController from 'src/api/role';
-import userAjax from 'src/api/user';
 import addFriends from 'src/components/addFriends';
 import { checkCertification } from 'src/components/checkCertification';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
@@ -14,6 +13,7 @@ import * as entitiesActions from '../../actions/entities';
 import DialogBatchEdit from '../../modules/dialogBatchEdit';
 import AddUser from '../AddUser';
 import ApprovalContent from '../ApprovalContent';
+import BatchResign from '../BatchResign';
 import UserTable from '../userList/userTable';
 
 class StructureContent extends Component {
@@ -95,59 +95,6 @@ class StructureContent extends Component {
   //  批量编辑
   batchEdit = () => {
     this.setState({ batchEditVisible: true });
-  };
-
-  // 批量离职
-  batchResign = () => {
-    const { selectedAccountIds, projectId, updateSelectedAccountIds = () => {} } = this.props;
-
-    if (selectedAccountIds.length > 50) {
-      alert(_l('请注意，单次批量离职人数不得超过50人'), 2);
-      return;
-    }
-
-    Dialog.confirm({
-      title: _l('批量离职'),
-      buttonType: 'danger',
-      description: (
-        <div className="textPrimary">
-          {_l('您共勾选了')}
-          <span className="colorPrimary"> {selectedAccountIds.length} </span>
-          {_l('个成员，是否确认将勾选成员离职？')}
-        </div>
-      ),
-      okText: _l('确认'),
-      onOk: () => {
-        userAjax
-          .removeUsers({
-            projectId,
-            accountIds: selectedAccountIds,
-          })
-          .then(res => {
-            if (res.result === 1) {
-              this.loadData();
-              updateSelectedAccountIds([]);
-            } else if (res.result === 3) {
-              let users = (res.failedNames || []).map(u => `"${u}"`).join('、');
-
-              antNotification['error']({
-                className: 'removeUserErr',
-                key: 'removeUserErr',
-                duration: 5,
-                message: _l('批量离职失败'),
-                description: (
-                  <div>
-                    <div>{_l('您操作的成员批量离职失败')}</div>
-                    <div>{_l('失败原因：用户%0是超级管理员，不可离职', users)}</div>
-                  </div>
-                ),
-              });
-            } else if (res.result === 101) {
-              alert(_l('请注意，您勾选了自己，无法进行离职操作。'), 2);
-            }
-          });
-      },
-    });
   };
 
   // 重新邀请
@@ -270,14 +217,14 @@ class StructureContent extends Component {
                   className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
                   onClick={_.isEmpty(selectedAccountIds) ? () => {} : this.batchEdit}
                 >
-                  {_l('批量编辑')}
+                  {_l('编辑')}
                 </div>
-                <div
-                  className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-                  onClick={_.isEmpty(selectedAccountIds) ? () => {} : this.batchResign}
-                >
-                  {_l('批量离职')}
-                </div>
+                <BatchResign
+                  projectId={projectId}
+                  selectedAccountIds={selectedAccountIds}
+                  loadData={this.loadData}
+                  updateSelectedAccountIds={this.props.updateSelectedAccountIds}
+                />
               </Fragment>
             ) : typeCursor === 2 ? (
               <Fragment>

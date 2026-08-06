@@ -10,6 +10,9 @@ export const SettingCollapseWrap = styled(Collapse)`
       &:last-child {
         border-bottom: none !important;
       }
+      .ant-collapse-content {
+        color: var(--color-text-primary) !important;
+      }
     }
     .ant-collapse-item > .ant-collapse-header {
       padding: ${props => `${props.headerPadding || 20}px 0 !important`};

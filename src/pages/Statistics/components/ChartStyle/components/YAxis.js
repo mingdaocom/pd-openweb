@@ -18,6 +18,7 @@ class YAxis extends Component {
             <div className="mBottom8">{_l('图表类型')}</div>
             <div className="chartTypeSelect flexRow valignWrapper">
               <div
+                title={_l('柱图')}
                 className={cx('flex centerAlign pointer textSecondary', {
                   active: yreportType == reportTypes.BarChart,
                 })}
@@ -30,9 +31,10 @@ class YAxis extends Component {
                   );
                 }}
               >
-                {_l('柱图')}
+                <span className="ellipsis">{_l('柱图')}</span>
               </div>
               <div
+                title={_l('折线图')}
                 className={cx('flex centerAlign pointer textSecondary', {
                   active: yreportType == reportTypes.LineChart,
                 })}
@@ -45,7 +47,7 @@ class YAxis extends Component {
                   );
                 }}
               >
-                {_l('折线图')}
+                <span className="ellipsis">{_l('折线图')}</span>
               </div>
             </div>
           </div>

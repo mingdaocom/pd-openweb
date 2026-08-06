@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import * as actions from 'src/pages/chat/redux/actions';
 import { createDiscussion } from 'src/pages/chat/utils/group';
-import createGroup from 'src/pages/Group/createGroup';
+import createGroup from 'src/pages/Group/createGroup/load';
 
 const CreateWrap = styled.div`
   width: 48px;

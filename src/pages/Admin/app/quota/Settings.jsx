@@ -721,7 +721,7 @@ export default class LimitAttachmentUpload extends Component {
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
+            <Icon icon="backspace" className="Font22 hoverColorPrimary pointer" onClick={onClose} />
             <div className="Font17 bold flex mLeft10">{title}</div>
           </div>
         </div>

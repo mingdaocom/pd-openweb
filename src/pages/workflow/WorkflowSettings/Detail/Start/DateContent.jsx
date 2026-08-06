@@ -38,7 +38,7 @@ export default ({
     return {
       text: item.name,
       value: item.id,
-      className: item.id === data.appId ? 'ThemeColor3' : '',
+      className: item.id === data.appId ? 'colorPrimary' : '',
     };
   });
   const getList = selectId =>
@@ -48,7 +48,7 @@ export default ({
         return {
           text: renderTitle(item),
           value: item.controlId,
-          className: item.controlId === selectId ? 'ThemeColor3' : '',
+          className: item.controlId === selectId ? 'colorPrimary' : '',
         };
       });
   const dateNoTime = (_.find(data.controls, obj => obj.controlId === data.assignFieldId) || {}).type === 15;

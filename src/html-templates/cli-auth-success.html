@@ -66,8 +66,6 @@
                 margin-top: 30px;
             }
         </style>
-        <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
-        <script src="/src/common/mdjs/freestyle.js"></script>
     </head>
 
     <body>
@@ -76,11 +74,14 @@
                 <div class="title">登录成功</div>
                 <div class="description m-top30">了解更多</div>
                 <div class="m-top24">
-                    <a href="https://help.mingdao.com/extensions/developer/view/">帮助中心</a>
+                    <a id="help-center-link">帮助中心</a>
                 </div>
                 <div class="m-top30">您可以关闭此窗口了</div>
             </div>
         </div>
+        <script>
+            document.getElementById('help-center-link').setAttribute('href', location.href.includes('nocoly.com') ? 'https://help.nocoly.com/extensions/developer/view/' : 'https://help.mingdao.com/extensions/developer/view/');
+        </script>
         <script src="webpack[single]?src/pages/Mdye/AuthSuccess"></script>
     </body>
 </html>

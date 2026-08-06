@@ -114,7 +114,7 @@ export default function BaseChart(props) {
               />
             </div>
           ))}
-          {item.reportType === reportTypes.DualAxes && (
+          {[reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(item.reportType) && (
             <Fragment>
               <div className="flexRow alignItemsCenter mBottom15">
                 <Input className="flex mRight20" value={rightYSummary.name} disabled={true} />

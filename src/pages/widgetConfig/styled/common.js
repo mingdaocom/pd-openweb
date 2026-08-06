@@ -57,6 +57,17 @@ export const DropdownOverlay = styled.div`
       font-size: 13px;
       text-align: center;
     }
+    &.grayDropdown .item {
+      &:last-child {
+        i {
+          color: var(--color-error);
+        }
+        color: var(--color-error);
+      }
+      &:hover {
+        background: var(--color-background-hover);
+      }
+    }
     .item {
       display: flex;
       align-items: center;
@@ -85,7 +96,7 @@ export const DropdownOverlay = styled.div`
         }
       }
       &.delete {
-        &:not(disabled):hover {
+        &:not(disabled):not(.grayItem):hover {
           background-color: rgba(251, 0, 56, 0.08);
           color: var(--color-error);
           i {
@@ -97,7 +108,7 @@ export const DropdownOverlay = styled.div`
         cursor: not-allowed;
         color: var(--color-text-disabled);
       }
-      &:not(disabled):hover {
+      &:not(disabled):not(.grayItem):hover {
         background-color: var(--color-primary);
         color: var(--color-white);
         i {

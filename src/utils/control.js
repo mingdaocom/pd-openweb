@@ -1,27 +1,34 @@
 import { TinyColor } from '@ctrl/tinycolor';
 import copy from 'copy-to-clipboard';
 import dayjs from 'dayjs';
-import update from 'immutability-helper';
-import _, { filter, find, get, includes, isArray, isEmpty } from 'lodash';
+import _, { find, get, includes, isArray, isEmpty } from 'lodash';
 import moment from 'moment';
 import nzh from 'nzh';
 import { ToWords } from 'to-words';
 import { v4 as uuidv4 } from 'uuid';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
-import { FROM } from 'src/components/Form/core/config';
-import { DEFAULT_TEXT } from 'src/components/Form/core/enum';
+import { DEFAULT_TEXT, enumWidgetType } from 'src/components/Form/core/enum';
 import { OPTION_COLORS_LIST } from 'src/pages/widgetConfig/config';
 import { TITLE_SIZE_OPTIONS, UNIT_TO_TEXT, UNIT_TYPE } from 'src/pages/widgetConfig/config/setting';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { canSetWidgetStyle, getDateToEn, getShowFormat, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { RELATION_TYPE_NAME } from 'src/pages/worksheet/components/CellControls/enum';
 import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 import { accMul, browserIsMobile, countChar, domFilterHtmlScript } from 'src/utils/common';
+import {
+  canSetWidgetStyle,
+  controlState,
+  dealMaskValue,
+  getAdvanceSetting,
+  getColorValue,
+  getControlStateAndCheckSectionControl,
+  getDateToEn,
+  getShowFormat,
+  getTitleStyle,
+  handleAdvancedSettingChange,
+  isSheetDisplay,
+} from 'src/utils/controlCommon';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToUserZone, dateServerZoneToAppZone, getTimeZone } from 'src/utils/project';
 
@@ -57,45 +64,6 @@ export const REQUIRED_SUPPORTED_WIDGET_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.SEARCH, // 50 - API查询
 ];
 
-// 控件状态
-export const controlState = (data, from) => {
-  if (!data) {
-    return {};
-  }
-
-  const controlPermissions = data.controlPermissions || '111';
-  const fieldPermission = data.fieldPermission || '111';
-  let state = {
-    visible: true,
-    editable: true,
-  };
-
-  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC_ADD, FROM.H5_ADD, FROM.DRAFT], from)) {
-    state.visible = fieldPermission[0] === '1' && fieldPermission[2] === '1' && controlPermissions[2] === '1';
-    state.editable = fieldPermission[1] === '1';
-  } else {
-    state.visible = fieldPermission[0] === '1' && controlPermissions[0] === '1';
-    state.editable = fieldPermission[1] === '1' && controlPermissions[1] === '1';
-  }
-
-  return state;
-};
-
-export const getControlStateAndCheckSectionControl = (data, from, formData) => {
-  const sectionControl = data.sectionId && _.find(formData, c => c.controlId === data.sectionId);
-
-  if (!sectionControl) {
-    return controlState(data, from);
-  }
-
-  const stateOfControl = controlState(data, from);
-  const stateOfSectionControl = controlState({ ...sectionControl, controlPermissions: '111' }, from);
-  return {
-    ...stateOfControl,
-    editable: stateOfControl.editable && stateOfSectionControl.editable,
-  };
-};
-
 const stringCellList = [2, 3, 4, 25, 7, 19, 23, 24, 10010, 32, 33, 41, 15, 16, 5, 17, 18];
 const stringUnitCellList = [8, 6, 31, 38, 53];
 
@@ -111,41 +79,49 @@ export function checkControlCanSetStyle(type) {
   return _.includes(STRING, type);
 }
 
+const isCustomOptionKey = key => key.indexOf('other') > -1 || key.indexOf('add_') > -1;
+
 /** 获取选项 */
-export function getSelectedOptions(options, value, control) {
+export function getSelectedOptions(options = [], value, control) {
   if (!value || value === '[]') {
     return [];
   }
 
-  let selectedKeys = [];
-
   try {
-    selectedKeys = JSON.parse(value);
-    return (
-      get(control, 'advancedSetting.checktype') === '0'
-        ? filter(
-            options,
-            option =>
-              find(selectedKeys, selectedKey => {
-                if (selectedKey.indexOf('other') > -1 || selectedKey.indexOf('add_') > -1) {
-                  return selectedKey.indexOf(option.key) > -1;
-                }
+    const selectedKeys = JSON.parse(value);
+    const optionList = options || [];
+    const optionMap = new Map();
 
-                return selectedKey === option.key;
-              }) && !option.isDeleted,
-          ).map(option => option.key)
-        : selectedKeys
-    )
-      .map(key =>
-        _.find(options, option => {
-          if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {
-            return key.indexOf(option.key) > -1;
-          }
+    optionList.forEach(option => {
+      if (!optionMap.has(option.key)) {
+        optionMap.set(option.key, option);
+      }
+    });
 
-          return key === option.key;
-        }),
-      )
-      .filter(_.identity);
+    const selectedKeySet = new Set(selectedKeys.filter(key => !isCustomOptionKey(key)));
+    const customSelectedKeys = selectedKeys.filter(isCustomOptionKey);
+
+    const findOptionByKey = key => {
+      if (isCustomOptionKey(key)) {
+        return optionList.find(option => key.indexOf(option.key) > -1);
+      }
+
+      return optionMap.get(key);
+    };
+
+    const keys =
+      ((control || {}).advancedSetting || {}).checktype === '0'
+        ? optionList
+            .filter(
+              option =>
+                (selectedKeySet.has(option.key) ||
+                  customSelectedKeys.some(selectedKey => selectedKey.indexOf(option.key) > -1)) &&
+                !option.isDeleted,
+            )
+            .map(option => option.key)
+        : selectedKeys;
+
+    return keys.map(findOptionByKey).filter(Boolean);
   } catch (err) {
     console.log(err);
     return [];
@@ -341,7 +317,7 @@ export function sortControlByIds(controls = [], sortedIds = []) {
 /** 获取控件默认排序 */
 export function getControlsSorts(controls = [], sortedIds = []) {
   if (!sortedIds.length) {
-    return controls.map(c => c?.controlId || c?.data?.controlId).filter(() => _.identity);
+    return controls.map(c => c?.controlId || c?.data?.controlId).filter(_.identity);
   }
 
   sortedIds = sortedIds
@@ -350,7 +326,7 @@ export function getControlsSorts(controls = [], sortedIds = []) {
   const leftControlIds = controls
     .filter(c => !_.find(sortedIds, id => (c?.controlId || c?.data?.controlId) === id))
     .map(c => c?.controlId || c?.data?.controlId)
-    .filter(() => _.identity);
+    .filter(_.identity);
   return sortedIds.concat(leftControlIds);
 }
 
@@ -412,7 +388,7 @@ export function updateOptionsOfControl(control, value, realValue) {
     newOption = {
       index: control.options.length + 1,
       isDeleted: false,
-      key: _.last(JSON.parse(realValue)),
+      key: _.last(safeParse(realValue, 'array')),
       color: '#1677ff',
       value: value && (value.match(/"add_(.*)"]/) || '')[1],
     };
@@ -483,6 +459,7 @@ export function parseAdvancedSetting(setting = {}) {
     titleCenter: rctitlestyle === '1', // 垂直居中
     showCount: showcount !== '1', // 显示计数 默认勾选
     treeLayerControlId: layercontrolid, // 子表树形对应控件id
+    defaultLayer: Number(setting.defaultlayer || 1), // 子表树形默认展开层级
     direction, // 布局方向
     columnNum: columnnum, // h5 子表平铺显示列数
     showTitleId: showtitleid, // h5 子表平铺显示标题字段id
@@ -1195,19 +1172,27 @@ export function renderText(cell, options = {}) {
         } else if (_.get(cell, 'advancedSetting.showtype') === '2') {
           value = cell.value;
         } else if (cell.enumDefault === 2 && cell.relationControls.length) {
-          const titleControl = _.find(cell.relationControls, { controlId: cell.sourceControlId });
+          // 关联记录标题统一取每条记录的 name（与上面 enumDefault===1 分支一致）。
+          // 标题控件按 sourceControlId → sourceTitleControlId（关联他表标题控件 ID）→ 标题属性控件 依次匹配，
+          // 仅用于决定标题文本的类型格式化；即便匹配不到也照常渲染 name，避免把原始关联值 JSON 直接吐出来
+          //（如把关联字段设为关联记录卡片显示字段时，sourceControlId 指向的控件不在 relationControls 里）。
+          const titleControl =
+            _.find(cell.relationControls, { controlId: cell.sourceControlId }) ||
+            _.find(cell.relationControls, { controlId: cell.sourceTitleControlId }) ||
+            _.find(cell.relationControls, { attribute: 1 });
 
-          if (titleControl) {
-            value = parsedData
-              .map(
-                record =>
-                  renderText(
-                    _.assign({}, cell, { type: titleControl.sourceControlType || 2, value: record.name }),
-                    options,
-                  ) || _l('未命名'),
-              )
-              .join('、');
-          }
+          value = parsedData
+            .map(
+              record =>
+                renderText(
+                  _.assign({}, cell, {
+                    type: (titleControl && titleControl.sourceControlType) || 2,
+                    value: record.name,
+                  }),
+                  options,
+                ) || _l('未命名'),
+            )
+            .join('、');
         }
 
         break;
@@ -1404,6 +1389,12 @@ export function toFixed(num, dot = 0) {
 
   const strOfNum = String(num);
 
+  // 科学计数法（如浮点求和残差 -3.637978807091713e-12）没法走下面的字符串移位：
+  // 拼出的 `-3.637978807091713e-12e2` 会被 Number 解析成 NaN，最终输出 -N.aN。这类数量级交给原生 toFixed。
+  if (/e/i.test(strOfNum)) {
+    return Number(num).toFixed(dot);
+  }
+
   if (!/\./.test(strOfNum)) {
     return strOfNum + '.' + _.padEnd('', dot, '0');
   }
@@ -1415,15 +1406,15 @@ export function toFixed(num, dot = 0) {
   } else if (decimal < dot) {
     return strOfNum + _.padEnd('', dot - decimal, '0');
   } else {
-    const isNegative = num < 0;
+    const isNegative = Number(num) < 0;
 
     if (isNegative) {
       num = Math.abs(num);
     }
 
-    let data = String(Math.round(num * Math.pow(10, dot)));
-    data = _.padStart(data, dot, '0');
-    return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
+    let data = String(Math.round(Number(`${num}e${dot}`)));
+    data = _.padStart(data, dot + 1, '0');
+    return (isNegative ? '-' : '') + (data.slice(0, -dot) || '0') + '.' + data.slice(-1 * dot);
   }
 }
 
@@ -1439,34 +1430,10 @@ export function formatStrZero(str = '') {
   return String(str).replace(numStr[0], num);
 }
 
-// 获取advancedSetting属性转化为对象
-export const getAdvanceSetting = (data, key) => {
-  const setting = get(data, ['advancedSetting']) || {};
-
-  if (!key) return setting;
-
-  let value = get(setting, key);
-
-  if (!value) return '';
-
-  try {
-    return JSON.parse(value);
-  } catch (error) {
-    console.log(error);
-    return '';
-  }
-};
-
-// 更新advancedSetting数据
-export const handleAdvancedSettingChange = (data, obj) => {
-  return {
-    ...data,
-    advancedSetting: update(data.advancedSetting || {}, { $apply: item => ({ ...item, ...obj }) }),
-  };
-};
+export { controlState, getAdvanceSetting, getControlStateAndCheckSectionControl, handleAdvancedSettingChange };
 
 export function formatAttachmentValue(value, isRecreate = false, isRelation = false) {
-  const attachmentArr = JSON.parse(value || '[]');
+  const attachmentArr = safeParse(value || '[]', 'array');
   let attachmentValue = attachmentArr;
 
   if (attachmentArr.length) {
@@ -1494,7 +1461,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
         if (IsLocal && isRecreate && (item.viewUrl || item.previewUrl)) {
           const filelink = new URL(host);
           filePath = filePath.replace(filelink.pathname.slice(1), '');
-          searchParams = (item.viewUrl || item.previewUrl).match(/\?.*/)[0];
+          searchParams = ((item.viewUrl || item.previewUrl).match(/\?.*/) || [''])[0];
           isRelation && (extAttr = { ext: item.ext, previewUrl: item.previewUrl });
         }
 
@@ -2135,14 +2102,4 @@ export const isTimeStyle = (data = {}) => {
   }
 
   return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
-};
-
-// 将颜色变量转换为颜色值
-export const getColorValue = (color = '') => {
-  if (_.isString(color) && color.includes('-')) {
-    const match = color.match(/var\((--[^)]+)\)/);
-    return getComputedStyle(document.body).getPropertyValue(match[1]);
-  }
-
-  return color;
 };

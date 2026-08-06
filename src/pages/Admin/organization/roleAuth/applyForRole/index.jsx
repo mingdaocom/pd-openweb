@@ -19,7 +19,7 @@ export default class ApplyForRole extends React.Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.fetchData();
   }
 
@@ -76,7 +76,7 @@ export default class ApplyForRole extends React.Component {
                 <td>{user.roleName}</td>
                 <td>
                   <span
-                    className="Hand ThemeColor3"
+                    className="Hand colorPrimary"
                     onClick={() => {
                       RoleController.agreeUserToRole({
                         accountId: user.accountId,
@@ -146,7 +146,7 @@ export default class ApplyForRole extends React.Component {
       className: 'applyRoleDialog',
       width: 850,
       height: 668,
-      title: '申请角色请求',
+      title: _l('申请角色请求'),
       visible,
       onCancel: onClose,
       onOk: onOk,

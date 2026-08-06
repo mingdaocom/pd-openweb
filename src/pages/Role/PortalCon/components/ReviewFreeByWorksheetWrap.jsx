@@ -16,6 +16,15 @@ import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/Sing
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
+const renderSearchCom = () => {
+  return (
+    <React.Fragment>
+      <i className="icon icon-add"></i>
+      {_l('筛选条件')}
+    </React.Fragment>
+  );
+};
+
 export default function ReviewFreeByWorksheetWrap(props) {
   const { appId, projectId, onChange, query, canChooseOtherApp } = props;
   const [showMenu, setShowMenu] = useState(false);
@@ -84,15 +93,6 @@ export default function ReviewFreeByWorksheetWrap(props) {
     });
   };
 
-  const renderSearchCom = () => {
-    return (
-      <React.Fragment>
-        <i className="icon icon-add"></i>
-        {_l('筛选条件')}
-      </React.Fragment>
-    );
-  };
-
   if (loading) {
     return <LoadDiv className="mTop10" />;
   }
@@ -158,7 +158,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
                   </Menu>
                   {canChooseOtherApp && (
                     <div
-                      className="otherWorksheet pLeft16 Hand ThemeHoverColor3"
+                      className="otherWorksheet pLeft16 Hand hoverColorPrimary"
                       onClick={() => {
                         setShowMenu(false);
                         setvisible(true);

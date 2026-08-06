@@ -1,14 +1,13 @@
-import React, { Component, Fragment } from 'react';
-import DocumentTitle from 'react-document-title';
-import { ActionSheet, Dialog } from 'antd-mobile';
-import cx from 'classnames';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { generateRandomPassword } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import Back from '../../components/Back';
+import showAddAppActionSheet from '../components/AddAppActionSheet';
 import './index.less';
 
 class AppList extends Component {
@@ -66,57 +65,7 @@ class AppList extends Component {
     );
   }
   showActionSheet = () => {
-    const BUTTONS = [
-      {
-        key: 'application',
-        text: (
-          <Fragment>
-            <Icon className={cx('mRight10 textTertiary Font18')} icon="application_library" />
-            <span className="Bold">{_l('从模板库添加')}</span>
-          </Fragment>
-        ),
-      },
-      {
-        key: 'add',
-        text: (
-          <Fragment>
-            <Icon className={cx('mRight10 textTertiary Font18')} icon="add1" />
-            <span className="Bold">{_l('自定义创建')}</span>
-          </Fragment>
-        ),
-      },
-    ].filter(
-      v =>
-        (md.global.SysSettings.hideTemplateLibrary && v.key !== 'application') ||
-        !md.global.SysSettings.hideTemplateLibrary,
-    );
-    this.actionSheetHandler = ActionSheet.show({
-      actions: BUTTONS,
-      extra: (
-        <div className="flexRow header">
-          <span className="Font13">{_l('添加应用')}</span>
-          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
-            <Icon icon="close" />
-          </div>
-        </div>
-      ),
-      onAction: action => {
-        if (action.key === 'application') {
-          window.mobileNavigateTo(`/mobile/appBox`);
-        }
-
-        if (action.key === 'add') {
-          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
-          Dialog.alert({
-            content: title,
-            confirmText: _l('我知道了'),
-            onAction: () => {},
-          });
-        }
-
-        this.actionSheetHandler.close();
-      },
-    });
+    this.actionSheetHandler = showAddAppActionSheet();
   };
   render() {
     let { currentGroupList, loading, groupInfo = {} } = this.state;

@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _, { get, noop } from 'lodash';
 import styled from 'styled-components';
 import { FixedTable } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import worksheetApi from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
 import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
@@ -201,6 +201,7 @@ function WorksheetTable(props, ref) {
     showLoadingMask,
     loadingMaskChildren,
     isSubList,
+    disableValidate,
     formItemId,
     isRelateRecordList,
     readonly,
@@ -468,9 +469,11 @@ function WorksheetTable(props, ref) {
 
   function addHighlightClassOfRow(rowIndex) {
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+
     if (!tableDom) {
       return;
     }
+
     [
       ...tableDom.querySelectorAll(direction === 'horizontal' ? `.cell.row-${rowIndex}` : `.cell.col-${rowIndex}`),
     ].forEach(ele => ele.classList.add('highlight'));
@@ -479,9 +482,11 @@ function WorksheetTable(props, ref) {
 
   function removeHighlightClassOfRow() {
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+
     if (!tableDom) {
       return;
     }
+
     [...tableDom.querySelectorAll('.cell')].forEach(ele => {
       ele.classList.remove('highlight');
     });
@@ -490,10 +495,14 @@ function WorksheetTable(props, ref) {
 
   function focusCell(newIndex, { noTriggerHandFocusCell = false } = {}) {
     setCache('focusIndex', newIndex > 0 ? newIndex : undefined);
+    // 记录当前是否有单元格处于聚焦选中态，供全局 paste 守卫判断（避免选中单元格时粘贴呼出 AI 创建记录）
+    window.cellisfocus = newIndex > 0;
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+
     if (!tableDom) {
       return;
     }
+
     [...tableDom.querySelectorAll('.cell')].forEach(ele => {
       ele.classList.remove('focus');
       ele.classList.remove('highlight');
@@ -515,6 +524,7 @@ function WorksheetTable(props, ref) {
 
     window.activeTableId = tableId;
     const focusElement = tableDom.querySelector(`.cell-${newIndex}`);
+
     if (isSubList && !noTriggerHandFocusCell) {
       if (focusElement && focusElement.className.includes('lastRow') && focusElement.className.includes('col-1')) {
         window.handFocusCell = true;
@@ -522,7 +532,9 @@ function WorksheetTable(props, ref) {
         window.handFocusCell = false;
       }
     }
+
     const focusRowHeadElement = tableDom.querySelector(`.cell-${newIndex - (newIndex % cellColumnCount)}`);
+
     if (focusElement) {
       const rowIndex = _.get(focusElement.className.match(direction === 'horizontal' ? /row-(\d+)/ : /col-(\d+)/), 1);
       const checkResult = checkCellFullVisible(focusElement);
@@ -562,6 +574,7 @@ function WorksheetTable(props, ref) {
 
         input.focus({ preventScroll: true });
       }
+
       if (focusRowHeadElement) {
         focusRowHeadElement.classList.add('rowHadFocus');
       }
@@ -827,6 +840,9 @@ function WorksheetTable(props, ref) {
     }
 
     setCache('didMount', true);
+    return () => {
+      window.cellisfocus = false;
+    };
   }, []);
   const controlStyles = showControlStyle && getControlStyles(visibleColumns);
   const recordControlStyles = showControlStyle && getRecordControlStyles(ruleControlAdvancedSettings);
@@ -891,6 +907,7 @@ function WorksheetTable(props, ref) {
           allowAdd,
           allowlink,
           isSubList,
+          disableValidate,
           isRelateRecordList,
           fromModule,
           appId,
@@ -952,6 +969,11 @@ function WorksheetTable(props, ref) {
                 focusCell(cellIndex);
               }
             } else {
+              // simple 表格进入编辑不接管 focusIndex；但拖动 slider 等会主动 setFocus 残留 focusIndex，
+              // 编辑其它单元格时需清掉这份旧焦点，否则上一个 slider 的 focus 框不消失。
+              if (!_.isUndefined(cache.focusIndex) && cache.focusIndex !== cellIndex) {
+                focusCell(-10000);
+              }
               removeHighlightClassOfRow();
               addHighlightClassOfRow(rowIndex);
             }

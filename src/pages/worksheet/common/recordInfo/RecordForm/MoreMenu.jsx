@@ -97,7 +97,7 @@ export default function MoreMenu(props) {
       }}
     >
       <IconBtn className="moreBtn Hand Font22 mLeft10">
-        <Icon icon="more_horiz" className="ThemeHoverColor3" />
+        <Icon icon="more_horiz" className="hoverColorPrimary" />
       </IconBtn>
     </RecordOperate>
   );

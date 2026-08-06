@@ -1,11 +1,11 @@
-import React, { Component, createRef, Fragment } from 'react';
+import React, { Component, createRef, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { isOptionControl } from 'statistics/common';
+import { isOptionControl } from 'statistics/common/controlUtils';
 import DragMask from 'worksheet/common/DragMask';
 import { browserIsMobile } from 'src/utils/common';
 import charts from '../Charts';
@@ -15,7 +15,6 @@ import { Abnormal, Loading } from '../components/ChartStatus';
 import * as actions from '../redux/actions.js';
 
 const isMobile = browserIsMobile();
-
 const VerticalDrag = styled.div(
   ({ value }) => `
   position: absolute;
@@ -30,7 +29,6 @@ const VerticalDrag = styled.div(
   }
 `,
 );
-
 const HorizontalDrag = styled.div(
   ({ value }) => `
   position: absolute;
@@ -45,14 +43,8 @@ const HorizontalDrag = styled.div(
   }
 `,
 );
-
-@connect(
-  state => ({
-    ..._.pick(state.statistics, ['loading', 'currentReport', 'worksheetInfo', 'reportData', 'base', 'direction']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class Chart extends Component {
+const LoadableSheet = lazy(() => import('./Sheet'));
+let Chart = class Chart extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -61,25 +53,24 @@ export default class Chart extends Component {
       dragValue: 0,
       sheetSize: 0,
       dragMaskVisible: false,
-      Component: null,
     };
     this.$chartRef = createRef(null);
   }
+
   componentDidMount() {
     this.changeDragValue(this.props.direction);
-    import('./Sheet').then(component => {
-      this.setState({
-        Component: component.default,
-      });
-    });
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.scopeVisible !== this.props.scopeVisible || nextProps.direction !== this.props.direction) {
-      setTimeout(() => {
-        this.changeDragValue(nextProps.direction);
-      }, 0);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.scopeVisible !== prevProps.scopeVisible || this.props.direction !== prevProps.direction) {
+        setTimeout(() => {
+          this.changeDragValue(this.props.direction);
+        }, 0);
+      }
     }
   }
+
   changeDragValue(direction) {
     const { offsetHeight, offsetWidth } = this.$chartRef.current || {};
     const value = direction === 'vertical' ? offsetHeight : offsetWidth;
@@ -91,6 +82,7 @@ export default class Chart extends Component {
       max: (80 / 100) * value,
     });
   }
+
   renderChart() {
     const {
       projectId,
@@ -108,6 +100,7 @@ export default class Chart extends Component {
     const { xaxes = {}, reportType, valueMap, yvalueMap, locationMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
+
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
 
     const props = {
@@ -173,15 +166,7 @@ export default class Chart extends Component {
 
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
       const { map } = reportData;
-      return (
-        <Chart
-          {...props}
-          reportData={{
-            ...currentReport,
-            map,
-          }}
-        />
-      );
+      return <Chart {...props} reportData={{ ...currentReport, map }} />;
     }
 
     if (
@@ -221,12 +206,7 @@ export default class Chart extends Component {
       return map.length || isDisplayEmptyData ? (
         <Chart
           {...props}
-          reportData={{
-            ...currentReport,
-            map,
-            summary: settingVisible ? currentReport.summary : summary,
-            reportId,
-          }}
+          reportData={{ ...currentReport, map, summary: settingVisible ? currentReport.summary : summary, reportId }}
         />
       ) : (
         <WithoutData />
@@ -235,15 +215,11 @@ export default class Chart extends Component {
 
     if ([reportTypes.NumberChart].includes(reportType)) {
       const { map, contrast, contrastMap } = reportData;
-      const params = {
-        ...currentReport,
-        map,
-        contrast,
-        contrastMap,
-      };
+      const params = { ...currentReport, map, contrast, contrastMap };
       return <Chart {...props} reportData={params} />;
     }
   }
+
   render() {
     const {
       loading,
@@ -258,14 +234,18 @@ export default class Chart extends Component {
       renderHeaderDisplaySetup,
     } = this.props;
     const { createdBy = {}, lastModifiedBy = {} } = reportData;
+
     const viewId = _.get(currentReport, ['filter', 'viewId']);
-    const view = _.find(worksheetInfo.views, { viewId });
+
+    const view = _.find(worksheetInfo.views, {
+      viewId,
+    });
+
     const { direction, scopeVisible } = this.props;
-    const { dragMaskVisible, min, max, sheetSize, Component } = this.state;
+    const { dragMaskVisible, min, max, sheetSize } = this.state;
     const dragValue = this.state.dragValue - (scopeVisible && direction === 'horizontal' ? 320 : 0);
     const { sourceType, permissions, report } = base;
     const idVisible = sourceType === 1 ? isCharge : permissions;
-
     return (
       <div
         className={cx('chartBody Relative flex', {
@@ -283,10 +263,20 @@ export default class Chart extends Component {
               {this.renderChart()}
               {idVisible && !_.get(window, 'shareState.shareId') && (
                 <div className="flexRow mTop10 textTertiary Font13 userInfo">
-                  <span className="mRight25 ellipsis" style={{ maxWidth: 280 }}>
+                  <span
+                    className="mRight25 ellipsis"
+                    style={{
+                      maxWidth: 280,
+                    }}
+                  >
                     {_l('创建人')}: {createdBy.fullName}
                   </span>
-                  <span className="mRight25 ellipsis" style={{ maxWidth: 280 }}>
+                  <span
+                    className="mRight25 ellipsis"
+                    style={{
+                      maxWidth: 280,
+                    }}
+                  >
                     {_l('最后修改人')}: {lastModifiedBy.fullName}
                   </span>
                   {report.id && (
@@ -336,8 +326,8 @@ export default class Chart extends Component {
                 }}
               />
             )}
-            {Component ? (
-              <Component
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableSheet
                 direction={direction}
                 settingVisible={settingVisible}
                 isSmall={direction === 'horizontal' ? sheetSize < 540 : false}
@@ -349,18 +339,37 @@ export default class Chart extends Component {
                   onChangeSheetVisible(false);
                 }}
               />
-            ) : (
-              <LoadDiv />
-            )}
+            </Suspense>
             {direction === 'vertical' && (
-              <VerticalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
+              <VerticalDrag
+                value={dragValue}
+                onMouseDown={() =>
+                  this.setState({
+                    dragMaskVisible: true,
+                  })
+                }
+              />
             )}
             {direction === 'horizontal' && (
-              <HorizontalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
+              <HorizontalDrag
+                value={dragValue}
+                onMouseDown={() =>
+                  this.setState({
+                    dragMaskVisible: true,
+                  })
+                }
+              />
             )}
           </Fragment>
         )}
       </div>
     );
   }
-}
+};
+Chart = connect(
+  state => ({
+    ..._.pick(state.statistics, ['loading', 'currentReport', 'worksheetInfo', 'reportData', 'base', 'direction']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(Chart);
+export default Chart;

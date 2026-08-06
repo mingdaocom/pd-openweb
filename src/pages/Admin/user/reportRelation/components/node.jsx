@@ -262,27 +262,25 @@ const ConnectedNode = connect((state, ownProps) => {
     isLoading,
     firstLevelLoading,
   } = state;
+  const id = _.isUndefined(ownProps.id) ? '' : ownProps.id;
+  const level = _.isUndefined(ownProps.level) ? 0 : ownProps.level;
   const user = ownProps.dataFromProps
     ? {
-        ...ownProps.data[ownProps.id],
-        disableMore: ownProps.data[ownProps.id].disableMore,
+        ...ownProps.data[id],
+        disableMore: ownProps.data[id].disableMore,
       }
-    : users[ownProps.id];
+    : users[id];
 
   return {
     ...user,
     // ...ownProps,
-    level: ownProps.level,
-    isHighLight: highLightId === ownProps.id,
+    id,
+    level,
+    isHighLight: highLightId === id,
     isLoading,
     firstLevelLoading: ownProps.dataFromProps ? ownProps.firstLevelLoading : firstLevelLoading,
     projectId: ownProps.projectId,
   };
 })(Node);
-
-ConnectedNode.defaultProps = {
-  id: '',
-  level: 0, // 层级  公司 为0 递增
-};
 
 export default ConnectedNode;

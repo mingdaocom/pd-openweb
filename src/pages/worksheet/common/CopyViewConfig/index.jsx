@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, Radio, SvgIcon, Switch } from 'ming-ui';
+import { Checkbox, Dialog, Icon, Input, Radio, SvgIcon } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
@@ -101,6 +101,61 @@ const DialogWrap = styled(Dialog)`
   }
 `;
 
+const getFilters = filterView => {
+  const filterList = _.get(VIEW_TYPE_FILTER_CONFIG, VIEW_DISPLAY_TYPE[filterView.viewType]);
+  const { worksheetId, viewId } = filterView;
+
+  if (worksheetId === viewId) {
+    //管理视图
+    return filterList.concat(['CardSet', 'Filter', 'Controls', 'Print', 'MobileSet', 'urlParams']);
+  }
+
+  switch (VIEW_DISPLAY_TYPE[filterView.viewType]) {
+    case 'detail':
+      return filterView.childType === 1 ? filterList.concat(['FastFilter', 'CardSet']) : filterList;
+    case 'structure':
+      return filterView.childType === 2
+        ? filterList.concat(['FastFilter', 'NavGroup'])
+        : filterView.advancedSetting.hierarchyViewType === '3'
+          ? filterList.filter(l => !['ColStyle', 'Show'].includes(l)).concat('CardSet')
+          : filterList;
+    default:
+      return filterList;
+  }
+};
+const isFilterCardSet = (view1, view2) => {
+  return (
+    ([3, 1, 6, 2].includes(view1.viewType) && [5, 4, 8].includes(view2.viewType)) ||
+    ([3, 1, 6, 2].includes(view2.viewType) && [5, 4, 8].includes(view1.viewType))
+  );
+};
+const renderSelectViews = list => {
+  return list.map(item => {
+    const isCustomize = VIEW_DISPLAY_TYPE[item.viewType] === 'customize';
+    const isManageView = item.worksheetId === item.viewId;
+    const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
+
+    return (
+      <Select.Option key={`select-view-item-${item.viewId}`} value={item.viewId}>
+        <SelectItem className="valignWrapper">
+          {isCustomize ? (
+            <SvgIcon
+              url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
+              fill={_.get(item, 'pluginInfo.iconColor') || 'var(--color-cyan-dark)'}
+              size={18}
+            />
+          ) : (
+            <Icon style={{ color: viewInfo.color, fontSize: '18px' }} icon={viewInfo.icon} />
+          )}
+          <span className="overflow_ellipsis flex mLeft8">
+            {item.name || (isManageView ? _l('数据管理') : _l('未命名'))}
+          </span>
+        </SelectItem>
+      </Select.Option>
+    );
+  });
+};
+
 export default function CopyViewConfig(props) {
   const { visible, type = 1, appId, view = {}, views = [], onClose = () => {}, updateViews } = props;
   const isCopyFrom = type === 1;
@@ -113,36 +168,6 @@ export default function CopyViewConfig(props) {
     })
     .filter(l => l.viewId !== view.viewId);
   const inputRef = useRef();
-
-  const getFilters = filterView => {
-    const filterList = _.get(VIEW_TYPE_FILTER_CONFIG, VIEW_DISPLAY_TYPE[filterView.viewType]);
-    const { worksheetId, viewId } = filterView;
-
-    if (worksheetId === viewId) {
-      //管理视图
-      return filterList.concat(['CardSet', 'Filter', 'Controls', 'Print', 'MobileSet', 'urlParams']);
-    }
-
-    switch (VIEW_DISPLAY_TYPE[filterView.viewType]) {
-      case 'detail':
-        return filterView.childType === 1 ? filterList.concat(['FastFilter', 'CardSet']) : filterList;
-      case 'structure':
-        return filterView.childType === 2
-          ? filterList.concat(['FastFilter', 'NavGroup'])
-          : filterView.advancedSetting.hierarchyViewType === '3'
-            ? filterList.filter(l => !['ColStyle', 'Show'].includes(l)).concat('CardSet')
-            : filterList;
-      default:
-        return filterList;
-    }
-  };
-
-  const isFilterCardSet = (view1, view2) => {
-    return (
-      ([3, 1, 6, 2].includes(view1.viewType) && [5, 4, 8].includes(view2.viewType)) ||
-      ([3, 1, 6, 2].includes(view2.viewType) && [5, 4, 8].includes(view1.viewType))
-    );
-  };
 
   const getConfigs = viewId => {
     const currentViewConfigs = COPY_CONFIGS.filter(l => !getFilters(view).includes(l.key));
@@ -218,33 +243,6 @@ export default function CopyViewConfig(props) {
     }
 
     setState({ saveLoading: false });
-  };
-
-  const renderSelectViews = list => {
-    return list.map(item => {
-      const isCustomize = VIEW_DISPLAY_TYPE[item.viewType] === 'customize';
-      const isManageView = item.worksheetId === item.viewId;
-      const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
-
-      return (
-        <Select.Option key={`select-view-item-${item.viewId}`} value={item.viewId}>
-          <SelectItem className="valignWrapper">
-            {isCustomize ? (
-              <SvgIcon
-                url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
-                fill={_.get(item, 'pluginInfo.iconColor') || 'var(--color-cyan-dark)'}
-                size={18}
-              />
-            ) : (
-              <Icon style={{ color: viewInfo.color, fontSize: '18px' }} icon={viewInfo.icon} />
-            )}
-            <span className="overflow_ellipsis flex mLeft8">
-              {item.name || (isManageView ? _l('数据管理') : _l('未命名'))}
-            </span>
-          </SelectItem>
-        </Select.Option>
-      );
-    });
   };
 
   const renderSelectView = () => {
@@ -325,55 +323,62 @@ export default function CopyViewConfig(props) {
 
     return (
       <div className="configWrap">
-        <div className="Font13 textPrimary mBottom10 bold">{_l('选择要复制的配置项')}</div>
-        <div className="Font13 mBottom14">
-          <span
-            className={cx('mRight24', disabledBtn ? 'textTertiary cursorNotAllowed' : 'textSecondary Hand', {
-              hoverColorPrimary: !disabledBtn,
-            })}
-            onClick={() => onBatchConfigs('all')}
-          >
-            {_l('选择全部')}
-          </span>
-          <span
-            className={cx(disabledBtn ? 'textTertiary cursorNotAllowed' : 'textSecondary Hand', {
-              hoverColorPrimary: !disabledBtn,
-            })}
-            onClick={() => onBatchConfigs('clear')}
-          >
-            {_l('清除全部')}
-          </span>
-        </div>
-        {COPY_CONFIGS_BY_GROUP.map(o => {
-          let list = configs.filter(it => o.types.includes(it.key));
+        <div className="Font13 textPrimary mBottom16 bold">{_l('选择要复制的配置项')}</div>
+        <div className="flexRow">
+          <div className="flex">
+            {COPY_CONFIGS_BY_GROUP.map(o => {
+              let list = configs.filter(it => o.types.includes(it.key));
 
-          if (list.length > 0) {
-            return (
-              <>
-                <div className="mTop20 pBottom10 textSecondary">{o.title}</div>
-                {list.map(l => {
-                  return (
-                    <div className="valignWrapper mBottom14">
-                      <Switch
-                        size="small"
-                        className="mRight8"
-                        disabled={disabledBtn}
-                        checked={selectConfigs.includes(l.key)}
-                        onClick={value =>
-                          setState({
-                            selectConfigs: value ? selectConfigs.filter(m => m !== l.key) : selectConfigs.concat(l.key),
-                          })
-                        }
-                      />
-                      <Icon icon={l.icon} className="Font20 mRight8 textTertiary" />
-                      <span className="textPrimary Font13">{l.label}</span>
-                    </div>
-                  );
-                })}
-              </>
-            );
-          }
-        })}
+              if (list.length > 0) {
+                return (
+                  <>
+                    <div className="pBottom10 textSecondary">{o.title}</div>
+                    {list.map(l => {
+                      return (
+                        <div className="valignWrapper mBottom12">
+                          <Checkbox
+                            text={
+                              <div className="inlineFlexRow alignItemsCenter mTop2">
+                                <Icon icon={l.icon} className="Font20 mLeft4 mRight8 textTertiary" />
+                                <span className="textPrimary Font13">{l.label}</span>
+                              </div>
+                            }
+                            disabled={disabledBtn}
+                            checked={selectConfigs.includes(l.key)}
+                            onClick={value =>
+                              setState({
+                                selectConfigs: value
+                                  ? selectConfigs.filter(m => m !== l.key)
+                                  : selectConfigs.concat(l.key),
+                              })
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              }
+            })}
+          </div>
+          <div>
+            <span
+              className={cx(
+                'mRight24',
+                disabledBtn ? 'textTertiary cursorNotAllowed' : 'colorPrimary Hand hoverColorPrimaryDark',
+              )}
+              onClick={() => onBatchConfigs('all')}
+            >
+              {_l('选择全部')}
+            </span>
+            <span
+              className={disabledBtn ? 'textTertiary cursorNotAllowed' : 'colorPrimary Hand hoverColorPrimaryDark'}
+              onClick={() => onBatchConfigs('clear')}
+            >
+              {_l('清除全部')}
+            </span>
+          </div>
+        </div>
       </div>
     );
   };

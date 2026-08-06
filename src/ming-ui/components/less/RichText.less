@@ -270,13 +270,91 @@ a.ck.ck-button:focus {
   border: none !important;
 }
 
-/* 深色模式下的 CKEditor 样式 */
-[data-theme='dark'] {
+/* 深色模式下的 CKEditor 样式（html 属性选择器提高优先级，覆盖 ckeditor5.css 里 :root 的变量） */
+html[data-theme='dark'] {
+  /*
+   * CKEditor 的对话框 / Balloon / 表单挂在 body 下，与富文本外层无关；通过覆盖 CK 官方 CSS 变量统一暗色 UI。
+   * （ckeditor5.css 中 dialog 背景引用 --ck-custom-*，默认未定义，这里一并补上）
+   */
+  --ck-custom-background: var(--color-background-card);
+  --ck-custom-border: var(--color-border-primary);
+  --ck-color-base-background: var(--color-background-card);
+  --ck-color-base-foreground: var(--color-background-tertiary);
+  --ck-color-base-border: var(--color-border-primary);
+  --ck-color-base-text: var(--color-text-primary);
+  --ck-color-text: var(--color-text-primary);
+  --ck-color-dialog-background: var(--color-background-card);
+  --ck-color-dialog-form-header-border: var(--color-border-primary);
+  --ck-dialog-overlay-background-color: var(--color-background-overlay);
+  --ck-dialog-drop-shadow: 0px 8px 24px rgba(0, 0, 0, 0.45);
+  --ck-color-input-background: var(--color-background-input);
+  --ck-color-input-border: var(--color-border-primary);
+  --ck-color-input-text: var(--color-text-primary);
+  --ck-color-input-disabled-background: var(--color-background-disabled);
+  --ck-color-input-disabled-border: var(--color-border-primary);
+  --ck-color-input-disabled-text: var(--color-text-disabled);
+  --ck-color-dropdown-panel-background: var(--color-background-card);
+  --ck-color-dropdown-panel-border: var(--color-border-primary);
+  --ck-color-list-background: var(--color-background-card);
+  --ck-color-list-button-hover-background: var(--color-background-hover);
+  --ck-color-list-button-on-background: var(--color-primary);
+  --ck-color-list-button-on-background-focus: var(--color-primary);
+  --ck-color-list-button-on-text: var(--color-text-inverse);
+  --ck-color-panel-background: var(--color-background-card);
+  --ck-color-panel-border: var(--color-border-primary);
+  --ck-color-toolbar-background: var(--color-background-tertiary);
+  --ck-color-toolbar-border: var(--color-border-primary);
+  --ck-color-button-default-hover-background: var(--color-background-hover);
+  --ck-color-button-default-active-background: var(--color-background-hover);
+  --ck-color-button-on-background: var(--color-primary-transparent);
+  --ck-color-button-on-hover-background: var(--color-primary-transparent-light);
+  --ck-color-button-on-active-background: var(--color-primary-transparent);
+  --ck-color-button-on-color: var(--color-primary);
+  --ck-color-button-on-disabled-background: var(--color-background-disabled);
+  --ck-color-switch-button-inner-background: var(--color-background-input);
+  --ck-color-tooltip-background: var(--color-background-inverse);
+  --ck-color-tooltip-text: var(--color-text-inverse);
+  --ck-color-engine-placeholder-text: var(--color-text-placeholder);
+  --ck-color-focus-outer-shadow: var(--color-primary-focus-outer);
+
   /* CKEditor 工具栏和按钮 */
   .ck.ck-toolbar {
     background: var(--color-background-secondary) !important;
     border-color: var(--color-border-primary) !important;
   }
+
+  /* 对话框内工具栏（表格属性等），避免与卡片背景糊成一片或出现异常反差 */
+  .ck.ck-dialog .ck.ck-toolbar {
+    background: var(--color-background-tertiary) !important;
+    border-color: var(--color-border-primary) !important;
+  }
+
+  .ck.ck-dialog .ck.ck-toolbar .ck-toolbar__items .ck-icon {
+    color: var(--color-text-title) !important;
+  }
+
+  /* 对话框内禁用/未选中工具项在深色底上保持可读 */
+  .ck.ck-dialog .ck.ck-button.ck-disabled .ck-icon,
+  .ck.ck-dialog .ck.ck-toolbar .ck.ck-button.ck-disabled .ck-icon {
+    color: var(--color-text-secondary) !important;
+    opacity: 1 !important;
+  }
+
+  /* 禁用按钮：默认 disabled 色 + CK 自带透明度在极深工具栏上几乎看不见，与系统「次要文案」层级对齐 */
+  .ck.ck-button.ck-disabled,
+  a.ck.ck-button.ck-disabled {
+    opacity: 1 !important;
+
+    .ck-icon {
+      color: var(--color-text-secondary) !important;
+      opacity: 1 !important;
+    }
+
+    .ck-button__label {
+      color: var(--color-text-secondary) !important;
+    }
+  }
+
   /* 编辑区文字颜色适配暗色模式 */
   .ck.ck-editor__editable {
     color: var(--color-text-primary);

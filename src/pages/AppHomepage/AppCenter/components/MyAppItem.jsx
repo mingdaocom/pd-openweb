@@ -1,27 +1,27 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, oneOf, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import { compareProps } from 'src/pages/PageHeader/util';
-import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { addBehaviorLog } from 'src/utils/project';
 import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
 import AppOperator from './AppOperator';
 import AppStatusComp from './AppStatus';
-import ExternalLinkDialog from './ExternalLinkDialog';
 import 'rc-trigger/assets/index.css';
 
-@withClickAway
-export default class MyAppItem extends Component {
+const LoadableExternalLinkDialog = lazy(() => import('./ExternalLinkDialog'));
+const LoadableManageUserDialog = lazy(() => import('src/pages/Role/AppRoleCon/ManageUserDialog.jsx'));
+
+let MyAppItem = class MyAppItem extends Component {
   static propTypes = {
     id: string,
     projectId: string,
@@ -37,7 +37,6 @@ export default class MyAppItem extends Component {
     newAppItemId: string,
     clearNewAppItemId: func,
   };
-
   static defaultProps = {
     onAppChange: _.noop,
     onAppIconUpdate: _.noop,
@@ -45,7 +44,6 @@ export default class MyAppItem extends Component {
     clearNewAppItemId: _.noop,
     newAppItemId: '',
   };
-
   state = {
     editAppVisible: false,
     selectIconVisible: false,
@@ -89,21 +87,25 @@ export default class MyAppItem extends Component {
 
   componentDidMount() {
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
-    this.setState({ selectIconLeft: offsetLeft < 414 && 0 });
+
+    this.setState({
+      selectIconLeft: offsetLeft < 414 && 0,
+    });
   }
 
   componentDidUpdate() {
     const newLeft = _.get(this, '$myAppItem.current.offsetLeft') < 414 && 0;
 
     if (this.state.selectIconLeft !== newLeft) {
-      this.setState({ selectIconLeft: newLeft });
+      this.setState({
+        selectIconLeft: newLeft,
+      });
     }
   }
 
   $myAppItem = React.createRef();
   clickTimer = null;
   dataCache = _.pick(this.props, ['icon', 'iconColor', 'name']);
-
   handleAppChange = obj => {
     const para = _.pick(this.props, [
       'projectId',
@@ -114,9 +116,9 @@ export default class MyAppItem extends Component {
       'name',
       'description',
     ]);
+
     this.props.onAppChange({ ...para, ...obj, appId: this.props.id });
   };
-
   handleModify = obj => {
     const { id: appId, projectId } = this.props;
 
@@ -126,11 +128,9 @@ export default class MyAppItem extends Component {
 
     this.props.handleModify({ ...obj, appId, projectId });
   };
-
   switchVisible = (obj, cb) => {
     this.setState(obj, cb);
   };
-
   handleMoreClick = type => {
     const { projectId } = this.props;
 
@@ -143,26 +143,42 @@ export default class MyAppItem extends Component {
           onChange: this.handleAppChange,
         });
         break;
+
       case 'del':
-        this.switchVisible({ delAppConfirmVisible: true });
+        this.switchVisible({
+          delAppConfirmVisible: true,
+        });
         break;
+
       case 'copy':
-        this.switchVisible({ copyAppVisible: true });
+        this.switchVisible({
+          copyAppVisible: true,
+        });
         break;
+
       case 'setExternalLink':
-        this.switchVisible({ externalLinkVisible: true });
+        this.switchVisible({
+          externalLinkVisible: true,
+        });
         break;
+
       case 'manageUser':
-        this.switchVisible({ showRoleDialog: true });
+        this.switchVisible({
+          showRoleDialog: true,
+        });
         break;
+
       default:
         break;
     }
   };
-
   handleApp = mode => {
     const { id: appId, projectId } = this.props;
-    this.props.handleApp({ appId, projectId, mode });
+    this.props.handleApp({
+      appId,
+      projectId,
+      mode,
+    });
   };
 
   render() {
@@ -205,11 +221,21 @@ export default class MyAppItem extends Component {
     const navColor = this.props.navColor || iconColor;
     const black = '#1b2025' === navColor;
     const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
-    const appName = _.get(_.find(appLang, { key: id }), 'value') || name;
+    const appName =
+      _.get(
+        _.find(appLang, {
+          key: id,
+        }),
+        'value',
+      ) || name;
     const hideTrigger = sourceType === 60 && !isGoodsStatus && isDashboard;
-
     return (
-      <div ref={this.$myAppItem} className={cx('sortableMyAppItemWrap', { active: editAppVisible })}>
+      <div
+        ref={this.$myAppItem}
+        className={cx('sortableMyAppItemWrap', {
+          active: editAppVisible,
+        })}
+      >
         <div className={cx('myAppItemWrap')}>
           <MdLink
             className="myAppItem stopPropagation"
@@ -221,12 +247,20 @@ export default class MyAppItem extends Component {
                 //是外部链接应用
                 e.stopPropagation();
                 e.preventDefault();
-                this.props.isNew && this.handleModify({ isNew: false });
+                this.props.isNew &&
+                  this.handleModify({
+                    isNew: false,
+                  });
                 window.open(transferExternalLinkUrl(urlTemplate, projectId, id));
               }
             }}
           >
-            <div className="myAppItemDetail" style={{ backgroundColor: light ? lightColor : navColor || iconColor }}>
+            <div
+              className="myAppItemDetail"
+              style={{
+                backgroundColor: light ? lightColor : navColor || iconColor,
+              }}
+            >
               <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} />
             </div>
@@ -248,7 +282,15 @@ export default class MyAppItem extends Component {
           <Tooltip title={isMarked ? _l('取消收藏') : _l('收藏')}>
             <div
               className="star appItemIcon"
-              onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked, groupType: type })}
+              onClick={() =>
+                handleApp({
+                  mode: 'mark',
+                  appId: id,
+                  projectId,
+                  isMark: !isMarked,
+                  groupType: type,
+                })
+              }
             >
               <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
             </div>
@@ -271,8 +313,19 @@ export default class MyAppItem extends Component {
                     isLock={isLock}
                     createType={createType}
                     onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
-                    onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
-                    onClickAway={() => this.switchVisible({ editAppVisible: false })}
+                    onClick={id =>
+                      this.switchVisible(
+                        {
+                          editAppVisible: false,
+                        },
+                        () => this.handleMoreClick(id),
+                      )
+                    }
+                    onClickAway={() =>
+                      this.switchVisible({
+                        editAppVisible: false,
+                      })
+                    }
                     isDashboard={isDashboard}
                     allowCreate={allowCreate}
                     myPermissions={myPermissions}
@@ -285,56 +338,117 @@ export default class MyAppItem extends Component {
                 popupAlign={{
                   points: ['tl', 'bl'],
                   offset: [0, 0],
-                  overflow: { adjustX: true },
+                  overflow: {
+                    adjustX: true,
+                  },
                 }}
                 getPopupContainer={() => this.$myAppItem.current}
                 destroyPopupOnHide
               >
-                <div className="myAppItemMore appItemIcon" onClick={() => this.switchVisible({ editAppVisible: true })}>
-                  <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="more_horiz" />
+                <div
+                  className="myAppItemMore appItemIcon"
+                  onClick={() =>
+                    this.switchVisible({
+                      editAppVisible: true,
+                    })
+                  }
+                >
+                  <Icon
+                    className={cx('moreOperation Font18', {
+                      active: editAppVisible,
+                    })}
+                    icon="more_horiz"
+                  />
                 </div>
               </Trigger>
             )}
           {delAppConfirmVisible && (
             <VerifyDel
-              para={{ appId: id, projectId: projectId, name: name }}
+              para={{
+                appId: id,
+                projectId: projectId,
+                name: name,
+              }}
               mode="del"
               onOk={para =>
-                this.switchVisible({ delAppConfirmVisible: false }, this.props.handleApp({ ...para, mode: 'del' }))
+                this.switchVisible(
+                  {
+                    delAppConfirmVisible: false,
+                  },
+                  this.props.handleApp({ ...para, mode: 'del' }),
+                )
               }
-              onCancel={() => this.switchVisible({ delAppConfirmVisible: false })}
+              onCancel={() =>
+                this.switchVisible({
+                  delAppConfirmVisible: false,
+                })
+              }
             />
           )}
           {copyAppVisible && (
             <CopyApp
               title={name}
               projectId={projectId}
-              para={{ appId: id, groupId, groupType }}
-              onCopy={appId => onCopy({ type, id, projectId, ...appId })}
-              onCancel={() => this.switchVisible({ copyAppVisible: false })}
+              para={{
+                appId: id,
+                groupId,
+                groupType,
+              }}
+              onCopy={appId =>
+                onCopy({
+                  type,
+                  id,
+                  projectId,
+                  ...appId,
+                })
+              }
+              onCancel={() =>
+                this.switchVisible({
+                  copyAppVisible: false,
+                })
+              }
               myPermissions={myPermissions}
             />
           )}
           {externalLinkVisible && (
-            <ExternalLinkDialog
-              projectId={projectId}
-              isEdit={true}
-              record={{ id, name, urlTemplate, pcDisplay, webMobileDisplay, appDisplay }}
-              onCancel={() => this.switchVisible({ externalLinkVisible: false })}
-              onAppChange={this.props.onAppChange}
-            />
+            <Suspense fallback={null}>
+              <LoadableExternalLinkDialog
+                projectId={projectId}
+                isEdit={true}
+                record={{
+                  id,
+                  name,
+                  urlTemplate,
+                  pcDisplay,
+                  webMobileDisplay,
+                  appDisplay,
+                }}
+                onCancel={() =>
+                  this.switchVisible({
+                    externalLinkVisible: false,
+                  })
+                }
+                onAppChange={this.props.onAppChange}
+              />
+            </Suspense>
           )}
           {showRoleDialog && (
-            <ManageUserDialog
-              appId={id}
-              projectId={projectId}
-              onCancel={() => {
-                this.switchVisible({ showRoleDialog: false });
-              }}
-            />
+            <Suspense fallback={null}>
+              <LoadableManageUserDialog
+                appId={id}
+                projectId={projectId}
+                onCancel={() => {
+                  this.switchVisible({
+                    showRoleDialog: false,
+                  });
+                }}
+              />
+            </Suspense>
           )}
         </div>
       </div>
     );
   }
-}
+};
+MyAppItem = ClickAway.wrap(MyAppItem);
+export default MyAppItem;

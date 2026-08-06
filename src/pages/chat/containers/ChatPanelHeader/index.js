@@ -8,6 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
 import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import settingGroup from 'src/pages/Group/settingGroup';
+import { pathCompletion } from 'src/utils/common';
 import * as actions from '../../redux/actions';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
@@ -32,13 +33,16 @@ class ChatPanelHeader extends Component {
       triggerVisible: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.searchText) {
-      this.setState({
-        focus: false,
-        searchVisible: false,
-        value: '',
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!this.props.searchText) {
+        this.setState({
+          focus: false,
+          searchVisible: false,
+          value: '',
+        });
+      }
     }
   }
   handleClosePanel() {
@@ -168,7 +172,9 @@ class ChatPanelHeader extends Component {
   handleOpenChatWindow() {
     const { session } = this.props;
     window.open(
-      `/windowChat?id=${session.id}&type=${session.groupId ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER}`,
+      pathCompletion(
+        `/windowChat?id=${session.id}&type=${session.groupId ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER}`,
+      ),
     );
   }
   handleStick() {
@@ -193,9 +199,9 @@ class ChatPanelHeader extends Component {
     }
 
     if (isGroup) {
-      window.open(`/feed?groupId=${id}`);
+      window.open(pathCompletion(`/feed?groupId=${id}`));
     } else {
-      window.open(`/user_${id}`);
+      window.open(pathCompletion(`/user_${id}`));
     }
   }
   renderIcon() {
@@ -251,7 +257,7 @@ class ChatPanelHeader extends Component {
         popup={this.renderMenu()}
         popupAlign={{ offset: [80, 10] }}
       >
-        <i className={cx('icon-settings ThemeColor3', { iconHover: !triggerVisible })} />
+        <i className={cx('icon-settings colorPrimary', { iconHover: !triggerVisible })} />
       </Trigger>
     );
   }
@@ -304,7 +310,7 @@ class ChatPanelHeader extends Component {
         )}
 
         <div className="title overflowHidden">
-          <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name" title={name}>
+          <span onClick={this.handleGoto.bind(this)} className="colorPrimary name" title={name}>
             {name}
           </span>
           {session.isGroup && !session.isPushNotice ? (
@@ -321,12 +327,12 @@ class ChatPanelHeader extends Component {
         <div className="other" style={{ marginRight: isWindow ? 15 : 0 }}>
           {isFileTrsnsfer ? undefined : (
             <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
-              <i onClick={this.handleSearch.bind(this)} className="icon-search ThemeColor3 iconHover" />
+              <i onClick={this.handleSearch.bind(this)} className="icon-search colorPrimary iconHover" />
               <input
                 ref={input => {
                   this.input = input;
                 }}
-                className={cx('search-input', { ThemeBorderColor3: focus })}
+                className={cx('search-input', { borderColorPrimary: focus })}
                 placeholder={session.isGroup ? _l('搜索成员、文件或聊天记录') : _l('搜索文件或聊天记录')}
                 onFocus={this.handleFocus.bind(this)}
                 onBlur={this.handleBlur.bind(this)}
@@ -335,12 +341,12 @@ class ChatPanelHeader extends Component {
                 type="text"
                 value={value}
               />
-              <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete ThemeColor3 iconHover" />
+              <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete colorPrimary iconHover" />
             </div>
           )}
           {session.isGroup || isFileTrsnsfer || hideChat ? undefined : (
             <Tooltip title={_l('发起聊天')}>
-              <i onClick={this.handleAddSession.bind(this)} className="icon-invite ThemeColor3 iconHover" />
+              <i onClick={this.handleAddSession.bind(this)} className="icon-invite colorPrimary iconHover" />
             </Tooltip>
           )}
 
@@ -348,7 +354,7 @@ class ChatPanelHeader extends Component {
             <Tooltip title={_l('查看文件')}>
               <i
                 onClick={this.props.onOpenFile.bind(this, !isOpenFile)}
-                className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })}
+                className={cx('icon-task-folder-solid colorPrimary', { iconHover: !isOpenFile })}
               />
             </Tooltip>
           )}
@@ -358,23 +364,26 @@ class ChatPanelHeader extends Component {
               {infoVisible ? (
                 <i
                   onClick={this.props.onSetInfoVisible.bind(this, false)}
-                  className="icon-sidebar-start ThemeColor3 iconHover"
+                  className="icon-sidebar-start colorPrimary iconHover"
                 />
               ) : (
                 <i
                   onClick={this.props.onSetInfoVisible.bind(this, true)}
-                  className="icon-drop_down_menu ThemeColor3 iconHover"
+                  className="icon-drop_down_menu colorPrimary iconHover"
                 />
               )}
             </Tooltip>
           ) : undefined}
           {!isFileTrsnsfer && (
             <Tooltip title={_l('新窗口聊天')}>
-              <i onClick={this.handleOpenChatWindow.bind(this)} className={`icon-maximizing_a ThemeColor3 iconHover`} />
+              <i
+                onClick={this.handleOpenChatWindow.bind(this)}
+                className={`icon-maximizing_a colorPrimary iconHover`}
+              />
             </Tooltip>
           )}
           {isWindow ? undefined : (
-            <i onClick={this.handleClosePanel.bind(this)} className="icon-close ThemeColor3 iconHover" />
+            <i onClick={this.handleClosePanel.bind(this)} className="icon-close colorPrimary iconHover" />
           )}
         </div>
       </div>

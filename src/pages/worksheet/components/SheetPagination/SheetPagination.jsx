@@ -27,7 +27,7 @@ export default class SheetPagination extends Component {
       <span
         className={cx('pageNum', {
           Hand: true,
-          ThemeColor3: index === pageIndex,
+          colorPrimary: index === pageIndex,
         })}
         onClick={() => {
           this.props.onChange(index);

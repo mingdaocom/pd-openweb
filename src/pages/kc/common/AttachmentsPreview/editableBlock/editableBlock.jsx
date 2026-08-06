@@ -22,11 +22,13 @@ class EditableBlock extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      value: nextProps.value,
-      value2: nextProps.value,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        value: this.props.value,
+        value2: this.props.value,
+      });
+    }
   }
 
   renameHandle() {

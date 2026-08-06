@@ -324,15 +324,6 @@ export const boardView = (
   }
 };
 
-export const viewCard = (state = { needUpdate: true, height: 0 }, action) => {
-  switch (action.type) {
-    case 'MOBILE_UPDATE_VIEW_CARD':
-      return { ...state, ...action.data };
-    default:
-      return state;
-  }
-};
-
 export const calendarView = (
   state = {
     calendar: [],
@@ -417,8 +408,17 @@ export function printList(state = [], action) {
 
 export function buttonsCheckStatus(state = {}, action) {
   switch (action.type) {
-    case 'MOBILE_UPDATE_BUTTONS_CHECK_STATUS':
-      return action.buttonsCheckStatus;
+    case 'MOBILE_UPDATE_BUTTONS_CHECK_STATUS': {
+      const nextState = { ...state };
+      action.rowIds.forEach(rowId => {
+        action.btnIds.forEach(btnId => {
+          delete nextState[`${rowId}-${btnId}`];
+        });
+      });
+
+      return { ...nextState, ...action.buttonsCheckStatus };
+    }
+
     default:
       return state;
   }

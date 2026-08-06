@@ -7,7 +7,7 @@ import { Button, Checkbox, LoadDiv, RichText, VerifyPasswordInput } from 'ming-u
 import accountAjax from 'src/api/account';
 import preall from 'src/common/preall';
 import verifyPassword from 'src/components/verifyPassword';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 import { Wrap } from './style.jsx';
 
@@ -52,7 +52,7 @@ export default class Cancellation extends Component {
       .getApplyLogOffAccount({ state })
       .then(res => {
         if (res === 0 || res === 5) {
-          location.href = '/login';
+          location.href = pathCompletion('/login');
         } else {
           this.setState(
             {
@@ -69,7 +69,7 @@ export default class Cancellation extends Component {
         }
       })
       .catch(() => {
-        location.href = '/login';
+        location.href = pathCompletion('/login');
       });
   };
   confirmPassword = () => {
@@ -138,7 +138,7 @@ export default class Cancellation extends Component {
 
               alert(actionMsg[res], type);
               if (res === 1) {
-                window.location.href = '/login';
+                window.location.href = pathCompletion('/login');
               }
 
               if (window.isMingDaoApp) {
@@ -174,7 +174,7 @@ export default class Cancellation extends Component {
         alert(actionMsg[data], type);
         if (data === 1) {
           // 撤销申请跳转至登录页
-          window.location.href = '/login';
+          window.location.href = pathCompletion('/login');
         }
       });
   };
@@ -225,7 +225,7 @@ export default class Cancellation extends Component {
         </div>
         {overdueDiff > 0 ? (
           <div className="mTop50">
-            {_l('如需撤销，请在')} <span className="ThemeColor3 mTop50 mBottom10 mLeft3 mRight3">{overdueDate} </span>
+            {_l('如需撤销，请在')} <span className="colorPrimary mTop50 mBottom10 mLeft3 mRight3">{overdueDate} </span>
             {_l('内撤销申请')}
           </div>
         ) : (

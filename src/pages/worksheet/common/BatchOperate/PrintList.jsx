@@ -10,6 +10,7 @@ import { handleSystemPrintRecord, handleTemplateRecordPrint } from 'worksheet/co
 import IconText from 'worksheet/components/IconText';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import { sendCloudPrint } from 'src/utils/record';
@@ -171,12 +172,12 @@ export default function PrintList(props) {
     const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
 
     if (window.isMDClient) {
-      alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
+      alert(_l('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器'), 3);
       return;
     }
 
     if (disablePrint) {
-      alert('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
+      alert(_l('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器'), 3);
       return;
     }
 
@@ -262,7 +263,7 @@ export default function PrintList(props) {
                 <Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />
               )
             }
-            onClick={() => {
+            onClick={async () => {
               if (_.includes([0, 6], template.type)) {
                 if (rowIds.length > MAX_SYSTEM_PRINT_COUNT || selectedLength > MAX_SYSTEM_PRINT_COUNT) {
                   alert(_l('单次最多打印 %0 条', MAX_SYSTEM_PRINT_COUNT), 3);
@@ -329,11 +330,18 @@ export default function PrintList(props) {
                   allowEditAfterPrint: template.allowEditAfterPrint,
                 };
                 let printKey = Math.random().toString(36).substring(2);
-                webCacheAjax.add({
-                  key: `${printKey}`,
-                  value: JSON.stringify(printData),
-                });
-                window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
+
+                try {
+                  await webCacheAjax.add({
+                    key: `${printKey}`,
+                    value: JSON.stringify(printData),
+                    moduleType: 1,
+                  });
+                } catch {
+                  return;
+                }
+
+                window.open(pathCompletion(`/printForm/${appId}/worksheet/preview/print/${printKey}`));
                 setMenuVisible(false);
               }
             }}

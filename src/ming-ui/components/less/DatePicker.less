@@ -1,9 +1,8 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 @datepicker-radius: 3px;
 @datepicker-shadow:
   0 4px 16px 1px rgba(0, 0, 0, 0.24),
   0 0 1px 0 rgba(0, 0, 0, 0.12);
-@datepicker-border: 1px solid @grayLighter;
+@datepicker-border: 1px solid var(--color-border-secondary);
 @datepicker-panel-width: 246px;
 
 @prefixClass: Calendar;
@@ -60,10 +59,10 @@
         cursor: pointer;
         user-select: none;
         &:hover {
-          color: @themeColor3;
+          color: var(--color-primary);
         }
         &.active {
-          color: @themeColor3;
+          color: var(--color-primary);
         }
       }
     }
@@ -87,7 +86,7 @@
 
       &:hover {
         cursor: pointer;
-        color: @themeColor3;
+        color: var(--color-primary);
       }
     }
 
@@ -140,7 +139,7 @@
         background-color: var(--color-background-hover);
       }
       &.active {
-        color: @themeColor3;
+        color: var(--color-primary);
       }
     }
   }
@@ -171,7 +170,7 @@
         background-color: var(--color-background-hover);
       }
       &.active {
-        color: @themeColor3;
+        color: var(--color-primary);
       }
     }
   }
@@ -212,7 +211,7 @@
     .@{prefixClass}-column-header-inner {
       display: block;
       font-weight: normal;
-      color: @gray;
+      color: var(--color-text-tertiary);
       font-size: 13px;
     }
   }
@@ -239,7 +238,7 @@
   }
 
   &-disabled-cell {
-    color: @grayLighter;
+    color: var(--color-border-secondary);
     border-radius: 0;
     width: auto;
   }
@@ -251,11 +250,11 @@
 
   &-selected-date &-date {
     color: var(--color-white) !important;
-    background-color: @themeColor3;
+    background-color: var(--color-primary);
   }
 
   &-today &-date {
-    color: @themeColor3;
+    color: var(--color-primary);
   }
 
   &-last-month-cell &-date,
@@ -267,7 +266,7 @@
     border-top: 1px solid var(--color-border-tertiary);
     text-align: center;
     position: relative;
-    background-color: @grayLightest;
+    background-color: var(--color-background-secondary);
     &-basic {
       display: flex;
       a {
@@ -288,7 +287,7 @@
       user-select: none;
       cursor: pointer;
       &:hover {
-        color: @themeColor3;
+        color: var(--color-primary);
       }
     }
   }
@@ -315,12 +314,12 @@
   &-today-btn,
   &-morrow-btn,
   &-clear-btn {
-    color: @gray;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     height: 45px;
     line-height: 45px;
     &:hover {
-      color: @themeColor3;
+      color: var(--color-primary);
       text-decoration: none;
     }
   }
@@ -339,11 +338,11 @@
     color: var(--color-white);
     cursor: pointer;
     user-select: none;
-    background: @themeColor3;
+    background: var(--color-primary);
     vertical-align: middle;
     &:hover {
       text-decoration: none;
-      background: @themeColor2;
+      background: var(--color-primary-dark);
     }
   }
   &-clear-btn {

@@ -12,10 +12,12 @@ import chatbotSSEApi from 'src/pages/workflow/apiV2/chatbotsse';
 import { getToolName } from 'src/pages/workflow/WorkflowSettings/utils';
 import useChat from 'src/pages/worksheet/hooks/useChat';
 import { SpeechSynthesizer } from 'src/utils/audio';
+import { emitter } from 'src/utils/common';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
+import { resolveStreamError } from '../../ChatBot/utils';
 import MobileShareOperate from '../MobileShareOperate';
 import ShareOperate from '../ShareOperate';
 import Guide from './Guide';
@@ -344,7 +346,10 @@ function MingoContent(props, ref) {
       if (!cache.current.conversationId && messageData.conversationId) {
         setConversationId(messageData.conversationId);
         cache.current.conversationId = messageData.conversationId;
-        cache.current.needSetGenerateConversation = messageData.conversationId;
+        // 服务端一旦下发 conversationId 立即同步到 URL（而非等到 onMessageDone）。
+        // 否则中途终止或报错时 onMessageDone 不触发，URL 仍停留在空会话，
+        // 点击「新对话」navigate 到同一地址不会变更路由，会话无法重置。
+        onGenerateConversation(messageData.conversationId);
       }
 
       if (messageData.step === 'TOOL') {
@@ -354,23 +359,23 @@ function MingoContent(props, ref) {
       }
     },
     onMessageDone: (messages = []) => {
-      if (cache.current.needSetGenerateConversation) {
-        onGenerateConversation(cache.current.needSetGenerateConversation);
-        cache.current.needSetGenerateConversation = undefined;
-      }
-
       setLoadingStatus();
       console.log('onMessageDone', messages);
     },
+    // 后端通过独立的 thinking 事件下发思考/工具调用进度，这类事件没有 choices / text-delta，
+    // 在 useChat 中会被提前 return，不会进入 onMessagePipe。此时首条消息尚未产生、isRequesting
+    // 也已置 false，界面会出现一段空白。这里单独兜住 thinking 事件，让思考阶段同样展示 loading。
+    onEvent: event => {
+      if (event.event !== 'thinking') return;
+      const data = safeParse(event.data);
+      setLoadingStatus(
+        data.step === 'TOOL'
+          ? { statusText: getLoadingText(data.name), type: 'TOOL' }
+          : { statusText: getLoadingText(), type: 'thinking' },
+      );
+    },
     onError: (error, eventData) => {
-      if (safeParse(eventData)?.code !== 'UNKNOWN') {
-        setError(error);
-      } else {
-        setError({
-          errorMsg: _l('模型调用失败'),
-          sourceData: eventData,
-        });
-      }
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
@@ -470,8 +475,43 @@ function MingoContent(props, ref) {
     setIsGuideVisible(false);
     sessionStorage.removeItem(`chatbotNewCreate-${chatbotId}`);
   }, []);
+  // 重置为「新对话」空态：清空消息、错误、会话 id 等。供「新对话」在路由不变时主动重置使用。
+  const resetToNewConversation = useCallback(() => {
+    setError();
+    abortRequest();
+    setLoadingStatus();
+    setIsSelectAll(false);
+    setSelectedMessageIds([]);
+    setShareMode(false);
+    setIsChatting(false);
+    clearMessages();
+    setMessages([]);
+    setConversationId(undefined);
+    cache.current.conversationId = undefined;
+    setPageIndex(1);
+    setHasMore(true);
+    setHasScrolledToBottom(false);
+    if (!isMobile) {
+      sendRef.current && sendRef.current.focus();
+    }
+  }, [abortRequest, clearMessages, setMessages, isMobile]);
+  // 发送报错等场景下服务端未下发 conversationId，URL 仍停留在空会话，点「新对话」navigate 到
+  // 同一地址不会触发上面的 [props.conversationId] 重置副作用，需由会话列表广播事件主动重置。
   useEffect(() => {
     if (showMessagesOnly) return;
+    const handleNewConversation = (payload = {}) => {
+      if (payload.chatbotId && payload.chatbotId !== chatbotId) return;
+      resetToNewConversation();
+    };
+
+    emitter.on('CHATBOT_NEW_CONVERSATION', handleNewConversation);
+    return () => emitter.off('CHATBOT_NEW_CONVERSATION', handleNewConversation);
+  }, [chatbotId, showMessagesOnly, resetToNewConversation]);
+  useEffect(() => {
+    if (showMessagesOnly) return;
+    // URL 追平到当前进行中的会话（流式中途服务端下发 conversationId 后同步 URL 触发本副作用）：
+    // 与当前会话一致，仅是路由补全，不能中断在途流或重载，提前返回。
+    if (props.conversationId && props.conversationId == cache.current.conversationId && !shareId) return;
     setError();
     abortRequest();
     setLoadingStatus();
@@ -479,8 +519,6 @@ function MingoContent(props, ref) {
     setSelectedMessageIds([]);
     setShareMode(false);
     if (props.conversationId || shareId) {
-      if (props.conversationId == cache.current.conversationId && !shareId) return;
-
       setIsLoadingMessages(true);
       setPageIndex(1);
       setHasMore(false);
@@ -755,6 +793,9 @@ function MingoContent(props, ref) {
             isRequesting={isRequesting}
             abortRequest={(...args) => {
               abortRequest(...args);
+              // 主动终止时 onMessageDone 不会触发，需手动清掉思考/工具调用中的 loading 提示，否则会一直转
+              setLoadingStatus();
+              setIsExecutingToolCalls(false);
               if (!cache.current.conversationId) {
                 setMessages([]);
               }

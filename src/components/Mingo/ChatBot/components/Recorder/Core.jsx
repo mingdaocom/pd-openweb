@@ -1,6 +1,5 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef } from 'react';
 import cx from 'classnames';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import useRecorder from './useRecorder';

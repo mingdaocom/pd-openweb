@@ -9,7 +9,6 @@ import worksheetAjax from 'src/api/worksheet';
 import AddDiscuss from 'mobile/AddDiscuss';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { handleReplaceState } from 'src/utils/project';
 import Back from '../components/Back';
 import DiscussList from './DiscussList';
 import Logs from './Logs';
@@ -76,22 +75,20 @@ class Discuss extends Component {
           switchPermit: res,
         });
       });
-    window.addEventListener('popstate', this.onQueryChange);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.sheetDiscussions, this.props.sheetDiscussions)) {
-      this.setState({ discussions: nextProps.sheetDiscussions }, this.getRecordPartner);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.sheetDiscussions, prevProps.sheetDiscussions)) {
+        this.setState(
+          {
+            discussions: this.props.sheetDiscussions,
+          },
+          this.getRecordPartner,
+        );
+      }
     }
   }
-
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.onQueryChange);
-  }
-
-  onQueryChange = () => {
-    handleReplaceState('page', 'discussInfos', this.props.onClose);
-  };
 
   getPortalConfigSet = () => {
     const { params } = this.props.match;
@@ -275,20 +272,14 @@ class Discuss extends Component {
     return (
       <div className="discussTabs h100 flexColumn">
         {isModal && (
-          <div
-            className="closeDiscuss"
-            onClick={() => {
-              this.onQueryChange();
-              onClose();
-            }}
-          >
+          <div className="closeDiscuss" onClick={onClose}>
             {_l('查看记录')}
           </div>
         )}
         <Tabs
           className="md-adm-tabs flexUnset"
           activeLineMode="fixed"
-          activeKey={pageType.toString()}
+          activeKey={pageType != null ? pageType.toString() : undefined}
           onChange={type => {
             this.refreshDiscussCount();
             this.setState({
@@ -349,7 +340,7 @@ class Discuss extends Component {
                 {!md.global.Account.isPortal && entityType !== 2 && rowId && (
                   <div onClick={this.handleShowAttention}>
                     <i
-                      className={`icon Font24 mTop3 ${isAttention ? 'icon-notification_turn_on ThemeColor3' : 'icon-Silent textTertiary'}`}
+                      className={`icon Font24 mTop3 ${isAttention ? 'icon-notification_turn_on colorPrimary' : 'icon-Silent textTertiary'}`}
                     />
                   </div>
                 )}
@@ -430,12 +421,12 @@ class Discuss extends Component {
               </div>
             </div>
             <div
-              className={`flexRow alignItemsCenter pLeft15 pRight15 mBottom20 ${isAttention ? 'ThemeColor3' : 'textTertiary'}`}
+              className={`flexRow alignItemsCenter pLeft15 pRight15 mBottom20 ${isAttention ? 'colorPrimary' : 'textTertiary'}`}
               onClick={this.setFollow}
             >
               <i className="icon icon-notification_turn_on Font24 mRight12" />
               <div className="flex">
-                <div className={`Font15 bold ${isAttention ? 'ThemeColor3' : 'textPrimary'}`}>
+                <div className={`Font15 bold ${isAttention ? 'colorPrimary' : 'textPrimary'}`}>
                   {!isAttention ? _l('关注') : _l('关注中...')}
                 </div>
                 <div className="Font12">

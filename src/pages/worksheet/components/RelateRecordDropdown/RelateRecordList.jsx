@@ -71,6 +71,7 @@ export default class RelateRecordList extends React.PureComponent {
               data.template.controls,
             );
           }
+
           this.setState(
             {
               allowAdd: data.allowAdd,
@@ -87,9 +88,11 @@ export default class RelateRecordList extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.keyWords !== this.props.keyWords) {
-      this.handleSearch(nextProps.keyWords);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.keyWords !== prevProps.keyWords) {
+        this.handleSearch(this.props.keyWords);
+      }
     }
   }
 
@@ -415,9 +418,11 @@ export default class RelateRecordList extends React.PureComponent {
     if (maxHeight) {
       recordListHeight = maxHeight - 48 - 10;
     }
+
     if (records.length === 1) {
       recordListHeight = 'auto';
     }
+
     return (
       <div
         className="RelateRecordList flexColumn"
@@ -474,7 +479,7 @@ export default class RelateRecordList extends React.PureComponent {
                         : _l('暂无记录')}
                       {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
                         <div
-                          className="mTop10 ThemeColor3 TxtCenter Hand"
+                          className="mTop10 colorPrimary TxtCenter Hand"
                           onClick={() => {
                             this.setState({ ignoreAllFilters: true }, this.loadRecord);
                             focusInput();

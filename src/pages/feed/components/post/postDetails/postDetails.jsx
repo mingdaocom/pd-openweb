@@ -2,8 +2,7 @@
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import store from 'src/redux/configureStore';
-import { getAppFeaturesPath } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
+import { emitter, pathCompletion } from 'src/utils/common';
 import { addSuccess } from '../../../redux/postActions';
 import PostBody from '../post/postBody';
 import PostCard from '../post/postCard';
@@ -34,9 +33,11 @@ class PostDetails extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.postItem) {
-      this.listenToRemove(nextProps.postItem.postID);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.postItem) {
+        this.listenToRemove(this.props.postItem.postID);
+      }
     }
   }
 
@@ -59,7 +60,7 @@ class PostDetails extends React.Component {
           onRemove(postId);
         } else {
           setTimeout(() => {
-            window.location = `/feed?${getAppFeaturesPath()}`;
+            window.location.href = pathCompletion('/feed');
           }, 3000);
         }
       }

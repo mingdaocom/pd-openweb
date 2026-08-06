@@ -31,9 +31,11 @@ export default class RoleSet extends PureComponent {
     this.fetchRoleDetail();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.roleId !== this.props.roleId) {
-      this.fetchRoleDetail(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.roleId !== prevProps.roleId) {
+        this.fetchRoleDetail(this.props);
+      }
     }
   }
 
@@ -121,6 +123,7 @@ export default class RoleSet extends PureComponent {
   onSave = isConfirm => {
     let { appId, roleId, editCallback, isForPortal, projectId } = this.props;
     roleId = roleId === 'new' ? '' : roleId;
+    // 返回保存结果给外层离开确认使用，成功后才允许继续切换角色或页面。
     if (!roleId) {
       // 创建
       const {
@@ -142,7 +145,7 @@ export default class RoleSet extends PureComponent {
         promiseAjax = Ajax.addRole(param);
       }
 
-      promiseAjax.then(res => {
+      return promiseAjax.then(res => {
         if (res.resultCode === 1) {
           this.setState({
             hasChange: false,
@@ -150,12 +153,15 @@ export default class RoleSet extends PureComponent {
           });
           editCallback(res.roleId, isConfirm);
           alert(_l('创建成功'));
+          return true;
         } else if (res.resultCode === 2) {
           alert(_l('角色名称重复，请重新命名'), 3);
           this.setState({ saveLoading: false });
+          return false;
         } else {
           alert(_l('创建失败'), 2);
           this.setState({ saveLoading: false });
+          return false;
         }
       });
     } else {
@@ -191,12 +197,15 @@ export default class RoleSet extends PureComponent {
           });
           editCallback(roleId, isConfirm);
           alert(_l('保存成功'));
+          return true;
         } else if (res === 2) {
           alert(_l('角色名称重复，请重新命名'), 3);
           this.setState({ saveLoading: false });
+          return false;
         } else {
           alert(_l('编辑失败'), 2);
           this.setState({ saveLoading: false });
+          return false;
         }
       });
     }

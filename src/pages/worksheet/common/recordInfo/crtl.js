@@ -7,7 +7,6 @@ import { getRowDetail } from 'worksheet/api';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
 import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { postWithToken } from 'src/utils/common';
 import { getRecordLandUrl, handleRecordError } from 'src/utils/record';
@@ -338,7 +337,7 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
             const errorResult = getRuleErrorInfo(rules, data.badData);
 
             if (_.get(errorResult, '0.errorInfo.0')) {
-              alert('编辑失败，' + _.get(errorResult, '0.errorInfo.0.errorMessage'), 2);
+              alert(_l('编辑失败，%0', _.get(errorResult, '0.errorInfo.0.errorMessage')), 2);
             }
 
             reject();
@@ -533,7 +532,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
 
 export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {
   const url = await getRecordLandUrl({ appId, worksheetId, viewId, recordId });
-  window.open(replacePorTalUrl(url));
+  window.open(url);
 }
 
 export function handleCustomWidget(worksheetId) {

@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -60,6 +61,80 @@ const ControlLabel = styled.div`
   }
 `;
 
+function FormErrorMessage({
+  controlId,
+  currentErrorItem,
+  errorMessage,
+  inBody,
+  targetRef,
+  updateErrorState = () => {},
+}) {
+  const [portalStyle, setPortalStyle] = useState(null);
+
+  const updatePortalPosition = useCallback(() => {
+    const target = targetRef.current;
+
+    if (!target || typeof window === 'undefined') return;
+
+    const rect = target.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+
+    setPortalStyle({
+      position: 'fixed',
+      top: rect.top - 5,
+      left: rect.left,
+      right: 'auto',
+      bottom: 'auto',
+      margin: 0,
+      transform: 'translateY(-100%)',
+      zIndex: 10000,
+      maxWidth: Math.max(120, viewportWidth - rect.left - 24),
+    });
+  }, [targetRef]);
+
+  useEffect(() => {
+    if (!inBody || !errorMessage) return;
+
+    updatePortalPosition();
+
+    const handleUpdatePosition = () => {
+      window.requestAnimationFrame(updatePortalPosition);
+    };
+
+    window.addEventListener('resize', handleUpdatePosition);
+    window.addEventListener('scroll', handleUpdatePosition, true);
+
+    return () => {
+      window.removeEventListener('resize', handleUpdatePosition);
+      window.removeEventListener('scroll', handleUpdatePosition, true);
+    };
+  }, [errorMessage, inBody, updatePortalPosition]);
+
+  if (!errorMessage) return null;
+
+  const errorNode = (
+    <div
+      className={cx('customFormErrorMessage', {
+        isChildTable: currentErrorItem.isChildTable,
+        ignoreErrorMessage: currentErrorItem.ignoreErrorMessage,
+      })}
+      style={inBody ? portalStyle : undefined}
+    >
+      <span>
+        {errorMessage}
+        <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, controlId)} />
+      </span>
+      <i className="customFormErrorArrow" />
+    </div>
+  );
+
+  if (inBody && typeof document !== 'undefined') {
+    return portalStyle ? createPortal(errorNode, document.body) : null;
+  }
+
+  return errorNode;
+}
+
 export default ({
   from,
   recordId,
@@ -70,8 +145,10 @@ export default ({
   widgetStyle = {},
   disabled,
   formDisabled,
+  isFirstItem,
   updateErrorState = () => {},
 }) => {
+  const labelRef = useRef(null);
   const {
     hinttype = '0',
     valuesize = '0',
@@ -118,7 +195,7 @@ export default ({
 
   if (!showTitle) {
     return (
-      <div className={cx({ 'customFormItemLabel mTop20': item.type === 34 })}>
+      <div ref={labelRef} className={cx({ 'customFormItemLabel mTop20': item.type === 34 })}>
         {!item.showTitle && item.required && !item.disabled && isEditable && (
           <span
             style={{
@@ -156,14 +233,15 @@ export default ({
           </Tooltip>
         )}
 
-        {!item.showTitle && errorMessage && (
-          <div className={cx('customFormErrorMessage', { ignoreErrorMessage: currentErrorItem.ignoreErrorMessage })}>
-            <span>
-              {errorMessage}
-              <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
-            </span>
-            <i className="customFormErrorArrow" />
-          </div>
+        {!item.showTitle && (
+          <FormErrorMessage
+            controlId={item.controlId}
+            currentErrorItem={currentErrorItem}
+            errorMessage={errorMessage}
+            inBody={isFirstItem}
+            targetRef={labelRef}
+            updateErrorState={updateErrorState}
+          />
         )}
       </div>
     );
@@ -171,21 +249,16 @@ export default ({
 
   return (
     <Fragment>
-      {errorMessage && (
-        <div
-          className={cx('customFormErrorMessage', {
-            isChildTable: item.type === 34,
-            ignoreErrorMessage: currentErrorItem.ignoreErrorMessage,
-          })}
-        >
-          <span>
-            {errorMessage}
-            <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
-          </span>
-          <i className="customFormErrorArrow" />
-        </div>
-      )}
+      <FormErrorMessage
+        controlId={item.controlId}
+        currentErrorItem={{ ...currentErrorItem, isChildTable: item.type === 34 }}
+        errorMessage={errorMessage}
+        inBody={isFirstItem}
+        targetRef={labelRef}
+        updateErrorState={updateErrorState}
+      />
       <ControlLabel
+        ref={labelRef}
         className="customFormItemLabel"
         disabled={disabled}
         item={item}

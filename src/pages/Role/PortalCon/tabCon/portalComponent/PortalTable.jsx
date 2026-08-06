@@ -109,6 +109,15 @@ const Wrap = styled.div`
   }
 `;
 
+const customizeRenderEmpty = () => (
+  <div className="emptyCon">
+    <div className="TxtCenter">
+      <i class="iconBox mBottom12"></i>
+      <span class="textTertiary Block mBottom20 TxtCenter Font17 textTertiary">{_l('暂无数据')}</span>
+    </div>
+  </div>
+);
+
 function PorTalTable(props) {
   const { pageSize = 10 } = props;
   const { type, clickRow, noShowCheck } = props;
@@ -120,14 +129,6 @@ function PorTalTable(props) {
     setColumns(props.columns || []);
   }, [props.list, props.columns]);
 
-  const customizeRenderEmpty = () => (
-    <div className="emptyCon">
-      <div className="TxtCenter">
-        <i class="iconBox mBottom12"></i>
-        <span class="textTertiary Block mBottom20 TxtCenter Font17 textTertiary">{_l('暂无数据')}</span>
-      </div>
-    </div>
-  );
   return (
     <Wrap>
       <ConfigProvider renderEmpty={customizeRenderEmpty}>

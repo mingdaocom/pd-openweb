@@ -5,7 +5,6 @@ import _, { get, isFunction } from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { deleteAttachmentOfControl } from 'worksheet/api';
 import { downloadAttachmentById, openControlAttachmentInNewTab } from 'worksheet/controllers/record';
@@ -209,6 +208,7 @@ const Add = styled.div`
   border-radius: 2px;
   overflow: hidden;
   border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-tertiary);
   .icon {
     font-size: 16px;
     color: var(--color-text-placeholder);
@@ -387,6 +387,7 @@ function HoverPreviewPanel(props) {
     sheetSwitchPermit,
     masterData,
     from,
+    projectId,
   } = props;
   const { originalFilename, ext = '', filesize } = attachment;
   const { controlId, advancedSetting, sourceControlId } = cell;
@@ -413,6 +414,8 @@ function HoverPreviewPanel(props) {
 
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
     addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
+    const openOptions = _.omitBy(options, _.isUndefined);
+
     openControlAttachmentInNewTab(
       _.assign(
         _.pick(cellInfo, ['appId', 'recordId', 'worksheetId']),
@@ -420,9 +423,10 @@ function HoverPreviewPanel(props) {
           viewId: !isSubList ? cell.viewId : undefined,
           controlId,
           fileId,
+          projectId,
           getType: from === 21 ? from : undefined,
         },
-        options,
+        openOptions,
       ),
     );
   };
@@ -500,7 +504,7 @@ function HoverPreviewPanel(props) {
           {downloadable && (
             <Tooltip title={_l('下载')}>
               <i
-                className="icon icon-download downloadBtn ThemeHoverColor3"
+                className="icon icon-download downloadBtn hoverColorPrimary"
                 onClick={() =>
                   downloadAttachmentById({
                     fileId: attachment.fileID,
@@ -519,7 +523,7 @@ function HoverPreviewPanel(props) {
           {allowNewPage && (
             <Tooltip title={_l('浮窗打开')}>
               <i
-                className="icon icon-rectangle_2 openInNewTabBtn ThemeHoverColor3"
+                className="icon icon-rectangle_2 openInNewTabBtn hoverColorPrimary"
                 onClick={() => handleOpenControlAttachmentInNewTab(attachment.fileID, { openAsPopup: true })}
               ></i>
             </Tooltip>
@@ -527,7 +531,7 @@ function HoverPreviewPanel(props) {
           {allowNewPage && (
             <Tooltip title={_l('新页面打开')} shortcut={window.isMacOs ? _l('⇧单击') : _l('Shift+单击')}>
               <i
-                className="icon icon-launch openInNewTabBtn ThemeHoverColor3"
+                className="icon icon-launch openInNewTabBtn hoverColorPrimary"
                 onClick={() => handleOpenControlAttachmentInNewTab(attachment.fileID)}
               ></i>
             </Tooltip>
@@ -537,6 +541,8 @@ function HoverPreviewPanel(props) {
     </HoverPreviewPanelCon>
   );
 }
+
+const getMasterData = masterData => (isFunction(masterData) ? masterData() : masterData);
 
 function AttachmentImage(props) {
   const { showShape, style = {} } = props;
@@ -621,6 +627,7 @@ function Attachment(props) {
         worksheetId,
         controlId: cell.controlId,
         fileId: attachment.fileID,
+        projectId,
         getType: from === 21 ? from : undefined,
       });
       return;
@@ -635,6 +642,8 @@ function Attachment(props) {
 
     clickTimeoutRef.current = setTimeout(() => {
       clickTimeoutRef.current = null;
+      const currentMasterData = getMasterData(masterData);
+
       previewAttachment({
         attachments,
         index,
@@ -652,6 +661,7 @@ function Attachment(props) {
                   worksheetId,
                   controlId: cell.controlId,
                   fileId,
+                  projectId,
                   getType: from === 21 ? from : undefined,
                   ...options,
                 });
@@ -665,9 +675,9 @@ function Attachment(props) {
         allowEdit: controlState(cell, from).editable && _.get(cell, 'advancedSetting.allowedit') === '1',
         onlyEditSelf: _.get(cell, 'advancedSetting.onlyeditself') === '1',
         projectId,
-        masterWorksheetId: (masterData() || {}).worksheetId,
-        masterRecordId: (masterData() || {}).recordId,
-        masterControlId: (masterData() || {}).controlId,
+        masterWorksheetId: _.get(currentMasterData, 'worksheetId'),
+        masterRecordId: _.get(currentMasterData, 'recordId'),
+        masterControlId: _.get(currentMasterData, 'controlId'),
         sourceControlId: cell.sourceControlId,
       });
     }, 300);
@@ -688,6 +698,7 @@ function Attachment(props) {
       worksheetId,
       controlId: cell.controlId,
       fileId: attachment.fileID,
+      projectId,
       getType: from === 21 ? from : undefined,
       openAsPopup: true,
     });
@@ -716,10 +727,11 @@ function Attachment(props) {
           smallThumbnailUrl={smallThumbnailUrl}
           cell={cell}
           cellInfo={cellInfo}
-          masterData={masterData()}
+          masterData={getMasterData(masterData)}
           onUpdate={onUpdate}
           deleteLocalAttachment={deleteLocalAttachment}
           from={from}
+          projectId={projectId}
         />
       }
       getPopupContainer={() => document.body}
@@ -788,6 +800,7 @@ function CellAttachments(props, sourceRef) {
     onClick,
     updateEditingStatus,
     updateCell,
+    onValidate,
     ...rest
   } = props;
   let { editable } = props;
@@ -879,10 +892,11 @@ function CellAttachments(props, sourceRef) {
       .map(a => ({ ...a, isEdit: false }));
     submitData.knowledgeAtts =
       (temporaryKnowledgeAtts || []).concat(tempSavedKcAttachments).map(a => ({ ...a, isEdit: false })) || [];
+    const newValue = JSON.stringify(addAttachmentIndex(submitData, enumDefault));
     updateCell(
       {
         editType: 1,
-        value: JSON.stringify(addAttachmentIndex(submitData, enumDefault)),
+        value: newValue,
       },
       {
         callback: data => {
@@ -890,6 +904,12 @@ function CellAttachments(props, sourceRef) {
         },
       },
     );
+    // 附件通过上传/选择即时提交，不走输入/失焦校验流程；必填报错后重新上传需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (isFunction(onValidate)) {
+      onValidate(newValue);
+    }
+
     updateEditingStatus(false);
     setUploadFileVisible(true);
     setTemporaryAttachments([]);
@@ -1021,11 +1041,12 @@ function CellAttachments(props, sourceRef) {
       style={style}
       onClick={allowupload === '1' ? onClick : undefined}
     >
-      {rowHeight === 34 ? <CutCon className="CutCon">{attachmentsComp}</CutCon> : attachmentsComp}
+      {/* 任意行高恒定单行展示：缩略图撑满行高，超出列宽部分由右侧遮盖裁剪，不换行 */}
+      <CutCon className="CutCon">{attachmentsComp}</CutCon>
       {editable && allowupload === '1' && (
         <OperateIcon className="OperateIcon">
           <i
-            className="ThemeHoverColor3 icon icon-attachment"
+            className="hoverColorPrimary icon icon-attachment"
             onClick={e => {
               e.stopPropagation();
               updateEditingStatus(true);

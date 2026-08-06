@@ -36,14 +36,45 @@ const Wrap = styled.div`
   }
 `;
 
+const renderEducationList = eduLists => {
+  if (!eduLists.length) {
+    return null;
+  }
+
+  return (
+    <div className="resumeWrap mTop10 mBottom10">
+      <h5 className="Font14 bold">{_l('教育经历')}</h5>
+      {eduLists.map((item, index) => {
+        return (
+          <div className={cx('resumeItem', { noBorder: index === eduLists.length - 1 })} key={index}>
+            <div>
+              <span className="mRight5">{item.startDate}</span>
+              <span className="mRight5">{_l('至')}</span>
+              <span className="mRight5">{item.endDate}</span>
+              <span className="mRight10">{item.name}</span>
+              <span className="mRight10">{item.title}</span>
+            </div>
+            <div>
+              <span className="mRight5 textSecondary">{_l('描述：')}</span>
+              <span className={`mRight10 ${item.description ? '' : 'textDisabled'}`}>
+                {item.description || _l('未填写')}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const sex = userInfo => {
+  return userInfo.gender === 2 ? _l('女') : _l('男');
+};
+
 // 更多资料
 export default function UserMoreProfile(props) {
   const { className, userInfo, rowNum } = props;
   const [{ visible }, setState] = useSetState({ visible: false });
-
-  const sex = userInfo => {
-    return userInfo.gender === 2 ? _l('女') : _l('男');
-  };
 
   // 工作列表list
   const renderJobList = (jobLists = []) => {
@@ -83,36 +114,6 @@ export default function UserMoreProfile(props) {
   };
 
   // 教育经历list
-  const renderEducationList = eduLists => {
-    if (!eduLists.length) {
-      return null;
-    }
-
-    return (
-      <div className="resumeWrap mTop10 mBottom10">
-        <h5 className="Font14 bold">{_l('教育经历')}</h5>
-        {eduLists.map((item, index) => {
-          return (
-            <div className={cx('resumeItem', { noBorder: index === eduLists.length - 1 })} key={index}>
-              <div>
-                <span className="mRight5">{item.startDate}</span>
-                <span className="mRight5">{_l('至')}</span>
-                <span className="mRight5">{item.endDate}</span>
-                <span className="mRight10">{item.name}</span>
-                <span className="mRight10">{item.title}</span>
-              </div>
-              <div>
-                <span className="mRight5 textSecondary">{_l('描述：')}</span>
-                <span className={`mRight10 ${item.description ? '' : 'textDisabled'}`}>
-                  {item.description || _l('未填写')}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
 
   return (
     <Wrap className={className} rowNum={rowNum}>

@@ -23,18 +23,26 @@ export default class Snapshot extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -47,6 +55,10 @@ export default class Snapshot extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         result.appDetails = result.appDetails || {};
         result.width = result.width || 1200;
         result.height = result.height || 900;
@@ -83,7 +95,7 @@ export default class Snapshot extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -179,7 +191,7 @@ export default class Snapshot extends Component {
               )}
             </div>
             <div
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10 ellipsis pointer"
+              className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10 ellipsis pointer"
               onClick={() =>
                 data.actionId === '1'
                   ? this.setState({ showCustomPage: true })
@@ -341,7 +353,11 @@ export default class Snapshot extends Component {
             <div className="workflowDetailBox">{data.actionId ? this.renderContent() : this.renderNullContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.appId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.appId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
 
         {showCustomPage && (
           <SelectOtherWorksheetDialog

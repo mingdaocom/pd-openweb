@@ -106,6 +106,9 @@ const Content = styled.div`
     height: 30px;
     top: -20px;
   }
+  .childTableCon .errorTip {
+    display: none;
+  }
 `;
 
 // 子表从记录详情打开全屏时，弹窗顶部留出 115px，使遮罩后的「记录已修改」提示条可见
@@ -114,6 +117,7 @@ const FullScreenTopOffsetStyle = createGlobalStyle`
   .mdModal.childTableFromRecordFullScreen {
     height: calc(100% - ${FULL_SCREEN_TOP_OFFSET}px) !important;
     vertical-align: bottom !important;
+    position: relative !important;
   }
 `;
 
@@ -299,7 +303,7 @@ export default function ChildTableDialog(props) {
             {!callFromDialog && (
               <Tooltip title={_l('关闭')} shortcut={'Esc'} placement="bottom">
                 <IconBtn
-                  className={cx('ThemeHoverColor3', { mRight10: changed })}
+                  className={cx('hoverColorPrimary', { mRight10: changed })}
                   onClick={() => {
                     if (!changed || openFrom !== 'cell') {
                       onClose();
@@ -417,6 +421,7 @@ export default function ChildTableDialog(props) {
                     'UPDATE_DATA_LOADING',
                     'LOAD_ROWS',
                     'UPDATE_PAGINATION',
+                    'UPDATE_FILTER_CONTROLS',
                   ],
                   get(changedValues, 'lastAction.type'),
                 )

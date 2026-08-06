@@ -170,7 +170,7 @@ class ErrorDialog extends Component {
             <div>
               {_l('新增%0行记录，更新%1行记录，其中%2个附件导入失败', createRowCount, updateRowCount, failAttachment)}
             </div>
-            <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={onDownload}>
+            <div className="colorPrimary hoverColorPrimaryDark pointer" onClick={onDownload}>
               {_l('下载错误报告')}
             </div>
           </div>
@@ -202,7 +202,7 @@ class ErrorDialog extends Component {
           </Tooltip>
           <div className="flex" />
           <a
-            className="ThemeColor3 ThemeHoverColor2 pointer"
+            className="colorPrimary hoverColorPrimaryDark pointer"
             href={`${md.global.Config.WorksheetDownUrl}/ExportExcel/LoadErrorLog?randomKey=${fileKey}${
               isBatch ? '&worksheetId=' + currentSheetInfo.sheetId : ''
             }`}
@@ -265,8 +265,9 @@ class ErrorDialog extends Component {
   }
 }
 
-export default ({ fileKey, isBatch, isAttachment }) => {
+export default function openErrorDialog({ fileKey, isBatch, isAttachment }) {
   const root = createRoot(document.createElement('div'));
 
   root.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} isAttachment={isAttachment} />);
-};
+  return root;
+}

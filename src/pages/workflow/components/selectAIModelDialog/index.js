@@ -121,6 +121,25 @@ const ContentBox = styled.div`
     margin-right: 3px;
     color: var(--color-mingo-light);
   }
+  .modelPriceList {
+    display: grid;
+    grid-template-columns: fit-content(40%) max-content max-content;
+    align-items: baseline;
+    row-gap: 8px;
+    padding: 8px 0;
+    align-items: center;
+  }
+  .priceRow {
+    display: contents;
+  }
+  .priceLabel {
+    min-width: 72px !important;
+    margin-right: 5px;
+  }
+  .priceUnit {
+    padding-left: 5px;
+    white-space: nowrap;
+  }
   .listItem {
     height: 24px;
     padding: 0 12px;
@@ -138,12 +157,72 @@ const ContentBox = styled.div`
       margin-left: 2px;
     }
   }
+  .tokenLimitGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .tokenLimitLabel {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .tokenLimitValue {
+    color: var(--color-text-primary);
+  }
 `;
 
 const PERFORMANCE_ENUM = {
   1: _l('高'),
   2: _l('中'),
   3: _l('低'),
+};
+
+const MODEL_CAPABILITY = {
+  IMAGE_INPUT: 1,
+  TOOL_CALLING: 2,
+  TEXT_INPUT: 3,
+  REASONING: 4,
+};
+
+const MODEL_CAPABILITY_OPTIONS = [
+  { label: _l('文本输入'), value: MODEL_CAPABILITY.TEXT_INPUT, icon: 'text_bold2' },
+  { label: _l('图片输入'), value: MODEL_CAPABILITY.IMAGE_INPUT, icon: 'image' },
+  { label: _l('工具调用'), value: MODEL_CAPABILITY.TOOL_CALLING, icon: 'design-services' },
+  { label: _l('推理'), value: MODEL_CAPABILITY.REASONING, icon: 'Thinking' },
+];
+
+const MODEL_TOKEN_FIELD_CONFIGS = [
+  { field: 'maxContextTokens', label: _l('最大上下文') },
+  { field: 'maxInputTokens', label: _l('最大输入') },
+  { field: 'maxOutputTokens', label: _l('最大输出') },
+];
+
+const MODEL_PRICE_FIELDS = [
+  { label: _l('输入'), field: 'inputToken' },
+  { label: _l('输出'), field: 'outputToken' },
+  { label: _l('缓存命中'), field: 'inputCachedToken' },
+];
+
+const getModelTokenDisplayItems = (model = {}) =>
+  _.compact(
+    MODEL_TOKEN_FIELD_CONFIGS.map(item => {
+      const value = _.get(model, item.field);
+
+      if (_.isNil(value) || value === '' || Number(value) <= 0) return null;
+
+      return {
+        key: item.field,
+        label: item.label,
+        value: `${value}K`,
+      };
+    }),
+  );
+
+const getModelPriceValue = (model, field) => {
+  const value = _.get(model, ['price', field]);
+
+  return _.isNil(value) ? '0' : value;
 };
 
 // 内置模型描述配置（以模型名称 name 作为唯一标识）
@@ -340,6 +419,8 @@ class SelectAIModelDialog extends Component {
     }
 
     const model = list.find(o => o.developer.id === selectVendor).models.find(o => o.id === selectModel);
+    const modelTokenDisplayItems = getModelTokenDisplayItems(model);
+    const modelPriceItems = MODEL_PRICE_FIELDS.filter(item => Number(getModelPriceValue(model, item.field)) > 0);
 
     return (
       <ContentBox className="flex pLeft16 pRight16 blue">
@@ -348,40 +429,42 @@ class SelectAIModelDialog extends Component {
           {MODEL_DESCRIPTIONS[model.name] || model.description.map((o, index) => <div key={index}>{o}</div>)}
         </div>
 
-        {model.price?.outputToken > 0 && (
+        {modelPriceItems.length > 0 && (
           <Fragment>
             <div className="textSecondary bold Font12 mTop15">{_l('信用点')}</div>
-            <div className="mTop10 flexRow Font12">
-              <div>1K tokens</div>
-              <div className="flex" />
-              <div className="bold">
-                <span className="number Font17 bold">{model.price.outputToken}</span>
-                {_l('信用点')}
-              </div>
+            <div className="modelPriceList mTop10 Font12">
+              {modelPriceItems.map(item => {
+                const { label, field } = item;
+
+                return (
+                  <div key={field} className="priceRow minWidth0">
+                    <span className="priceLabel ellipsis minWidth0" title={label}>
+                      {label}
+                    </span>
+                    <span className="flexRow alignItemsCenter nowrap minWidth0">
+                      <span className="number Font17 bold">{getModelPriceValue(model, field)}</span>
+                      <span className="mLeft4">{_l('信用点')}</span>
+                    </span>
+                    <span className="priceUnit">/ 1K tokens</span>
+                  </div>
+                );
+              })}
             </div>
           </Fragment>
         )}
 
         <div className="textSecondary bold Font12 mTop15">{_l('能力')}</div>
         <div className="mTop10 flexRow">
-          {_.includes(model.caps, 3) && (
-            <div className="listItem">
-              <i className="icon-text_bold2 Font14 mRight3 textSecondary" />
-              {_l('文本输入')}
-            </div>
-          )}
-          {_.includes(model.caps, 1) && (
-            <div className="listItem">
-              <i className="icon-image Font14 mRight3 textSecondary" />
-              {_l('图片输入')}
-            </div>
-          )}
-          {_.includes(model.caps, 2) && (
-            <div className="listItem">
-              <i className="icon-design-services Font14 mRight3 textSecondary" />
-              {_l('工具调用')}
-            </div>
-          )}
+          {MODEL_CAPABILITY_OPTIONS.map(capability => {
+            if (!_.includes(model.caps, capability.value)) return null;
+
+            return (
+              <div key={capability.value} className="listItem">
+                <i className={`icon-${capability.icon} Font14 mRight3 textSecondary`} />
+                {capability.label}
+              </div>
+            );
+          })}
         </div>
 
         <div className="textSecondary bold Font12 mTop15">{_l('性能')}</div>
@@ -394,6 +477,17 @@ class SelectAIModelDialog extends Component {
             ))}
           </div>
         </div>
+
+        {modelTokenDisplayItems.length > 0 && (
+          <div className="tokenLimitGrid mTop20">
+            {modelTokenDisplayItems.map(item => (
+              <div key={item.key}>
+                <div className="Font13 tokenLimitLabel">{item.label}</div>
+                <div className="Font13 tokenLimitValue">{item.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </ContentBox>
     );
   }

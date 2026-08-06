@@ -33,7 +33,7 @@ const TabCon = styled.div`
     }
   }
   &.shareRecord.fixedTabs {
-    top: 0 !important;
+    top: 44px !important;
   }
 
   .adm-tabs-tab {
@@ -125,6 +125,27 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
   ) : null;
 }
 
+const parseStyleString = str => {
+  return str.split(';').reduce((acc, item) => {
+    if (!item.trim()) return acc;
+    const [key, value] = item.split(':');
+    const jsKey = key.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    acc[jsKey] = value.trim();
+    return acc;
+  }, {});
+};
+
+const getCount = (control = {}) => {
+  const { value } = control;
+
+  if (!value || (_.isString(value) && value.startsWith('deleteRowIds'))) return '';
+  if (_.isNumber(value)) return value;
+
+  const data = _.isArray(value) ? value : value ? JSON.parse(value) : [];
+
+  if (_.isArray(data) && data.length) return data.length;
+};
+
 function MobileWidgetSection(props) {
   const {
     disabled,
@@ -195,27 +216,6 @@ function MobileWidgetSection(props) {
     }
 
     $sectionControls.current = tabControls;
-  };
-
-  const getCount = (control = {}) => {
-    const { value } = control;
-
-    if (!value || (_.isString(value) && value.startsWith('deleteRowIds'))) return '';
-    if (_.isNumber(value)) return value;
-
-    const data = _.isArray(value) ? value : value ? JSON.parse(value) : [];
-
-    if (_.isArray(data) && data.length) return data.length;
-  };
-
-  const parseStyleString = str => {
-    return str.split(';').reduce((acc, item) => {
-      if (!item.trim()) return acc;
-      const [key, value] = item.split(':');
-      const jsKey = key.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-      acc[jsKey] = value.trim();
-      return acc;
-    }, {});
   };
 
   const TabsContent = () => {

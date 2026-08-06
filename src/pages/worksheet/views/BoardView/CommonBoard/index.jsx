@@ -98,7 +98,7 @@ function CommonBoard(props) {
 
   // 获取所有记录 ID
   const allRecordIds = useMemo(() => {
-    return _.flatMap(boardData, item => item.rows.map(row => safeParse(row)?.rowid)).filter(Boolean);
+    return _.flatMap(boardData, item => (item.rows || []).map(row => safeParse(row)?.rowid)).filter(Boolean);
   }, [boardData]);
 
   // 获取操作按钮
@@ -108,8 +108,15 @@ function CommonBoard(props) {
     return buttons;
   }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
-  // 获取按钮 ID
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  // 获取按钮 ID：分组在 operateButtons 里是 group_ref，btnId 是合成的 group:xxx，
+  // 需展开成员真实 btnId 去查执行状态，否则组内按钮（含满足条件的）拿不到 status 会被全部置灰。
+  const btnIds = useMemo(
+    () =>
+      _.flatMap(operateButtons, b =>
+        b.type === 'group_ref' && _.isArray(b.buttons) ? b.buttons.map(member => member.btnId) : [b.btnId],
+      ).filter(Boolean),
+    [operateButtons],
+  );
 
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
@@ -175,6 +182,7 @@ function CommonBoard(props) {
       if (document.body) {
         document.body.removeEventListener('mousewheel', scrollEvent);
       }
+
       emitter.removeListener('RELOAD_RECORD_INFO', refresh);
       window.removeEventListener('resize', scrollEvent);
       if ($listWrap) {

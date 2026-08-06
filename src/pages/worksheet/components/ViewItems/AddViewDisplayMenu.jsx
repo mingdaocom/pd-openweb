@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -7,6 +7,7 @@ import pluginAjax from 'src/api/plugin';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
+import { pathCompletion } from 'src/utils/common';
 import bg from './img/customview.png';
 import Board from './lottie/board.json';
 import Calendar from './lottie/calendar.json';
@@ -143,7 +144,6 @@ const Wrap = styled.div`
     animation-fill-mode: forwards;
   }
 `;
-
 const GuildWrap = styled.div`
   width: 280px;
   background: var(--color-background-card);
@@ -169,7 +169,6 @@ const GuildWrap = styled.div`
     }
   }
 `;
-
 const GuildText = {
   sheet: {
     title: _l('表格视图'),
@@ -217,10 +216,12 @@ const GuildText = {
     img: Resource,
   },
 };
-
+const LoadableLottie = lazy(() => import('react-lottie'));
+const LOTTIE_EVENT_LISTENERS = [];
 export default class AddViewDisplayMenu extends Component {
   static propTypes = {};
   static defaultProps = {};
+
   constructor(props) {
     super(props);
     this.state = {
@@ -228,7 +229,6 @@ export default class AddViewDisplayMenu extends Component {
       orgPlugins: [],
       loading: true,
       guild: '',
-      LottieComponent: null,
       retract: [],
     };
   }
@@ -239,38 +239,44 @@ export default class AddViewDisplayMenu extends Component {
     if (canAddCustomView) {
       this.getCustomList();
     }
-
-    import('react-lottie').then(component => {
-      this.setState({ LottieComponent: component.default });
-    });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { canAddCustomView, popupVisible } = nextProps;
+  //或是自定义列表，更新customList //或是自定义列表，更新customList
 
-    if (canAddCustomView && popupVisible) {
-      this.getCustomList();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { canAddCustomView, popupVisible } = this.props;
+
+      if (canAddCustomView && popupVisible) {
+        this.getCustomList();
+      }
     }
-  }
-  //或是自定义列表，更新customList
+  } //或是自定义列表，更新customList
+
   getCustomList = () => {
     const { projectId, appId } = this.props;
-    pluginAjax.getAll({ projectId, pageIndex: 1, pageSize: 10000, appId }).then(res => {
-      const { myPlugins = [], orgPlugins = [] } = res;
-      this.setState({
-        myPlugins,
-        orgPlugins,
-        loading: false,
+    pluginAjax
+      .getAll({
+        projectId,
+        pageIndex: 1,
+        pageSize: 10000,
+        appId,
+      })
+      .then(res => {
+        const { myPlugins = [], orgPlugins = [] } = res;
+        this.setState({
+          myPlugins,
+          orgPlugins,
+          loading: false,
+        });
       });
-    });
   };
-
   onClickGroup = key => {
     const { retract } = this.state;
-
-    this.setState({ retract: retract.includes(key) ? retract.filter(item => item !== key) : [...retract, key] });
+    this.setState({
+      retract: retract.includes(key) ? retract.filter(item => item !== key) : [...retract, key],
+    });
   };
-
   renderCon = (info, isDev) => {
     const { onClick } = this.props;
     return info.map(o => {
@@ -306,13 +312,12 @@ export default class AddViewDisplayMenu extends Component {
 
   render() {
     const { onClick, canAddCustomView, projectId, ...rest } = this.props;
-    const { myPlugins = [], orgPlugins = [], loading, LottieComponent, retract } = this.state;
+    const { myPlugins = [], orgPlugins = [], loading, retract } = this.state;
     const hasPluginAuth =
       _.get(
         _.find(md.global.Account.projects, item => item.projectId === projectId),
         'allowPlugin',
       ) || checkPermission(projectId, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
-
     return (
       <Wrap className="flexRow">
         <div className="typeMenuWrap" {...rest}>
@@ -328,8 +333,8 @@ export default class AddViewDisplayMenu extends Component {
                     <div className="guildDesc mTop8 textSecondary LineHeight20 Font13">{GuildText[id].desc}</div>
                   </div>
                   <div className="rightCon">
-                    {LottieComponent && (
-                      <LottieComponent
+                    <Suspense fallback={null}>
+                      <LoadableLottie
                         options={{
                           autoplay: true,
                           loop: false,
@@ -338,8 +343,9 @@ export default class AddViewDisplayMenu extends Component {
                             preserveAspectRatio: 'xMidYMid slice',
                           },
                         }}
+                        eventListeners={LOTTIE_EVENT_LISTENERS}
                       />
-                    )}
+                    </Suspense>
                   </div>
                 </GuildWrap>
               }
@@ -350,18 +356,39 @@ export default class AddViewDisplayMenu extends Component {
               popupAlign={{
                 points: ['tl', 'tr'],
                 offset: [5, 0],
-                overflow: { adjustX: true, adjustY: true },
+                overflow: {
+                  adjustX: true,
+                  adjustY: true,
+                },
               }}
             >
               <div
                 key={id}
                 className="viewTypeItem flexRow Hand"
-                onClick={() => onClick({ id })}
-                onMouseEnter={() => this.setState({ guild: id })}
-                onMouseLeave={() => this.setState({ guild: '' })}
+                onClick={() =>
+                  onClick({
+                    id,
+                  })
+                }
+                onMouseEnter={() =>
+                  this.setState({
+                    guild: id,
+                  })
+                }
+                onMouseLeave={() =>
+                  this.setState({
+                    guild: '',
+                  })
+                }
               >
                 <div className="valignWrapper flex">
-                  <Icon style={{ color, fontSize: '20px' }} icon={icon} />
+                  <Icon
+                    style={{
+                      color,
+                      fontSize: '20px',
+                    }}
+                    icon={icon}
+                  />
                   <span className="viewName mLeft12 Bold Font14">{text}</span>
                 </div>
                 {isNew && (
@@ -442,7 +469,7 @@ export default class AddViewDisplayMenu extends Component {
                     <span
                       className="mLeft40 Hand addCustomView"
                       onClick={() => {
-                        window.open('/plugin');
+                        window.open(pathCompletion('/plugin'));
                       }}
                     >
                       <span className="viewName">{_l('管理插件')}</span>

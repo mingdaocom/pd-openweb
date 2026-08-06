@@ -44,24 +44,26 @@ export default class extends React.Component {
     this.bindSubscribe();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { onChange } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { onChange } = this.props;
 
-    if (nextProps.control.store && nextProps.control.store !== this.store) {
-      this.store = nextProps.control.store;
-      this.store.init();
-      this.bindSubscribe();
-    }
+      if (this.props.control.store && this.props.control.store !== this.store) {
+        this.store = this.props.control.store;
+        this.store.init();
+        this.bindSubscribe();
+      }
 
-    const state = this.store.getState() || {};
+      const state = this.store.getState() || {};
 
-    if (nextProps.from === 21 && !_.isEqual(this.props.flag, nextProps.flag) && !_.isEmpty(state.rows)) {
-      // h5草稿箱已有子表值时编辑赋值
-      onChange({
-        rows: state.rows,
-        lastAction: state.lastAction,
-        originRows: state.originRows,
-      });
+      if (this.props.from === 21 && !_.isEqual(prevProps.flag, this.props.flag) && !_.isEmpty(state.rows)) {
+        // h5草稿箱已有子表值时编辑赋值
+        onChange({
+          rows: state.rows,
+          lastAction: state.lastAction,
+          originRows: state.originRows,
+        });
+      }
     }
   }
 
@@ -79,6 +81,12 @@ export default class extends React.Component {
       if (_.get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
         this.store.waitListForLoadRows.forEach(fn => fn());
         this.store.waitListForLoadRows = [];
+        return;
+      }
+
+      // realCount 仅为内部统计（未筛选真实总数），rows 未变，不构成数据变更，
+      // 不向大表单上报，否则会被当成子表变更误触发记录详情进入编辑态。
+      if (_.get(state, 'lastAction.type') === 'SET_REAL_COUNT') {
         return;
       }
 

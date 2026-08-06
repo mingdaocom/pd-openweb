@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -9,6 +9,7 @@ import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { pathCompletion } from 'src/utils/common';
 import ConnectAvator from '../../components/ConnectAvator';
 import ConnectDesDia from '../../components/connectDesDialog';
 import ConnectOptionMenu from '../../components/ConnectOptionMenu';
@@ -168,14 +169,14 @@ function ConnectCon(props) {
           });
         } else {
           setTimeout(() => {
-            location.href = '/integration/connectList';
+            location.href = pathCompletion('/integration/connectList');
           }, 500);
           alert(_l('你暂时没有权限查看该连接！'), 3);
         }
       },
       () => {
         setTimeout(() => {
-          location.href = '/integration/connectList';
+          location.href = pathCompletion('/integration/connectList');
         }, 500);
         alert(_l('你暂时没有权限查看该连接！'), 3);
       },
@@ -283,7 +284,7 @@ function ConnectCon(props) {
             <div className="flexRow leftCon">
               <ActWrap
                 className="act InlineBlock TxtMiddle TxtCenter mLeft0 mRight32 Hand LineHeight36"
-                onClick={() => (location.href = '/integration/connectList')}
+                onClick={() => (location.href = pathCompletion('/integration/connectList'))}
               >
                 <Icon icon="backspace" className="Font16" />
               </ActWrap>
@@ -298,14 +299,14 @@ function ConnectCon(props) {
                       // 安装的API 有文档链接icon
                       !!_.get(connectData, 'info.docUrl') && (
                         <span
-                          className="ThemeColor3 Hand mLeft5"
+                          className="colorPrimary Hand mLeft5"
                           onClick={() => {
                             const docUrl = _.get(connectData, 'info.docUrl');
                             !!docUrl && window.open(docUrl);
                           }}
                         >
                           <span className="Font14">{_l('官网地址')}</span>
-                          <Icon className="Hand docUrl Font14 InlineBlock ThemeColor3 mLeft5" icon="task-new-detail" />
+                          <Icon className="Hand docUrl Font14 InlineBlock colorPrimary mLeft5" icon="task-new-detail" />
                         </span>
                       )}
                     {!!nodeInfo.startEventId &&
@@ -394,7 +395,7 @@ function ConnectCon(props) {
                       onUpgradeSuccess={() => setState({ isUpgrade: true })}
                       onDeleteSuccess={() => {
                         setTimeout(() => {
-                          location.href = '/integration/connectList';
+                          location.href = pathCompletion('/integration/connectList');
                         }, 1000);
                       }}
                       popupAlign={{
@@ -402,7 +403,7 @@ function ConnectCon(props) {
                         overflow: { adjustX: true, adjustY: true },
                       }}
                       onCopySuccess={() => {
-                        location.href = '/integration/connectList';
+                        location.href = pathCompletion('/integration/connectList');
                       }}
                       trigger={
                         <ActWrap className="act InlineBlock TxtMiddle TxtCenter">

@@ -11,7 +11,7 @@ import downloadAjax from 'src/api/download';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import Search from 'src/pages/workflow/components/Search';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize, pathCompletion } from 'src/utils/common';
 import { formatter, selectDateList } from '../../util';
 
 const ByAppWrap = styled.div`
@@ -205,7 +205,7 @@ export default class ByApp extends Component {
                       appId: item.appId,
                       appName: item.name,
                       callback: () => {
-                        window.open(`/app/${item.appId}/analytics/${props.projectId}`, '__blank');
+                        window.open(pathCompletion(`/app/${item.appId}/analytics/${props.projectId}`), '__blank');
                       },
                     });
                   });
@@ -223,6 +223,20 @@ export default class ByApp extends Component {
         className: 'flex overflowHidden pRight16 minWidth120 pLeft10',
         render: item => {
           const { app = {} } = item;
+
+          if (this.state.currentTab === 2 && !item.id) {
+            return (
+              <div className="flexRow overflowHidden alignItemsCenter">
+                <div className="iconWrap flexRow alignItemsCenter justifyContentCenter bgSecondary">
+                  <Icon icon="more_horiz" className="textSecondary Font14" />
+                </div>
+                <div className="Font14 textSecondary">{_l('其他')}</div>
+                <Tooltip title={_l('包含无法归属到具体应用的功能用量，例如 API 集成')}>
+                  <Icon icon="info_outline" className="textSecondary Font16 mLeft4 pointer" />
+                </Tooltip>
+              </div>
+            );
+          }
 
           if (app.name) {
             return (
@@ -338,7 +352,7 @@ export default class ByApp extends Component {
                       appId: item.id,
                       appName: app.name,
                       callback: () => {
-                        window.open(`/app/${item.id}/analytics/${props.projectId}`, '__blank');
+                        window.open(pathCompletion(`/app/${item.id}/analytics/${props.projectId}`), '__blank');
                       },
                     });
                   });

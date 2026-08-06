@@ -49,15 +49,17 @@ export default class DropDownItem extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { dropDownData = [], actionType } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { dropDownData = [], actionType } = this.props;
 
-    if (nextProps.actionType !== this.props.actionType) {
-      const newDropDownData = getNewDropDownData(dropDownData, actionType);
-      this.setState({
-        dropDownData: newDropDownData,
-        originData: newDropDownData,
-      });
+      if (this.props.actionType !== prevProps.actionType) {
+        const newDropDownData = getNewDropDownData(dropDownData, actionType);
+        this.setState({
+          dropDownData: newDropDownData,
+          originData: newDropDownData,
+        });
+      }
     }
   }
 
@@ -330,7 +332,7 @@ export default class DropDownItem extends Component {
                 _.find(values, v => v.controlId === r.controlId && _.isEmpty(v.childControlIds)),
               ) ? (
                 <span
-                  className="ThemeColor3 mRight10"
+                  className="colorPrimary mRight10"
                   onClick={e => {
                     e.stopPropagation();
                     this.updateSelectAll(item);
@@ -340,7 +342,7 @@ export default class DropDownItem extends Component {
                 </span>
               ) : (
                 <span
-                  className="ThemeColor3 mRight10"
+                  className="colorPrimary mRight10"
                   onClick={e => {
                     e.stopPropagation();
                     this.updateSelectAll(item, true);
@@ -411,7 +413,7 @@ export default class DropDownItem extends Component {
         {!this.state.keyword && this.props.showSelectAll && (
           <div className="quickOperate">
             <button
-              className="ThemeHoverColor3"
+              className="hoverColorPrimary"
               onClick={() => {
                 const newValue = this.getAllControls(dropDownData);
                 this.props.onChange('controls', newValue);
@@ -419,7 +421,7 @@ export default class DropDownItem extends Component {
             >
               {_l('全选')}
             </button>
-            <button className="ThemeHoverColor3" onClick={() => this.props.onChange('controls', [])}>
+            <button className="hoverColorPrimary" onClick={() => this.props.onChange('controls', [])}>
               {_l('清空')}
             </button>
           </div>

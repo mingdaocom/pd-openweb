@@ -4,6 +4,7 @@ import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import postAjax from 'src/api/taskCenter';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import { htmlDecodeReg } from 'src/utils/project';
 import './printTask.less';
@@ -16,7 +17,7 @@ export default class PrintTask extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     postAjax
       .getTaskDetail4Print({
         taskId: this.props.taskId,
@@ -159,7 +160,7 @@ export default class PrintTask extends Component {
     let url =
       md.global.Config.AjaxApiUrl +
       'code/CreateQrCodeImage?url=' +
-      encodeURIComponent(`${md.global.Config.WebUrl}apps/task/task_${this.props.taskId}`);
+      encodeURIComponent(pathCompletion(`/apps/task/task_${this.props.taskId}`));
 
     return (
       <div className="printTask">

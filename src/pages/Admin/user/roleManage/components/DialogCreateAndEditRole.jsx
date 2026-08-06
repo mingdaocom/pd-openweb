@@ -102,12 +102,12 @@ class DialogCreateAndEditRole extends React.Component {
 
     return (
       <div className="createPositionDialogFooter">
-        <span class="noText ThemeHoverColor3 Hand" onClick={() => this.props.onCancel()}>
+        <span class="noText hoverColorPrimary Hand" onClick={() => this.props.onCancel()}>
           {_l('取消')}
         </span>
         <span
           class={cx('nyesText ', {
-            ThemeBGColor3: !exsistCurrentName,
+            bgColorPrimary: !exsistCurrentName,
             boderRadAll_3: !exsistCurrentName,
             disabledComfrim: exsistCurrentName || submitLoading,
           })}

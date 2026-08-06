@@ -1,14 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { ActionSheet, List } from 'antd-mobile';
 import localForage from 'localforage';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import login from 'src/api/login';
-import langConfig from 'src/common/langConfig';
-import { logoBase64 } from 'src/pages/mingo/embed';
 import { navigateToLogin } from 'src/router/navigateTo';
-import { emitter, setBodyThemeMode } from 'src/utils/common';
+import { emitter, getDefaultThemeMode, pathCompletion, setBodyThemeMode } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import { removePssId } from 'src/utils/pssId';
 import TabBar from '../components/TabBar';
@@ -26,14 +24,14 @@ class MyHome extends Component {
 
     this.state = {
       visible: false,
-      actionKey: getCookie('i18n_langtag'),
+      actionKey: getCookie('i18n_langtag') || window.getDefaultLangKey(),
       themeVisible: false,
-      themeKey: localStorage.getItem('themeMode') || 'light',
+      themeKey: localStorage.getItem('themeMode') || getDefaultThemeMode(),
     };
   }
 
   get languageActions() {
-    return langConfig.map(({ key, value }) => ({
+    return window.getAllowLangConfig().map(({ key, value }) => ({
       key,
       text: (
         <div className="flexRow languageActionSheetItem">
@@ -133,7 +131,7 @@ class MyHome extends Component {
                 </div>
               }
               onClick={() => {
-                this.props.history.push(`/mobile/enterprise`);
+                this.props.history.push(pathCompletion(`/mobile/enterprise`, { hasDomain: false }));
               }}
             >
               {_l('切换组织')}
@@ -167,22 +165,6 @@ class MyHome extends Component {
             >
               {_l('系统语言')}
             </List.Item>
-            {window.platformENV.isOverseas ||
-            window.platformENV.isLocal ||
-            window.isWxWork ||
-            window.isDingTalk ? null : (
-              <Fragment>
-                <List.Item
-                  arrowIcon={<Icon icon="arrow-right-border" className="Font18 textTertiary" />}
-                  prefix={<img className="mingoLogo" src={logoBase64} />}
-                  onClick={() => {
-                    window.location.href = '/mingo?header=0';
-                  }}
-                >
-                  {_l('使用帮助')}
-                </List.Item>
-              </Fragment>
-            )}
           </List>
           <a className="logOutBtn" onClick={this.logout} rel="external">
             {_l('退出登录')}

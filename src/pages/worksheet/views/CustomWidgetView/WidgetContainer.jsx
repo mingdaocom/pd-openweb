@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { get, pick } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import qs from 'query-string';
@@ -15,26 +15,21 @@ const Con = styled.div`
   height: 100%;
   display: flex;
 `;
-
 const Side = styled.div`
   position: relative;
   flex: 1;
   overflow: hidden;
 `;
-
 const CustomWidget = styled.iframe`
   flex: 1;
   height: 100%;
   border: none;
   border-right: 1px solid var(--color-border-secondary);
 `;
+const LoadableRecordInfoWrapper = lazy(() => import('worksheet/common/recordInfo/RecordInfoWrapper'));
 
 function getFilters(filters = {}, quickFilter = [], navGroupFilters = []) {
-  return {
-    ...filters,
-    fastFilters: formatQuickFilter(quickFilter),
-    navGroupFilters,
-  };
+  return { ...filters, fastFilters: formatQuickFilter(quickFilter), navGroupFilters };
 }
 
 export default function WidgetContainer(props) {
@@ -74,13 +69,16 @@ export default function WidgetContainer(props) {
   // 调试脚本（含云端沙箱隧道地址）需直接加载，跳过跨域 iframe 沙箱代理，避免地址被代理域名拼接污染
   const isLocalScript = isDebugBundle || /localhost|127\.0\.0\.1/.test(scriptUrl);
   const pluginRuntimeUrl = isLocalScript ? '' : rawPluginRuntimeUrl;
-
   const iframeRef = useRef();
   const cache = useRef({});
   const containerId = useRef(uuidv4());
-  const bridge = useRef(new WidgetBridge({ cache: cache, containerId: containerId.current }));
+  const bridge = useRef(
+    new WidgetBridge({
+      cache: cache,
+      containerId: containerId.current,
+    }),
+  );
   const [reloadFlag, setReloadFlag] = useState(props.flag);
-  const [RecordInfoComponent, setRecordInfoComponent] = useState(null);
   const [side, setSide] = useState();
   cache.current = {
     scriptUrl,
@@ -100,7 +98,7 @@ export default function WidgetContainer(props) {
       worksheetInfo,
       filters: getFilters(filters, quickFilter, navGroupFilters),
       query: qs.parse(location.search.slice(1)),
-      appLang: getCookie('i18n_langtag') || md.global.Config.DefaultLang,
+      appLang: getCookie('i18n_langtag') || window.getDefaultLangKey(),
       currentAccount: pick(get(md, 'global.Account') || {}, [
         'fullname',
         'avatar',
@@ -115,7 +113,11 @@ export default function WidgetContainer(props) {
   };
   const emitWidgetDataUpdate = useCallback(
     value => {
-      bridge.current.sendWidgetBridge(Object.assign(value, { type: 'data-update' }));
+      bridge.current.sendWidgetBridge(
+        Object.assign(value, {
+          type: 'data-update',
+        }),
+      );
     },
     [bridge.current],
   );
@@ -130,9 +132,7 @@ export default function WidgetContainer(props) {
     setReloadFlag(Math.random().toString());
   }, [JSON.stringify(paramsMap)]);
   useEffect(() => {
-    bridge.current.mountPropertyOnWindow('env', {
-      ...cache.current.paramsMap,
-    });
+    bridge.current.mountPropertyOnWindow('env', { ...cache.current.paramsMap });
     bridge.current.mountPropertyOnWindow('config', cache.current.config);
     setReloadFlag(flag + viewId);
   }, [flag, viewId]);
@@ -148,16 +148,11 @@ export default function WidgetContainer(props) {
     bridge.current.targetWindow = get(iframeRef, 'current.contentWindow');
     bridge.current.init(
       () => {
-        bridge.current.mountPropertyOnWindow('env', {
-          ...cache.current.paramsMap,
-        });
+        bridge.current.mountPropertyOnWindow('env', { ...cache.current.paramsMap });
         bridge.current.mountPropertyOnWindow('config', cache.current.config);
       },
       () => onLoadScript(true),
     );
-    import('worksheet/common/recordInfo/RecordInfoWrapper').then(component => {
-      setRecordInfoComponent(component);
-    });
     emitter.addListener('POST_MESSAGE_TO_CUSTOM_WIDGET', emitWidgetDataUpdate);
     return () => {
       window.customWidgetViewIsActive = false;
@@ -169,18 +164,22 @@ export default function WidgetContainer(props) {
     <Con>
       <CustomWidget
         className="customWidgetIframe"
-        allow="geolocation; microphone; camera; fullscreen;"
+        allow="geolocation; microphone; camera; fullscreen; clipboard-read; clipboard-write;"
         allowFullscreen
         ref={iframeRef}
-        src={`${pluginRuntimeUrl ? `${pluginRuntimeUrl}widgetview` : '/widgetview'}`}
+        src={`${(pluginRuntimeUrl || window.__customSubPath__ || '').replace(/\/+$/, '')}/widgetview`}
       />
       {side &&
         (side.type === 'html' ? (
-          <Side dangerouslySetInnerHTML={{ __html: filterXSS(side.html) }} />
+          <Side
+            dangerouslySetInnerHTML={{
+              __html: filterXSS(side.html),
+            }}
+          />
         ) : (
           <Side>
-            {RecordInfoComponent ? (
-              <RecordInfoComponent.default
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableRecordInfoWrapper
                 notDialog
                 from={2}
                 appId={appId}
@@ -188,9 +187,7 @@ export default function WidgetContainer(props) {
                 recordId={side.recordId}
                 hideRecordInfo={() => setSide(undefined)}
               />
-            ) : (
-              <LoadDiv />
-            )}
+            </Suspense>
           </Side>
         ))}
     </Con>

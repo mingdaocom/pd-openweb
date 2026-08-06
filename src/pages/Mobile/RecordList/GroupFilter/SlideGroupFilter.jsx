@@ -21,7 +21,7 @@ export default function SlideGroupFilter(props) {
   const [currentGroup, setCurrentGroup] = useState({});
 
   useEffect(() => {
-    setCurrentGroup([]);
+    setCurrentGroup({});
   }, [viewId]);
 
   return (

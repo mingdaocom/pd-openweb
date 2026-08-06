@@ -15,7 +15,7 @@ import sheetAjax from 'src/api/worksheet';
 import AiActionChatBot from 'src/components/Mingo/modules/AiActionChatBot';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import { selectRecords } from 'src/components/SelectRecords';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import Switch from '../../components/Switch';
 import { clearTestRunning, updatePublishState, updateTestRunning } from '../../redux/actions';
@@ -273,13 +273,11 @@ class Header extends Component {
 
     if (!onBack) {
       onBack = () => {
-        const featurePath = getAppFeaturesPath();
-
-        location.href = isPlugin
-          ? `/plugin/node${featurePath ? '?' + featurePath : ''}`
-          : `${flowInfo.parentId ? `/workflowedit/${flowInfo.parentId}` : `/app/${flowInfo.relationId}/workflow`}${location.hash ? '?' + location.hash.replace('#', '') : ''}${
-              featurePath ? (location.hash ? '&' : '?') + featurePath : ''
-            }`;
+        location.href = pathCompletion(
+          isPlugin
+            ? '/plugin/node'
+            : `${flowInfo.parentId ? `/workflowedit/${flowInfo.parentId}` : `/app/${flowInfo.relationId}/workflow`}`,
+        );
       };
     }
 
@@ -308,7 +306,7 @@ class Header extends Component {
 
       return (
         <span
-          className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
+          className="workflowAction hoverColorPrimary hoverBorderColorPrimary"
           onClick={() => {
             if (isAIActions) {
               this.selectRecord((records, worksheetInfo) => {
@@ -341,7 +339,7 @@ class Header extends Component {
       )
     ) {
       return (
-        <span className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3" onClick={this.test}>
+        <span className="workflowAction hoverColorPrimary hoverBorderColorPrimary" onClick={this.test}>
           {_l('测试')}
         </span>
       );
@@ -379,7 +377,7 @@ class Header extends Component {
           </MenuBox>
         }
       >
-        <span className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3">{_l('测试')}</span>
+        <span className="workflowAction hoverColorPrimary hoverBorderColorPrimary">{_l('测试')}</span>
       </Trigger>
     );
   }
@@ -478,7 +476,7 @@ class Header extends Component {
 
               <Footer className="mTop30 mLeft24 mBottom20">
                 <span
-                  className="footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2"
+                  className="footerSaveBtn bgColorPrimary hoverBgColorPrimaryDark"
                   onClick={() => {
                     this.sendTestFlow({ fields: startNodeDetail.fields });
                   }}
@@ -688,7 +686,7 @@ class Header extends Component {
                 dangerouslySetInnerHTML={{
                   __html: _l(
                     '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
-                    `<span class="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer publishDialogOpenHistory">${_l(
+                    `<span class="mLeft5 mRight5 colorPrimary hoverColorPrimaryDark pointer publishDialogOpenHistory">${_l(
                       '历史',
                     )}</span>`,
                   ),
@@ -947,7 +945,7 @@ class Header extends Component {
           return (
             <div
               key={i}
-              className={cx('Font16 ThemeColor3 ThemeBorderColor3 workflowHeaderTab', {
+              className={cx('Font16 colorPrimary borderColorPrimary workflowHeaderTab', {
                 active: tabIndex === item.tabIndex,
                 mRight60: TABS_OPTS.length - 1 === i,
               })}
@@ -990,7 +988,7 @@ class Header extends Component {
                 ) &&
                 flowInfo.moduleType !== 1 && (
                   <span
-                    className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
+                    className="workflowAction hoverColorPrimary hoverBorderColorPrimary"
                     onClick={() => this.onExecuteFlow(false)}
                   >
                     {isProgressing ? _l('执行中...') : _l('立即执行%03000')}

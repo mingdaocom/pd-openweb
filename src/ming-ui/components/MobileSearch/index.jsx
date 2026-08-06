@@ -9,7 +9,7 @@ const SearchWrapper = styled.div`
   align-items: center;
   padding: 7px 10px;
   margin: 10px 15px;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-background-tertiary);
   border-radius: 24px;
 
   input {
@@ -52,13 +52,13 @@ const MobileSearch = forwardRef((props, ref) => {
     }
 
     debouncedSearch(keywords);
-  }, [keywords]);
+  }, [debouncedSearch, keywords]);
 
   useEffect(() => {
     return () => {
       debouncedSearch.cancel();
     };
-  }, []);
+  }, [debouncedSearch]);
 
   useImperativeHandle(ref, () => ({
     keywords,

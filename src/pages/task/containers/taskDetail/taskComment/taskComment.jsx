@@ -46,7 +46,7 @@ class TaskComment extends Component {
               this.props.scrollToComment();
             }}
           >
-            <span className="taskTopicCount ThemeHoverColor3">
+            <span className="taskTopicCount hoverColorPrimary">
               <Icon icon="textsms" className="Font20 TxtMiddle Hand" />
             </span>
           </div>

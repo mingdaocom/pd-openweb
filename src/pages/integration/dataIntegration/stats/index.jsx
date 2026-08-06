@@ -10,6 +10,7 @@ import loadingSvg from 'src/pages/Admin/app/useAnalytics/components/loading.svg'
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from 'src/pages/integration/config.js';
 import ExecNumber from 'src/pages/integration/dataIntegration/task/components/ExecNumber/index.jsx';
+import { pathCompletion } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import Sort from './Sort';
 import { Wrap } from './style';
@@ -361,10 +362,10 @@ export default function (props) {
               return (
                 <div className={cx('trCon flexRow alignItemsCenter')}>
                   <div
-                    className={cx('item flex Bold', { 'ThemeHoverColor3 Hand': !o.isDelete })}
+                    className={cx('item flex Bold', { 'hoverColorPrimary Hand': !o.isDelete })}
                     onClick={() => {
                       if (o.isDelete) return;
-                      window.open(`/integration/taskCon/${o.taskId}`);
+                      window.open(pathCompletion(`/integration/taskCon/${o.taskId}`));
                     }}
                   >
                     {o.taskName}

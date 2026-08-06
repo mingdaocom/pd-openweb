@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
+import { pathCompletion } from 'src/utils/common';
 
 function Header(props) {
   const { lineLoading, logo, hasGetLogo, isDefaultLogo, loading } = props;
@@ -13,7 +14,9 @@ function Header(props) {
       brandLogo = logo || `${_.get(md, 'global.FileStoreConfig.pictureHost')}/ProjectLogo/default.png`;
     }
   } else {
-    brandLogo = logo || _.get(md, 'global.SysSettings.brandLogoUrl');
+    const sysBrandLogoUrl = _.get(md, 'global.SysSettings.brandLogoUrl');
+    brandLogo =
+      logo || (typeof sysBrandLogoUrl === 'string' && sysBrandLogoUrl.includes('emptylogo') ? '' : sysBrandLogoUrl);
   }
 
   const brandLogoRedirectUrl =
@@ -31,7 +34,7 @@ function Header(props) {
           {window.isMingDaoApp || !brandLogoRedirectUrl ? (
             renderLogo()
           ) : (
-            <a href={brandLogoRedirectUrl}>{renderLogo()}</a>
+            <a href={pathCompletion(brandLogoRedirectUrl)}>{renderLogo()}</a>
           )}
         </div>
       )}

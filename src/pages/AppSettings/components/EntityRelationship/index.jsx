@@ -70,11 +70,18 @@ function EntityRelationship(props) {
   const isShowAllControls = useRef(false);
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadComp() {
       const GraphModule = await loadGraph();
-      layoutModuleRef.current = await loadLayout();
+      const layoutModule = await loadLayout();
+
+      const container = document.getElementById('relationshipWrap');
+      if (!mounted || !container) return;
+
+      layoutModuleRef.current = layoutModule;
       graphRef.current = new GraphModule.Graph({
-        container: document.getElementById('relationshipWrap'),
+        container,
         connecting: {
           highlight: true,
           router: {
@@ -156,6 +163,7 @@ function EntityRelationship(props) {
     loadComp();
 
     return () => {
+      mounted = false;
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
@@ -212,7 +220,7 @@ function EntityRelationship(props) {
         });
         if (!res.length) return;
         onLayout(res);
-        onFitRect();
+        onFitRect({ maxScale: 1 });
       });
   };
 
@@ -456,7 +464,7 @@ function EntityRelationship(props) {
     });
   };
 
-  const onFitRect = () => {
+  const onFitRect = ({ maxScale } = {}) => {
     const rectWidth = $('#relationshipWrap').width();
     const rectHeight = $('#relationshipWrap').height();
     graphRef.current.zoomToFit({
@@ -472,6 +480,7 @@ function EntityRelationship(props) {
         top: 10,
         bottom: 160,
       },
+      ...(maxScale ? { maxScale } : {}),
     });
   };
 
@@ -599,7 +608,7 @@ function EntityRelationship(props) {
           <Icon
             icon="full_screen"
             className="textSecondary Font20 Hand mRight20 hoverColorPrimary"
-            onClick={onFitRect}
+            onClick={() => onFitRect()}
           />
         </Tooltip>
         <Tooltip title={_l('等比显示')}>

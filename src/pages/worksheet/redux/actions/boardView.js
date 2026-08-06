@@ -4,6 +4,12 @@ import _ from 'lodash';
 import { uniqBy } from 'lodash/array';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
+import {
+  formatFilterValues,
+  formatFilterValuesToServer,
+  handleConditionsDefault,
+  validate,
+} from 'worksheet/common/Sheet/QuickFilter/utils';
 import { getTranslateInfo } from 'src/utils/app';
 import { getFilledRequestParams } from 'src/utils/common';
 import { formatQuickFilter } from 'src/utils/filter';
@@ -16,6 +22,26 @@ let boardPromiseObj;
 let boardPromiseViewIds = [];
 
 const wrappedGetFilterRows = wrapAjax(worksheetAjax.getFilterRows);
+
+function getQuickFilterForRequest({ quickFilter = [], view = {}, controls = [], chartId }) {
+  if (!_.isEmpty(quickFilter) || chartId || _.get(view, 'advancedSetting.clicksearch') === '1') {
+    return quickFilter;
+  }
+
+  const newFastFilters = handleConditionsDefault(view.fastFilters || [], controls);
+
+  if (!_.some(newFastFilters, validate)) {
+    return quickFilter;
+  }
+
+  return newFastFilters.filter(validate).map(condition => ({
+    ...condition,
+    filterType: condition.dataType === 29 && condition.filterType === 2 ? 24 : condition.filterType || 2,
+    spliceType: condition.spliceType || 1,
+    values: formatFilterValuesToServer(condition.dataType, formatFilterValues(condition.dataType, condition.values)),
+    ...(condition.dataType === 36 ? { value: 1 } : {}),
+  }));
+}
 
 export function updateBoardViewRecordCount(data) {
   return { type: 'UPDATE_BOARD_VIEW_RECORD_COUNT', data };
@@ -94,6 +120,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     relationWorksheetId = selectControl.dataSource;
   }
 
+  const quickFilterForRequest = getQuickFilterForRequest({ quickFilter, view, controls, chartId });
   let para = {
     type,
     appId,
@@ -105,7 +132,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     pageSize: 20,
     navGroupFilters,
     ...sheet.filters,
-    fastFilters: formatQuickFilter(quickFilter),
+    fastFilters: formatQuickFilter(quickFilterForRequest),
     langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
   };
 

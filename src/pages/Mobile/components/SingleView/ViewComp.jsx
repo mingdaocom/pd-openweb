@@ -1,14 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import DocumentTitle from 'react-document-title';
 import { useDeepCompareEffect } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import homeAppAjax from 'src/api/homeApp';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import { BatchOperationBtn } from 'mobile/components/RecordActions';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import {
@@ -18,12 +18,14 @@ import {
   updateFiltersGroup,
 } from 'mobile/RecordList/redux/actions';
 import View from 'mobile/RecordList/View';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
 import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
+import { pathCompletion } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 
 const Con = styled.div`
@@ -176,7 +178,7 @@ function ViewComp(props) {
     const { appId, worksheetId } = worksheetInfo;
 
     if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-      window.location.href = `/mobile/addRecord/${appId}/${worksheetId}/${view.viewId}`;
+      window.location.href = pathCompletion(`/mobile/addRecord/${appId}/${worksheetId}/${view.viewId}`);
       return;
     }
 
@@ -234,6 +236,9 @@ function ViewComp(props) {
           <Header className="SingleViewHeader mobile flexRow valignWrapper">
             {headerLeft}
             <div className="flex" />
+            {_.get(window, 'shareState.isPublicView') && (
+              <PublicAppLangDropdown className="mRight6" appId={appId} projectId={worksheetInfo.projectId} />
+            )}
             {headerRight}
           </Header>
         )}
@@ -290,4 +295,4 @@ export default connect(
       },
       dispatch,
     ),
-)(errorBoundary(ViewComp));
+)(ErrorBoundary.wrap(ViewComp));

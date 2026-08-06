@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
+import { isChartScrollLocked, setChartScrollLock, setGroupingScrollLock } from 'worksheet/views/GunterView/scrollState';
 import GroupItem from '../GroupItem';
 
 const GroupingTotalWrapper = styled.div`
@@ -20,14 +21,7 @@ const GroupingTotalWrapper = styled.div`
     right: 0;
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'groupingScroll', 'chartScroll']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class GroupWrap extends Component {
+let GroupWrap = class GroupWrap extends Component {
   constructor(props) {
     super(props);
     this.$groupingWrapperRef = createRef(null);
@@ -35,6 +29,7 @@ export default class GroupWrap extends Component {
       groupingScrollX: 0,
     };
   }
+
   componentDidMount() {
     const scroll = new IScroll(this.$groupingWrapperRef.current, {
       scrollX: true,
@@ -49,26 +44,30 @@ export default class GroupWrap extends Component {
       interactiveScrollbars: true,
       probeType: 2,
     });
-    window.groupingScrollLock = true;
+    setGroupingScrollLock(true);
     scroll.on('scroll', this.linkageScroll);
     scroll.on('scrollStart', () => {
-      window.groupingScrollLock = true;
-      window.chartScrollLock = false;
+      setGroupingScrollLock(true);
+      setChartScrollLock(false);
     });
     scroll.on('scrollEnd', () => {
-      window.groupingScrollLock = false;
-      window.chartScrollLock = true;
+      setGroupingScrollLock(false);
+      setChartScrollLock(true);
     });
     this.props.updateGroupingScroll(scroll);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.loading !== this.props.loading || !_.isEqual(nextProps.widthConfig, this.props.widthConfig)) {
-      setTimeout(() => {
-        nextProps.groupingScroll.refresh();
-        this.handleUpdateWidth(nextProps);
-      }, 100);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.loading !== prevProps.loading || !_.isEqual(this.props.widthConfig, prevProps.widthConfig)) {
+        setTimeout(() => {
+          this.props.groupingScroll.refresh();
+          this.handleUpdateWidth(this.props);
+        }, 100);
+      }
     }
   }
+
   componentWillUnmount() {
     const { groupingScroll } = this.props;
 
@@ -78,15 +77,19 @@ export default class GroupWrap extends Component {
       this.props.updateGroupingScroll(null);
     }
   }
+
   linkageScroll = () => {
-    if (window.chartScrollLock) {
+    if (isChartScrollLocked()) {
       return;
     }
 
     const { groupingScroll, chartScroll } = this.props;
-    this.setState({ groupingScrollX: Math.abs(groupingScroll.x) });
+    this.setState({
+      groupingScrollX: Math.abs(groupingScroll.x),
+    });
     this.handleUpdateX(groupingScroll.x);
     chartScroll.scrollTo(chartScroll.x, groupingScroll.y);
+
     chartScroll._execEvent('scroll');
   };
   handleUpdateWidth = props => {
@@ -107,15 +110,17 @@ export default class GroupWrap extends Component {
       controlHeader.style.transform = `translateX(${x}px)`;
     }
   };
+
   renderGroupingTotal() {
     const { grouping } = this.props;
     return (
       <GroupingTotalWrapper className="Relative">
         {grouping.map((item, index) => (
           <div
-            key={index}
-            // style={{ top: index ? (grouping[index - 1].openCount * 32) : 0 }}
-            style={{ top: index ? (item.openCount - (item.subVisible ? item.rows.length : 0) - 1) * 32 : 0 }}
+            key={index} // style={{ top: index ? (grouping[index - 1].openCount * 32) : 0 }}
+            style={{
+              top: index ? (item.openCount - (item.subVisible ? item.rows.length : 0) - 1) * 32 : 0,
+            }}
             className="valignWrapper item textTertiary"
           >
             <span>{item.totalNum}</span>
@@ -125,26 +130,36 @@ export default class GroupWrap extends Component {
       </GroupingTotalWrapper>
     );
   }
+
   renderLoading() {
     return (
       <div className="Relative">
         <Skeleton
-          style={{ flex: 1 }}
+          style={{
+            flex: 1,
+          }}
           direction="column"
           widths={['30%', '40%', '90%', '60%']}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          itemStyle={{
+            marginBottom: '10px',
+          }}
         />
         <Skeleton
-          style={{ flex: 1 }}
+          style={{
+            flex: 1,
+          }}
           direction="column"
           widths={['30%', '40%', '90%', '60%']}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          itemStyle={{
+            marginBottom: '10px',
+          }}
         />
       </div>
     );
   }
+
   renderContent() {
     const { groupingScrollX } = this.state;
     const { width, grouping, widthConfig } = this.props;
@@ -162,16 +177,26 @@ export default class GroupWrap extends Component {
       </div>
     );
   }
+
   render() {
     const { loading } = this.props;
     return (
       <div className="flex Relative overflowHidden">
         <div className="gunterGroupingWrapper" ref={this.$groupingWrapperRef}>
-          <div className={cx('gunterGroupingScroller', { w100: loading })}>
+          <div
+            className={cx('gunterGroupingScroller', {
+              w100: loading,
+            })}
+          >
             {loading ? this.renderLoading() : this.renderContent()}
           </div>
         </div>
       </div>
     );
   }
-}
+};
+GroupWrap = connect(
+  state => ({ ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'groupingScroll', 'chartScroll']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(GroupWrap);
+export default GroupWrap;

@@ -305,7 +305,7 @@ export default function AggregationCon(props) {
                 </span>
               }
             >
-              <Icon icon="info_outline" className="Hand textTertiary ThemeHoverColor3 Font16" />
+              <Icon icon="info_outline" className="Hand textTertiary hoverColorPrimary Font16" />
             </Tooltip>
           )}
           {!item.isCalculateField ? (
@@ -346,7 +346,7 @@ export default function AggregationCon(props) {
                               return (
                                 <MenuItem
                                   className={cx('settingSheet flexRow Font14', {
-                                    ThemeColor3: o.value === item.aggFuncType,
+                                    colorPrimary: o.value === item.aggFuncType,
                                   })}
                                   onClick={() => {
                                     if (o.value === item.aggFuncType) {
@@ -403,7 +403,7 @@ export default function AggregationCon(props) {
             >
               <Icon
                 icon="arrow-down-border"
-                className="Hand textTertiary ThemeHoverColor3 Font16 mLeft8"
+                className="Hand textTertiary hoverColorPrimary Font16 mLeft8"
                 onClick={() =>
                   setState({
                     popupVisible: true,
@@ -415,7 +415,7 @@ export default function AggregationCon(props) {
             <Tooltip title={_l('编辑')}>
               <Icon
                 icon="edit_17"
-                className="Hand textTertiary ThemeHoverColor3 Font16 mLeft8"
+                className="Hand textTertiary hoverColorPrimary Font16 mLeft8"
                 onClick={() => {
                   setState({
                     showCalculation: true,
@@ -427,7 +427,7 @@ export default function AggregationCon(props) {
           <Tooltip title={_l('删除')}>
             <Icon
               icon="clear"
-              className="clearIcon Hand textTertiary del ThemeHoverColor3 mLeft8 Font16"
+              className="clearIcon Hand textTertiary del hoverColorPrimary mLeft8 Font16"
               onClick={() => {
                 onUpdate(items.filter((o, i) => i !== num));
               }}

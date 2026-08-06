@@ -1,42 +1,49 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
-import Vditor from '@mdfe/vditor';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { getToken } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import '/staticfiles/vditordist/index.css';
+
+let vditorPromise;
+
+function loadVditor() {
+  if (!vditorPromise) {
+    vditorPromise = Promise.all([import('@mdfe/vditor'), import('/staticfiles/vditordist/index.css')]).then(
+      ([module]) => module.default || module,
+    );
+  }
+
+  return vditorPromise;
+}
 
 const TOOLBAR = [
-  'emoji',
-  'headings',
-  'bold',
-  'italic',
-  'strike',
-  'link',
+  { name: 'emoji', tip: _l('表情'), hotkey: '⌘E' },
+  { name: 'headings', tip: _l('标题'), hotkey: '⌘H' },
+  { name: 'bold', tip: _l('粗体'), hotkey: '⌘B' },
+  { name: 'italic', tip: _l('斜体'), hotkey: '⌘I' },
+  { name: 'strike', tip: _l('删除线'), hotkey: '⌘D' },
+  { name: 'link', tip: _l('链接'), hotkey: '⌘K' },
   '|',
-  'list',
-  'ordered-list',
-  'check',
-  'outdent',
-  'indent',
+  { name: 'list', tip: _l('无序列表'), hotkey: '⌘L' },
+  { name: 'ordered-list', tip: _l('有序列表'), hotkey: '⌘O' },
+  { name: 'check', tip: _l('任务列表'), hotkey: '⌘J' },
+  { name: 'outdent', tip: _l('列表反向缩进'), hotkey: '⇧⌘I' },
+  { name: 'indent', tip: _l('列表缩进'), hotkey: '⇧⌘O' },
   '|',
-  'line',
-  'quote',
-  'code',
-  'inline-code',
-  'insert-before',
-  'insert-after',
+  { name: 'line', tip: _l('分隔线'), hotkey: '⇧⌘H' },
+  { name: 'quote', tip: _l('引用'), hotkey: '⌘;' },
+  { name: 'code', tip: _l('代码块'), hotkey: '⌘U' },
+  { name: 'inline-code', tip: _l('行内代码'), hotkey: '⌘G' },
+  { name: 'insert-before', tip: _l('起始插入行'), hotkey: '⇧⌘B' },
+  { name: 'insert-after', tip: _l('末尾插入行'), hotkey: '⇧⌘E' },
   '|',
-  {
-    name: 'upload',
-    tip: _l('上传图片'),
-  },
+  { name: 'upload', tip: _l('上传图片') },
   // 'record',
-  'table',
+  { name: 'table', tip: _l('表格'), hotkey: '⌘M' },
   '|',
-  'undo',
-  'redo',
+  { name: 'undo', tip: _l('撤销'), hotkey: '⌘Z' },
+  { name: 'redo', tip: _l('重做'), hotkey: '⌘Y' },
   // '|',
   // 'edit-mode',
   // {
@@ -164,11 +171,20 @@ function MdMarkdown(props) {
   const [isFocus, setFocus] = useState(false);
   const vditorRef = useRef(null);
   const vditorInstance = useRef(null);
+  const destroyedRef = useRef(false);
+  const latestDataRef = useRef(data);
 
   useEffect(() => {
+    latestDataRef.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    destroyedRef.current = false;
     createEditor();
     return () => {
+      destroyedRef.current = true;
       vditorInstance.current && vditorInstance.current.destroy();
+      vditorInstance.current = null;
     };
   }, []);
 
@@ -258,67 +274,72 @@ function MdMarkdown(props) {
 
   const createEditor = () => {
     if (!vditorRef.current) return;
-    const vditor = new Vditor(vditorRef.current, {
-      mode,
-      ...(isFullScreen ? { height: '100%' } : { minHeight }),
-      ...(window.themeMode === 'dark' ? { theme: 'dark' } : {}),
-      cdn: '/staticfiles',
-      placeholder,
-      toolbar: TOOLBAR,
-      toolbarConfig: {
-        hide: hideToolbar,
-      },
-      lazyLoadImage: 'loading',
-      preview: {
-        delay: 0,
-        actions: [],
-        hljs: {
-          style: 'monokai',
-          lineNumber: true,
+
+    loadVditor().then(Vditor => {
+      if (destroyedRef.current || !vditorRef.current) return;
+
+      const vditor = new Vditor(vditorRef.current, {
+        mode,
+        ...(isFullScreen ? { height: '100%' } : { minHeight }),
+        ...(window.themeMode === 'dark' ? { theme: 'dark' } : {}),
+        cdn: `${window.__customSubPath__}/staticfiles`,
+        placeholder,
+        toolbar: TOOLBAR,
+        toolbarConfig: {
+          hide: hideToolbar,
         },
-        math: {
-          inlineDigit: true,
-          macros: {
-            bf: '{\\boldsymbol f}',
-            bu: '{\\boldsymbol u}',
-            bv: '{\\boldsymbol v}',
-            bw: '{\\boldsymbol w}',
+        lazyLoadImage: 'loading',
+        preview: {
+          delay: 0,
+          actions: [],
+          hljs: {
+            style: 'monokai',
+            lineNumber: true,
+          },
+          math: {
+            inlineDigit: true,
+            macros: {
+              bf: '{\\boldsymbol f}',
+              bu: '{\\boldsymbol u}',
+              bv: '{\\boldsymbol v}',
+              bw: '{\\boldsymbol w}',
+            },
           },
         },
-      },
-      tab: '',
-      typewriterMode: true,
-      cache: {
-        enable: false,
-      },
-      upload: {
-        accept: 'image/*',
-        handler: customUpload,
-      },
-      after() {
-        vditor.setValue(data);
-        vditorInstance.current = vditor;
-        registerRef(vditor);
+        tab: '',
+        typewriterMode: true,
+        cache: {
+          enable: false,
+        },
+        upload: {
+          accept: 'image/*',
+          handler: customUpload,
+        },
+        after() {
+          vditor.setValue(latestDataRef.current);
+          vditorInstance.current = vditor;
+          registerRef(vditor);
 
-        if (vditorInstance.current) {
-          if (disabled) vditorInstance.current.disabled();
-        }
-      },
-      input(val) {
-        handleChange(val);
-      },
-      focus(val) {
-        setFocus(true);
-        if (_.isFunction(handleFocus)) {
-          handleFocus(val);
-        }
-      },
-      blur(val) {
-        setFocus(false);
-        if (_.isFunction(handleBlur)) {
-          handleBlur(val);
-        }
-      },
+          if (vditorInstance.current) {
+            if (disabled) vditorInstance.current.disabled();
+          }
+        },
+        input(val) {
+          handleChange(val);
+        },
+        focus(val) {
+          setFocus(true);
+          if (_.isFunction(handleFocus)) {
+            handleFocus(val);
+          }
+        },
+        blur(val) {
+          setFocus(false);
+          if (_.isFunction(handleBlur)) {
+            handleBlur(val);
+          }
+        },
+      });
     });
   };
 

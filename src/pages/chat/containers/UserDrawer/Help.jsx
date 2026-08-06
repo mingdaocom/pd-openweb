@@ -5,44 +5,100 @@ import { Icon } from 'ming-ui';
 import { emitter } from 'src/utils/common';
 import { PopoverWrap } from '../ChatList/Avatar/styled';
 
+let monitorZendesk = false;
+
+const handleCloseZendesk = event => {
+  const { target } = event;
+
+  if (target.classList.contains('zendeskWrap') || target.parentNode.classList.contains('zendeskWrap')) {
+    return;
+  }
+
+  window.zE('messenger', 'close');
+};
+
+const handleOpenZendesk = () => {
+  if (!window.zE) return;
+  if (!monitorZendesk) {
+    window.zE('messenger:on', 'open', () => {
+      document.body.addEventListener('click', handleCloseZendesk, false);
+    });
+    window.zE('messenger:on', 'close', () => {
+      document.body.removeEventListener('click', handleCloseZendesk, false);
+    });
+    window.addEventListener('beforeunload', () => {
+      window.zE('messenger', 'close');
+    });
+  }
+
+  monitorZendesk = true;
+  window.zE('messenger', 'open');
+};
+
 const collections = () => {
   const lang = window.getCurrentLang();
   return [
     {
       type: 'support',
       text: _l('支持'),
-      items: [
-        { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
-        { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
-        { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
-        { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
-        { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
-      ],
+      items: window.platformENV.isOverseas
+        ? [
+            { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.nocoly.com' },
+            { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.nocoly.com' },
+            {
+              id: 'communityQuestions',
+              text: _l('社区提问'),
+              icon: 'forum',
+              href: 'https://nocoly.zendesk.com/hc/en-001',
+            },
+            { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
+            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+          ]
+        : [
+            { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
+            { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
+            { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
+            { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
+            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+          ],
     },
     {
       type: 'resource',
       text: _l('资源'),
       items: [
-        { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
-        { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
+        ...(window.platformENV.isOverseas
+          ? [{ id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.nocoly.com' }]
+          : [
+              { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
+              { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
+            ]),
         {
           id: 'lastUpdated',
           text: _l('最近更新'),
           icon: 'gift',
-          href: 'https://blog.mingdao.com/category/product/product-update	',
+          href: window.platformENV.isOverseas
+            ? 'https://blog.nocoly.com/category/product/'
+            : 'https://blog.mingdao.com/category/product/product-update	',
         },
         {
           id: 'api',
           text: _l('API文档'),
           icon: 'worksheet_API',
-          href: `https://apidoc.mingdao.com/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}`,
+          href: `${md.global.Config.OpenApiDocUrl}/organization/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/`,
         },
       ],
     },
     {
       type: 'buy',
       text: _l('购买'),
-      items: [{ id: 'versionAndPrice', text: _l('版本和价格'), icon: 'score', href: 'https://www.mingdao.com/price' }],
+      items: [
+        {
+          id: 'versionAndPrice',
+          text: _l('版本和价格'),
+          icon: 'score',
+          href: window.platformENV.isOverseas ? 'https://www.nocoly.com/pricing' : 'https://www.mingdao.com/price',
+        },
+      ],
     },
   ];
 };
@@ -66,17 +122,23 @@ const renderProjectsPopover = ({ onClose = () => {}, onCloseHelpPopover = () => 
               if (_.includes(['partnerSupport'], v.id)) {
                 return (
                   <div
-                    className="itemWrap flexRow alignItemsCenter pointer"
+                    className={cx('itemWrap flexRow alignItemsCenter pointer', {
+                      zendeskWrap: window.platformENV.isOverseas,
+                    })}
                     key={v.id}
                     onClick={() => {
                       if (v.id === 'partnerSupport') {
-                        // window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
-                        onCloseHelpPopover(); // 先关闭帮助浮层
-                        onClose(); // 再关闭侧边抽屉
-                        setTimeout(() => {
-                          window.mingoPendingStartTask = { callFromHelp: true };
-                          emitter.emit('SET_MINGO_VISIBLE');
-                        }, 20);
+                        if (window.platformENV.isOverseas) {
+                          handleOpenZendesk();
+                        } else {
+                          // window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
+                          onCloseHelpPopover(); // 先关闭帮助浮层
+                          onClose(); // 再关闭侧边抽屉
+                          setTimeout(() => {
+                            window.mingoPendingStartTask = { callFromHelp: true };
+                            emitter.emit('SET_MINGO_VISIBLE');
+                          }, 20);
+                        }
                       }
                     }}
                   >

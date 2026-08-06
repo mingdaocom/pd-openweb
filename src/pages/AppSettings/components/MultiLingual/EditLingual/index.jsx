@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Popover, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon, LoadDiv, RadioGroup } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import worksheetApi from 'src/api/worksheet';
+import workflowTranslatorApi from 'src/pages/workflow/api/translator';
 import DragMask from 'worksheet/common/DragMask';
 import langConfig from 'src/common/langConfig';
 import Content from './Content';
@@ -31,11 +33,15 @@ const Drag = styled.div(
 
 export default function Edit(props) {
   const { app, currentLangKey, langs, allLangList, langInfo, onBack } = props;
+  const appId = app.id;
+  const appLangId = langInfo.id;
   const [selectNode, setSelectNode] = useState({ ...app, type: 'app' });
   const [expandedKeys, setExpandedKeys] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState(['app']);
   const [loading, setLoading] = useState(true);
   const [translateData, setTranslateData] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [workflows, setWorkflows] = useState([]);
   const [translateStatus, setTranslateStatus] = useState(false);
   const [machineTranslationLoading, setMachineTranslationLoading] = useState(false);
   const [comparisonLangData, setComparisonLangData] = useState([]);
@@ -43,19 +49,30 @@ export default function Edit(props) {
   const [comparisonLangId, setComparisonLangId] = useState('');
   const [navWidth, setNavWidth] = useState(Number(localStorage.getItem('multiLingualNavWidth')) || 260);
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
+  const appData = useMemo(() => ({ ...app, collections, workflows }), [app, collections, workflows]);
 
   useEffect(() => {
-    appManagementApi
-      .getAppLangDetail({
-        appId: app.id,
-        appLangId: langInfo.id,
-      })
-      .then(data => {
-        window[`langData-${app.id}`] = data.items;
-        setTranslateStatus(data.status);
-        setTranslateData(data.items);
-        setLoading(false);
-      });
+    Promise.all([
+      appManagementApi.getAppLangDetail({
+        appId,
+        appLangId,
+      }),
+      worksheetApi.getCollectionsByAppId({
+        appId,
+        status: 1,
+      }),
+      workflowTranslatorApi.getProcessTranslatorList({
+        apkId: appId,
+        all: false,
+      }),
+    ]).then(([data, collectionsData, workflowData]) => {
+      window[`langData-${appId}`] = data.items;
+      setTranslateStatus(data.status);
+      setTranslateData(data.items);
+      setCollections(collectionsData.data);
+      setWorkflows(workflowData);
+      setLoading(false);
+    });
     const { socket } = window.IM || {};
 
     const checkStatus = data => {
@@ -64,11 +81,11 @@ export default function Edit(props) {
 
     socket.on('custom', checkStatus);
     return () => {
-      delete window[`langData-${app.id}`];
-      delete window[`langVersion-${app.id}`];
+      delete window[`langData-${appId}`];
+      delete window[`langVersion-${appId}`];
       socket.off('custom', checkStatus);
     };
-  }, []);
+  }, [appId, appLangId]);
 
   const handleSelectNav = (selectedKeys, info) => {
     const { node } = info;
@@ -127,6 +144,7 @@ export default function Edit(props) {
       })
       .then(data => {
         if (data.message) {
+          setTranslateStatus(true);
           alert(data.message, 3);
         }
       })
@@ -253,7 +271,7 @@ export default function Edit(props) {
         <Drag left={navWidth} onMouseDown={() => setDragMaskVisible(true)} />
         <Nav
           style={{ width: navWidth }}
-          app={app}
+          app={appData}
           translateData={translateData}
           selectedKeys={selectedKeys}
           onSelectedKeys={handleSelectNav}
@@ -262,7 +280,7 @@ export default function Edit(props) {
         />
         <div className="flex contentWrap">
           <Content
-            app={app}
+            app={appData}
             comparisonLangId={comparisonLangId}
             translateData={translateData}
             comparisonLangData={comparisonLangData}

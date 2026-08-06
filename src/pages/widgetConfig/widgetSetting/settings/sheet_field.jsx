@@ -33,6 +33,12 @@ const SHEET_FIELD_TYPES = [
   },
 ];
 
+const getFieldsByControls = (controls = []) => {
+  return resortControlByColRow(controls.filter(i => !_.includes(SYS_CONTROLS, i.controlId))).filter(
+    ({ type, enumDefault }) => !(_.includes(CAN_NOT_AS_OTHER_FIELD, type) || (type === 38 && enumDefault === 3)),
+  );
+};
+
 export default function SheetField(props) {
   const {
     data,
@@ -67,12 +73,6 @@ export default function SheetField(props) {
   const isSaved = controlId && saveControlId && !saveControlId.includes('-');
   // 取关联单条
   const sheetList = filterControlsFromAll(allControls, item => isSingleRelateSheet(item) || item.type === 35);
-
-  const getFieldsByControls = (controls = []) => {
-    return resortControlByColRow(controls.filter(i => !_.includes(SYS_CONTROLS, i.controlId))).filter(
-      ({ type, enumDefault }) => !(_.includes(CAN_NOT_AS_OTHER_FIELD, type) || (type === 38 && enumDefault === 3)),
-    );
-  };
 
   const worksheetId = _.get(
     allControls.find(item => _.get(item, 'controlId') === parsedDataSource),

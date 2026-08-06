@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { REFRESH_TIME_OPTIONS } from '../config';
 
 export default function RefreshTime(props) {
   const { appId, view, updateCurrentView } = props;
@@ -33,40 +34,7 @@ export default function RefreshTime(props) {
           className="w100"
           border
           value={_.get(view, 'advancedSetting.refreshtime') || '0'}
-          data={[
-            {
-              text: _l('关闭'),
-              value: '0',
-            },
-            // {
-            //   text: _l('10秒'),
-            //   value: '10',
-            // },
-            {
-              text: _l('30秒'),
-              value: '30',
-            },
-            {
-              text: _l('1分钟'),
-              value: '60',
-            },
-            {
-              text: _l('2分钟'),
-              value: '120',
-            },
-            {
-              text: _l('3分钟'),
-              value: '180',
-            },
-            {
-              text: _l('4分钟'),
-              value: '240',
-            },
-            {
-              text: _l('5分钟'),
-              value: '300',
-            },
-          ]}
+          data={REFRESH_TIME_OPTIONS}
           onChange={value => {
             handleChange({ refreshtime: value });
           }}

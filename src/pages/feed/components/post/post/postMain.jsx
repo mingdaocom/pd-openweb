@@ -132,7 +132,7 @@ class PostMain extends React.Component {
                       title={this.state.message || _l('加载中...')}
                       onMouseEnter={() => !this.state.message && this.getReplyMessage()}
                     >
-                      <i className="ThemeColor4 icon-replyto replyMessage" />
+                      <i className="colorPrimaryLight icon-replyto replyMessage" />
                     </Tooltip>
                   </span>
                 ) : undefined}

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import JsonView from 'react-json-view';
 import { useSetState } from 'react-use';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -42,6 +42,26 @@ const Wrap = styled.div`
     padding: 16px;
   }
 `;
+
+const getInfo = info => {
+  let da = {};
+
+  if (!info) {
+    return da;
+  }
+
+  try {
+    da = JSON.parse(info);
+  } catch (error) {
+    console.log(error);
+    da = {
+      //无法JSON.parse，兼容呈现
+      data: info,
+    };
+  }
+
+  return da;
+};
 
 export default function LogDialog(props) {
   const [{ data, tab, loading, isErr }, setState] = useSetState({
@@ -98,26 +118,6 @@ export default function LogDialog(props) {
     );
   };
 
-  const getInfo = info => {
-    let da = {};
-
-    if (!info) {
-      return da;
-    }
-
-    try {
-      da = JSON.parse(info);
-    } catch (error) {
-      console.log(error);
-      da = {
-        //无法JSON.parse，兼容呈现
-        data: info,
-      };
-    }
-
-    return da;
-  };
-
   return (
     <Dialog
       className=""
@@ -132,13 +132,7 @@ export default function LogDialog(props) {
           <LoadDiv />
         ) : isErr ? (
           <div className="con mTop16">
-            <JsonView
-              src={data}
-              // theme="brewer"
-              displayDataTypes={false}
-              displayObjectSize={false}
-              // name={_l('成功')}
-            />
+            <JsonView theme="transparent" data={data} />
           </div>
         ) : (
           <React.Fragment>
@@ -187,17 +181,13 @@ export default function LogDialog(props) {
               </div>
               <div className="con mTop16 flex">
                 <JsonView
-                  src={
+                  data={
                     tab !== 0
                       ? getInfo(_.get(data, 'json.result'))
                       : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
                         ? data.requests
                         : getInfo(data.body)
                   }
-                  // theme="brewer"
-                  displayDataTypes={false}
-                  displayObjectSize={false}
-                  // name={_l('成功')}
                 />
               </div>
             </div>

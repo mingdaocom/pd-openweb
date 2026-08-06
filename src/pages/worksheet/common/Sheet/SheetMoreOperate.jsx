@@ -5,13 +5,15 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { openResetAutoNumber, openWorkSheetTrash } from 'worksheet/common';
+import { openResetAutoNumber } from 'worksheet/common/ResetAutoNumber';
+import { openWorkSheetTrash } from 'worksheet/common/WorkSheetTrash';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { saveSelectExtensionNavType } from 'src/utils/worksheet';
@@ -75,9 +77,8 @@ export default function SheetMoreOperate(props) {
   }
 
   const clickSettingSheet = () => {
-    const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
-      ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
-      : {};
+    const sheetConfigNavInfoStr = localStorage.getItem('sheetConfigNavInfo');
+    const sheetConfigNavInfo = sheetConfigNavInfoStr ? safeParse(sheetConfigNavInfoStr) || {} : {};
     const { settingNav = 'submitForm' } = sheetConfigNavInfo[worksheetId] || {};
 
     navigateTo(`/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`);
@@ -198,7 +199,7 @@ export default function SheetMoreOperate(props) {
                     icon={<Icon icon="workflow" className="Font18" />}
                     onClick={() => {
                       setMenuVisible(false);
-                      window.open(`/app/${appId}/workflow` + `/${worksheetId}`, '__blank');
+                      window.open(pathCompletion(`/app/${appId}/workflow` + `/${worksheetId}`), '__blank');
                     }}
                   >
                     <span className="text">{_l('查看工作流')}</span>
@@ -223,7 +224,7 @@ export default function SheetMoreOperate(props) {
                   icon={<Icon icon="wysiwyg" className="Font18" />}
                   onClick={() => {
                     setMenuVisible(false);
-                    window.open(`/app/${appId}/logs/${projectId}/${worksheetId}`, '__blank');
+                    window.open(pathCompletion(`/app/${appId}/logs/${projectId}/${worksheetId}`), '__blank');
                   }}
                 >
                   <span className="text">{_l('查看日志')}</span>

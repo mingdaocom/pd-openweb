@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
@@ -7,9 +7,17 @@ import { searchDateList } from '../../logs/enum';
 import './index.less';
 
 export default function CustomSelectDate(props) {
-  const { changeDate = () => {}, className, placeholder, min, limitSixMonths } = props;
+  const {
+    changeDate = () => {},
+    className,
+    placeholder,
+    min,
+    limitSixMonths,
+    timePicker,
+    timeMode,
+    dateInfo = {},
+  } = props;
   const [openDateSelect, setOpenDateSelect] = useState(false);
-  const [dateInfo, setDateInfo] = useState({});
   const $ref = useRef();
   const dateFormat = props.dateFormat ? props.dateFormat : 'YYYY-MM-DD';
 
@@ -71,12 +79,7 @@ export default function CustomSelectDate(props) {
     }
 
     changeDate({ startDate, endDate, searchDateStr: item.label, ...item });
-    setDateInfo({ searchDateStr: item.label, startDate, endDate });
   };
-
-  useEffect(() => {
-    setDateInfo(props.dateInfo);
-  }, [props.dateInfo]);
 
   return (
     <div className="w100 Relative">
@@ -89,7 +92,6 @@ export default function CustomSelectDate(props) {
         placeholder={placeholder || _l('最近30天')}
         onChange={() => {
           changeDate({ startDate: undefined, endDate: undefined, searchDateStr: undefined });
-          setDateInfo({ searchDateStr: undefined, startDate: undefined, endDate: undefined });
         }}
         value={dateInfo.searchDateStr}
         allowClear
@@ -127,25 +129,22 @@ export default function CustomSelectDate(props) {
                   const copyEnd = _.cloneDeep(end);
 
                   // 检查日期跨度是否超过半年
-                  if (limitSixMonths && copyStart.isBefore(copyEnd.subtract(6, 'months'))) {
+                  if (limitSixMonths && copyStart.isBefore(copyEnd.clone().subtract(6, 'months'))) {
                     alert(_l('时间跨度不得超过6个月'), 3);
                     return;
                   }
 
-                  start = moment(start).startOf('day');
-                  end =
-                    end.isAfter(moment().format('YYYY-MM-DD'), 'day') ||
-                    end.isSame(moment().format('YYYY-MM-DD'), 'day')
-                      ? moment()
-                      : moment(end).endOf('day');
+                  start = timePicker ? moment(start) : moment(start).startOf('day');
+                  end = timePicker ? moment(end) : moment(end).endOf('day');
                   const searchDateStr = `${start.format(dateFormat)}~${end.format(dateFormat)} `;
                   setOpenDateSelect(false);
                   changeDate({ startDate: start.format(dateFormat), endDate: end.format(dateFormat), searchDateStr });
-                  setDateInfo({ searchDateStr, startDate: start.format(dateFormat), endDate: end.format(dateFormat) });
                 }}
                 onClear={() => {
-                  setDateInfo({ searchDateStr: undefined, startDate: undefined, endDate: undefined });
+                  changeDate({ startDate: undefined, endDate: undefined, searchDateStr: undefined });
                 }}
+                timeMode={timeMode}
+                timePicker={timePicker}
               >
                 <li>{_l('自定义日期')}</li>
               </DatePicker.RangePicker>

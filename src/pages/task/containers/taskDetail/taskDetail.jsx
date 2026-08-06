@@ -5,14 +5,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
 import FileList from 'src/components/comment/FileList';
 import ErrorState from 'src/components/errorPage/errorState';
 import RelationControl from 'src/components/relationControl/relationControl';
 import { navigateTo } from 'src/router/navigateTo';
-import { getAppFeaturesPath } from 'src/utils/app';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
 import {
   destroyTask,
@@ -34,7 +32,7 @@ import TaskLog from './taskLog/taskLog';
 import TaskTime from './taskTime/taskTime';
 import './taskDetail.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const ClickAwayable = ClickAway;
 const TAB_TYPE = {
   comment: 1,
   attachment: 2,
@@ -76,56 +74,66 @@ class TaskDetail extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible && nextProps.taskId && (nextProps.taskId !== this.props.taskId || nextProps.isForceUpdate)) {
-      this.scrollToFixedPosition({ scrollTop: 0 });
-      this.setState(
-        {
-          animationEnd: nextProps.openType !== OPEN_TYPE.slide || this.props.visible,
-          taskId: nextProps.taskId,
-          beforeTaskId: '',
-          tabIndex: TAB_TYPE.comment,
-          hasNotice: nextProps.hasNotice,
-          postSuccessCount: 0,
-          forceUpdateSource: false,
-        },
-        () => {
-          this.init();
-          this.animationEnd();
-        },
-      );
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.visible &&
+        this.props.taskId &&
+        (this.props.taskId !== prevProps.taskId || this.props.isForceUpdate)
+      ) {
+        this.scrollToFixedPosition({
+          scrollTop: 0,
+        });
+        this.setState(
+          {
+            animationEnd: this.props.openType !== OPEN_TYPE.slide || prevProps.visible,
+            taskId: this.props.taskId,
+            beforeTaskId: '',
+            tabIndex: TAB_TYPE.comment,
+            hasNotice: this.props.hasNotice,
+            postSuccessCount: 0,
+            forceUpdateSource: false,
+          },
+          () => {
+            this.init();
+            this.animationEnd();
+          },
+        );
 
-      if (_.isFunction(nextProps.closeForceUpdate)) {
-        nextProps.closeForceUpdate();
+        if (_.isFunction(this.props.closeForceUpdate)) {
+          this.props.closeForceUpdate();
+        }
       }
     }
-  }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (nextState.forceUpdateSource && !this.state.forceUpdateSource && this.mounted) {
-      if (nextState.tabIndex === TAB_TYPE.comment) {
-        this.commentList.updatePageIndex(true);
-      } else if (nextState.tabIndex === TAB_TYPE.attachment) {
-        this.fileList.getFiles();
-      } else if (nextState.tabIndex === TAB_TYPE.log) {
-        this.taskLog.getTaskLog();
-      }
-    }
-  }
-
-  componentDidUpdate() {
     const { hasNotice, postSuccessCount } = this.state;
 
-    // 处理有新讨论滚动问题
+    if (this.state.forceUpdateSource && !prevState.forceUpdateSource && this.mounted) {
+      if (this.state.tabIndex === TAB_TYPE.comment) {
+        this.commentList.updatePageIndex(true);
+      } else if (this.state.tabIndex === TAB_TYPE.attachment) {
+        this.fileList.getFiles();
+      } else if (this.state.tabIndex === TAB_TYPE.log) {
+        this.taskLog.getTaskLog();
+      }
+    } // 处理有新讨论滚动问题
+
     if (hasNotice || postSuccessCount) {
       setTimeout(() => {
-        this.scrollToFixedPosition({ scrollTo: $('.taskDetail .talkNav') });
+        this.scrollToFixedPosition({
+          scrollTo: $('.taskDetail .talkNav'),
+        });
       }, 500);
-      this.setState({ hasNotice: false, postSuccessCount: 0 });
+      this.setState({
+        hasNotice: false,
+        postSuccessCount: 0,
+      });
     }
 
     if (this.state.forceUpdateSource) {
-      this.setState({ forceUpdateSource: false });
+      this.setState({
+        forceUpdateSource: false,
+      });
     }
   }
 
@@ -174,7 +182,7 @@ class TaskDetail extends Component {
   closeDetail = () => {
     if (this.props.openType === OPEN_TYPE.slide) {
       $('#tasks').removeClass('slideDetail');
-      $('#tasks .selectTask').removeClass('selectTask ThemeBGColor6');
+      $('#tasks .selectTask').removeClass('selectTask bgColorPrimaryTransparent');
       // 侧滑时动画结束清空组件
       setTimeout(() => {
         this.props.animationEndRemoveDetail();
@@ -364,7 +372,7 @@ class TaskDetail extends Component {
                 getLeftMenuCount('', 'all');
               }
             } else if (openType === OPEN_TYPE.detail) {
-              navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
+              navigateTo('/apps/task/center');
             }
           } else {
             this.props.dispatch(removeTaskMember(taskId, accountId));
@@ -410,12 +418,12 @@ class TaskDetail extends Component {
     if (openType === OPEN_TYPE.slide) {
       return (
         <ClickAwayable
-          component="div"
           className="taskDetail slide"
           onClickAwayExceptions={[
             '.persist-area',
             '.listStageTaskContent',
-            '.listStageContent',
+            '.singleStage .listStageContent li.singleTaskStage',
+            '.singleStage .listStageContent li.addNewTask',
             '.dialogScroll',
             '.attachmentsPreview',
             '.selectUserBox',
@@ -477,7 +485,7 @@ class TaskDetail extends Component {
           ) : null}
           {openType === OPEN_TYPE.dialog ? (
             <Tooltip title={_l('关闭')}>
-              <span className="taskCloseBtn ThemeColor3" onMouseDown={this.closeDetail}>
+              <span className="taskCloseBtn colorPrimary" onMouseDown={this.closeDetail}>
                 <i className="icon-delete" />
               </span>
             </Tooltip>
@@ -542,19 +550,19 @@ class TaskDetail extends Component {
             <TaskControl taskId={taskId} />
             <ul className="talkNav boxSizing">
               <li
-                className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.comment })}
+                className={cx('borderColorPrimary colorPrimary', { active: tabIndex === TAB_TYPE.comment })}
                 onClick={() => this.switchTabs(TAB_TYPE.comment)}
               >
                 {_l('讨论')}
               </li>
               <li
-                className={cx('ThemeBorderColor3 ThemeColor3 mLeft20', { active: tabIndex === TAB_TYPE.attachment })}
+                className={cx('borderColorPrimary colorPrimary mLeft20', { active: tabIndex === TAB_TYPE.attachment })}
                 onClick={() => this.switchTabs(TAB_TYPE.attachment)}
               >
                 {_l('文件')}
               </li>
               <li
-                className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.log })}
+                className={cx('borderColorPrimary colorPrimary', { active: tabIndex === TAB_TYPE.log })}
                 onClick={() => this.switchTabs(TAB_TYPE.log)}
               >
                 {_l('任务日志')}

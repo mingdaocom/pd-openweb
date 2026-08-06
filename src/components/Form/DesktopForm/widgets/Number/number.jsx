@@ -16,6 +16,8 @@ const NumWrap = styled.span`
   }
 `;
 
+const inputAttribute = { inputmode: 'decimal' };
+
 const NumberComp = props => {
   const {
     type,
@@ -230,8 +232,6 @@ const NumberComp = props => {
       </div>
     );
   }
-
-  const inputAttribute = { inputmode: 'decimal' };
 
   return (
     <div className="flexCenter flexRow">

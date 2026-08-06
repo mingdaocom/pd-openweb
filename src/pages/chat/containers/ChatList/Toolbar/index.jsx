@@ -8,7 +8,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import errorIcon from '../../SessionList/resource/errorIcon.png';
 import Avatar from '../Avatar';
 import RenderAddressBook from './RenderAddressBook';
@@ -57,6 +57,18 @@ const Wrap = styled.div`
   }
 `;
 
+const handleOpenGlobalSearch = () => {
+  const match = location.pathname.match(/\/app\/([A-Za-z0-9-]{36})(?=\/|$)/);
+  GlobalSearch({
+    match: {
+      params: {
+        appId: match ? match[1] : null,
+      },
+    },
+    onClose: () => {},
+  });
+};
+
 const Toolbar = props => {
   const { sessionList, socketState } = props;
   const { toolbarConfig, setToolbarConfig } = props;
@@ -89,18 +101,6 @@ const Toolbar = props => {
       });
       localStorage.setItem('toolBarOpenType', 'sessionList');
     }
-  };
-
-  const handleOpenGlobalSearch = () => {
-    const match = location.pathname.match(/\/app\/([A-Za-z0-9-]{36})(?=\/|$)/);
-    GlobalSearch({
-      match: {
-        params: {
-          appId: match ? match[1] : null,
-        },
-      },
-      onClose: () => {},
-    });
   };
 
   return (

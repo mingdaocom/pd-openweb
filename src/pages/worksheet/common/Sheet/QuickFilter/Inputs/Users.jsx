@@ -117,7 +117,7 @@ export default function Users(props) {
     setActive(true);
     if (from === 'NavShow') {
       dialogSelectUser({
-        title: '添加成员',
+        title: _l('添加成员'),
         sourceId: 0,
         fromType: 0,
         showMoreInvite: false,

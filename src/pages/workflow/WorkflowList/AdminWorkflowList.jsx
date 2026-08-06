@@ -5,13 +5,14 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Dialog, Icon, LoadDiv, MdLink, ScrollView, Switch, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import flowNode from '../api/flowNode';
 import processVersion from '../api/processVersion';
 import appManagement from 'src/api/appManagement';
 import projectSetting from 'src/api/projectSetting';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import Config from 'src/pages/Admin/config';
 import { navigateTo } from 'src/router/navigateTo';
@@ -43,10 +44,10 @@ const typeList = [
   { label: _l('事件推送'), value: 12 },
 ];
 
-@errorBoundary
-export default class AdminWorkflowList extends Component {
+class AdminWorkflowList extends Component {
   constructor(props) {
     super(props);
+    const workflowTab = localStorage.getItem('workflowTab');
     this.state = Object.assign({
       list: null,
       useCount: '',
@@ -67,11 +68,7 @@ export default class AdminWorkflowList extends Component {
       autoPurchaseWorkflowExtPack: false,
       autoOrderVisible: false,
 
-      activeTab: location.href.includes('monitor')
-        ? 'monitorTab'
-        : localStorage.getItem('workflowTab')
-          ? localStorage.getItem('workflowTab')
-          : 'workflowList',
+      activeTab: location.href.includes('monitor') ? 'monitorTab' : workflowTab ? workflowTab : 'workflowList',
     });
     Config.setPageTitle(_l('应用管理 - 工作流'));
   }
@@ -86,26 +83,32 @@ export default class AdminWorkflowList extends Component {
     this.getAutoOrderStatus(projectId);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps, this.props)) {
-      this.setState(
-        Object.assign({
-          list: null,
-          appList: [{ label: _l('全部应用'), value: '' }],
-          apkId: '',
-          enabled: 0,
-          processListType: '',
-          isAsc: false,
-          keyWords: '',
-          pageIndex: 1,
-          sortId: 'createdDate',
-          loading: false,
-        }),
-      );
-
-      const { projectId } = nextProps.match.params;
-      this.getList();
-      this.getWorkflowCount(projectId);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props, prevProps)) {
+        this.setState(
+          Object.assign({
+            list: null,
+            appList: [
+              {
+                label: _l('全部应用'),
+                value: '',
+              },
+            ],
+            apkId: '',
+            enabled: 0,
+            processListType: '',
+            isAsc: false,
+            keyWords: '',
+            pageIndex: 1,
+            sortId: 'createdDate',
+            loading: false,
+          }),
+        );
+        const { projectId } = this.props.match.params;
+        this.getList();
+        this.getWorkflowCount(projectId);
+      }
     }
   }
 
@@ -225,7 +228,7 @@ export default class AdminWorkflowList extends Component {
             },
             () => {
               if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
-                alert('当前账户信用点不足100信用点，该功能可能无法正常运行', 3);
+                alert(_l('当前账户信用点不足100信用点，该功能可能无法正常运行'), 3);
               }
             },
           );
@@ -240,7 +243,9 @@ export default class AdminWorkflowList extends Component {
   renderList() {
     const { list, loading } = this.state;
 
-    if (list === null) return;
+    if (list === null) {
+      return <LoadDiv className="mTop15" />;
+    }
 
     if (!list || !list.length) {
       return (
@@ -281,7 +286,7 @@ export default class AdminWorkflowList extends Component {
         </div>
         <div className="flex name mLeft10 mRight40">
           <div
-            className={cx('flexColumn nameBox ThemeColor3 pointer', { unable: !item.enabled })}
+            className={cx('flexColumn nameBox colorPrimary pointer', { unable: !item.enabled })}
             onClick={() =>
               checkIsAppAdmin({
                 appId: item.apkId,
@@ -323,7 +328,7 @@ export default class AdminWorkflowList extends Component {
         <MdLink to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
           <Tooltip title={_l('历史')}>
             <span>
-              <Icon icon="restore2" className="listBtn ThemeHoverColor3 textSecondary" />
+              <Icon icon="restore2" className="listBtn hoverColorPrimary textSecondary" />
             </span>
           </Tooltip>
         </MdLink>
@@ -447,7 +452,7 @@ export default class AdminWorkflowList extends Component {
 
             {md.global.SysSettings.enableSmsCustomContent && activeTab === 'workflowList' && (
               <div
-                className="pointer ThemeHoverColor3 textSecondary Font13 Normal mLeft24"
+                className="pointer hoverColorPrimary textSecondary Font13 Normal"
                 onClick={() => this.setState({ msgVisible: true })}
               >
                 <Icon icon="forum" />
@@ -499,6 +504,13 @@ export default class AdminWorkflowList extends Component {
                   >
                     {(overage || 0).toFixed(2)}%
                   </span>
+                  <PurchaseExpandPack
+                    className="mLeft20 hoverColorPrimaryDark"
+                    text={_l('购买升级包')}
+                    type="workflow"
+                    routePath="expansionserviceWorkflow"
+                    projectId={params.projectId}
+                  />
                 </Fragment>
               ) : (
                 _l('加载中...')
@@ -581,22 +593,22 @@ export default class AdminWorkflowList extends Component {
               <div className="flex mLeft10">{_l('流程名称')}</div>
               <div className="columnWidth flexRow">
                 <div
-                  className="pointer ThemeHoverColor3 pRight12"
+                  className="pointer hoverColorPrimary pRight12"
                   style={{ zIndex: 1 }}
                   onClick={() => this.updateState({ isAsc: sortId === 'count' ? !isAsc : false, sortId: 'count' })}
                 >
                   {_l('本月执行数')}
                 </div>
                 <div className="flexColumn manageListOrder">
-                  <Icon icon="arrow-up" className={cx({ ThemeColor3: isAsc && sortId === 'count' })} />
-                  <Icon icon="arrow-down" className={cx({ ThemeColor3: !isAsc && sortId === 'count' })} />
+                  <Icon icon="arrow-up" className={cx({ colorPrimary: isAsc && sortId === 'count' })} />
+                  <Icon icon="arrow-down" className={cx({ colorPrimary: !isAsc && sortId === 'count' })} />
                 </div>
               </div>
               <div className="columnWidth">{_l('状态')}</div>
               <div className="columnWidth">{_l('类型')}</div>
               <div className="columnWidth flexRow">
                 <div
-                  className="pointer ThemeHoverColor3 pRight12"
+                  className="pointer hoverColorPrimary pRight12"
                   style={{ zIndex: 1 }}
                   onClick={() =>
                     this.updateState({ isAsc: sortId === 'createdDate' ? !isAsc : false, sortId: 'createdDate' })
@@ -605,8 +617,8 @@ export default class AdminWorkflowList extends Component {
                   {_l('创建时间')}
                 </div>
                 <div className="flexColumn manageListOrder">
-                  <Icon icon="arrow-up" className={cx({ ThemeColor3: isAsc && sortId === 'createdDate' })} />
-                  <Icon icon="arrow-down" className={cx({ ThemeColor3: !isAsc && sortId === 'createdDate' })} />
+                  <Icon icon="arrow-up" className={cx({ colorPrimary: isAsc && sortId === 'createdDate' })} />
+                  <Icon icon="arrow-down" className={cx({ colorPrimary: !isAsc && sortId === 'createdDate' })} />
                 </div>
               </div>
               <div className="columnWidth">{_l('创建人')}</div>
@@ -663,3 +675,5 @@ export default class AdminWorkflowList extends Component {
     );
   }
 }
+
+export default ErrorBoundary.wrap(AdminWorkflowList);

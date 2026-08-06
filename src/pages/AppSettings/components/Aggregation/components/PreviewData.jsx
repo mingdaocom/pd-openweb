@@ -19,6 +19,12 @@ import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable'
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import emptyImg from './img/null.png';
 
+const getAppInfo = appId => {
+  return homeAppApi.getApp({
+    appId,
+  });
+};
+
 const Wrap = styled.div`
   .header {
     border-bottom: 1px solid var(--color-border-primary);
@@ -120,12 +126,6 @@ export default function PreviewData(props) {
   useEffect(() => {
     hasGet && getData();
   }, [keyWords, pageIndex, pageSize, filters, sortControls]);
-
-  const getAppInfo = appId => {
-    return homeAppApi.getApp({
-      appId,
-    });
-  };
 
   const getInfo = () => {
     if (!worksheetId) {
@@ -319,7 +319,7 @@ export default function PreviewData(props) {
                       });
                     }}
                   >
-                    <i className="icon icon-filter textTertiary Hand Font18 ThemeHoverColor3"></i>
+                    <i className="icon icon-filter textTertiary Hand Font18 hoverColorPrimary"></i>
                   </span>
                 </Tooltip>
               )}
@@ -351,7 +351,7 @@ export default function PreviewData(props) {
             <Tooltip placement="bottom" title={_l('刷新')}>
               <Icon
                 icon="task-later"
-                className="textTertiary Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
+                className="textTertiary Font18 pointer mLeft10 mRight2 hoverColorPrimary"
                 onClick={() => {
                   changePageIndex(1);
                   getData();

@@ -5,7 +5,7 @@ import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, MenuItem, Popup } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import UploadNewVersion from 'src/pages/kc/components/UploadNewVersion.jsx';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import EditableBlock from '../../editableBlock';
 import VersionList from '../../versionList';
 import './index.less';
@@ -102,6 +102,8 @@ export default function CommonHeader(props) {
     saveToKnowlwdge = () => {},
     showOpenNewPage,
     clickOpenNewPage = () => {},
+    showSwitchHtmlPreview,
+    clickSwitchHtmlPreview = () => {},
 
     showShare,
     showDownload,
@@ -135,7 +137,7 @@ export default function CommonHeader(props) {
       children: <div>{_l('请先登录')}</div>,
       okText: _l('登录'),
       onOk: () => {
-        window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
+        window.location.href = pathCompletion('/login?ReturnUrl=' + encodeURIComponent(window.location.href));
       },
     });
   };
@@ -265,6 +267,15 @@ export default function CommonHeader(props) {
             </div>
           </Trigger>
         )}
+        {showSwitchHtmlPreview && (
+          <div className="switchHtmlPreview">
+            <Tooltip title={_l('切换显示')}>
+              <span className="normal">
+                <Icon icon="exchange" className="Hand" onClick={clickSwitchHtmlPreview} />
+              </span>
+            </Tooltip>
+          </div>
+        )}
         {showOpenNewPage && (
           <div className="openNewPage">
             <Tooltip title={_l('新页面打开')}>
@@ -351,6 +362,8 @@ CommonHeader.propTypes = {
   saveToKnowlwdge: PropTypes.func,
   showOpenNewPage: PropTypes.bool,
   clickOpenNewPage: PropTypes.func,
+  showSwitchHtmlPreview: PropTypes.bool,
+  clickSwitchHtmlPreview: PropTypes.func,
   showShare: PropTypes.bool,
   showDownload: PropTypes.bool,
   clickDownLoad: PropTypes.func,

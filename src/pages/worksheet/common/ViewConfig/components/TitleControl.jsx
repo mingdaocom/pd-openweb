@@ -7,6 +7,7 @@ import { Dropdown } from 'ming-ui';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
 import ConcatenateSetting from 'src/pages/widgetConfig/widgetSetting/settings/concatenate.jsx';
+import { getWrappedViewTitleControlId } from 'src/pages/worksheet/views/util';
 
 const Wrap = styled.div`
   .fieldsWrap .fieldList li {
@@ -34,7 +35,9 @@ function TitleDrop(props) {
 
   const resolveTitleControl = () => {
     if (!viewtitle && cancelAble) return {};
-    return worksheetControls.find(o => (viewtitle ? o.controlId === viewtitle : o.attribute === 1)) || {};
+    // 兼容 $单个字段ID$：高亮按归一后的真实字段 ID 匹配；保存仍走 handleChange 写回原值。
+    const controlId = getWrappedViewTitleControlId(viewtitle);
+    return worksheetControls.find(o => (controlId ? o.controlId === controlId : o.attribute === 1)) || {};
   };
 
   const [{ titleControl }, setState] = useSetState({

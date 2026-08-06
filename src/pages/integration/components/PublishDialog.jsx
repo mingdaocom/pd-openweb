@@ -7,6 +7,7 @@ import { Dialog, Icon, LoadDiv, Radio, Switch } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
+import { pathCompletion } from 'src/utils/common';
 import { WrapFooter } from '../apiIntegration/style';
 import APITable from './APITable';
 
@@ -69,6 +70,17 @@ const Wrap = styled.div`
     border-radius: 3px;
   }
 `;
+
+const handleNoPermission = () => {
+  alert({
+    msg: _l('你暂时没有权限查看该连接！'),
+    type: 2,
+    duration: 2000,
+    onClose: () => {
+      location.href = pathCompletion('/integration');
+    },
+  });
+};
 
 function PublishDialog(props) {
   const { onCancel = () => {}, hasManageAuth, currentProjectId: propsCurrentProjectId, id } = props;
@@ -141,17 +153,6 @@ function PublishDialog(props) {
         });
       })
       .catch(() => handleNoPermission());
-  };
-
-  const handleNoPermission = () => {
-    alert({
-      msg: _l('你暂时没有权限查看该连接！'),
-      type: 2,
-      duration: 2000,
-      onClose: () => {
-        location.href = '/integration';
-      },
-    });
   };
 
   // 提交上架

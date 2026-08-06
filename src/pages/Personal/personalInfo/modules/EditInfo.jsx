@@ -64,7 +64,7 @@ export default class EditInfo extends React.Component {
         <div className="textTertiary mBottom24">
           {_l('邮箱和手机设置请到')}
           <span
-            className="ThemeColor3 hoverTextPrimaryLight Hand mLeft3"
+            className="colorPrimary hoverColorPrimaryLight Hand mLeft3"
             onClick={() => {
               this.props.closeDialog();
               navigateTo(common.url({ type: 'account' }));

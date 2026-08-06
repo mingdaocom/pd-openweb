@@ -255,7 +255,7 @@ export default function Text(props) {
       <AdvancePasteIcon onClick={() => setPasteDialogVisible(true)}>
         <Tooltip title={_l('添加多个搜索关键词')}>
           <i
-            className={cx('icon icon-lookup ThemeHoverColor3', { ThemeColor3: isMultiple })}
+            className={cx('icon icon-lookup hoverColorPrimary', { colorPrimary: isMultiple })}
             onClick={() => setPasteDialogVisible(true)}
           />
         </Tooltip>

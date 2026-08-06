@@ -12,6 +12,7 @@ import customApi from 'statistics/api/custom.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { getTranslateInfo } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import MoveDialog from '../MoveDialog';
 import { Wrap, WrapDialog, WrapS } from './style';
 
@@ -92,6 +93,16 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
       </div>
     </Dialog>
   );
+};
+
+const getFullName = o => {
+  if (o.isDelete) {
+    return _l('已删除');
+  }
+
+  const tbName = o.tableName ? getTranslateInfo(o.appId, null, o.workSheetId).name || o.tableName : '';
+  const appName = o.appName ? getTranslateInfo(o.appId, null, o.appId).name || o.appName : '';
+  return appName ? `${tbName}(${appName})` : tbName;
 };
 
 export default function ItemCard(props) {
@@ -240,8 +251,8 @@ export default function ItemCard(props) {
                     {app?.reports?.map((report, j) => (
                       <div className="ic mTop6" key={j}>
                         <span
-                          className="textPrimary ThemeHoverColor3 Hand"
-                          onClick={() => window.open(`/worksheet/${report.pageId}`)}
+                          className="textPrimary hoverColorPrimary Hand"
+                          onClick={() => window.open(pathCompletion(`/worksheet/${report.pageId}`))}
                         >
                           {app.apkName} - {report.reportName}
                         </span>
@@ -258,8 +269,8 @@ export default function ItemCard(props) {
                       workflow.referenceItems?.map((item, j) => (
                         <div className="ic mTop6" key={j}>
                           <span
-                            className="textPrimary ThemeHoverColor3 Hand"
-                            onClick={() => window.open(`/workflowedit/${workflow.parentId}`)}
+                            className="textPrimary hoverColorPrimary Hand"
+                            onClick={() => window.open(pathCompletion(`/workflowedit/${workflow.parentId}`))}
                           >
                             {app.appName} - {workflow.parentName} - {item.name}
                           </span>
@@ -292,16 +303,6 @@ export default function ItemCard(props) {
     });
   };
 
-  const getFullName = o => {
-    if (o.isDelete) {
-      return _l('已删除');
-    }
-
-    const tbName = o.tableName ? getTranslateInfo(o.appId, null, o.workSheetId).name || o.tableName : '';
-    const appName = o.appName ? getTranslateInfo(o.appId, null, o.appId).name || o.appName : '';
-    return appName ? `${tbName}(${appName})` : tbName;
-  };
-
   return (
     <Wrap className="flexRow alignItemsCenter">
       <div
@@ -323,7 +324,7 @@ export default function ItemCard(props) {
         <Tooltip placement="topLeft" title={<span className="InlineBlock WordBreak">{item.name}</span>}>
           <span
             className={cx(
-              'mLeft12 flex WordBreak overflow_ellipsis flexShrink0 ThemeHoverColor3 Hand Font14',
+              'mLeft12 flex WordBreak overflow_ellipsis flexShrink0 hoverColorPrimary Hand Font14',
               item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 'textSecondary' : 'textPrimary',
             )}
           >
@@ -403,14 +404,14 @@ export default function ItemCard(props) {
       <div
         className={cx(
           'w50px mRight20 Bold ',
-          item.aggTableTaskStatus !== 0 ? 'colorPrimary Hand ThemeHoverColor3' : 'textTertiary',
+          item.aggTableTaskStatus !== 0 ? 'colorPrimary Hand hoverColorPrimary' : 'textTertiary',
         )}
         onClick={() => {
           if (item.aggTableTaskStatus === 0 || !canEdit) {
             return;
           }
 
-          window.open(`/aggregation/${item.worksheetId}`);
+          window.open(pathCompletion(`/aggregation/${item.worksheetId}`));
         }}
       >
         {_l('查看')}
@@ -507,8 +508,8 @@ export default function ItemCard(props) {
             <Icon
               icon="more_horiz"
               className={cx(
-                'moreActive Hand Font20 mLeft6 textTertiary ThemeHoverColor3',
-                showMoreOption && 'show ThemeColor3',
+                'moreActive Hand Font20 mLeft6 textTertiary hoverColorPrimary',
+                showMoreOption && 'show colorPrimary',
               )}
               onClick={e => e.stopPropagation()}
             />

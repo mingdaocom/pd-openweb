@@ -8,7 +8,7 @@ const ACTIONS = {
 
 const initialState = {
   departments: {},
-  users: {},
+  users: [],
   getDepartmentIds: [],
   newDepartments: [], //
   expandedKeys: [], //默认展开的ID

@@ -679,7 +679,7 @@ export default class ExportSheet extends Component {
 
             <div className="flexRow alignItemsCenter mRight24">
               {isCharge && (
-                <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.saveConfig}>
+                <span className="colorPrimary hoverColorPrimaryDark pointer" onClick={this.saveConfig}>
                   {_l('保存导出字段和配置')}
                 </span>
               )}

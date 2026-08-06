@@ -1,29 +1,28 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 .daterangepicker {
   td.in-range {
     background-color: var(--color-background-primary) !important;
-    border-color: @themeBorderColor3!important;
+    border-color: var(--color-primary) !important;
   }
   td.active:not(.off),
   td.start-date:not(.off),
   td.end-date:not(.off) {
-    background-color: @themeColor3!important;
-    border-color: @themeBorderColor3!important;
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
     color: var(--color-white) !important;
   }
   td.active.off:hover {
     color: var(--color-text-tertiary);
   }
   .ranges li.active {
-    background-color: @themeColor3!important;
+    background-color: var(--color-primary) !important;
   }
   .ranges .range_inputs .applyBtn {
-    background-color: @themeColor3!important;
+    background-color: var(--color-primary) !important;
   }
   .ranges .range_inputs .applyBtn:hover {
-    background-color: @themeColor2!important;
+    background-color: var(--color-primary-dark) !important;
   }
   .today.available:not(.active) {
-    color: @themeColor3!important;
+    color: var(--color-primary) !important;
   }
 }

@@ -44,7 +44,7 @@ export default function Des(props) {
         if (items.length > 0) {
           txt = _l('%0个筛选条件', items.length);
         } else {
-          txt = <span className="ThemeColor3">{_l('设置此节点')}</span>;
+          txt = <span className="colorPrimary">{_l('设置此节点')}</span>;
         }
 
         break;
@@ -65,7 +65,7 @@ export default function Des(props) {
 
     if (!txt) {
       if (props.showEdit) {
-        return <div className="des Font12 ThemeColor3 overflow_ellipsis WordBreak"> {_l('设置此节点')}</div>;
+        return <div className="des Font12 colorPrimary overflow_ellipsis WordBreak"> {_l('设置此节点')}</div>;
       } else {
         return '';
       }

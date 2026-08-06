@@ -1,7 +1,7 @@
 import React from 'react';
-import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import DiscussInfo from './DiscussInfo';
 
 export default props => {
@@ -12,7 +12,12 @@ export default props => {
     if (!visible) return null;
 
     return (
-      <Popup className={cx('mobileModal full', className)} onClose={onClose} visible={visible}>
+      <MobilePopup
+        className={cx('mobileModal full', className)}
+        onClose={onClose}
+        visible={visible}
+        layerId={`discussInfos-${rowId}`}
+      >
         {rowId && (
           <DiscussInfo
             isModal={true}
@@ -26,7 +31,7 @@ export default props => {
             {...props}
           />
         )}
-      </Popup>
+      </MobilePopup>
     );
   } else {
     return <DiscussInfo match={match} isModal={false} onAddCount={onAddCount} {...props} />;

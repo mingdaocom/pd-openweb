@@ -75,3 +75,44 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
 
   return expandWidgetIds;
 };
+
+export const getExpandWidgetIdsMap = (controls = [], from) => {
+  const expandWidgetIdsMap = {};
+  const activeSections = [];
+  const widgets = [].concat(controls || []).sort((a, b) => {
+    if (a.row === b.row) {
+      return a.col - b.col;
+    }
+
+    return a.row - b.row;
+  });
+
+  for (let item of widgets) {
+    for (let i = activeSections.length - 1; i >= 0; i--) {
+      const section = activeSections[i];
+
+      if (
+        fixedBottomWidgets(item) ||
+        (_.get(item, 'type') === 22 &&
+          (from ? controlState(item, from).visible && !item.hidden : true) &&
+          section.sectionId === (item.sectionId || ''))
+      ) {
+        activeSections.splice(i, 1);
+      } else {
+        section.expandWidgetIds.push(item.controlId);
+      }
+    }
+
+    if (_.get(item, 'type') === 22) {
+      const sectionInfo = {
+        sectionId: item.sectionId,
+        expandWidgetIds: [],
+      };
+
+      expandWidgetIdsMap[item.controlId] = sectionInfo.expandWidgetIds;
+      activeSections.push(sectionInfo);
+    }
+  }
+
+  return expandWidgetIdsMap;
+};

@@ -17,11 +17,11 @@ export default class ExportFolder extends Component {
         { key: 'control', name: _l('自定义任务内容') },
       ],
       taskType: [
-        { key: 'topLevelTask', name: '项目下一级任务', disabled: true },
+        { key: 'topLevelTask', name: _l('项目下一级任务'), disabled: true },
         { key: 'subtask', name: _l('各级子任务'), noSelect: true },
       ],
       taskArray: [
-        { key: 'taskName', name: '任务标题', disabled: true },
+        { key: 'taskName', name: _l('任务标题'), disabled: true },
         { key: null },
         { key: 'taskCharge', name: _l('任务负责人') },
         { key: 'taskDesc', name: _l('任务描述') },
@@ -76,7 +76,7 @@ export default class ExportFolder extends Component {
                     )}
                     name={item.key}
                   >
-                    <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                    <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                     {item.name}
                   </div>
                 </li>
@@ -99,7 +99,7 @@ export default class ExportFolder extends Component {
                     )}
                     name={item.key}
                   >
-                    <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                    <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                     {item.name}
                   </div>
                 </li>
@@ -122,7 +122,7 @@ export default class ExportFolder extends Component {
                     )}
                     name={item.key}
                   >
-                    <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                    <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                     {item.name}
                   </div>
                 </li>

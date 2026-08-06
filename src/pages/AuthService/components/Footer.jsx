@@ -93,7 +93,7 @@ export default function Footer() {
                       'linkCon Hand',
                       _.get(md, 'global.SysSettings.footerThemeColor') === 2
                         ? 'textDisabled hoverTextWhite'
-                        : 'textSecondary ThemeHoverColor3',
+                        : 'textSecondary hoverColorPrimary',
                     )}
                     onClick={() => window.open(o.href)}
                   >
@@ -124,9 +124,13 @@ export default function Footer() {
               'Hand Font12 CreatByText',
               _.get(md, 'global.SysSettings.footerThemeColor') === 2
                 ? 'textDisabled hoverTextWhite'
-                : 'textSecondary ThemeHoverColor3',
+                : 'textSecondary hoverColorPrimary',
             )}
-            onClick={() => window.open('https://www.mingdao.com')}
+            onClick={() =>
+              window.platformENV.isOverseas
+                ? window.open('https://www.nocoly.com')
+                : window.open('https://www.mingdao.com')
+            }
           >
             {_l('基于')}
             <span className="Bold mLeft3 mRight3" style={{ fontStyle: 'italic' }}>

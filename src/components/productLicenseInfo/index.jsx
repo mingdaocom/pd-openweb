@@ -133,7 +133,7 @@ export default function ProductLicenseInfo(props) {
               </div>
               {type === 'app' && license.projectType === 2 && (
                 <div
-                  className="colorPrimary ThemeHoverColor2 pointer mLeft8"
+                  className="colorPrimary hoverColorPrimaryDark pointer mLeft8"
                   onClick={() => setUpdateSocketVisible(true)}
                 >
                   {_l('更新密钥')}

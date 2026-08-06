@@ -30,14 +30,17 @@ export default class MobileSet extends React.Component {
       checkradioid,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    const { appshowtype = '0', checkradioid = '' } = getAdvanceSetting(nextProps.view);
 
-    if (!_.isEqual(this.state.appshowtype, appshowtype) || !_.isEqual(this.state.checkradioid, checkradioid)) {
-      this.setState({
-        appshowtype,
-        checkradioid,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { appshowtype = '0', checkradioid = '' } = getAdvanceSetting(this.props.view);
+
+      if (!_.isEqual(this.state.appshowtype, appshowtype) || !_.isEqual(this.state.checkradioid, checkradioid)) {
+        this.setState({
+          appshowtype,
+          checkradioid,
+        });
+      }
     }
   }
   updateView = (view, isUpdate) => {

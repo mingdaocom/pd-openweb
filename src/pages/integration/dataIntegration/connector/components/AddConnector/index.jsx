@@ -8,6 +8,7 @@ import dataSourceApi from '../../../../api/datasource';
 import syncTaskApi from '../../../../api/syncTask';
 import taskFlowApi from '../../../../api/taskFlow';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
 import { CREATE_CONNECTOR_STEP_LIST, CREATE_TYPE, DATABASE_TYPE, ROLE_TYPE } from '../../../constant';
@@ -571,7 +572,7 @@ export default function AddConnector(props) {
                     <a
                       className="mLeft5 mRight5"
                       onClick={() => {
-                        window.location.href = '/integration/task';
+                        window.location.href = pathCompletion('/integration/task');
                       }}
                     >
                       {_l('数据同步任务')}
@@ -585,7 +586,7 @@ export default function AddConnector(props) {
                   <Button
                     type="primary"
                     className="mTop36"
-                    onClick={() => (window.location.href = '/integration/task')}
+                    onClick={() => (window.location.href = pathCompletion('/integration/task'))}
                   >
                     {_l('查看同步任务')}
                   </Button>

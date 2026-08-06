@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { get, max, throttle } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { COLUMN_HEIGHT } from '../../config';
 import * as actions from '../../redux/action';
@@ -73,7 +73,8 @@ export const LayoutContent = styled.div`
         border: none;
       }
     }
-    &.analysis {
+    &.analysis,
+    &.carousel {
       overflow: hidden;
     }
     &.filter {
@@ -98,7 +99,8 @@ export const LayoutContent = styled.div`
     }
     &.tabs,
     &.card,
-    &.image {
+    &.image,
+    &.subsection {
       background: transparent !important;
       > div,
       .image {
@@ -203,19 +205,23 @@ function WidgetContent(props) {
     appPkg,
   } = props;
   const components = props.components.filter(c => !c.sectionId);
-  const [windowHeight, setHeight] = useState(window.innerHeight);
+  const [, setHeight] = useState(window.innerHeight);
   const displayRefs = [];
 
   useLayoutEffect(() => {
     const handle = () => {
       const height = window.innerHeight;
 
-      if (Math.abs(height - windowHeight) >= COLUMN_HEIGHT) {
-        setHeight(height);
-      }
+      setHeight(lastHeight => (Math.abs(height - lastHeight) >= COLUMN_HEIGHT ? height : lastHeight));
     };
 
-    window.addEventListener('resize', throttle(handle));
+    const throttledHandle = throttle(handle);
+
+    window.addEventListener('resize', throttledHandle);
+    return () => {
+      window.removeEventListener('resize', throttledHandle);
+      throttledHandle.cancel();
+    };
   }, []);
 
   const getLayoutConfig = () => {
@@ -241,7 +247,7 @@ function WidgetContent(props) {
         isResizable={editable}
         isFullscreen={isFullscreen}
         layoutType={layoutType}
-        draggableCancel=".disableDrag,.chartWrapper .drag"
+        draggableCancel=".disableDrag,.chartWrapper .drag,.mui-dialog-container"
         onResizeStart={() => {
           document.body.classList.add('pageNoSelect');
         }}
@@ -331,7 +337,7 @@ function WidgetContent(props) {
   );
 }
 
-export default errorBoundary(
+export default ErrorBoundary.wrap(
   connect(
     state => ({
       sheetListVisible: state.sheetList.isUnfold,

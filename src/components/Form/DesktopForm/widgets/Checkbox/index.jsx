@@ -5,7 +5,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import { isLightColor } from 'src/utils/control';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
@@ -238,7 +238,7 @@ const CheckboxWidgets = props => {
 
     return (
       <Select.Option value="select-all" key="select-all">
-        <span className="ellipsis customRadioItem ThemeColor3">{_l('全选')}</span>
+        <span className="ellipsis customRadioItem colorPrimary">{_l('全选')}</span>
       </Select.Option>
     );
   };
@@ -386,7 +386,7 @@ const CheckboxWidgets = props => {
             allowadd === '1' &&
             canAddOption && (
               <Select.Option value={`add_${keywords}`}>
-                <span className="ellipsis customRadioItem ThemeColor3" title={_l('添加新的选项：') + keywords}>
+                <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
                   {_l('添加新的选项：') + keywords}
                 </span>
               </Select.Option>
@@ -430,7 +430,7 @@ const CheckboxWidgets = props => {
         }}
         title={label}
       >
-        <div className="ellipsis Font13" style={{ color: enumDefault2 !== 1 ? 'var(--color-text-primary)' : '' }}>
+        <div className="Font13" style={{ color: enumDefault2 !== 1 ? 'var(--color-text-primary)' : '' }}>
           {label}
           {enumDefault2 !== 1 && !isFocus && tagValue !== checkIds[checkIds.length - 1] && ','}
         </div>

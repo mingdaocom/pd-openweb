@@ -300,7 +300,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
       <div className="otp-actions">
         {isTotp ? null : (
           <>
-            <div className={cx('InlineBlock', canSend ? 'ThemeColor3 Hand' : 'textSecondary')} onClick={handleResend}>
+            <div className={cx('InlineBlock', canSend ? 'colorPrimary Hand' : 'textSecondary')} onClick={handleResend}>
               {timeLeft <= 0 && !canSend ? _l('发送中，请稍候…') : _l('重新发送验证码')}
               {timeLeft > 0 && <span className="mLeft10">{timeLeft}s</span>}
             </div>

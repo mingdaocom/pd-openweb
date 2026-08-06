@@ -9,39 +9,27 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Dialog, Icon, ScrollView, TimeZoneTag } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
+import { isTimeControl } from 'statistics/common/controlUtils';
 import {
   dropdownDayData,
   dropdownScopeData,
   isPastAndFuture,
-  isTimeControl,
   timeDataParticle,
   timeGatherParticle,
   timeTypes,
   unitTypes,
-} from 'statistics/common';
+} from 'statistics/common/timeUtils';
 import * as actions from 'statistics/redux/actions';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
-import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { formatValuesOfOriginConditions } from 'worksheet/common/WorkSheetFilter/util';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { formatNumberFromInput } from 'src/utils/control';
 import './index.less';
 
 const { RangePicker } = DatePicker;
-
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 24];
-
-@connect(
-  state => ({
-    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'base']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class extends Component {
+let DecoratedComponent = class DecoratedComponent extends Component {
   constructor(props) {
     super();
     const key = `filterReportId-${props.id}`;
@@ -58,13 +46,21 @@ export default class extends Component {
       dropdownScopeValue: rangeType,
       dropdownDayValue: filter.rangeValue || 7,
       particleSizeType: xaxes ? xaxes.particleSizeType : 0,
-      dynamicFilter: { startType: 1, startCount: 1, startUnit: 1, endType: 1, endCount: 1, endUnit: 1 },
+      dynamicFilter: {
+        startType: 1,
+        startCount: 1,
+        startUnit: 1,
+        endType: 1,
+        endCount: 1,
+        endUnit: 1,
+      },
       customRangeDay: false,
       visible: false,
       filterConditions: [],
       showFilterConditions: [],
     };
   }
+
   getTableData = () => {
     const { reportType } = this.props.currentReport;
     if (reportType === reportTypes.PivotTable) return;
@@ -107,19 +103,16 @@ export default class extends Component {
     const { dropdownScopeValue, dropdownDayValue, dynamicFilter } = this.state;
     this.props.changeCurrentReport(
       {
-        filter: {
-          ...filter,
-          rangeType: dropdownScopeValue,
-          rangeValue: dropdownDayValue,
-          dynamicFilter,
-        },
+        filter: { ...filter, rangeType: dropdownScopeValue, rangeValue: dropdownDayValue, dynamicFilter },
       },
       true,
     );
+
     if (sheetVisible) {
       this.getTableData();
     }
   };
+
   renderScope() {
     const { currentReport, worksheetInfo } = this.props;
     const { dropdownScopeValue, dropdownDayValue, currentRangeValue, currentRangeType } = this.state;
@@ -143,7 +136,13 @@ export default class extends Component {
                   </Select.Option>
                 ))}
             </Select>
-            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
+            <TimeZoneTag
+              appId={worksheetInfo.appId}
+              position={{
+                top: 1,
+                bottom: 1,
+              }}
+            />
           </div>
 
           {isPastAndFuture(dropdownScopeValue) && (
@@ -191,8 +190,22 @@ export default class extends Component {
     if ([1, 2, 3].includes(currentRangeType)) {
       return (
         <div className="Relative">
-          <Input readOnly className="chartInput" value={_.find(dropdownScopeData, { value: filter.rangeType }).text} />
-          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
+          <Input
+            readOnly
+            className="chartInput"
+            value={
+              _.find(dropdownScopeData, {
+                value: filter.rangeType,
+              }).text
+            }
+          />
+          <TimeZoneTag
+            appId={worksheetInfo.appId}
+            position={{
+              top: 1,
+              bottom: 1,
+            }}
+          />
         </div>
       );
     }
@@ -206,7 +219,6 @@ export default class extends Component {
         currentRangeType === 20
           ? currentRangeValue.split('-').map(item => moment(item))
           : [moment(filter.startDate), moment(filter.endDate)];
-
       return (
         <div className="Relative">
           <RangePicker
@@ -238,7 +250,13 @@ export default class extends Component {
               );
             }}
           />
-          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
+          <TimeZoneTag
+            appId={worksheetInfo.appId}
+            position={{
+              top: 1,
+              bottom: 1,
+            }}
+          />
         </div>
       );
     }
@@ -254,9 +272,13 @@ export default class extends Component {
                 .map(item => (
                   <Menu.Item
                     key={item.value}
-                    className={cx({ active: Number(dropdownDayValue) === item.value })}
+                    className={cx({
+                      active: Number(dropdownDayValue) === item.value,
+                    })}
                     onClick={() => {
-                      this.setState({ customRangeDay: false });
+                      this.setState({
+                        customRangeDay: false,
+                      });
                       this.handleUpdateDay(item.value);
                     }}
                   >
@@ -288,12 +310,19 @@ export default class extends Component {
                 }
               }}
             />
-            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
+            <TimeZoneTag
+              appId={worksheetInfo.appId}
+              position={{
+                top: 1,
+                bottom: 1,
+              }}
+            />
           </div>
         </Dropdown>
       );
     }
   }
+
   renderDynamicFilter() {
     const { dynamicFilter } = this.state;
     const unitValues = [1, 3, 4];
@@ -301,10 +330,7 @@ export default class extends Component {
     const changeDynamicFilter = data => {
       this.setState(
         {
-          dynamicFilter: {
-            ...dynamicFilter,
-            ...data,
-          },
+          dynamicFilter: { ...dynamicFilter, ...data },
         },
         this.handleSave,
       );
@@ -319,7 +345,9 @@ export default class extends Component {
             value={dynamicFilter.startType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
-              changeDynamicFilter({ startType: value });
+              changeDynamicFilter({
+                startType: value,
+              });
             }}
           >
             {timeTypes.map(item => (
@@ -335,7 +363,9 @@ export default class extends Component {
                 value={dynamicFilter.startCount}
                 onChange={() => {
                   const value = event.target.value;
-                  changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
+                  changeDynamicFilter({
+                    startCount: formatNumberFromInput(value).replace('-', ''),
+                  });
                 }}
               />
               <Select
@@ -343,7 +373,9 @@ export default class extends Component {
                 value={dynamicFilter.startUnit}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
-                  changeDynamicFilter({ startUnit: value });
+                  changeDynamicFilter({
+                    startUnit: value,
+                  });
                 }}
               >
                 {unitTypes.map(item => (
@@ -381,7 +413,9 @@ export default class extends Component {
                 value={dynamicFilter.endCount}
                 onChange={() => {
                   const value = event.target.value;
-                  changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
+                  changeDynamicFilter({
+                    endCount: formatNumberFromInput(value).replace('-', ''),
+                  });
                 }}
               />
               <Select
@@ -406,10 +440,12 @@ export default class extends Component {
       </Fragment>
     );
   }
+
   renderGroup() {
     const { currentReport } = this.props;
     const { xaxes } = currentReport;
     const { particleSizeType } = this.state;
+
     const timeData = (function () {
       if (xaxes.controlType === 16) {
         return timeDataParticle;
@@ -421,8 +457,15 @@ export default class extends Component {
 
       return timeDataParticle.filter(item => ![6, 7].includes(item.value));
     })();
-    const timeDataIndex = _.findIndex(timeData, { value: particleSizeType });
-    const timeGatherParticleIndex = _.findIndex(timeGatherParticle, { value: particleSizeType });
+
+    const timeDataIndex = _.findIndex(timeData, {
+      value: particleSizeType,
+    });
+
+    const timeGatherParticleIndex = _.findIndex(timeGatherParticle, {
+      value: particleSizeType,
+    });
+
     return (
       <Fragment>
         <div className="Font12 Bold mBottom10 mTop10">{_l('归组')}</div>
@@ -433,16 +476,15 @@ export default class extends Component {
           onChange={value => {
             this.props.changeCurrentReport(
               {
-                xaxes: {
-                  ...xaxes,
-                  particleSizeType: value,
-                },
+                xaxes: { ...xaxes, particleSizeType: value },
               },
               true,
             );
           }}
         >
-          {_.find(timeData, { value: xaxes.particleSizeType }) && (
+          {_.find(timeData, {
+            value: xaxes.particleSizeType,
+          }) && (
             <Select.OptGroup label={_l('时间')}>
               {timeData
                 .filter((_, index) => index >= timeDataIndex)
@@ -453,7 +495,9 @@ export default class extends Component {
                 ))}
             </Select.OptGroup>
           )}
-          {_.find(timeGatherParticle, { value: xaxes.particleSizeType }) && (
+          {_.find(timeGatherParticle, {
+            value: xaxes.particleSizeType,
+          }) && (
             <Select.OptGroup label={_l('集合')}>
               {timeGatherParticle
                 .filter((_, index) => index >= timeGatherParticleIndex)
@@ -468,6 +512,7 @@ export default class extends Component {
       </Fragment>
     );
   }
+
   render() {
     const { visible, filterConditions, showFilterConditions, currentRangeType } = this.state;
     const { projectId, worksheetInfo, currentReport } = this.props;
@@ -475,25 +520,8 @@ export default class extends Component {
     const xaxes = _.get(currentReport, 'xaxes') || {};
     const filter = _.get(currentReport, 'filter') || {};
     const xAxisisTime = isTimeControl(xaxes.controlType);
-    const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, worksheetInfo.switches, filter.viewId);
-    const filterWhiteKeys = _.flatten(
-      Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
-    );
     const isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
-    // eslint-disable-next-line no-unused-vars
-    const controls = (worksheetInfo.columns || [])
-      .filter(c => (c.controlPermissions || '111')[0] === '1')
-      .map(redefineComplexControl)
-      .filter(c => _.includes(filterWhiteKeys, c.type))
-      .filter(c => !(c.type === 38 && c.enumDefault === 3))
-      .filter(item => {
-        if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
-          return false;
-        } else {
-          return true;
-        }
-      })
-      .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));
+
     return (
       <div className="ChartDialogSetting setting flexColumn ChartFilterPanel">
         <ScrollView className="flex">
@@ -505,7 +533,11 @@ export default class extends Component {
                   <div className="Font12 Bold mBottom10 mTop10">
                     {_l('时间')}
                     {(naturalTime.includes(currentRangeType) || isPastAndFuture(currentRangeType)) &&
-                      `（${_.find(dropdownScopeData, { value: currentRangeType }).text}）`}
+                      `（${
+                        _.find(dropdownScopeData, {
+                          value: currentRangeType,
+                        }).text
+                      }）`}
                   </div>
                   {this.renderScope()}
                 </Fragment>
@@ -515,7 +547,9 @@ export default class extends Component {
                 <Fragment>
                   <div
                     className="Font12 Bold mBottom10 mTop20 pTop10 flexRow"
-                    style={{ borderTop: '1px solid var(--color-border-secondary)' }}
+                    style={{
+                      borderTop: '1px solid var(--color-border-secondary)',
+                    }}
                   >
                     <span className="flex">{_l('筛选')}</span>
                   </div>
@@ -531,21 +565,26 @@ export default class extends Component {
                         });
                         this.props.changeCurrentReport(
                           {
-                            filter: {
-                              ...filter,
-                              filterControls: [],
-                            },
+                            filter: { ...filter, filterControls: [] },
                           },
                           true,
                         );
                         this.getTableData();
                       }}
-                      editFn={() => this.setState({ visible: true })}
+                      editFn={() =>
+                        this.setState({
+                          visible: true,
+                        })
+                      }
                     />
                   ) : (
                     <div
                       className="filterWrapper flexRow alignItemsCenter textDisabled Font13 hoverColorPrimary"
-                      onClick={() => this.setState({ visible: true })}
+                      onClick={() =>
+                        this.setState({
+                          visible: true,
+                        })
+                      }
                     >
                       {_l('添加筛选字段')}
                     </div>
@@ -560,9 +599,15 @@ export default class extends Component {
           title={_l('筛选')}
           okText={_l('确定')}
           cancelText={_l('取消')}
-          onCancel={() => this.setState({ visible: false })}
+          onCancel={() =>
+            this.setState({
+              visible: false,
+            })
+          }
           onOk={() => {
-            this.setState({ visible: false });
+            this.setState({
+              visible: false,
+            });
             this.setState({
               showFilterConditions: this.state.filterConditions,
             });
@@ -571,20 +616,14 @@ export default class extends Component {
               const isMoment = moment.isMoment(item.value);
 
               if (isTime && isMoment) {
-                return {
-                  ...item,
-                  value: item.value.format('YYYY-MM-DD'),
-                };
+                return { ...item, value: item.value.format('YYYY-MM-DD') };
               } else {
                 return item;
               }
             });
             this.props.changeCurrentReport(
               {
-                filter: {
-                  ...filter,
-                  filterControls: formatValuesOfOriginConditions(conditions),
-                },
+                filter: { ...filter, filterControls: formatValuesOfOriginConditions(conditions) },
               },
               true,
             );
@@ -611,4 +650,9 @@ export default class extends Component {
       </div>
     );
   }
-}
+};
+DecoratedComponent = connect(
+  state => ({ ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'base']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(DecoratedComponent);
+export default DecoratedComponent;

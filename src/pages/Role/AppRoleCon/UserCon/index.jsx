@@ -164,33 +164,35 @@ class Con extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.appRole.pageLoading !== this.props.appRole.pageLoading ||
-      nextProps.appRole.roleId !== this.props.appRole.roleId
-    ) {
-      this.setState(
-        {
-          roleId: nextProps.appRole.roleId,
-        },
-        () => {
-          nextProps.setRoleId(nextProps.appRole.roleId);
-        },
-      );
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.appRole.pageLoading !== prevProps.appRole.pageLoading ||
+        this.props.appRole.roleId !== prevProps.appRole.roleId
+      ) {
+        this.setState(
+          {
+            roleId: this.props.appRole.roleId,
+          },
+          () => {
+            this.props.setRoleId(this.props.appRole.roleId);
+          },
+        );
+      }
 
-    const editType = _.get(nextProps, ['match', 'params', 'editType']);
+      const editType = _.get(this.props, ['match', 'params', 'editType']);
 
-    if (!!editType && !_.isEqual(editType, _.get(this.props, ['match', 'params', 'editType']))) {
-      this.setState({
-        roleId: editType,
-      });
-    }
+      if (!!editType && !_.isEqual(editType, _.get(prevProps, ['match', 'params', 'editType']))) {
+        this.setState({
+          roleId: editType,
+        });
+      }
 
-    if (nextProps.appRole.roleInfos !== this.props.appRole.roleInfos) {
-      this.setState({
-        roleList: nextProps.appRole.roleInfos,
-      });
+      if (this.props.appRole.roleInfos !== prevProps.appRole.roleInfos) {
+        this.setState({
+          roleList: this.props.appRole.roleInfos,
+        });
+      }
     }
   }
 

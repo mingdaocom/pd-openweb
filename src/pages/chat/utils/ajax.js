@@ -42,6 +42,7 @@ export const chatSessionItem = param => {
       },
       {
         ajaxOptions,
+        silent: true,
       },
     );
   } else if (param.type == Constant.SESSIONTYPE_USER) {
@@ -51,6 +52,7 @@ export const chatSessionItem = param => {
       },
       {
         ajaxOptions,
+        silent: true,
       },
     );
   }
@@ -71,6 +73,7 @@ export const getMessage = conf => {
   if (isDevelopment) {
     param.pss_id = getPssId();
   }
+
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
     param.groupid = conf.id;
     return window.mdyAPI('', '', param, {

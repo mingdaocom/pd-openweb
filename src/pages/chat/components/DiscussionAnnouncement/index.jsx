@@ -58,7 +58,7 @@ export default ({ session, onChangeIsPost }) => {
           <span className="bold">{_l('当前为个人创建的临时聊天。')}</span>
           {_l('如果您需要长期使用请及时转为群组，可以管理群成员、聊天内容和文件，信息沟通更安全')}
         </div>
-        <div className="ThemeColor3 pointer bold" onClick={() => setVisible(true)}>
+        <div className="colorPrimary pointer bold" onClick={() => setVisible(true)}>
           {_l('转为长期群组 >')}
         </div>
       </Box>

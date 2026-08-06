@@ -17,6 +17,13 @@ const isVisible = control => {
   return true;
 };
 
+const excludeTitleControls = controls => controls.filter(item => item.attribute !== 1);
+
+// 默认取标题控件 和 前三个控件
+const getDefaultShowControls = controls => {
+  return controls.slice(0, 2).map(({ controlId }) => controlId);
+};
+
 export default function CardDisplay(props) {
   const { visible, worksheetId, showControls, handleDisplayChange, advancedSetting } = props;
   const [{ controls, coverColumns }, setInfo] = useState({
@@ -24,13 +31,6 @@ export default function CardDisplay(props) {
     availableControls: [],
     coverColumns: [],
   });
-  const excludeTitleControls = controls => controls.filter(item => item.attribute !== 1);
-
-  // 默认取标题控件 和 前三个控件
-  const getDefaultShowControls = controls => {
-    return controls.slice(0, 2).map(({ controlId }) => controlId);
-  };
-
   useEffect(() => {
     if (!worksheetId) return;
     worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true }).then(data => {

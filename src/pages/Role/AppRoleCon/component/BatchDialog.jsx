@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import styled from 'styled-components';
 import { Dialog, LoadDiv } from 'ming-ui';
 import AjaxApi from 'src/api/appManagement.js';
+import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
   .iconBG {
@@ -48,29 +49,43 @@ const Wrap = styled.div`
 `;
 
 export default function BatchDialog(props) {
-  const { show, roleInfos, okText, onOk, isMulti, onCancel, member, appId, showRole } = props;
+  const { show, roleInfos, okText, onOk, isMulti, onCancel, member = {}, appId, showRole } = props;
   const [{ roles, defaultRoles, loading }, setState] = useSetState({
     roles: [],
     defaultRoles: [],
     loading: showRole,
   });
-  useEffect(() => {
-    showRole && getRole();
-  }, []);
-  const getRole = () => {
+  const translatedRoleInfos = useMemo(() => {
+    return roleInfos.map(item => {
+      const roleTranslateInfo = getTranslateInfo(appId, null, item.roleId);
+
+      return {
+        ...item,
+        name: roleTranslateInfo.name || item.name,
+        description: roleTranslateInfo.description || item.description,
+      };
+    });
+  }, [appId, roleInfos]);
+  const memberId = member.accountId || member.id;
+  const memberType = member.memberType;
+  const getRole = useCallback(() => {
     AjaxApi.getRolesByMemberId({
-      memberId: member.accountId || member.id,
+      memberId,
       appId,
-      memberType: member.memberType,
+      memberType,
     }).then(res => {
       const { roles = [] } = res;
       setState({
         loading: false,
         defaultRoles:
-          roles.length <= 0 ? [] : roles.map(o => o.id).filter(o => !!roleInfos.find(it => it.roleId === o)),
+          roles.length <= 0 ? [] : roles.map(o => o.id).filter(o => !!translatedRoleInfos.find(it => it.roleId === o)),
       });
     });
-  };
+  }, [appId, memberId, memberType, setState, translatedRoleInfos]);
+
+  useEffect(() => {
+    showRole && getRole();
+  }, [getRole, showRole]);
 
   return (
     <Dialog
@@ -105,8 +120,8 @@ export default function BatchDialog(props) {
             }}
             defaultValue={defaultRoles}
             notFoundContent={_l('无相关角色')}
-            filterOption={(input, option) => option.label.includes(input)}
-            options={roleInfos.map(o => {
+            filterOption={(input, option) => String(option.label || '').includes(input)}
+            options={translatedRoleInfos.map(o => {
               return { label: o.name, value: o.roleId };
             })}
           ></Select>

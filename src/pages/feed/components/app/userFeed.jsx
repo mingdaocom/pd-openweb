@@ -15,7 +15,7 @@ class UserFeed extends React.Component {
     title: PropTypes.string,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     store.dispatch(
       changeListType({
         listType: postEnum.LIST_TYPE.user,
@@ -25,15 +25,17 @@ class UserFeed extends React.Component {
     store.dispatch(changeTitle(this.props.title));
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.accountId !== nextProps.accountId || this.props.title !== nextProps.title) {
-      store.dispatch(
-        changeListType({
-          listType: postEnum.LIST_TYPE.user,
-          accountId: nextProps.accountId,
-        }),
-      );
-      store.dispatch(changeTitle(nextProps.title));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.accountId !== this.props.accountId || prevProps.title !== this.props.title) {
+        store.dispatch(
+          changeListType({
+            listType: postEnum.LIST_TYPE.user,
+            accountId: this.props.accountId,
+          }),
+        );
+        store.dispatch(changeTitle(this.props.title));
+      }
     }
   }
 

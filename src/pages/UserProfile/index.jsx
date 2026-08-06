@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView } from 'ming-ui';
 import { addFriendConfirm } from 'ming-ui/functions';
 import user from 'src/api/user';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import UserProfile from './components/Profile';
 
 export default class UserEntryPoint extends React.PureComponent {

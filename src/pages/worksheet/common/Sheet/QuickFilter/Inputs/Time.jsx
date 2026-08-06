@@ -94,7 +94,8 @@ const Icon = styled.i`
 
 export default function Time(props) {
   const { control, dateRange, minValue, maxValue, onChange = () => {} } = props;
-  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+  const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+  const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
   const unit = String(control.unit);
   const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
@@ -104,7 +105,7 @@ export default function Time(props) {
         <RangePickerCon>
           <TimePicker.RangePicker
             format={timeFormat}
-            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+            locale={datePickerLocale}
             value={minValue && maxValue ? [moment(minValue, timeFormat), moment(maxValue, timeFormat)] : []}
             onChange={moments => {
               if (!moments || !_.isArray(moments)) {

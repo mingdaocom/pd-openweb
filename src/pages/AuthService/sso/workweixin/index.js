@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import { ajax, browserIsMobile, checkLogin, checkOriginUrl, getGlobalMeta, getRequest, login } from 'src/utils/sso';
 
@@ -9,7 +10,7 @@ if (source === 'wxwork') {
     if (checkOriginUrl(url)) {
       location.replace(decodeURIComponent(url));
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     ajax.post({
@@ -27,7 +28,7 @@ if (source === 'wxwork') {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           });
         }
@@ -40,7 +41,7 @@ if (source === 'wxwork') {
     if (checkOriginUrl(ret)) {
       location.replace(ret);
     } else {
-      location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+      location.replace(pathCompletion(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
     }
   } else {
     ajax.post({
@@ -60,10 +61,9 @@ if (source === 'wxwork') {
           if (checkOriginUrl(ret)) {
             location.replace(ret);
           } else {
-            location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+            location.replace(pathCompletion(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
           }
         } else {
-          alert('登录失败');
           login();
         }
       },

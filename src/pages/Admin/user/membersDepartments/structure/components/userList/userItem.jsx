@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import classNames from 'classnames';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -40,8 +39,8 @@ class UserItem extends Component {
 
   updateFullDepartmentInfo = (projectId, departmentIds) => {
     const { fullDepartmentInfo = {} } = this.state;
-    const copyFullDepartmentInfo = _.clone(fullDepartmentInfo);
-    departmentIds = departmentIds.filter(it => !copyFullDepartmentInfo[it]);
+    departmentIds = _.uniq(departmentIds).filter(it => it && !fullDepartmentInfo[it]);
+
     if (_.isEmpty(departmentIds)) {
       return;
     }
@@ -52,11 +51,15 @@ class UserItem extends Component {
         departmentIds,
       })
       .then(res => {
-        (res || []).forEach(it => {
-          copyFullDepartmentInfo[it.id] = it.name;
-        });
+        this.setState(prevState => {
+          const nextFullDepartmentInfo = { ...(prevState.fullDepartmentInfo || {}) };
 
-        this.setState({ fullDepartmentInfo: copyFullDepartmentInfo });
+          (res || []).forEach(it => {
+            nextFullDepartmentInfo[it.id] = it.name;
+          });
+
+          return { fullDepartmentInfo: nextFullDepartmentInfo };
+        });
       });
   };
 
@@ -147,7 +150,7 @@ class UserItem extends Component {
           type,
         })
         .then(() => {
-          alert('已成功发送提醒', 1);
+          alert(_l('已成功发送提醒'), 1);
         });
     };
   }
@@ -227,7 +230,7 @@ class UserItem extends Component {
 
     this.clickEvent(e);
 
-    if (department.disabled) {
+    if (department && department.disabled) {
       alert(user.isDepartmentChargeUser ? _l('已停用，无法取消部门负责人') : _l('已停用，无法设置部门负责人'), 3);
       return;
     }
@@ -240,7 +243,7 @@ class UserItem extends Component {
       })
       .then(res => {
         if (res) {
-          alert(_l('设置成功', 1));
+          alert(_l('设置成功'), 1);
           this.refreshData(departmentId, typeCursor, projectId);
         } else {
           alert(_l('设置失败'), 2);
@@ -449,28 +452,25 @@ class UserItem extends Component {
       selectCount,
       isHideCurrentColumn,
       columnsInfo = [],
+      nameColumnStyle,
       editCurrentUser = {},
       departmentId,
       isLastTopUp,
     } = this.props;
     const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp, fullDepartmentInfo = {} } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
-    let departmentData = departmentId ? (departmentInfos || []) : departments || departmentInfos || [];
+    let departmentData = departmentId ? departmentInfos || [] : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
     let jobData = jobs || jobInfos;
-    let totalColWidth = 0;
-    columnsInfo.forEach(item => {
-      if (isHideCurrentColumn(item.value)) {
-        totalColWidth += item.width;
-      }
-    });
-    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
+    const departmentText = departmentData.map(it => it.name || it.departmentName).join('；');
+    const orgRoleText = (orgRoleInfos || []).map(it => it.name).join('；');
+    const jobText = (jobData || []).map(item => item.name || item.jobName).join(';');
 
     return (
       <Fragment>
         <tr
           key={user.accountId}
-          className={classNames('userItem Hand', {
+          className={cx('userItem Hand', {
             isChecked: isChecked,
             bgColor: editCurrentUser.accountId === user.accountId,
             topUp: isTopUp,
@@ -479,14 +479,13 @@ class UserItem extends Component {
           onClick={this.props.clickRow}
         >
           <td
-            className={classNames('checkBox', {
+            className={cx('checkBox', {
               showCheckBox: isChecked,
               hasSelectCount: selectCount > 0,
               // opacity0: typeCursor === 2 || typeCursor === 3,
             })}
           >
             <Checkbox
-              ref="example"
               key={`checkBox-${user.accountId}`}
               className="TxtMiddle InlineBlock"
               checked={isChecked}
@@ -496,11 +495,8 @@ class UserItem extends Component {
               }}
             />
           </td>
-          {isHideCurrentColumn('name') && (
-            <td
-              className={cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
-              style={{ width: setWidth ? 200 : 'unset' }}
-            >
+          {isHideCurrentColumn('name', columnsInfo) && (
+            <td className="nameTh" style={nameColumnStyle}>
               <div className="flexRow">
                 <UserHead
                   className="avatar"
@@ -522,7 +518,7 @@ class UserItem extends Component {
               </div>
             </td>
           )}
-          {isHideCurrentColumn('department') && (
+          {isHideCurrentColumn('department', columnsInfo) && (
             <td className="departmentTh">
               <div
                 className="WordBreak overflow_ellipsis"
@@ -545,7 +541,7 @@ class UserItem extends Component {
                             className={cx({ mBottom8: depIndex < departmentData.length - 1 })}
                           >
                             {fullName.map((n, i) => (
-                              <span>
+                              <span key={`${it.id || it.departmentId}-${i}`}>
                                 {n}
                                 {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
                               </span>
@@ -557,54 +553,40 @@ class UserItem extends Component {
                   }
                   mouseEnterDelay={0.5}
                 >
-                  <span className="ellipsis InlineBlock wMax100 space">
-                    {(departmentData || [])
-                      .map(it => {
-                        return `${it.name || it.departmentName}`;
-                      })
-                      .join('；')}
-                  </span>
+                  <span className="ellipsis InlineBlock wMax100 space">{departmentText}</span>
                 </Tooltip>
               </div>
             </td>
           )}
-          {isHideCurrentColumn('role') && (
+          {isHideCurrentColumn('role', columnsInfo) && (
             <td className="roleTh">
               <div className="WordBreak overflow_ellipsis">
-                <span
-                  className="ellipsis InlineBlock wMax100 space"
-                  title={(orgRoleInfos || []).map(it => it.name).join('；')}
-                >
-                  {(orgRoleInfos || []).map(it => it.name).join('；')}
+                <span className="ellipsis InlineBlock wMax100 space" title={orgRoleText}>
+                  {orgRoleText}
                 </span>
               </div>
             </td>
           )}
-          {isHideCurrentColumn('position') && (
+          {isHideCurrentColumn('position', columnsInfo) && (
             <td className="jobTh">
-              {
-                <div
-                  className="job WordBreak overflow_ellipsis"
-                  title={(jobData || []).map(item => item.name || item.jobName).join(';')}
-                >
-                  {(jobData || []).map(item => item.name || item.jobName).join(';')}
-                </div>
-              }
+              <div className="job WordBreak overflow_ellipsis" title={jobText}>
+                {jobText}
+              </div>
             </td>
           )}
-          {isHideCurrentColumn('phone') && (
+          {isHideCurrentColumn('phone', columnsInfo) && (
             <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
           )}
-          {!isMinSc && isHideCurrentColumn('email') && (
+          {!isMinSc && isHideCurrentColumn('email', columnsInfo) && (
             <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>
           )}
-          {isHideCurrentColumn('jobNum') && (
+          {isHideCurrentColumn('jobNum', columnsInfo) && (
             <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>
           )}
-          {isHideCurrentColumn('adress') && (
+          {isHideCurrentColumn('adress', columnsInfo) && (
             <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
           )}
-          {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
+          {isHideCurrentColumn('joinDate', columnsInfo) && typeCursor === 0 && (
             <td className="joinDateTh">
               {user.addProjectTime
                 ? createTimeSpan(dateConvertToUserZone(user.addProjectTime))
@@ -613,12 +595,12 @@ class UserItem extends Component {
           )}
           {!isMinSc && typeCursor === 3 && (
             <Fragment>
-              {isHideCurrentColumn('applyDate') && (
+              {isHideCurrentColumn('applyDate', columnsInfo) && (
                 <td className="dateTh overflow_ellipsis WordBreak">
                   {createTimeSpan(dateConvertToUserZone(user.createTime))}
                 </td>
               )}
-              {isHideCurrentColumn('operator') && (
+              {isHideCurrentColumn('operator', columnsInfo) && (
                 <td className="actMenTh overflow_ellipsis WordBreak">
                   {!user.lastModifyUser || !user.lastModifyUser.fullname ? '' : user.lastModifyUser.fullname}
                 </td>
@@ -671,20 +653,15 @@ class UserItem extends Component {
 const mapStateToProps = (state, ownProps) => {
   const {
     entities: { departments },
-    current: { projectId, departmentId, activeAccountId, selectedAccountIds, typeCursor, isSelectAll },
-    pagination: {
-      userList: { pageIndex },
-    },
+    current: { projectId, departmentId, selectedAccountIds, typeCursor, isSelectAll },
   } = state;
   const { accountId } = ownProps.user;
   const isChecked = _.some(selectedAccountIds, id => id === accountId) || isSelectAll;
   return {
-    isOpen: activeAccountId === accountId,
     accountId,
     isChecked,
     projectId,
     departmentId,
-    pageIndex,
     typeCursor,
     selectCount: selectedAccountIds.length,
     departments,

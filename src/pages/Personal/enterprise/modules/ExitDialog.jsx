@@ -49,7 +49,7 @@ export default class ExitDialog extends Component {
   handleExit() {
     var accountId = this.state.userInfo.accountId;
     if (this.props.needTransfer && !accountId) {
-      alert('请指定成员');
+      alert(_l('请指定成员'));
       return;
     }
 
@@ -94,7 +94,7 @@ export default class ExitDialog extends Component {
             <p>{_l('需要先移交管理身份再退出，退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
             <div>
               <span
-                className="icon-add_circle Font32 ThemeColor3 ThemeHoverColor2 TxtMiddle Hand"
+                className="icon-add_circle Font32 colorPrimary hoverColorPrimaryDark TxtMiddle Hand"
                 onClick={() => this.handleSelct()}
               ></span>
               {userInfo.accountId ? (

@@ -6,6 +6,7 @@ import ViewComp from './ViewComp';
 
 function SingleView(props, ref) {
   const {
+    singleAppId,
     appId,
     viewId,
     worksheetId,
@@ -24,6 +25,7 @@ function SingleView(props, ref) {
     store.dispatch(
       updateBase({
         appId,
+        singleAppId: singleAppId || appId,
         viewId,
         worksheetId,
         maxCount,

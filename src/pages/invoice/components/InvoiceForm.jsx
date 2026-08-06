@@ -93,6 +93,13 @@ const Wrapper = styled.div`
   }
 `;
 
+const optionalFields = [
+  { key: 'bankName', label: _l('开户行') },
+  { key: 'bankCode', label: _l('开户行账号') },
+  { key: 'address', label: _l('地址') },
+  { key: 'phoneNumber', label: _l('电话') },
+];
+
 export default function InvoiceForm(props) {
   const { type, orderInfo, formData, productList = [], setFormData } = props; //type: apply | confirm | test | edit
   const { price, description, orderId } = orderInfo;
@@ -231,13 +238,6 @@ export default function InvoiceForm(props) {
         );
     }
   };
-
-  const optionalFields = [
-    { key: 'bankName', label: _l('开户行') },
-    { key: 'bankCode', label: _l('开户行账号') },
-    { key: 'address', label: _l('地址') },
-    { key: 'phoneNumber', label: _l('电话') },
-  ];
 
   return (
     <Wrapper className="InvoiceFormContainer">

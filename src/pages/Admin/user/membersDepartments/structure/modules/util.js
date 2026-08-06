@@ -99,7 +99,7 @@ export const formatSearchDeptData = (data, keywords) => {
 
     if (keywords) {
       const regExp = new RegExp(htmlEncodeReg(keywords), 'g');
-      curName = curName.replace(regExp, '<span class="ThemeColor3">' + keywords + '</span>');
+      curName = curName.replace(regExp, '<span class="colorPrimary">' + keywords + '</span>');
     }
 
     nameArr.push('<span title="' + _curName + '">' + curName + '</span>');

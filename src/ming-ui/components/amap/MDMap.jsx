@@ -370,7 +370,7 @@ class GDMap extends Component {
                 <Tooltip title={_l('定位')}>
                   <Icon
                     icon="location"
-                    className="Font20 textTertiary ThemeHoverColor3 pointer"
+                    className="Font20 textTertiary hoverColorPrimary pointer"
                     onClick={() => this.handleClearAndSet(item)}
                   />
                 </Tooltip>

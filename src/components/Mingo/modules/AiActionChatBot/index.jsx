@@ -4,7 +4,6 @@ import cx from 'classnames';
 import { chain, find, findLast, findLastIndex, flatten, get, identity, isArray, isEmpty, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import processApi from 'src/pages/workflow/api/process';
 import DragCore from 'worksheet/common/DragCore';
 import DragMask from 'worksheet/common/DragMask';
 import chatBotDefaultIcon from 'src/pages/Chatbot/assets/profile.png';
@@ -18,6 +17,7 @@ import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
+import { resolveStreamError } from '../../ChatBot/utils';
 import MobileShareOperate from '../MobileShareOperate';
 import ShareOperate from '../ShareOperate';
 import { MODE } from './enum';
@@ -294,12 +294,12 @@ function MingoContent(props, ref) {
     onReloadButtons = () => {},
     onWidthChange = () => {},
   } = props;
-  const shareId = new URLSearchParams(window.location.search).get('share');
   const ShareOperateComponent = isMobile ? MobileShareOperate : ShareOperate;
   const messageListRef = useRef(null);
   const sendRef = useRef(null);
   const dragRef = useRef(null);
   const cache = useRef({});
+  const [chatbotId, setChatbotId] = useState(props.processId);
   const [isGuideVisible, setIsGuideVisible] = useState(!!sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`));
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
   const [dragLeft, setDragLeft] = useState(0);
@@ -311,7 +311,6 @@ function MingoContent(props, ref) {
   const [shareMode, setShareMode] = useState();
   const [selectedMessageIds, setSelectedMessageIds] = useState([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [chatbotId, setChatbotId] = useState(props.processId);
   const [conversationId, setConversationId] = useState(props.conversationId);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [error, setError] = useState();
@@ -326,10 +325,10 @@ function MingoContent(props, ref) {
   const showChatBotHeader = !!welcomeText || !!presetQuestionsList.length;
   const speechSynthesizer = useRef(new SpeechSynthesizer({ bufferDelay: 2000 }));
   const [conRef, { width }] = useMeasure();
-  const [pageIndex, setPageIndex] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [, setPageIndex] = useState(1);
+  const [, setHasMore] = useState(true);
+  const [isLoadingMore] = useState(false);
+  const [, setHasScrolledToBottom] = useState(false);
   const activeButton = useMemo(() => {
     const targetButton = find(buttons, { btnId: activeButtonId });
     cache.current.activeButton = targetButton;
@@ -420,14 +419,7 @@ function MingoContent(props, ref) {
       localStorage.setItem(`aiActionLatestButton-${get(md, 'global.Account.accountId')}-${recordId}`, activeButtonId);
     },
     onError: (error, eventData) => {
-      if (safeParse(eventData)?.code !== 'UNKNOWN') {
-        setError(error);
-      } else {
-        setError({
-          errorMsg: _l('模型调用失败'),
-          sourceData: eventData,
-        });
-      }
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {

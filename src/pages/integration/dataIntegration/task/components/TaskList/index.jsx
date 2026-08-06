@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Switch } from 'antd';
 import cx from 'classnames';
@@ -308,12 +308,13 @@ const SelectedWrapper = styled.div`
   }
 `;
 
-let ajaxPromise;
-let statusAjaxPromise;
-let batchAjaxPromise;
-let sortFlag = 0;
+const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
 export default function TaskList({ projectId, onRefreshComponents }) {
+  const ajaxPromise = useRef(null);
+  const statusAjaxPromise = useRef(null);
+  const batchAjaxPromise = useRef(null);
+  const sortFlag = useRef(0);
   const [taskList, setTaskList] = useState([]);
   const [errorInfoVisible, setErrorInfoVisible] = useSetState({});
   const [fetchState, setFetchState] = useSetState({
@@ -337,7 +338,6 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     { title: _l('源类型'), data: sourceTypeTabList, key: 'sourceType', hasExpand: false },
     { title: _l('目的地类型'), data: sourceTypeTabList, key: 'destType', hasExpand: false },
   ];
-  const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
   const onSearch = useCallback(
     _.debounce(value => {
@@ -366,7 +366,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
 
   useEffect(() => {
     if (!fetchState.loading) return;
-    if (ajaxPromise) ajaxPromise.abort();
+    if (ajaxPromise.current) ajaxPromise.current.abort();
 
     //同步任务列表请求参数
     const fetchListParams = {
@@ -380,8 +380,9 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       sort: fetchState.sort,
     };
     //获取同步任务列表;
-    ajaxPromise = syncTaskApi.list(fetchListParams);
-    ajaxPromise.then(result => {
+    const request = syncTaskApi.list(fetchListParams);
+    ajaxPromise.current = request;
+    request.then(result => {
       if (result) {
         setTaskList(fetchState.pageNo > 0 ? taskList.concat(result.content) : result.content);
         setFetchState({ loading: false, noMore: result.content.length < 50 });
@@ -398,15 +399,16 @@ export default function TaskList({ projectId, onRefreshComponents }) {
   ]);
 
   const switchTaskStatus = (checked, record) => {
-    if (statusAjaxPromise) return;
+    if (statusAjaxPromise.current) return;
     setSwitchLoading({ [record.id]: true });
-    statusAjaxPromise = syncTaskApi[checked ? 'startTask' : 'stopTask']({
+    const request = syncTaskApi[checked ? 'startTask' : 'stopTask']({
       projectId,
       taskId: record.id,
     });
-    statusAjaxPromise
+    statusAjaxPromise.current = request;
+    request
       .then(res => {
-        statusAjaxPromise = null;
+        statusAjaxPromise.current = null;
         setSwitchLoading({ [record.id]: false });
         if (checked ? res.isSucceeded : res) {
           alert(checked ? _l('启动同步任务成功') : _l('停止同步任务成功'));
@@ -427,13 +429,13 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         }
       })
       .catch(() => {
-        statusAjaxPromise = null;
+        statusAjaxPromise.current = null;
         setSwitchLoading({ [record.id]: false });
       });
   };
 
   const batchStartEndTasks = isStart => {
-    if (batchAjaxPromise) return;
+    if (batchAjaxPromise.current) return;
 
     const taskIds = selectedTasks
       .filter(task =>
@@ -447,10 +449,11 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     }
 
     setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: true })) });
-    batchAjaxPromise = syncTaskApi[isStart ? 'batchStartTask' : 'batchStopTask']({ projectId, taskIds });
-    batchAjaxPromise
+    const request = syncTaskApi[isStart ? 'batchStartTask' : 'batchStopTask']({ projectId, taskIds });
+    batchAjaxPromise.current = request;
+    request
       .then(res => {
-        batchAjaxPromise = null;
+        batchAjaxPromise.current = null;
         setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: false })) });
         if (isStart ? res.isSucceeded : res) {
           alert(isStart ? _l('启动同步任务成功') : _l('停止同步任务成功'));
@@ -472,7 +475,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         }
       })
       .catch(() => {
-        batchAjaxPromise = null;
+        batchAjaxPromise.current = null;
         setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: false })) });
       });
   };
@@ -566,7 +569,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               unCheckedChildren={_l('关闭%11001')}
               checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
               onChange={checked => switchTaskStatus(checked, item)}
-              disabled={!!item.errorInfo}
+              disabled={!!item.errorInfo && !item.canRestartInList}
             />
             {item.taskStatus === TASK_STATUS_TYPE.CREATING && (
               <div className="flexRow alignItemsCenter">
@@ -613,15 +616,18 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             className="flexRow pointer"
             onClick={() => {
               if (fetchState.sort.fieldName !== 'readRecord') {
-                sortFlag = 1;
+                sortFlag.current = 1;
               } else {
-                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+                sortFlag.current = sortFlag.current === 2 ? 0 : sortFlag.current + 1;
               }
 
               setFetchState({
                 loading: true,
                 pageNo: 0,
-                sort: { fieldName: sortFlag === 0 ? '' : 'readRecord', sortDirection: sortTypes[sortFlag] },
+                sort: {
+                  fieldName: sortFlag.current === 0 ? '' : 'readRecord',
+                  sortDirection: sortTypes[sortFlag.current],
+                },
               });
             }}
           >
@@ -655,15 +661,18 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             className="flexRow pointer alignItemsCenter"
             onClick={() => {
               if (fetchState.sort.fieldName !== 'writeRecord') {
-                sortFlag = 1;
+                sortFlag.current = 1;
               } else {
-                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+                sortFlag.current = sortFlag.current === 2 ? 0 : sortFlag.current + 1;
               }
 
               setFetchState({
                 loading: true,
                 pageNo: 0,
-                sort: { fieldName: sortFlag === 0 ? '' : 'writeRecord', sortDirection: sortTypes[sortFlag] },
+                sort: {
+                  fieldName: sortFlag.current === 0 ? '' : 'writeRecord',
+                  sortDirection: sortTypes[sortFlag.current],
+                },
               });
             }}
           >
@@ -708,15 +717,18 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             className="flexRow pointer pRight8"
             onClick={() => {
               if (fetchState.sort.fieldName !== 'createTime') {
-                sortFlag = 1;
+                sortFlag.current = 1;
               } else {
-                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+                sortFlag.current = sortFlag.current === 2 ? 0 : sortFlag.current + 1;
               }
 
               setFetchState({
                 loading: true,
                 pageNo: 0,
-                sort: { fieldName: sortFlag === 0 ? '' : 'createTime', sortDirection: sortTypes[sortFlag] },
+                sort: {
+                  fieldName: sortFlag.current === 0 ? '' : 'createTime',
+                  sortDirection: sortTypes[sortFlag.current],
+                },
               });
             }}
           >

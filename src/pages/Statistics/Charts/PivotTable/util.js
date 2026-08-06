@@ -1,11 +1,4 @@
 import _ from 'lodash';
-import {
-  // eslint-disable-next-line no-unused-vars
-  areaParticleSizeDropdownData,
-  isAreaControl,
-  isTimeControl, // eslint-disable-next-line no-unused-vars
-  timeParticleSizeDropdownData,
-} from 'statistics/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 
@@ -158,10 +151,6 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         return value;
       });
       const target = _.find(lines, { cid: key }) || {};
-      // eslint-disable-next-line no-unused-vars
-      const isTime = isTimeControl(target.controlType);
-      // eslint-disable-next-line no-unused-vars
-      const isArea = isAreaControl(target.controlType);
       const name = target.rename || target.controlName;
       const { xaxisEmptyType } = target;
       /*
@@ -268,8 +257,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
 };
 
 export const getColumnName = column => {
-  // eslint-disable-next-line no-unused-vars
-  const { rename, controlName, controlType, particleSizeType } = column;
+  const { rename, controlName } = column;
   const name = rename || controlName;
   /*
   const isTime = isTimeControl(controlType);
@@ -290,45 +278,155 @@ export const getColumnName = column => {
 
 export const getControlMinAndMax = (yaxisList, data) => {
   const result = {};
+  const valuesMap = {};
 
-  const get = id => {
-    let values = [];
+  yaxisList.forEach(item => {
+    valuesMap[item.controlId] = [];
+  });
 
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].t_id === id && !data[i].summary_col) {
-        values.push(data[i].data);
-      }
+  data.forEach(item => {
+    if (!item.summary_col && Object.prototype.hasOwnProperty.call(valuesMap, item.t_id)) {
+      valuesMap[item.t_id].push(item.data);
     }
+  });
 
-    values = _.flatten(values);
+  yaxisList.forEach(item => {
+    const values = _.flatten(valuesMap[item.controlId]);
     const min = _.min(values) || 0;
     const max = _.max(values);
     const center = (max + min) / 2;
-    return {
+
+    result[item.controlId] = {
       min,
       max,
       center,
     };
-  };
-
-  yaxisList.forEach(item => {
-    result[item.controlId] = get(item.controlId);
   });
 
   return result;
 };
 
-export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
-  const { min = 0, max, direction, negativeNumberColor, positiveNumberColor } = rule;
-  const barStyle = {};
-  const minValue = _.isNumber(min) ? min : controlMinAndMax.min || 0;
-  const maxValue = _.isNumber(max) ? max : controlMinAndMax.max || 0;
+const isApplyStyle = (applyValue, recordKey) => {
+  if (applyValue === 1) {
+    return recordKey !== 'sum';
+  }
 
-  if (direction === 1) {
+  if (applyValue === 2) {
+    return true;
+  }
+
+  if (applyValue === 3) {
+    return recordKey === 'sum';
+  }
+};
+
+const getCompiledScopeRuleColor = (value, controlMinAndMax = {}, scopeRules = [], emptyShowType) => {
+  let result = null;
+
+  scopeRules.forEach(rule => {
+    const { type, and, color } = rule;
+    const minValue = rule.dynamicMin ? controlMinAndMax.min || 0 : rule.min;
+    const maxValue = rule.dynamicMax ? controlMinAndMax.max || 0 : rule.max;
+
+    if (type === 1 && value > minValue) {
+      if (and === 5 && value < maxValue) {
+        result = color;
+      }
+
+      if (and === 6 && value <= maxValue) {
+        result = color;
+      }
+    }
+
+    if (type === 2 && value >= minValue) {
+      if (and === 5 && value < maxValue) {
+        result = color;
+      }
+
+      if (and === 6 && value <= maxValue) {
+        result = color;
+      }
+    }
+
+    if (type === 3 && value === rule.value) {
+      result = color;
+    }
+
+    if (type === 4 && (emptyShowType === 1 ? _.isNull(value) : !value)) {
+      result = color;
+    }
+  });
+
+  return result;
+};
+
+export const getCompiledStyleColor = ({
+  value = 0,
+  controlMinAndMax = {},
+  rule,
+  controlId,
+  record = {},
+  emptyShowType,
+}) => {
+  const { model, applyValue } = rule;
+
+  if (model === 1 && isApplyStyle(applyValue, record.key)) {
+    const applyControl = controlMinAndMax[rule.rangeControlId];
+    const minValue = _.isNumber(rule.minValue) ? rule.minValue : applyControl ? applyControl.min : 0;
+    const maxValue = _.isNumber(rule.maxValue) ? rule.maxValue : applyControl ? applyControl.max : 0;
+    const centerValue = _.isNumber(rule.centerValue) ? rule.centerValue : applyControl ? applyControl.center : 0;
+    let percent = 0;
+
+    if (rule.centerVisible) {
+      percent = ((value - centerValue) / (maxValue - centerValue)) * 50 + 50;
+    } else {
+      percent = ((value - minValue) / (maxValue - minValue)) * 100;
+    }
+
+    percent = parseInt(percent);
+    if (value <= minValue) {
+      percent = 0;
+    }
+
+    if (value === centerValue) {
+      percent = 50;
+    }
+
+    if (value >= maxValue) {
+      percent = 100;
+    }
+
+    if (percent >= 100) {
+      percent = 99;
+    }
+
+    if (percent <= 0) {
+      percent = 0;
+    }
+
+    return rule.colors[percent];
+  }
+
+  if (model === 2) {
+    return getCompiledScopeRuleColor(
+      value,
+      controlMinAndMax[rule.rangeControlId || controlId],
+      rule.scopeRules,
+      emptyShowType,
+    );
+  }
+};
+
+export const getCompiledBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
+  const minValue = _.isNumber(rule.minValue) ? rule.minValue : rule.useDefaultMin ? 0 : controlMinAndMax.min || 0;
+  const maxValue = _.isNumber(rule.maxValue) ? rule.maxValue : controlMinAndMax.max || 0;
+  const barStyle = {};
+
+  if (rule.direction === 1) {
     barStyle.left = 0;
   }
 
-  if (direction === 2) {
+  if (rule.direction === 2) {
     barStyle.right = 0;
   }
 
@@ -346,9 +444,143 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
     percent = 0;
   }
 
+  if (rule.axisColor) {
+    barStyle[rule.direction === 1 ? 'borderLeft' : 'borderRight'] = `1px dashed ${rule.axisColor}`;
+  }
+
   barStyle.width = `${percent}%`;
-  barStyle.backgroundColor = value >= 0 ? positiveNumberColor : negativeNumberColor;
+  barStyle.backgroundColor = value >= 0 ? rule.positiveNumberColor : rule.negativeNumberColor;
   return barStyle;
+};
+
+export const getStyleRuleValue = ({ rule, value, controlId, columnIndex, record, recordIndex, result }) => {
+  if (controlId === rule.sourceControlId) {
+    return value;
+  }
+
+  if (record.type === 'line') {
+    const colorRuleData = result[columnIndex + rule.sourceIndex] || {};
+    return colorRuleData.sum;
+  } else {
+    const colorRuleData = _.get(result[columnIndex + rule.sourceIndex], 'data') || [];
+    return colorRuleData[recordIndex];
+  }
+};
+
+export const compileColorRuleConfig = (yaxisList, colorRules = []) => {
+  const yaxisMap = {};
+  const yaxisIndexMap = {};
+  const colorRuleMap = {};
+  const rangeControlIdMap = {};
+
+  const addRangeControlId = id => {
+    if (id) {
+      rangeControlIdMap[id] = true;
+    }
+  };
+
+  yaxisList.forEach((item, index) => {
+    yaxisMap[item.controlId] = item;
+    yaxisIndexMap[item.controlId] = index;
+  });
+
+  const compileStyleRule = (rule, defaultControlId) => {
+    if (!rule || !rule.model) {
+      return {};
+    }
+
+    const sourceControlId = rule.controlId;
+    const sourceIndex = _.isNumber(yaxisIndexMap[sourceControlId]) ? yaxisIndexMap[sourceControlId] : -1;
+    const data = {
+      ...rule,
+      sourceControlId,
+      sourceIndex,
+    };
+
+    if (rule.model === 1) {
+      const { min = {}, max = {}, center = {}, centerVisible, controlId } = rule;
+      const needMinMax = !_.isNumber(min.value) || !_.isNumber(max.value);
+      const needCenter = centerVisible && !_.isNumber(center.value);
+
+      if (needMinMax || needCenter) {
+        addRangeControlId(controlId);
+      }
+
+      return {
+        ...data,
+        rangeControlId: controlId,
+        minValue: _.isNumber(min.value) ? min.value : undefined,
+        maxValue: _.isNumber(max.value) ? max.value : undefined,
+        centerValue: _.isNumber(center.value) ? center.value : undefined,
+      };
+    }
+
+    if (rule.model === 2) {
+      const rangeControlId = rule.controlId || defaultControlId;
+      const scopeRules = (rule.scopeRules || []).map(item => {
+        return {
+          ...item,
+          dynamicMin: [1, 2].includes(item.type) && !_.isNumber(item.min),
+          dynamicMax: [1, 2].includes(item.type) && !_.isNumber(item.max),
+        };
+      });
+      const needRange = scopeRules.some(item => item.dynamicMin || item.dynamicMax);
+
+      if (needRange) {
+        addRangeControlId(rangeControlId);
+      }
+
+      return {
+        ...data,
+        rangeControlId,
+        scopeRules,
+      };
+    }
+
+    return data;
+  };
+
+  const compileDataBarRule = (rule, controlId) => {
+    if (!rule) {
+      return undefined;
+    }
+
+    const useDefaultMin = _.isUndefined(rule.min);
+    const dynamicMin = !useDefaultMin && !_.isNumber(rule.min);
+    const dynamicMax = !_.isNumber(rule.max);
+
+    if (dynamicMin || dynamicMax) {
+      addRangeControlId(controlId);
+    }
+
+    return {
+      ...rule,
+      rangeControlId: controlId,
+      useDefaultMin,
+      dynamicMin,
+      dynamicMax,
+      minValue: _.isNumber(rule.min) ? rule.min : undefined,
+      maxValue: _.isNumber(rule.max) ? rule.max : undefined,
+    };
+  };
+
+  colorRules.forEach(item => {
+    if (item && item.controlId) {
+      colorRuleMap[item.controlId] = {
+        ...item,
+        textColorRule: compileStyleRule(item.textColorRule, item.controlId),
+        bgColorRule: compileStyleRule(item.bgColorRule, item.controlId),
+        dataBarRule: compileDataBarRule(item.dataBarRule, item.controlId),
+      };
+    }
+  });
+
+  return {
+    yaxisMap,
+    yaxisIndexMap,
+    colorRuleMap,
+    rangeControlIds: yaxisList.map(item => item.controlId).filter(id => rangeControlIdMap[id]),
+  };
 };
 
 export const getLineSubTotal = (data = [], index) => {

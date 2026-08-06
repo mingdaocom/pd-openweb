@@ -1,8 +1,31 @@
 import localforage from 'localforage';
-import { find, get, isArray } from 'lodash';
+import { find, get, includes, isArray, isEmpty } from 'lodash';
+import agentApi from 'src/api/agent';
 import mingoAjax from 'src/api/mingo';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { getWidgetTypeName } from 'src/utils/app';
 import { getMimeTypeByExt } from 'src/utils/common';
 import { FAST_GPT_CONFIG } from 'src/utils/enum';
+
+// 流式错误事件 → { errorMsg, sourceData }：优先取后端真实错误信息（兼容 ErrorMessage / errorMessage 大小写，
+// 与新版 Agent 的归一逻辑一致），取不到再退回「模型调用失败」。
+// error 为 useChat 透传的 message（旧 OpenAI 风格错误信息在 .message），eventData 为原始错误事件文本。
+export function resolveStreamError(error, eventData) {
+  const data = safeParse(eventData, 'object') || {};
+
+  return {
+    errorMsg: data.ErrorMessage || data.errorMessage || error || _l('模型调用失败'),
+    sourceData: eventData,
+  };
+}
+
+// 终止 agent 流时显式调取消接口：仅 abort 本地 SSE 不会停掉服务端 run，会继续跑、浪费信用点。
+// 与新版 Agent 的 cancelAgentRun 一致，按 accountId|sessionId 取消活跃执行；无活跃 run 静默忽略。
+export function cancelStream(sessionId) {
+  if (!sessionId) return Promise.resolve();
+
+  return agentApi.agentCancel({ sessionId }, { silent: true }).catch(() => {});
+}
 
 export async function insertChatHistory(chatId, title) {
   if (!chatId || !title) {
@@ -331,4 +354,95 @@ export function convertModelMessageToUIMessage(message) {
   }
 
   return result;
+}
+
+function filterControlsByFormFieldPermissions(controls, { from, includeUsers = false, includeFiles = false }) {
+  if (!isArray(controls)) return [];
+  return controls.filter(c => {
+    if (includes(ALL_SYS, c.controlId)) return false;
+    if (includes([21, 22, 31, 33, 25, 32, 38, 42, 43, 47, 45, 30, 51, 37, 22, 52, 53, 54, 10010], c.type)) return false;
+
+    if (from === 'generate-record') {
+      const hasFieldPermission = !c.fieldPermission || c.fieldPermission.endsWith('11');
+      const hasControlPermission = !c.controlPermissions || c.controlPermissions.endsWith('1');
+      return hasFieldPermission && hasControlPermission;
+    }
+
+    if (from === 'generate-example-data') {
+      if (c.type === 24 && c.enumDefault === 1) return false;
+
+      if (!includeUsers && c.type === 26) return false;
+
+      if (!includeFiles && c.type === 14) return false;
+
+      return true;
+    }
+
+    return true;
+  });
+}
+
+function buildFormFieldControlObject(control, options = {}) {
+  const type = control.type;
+  const base = {
+    controlId: control.controlId || '',
+    name: control.controlName || '',
+    type: control.type,
+  };
+
+  if (type === 26 || type === 27) {
+    return { ...base, isMultiple: control.enumDefault !== 0 };
+  }
+
+  if (type === 9 || type === 10 || type === 11) {
+    const option = isEmpty(control.options) ? null : control.options.filter(o => !o.isDeleted).map(o => o.value);
+    return { ...base, option };
+  }
+
+  if (type === 28) {
+    const max = get(control, 'advancedSetting.max');
+    const range = max ? `1~${max}` : '1~5';
+    return { ...base, range };
+  }
+
+  if (type === 29) {
+    return {
+      ...base,
+      isMultiple: control.enumDefault !== 1,
+      relatedWorksheetId: control.dataSource || '',
+    };
+  }
+
+  if (type === 35) {
+    return { ...base, relatedWorksheetId: control.dataSource || '' };
+  }
+
+  if (type === 34) {
+    const subRaw = control.relationControls || [];
+
+    if (options.from === 'generate-example-data' && subRaw.some(c => includes([29, 35], c.type))) {
+      return { ...base, subformControls: [] };
+    }
+
+    const subFiltered = filterControlsByFormFieldPermissions(subRaw, options);
+    return { ...base, subformControls: subFiltered.map(c => buildFormFieldControlObject(c, options)) };
+  }
+
+  const { controlType, controlTypeName } = getWidgetTypeName(type);
+
+  base.controlType = controlType;
+  base.controlTypeName = controlTypeName;
+  delete base.type;
+
+  return base;
+}
+
+/**
+ * 从工作表模板控件生成供 Agent / 文案使用的表单字段描述列表。
+ * 处理参数formFields
+ */
+export function buildFormFieldsControls(worksheetInfo, options = {}) {
+  const raw = get(worksheetInfo, 'template.controls', []);
+  const filtered = filterControlsByFormFieldPermissions(raw, options);
+  return filtered.map(c => buildFormFieldControlObject(c, options));
 }

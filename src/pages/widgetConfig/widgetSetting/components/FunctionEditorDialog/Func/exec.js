@@ -3,6 +3,7 @@ import _, { get, isNaN } from 'lodash';
 import qs from 'query-string';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatControlValue } from 'src/utils/function-library';
+import { initLang } from './local';
 import { functions } from './enum';
 
 const execWorkerCode = `onmessage = function (e) {
@@ -242,7 +243,12 @@ function formatFunctionResult(control, value) {
   return result;
 }
 
-export default function (control, formData, { update, type, forceSyncRun = false, defaultExpression } = {}) {
+export default function (
+  control,
+  formData,
+  { update, type, forceSyncRun = false, defaultExpression, langCode } = {},
+) {
+  initLang(langCode);
   const run = functions;
   let expressionData = {};
 

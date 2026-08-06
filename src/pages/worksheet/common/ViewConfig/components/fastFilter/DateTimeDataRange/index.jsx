@@ -38,7 +38,7 @@ export default function DateTimeRange(props) {
           )}
         </div>
         <div className="editIcon">
-          <i className="icon-hr_edit textSecondary Hand Font16 ThemeHoverColor3"></i>
+          <i className="icon-hr_edit textSecondary Hand Font16 hoverColorPrimary"></i>
         </div>
       </Wrap>
       {show && <RangeDialog {...props} daterange={daterange} onClose={() => setState({ show: false })} />}

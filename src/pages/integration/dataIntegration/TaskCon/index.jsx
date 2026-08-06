@@ -14,6 +14,7 @@ import 'src/pages/integration/dataIntegration/connector/style.less';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import Disposition from './Disposition';
 import Monitor from './Monitor';
 import TaskCanvas from './TaskCanvas';
@@ -105,7 +106,7 @@ class Task extends Component {
           // jobId: res.jobId ? res.jobId : this.state.jobId,
         },
         () => {
-          history.pushState({}, '', `/integration/taskCon/${id}`);
+          history.pushState({}, '', pathCompletion(`/integration/taskCon/${id}`, { hasDomain: false }));
         },
       );
     });

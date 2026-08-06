@@ -94,11 +94,7 @@ class MobileGalleryView extends Component {
     }
 
     return currentSheetRows.length ? (
-      <SheetRows
-        view={view}
-        navigateTo={window.mobileNavigateTo}
-        colNum={wWidth > 480 && _.get(view, 'advancedSetting.rowcolumns') === '2' ? 2 : 1}
-      />
+      <SheetRows view={view} colNum={wWidth > 480 && _.get(view, 'advancedSetting.rowcolumns') === '2' ? 2 : 1} />
     ) : (
       this.renderWithoutRows()
     );

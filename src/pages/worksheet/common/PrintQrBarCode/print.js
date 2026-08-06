@@ -161,7 +161,7 @@ export class QrPdf {
 
     this.doc = new this.jsPDF(this.config.layout === QR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
-      title: '打印二维码',
+      title: _l('打印二维码'),
     });
     let isFirst = true;
 
@@ -201,7 +201,7 @@ export class QrPdf {
 
     this.doc = new this.jsPDF(this.config.layout === BAR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
-      title: '打印条形码',
+      title: _l('打印条形码'),
     });
     let isFirst = true;
 
@@ -233,7 +233,7 @@ export class QrPdf {
     this.option = options[this.layout];
     this.doc = new this.jsPDF('p', 'mm', 'a4', true);
     this.doc.setProperties({
-      title: '打印二维码',
+      title: _l('打印二维码'),
     });
     const { col, row } = this.option;
     const qrPages = _.chunk(this.printData, col && row ? col * row : 1);

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import {
   clearValue,
   dealAuthAccount,
@@ -84,7 +85,7 @@ const SearchBox = props => {
           hint: _l('信用点不足，请联系管理员充值'),
           explainText: <div></div>,
           onOk: () => {
-            location.href = `/admin/valueaddservice/${projectId}`;
+            location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
           },
         });
         return;

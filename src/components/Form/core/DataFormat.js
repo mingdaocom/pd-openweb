@@ -13,7 +13,6 @@ import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTab
 import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { browserIsMobile } from 'src/utils/common';
 import {
   checkCellIsEmpty,
@@ -25,6 +24,7 @@ import {
   isRelateRecordTableControl,
   toFixed,
 } from 'src/utils/control';
+import { getDatePickerConfigs } from 'src/utils/controlCommon';
 import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FROM, SYSTEM_ENUM, TIME_UNIT } from './config';
@@ -114,8 +114,8 @@ export default class DataFormat {
     this.instanceId = instanceId;
     this.workId = workId;
     this.masterRecordRowId = masterRecordRowId;
-    this.data = _.cloneDeep(data).map(c => {
-      const item = { ...c, store: undefined };
+    this.data = data.map(c => {
+      const item = _.cloneDeep({ ...c, store: undefined });
 
       if (item.type === 53 && item.dataSource) {
         item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
@@ -459,7 +459,17 @@ export default class DataFormat {
         },
         DataFormat,
       });
-      const subListNeedValidate = control.required || find(control.relationControls, c => c.required);
+      // 需在 initAndLoadRows 之前挂上，否则 init 同步段里的 loading 打标全部落空，
+      // 保存不会等待预取完成，行内必填校验会在 rows 未返回时空转放过。
+      store.setLoadingInfo = (key, status) => {
+        this.loadingInfo[key] = status;
+        this.updateLoadingItems(this.loadingInfo, true);
+      };
+
+      // 不可见的子表在 getSubmitDataAction 里按 controlState().visible 被排除在校验之外，
+      // 为校验而做的预取对它没有意义，还会把保存挂在无谓的 loadRows_ 等待上。
+      const subListNeedValidate =
+        (control.required || find(control.relationControls, c => c.required)) && controlState(control, from).visible;
 
       if (loadRowsWhenChildTableStoreCreated || (subListNeedValidate && !!recordId)) {
         store.initAndLoadRows({
@@ -1824,7 +1834,7 @@ export default class DataFormat {
         });
 
         // 初始时由工作表查询引起的变更遗漏
-        if (!_.includes(this.ruleControlIds, currentConfig.controlId) && searchType === 'init') {
+        if (searchType === 'init' && !_.includes(this.ruleControlIds, currentConfig.controlId)) {
           this.ruleControlIds.push(currentConfig.controlId);
         }
 

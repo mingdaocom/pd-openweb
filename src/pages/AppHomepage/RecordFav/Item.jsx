@@ -3,6 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/common';
 import { addBehaviorLog } from 'src/utils/project';
 
 const RecordItem = styled.div`
@@ -172,9 +173,11 @@ export default function Item(props) {
               onClick={e => {
                 addBehaviorLog('worksheetRecord', props.worksheetId, { rowId: props.rowId });
                 window.open(
-                  `${window.subPath || ''}/app/${props.appId}/${props.worksheetId}${
-                    props.viewId ? '/' + props.viewId : ''
-                  }/row/${props.rowId}`,
+                  pathCompletion(
+                    `/app/${props.appId}/${props.worksheetId}${
+                      props.viewId ? '/' + props.viewId : ''
+                    }/row/${props.rowId}`,
+                  ),
                 );
                 e.stopPropagation();
                 e.preventDefault();

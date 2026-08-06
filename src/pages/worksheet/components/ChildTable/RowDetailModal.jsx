@@ -60,7 +60,7 @@ export default function RowDetailModal(props) {
           <div className="flex" />
           {!disabled && allowDelete && (
             <IconBtn
-              className="headerBtn Hand ThemeHoverColor3 delete"
+              className="headerBtn Hand hoverColorPrimary delete"
               onClick={() => {
                 onDelete(data.rowid);
                 onClose();
@@ -70,7 +70,7 @@ export default function RowDetailModal(props) {
             </IconBtn>
           )}
           <IconBtn
-            className="headerBtn Hand ThemeHoverColor3"
+            className="headerBtn Hand hoverColorPrimary"
             onClick={() => {
               if (formContent.current) {
                 formContent.current.handleClose();

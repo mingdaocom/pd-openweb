@@ -5,10 +5,11 @@ import { func, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import mingoApi from 'src/api/mingo';
+import agentApi from 'src/api/agent';
 import { openMingoCreateWorksheet } from 'src/components/Mingo/modules/CreateWorksheetBot';
 import CreateAIDialog from 'src/pages/worksheet/components/CreateAIDialog';
-import store from 'src/redux/configureStore';
+import { genBotSessionId } from 'src/utils/agentSession';
+import { generateAppOrWorksheetDescription } from 'src/utils/app';
 import ExternalLink from './ExternalLink';
 
 const CreateNewContent = styled.div`
@@ -78,6 +79,52 @@ const createSheetOrCustomPageConfig = {
   worksheet: { headerText: _l('新建工作表'), placeholder: _l('例如: 订单、客户'), text: _l('名称') },
 };
 
+const pickAppItemInfo = item => ({
+  name: item.workSheetName || '',
+  description: item.remark || '',
+});
+
+const getChatbotRecommendAppItems = () => {
+  const worksheets = [];
+  const pages = [];
+
+  const pushItem = item => {
+    if (!item) return;
+
+    if (item.type === 0) {
+      worksheets.push(pickAppItemInfo(item));
+    }
+
+    if (item.type === 1) {
+      pages.push(pickAppItemInfo(item));
+    }
+  };
+
+  const walkSections = sections => {
+    (sections || []).forEach(section => {
+      (section.item || []).forEach(pushItem);
+      (section.workSheetInfo || []).forEach(item => {
+        if (item.type === 2) {
+          const childSection = (section.childSections || []).find(child => child.appSectionId === item.workSheetId);
+
+          if (childSection) {
+            walkSections([childSection]);
+          }
+        } else {
+          pushItem(item);
+        }
+      });
+    });
+  };
+
+  walkSections(window.appInfo?.sections || []);
+
+  return {
+    worksheets,
+    pages,
+  };
+};
+
 class CreateSheetOrPage extends Component {
   static propTypes = {
     type: string,
@@ -100,15 +147,13 @@ class CreateSheetOrPage extends Component {
   handleCreateAi = () => {
     const { value, remark } = this.state;
     this.setState({ loading: true, remark: '' });
-    mingoApi
-      .generateAppOrWorksheetDescription({
-        name: value,
-        desc: remark,
-        type: 2,
-        langType: getCurrentLangCode(),
-      })
-      .then(data => {
-        const { isSuccess, content, errorMsg } = data;
+    generateAppOrWorksheetDescription({
+      name: value,
+      description: remark,
+      isApp: false,
+    })
+      .then(res => {
+        const { isSuccess, content, errorMsg } = res.data || {};
 
         if (!isSuccess) {
           alert(errorMsg, 3);
@@ -325,21 +370,30 @@ class CreateChatbot extends Component {
     this.handleGenerate();
   }
   handleGenerate = (isReload = false) => {
-    const { base } = store.getState().sheet;
+    const { worksheets, pages } = getChatbotRecommendAppItems();
+    const appInfo = window.appInfo || {};
+
     this.setState({
       generateLoading: true,
     });
-    mingoApi
-      .generateChatRobotInfo({
-        appId: base.appId,
-        type: 1,
-        langType: window.getCurrentLangCode(),
-        isReload,
+    agentApi
+      .agentExecute({
+        agentName: 'chatbot-candidates-recommender',
+        sessionId: genBotSessionId(),
+        message: _l('开始'),
+        forceRefresh: isReload,
+        context: {
+          userLanguage: window.getCurrentLang() || 'zh-Hans',
+          appName: appInfo.name,
+          appDescription: appInfo.shortdesc,
+          worksheets: JSON.stringify(worksheets),
+          pages: JSON.stringify(pages),
+        },
       })
-      .then(data => {
+      .then(res => {
         this.setState({
           generateLoading: false,
-          chatRobotInfos: data?.data || [],
+          chatRobotInfos: res?.data?.data || [],
         });
       })
       .catch(() => {
@@ -354,19 +408,22 @@ class CreateChatbot extends Component {
     const { name, remark, generateChatRobotInfoLoading } = this.state;
     if (generateChatRobotInfoLoading) return;
     if (remark) {
-      const { base } = store.getState().sheet;
       this.setState({
         generateChatRobotInfoLoading: true,
       });
-      mingoApi
-        .generateChatRobotInfo({
-          appId: base.appId,
-          type: 2,
-          robotDescription: remark,
-          langType: window.getCurrentLangCode(),
-          hasIcon, // 自定义创建需要生成图标
+      agentApi
+        .agentExecute({
+          agentName: 'chatbot-info-builder',
+          sessionId: genBotSessionId(),
+          message: remark,
+          context: {
+            robotDescription: remark,
+            userLanguage: window.getCurrentLang() || 'zh-Hans',
+            hasIcon: String(hasIcon), // 自定义创建需要生成图标
+          },
         })
-        .then(data => {
+        .then(res => {
+          let data = res.data || {};
           data.name = name;
           onCreate(type, {
             name,

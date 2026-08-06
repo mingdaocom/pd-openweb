@@ -1,12 +1,37 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, SvgIcon } from 'ming-ui';
 import { getAdvanceSetting, getExpandWidgetIds } from '../../tools/utils';
 import { SectionItemWrap } from './style';
 
+const getFormItemMap = (container, widgetIds, worksheetId) => {
+  if (!container) return {};
+
+  const prefix = `formItem-${worksheetId}-`;
+  const idSet = new Set(widgetIds.map(id => `${prefix}${id}`));
+  const itemMap = {};
+
+  container.querySelectorAll('.customFormItem').forEach(item => {
+    if (idSet.has(item.id)) {
+      itemMap[item.id.slice(prefix.length)] = item;
+    }
+  });
+
+  return itemMap;
+};
+
 const SplitLine = props => {
-  const { from, renderData = [], setNavVisible, enumDefault2 = 0, controlName, controlId, worksheetId } = props;
+  const {
+    from,
+    renderData = [],
+    setNavVisible,
+    enumDefault2 = 0,
+    controlName,
+    controlId,
+    sectionId,
+    worksheetId,
+  } = props;
   const sectionstyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
   const {
     theme = 'var(--color-primary)',
@@ -15,9 +40,14 @@ const SplitLine = props => {
     hidetitle,
   } = getAdvanceSetting(props);
   const [visible, setVisible] = useState(enumDefault2 !== 2);
-  const expandWidgetIds = getExpandWidgetIds(renderData, props, from);
+  const expandWidgetIds = useMemo(
+    () => getExpandWidgetIds(renderData, { controlId, sectionId }, from),
+    [renderData, controlId, sectionId, from],
+  );
   const $ref = useRef();
   let $originIds = useRef([]);
+  const expandTimerRef = useRef();
+  const navTimerRef = useRef();
 
   const handleExpand = tempVisible => {
     // 不折叠不能点击
@@ -26,33 +56,39 @@ const SplitLine = props => {
 
     if (expandWidgetIds.length > 0) {
       setVisible(currentVisible);
-      const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.reverse();
+      const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.slice().reverse();
 
-      for (let i = 0; i < expandWidgetIds.length; i++) {
-        const timer = setTimeout(() => {
-          const listItem = ($($ref.current)
-            .closest('.customMobileFormContainer')
-            .find(`.customFormItem#formItem-${worksheetId}-${tempIds[i]}`) || [])[0];
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = setTimeout(() => {
+        const formItemMap = getFormItemMap(
+          $ref.current && $ref.current.closest('.customMobileFormContainer'),
+          tempIds,
+          worksheetId,
+        );
+
+        for (let i = 0; i < tempIds.length; i++) {
+          const listItem = formItemMap[tempIds[i]];
 
           if (listItem) {
+            const $listItem = $(listItem).stop(true, true);
+
             if (currentVisible) {
-              $(listItem).slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
+              $listItem.slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
             } else {
-              $(listItem).slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
+              $listItem.slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
             }
 
-            clearTimeout(timer);
             if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
               listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
             }
           }
-        }, 100);
-      }
+        }
+      }, 100);
 
       if (_.isFunction(setNavVisible)) {
-        const timer = setTimeout(() => {
+        clearTimeout(navTimerRef.current);
+        navTimerRef.current = setTimeout(() => {
           setNavVisible();
-          clearTimeout(timer);
         }, 300);
       }
     }
@@ -95,6 +131,13 @@ const SplitLine = props => {
       handleExpand(visible);
     }
   }, [expandWidgetIds]);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(expandTimerRef.current);
+      clearTimeout(navTimerRef.current);
+    };
+  }, []);
 
   return (
     <SectionItemWrap

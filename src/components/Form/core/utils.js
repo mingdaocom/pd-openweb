@@ -4,8 +4,7 @@ import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/co
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/utils/common';
-import { getStringBytes } from 'src/utils/common';
+import { browserIsMobile, getStringBytes, pathCompletion } from 'src/utils/common';
 import { checkCellIsEmpty, controlState } from 'src/utils/control';
 import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
@@ -464,9 +463,19 @@ export function formatControlToServer(
           );
         }
 
-        if (!_.isEmpty(result.value.updated)) {
+        // 兜底：store 里的 temp-/default- 新增行必须进入提交名单，即使变更集（value.updated）
+        // 因异步查询回填的竞态漏登记，避免快速连续录入（如扫码）时保存静默丢行
+        const storeNewRowIds =
+          _.isObject(result.value) && control.store
+            ? filterEmptyChildTableRows(control.store.getState().rows)
+                .map(row => row.rowid)
+                .filter(id => /^(temp|default)/.test(String(id)))
+            : [];
+        const updatedRowIds = _.uniq((result.value.updated || []).concat(storeNewRowIds));
+
+        if (!_.isEmpty(updatedRowIds)) {
           resultvalue = resultvalue.concat(
-            result.value.updated
+            updatedRowIds
               .map(rowid => {
                 const isNew = /^(temp|default)/.test(rowid);
                 let row = _.find(control.store.getState().rows, r => r.rowid === rowid);
@@ -556,14 +565,14 @@ export function getTitleControlIdFromRelateControl(control = {}) {
 
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
   if (recordId) {
-    let baseUrl = `${md.global.Config.WebUrl}app/${appId}/${worksheetId}`;
+    let baseUrl = `/app/${appId}/${worksheetId}`;
 
     if (viewId) {
       baseUrl += `/${viewId}`;
     }
 
     baseUrl += `/row/${recordId}`;
-    return baseUrl;
+    return pathCompletion(baseUrl);
   } else {
     return getNewRecordPageUrl({ appId, worksheetId, viewId });
   }
@@ -821,26 +830,37 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
     return { commonData: sortList(controls), tabData: [] };
   }
 
-  controls
-    .filter(c => !_.includes(ALL_SYS, c.controlId))
-    .forEach(item => {
-      if (item.type === 52) {
-        item.child = sortList(controls.filter(i => i.sectionId === item.controlId));
-        tabData.push(item);
-      } else if (isTabSheetList(item)) {
-        tabData.push(item);
-      } else if (isOldSheetList(item)) {
-        oldRelateList.push(item);
-      } else if (!item.sectionId) {
-        commonData.push(item);
-      }
-    });
+  const sectionControlsMap = {};
+
+  controls.forEach(item => {
+    if (item.sectionId) {
+      sectionControlsMap[item.sectionId] = sectionControlsMap[item.sectionId] || [];
+      sectionControlsMap[item.sectionId].push(item);
+    }
+  });
+
+  controls.forEach(item => {
+    if (_.includes(ALL_SYS, item.controlId)) {
+      return;
+    }
+
+    if (item.type === 52) {
+      item.child = sortList(sectionControlsMap[item.controlId] || []);
+      tabData.push(item);
+    } else if (isTabSheetList(item)) {
+      tabData.push(item);
+    } else if (isOldSheetList(item)) {
+      oldRelateList.push(item);
+    } else if (!item.sectionId) {
+      commonData.push(item);
+    }
+  });
 
   commonData = sortList(commonData);
   tabData = sortList(tabData).concat(sortList(oldRelateList));
 
   // h5或者配置在顶部的
-  if (isMobile || (isMobile && !_.isEmpty(otherTabs)) || (_.includes(['2', '3', '4'], tabPosition) && !ignoreSection)) {
+  if (isMobile || (_.includes(['2', '3', '4'], tabPosition) && !ignoreSection)) {
     const defaultTab = [
       {
         controlId: 'detail',
@@ -1141,10 +1161,10 @@ export const supportTabKeyDown = (data, from, disabledChildTableCheck, supportMa
 // 获取人员字段值
 export const getUserValue = value => {
   if (!value) return [];
-  if (_.isArray(value)) return value;
+  if (_.isArray(value)) return value.filter(Boolean);
   if (value && typeof value === 'string') {
-    const dealValue = JSON.parse(value);
-    return _.isArray(dealValue) ? dealValue : [dealValue];
+    const dealValue = safeParse(value, 'array');
+    return _.isArray(dealValue) ? dealValue.filter(Boolean) : [dealValue].filter(Boolean);
   } else {
     return [];
   }

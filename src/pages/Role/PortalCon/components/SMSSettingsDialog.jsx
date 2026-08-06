@@ -65,6 +65,14 @@ function getIsMingdaoSaas() {
   return !window.platformENV.isOverseas && !window.platformENV.isLocal;
 }
 
+const getStrip = n => {
+  if (n > 70) {
+    return Math.ceil(n / 67);
+  }
+
+  return 1;
+};
+
 export default function Con(props) {
   const { onCancel, onChangePortalSet, sign } = props;
   const { portalSetModel = {} } = props.portalSet;
@@ -74,15 +82,9 @@ export default function Con(props) {
   const [approvedSms, setapprovedSms] = useState('');
   const [refusedSms, setrefusedSms] = useState('');
   const [inviteSms, setinviteSms] = useState('');
-  const [approvedSmsContainsLink, setApprovedSmsContainsLink] = useState(() =>
-    isMingdaoSaas ? true : false,
-  );
-  const [refusedSmsContainsLink, setRefusedSmsContainsLink] = useState(() =>
-    isMingdaoSaas ? true : false,
-  );
-  const [inviteSmsContainsLink, setInviteSmsContainsLink] = useState(() =>
-    isMingdaoSaas ? true : false,
-  );
+  const [approvedSmsContainsLink, setApprovedSmsContainsLink] = useState(() => (isMingdaoSaas ? true : false));
+  const [refusedSmsContainsLink, setRefusedSmsContainsLink] = useState(() => (isMingdaoSaas ? true : false));
+  const [inviteSmsContainsLink, setInviteSmsContainsLink] = useState(() => (isMingdaoSaas ? true : false));
 
   useEffect(() => {
     const { portalSet = {} } = props;
@@ -90,24 +92,10 @@ export default function Con(props) {
     setapprovedSms(model.approvedSms);
     setrefusedSms(model.refusedSms);
     setinviteSms(model.inviteSms);
-    setApprovedSmsContainsLink(
-      isMingdaoSaas ? model.approvedSmsContainsLink !== false : false,
-    );
-    setRefusedSmsContainsLink(
-      isMingdaoSaas ? model.refusedSmsContainsLink !== false : false,
-    );
-    setInviteSmsContainsLink(
-      isMingdaoSaas ? model.inviteSmsContainsLink !== false : false,
-    );
+    setApprovedSmsContainsLink(isMingdaoSaas ? model.approvedSmsContainsLink !== false : false);
+    setRefusedSmsContainsLink(isMingdaoSaas ? model.refusedSmsContainsLink !== false : false);
+    setInviteSmsContainsLink(isMingdaoSaas ? model.inviteSmsContainsLink !== false : false);
   }, [props, isMingdaoSaas]);
-
-  const getStrip = n => {
-    if (n > 70) {
-      return Math.ceil(n / 67);
-    }
-
-    return 1;
-  };
 
   const effectiveApprovedLink = isMingdaoSaas && approvedSmsContainsLink;
   const effectiveRefusedLink = isMingdaoSaas && refusedSmsContainsLink;

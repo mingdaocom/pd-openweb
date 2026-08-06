@@ -3,6 +3,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
 import { calcDate, countChar } from 'src/utils/function-library';
+import { getLang } from './local';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
@@ -40,13 +41,14 @@ export const functions = {
     if (!start || !end) {
       return 0;
     }
+
     excludeDate = excludeDate.filter(_.identity);
     if (!isDateStr(start)) {
-      throw new Error(_l('开始日期不是日期类型'));
+      throw new Error(getLang('开始日期不是日期类型'));
     }
 
     if (!isDateStr(end)) {
-      throw new Error(_l('结束日期不是日期类型'));
+      throw new Error(getLang('结束日期不是日期类型'));
     }
 
     const endIsBeforeStart = dayjs(end).isBefore(dayjs(start));
@@ -147,16 +149,25 @@ export const functions = {
   DATEIF: function (begin, end, type = 1, unit = 'd') {
     begin = completeTime(begin);
     end = completeTime(end);
+    // 开始/结束为空时返回空、而非抛错（与 WORKDAY / WEEKNUM 等空值提前 return 的约定一致）：
+    // 1) 空日期经 newDate 内部 `dayjs('' || undefined)` 会退化成 dayjs(undefined)=当前时间被误判为合法日期，
+    //    随后 diff 出 NaN，结果显示 "NaN天"；这里判空返回空可修复该问题。
+    // 2) 公式转译为原生 JS 后 IF/IFS 为“及早求值”，所有分支都会实际执行，若此处对空值抛错会打断整条公式，
+    //    连本不该走 DATEIF 的分支（如“全天”直接返回 1）也一起报错。故仅对真正非法的非空日期抛错。
+    if (_.isNil(begin) || begin === '' || _.isNil(end) || end === '') {
+      return;
+    }
+
     if (!isDateStr(begin)) {
-      throw new Error(_l('开始日期不是日期类型'));
+      throw new Error(getLang('开始日期不是日期类型'));
     }
 
     if (!isDateStr(end)) {
-      throw new Error(_l('结束日期不是日期类型'));
+      throw new Error(getLang('结束日期不是日期类型'));
     }
 
     if (!/^[YyMdhm]$/.test(unit)) {
-      throw new Error(_l('单位不合法'));
+      throw new Error(getLang('单位不合法'));
     }
 
     if (unit === 'Y') {
@@ -185,11 +196,11 @@ export const functions = {
     return (
       result +
       ({
-        y: _l('年%04019'),
-        M: _l('月%04020'),
-        d: _l('天%04021'),
-        h: _l('时%04022'),
-        m: _l('分%04023'),
+        y: getLang('年%04019'),
+        M: getLang('月%04020'),
+        d: getLang('天%04021'),
+        h: getLang('时%04022'),
+        m: getLang('分%04023'),
       }[unit] || '')
     );
   },
@@ -226,11 +237,11 @@ export const functions = {
     begin = Math.round(Number(begin));
     end = Math.round(Number(end));
     if (!_.isNumber(begin) || _.isNaN(end)) {
-      throw new Error(_l('开始位置不是数字'));
+      throw new Error(getLang('开始位置不是数字'));
     }
 
     if (!_.isNumber(end) || _.isNaN(end)) {
-      throw new Error(_l('结束位置不是数字'));
+      throw new Error(getLang('结束位置不是数字'));
     }
 
     return begin + Math.floor(Math.random() * (end - begin + 1));
@@ -240,11 +251,11 @@ export const functions = {
     number = Number(number);
     precision = Number(precision);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (!_.isNumber(precision) || _.isNaN(precision)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     return _.floor(parseFloat(number.toPrecision(15)), precision);
@@ -254,11 +265,11 @@ export const functions = {
     number = Number(number);
     precision = Number(precision);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (!_.isNumber(precision) || _.isNaN(precision)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     return _.ceil(parseFloat(number.toPrecision(15)), precision);
@@ -268,11 +279,11 @@ export const functions = {
     number = Number(number);
     precision = Number(precision);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (!_.isNumber(precision) || _.isNaN(precision)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     const factor = Math.pow(10, precision);
@@ -283,11 +294,11 @@ export const functions = {
     number = Number(number);
     significance = Number(significance);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (!_.isNumber(significance) || _.isNaN(significance)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (number > 0 && significance < 0) {
@@ -301,11 +312,11 @@ export const functions = {
     number = Number(number);
     significance = Number(significance);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (!_.isNumber(significance) || _.isNaN(significance)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (number > 0 && significance < 0) {
@@ -323,15 +334,15 @@ export const functions = {
     number = Number(number);
     divisor = Number(divisor);
     if (!_.isNumber(number) || _.isNaN(number)) {
-      throw new Error(_l('被除数不是数字'));
+      throw new Error(getLang('被除数不是数字'));
     }
 
     if (!_.isNumber(divisor) || _.isNaN(divisor)) {
-      throw new Error(_l('除数不是数字'));
+      throw new Error(getLang('除数不是数字'));
     }
 
     if (divisor === 0) {
-      throw new Error(_l('除数不能为0'));
+      throw new Error(getLang('除数不能为0'));
     }
 
     // 处理小数情况下的精度问题
@@ -357,7 +368,7 @@ export const functions = {
   INT: function (value) {
     value = Number(value);
     if (!_.isNumber(value) || _.isNaN(value)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     return Math.floor(value);
@@ -366,7 +377,7 @@ export const functions = {
   ABS: function (value) {
     value = Number(value);
     if (!_.isNumber(value) || _.isNaN(value)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     return Math.abs(value);
@@ -431,7 +442,7 @@ export const functions = {
   SUM: function (...args) {
     args = args.map(item => (_.isUndefined(item) ? 0 : item));
     if (!args.length) {
-      throw new Error(_l('没有参数'));
+      throw new Error(getLang('没有参数'));
     }
 
     return _.sum(args.map(Number));
@@ -463,11 +474,11 @@ export const functions = {
   // 生成重复字符
   REPT: function (char = '*', length = 0) {
     if (length > 10000) {
-      throw new Error(_l('长度太大'));
+      throw new Error(getLang('长度太大'));
     }
 
     if (char === '') {
-      throw new Error(_l('重复字符不能为空'));
+      throw new Error(getLang('重复字符不能为空'));
     }
 
     let result = '';
@@ -802,12 +813,12 @@ export const functions = {
     }
 
     if (!isDateStr(start_date)) {
-      throw new Error(_l('开始日期不是日期类型'));
+      throw new Error(getLang('开始日期不是日期类型'));
     }
 
     days = Number(days);
     if (isNaN(days)) {
-      throw new Error(_l('天数必须是数字'));
+      throw new Error(getLang('天数必须是数字'));
     }
 
     const start = dayjs(start_date);
@@ -834,12 +845,12 @@ export const functions = {
     }
 
     if (!isDateStr(start_date)) {
-      throw new Error(_l('开始日期不是日期类型'));
+      throw new Error(getLang('开始日期不是日期类型'));
     }
 
     days = Number(days);
     if (isNaN(days)) {
-      throw new Error(_l('天数必须是数字'));
+      throw new Error(getLang('天数必须是数字'));
     }
 
     // 定义周末设置
@@ -900,7 +911,7 @@ export const functions = {
     }
 
     if (!isDateStr(date)) {
-      throw new Error(_l('日期不是日期类型'));
+      throw new Error(getLang('日期不是日期类型'));
     }
 
     const d = dayjs(date);
@@ -957,7 +968,7 @@ export const functions = {
   NORM_S_DIST: function (z, cumulative = true) {
     z = Number(z);
     if (!_.isNumber(z) || _.isNaN(z)) {
-      throw new Error(_l('参数不是数字'));
+      throw new Error(getLang('参数不是数字'));
     }
 
     if (cumulative) {
@@ -988,15 +999,15 @@ export const functions = {
     number_chosen = Number(number_chosen);
 
     if (!_.isNumber(number) || _.isNaN(number) || number < 0 || !Number.isInteger(number)) {
-      throw new Error(_l('总对象数必须是非负整数'));
+      throw new Error(getLang('总对象数必须是非负整数'));
     }
 
     if (!_.isNumber(number_chosen) || _.isNaN(number_chosen) || number_chosen < 0 || !Number.isInteger(number_chosen)) {
-      throw new Error(_l('选择对象数必须是非负整数'));
+      throw new Error(getLang('选择对象数必须是非负整数'));
     }
 
     if (number_chosen > number) {
-      throw new Error(_l('选择对象数不能大于总对象数'));
+      throw new Error(getLang('选择对象数不能大于总对象数'));
     }
 
     // 计算排列数 P(n,k) = n! / (n-k)!
@@ -1015,15 +1026,15 @@ export const functions = {
     number_chosen = Number(number_chosen);
 
     if (!_.isNumber(number) || _.isNaN(number) || number < 0 || !Number.isInteger(number)) {
-      throw new Error(_l('总对象数必须是非负整数'));
+      throw new Error(getLang('总对象数必须是非负整数'));
     }
 
     if (!_.isNumber(number_chosen) || _.isNaN(number_chosen) || number_chosen < 0 || !Number.isInteger(number_chosen)) {
-      throw new Error(_l('选择对象数必须是非负整数'));
+      throw new Error(getLang('选择对象数必须是非负整数'));
     }
 
     if (number_chosen > number) {
-      throw new Error(_l('选择对象数不能大于总对象数'));
+      throw new Error(getLang('选择对象数不能大于总对象数'));
     }
 
     // 优化计算组合数 C(n,k) = n! / (k! * (n-k)!)

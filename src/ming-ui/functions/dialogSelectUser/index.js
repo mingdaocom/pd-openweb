@@ -119,7 +119,7 @@ class DialogSelectUser extends Component {
 
     return (
       <div className="dialogSelectTitleContainer">
-        <Icon icon="topbar-addressList" className="Font16 ThemeColor3" />
+        <Icon icon="topbar-addressList" className="Font16 colorPrimary" />
         <Dropdown
           data={list}
           value={curValue}

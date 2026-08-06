@@ -11,7 +11,7 @@ import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { changeAppColor } from 'src/pages/PageHeader/redux/action';
 import store from 'src/redux/configureStore';
 import socketInit from 'src/socket';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import './index.less';
 
 const isMobile = browserIsMobile();
@@ -54,7 +54,7 @@ export default class EmbedPage extends Component {
         });
       })
       .catch(() => {
-        location.href = '/login';
+        location.href = pathCompletion('/login');
       });
     socketInit();
   }

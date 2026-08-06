@@ -451,7 +451,7 @@ export default function RowHead(props) {
         (() => {
           const btn = (
             <OpenRecordBtn className="openRecord" onClick={() => onOpenRecord()}>
-              <i className="icon icon-worksheet_enlarge Hand ThemeHoverColor3" />
+              <i className="icon icon-worksheet_enlarge Hand hoverColorPrimary" />
             </OpenRecordBtn>
           );
 

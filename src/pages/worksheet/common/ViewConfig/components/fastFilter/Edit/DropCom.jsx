@@ -24,7 +24,7 @@ export default function DropCom(props) {
     ? ['filterType'].includes(data.key) && data.keys.includes(type) && control[data.key] === 0
       ? FILTER_CONDITION_TYPE.DATE_BETWEEN //兼容老数据的默认值
       : control[data.key]
-    : (!advancedSetting[data.key] ? '' : JSON.parse(advancedSetting[data.key])) || data.default;
+    : (!advancedSetting[data.key] ? '' : safeParse(advancedSetting[data.key])) || data.default;
   return (
     <React.Fragment>
       <div className="title">{data.txt}</div>

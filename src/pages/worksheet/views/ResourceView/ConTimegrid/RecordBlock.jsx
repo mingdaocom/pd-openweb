@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
-import { browserIsMobile, emitter } from 'src/utils/common';
+import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { lineHeight, timeWidth, timeWidthHalf, types } from '../config';
 import { getTops } from '../util';
@@ -113,20 +113,6 @@ export default function RecordBlock(props) {
     $ref.current.style.left = `${left}px`;
     $ref.current.style.width = `${width}px`;
   }, [props.row]);
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
-    if (needRefresh.current) {
-      needRefresh.current = false;
-      refresh();
-    }
-  };
 
   const handleMouseDown = event => {
     event.stopPropagation();
@@ -164,7 +150,9 @@ export default function RecordBlock(props) {
         handleRecordClick(view, props.row, () => {
           $ref.current.style.top = `${top}px`;
           if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
-            window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
+            window.location.href = pathCompletion(
+              `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`,
+            );
             return;
           }
 
@@ -301,11 +289,12 @@ export default function RecordBlock(props) {
             ? () => {
                 handleRecordClick(view, props.row, () => {
                   if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
-                    window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
+                    window.location.href = pathCompletion(
+                      `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`,
+                    );
                     return;
                   }
 
-                  handlePushState('page', 'recordDetail');
                   setState({ recordInfoVisible: true });
                   addBehaviorLog('worksheetRecord', worksheetId, { rowId: props.row.rowid }); // 埋点
                 });
@@ -363,6 +352,7 @@ export default function RecordBlock(props) {
             appId={appId}
             worksheetId={worksheetId}
             enablePayment={worksheetInfo.enablePayment}
+            worksheetInfo={worksheetInfo}
             viewId={viewId}
             rowId={props.row.rowid}
             onClose={() => {

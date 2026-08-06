@@ -89,9 +89,11 @@ const Wrap = styled.div`
 `;
 
 class SideNav extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    const { params = {} } = nextProps.match;
-    !params.type ? localStorage.removeItem('pluginUrl') : safeLocalStorageSetItem(`pluginUrl`, params.type);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { params = {} } = this.props.match;
+      !params.type ? localStorage.removeItem('pluginUrl') : safeLocalStorageSetItem(`pluginUrl`, params.type);
+    }
   }
   render() {
     const { match = { params: {} }, noAssistantAuth, currentProjectId } = this.props;

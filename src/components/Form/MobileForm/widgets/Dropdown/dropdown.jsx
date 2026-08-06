@@ -1,4 +1,4 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, memo, useMemo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -19,22 +19,40 @@ const OptionsWrap = styled.div`
 
 const Dropdown = props => {
   const { value, disabled, advancedSetting = {}, enumDefault2, options, hint, selectProps = {}, formDisabled } = props;
-  const { readonlyshowall } = advancedSetting;
+  const { checkIds, otherValue } = useMemo(() => getCheckAndOther(value), [value]);
+  const selectedKeySet = useMemo(() => new Set(checkIds), [checkIds]);
+  const { visibleOptions, deletedOptions } = useMemo(() => {
+    return options.reduce(
+      (result, item) => {
+        if (item.isDeleted || item.hide) {
+          result.deletedOptions.push(item);
+        } else {
+          result.visibleOptions.push(item);
+        }
 
-  let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
-  const delOptions = options.filter(item => item.isDeleted || item.hide);
-  const { checkIds } = getCheckAndOther(value);
-  const readOnlyShow = readonlyshowall === '1' && disabled;
+        return result;
+      },
+      { visibleOptions: [], deletedOptions: [] },
+    );
+  }, [options]);
+  const optionsWithAdded = useMemo(() => {
+    const list = visibleOptions.slice();
 
-  checkIds.forEach(item => {
-    if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
-      noDelOptions.push({ key: item, color: 'var(--color-primary)', value: item.split('add_')[1] });
-    }
-  });
-  const mobileCheckItems = noDelOptions.concat(delOptions).filter(i => _.includes(checkIds, i.key));
+    checkIds.forEach(item => {
+      if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
+        list.push({ key: item, color: 'var(--color-primary)', value: item.split('add_')[1] });
+      }
+    });
+
+    return list;
+  }, [visibleOptions, checkIds, selectProps.noPushAdd_]);
+  const allOptions = useMemo(() => optionsWithAdded.concat(deletedOptions), [optionsWithAdded, deletedOptions]);
+  const selectedOptions = useMemo(
+    () => allOptions.filter(item => selectedKeySet.has(item.key)),
+    [allOptions, selectedKeySet],
+  );
 
   const renderItem = (item, inPopup = false) => {
-    const { otherValue } = getCheckAndOther(value);
     const content = item.key === 'other' && otherValue && disabled ? otherValue : item.value;
 
     if (enumDefault2 === 1) {
@@ -57,12 +75,12 @@ const Dropdown = props => {
       <MobileRadio
         disabled={disabled}
         allowAdd={advancedSetting.allowadd === '1'}
-        data={noDelOptions}
-        delOptions={delOptions}
+        data={optionsWithAdded}
+        delOptions={deletedOptions}
         callback={onChange}
         renderText={item => renderItem(item, true)}
         {...props}
-        value={mobileCheckItems}
+        value={selectedOptions}
       >
         <div
           className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
@@ -71,15 +89,10 @@ const Dropdown = props => {
           })}
         >
           <OptionsWrap>
-            {readOnlyShow ? (
-              noDelOptions.map(item => <div key={item.key}>{renderItem(item)}</div>)
-            ) : checkIds.length ? (
-              noDelOptions
-                .concat(delOptions)
-                .filter(item => _.includes(checkIds, item.key))
-                .map(item => {
-                  return <div key={item.key}>{renderItem(item)}</div>;
-                })
+            {checkIds.length ? (
+              selectedOptions.map(item => {
+                return <div key={item.key}>{renderItem(item)}</div>;
+              })
             ) : (
               <span className="textDisabled">{hint || _l('请选择')}</span>
             )}

@@ -92,7 +92,7 @@ export const RestoreContent = props => {
           checked={backupCurrentVersion}
           onClick={checked => {
             if (validLimit !== -1 && currentValid >= validLimit) {
-              alert('备份文件已达上限，升级旗舰版可以无限备份', 3);
+              alert(_l('备份文件已达上限，升级旗舰版可以无限备份'), 3);
               return;
             }
 

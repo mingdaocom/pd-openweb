@@ -3,20 +3,18 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import MobilePhoneEdit from 'src/components/Form/DesktopForm/widgets/MobilePhone';
+import ClickAway from 'ming-ui/components/ClickAway';
+import PhoneNumberInput from 'ming-ui/components/PhoneNumberInput';
 import { emitter } from 'src/utils/common';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { formatNumberFromInput } from 'src/utils/control';
 import { renderText } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import EditableCellCon from '../EditableCellCon';
-import CellErrorTips from './comps/CellErrorTip';
+import CellErrorTips, { CellErrorTipTrigger } from './comps/CellErrorTip';
 import { FROM } from './enum';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class MobilePhone extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -40,36 +38,35 @@ export default class MobilePhone extends React.Component {
     };
   }
 
-  editRef = React.createRef();
-
-  get editPhoneObj() {
-    try {
-      return this.editRef.current?.iti || undefined;
-    } catch (err) {
-      console.log(err);
-      return undefined;
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value });
-    }
-    if (nextProps.isediting && !this.props.isediting) {
-      window.cellTextIsBlurring = true;
-    } else if (!nextProps.isediting && this.props.isediting) {
-      window.cellTextIsBlurring = false;
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    if (!prevProps.isediting && this.props.isediting) {
-      this.focus();
+    if (prevProps !== this.props) {
+      // 子表场景：失焦后 ChildTable 的 300ms debounce + DataFormat 清洗会让 cell.value 异步回灌；
+      // 这段窗口内阻断 props → state 同步，避免清洗后的空值覆盖用户输入；窗口结束后正常同步，
+      // 确保外部 row 恢复（如取消保存）能反向覆盖到本地。
+      const rowChanged = !_.isEqual(_.get(this.props, 'row.rowid'), _.get(prevProps, 'row.rowid'));
+      const isSubList = !!this.props.isSubList;
+      const inPostBlurWindow = isSubList && this.postBlurUntil && Date.now() < this.postBlurUntil;
+      const errorCleared = !!prevProps.error && !this.props.error;
+      const allowValueSync = !inPostBlurWindow || rowChanged || errorCleared;
+
+      if (this.props.cell.value !== prevProps.cell.value && allowValueSync) {
+        // 同步重置 tempValue，避免再次进入编辑态时读到上一次的脏输入
+        this.postBlurUntil = null;
+        this.setState({
+          value: this.props.cell.value,
+          tempValue: this.props.cell.value,
+        });
+      }
+
+      if (this.props.isediting && !prevProps.isediting) {
+        window.cellTextIsBlurring = true;
+      } else if (!this.props.isediting && prevProps.isediting) {
+        window.cellTextIsBlurring = false;
+      }
     }
   }
 
   con = React.createRef();
-  input = React.createRef();
 
   handleExit = () => {
     const { cell, updateEditingStatus } = this.props;
@@ -89,29 +86,49 @@ export default class MobilePhone extends React.Component {
     }
   };
 
-  handleBlur = () => {
-    const { error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
+  handleBlur = nextValue => {
+    const { isSubList, error, ignoreErrorMessage, updateCell, updateEditingStatus, onValidate } = this.props;
     const { tempValue, value } = this.state;
+    const finalValue = _.isUndefined(nextValue) ? tempValue : nextValue;
 
     setTimeout(() => {
       window.cellTextIsBlurring = false;
     }, 100);
 
     if (error && !ignoreErrorMessage) {
+      // 子表场景：除唯一性冲突外，保留用户输入并触发 row 更新（让主记录详情表单的 dirty 检测能感知到本次修改）。
+      // DataFormat 会把非法手机号清洗为空，但 state.value 已由 CWRP 闸门锁定，视觉上仍保留用户输入。
+      const validateResult = isSubList && _.isFunction(onValidate) ? onValidate(finalValue) : null;
+      const errorType = validateResult && validateResult.errorType;
+
+      if (isSubList && errorType !== 'UNIQUE') {
+        this.postBlurUntil = Date.now() + 500;
+        updateCell({ value: finalValue });
+        this.setState({ value: finalValue, tempValue: finalValue });
+        updateEditingStatus(false);
+        this.lastBlurTime = null;
+        return;
+      }
+
       this.handleExit();
       return;
     }
 
-    if (tempValue === value) {
+    if (finalValue === value) {
       updateEditingStatus(false);
       return;
     }
 
+    if (isSubList) {
+      this.postBlurUntil = Date.now() + 500;
+    }
+
     updateCell({
-      value: tempValue,
+      value: finalValue,
     });
     this.setState({
-      value: tempValue,
+      value: finalValue,
+      tempValue: finalValue,
     });
     updateEditingStatus(false);
     this.lastBlurTime = null;
@@ -130,14 +147,6 @@ export default class MobilePhone extends React.Component {
     );
   }
 
-  focus(time) {
-    setTimeout(() => {
-      if (this.editPhoneObj) {
-        this.editPhoneObj.telInput.focus();
-      }
-    }, time || 100);
-  }
-
   handleChange = async value => {
     const { onValidate } = this.props;
     onValidate(value);
@@ -151,12 +160,7 @@ export default class MobilePhone extends React.Component {
 
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
-        setTimeout(() => {
-          if (this.editRef && this.editRef.current && this.editRef.current.input) {
-            this.editRef.current.input.value = value;
-            this.handleChange(value);
-          }
-        }, 10);
+        this.handleChange(value);
       });
     };
 
@@ -180,12 +184,7 @@ export default class MobilePhone extends React.Component {
           }
 
           updateEditingStatus(true, () => {
-            setTimeout(() => {
-              if (this.editRef && this.editRef.current && this.editRef.current.input) {
-                this.editRef.current.input.value = value;
-                this.handleChange(value);
-              }
-            }, 10);
+            this.handleChange(value);
             e.stopPropagation();
             e.preventDefault();
           });
@@ -247,51 +246,55 @@ export default class MobilePhone extends React.Component {
       isediting,
       onClick,
       ignoreErrorMessage,
+      isSubList,
     } = this.props;
-    const { value, forceShowFullValue } = this.state;
+    const { value, tempValue, forceShowFullValue } = this.state;
+    // 编辑浮层挂在表格内时，子表第一行的提示朝下展示会落在底部统计行上，需要改挂到表格根容器
+    const editPopupInTable = !window.isSafari && cell.enumDefault !== 0;
+    const showErrorTipAsPopup = isSubList && rowIndex === 0 && editPopupInTable;
+    const errorText = error ? (typeof error === 'string' ? error : _l('不是有效的电话号码')) : '';
     const isCard = from === FROM.CARD;
+    const editValue = isediting ? tempValue : value;
     const editProps = {
-      ref: this.input,
-      value,
+      value: editValue,
       style: {
         width: style.width,
         height: style.height,
-        padding: '7px 0px',
+        padding: '2px 3px 3px 2px',
+        boxSizing: 'border-box',
       },
       onClick: e => e.stopPropagation(),
     };
     const editcontent = (
       <ClickAwayable
         {...editProps}
-        onClickAwayExceptions={[this.editIcon && this.editIcon.current]}
+        onClickAwayExceptions={[this.editIcon && this.editIcon.current, '.mdPhoneDialCodePanel']}
         onClickAway={() => {
           setTimeout(() => {
             this.handleBlur();
           }, 320);
         }}
       >
-        <MobilePhoneEdit
-          isCellEdit
-          isEditing={isediting}
-          inputClassName="cellMobileInput stopPropagation"
-          enumDefault={cell.enumDefault}
-          advancedSetting={cell.advancedSetting}
-          value={value}
-          ref={this.editRef}
+        <PhoneNumberInput
+          control={{ ...cell, value: editValue, disabled: !editable }}
+          isFocused={isediting}
           isCell={true}
+          inputClassName="stopPropagation"
+          className="phoneNumberEditWrapper"
           onChange={this.handleChange}
-          onInputKeydown={this.handleKeydown}
+          onBlur={this.handleBlur}
+          onKeyDown={this.handleKeydown}
         />
-        {error && (
+        {error && !showErrorTipAsPopup && (
           <CellErrorTips
             color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-            error={typeof error === 'string' ? error : _l('不是有效的电话号码')}
+            error={errorText}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
           />
         )}
       </ClickAwayable>
     );
-    return (
+    const editTrigger = (
       <Trigger
         destroyPopupOnHide={!window.isSafari} // 不是 Safari
         action={['click']}
@@ -341,6 +344,21 @@ export default class MobilePhone extends React.Component {
           )}
         </EditableCellCon>
       </Trigger>
+    );
+
+    if (!showErrorTipAsPopup) {
+      return editTrigger;
+    }
+
+    return (
+      <CellErrorTipTrigger
+        visible={isediting}
+        error={errorText}
+        color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+        popupContainer={popupContainer}
+      >
+        {editTrigger}
+      </CellErrorTipTrigger>
     );
   }
 }

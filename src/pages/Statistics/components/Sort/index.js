@@ -6,15 +6,9 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
 import reportConfig from 'statistics/api/reportConfig';
 import { reportTypes } from '../../Charts/common';
-import {
-  formatSorts,
-  getSortData,
-  isCustomSort,
-  isDisplayModes,
-  isTimeControl,
-  renderFieldStyleValue,
-  timeParticleSizeDropdownData,
-} from '../../common';
+import { isDisplayModes, isTimeControl, renderFieldStyleValue } from '../../common/controlUtils';
+import { formatSorts, getSortData, isCustomSort } from '../../common/reportConfigUtils';
+import { timeParticleSizeDropdownData } from '../../common/timeUtils';
 
 const SortContent = styled.div`
   border-radius: 3px;
@@ -90,6 +84,23 @@ const customSort = {
   text: _l('自定义'),
 };
 
+const Y_AXIS_SORT_SUFFIX = '-yaxis';
+const RIGHT_AXIS_SORT_SUFFIX = '-right';
+const SAME_AXIS_SORT_SUFFIXES = [RIGHT_AXIS_SORT_SUFFIX, Y_AXIS_SORT_SUFFIX];
+
+// 排序层最大展开宽度预估，用于打开前判断靠左时是否需要向右展开。
+const SORT_PANEL_SAFE_WIDTH = 360;
+// 排序层与可视边界保留的安全距离，避免贴边或被容器边缘遮挡。
+const SORT_PANEL_EDGE_GAP = 12;
+// antd bottomLeft/bottomRight 默认水平偏移量，参与展开方向的边界计算。
+const SORT_DROPDOWN_OFFSET = 20;
+const SORT_DROPDOWN_ALIGN = {
+  overflow: {
+    adjustX: 1,
+    adjustY: 1,
+  },
+};
+
 const renderSortableItem = ({ item, DragHandle }) => {
   return (
     <CustomSortItemContent className="customSortItem flexRow valignWrapper">
@@ -112,24 +123,120 @@ export default class Sort extends Component {
       customSortLoading: false,
       customSortControl: null,
       customSortValue: null,
+      dropdownPlacement: 'bottomRight',
       rightYaxisList: rightY ? this.setYaxisList(props) : [],
     };
   }
-  componentWillReceiveProps(nextProps) {
-    const { rightY } = nextProps.currentReport;
-    this.setState({
-      rightYaxisList: rightY ? this.setYaxisList(nextProps) : [],
-    });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { rightY } = this.props.currentReport;
+      this.setState({
+        rightYaxisList: rightY ? this.setYaxisList(this.props) : [],
+      });
+    }
   }
+  getAxisSortId = axis => {
+    if (!axis || !axis.controlId) return null;
+
+    return axis.particleSizeType ? `${axis.controlId}-${axis.particleSizeType}` : axis.controlId;
+  };
+  getOriginalSortId = id => {
+    if (!_.isString(id)) return id;
+
+    const suffix = _.find(SAME_AXIS_SORT_SUFFIXES, suffix => id.endsWith(suffix));
+    return suffix ? id.slice(0, -suffix.length) : id;
+  };
+  getYaxisSortId = (item, xaxes) => {
+    const controlId = _.get(item, 'controlId');
+
+    if (!controlId) return controlId;
+
+    return this.getAxisSortId(xaxes) === controlId ? `${controlId}${Y_AXIS_SORT_SUFFIX}` : controlId;
+  };
+  getYaxisSortItem = (item, xaxes) => {
+    const controlId = this.getYaxisSortId(item, xaxes);
+
+    return controlId === item.controlId
+      ? item
+      : {
+          ...item,
+          originalControlId: item.controlId,
+          controlId,
+        };
+  };
+  getSortKey = item => Object.keys(item || {})[0];
+  hasSortValue = value => !!value || _.isArray(value);
+  normalizeSorts = (sorts, ids) => {
+    const sortQueues = {};
+
+    (sorts || []).forEach(item => {
+      const key = this.getSortKey(item);
+      if (!key) return;
+
+      if (!sortQueues[key]) {
+        sortQueues[key] = [];
+      }
+
+      sortQueues[key].push(item);
+    });
+
+    return ids
+      .filter(id => id)
+      .map(id => {
+        const originalId = this.getOriginalSortId(id);
+        let item = sortQueues[id] && sortQueues[id].shift();
+
+        if (!item && originalId !== id) {
+          item = sortQueues[originalId] && sortQueues[originalId].shift();
+        }
+
+        if (!item) return null;
+
+        const key = this.getSortKey(item);
+        const value = item[key];
+
+        return this.hasSortValue(value)
+          ? {
+              [id]: value,
+            }
+          : null;
+      })
+      .filter(item => item);
+  };
+  getReportSortIds = () => {
+    const { reportType, currentReport } = this.props;
+    const { xaxes = {}, yaxisList = [], split = {}, rightY, pivotTable } = currentReport;
+    const isPivotTable = reportType === reportTypes.PivotTable;
+
+    if (isPivotTable) {
+      const { lines = [], columns = [] } = pivotTable || {};
+      const formatPivotId = item =>
+        isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId;
+      return [...lines.map(formatPivotId), ...columns.map(formatPivotId), ...yaxisList.map(item => item.controlId)];
+    }
+
+    const xaxesId = this.getAxisSortId(xaxes);
+    const yList = yaxisList.map(item => this.getYaxisSortId(item, xaxes));
+    const splitId = this.getAxisSortId(split);
+    const rightYList = rightY ? this.setYaxisList(this.props).map(item => item.controlId) : [];
+    const rightYSplitId = rightY ? this.getAxisSortId(rightY.split) : null;
+
+    return [xaxesId, ...yList, splitId, ...rightYList, rightYSplitId];
+  };
+  getSorts = () => {
+    const { sorts = [] } = this.props.currentReport;
+
+    return this.normalizeSorts(sorts, this.getReportSortIds());
+  };
   setYaxisList = props => {
-    const { yaxisList, rightY } = props.currentReport;
-    const ySameList = _.filter(yaxisList, item => _.find(rightY.yaxisList, { controlId: item.controlId })).map(
-      item => item.controlId,
-    );
+    const { xaxes = {}, yaxisList = [], rightY } = props.currentReport;
+    const sameAxisIds = [this.getAxisSortId(xaxes), ...yaxisList.map(item => item.controlId)].filter(id => id);
+
     return _.cloneDeep(rightY.yaxisList).map(item => {
-      if (ySameList.includes(item.controlId)) {
+      if (sameAxisIds.includes(item.controlId)) {
         item.originalControlId = item.controlId;
-        item.controlId = `${item.controlId}-right`;
+        item.controlId = `${item.controlId}${RIGHT_AXIS_SORT_SUFFIX}`;
       }
 
       return item;
@@ -140,7 +247,7 @@ export default class Sort extends Component {
     const isPivotTable = reportType === reportTypes.PivotTable;
     const { xaxes, yaxisList, rightY, split = {} } = currentReport;
 
-    const yList = yaxisList.map(item => item.controlId);
+    const yList = yaxisList.map(item => this.getYaxisSortId(item, xaxes));
 
     if (isPivotTable) {
       const { pivotTable = { lines: [], columns: [] } } = currentReport;
@@ -152,19 +259,11 @@ export default class Sort extends Component {
       );
       sorts = formatSorts(sorts, [...lines, ...columns, ...yList]);
     } else {
-      const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
-      const rightYList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
-      const splitId = split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId;
-      const rightYSplitId = rightY
-        ? rightY.split.particleSizeType
-          ? `${rightY.split.controlId}-${rightY.split.particleSizeType}`
-          : rightY.split.controlId
-        : null;
-      const ySameList = _.filter(yList, id => rightYList.includes(id)).map(item => item);
-      const newRightYList = rightYList.map(id => {
-        return ySameList.includes(id) ? `${id}-right` : id;
-      });
-      sorts = formatSorts(sorts, [xaxesId, ...yList, splitId, ...newRightYList, rightYSplitId], ySameList);
+      const xaxesId = this.getAxisSortId(xaxes);
+      const splitId = this.getAxisSortId(split);
+      const rightYList = rightY ? this.setYaxisList(this.props).map(item => item.controlId) : [];
+      const rightYSplitId = rightY ? this.getAxisSortId(rightY.split) : null;
+      sorts = formatSorts(sorts, [xaxesId, ...yList, splitId, ...rightYList, rightYSplitId]);
     }
 
     this.props.onChangeCurrentReport({
@@ -181,32 +280,66 @@ export default class Sort extends Component {
     if (isPivotTable) {
       this.handleChangePivotTableSort(sortListKey, { controlId: currentCustomSort });
     } else {
-      if (currentCustomSort === xaxes.controlId) {
-        this.handleChangeXSort(sortListKey, { controlId: xaxes.controlId });
-      }
+      const xaxesId = this.getAxisSortId(xaxes);
+      const splitId = this.getAxisSortId(split);
+      const yaxisSortIds = yaxisList.map(item => this.getYaxisSortId(item, xaxes));
+      const rightYaxisSortIds = rightY ? this.setYaxisList(this.props).map(item => item.controlId) : [];
+      const rightYSplitId = rightY ? this.getAxisSortId(rightY.split) : null;
 
-      if (currentCustomSort === split.controlId) {
-        this.handleChangeYSort(sortListKey, { controlId: split.controlId });
-      }
-
-      if (rightY && currentCustomSort === rightY.split.controlId) {
-        const ySameList = _.filter(yaxisList, item => _.find(rightY.yaxisList, { controlId: item.controlId })).map(
-          item => item.controlId,
-        );
-        this.handleChangeYSort(sortListKey, {
-          controlId: ySameList.includes(rightY.split.controlId)
-            ? `${rightY.split.controlId}-right`
-            : rightY.split.controlId,
-        });
+      if (currentCustomSort === xaxesId) {
+        this.handleChangeXSort(sortListKey, { controlId: xaxesId });
+      } else if ([...yaxisSortIds, splitId, ...rightYaxisSortIds, rightYSplitId].includes(currentCustomSort)) {
+        this.handleChangeYSort(sortListKey, { controlId: currentCustomSort });
       }
     }
 
     this.setState({ currentCustomSort: null, visible: true });
   };
-  handleChangeVisible = () => {
-    const { visible } = this.state;
+  handleChangeVisible = visible => {
     this.setState({
-      visible: !visible,
+      visible,
+    });
+  };
+  getDropdownBoundaryLeft = triggerNode => {
+    const boundaryNode = triggerNode.closest('.StatisticsPanel, .GlobalStatisticsPanel, .chartModal, .statisticsCard');
+
+    if (!boundaryNode) {
+      return 0;
+    }
+
+    return Math.max(boundaryNode.getBoundingClientRect().left, 0);
+  };
+  updateDropdownPlacement = triggerNode => {
+    if (!triggerNode || !triggerNode.getBoundingClientRect) {
+      return;
+    }
+
+    const rect = triggerNode.getBoundingClientRect();
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    const triggerCenterX = rect.left + rect.width / 2;
+    const boundaryLeft = this.getDropdownBoundaryLeft(triggerNode);
+    const bottomRightLeft = triggerCenterX + SORT_DROPDOWN_OFFSET - SORT_PANEL_SAFE_WIDTH;
+    const bottomLeftRight = triggerCenterX - SORT_DROPDOWN_OFFSET + SORT_PANEL_SAFE_WIDTH;
+    const dropdownPlacement =
+      bottomRightLeft < boundaryLeft + SORT_PANEL_EDGE_GAP && bottomLeftRight <= viewportWidth - SORT_PANEL_EDGE_GAP
+        ? 'bottomLeft'
+        : 'bottomRight';
+
+    if (dropdownPlacement !== this.state.dropdownPlacement) {
+      this.setState({ dropdownPlacement });
+    }
+  };
+  renderTrigger = () => {
+    const child = React.Children.only(this.props.children);
+
+    return React.cloneElement(child, {
+      onClick: event => {
+        this.updateDropdownPlacement(event.currentTarget);
+
+        if (_.isFunction(child.props.onClick)) {
+          child.props.onClick(event);
+        }
+      },
     });
   };
   handleChangeCustomSortValue = () => {
@@ -222,12 +355,13 @@ export default class Sort extends Component {
   };
   getCustomSort = value => {
     const { reportId, pageId, sourceType, currentReport, reportData } = this.props;
-    const { controlId, controlType, displayMode } = this.state.customSortControl;
+    const { controlId, sortControlId = controlId, controlType, displayMode } = this.state.customSortControl;
+    const sortValue = value && (_.has(value, sortControlId) ? value[sortControlId] : value[controlId]);
     const isFieldStyle = isDisplayModes(controlType) && displayMode === 'fieldStyle';
 
     this.setState({
       customSortLoading: true,
-      customSortValue: value && _.isNumber(value[controlId]) ? value[controlId] : null,
+      customSortValue: _.isNumber(sortValue) ? sortValue : null,
     });
 
     reportConfig
@@ -240,7 +374,7 @@ export default class Sort extends Component {
         owner: reportData.owner,
         sourceType,
         filter: currentReport.filter,
-        sort: value,
+        sort: value ? { [controlId]: sortValue } : value,
       })
       .then(result => {
         const { valueMap } = reportData;
@@ -267,11 +401,12 @@ export default class Sort extends Component {
   };
   handleChangeXSort = (value, { controlId }) => {
     const { currentReport } = this.props;
-    const { yaxisList, split = {}, sorts, displaySetup } = currentReport;
+    const { yaxisList, split = {}, displaySetup } = currentReport;
+    const sorts = this.getSorts();
     const isExclusion = _.isEmpty(split.controlId);
 
     if (sorts.length) {
-      const currentEmpty = _.isEmpty(_.find(sorts, controlId));
+      const currentEmpty = _.isEmpty(_.find(sorts, item => _.has(item, controlId)));
 
       if (currentEmpty) {
         sorts.push({
@@ -281,7 +416,7 @@ export default class Sort extends Component {
 
       const newSorts = sorts
         .map(n => {
-          if (n[controlId]) {
+          if (_.has(n, controlId)) {
             if (value) {
               n[controlId] = value;
               return n;
@@ -289,7 +424,7 @@ export default class Sort extends Component {
               return null;
             }
           } else {
-            if (displaySetup.isPile && yaxisList[0].controlId == _.findKey(n)) {
+            if (displaySetup.isPile && yaxisList[0].controlId == this.getOriginalSortId(this.getSortKey(n))) {
               return isExclusion || displaySetup.isPile ? null : n;
             } else {
               return isExclusion ? null : n;
@@ -304,13 +439,15 @@ export default class Sort extends Component {
   };
   handleChangeYSort = (value, { controlId }) => {
     const { reportType, currentReport } = this.props;
-    const { yaxisList, split, sorts, xaxes, displaySetup } = currentReport;
+    const { yaxisList, split, xaxes, displaySetup } = currentReport;
+    const sorts = this.getSorts();
     const isPivotTable = reportType === reportTypes.PivotTable;
+    const isTopChart = reportType === reportTypes.TopChart;
     const isExclusion = _.isEmpty(split && split.controlId);
-    const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
+    const xaxesId = this.getAxisSortId(xaxes);
 
     if (sorts.length) {
-      const currentEmpty = _.isEmpty(_.find(sorts, controlId));
+      const currentEmpty = _.isEmpty(_.find(sorts, item => _.has(item, controlId)));
 
       if (currentEmpty) {
         sorts.push({
@@ -319,25 +456,25 @@ export default class Sort extends Component {
       }
 
       const newSorts = sorts.map(n => {
-        if (n[controlId]) {
+        if (_.has(n, controlId)) {
           if (value) {
             n[controlId] = value;
             return n;
           } else {
             return null;
           }
-        } else if (n[xaxesId]) {
-          if (displaySetup.isPile && yaxisList[0].controlId == controlId) {
+        } else if (_.has(n, xaxesId)) {
+          if (displaySetup.isPile && yaxisList[0].controlId == this.getOriginalSortId(controlId)) {
             return isExclusion || displaySetup.isPile ? null : n;
           } else {
             return isExclusion ? null : n;
           }
         } else {
           if (isPivotTable) {
-            const key = _.findKey(n);
+            const key = this.getOriginalSortId(this.getSortKey(n));
             return _.find(yaxisList, { controlId: key }) ? null : n;
           } else {
-            if (displaySetup.isPile) {
+            if (displaySetup.isPile || isTopChart) {
               return n;
             } else {
               return null;
@@ -351,10 +488,10 @@ export default class Sort extends Component {
     }
   };
   handleChangePivotTableSort = (value, { controlId }) => {
-    const { sorts } = this.props.currentReport;
+    const sorts = this.getSorts();
 
     if (sorts.length) {
-      const currentEmpty = _.isEmpty(_.find(sorts, controlId));
+      const currentEmpty = _.isEmpty(_.find(sorts, item => _.has(item, controlId)));
 
       if (currentEmpty) {
         sorts.push({
@@ -363,7 +500,7 @@ export default class Sort extends Component {
       }
 
       const newSorts = sorts.map(n => {
-        if (n[controlId]) {
+        if (_.has(n, controlId)) {
           if (value) {
             n[controlId] = value;
             return n;
@@ -383,10 +520,9 @@ export default class Sort extends Component {
     this.setState({ sortList: newSortList, customSortValue: null });
   };
   renderItem(item, fn, index) {
-    const { currentReport } = this.props;
-    const { sorts } = currentReport;
+    const sorts = this.getSorts();
     const sortData = isCustomSort(item) && index !== 3 ? [...getSortData(item), customSort] : getSortData(item);
-    const sortsItem = _.find(sorts, item.controlId);
+    const sortsItem = _.find(sorts, sort => _.has(sort, item.controlId));
     const value = sortsItem ? sortsItem[item.controlId] : 0;
 
     if (_.isEmpty(sortData)) {
@@ -413,8 +549,9 @@ export default class Sort extends Component {
                       currentCustomSort: item.controlId,
                       visible: false,
                       customSortControl: {
-                        controlId: item.originalControlId || item.controlId,
                         ...item,
+                        controlId: item.originalControlId || this.getOriginalSortId(item.controlId),
+                        sortControlId: item.controlId,
                       },
                     },
                     () => {
@@ -467,7 +604,7 @@ export default class Sort extends Component {
             {
               ...xaxes,
               originalControlId: xaxes.controlId,
-              controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
+              controlId: this.getAxisSortId(xaxes),
             },
             this.handleChangeXSort,
             0,
@@ -502,14 +639,14 @@ export default class Sort extends Component {
             )}
           </Fragment>
         )}
-        {yaxisList.map(yItem => this.renderItem(yItem, this.handleChangeYSort, 3))}
+        {yaxisList.map(yItem => this.renderItem(this.getYaxisSortItem(yItem, xaxes), this.handleChangeYSort, 3))}
         {split &&
           split.controlId &&
           this.renderItem(
             {
               ...split,
               originalControlId: split.controlId,
-              controlId: split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId,
+              controlId: this.getAxisSortId(split),
             },
             this.handleChangeYSort,
             4,
@@ -521,9 +658,7 @@ export default class Sort extends Component {
             {
               ...rightY.split,
               originalControlId: rightY.split.controlId,
-              controlId: rightY.split.particleSizeType
-                ? `${rightY.split.controlId}-${rightY.split.particleSizeType}`
-                : rightY.split.controlId,
+              controlId: this.getAxisSortId(rightY.split),
             },
             this.handleChangeYSort,
             6,
@@ -553,8 +688,7 @@ export default class Sort extends Component {
     ].includes(reportType);
   };
   render() {
-    const { visible, currentCustomSort, customSortValue, sortList, customSortLoading } = this.state;
-    const { children } = this.props;
+    const { visible, currentCustomSort, customSortValue, sortList, customSortLoading, dropdownPlacement } = this.state;
     const sortListHeight = sortList.length * 38;
     const Content = this.renderContent();
     if (!this.isRenderSort) return null;
@@ -566,9 +700,11 @@ export default class Sort extends Component {
             onVisibleChange={this.handleChangeVisible}
             overlay={Content}
             trigger={['click']}
-            placement="bottomRight"
+            placement={dropdownPlacement}
+            align={SORT_DROPDOWN_ALIGN}
+            getPopupContainer={() => document.body}
           >
-            {children}
+            {this.renderTrigger()}
           </Dropdown>
         )}
         <Modal

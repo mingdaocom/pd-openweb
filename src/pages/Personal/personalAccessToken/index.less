@@ -1,0 +1,248 @@
+.personalAccessTokenPage {
+  flex: 1;
+  min-height: 0;
+  padding: 24px 24px 0;
+  background: var(--color-background-primary);
+  overflow: auto;
+
+  .tipBar {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 14px;
+    min-height: 46px;
+    border-radius: 4px;
+    background: var(--color-warning-bg);
+    color: var(--color-text-title);
+
+    .tipIcon {
+      color: var(--color-warning);
+    }
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 22px 0 18px;
+  }
+
+  .tokenTableWrap {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .patPageTable {
+    width: 100%;
+    min-height: 0;
+
+    .ant-table-tbody > tr > td {
+      height: 64px;
+    }
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .statusBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 20px;
+
+    &.active {
+      color: var(--color-success);
+      background: var(--color-success-bg);
+    }
+
+    &.expired {
+      color: var(--color-text-secondary);
+      background: var(--color-background-tertiary);
+    }
+
+    &.invalid {
+      color: var(--color-error);
+      background: var(--color-error-bg);
+    }
+  }
+
+  .statusWarn {
+    color: var(--color-warning);
+    font-size: 16px;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    width: 100%;
+  }
+
+  .actionIcon {
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-size: 20px;
+
+    &.delete:hover {
+      color: var(--color-error);
+    }
+
+    &:hover {
+      color: var(--color-link);
+    }
+  }
+}
+
+.personalAccessTokenDrawer {
+  .ant-drawer-content-wrapper {
+    box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
+  }
+
+  .ant-drawer-header {
+    border-color: var(--color-border-secondary);
+    padding: 14px 24px;
+
+    .ant-drawer-header-title {
+      flex-direction: row-reverse;
+
+      .ant-drawer-title {
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .ant-drawer-close {
+        margin-right: -12px;
+      }
+    }
+  }
+
+  .ant-drawer-body {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ant-drawer-footer {
+    padding: 12px 24px;
+    border-color: var(--color-border-secondary);
+  }
+
+  .dialogContent {
+    height: 100%;
+    padding: 18px 24px 24px;
+    overflow: auto;
+  }
+
+  .drawerFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .formItem {
+    margin-bottom: 22px;
+  }
+
+  .label {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+
+    &.required::before {
+      content: '*';
+      margin-right: 4px;
+      color: var(--color-error);
+    }
+  }
+
+  .scopeRadio {
+    .Radio {
+      margin-right: 34px !important;
+    }
+  }
+
+  .projectSelect.mdAntSelect.ant-select-multiple {
+    .ant-select-selector {
+      height: auto !important;
+      min-height: 36px;
+      padding: 2px 4px !important;
+    }
+
+    .ant-select-selection-overflow {
+      min-height: 30px;
+    }
+
+    &.ant-select-disabled {
+      .ant-select-selection-item {
+        color: var(--color-text-secondary) !important;
+      }
+    }
+  }
+
+  .specifyAppWrap {
+    margin-top: 12px;
+  }
+
+  .addAppRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .addAppBtn {
+    color: var(--color-link);
+  }
+
+  .authAppList {
+    max-width: 100%;
+
+    .appList {
+      height: 160px;
+    }
+  }
+
+  .customDatePicker.ant-picker {
+    width: 100%;
+    height: 36px;
+  }
+}
+
+.patProjectSelectDropdown {
+  .allProjectsOption {
+    display: flex;
+    align-items: center;
+    line-height: 32px;
+  }
+
+  .allProjectsDesc {
+    font-size: 12px;
+    margin-left: 24px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.successPatDialog {
+  .tokenResult {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    background: var(--color-background-tertiary);
+  }
+
+  .copyResultIcon {
+    cursor: pointer;
+    color: var(--color-text-secondary);
+  }
+}

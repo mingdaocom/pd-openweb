@@ -1,23 +1,16 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { componentCountLimit, getEnumType } from '../../util';
-import Analysis from './analysis';
-import ButtonComp from './button';
-import Carousel from './carousel';
-import EmbedUrl from './EmbedUrl';
-import Filter from './filter';
-import RichText from './richText';
-import View from './view';
 
 const TYPE_TO_COMPONENTS = {
-  embedUrl: EmbedUrl,
-  analysis: Analysis,
-  button: ButtonComp,
-  view: View,
-  richText: RichText,
-  filter: Filter,
-  carousel: Carousel,
+  embedUrl: lazy(() => import('./EmbedUrl')),
+  analysis: lazy(() => import('./analysis')),
+  button: lazy(() => import('./button')),
+  view: lazy(() => import('./view')),
+  richText: lazy(() => import('./richText')),
+  filter: lazy(() => import('./filter')),
+  carousel: lazy(() => import('./carousel')),
 };
 
 function EditWidget(props) {
@@ -48,10 +41,16 @@ function EditWidget(props) {
     updateWidget({ widget, ...obj });
   };
 
-  return <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} updateWidget={updateWidget} />;
+  if (!Comp) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} updateWidget={updateWidget} />
+    </Suspense>
+  );
 }
 
-export default errorBoundary(
+export default ErrorBoundary.wrap(
   connect(({ appPkg, customPage }) => ({
     appPkg: appPkg,
     projectId: appPkg.projectId,

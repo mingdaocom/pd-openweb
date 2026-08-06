@@ -209,7 +209,7 @@ export default class CreateFolder extends Component {
           <div className="flex">
             <div className="createFolderHead relative Font13">
               {_l('模板预览')}
-              <span className="createFolderReturn ThemeColor3" onClick={() => this.props.onClose()}>
+              <span className="createFolderReturn colorPrimary" onClick={() => this.props.onClose()}>
                 <i className="mRight5 icon-backspace" />
                 {_l('返回')}
               </span>
@@ -234,7 +234,7 @@ export default class CreateFolder extends Component {
               <input
                 type="text"
                 id="folderName"
-                className="ThemeBorderColor3 boxSizing"
+                className="borderColorPrimary boxSizing"
                 maxLength="100"
                 onKeyDown={evt => this.folderNameKeyDown(evt)}
                 placeholder={_l('请输入项目名称')}
@@ -261,7 +261,7 @@ export default class CreateFolder extends Component {
                   {md.global.Account.projects.map((project, i) => {
                     return (
                       <li
-                        className="ThemeBGColor3"
+                        className="bgColorPrimary"
                         key={i}
                         onClick={() => this.networkSelect(project.projectId, project.companyName)}
                       >
@@ -270,7 +270,7 @@ export default class CreateFolder extends Component {
                       </li>
                     );
                   })}
-                  <li className="ThemeBGColor3" onClick={() => this.networkSelect('', _l('个人'))}>
+                  <li className="bgColorPrimary" onClick={() => this.networkSelect('', _l('个人'))}>
                     <i className="icon-charger" />
                     {_l('个人')}
                   </li>
@@ -291,13 +291,15 @@ export default class CreateFolder extends Component {
                 <ul
                   className={cx('createFolderRangeBox boderRadAll_3 boxShadow5', { Hidden: !this.state.showRangeBox })}
                 >
-                  <li className="ThemeBGColor3" onClick={() => this.rangeSelect(true)}>
-                    <div className={cx('text', { ThemeColor3: this.state.onlyMemberLook })}>{_l('仅项目成员可见')}</div>
+                  <li className="bgColorPrimary" onClick={() => this.rangeSelect(true)}>
+                    <div className={cx('text', { colorPrimary: this.state.onlyMemberLook })}>
+                      {_l('仅项目成员可见')}
+                    </div>
                     <div className="descTip">{_l('只有添加为项目成员才可以查看项目')}</div>
                   </li>
                   <li className="createFolderLine" />
-                  <li className="ThemeBGColor3" onClick={() => this.rangeSelect(false)}>
-                    <div className={cx('text', { ThemeColor3: !this.state.onlyMemberLook })}>
+                  <li className="bgColorPrimary" onClick={() => this.rangeSelect(false)}>
+                    <div className={cx('text', { colorPrimary: !this.state.onlyMemberLook })}>
                       {_l('公开给指定群组')}
                     </div>
                     <div className="descTip">{_l('所选范围内的所有人都可以查看项目')}</div>
@@ -316,10 +318,10 @@ export default class CreateFolder extends Component {
               )}
             </div>
             <div className="createFolderBtn">
-              <span className="createFolderBtnCancel ThemeColor3" onClick={() => this.props.onClose()}>
+              <span className="createFolderBtnCancel colorPrimary" onClick={() => this.props.onClose()}>
                 {_l('取消')}
               </span>
-              <span className="createFolderBtnSave ThemeBGColor3" onClick={() => this.create()}>
+              <span className="createFolderBtnSave bgColorPrimary" onClick={() => this.create()}>
                 {_l('确定')}
               </span>
             </div>

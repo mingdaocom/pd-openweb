@@ -204,7 +204,7 @@ export default class WithdrawalsRecord extends Component {
           <Header className="bold Font17">
             <Icon
               icon="backspace"
-              className="Font22 ThemeHoverColor3 pointer mRight10"
+              className="Font22 hoverColorPrimary pointer mRight10"
               onClick={() => this.props.changeCreateMerchant(false)}
             />
             {_l('提现记录')}

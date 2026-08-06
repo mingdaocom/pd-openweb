@@ -24,7 +24,7 @@ class MonthTable extends Component {
 
         if (item.current) {
           classList.push('current');
-          classList.push('ThemeBGColor3');
+          classList.push('bgColorPrimary');
         }
 
         if (item.inRange) {
@@ -33,7 +33,7 @@ class MonthTable extends Component {
 
         if (item.now) {
           classList.push('now');
-          classList.push('ThemeColor3');
+          classList.push('colorPrimary');
         }
 
         const classNames = classList.join(' ');

@@ -154,7 +154,7 @@ class RangeFooter extends Component {
 
     const halfStartBtn = (
       <span className={`${prefixCls}-timepicker`}>
-        <span className={`${prefixCls}-timepicker-title`}>时段</span>
+        <span className={`${prefixCls}-timepicker-title`}>{_l('时段')}</span>
         <Dropdown
           defaultValue={this.props.halfStart}
           data={halfOptions}
@@ -167,7 +167,7 @@ class RangeFooter extends Component {
 
     const halfEndBtn = (
       <span className={`${prefixCls}-timepicker`}>
-        <span className={`${prefixCls}-timepicker-title`}>时段</span>
+        <span className={`${prefixCls}-timepicker-title`}>{_l('时段')}</span>
         <Dropdown
           defaultValue={this.props.halfEnd}
           data={halfOptions}

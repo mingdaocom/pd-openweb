@@ -5,6 +5,7 @@ import SettingIconAndName from '../../../components/SettingIconAndName';
 import dingIcon from '../images/ding.png';
 import feishuIcon from '../images/feishu.png';
 import workWxIcon from '../images/workwx.png';
+import { pathCompletion } from 'src/utils/common';
 
 const integrationIcon = { 1: dingIcon, 3: workWxIcon, 6: feishuIcon };
 const integrationText = {
@@ -42,8 +43,8 @@ export default function EnableScanLogin(props) {
     href,
     customNameIcon = {},
     customDoc,
-    updateScanEnabled = () => {},
-    updateCustomNameIcon = () => {},
+    updateScanEnabled = () => { },
+    updateCustomNameIcon = () => { },
   } = props;
   const [scanEnabled, setScanEnabled] = useState(props.scanEnabled || false);
 
@@ -62,7 +63,7 @@ export default function EnableScanLogin(props) {
       });
   };
 
-  const saveCustomName = ({ name, icon, iconUrl, success = () => {} }) => {
+  const saveCustomName = ({ name, icon, iconUrl, success = () => { } }) => {
     workWeiXinAjax
       .editThirdPartyCustomNameIcon({
         projectId,
@@ -95,7 +96,7 @@ export default function EnableScanLogin(props) {
           href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login"
         />
       ) : (
-        <a target="_blank" href={href} className="helpEntry">
+        <a target="_blank" href={pathCompletion(href)} className="helpEntry">
           {(integrationText[integrationType] || {}).hrefTxt}
         </a>
       )}
@@ -103,9 +104,8 @@ export default function EnableScanLogin(props) {
       {scanEnabled && (
         <SettingIconAndName
           className="mTop20"
-          iconClassName={`iconBg ${
-            integrationType === 1 ? 'dingIcon' : [6, 7].includes(integrationType) ? 'feishuIcon' : 'workWxIcon'
-          }`}
+          iconClassName={`iconBg ${integrationType === 1 ? 'dingIcon' : [6, 7].includes(integrationType) ? 'feishuIcon' : 'workWxIcon'
+            }`}
           defaultName={(integrationText[integrationType] || {}).defaultName}
           name={customNameIcon.name}
           iconUrl={customNameIcon.iconUrl}

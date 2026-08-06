@@ -18,6 +18,20 @@ const TimeZone = styled.div`
   background: var(--color-background-primary);
 `;
 
+const getTimeZoneText = timeZone => {
+  const isInteger = Number.isInteger(timeZone / 60);
+  const utcTag = isInteger ? 'UTC' : '';
+  const symbol = timeZone > 0 ? '+' : timeZone < 0 ? '-' : '';
+  const num = timeZone
+    ? isInteger
+      ? Math.abs(timeZone / 60)
+      : String(Math.floor(Math.abs(timeZone / 60))).padStart(2, '0')
+    : '';
+  const extra = !isInteger ? Math.abs(timeZone) % 60 : '';
+
+  return utcTag + symbol + num + extra;
+};
+
 export default function TimeZoneTag(props) {
   const { appId, position = {}, displayFixedValue } = props;
 
@@ -30,20 +44,6 @@ export default function TimeZoneTag(props) {
   ) {
     return '';
   }
-
-  const getTimeZoneText = timeZone => {
-    const isInteger = Number.isInteger(timeZone / 60);
-    const utcTag = isInteger ? 'UTC' : '';
-    const symbol = timeZone > 0 ? '+' : timeZone < 0 ? '-' : '';
-    const num = timeZone
-      ? isInteger
-        ? Math.abs(timeZone / 60)
-        : String(Math.floor(Math.abs(timeZone / 60))).padStart(2, '0')
-      : '';
-    const extra = !isInteger ? Math.abs(timeZone) % 60 : '';
-
-    return utcTag + symbol + num + extra;
-  };
 
   return (
     <TimeZone className="timeZoneTag" style={position}>

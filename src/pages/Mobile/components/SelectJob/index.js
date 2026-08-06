@@ -143,7 +143,7 @@ export default class SelectJob extends Component {
     return (
       <ScrollView className="flex jobList" onScrollEnd={this.onScrollEnd}>
         {jobList.map(item => (
-          <div className="flexRow jobItem" onClick={() => this.checkJobs(item)}>
+          <div key={item.jobId} className="flexRow jobItem" onClick={() => this.checkJobs(item)}>
             <Checkbox
               className="mLeft10 mRight10"
               checked={_.includes(selectJobsIds, item.jobId)}

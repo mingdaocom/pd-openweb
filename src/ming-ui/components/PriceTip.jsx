@@ -1,9 +1,9 @@
 import React from 'react';
+import { pathCompletion } from 'src/utils/common';
 
 export default function PriceTip(props) {
   const { text } = props;
-  const { WebUrl } = md?.global?.Config || {};
-  const url = WebUrl + 'billingrules';
+  const url = pathCompletion('/billingrules');
   return (
     <span>
       {text}

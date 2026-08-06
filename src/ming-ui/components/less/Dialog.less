@@ -1,4 +1,3 @@
-@import '../../../common/mdcss/Themes/themeVariables.less';
 @dialog-radius: 3px;
 @dialog-overlay-bg: var(--color-background-overlay);
 @dialog-hr-padding: 24px;
@@ -73,10 +72,10 @@
       }
       &.mui-dialog-confirm {
         &.mui-dialog-success > .mui-dialog-header > .mui-dialog-desc {
-          color: @successColor;
+          color: var(--color-success);
         }
         &.mui-dialog-danger > .mui-dialog-header > .mui-dialog-desc {
-          color: @dangerColor;
+          color: var(--color-error);
         }
       }
 
@@ -99,9 +98,9 @@
           width: 22px;
           height: 22px;
           font-size: 22px;
-          color: @grayLight;
+          color: var(--color-text-disabled);
           &:hover {
-            color: @themeColor3;
+            color: var(--color-primary);
           }
         }
       }
@@ -112,7 +111,7 @@
         border-radius: @dialog-radius 0 0 @dialog-radius;
 
         & > .mui-dialog-default-title {
-          color: @grayDarker;
+          color: var(--color-text-primary);
           font-weight: 600;
           font-size: @dialog-large-font;
         }
@@ -120,7 +119,7 @@
         & > .mui-dialog-desc {
           padding-top: 16px;
           font-size: @dialog-base-font;
-          color: @grayDark;
+          color: var(--color-text-secondary);
           word-break: break-word;
           line-height: 20px;
         }

@@ -194,7 +194,7 @@ export default function OperateList(props) {
       >
         <Icon
           icon="more_horiz"
-          className="textTertiary ThemeHoverColor3 Font16 pointer mLeft16"
+          className="textTertiary hoverColorPrimary Font16 pointer mLeft16"
           onClick={e => e.stopPropagation()}
         />
       </Trigger>

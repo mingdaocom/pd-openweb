@@ -6,6 +6,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
 import ConnectParam from 'src/pages/integration/components/ConnectParam';
+import { pathCompletion } from 'src/utils/common';
 import SelectApiPackage from '../../../components/SelectApiPackage';
 import { APP_TYPE } from '../../enum';
 import { DetailFooter, DetailHeader } from '../components';
@@ -25,18 +26,26 @@ export default class ApiPackage extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -49,6 +58,10 @@ export default class ApiPackage extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
 
         if (result.appId) {
@@ -72,7 +85,7 @@ export default class ApiPackage extends Component {
     const { data, saveRequest } = this.state;
     const { name, appId } = data;
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -110,7 +123,7 @@ export default class ApiPackage extends Component {
         >
           {!data.appId ? (
             <span
-              className="textSecondary ThemeHoverColor3 pointer alignItemsCenter"
+              className="textSecondary hoverColorPrimary pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={() => this.setState({ visible: true })}
             >
@@ -124,7 +137,7 @@ export default class ApiPackage extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 textSecondary ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary hoverColorPrimary pointer"
                     onClick={() => this.setState({ visible: true })}
                   />
                 </span>
@@ -142,8 +155,8 @@ export default class ApiPackage extends Component {
                   </span>
                   <Icon
                     icon="task-new-detail"
-                    className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 pointer"
-                    onClick={() => window.open(`/integrationConnect/${data.appId}`)}
+                    className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark pointer"
+                    onClick={() => window.open(pathCompletion(`/integrationConnect/${data.appId}`))}
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
@@ -155,7 +168,7 @@ export default class ApiPackage extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 textSecondary ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary hoverColorPrimary pointer"
                     onClick={() => this.setState({ visible: true })}
                   />
                 </span>
@@ -245,7 +258,11 @@ export default class ApiPackage extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.appId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.appId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

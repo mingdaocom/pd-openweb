@@ -127,7 +127,7 @@ function WithdrawReimburseDialog(props) {
         }
 
         if (Number(amount) > max) {
-          alert(`金额大于可${type === 'reimburse' ? '退款' : '提现'}额，请重新输入`, 2);
+          alert(type === 'reimburse' ? _l('金额大于可退款额，请重新输入') : _l('金额大于可提现额，请重新输入'), 2);
           return;
         }
 

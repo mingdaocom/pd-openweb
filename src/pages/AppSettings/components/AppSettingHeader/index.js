@@ -70,7 +70,7 @@ export default function AppSettingHeader(props) {
         )}
         {addBtnName ? (
           <Button
-            className={cx(`mLeft20 pLeft20 pRight20 hoverBgPrimaryDark`, { needUpgrade })}
+            className={cx(`mLeft20 pLeft20 pRight20 hoverBgColorPrimaryDark`, { needUpgrade })}
             type="primary"
             radius
             onClick={handleAdd}

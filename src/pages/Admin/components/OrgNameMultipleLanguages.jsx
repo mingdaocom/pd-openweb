@@ -45,7 +45,7 @@ class SetOrgNameMultipleLanguages extends Component {
                   (window.platformENV.isLocal || window.platformENV.isOverseas) &&
                   type === 30 &&
                   !!currentLangName &&
-                  langType === getCurrentLangCode(md.global.Config.DefaultLang)
+                  langType === md.global.SysSettings.defaultLang
                 ) {
                   // 更新提示说明对默认语言
                   return { langType, data: [{ key: 'name', value: currentLangName }] };
@@ -94,6 +94,7 @@ class SetOrgNameMultipleLanguages extends Component {
   render() {
     const { onCancel = () => {}, currentLangName, type } = this.props;
     const { loading, settingLanguageData = [] } = this.state;
+    const defaultLangCode = md.global.SysSettings.defaultLang;
 
     return (
       <Dialog title={_l('设置语言')} visible onCancel={onCancel} okText={_l('保存')} onOk={this.onOk}>
@@ -104,12 +105,12 @@ class SetOrgNameMultipleLanguages extends Component {
             const { code, value } = item;
             const currentLanguageData = (_.find(settingLanguageData, v => v.langType === code) || {}).data || [];
             const currentName =
-              code === getCurrentLangCode(md.global.Config.DefaultLang) || _.isEmpty(currentLanguageData)
+              code === defaultLangCode || _.isEmpty(currentLanguageData)
                 ? currentLangName
                 : currentLanguageData[0].value;
 
             const param = {
-              disabled: code === getCurrentLangCode(md.global.Config.DefaultLang),
+              disabled: code === defaultLangCode,
               className: 'w100',
               onChange: value => {
                 let newData = _.clone(settingLanguageData);

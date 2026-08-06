@@ -10,13 +10,7 @@ import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { renderText } from 'src/utils/control';
 import { EVENT_TAB_KEY_BY_INDEX } from './constants';
 
-@connect(
-  state => ({
-    ...state.sheet,
-  }),
-  dispatch => bindActionCreators(Actions, dispatch),
-)
-class External extends Component {
+let External = class External extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,45 +29,48 @@ class External extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { calendarview = {}, getInitType, fetchExternal, refreshEventList, updateCalendarEventIsAdd } = nextProps;
-    const { calendarEventIsAdd, calendarData = {} } = calendarview;
-    const { calendarInfo } = calendarData;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { calendarview = {}, getInitType, fetchExternal, refreshEventList, updateCalendarEventIsAdd } = this.props;
+      const { calendarEventIsAdd, calendarData = {} } = calendarview;
+      const { calendarInfo } = calendarData;
 
-    if (!_.isEqual(calendarInfo, _.get(this.props, ['calendarview', 'calendarData', 'calendarInfo']))) {
-      this.setState({
-        isSearch: false,
-      });
-    }
+      if (!_.isEqual(calendarInfo, _.get(prevProps, ['calendarview', 'calendarData', 'calendarInfo']))) {
+        this.setState({
+          isSearch: false,
+        });
+      }
 
-    const typeEvent = getInitType();
+      const typeEvent = getInitType();
 
-    if (calendarEventIsAdd) {
-      refreshEventList();
-      //有新增数据
-      fetchExternal();
-      updateCalendarEventIsAdd(false); //更改新增状态
-    }
+      if (calendarEventIsAdd) {
+        refreshEventList(); //有新增数据
 
-    if (typeEvent === 'eventScheduled' && this.state.loadUp) {
-      //向上更新排期事件 不滚动
-      if (this.state.loadUp) {
-        setTimeout(() => {
-          this.handleScrollTo($('.eventListBox .mcm').height() - this.state.eventConH);
-          this.setState({
-            loadUp: false,
-          });
-        }, 500);
+        fetchExternal();
+        updateCalendarEventIsAdd(false); //更改新增状态
+      }
+
+      if (typeEvent === 'eventScheduled' && this.state.loadUp) {
+        //向上更新排期事件 不滚动
+        if (this.state.loadUp) {
+          setTimeout(() => {
+            this.handleScrollTo($('.eventListBox .mcm').height() - this.state.eventConH);
+            this.setState({
+              loadUp: false,
+            });
+          }, 500);
+        }
       }
     }
   }
 
   handleScrollTo = top => {
     if (this.scrollRef.current) {
-      this.scrollRef.current.scrollTo({ top });
+      this.scrollRef.current.scrollTo({
+        top,
+      });
     }
   };
-
   renderSearchData = searchData => {
     const { getInitType } = this.props;
     const typeEvent = getInitType();
@@ -91,7 +88,6 @@ class External extends Component {
       </div>
     );
   };
-
   renderListEvent = () => {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList } = calendarview;
@@ -153,7 +149,6 @@ class External extends Component {
       return <div className="mcm">{this.renderEventData(eventData)}</div>;
     }
   };
-
   renderEventData = (eventData = []) => {
     const { currentView } = this.props;
     return (
@@ -167,9 +162,12 @@ class External extends Component {
               : timeList && timeList.length
                 ? timeList[0].editable
                 : false; //多组时间,且有可编辑的权限，拖拽后选择时间组
+
           return (
             <div
-              className={cx('clearfix fcEventCon', { fcEvent: editable })}
+              className={cx('clearfix fcEventCon', {
+                fcEvent: editable,
+              })}
               style={{
                 backgroundColor: recordColor && recordColor.showBg && recordColor.lightColor,
               }}
@@ -182,16 +180,29 @@ class External extends Component {
               }}
             >
               {recordColor && recordColor.showLine && (
-                <div className="colorLeft" style={{ backgroundColor: recordColor.color }}></div>
+                <div
+                  className="colorLeft"
+                  style={{
+                    backgroundColor: recordColor.color,
+                  }}
+                ></div>
               )}
-              <div className="title Font14 Bold" title={it.title} style={{ WebkitBoxOrient: 'vertical' }}>
+              <div
+                className="title Font14 Bold"
+                title={it.title}
+                style={{
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
                 {it.title}
               </div>
               {it.timeList.map(o => {
                 if (o.start) {
                   const startTxt = renderText(
                     { ...o.info.startData, value: o.row[o.info.begin] },
-                    { appId: currentView.appId },
+                    {
+                      appId: currentView.appId,
+                    },
                   );
                   return (
                     <div className="textTertiary Font13 mTop2">
@@ -207,7 +218,6 @@ class External extends Component {
       </React.Fragment>
     );
   };
-
   handleScroll = ({ direction }) => {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList } = calendarview;
@@ -268,8 +278,11 @@ class External extends Component {
                 onChange={event => {
                   const searchValue = event.target.value;
                   this.props.searchKeys(searchValue);
+
                   if (!searchValue) {
-                    this.setState({ isSearch: false });
+                    this.setState({
+                      isSearch: false,
+                    });
                   }
                 }}
                 onKeyUp={e => {
@@ -277,7 +290,9 @@ class External extends Component {
                     const searchValue = e.target.value;
                     this.props.searchEventArgs(searchValue, 1);
                     this.handleScrollTo(0);
-                    this.setState({ isSearch: !!searchValue });
+                    this.setState({
+                      isSearch: !!searchValue,
+                    });
                   }
                 }}
                 value={keyWords}
@@ -289,7 +304,9 @@ class External extends Component {
                   onClick={() => {
                     this.props.searchEventArgs('', 1);
                     this.handleScrollTo(0);
-                    this.setState({ isSearch: false });
+                    this.setState({
+                      isSearch: false,
+                    });
                   }}
                 />
               )}
@@ -300,7 +317,9 @@ class External extends Component {
                   {this.props.tabList.map(it => {
                     return (
                       <li
-                        className={cx('Hand', { current: it.key === typeEvent })}
+                        className={cx('Hand', {
+                          current: it.key === typeEvent,
+                        })}
                         onClick={() => {
                           this.props.getEventScheduledData(it.key);
                           this.handleScrollTo(0);
@@ -337,6 +356,9 @@ class External extends Component {
       </div>
     );
   }
-}
-
+};
+External = connect(
+  state => ({ ...state.sheet }),
+  dispatch => bindActionCreators(Actions, dispatch),
+)(External);
 export default External;

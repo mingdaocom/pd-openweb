@@ -11,8 +11,10 @@ class TimeMenu extends Component {
     this.state = this.init(props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState(this.init(nextProps));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState(this.init(this.props));
+    }
   }
 
   init = props => {

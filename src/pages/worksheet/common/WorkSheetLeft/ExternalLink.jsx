@@ -103,6 +103,16 @@ export const EditExternalLink = props => {
   );
 };
 
+const genControlTag = id => {
+  const res = _.flatten(LINK_PARA_FIELDS.map(data => data.fields));
+  const field = _.find(res, { value: id });
+  return (
+    <ControlTag className="flexRow valignWrapper">
+      <span className="Font12">{field ? field.text : id}</span>
+    </ControlTag>
+  );
+};
+
 const ExternalLink = props => {
   const { configuration = {}, onChange } = props;
   const [customPageType, setCustomPageType] = useState(configuration.customPageType || '1');
@@ -128,16 +138,6 @@ const ExternalLink = props => {
     }
 
     setUrlTemplate(value);
-  };
-
-  const genControlTag = id => {
-    const res = _.flatten(LINK_PARA_FIELDS.map(data => data.fields));
-    const field = _.find(res, { value: id });
-    return (
-      <ControlTag className="flexRow valignWrapper">
-        <span className="Font12">{field ? field.text : id}</span>
-      </ControlTag>
-    );
   };
 
   return (

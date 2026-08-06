@@ -4,14 +4,28 @@ import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { controlState } from 'src/utils/control';
-import { APPROVAL_POSITION_OPTION, DEFAULT_FONT_SIZE, fromType, typeForCon } from '../../core/config';
+import {
+  APPROVAL_POSITION_OPTION,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_PRINT_PAPER_DIRECTION,
+  DEFAULT_PRINT_PAPER_SIZE,
+  fromType,
+  typeForCon,
+} from '../../core/config';
 import { isRelation } from '../../core/util';
 import AdditionSetting from './AdditionSetting';
 import BasicsSetting from './BasicsSetting';
 import ControlsSetting from './ControlsSetting';
+import LayoutSetting from './LayoutSetting';
 import './index.less';
 
 const Setting = [
+  {
+    label: _l('布局'),
+    key: 'layout',
+    hasCheckAll: false,
+    hasExpend: true,
+  },
   {
     label: _l('字段设置'),
     key: 'setting',
@@ -348,7 +362,7 @@ class SideNav extends React.Component {
 
   changeAdvanceSettings = value => {
     const { printData, handChange } = this.props;
-    let newValue = _.cloneDeep(printData.advanceSettings);
+    let newValue = _.cloneDeep(printData.advanceSettings) || [];
     const keyIndex = _.findIndex(newValue, l => l.key === value.key);
 
     if (keyIndex > -1) {
@@ -388,6 +402,16 @@ class SideNav extends React.Component {
     const hide = closeList.includes(key);
 
     switch (key) {
+      case 'layout':
+        const layoutAdvanceSettingMap = _.keyBy(printData.advanceSettings || [], 'key');
+        return (
+          <LayoutSetting
+            hide={hide}
+            paperSize={layoutAdvanceSettingMap.paperSize?.value || DEFAULT_PRINT_PAPER_SIZE}
+            paperDirection={layoutAdvanceSettingMap.paperDirection?.value || DEFAULT_PRINT_PAPER_DIRECTION}
+            changeAdvanceSettings={this.changeAdvanceSettings}
+          />
+        );
       case 'setting':
         const advanceSettingMap = _.keyBy(printData.advanceSettings || [], 'key');
         const getAdvanceValue = key => advanceSettingMap[key]?.value;

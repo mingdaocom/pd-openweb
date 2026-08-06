@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import processVersion from '../api/processVersion';
+import { pathCompletion } from 'src/utils/common';
 import { clearSource, getFlowInfo, getProcessById } from '../redux/actions';
 import EditFlow from './EditFlow';
 import Header from './Header';
@@ -55,7 +56,7 @@ class WorkflowSettings extends Component {
    */
   back = () => {
     if (history.length === 1) {
-      location.href = '/dashboard';
+      location.href = pathCompletion('/dashboard');
     } else {
       history.back();
     }

@@ -57,7 +57,6 @@ const VarDrawer = styled(Drawer)`
 const FormItem = styled.div`
   margin-bottom: 20px;
   .labelText {
-    font-family: FZLanTingHeiS-DemiBold, FZLanTingHeiS;
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -158,9 +157,10 @@ const VAR_TYPE_OPTIONS = [
   },
 ];
 
+const initFormData = { name: '', value: '', description: '', controlType: 2, allowEdit: 0, scope: 1, maskType: 0 };
+
 export default function VarAddOrEditModal(props) {
   const { visible, onClose, isEdit, projectId, appId, defaultFormValue = {}, onRefreshVarList } = props;
-  const initFormData = { name: '', value: '', description: '', controlType: 2, allowEdit: 0, scope: 1, maskType: 0 };
   const [formData, setFormData] = useSetState(initFormData);
   const [authApps, setAuthApps] = useState([]);
   const [valueFocused, setValueFocused] = useState(false);

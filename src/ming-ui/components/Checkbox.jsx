@@ -88,11 +88,13 @@ class Checkbox extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.checked !== undefined) {
-      this.setState({
-        checked: nextProps.checked,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.checked !== undefined) {
+        this.setState({
+          checked: this.props.checked,
+        });
+      }
     }
   }
 

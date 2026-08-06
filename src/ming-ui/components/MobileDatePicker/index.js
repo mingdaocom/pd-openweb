@@ -16,6 +16,7 @@ const getDate = (date, minuteStep) => {
   return date;
 };
 
+const getWeekdayText = day => [_l('日'), _l('一'), _l('二'), _l('三'), _l('四'), _l('五'), _l('六')][day];
 const PRECISION_UNIT = {
   year: 'year',
   month: 'month',
@@ -72,33 +73,33 @@ export default function MobileDatePicker(props) {
   }, [value, minuteStep, pickerMin, pickerMax]);
 
   const year = {
-    format: _l('YYYY 年'),
-    caption: 'Year',
+    format: 'YYYY',
+    caption: _l('年'),
     step: 1,
   };
   const month = {
-    format: _l('MM 月'),
-    caption: 'Mon',
+    format: 'MM',
+    caption: _l('月'),
     step: 1,
   };
   const date = {
-    format: _l('DD 日'),
-    caption: 'Day',
+    format: currentDate => `${moment(currentDate).format('DD')} ${getWeekdayText(currentDate.getDay())}`,
+    caption: _l('日/周'),
     step: 1,
   };
   const hour = {
-    format: _l('hh 时'),
-    caption: 'Hour',
+    format: 'hh',
+    caption: _l('时'),
     step: 1,
   };
   const minute = {
-    format: _l('mm 分'),
-    caption: 'Min',
+    format: 'mm',
+    caption: _l('分'),
     step: minuteStep || 1,
   };
   const second = {
-    format: _l('ss 秒'),
-    caption: 'Second',
+    format: 'ss',
+    caption: _l('秒'),
     step: 1,
   };
   const dateConfig = {
@@ -131,6 +132,7 @@ export default function MobileDatePicker(props) {
       customHeader={renderHeader(customHeader)}
       isOpen={isOpen}
       dateConfig={dateConfig[precision]}
+      showCaption={true}
       theme={'ios'}
       value={dateTime}
       min={pickerMin}

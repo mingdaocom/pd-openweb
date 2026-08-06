@@ -36,6 +36,7 @@ export default class CustomDefaultValue extends Component {
         width={1000}
         onCancel={onClose}
         onOk={() => {
+          // 自定义默认值场景忽略一切校验（手机/证件格式、必填、唯一、业务规则均不拦截），输入原样保留为默认值。
           if (filterRows && filterRows.length > 0) {
             const value = [
               {
@@ -60,23 +61,30 @@ export default class CustomDefaultValue extends Component {
         <div style={{ minHeight: 74, margin: '10px 0 12px' }}>
           <ChildTable
             initRowIsCreate={false}
+            disableValidate
             from={0}
             control={{
               ...data,
               value: JSON.stringify(rowData),
               advancedSetting: {
-                ...data.advancedSetting,
-                batchcids: '[]',
                 allowadd: '1',
                 allowsingle: '1',
                 allowedit: '1',
                 allowcancel: '1',
+                rowheight: '0',
+                blankrow: '1',
+                allowcopy: '1',
+                searchrange: '1',
+                openstatistics: '0',
+                statisticsseting: '[]',
               },
             }}
             controls={controls}
             projectId={globalSheetInfo.projectId}
             appId={appId || globalSheetInfo.appId}
-            registerCell={() => {}}
+            registerCell={comp => {
+              this.childTableComp = comp;
+            }}
             onChange={({ rows = [] }) => {
               const filterRows = rows.map(row => {
                 let itemValue = {};

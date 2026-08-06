@@ -10,7 +10,7 @@ export default function SwitchRecord(props) {
   return (
     <React.Fragment>
       <span
-        className={cx('prevRecordBtn', { disable: !canPrev, ThemeHoverColor3: canPrev })}
+        className={cx('prevRecordBtn', { disable: !canPrev, hoverColorPrimary: canPrev })}
         onClick={
           canPrev
             ? () => {
@@ -24,7 +24,7 @@ export default function SwitchRecord(props) {
         </Tooltip>
       </span>
       <span
-        className={cx('nextRecordBtn', { disable: !canNext, ThemeHoverColor3: canNext })}
+        className={cx('nextRecordBtn', { disable: !canNext, hoverColorPrimary: canNext })}
         onClick={
           canNext
             ? () => {

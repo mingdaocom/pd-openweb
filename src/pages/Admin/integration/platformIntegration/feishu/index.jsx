@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { pathCompletion } from 'src/utils/common';
 import CancelIntegration from '../components/CancelIntegration';
 import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
@@ -95,7 +96,7 @@ export default class FeiShu extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AppSecret || !this.state.AppId) {
-      alert('请输入相关信息', 3);
+      alert(_l('请输入相关信息'), 3);
       return;
     }
 
@@ -393,7 +394,7 @@ export default class FeiShu extends React.Component {
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && AppId && AppSecret) && !isEditing && (
-              <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
+              <i className="icon-backspace Font22 hoverColorPrimary pointer mRight10" onClick={this.props.onClose} />
             )}
             <div
               className={cx('tabBox', {
@@ -438,7 +439,7 @@ export default class FeiShu extends React.Component {
                   projectId={projectId}
                   scanEnabled={integrationScanEnabled}
                   disabled={isCloseDing}
-                  href={`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}`}
+                  href={pathCompletion(`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}`)}
                   updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
                   customNameIcon={customNameIcon}
                   updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}

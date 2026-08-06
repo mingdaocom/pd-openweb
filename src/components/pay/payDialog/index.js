@@ -35,11 +35,11 @@ function PayDialog(props) {
       <a className="mTop20 confirmBtn" href={url} onClick={onCancel}>
         {_l('确定')}
       </a>
-      <div className="mTop20 BorderBottom ThemeBorderColor3 mBottom20"></div>
+      <div className="mTop20 BorderBottom borderColorPrimary mBottom20"></div>
       <div>{_l('付款遇到问题')}</div>
       <div>
         <span className="LineHeight25">{_l('免费咨询热线')}：</span>
-        <span className="ThemeColor3 LineHeight25">{md.global.Config.ServiceTel}</span>
+        <span className="colorPrimary LineHeight25">{md.global.Config.ServiceTel}</span>
       </div>
     </PayDialogWrap>
   );

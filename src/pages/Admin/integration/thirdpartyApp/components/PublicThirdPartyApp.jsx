@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } fr
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv, Switch } from 'ming-ui';
+import { Button, Dialog, Icon, LoadDiv, Switch, VerifyPasswordConfirm } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import openAuthorAjax from 'src/api/openAuthor';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
@@ -48,17 +48,62 @@ const ContentWrap = styled.div`
   }
 `;
 
+const DEFAULT_SETTING = {
+  enabled: false,
+  patEnabled: false,
+};
+
+function getBooleanValue(data, keys, defaultValue) {
+  const targetKey = keys.find(key => typeof data[key] === 'boolean');
+  return targetKey ? data[targetKey] : defaultValue;
+}
+
+function formatSetting(data) {
+  if (typeof data === 'boolean') {
+    return {
+      enabled: data,
+      patEnabled: data,
+    };
+  }
+
+  if (!data || typeof data !== 'object') {
+    return DEFAULT_SETTING;
+  }
+
+  const enabled = getBooleanValue(
+    data,
+    ['enabled', 'platformOAuthEnabled', 'openAuthorEnabled', 'oAuthEnabled', 'oauthEnabled'],
+    DEFAULT_SETTING.enabled,
+  );
+
+  return {
+    enabled,
+    patEnabled: getBooleanValue(
+      data,
+      [
+        'patEnabled',
+        'personalAccessTokenEnabled',
+        'personalTokenEnabled',
+        'personalCredentialEnabled',
+        'accessTokenEnabled',
+        'tokenEnabled',
+      ],
+      enabled,
+    ),
+  };
+}
+
 const PublicThirdPartyApp = forwardRef((props, ref) => {
   const { projectId, updateIsEnabled } = props;
-  const [{ searchValue, dataSource, currentItem, isEnabled, configLoading, dataSourceLoading }, setState] = useSetState(
-    {
+  const [{ searchValue, dataSource, currentItem, isEnabled, configLoading, dataSourceLoading, patEnabled }, setState] =
+    useSetState({
       dataSource: [],
       currentItem: {},
       isEnabled: false, // 是否开通
       configLoading: true,
       dataSourceLoading: true,
-    },
-  );
+      patEnabled: false,
+    });
   const ajaxRef = useRef(null);
 
   useImperativeHandle(
@@ -152,7 +197,7 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
         fixed: 'right',
         render: (text, item) => {
           return (
-            <span className="colorPrimary Hand hoverTextPrimaryLight" onClick={() => setState({ currentItem: item })}>
+            <span className="colorPrimary Hand hoverColorPrimaryLight" onClick={() => setState({ currentItem: item })}>
               {_l('配置范围')}
             </span>
           );
@@ -166,9 +211,10 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
     openAuthorAjax
       .getSetting({ projectId })
       .then(res => {
-        setState({ isEnabled: res, configLoading: false });
-        updateIsEnabled(res);
-        if (res) {
+        const { enabled, patEnabled } = formatSetting(res);
+        setState({ isEnabled: enabled, patEnabled, configLoading: false });
+        updateIsEnabled(enabled);
+        if (enabled) {
           getDataSource();
         }
       })
@@ -179,12 +225,16 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
 
   /* 设置组织第三方应用开关 */
   const editSetting = enabled => {
-    openAuthorAjax.editSetting({ projectId, enabled }).then(res => {
-      if (res) {
-        setState({ isEnabled: enabled });
-        updateIsEnabled(enabled);
-        enabled && getDataSource();
-      }
+    VerifyPasswordConfirm.confirm({
+      onOk: () => {
+        openAuthorAjax.editSetting({ projectId, enabled, patEnabled }).then(res => {
+          if (res) {
+            setState({ isEnabled: enabled, patEnabled });
+            updateIsEnabled(enabled);
+            enabled && getDataSource();
+          }
+        });
+      },
     });
   };
 
@@ -256,7 +306,7 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
         <div className="imgWrap">
           <Icon icon="oauth" className="Font64 textTertiary" />
         </div>
-        <div className="Font22 mTop20">{_l('公共集成应用')}</div>
+        <div className="Font22 mTop20">{_l('平台级 OAuth 应用')}</div>
         <div className="mTop20">{_l('平台统一提供的集成应用，组织可配置使用范围，成员授权后以个人权限访问数据。')}</div>
         <div>
           <Button className="mTop16" radius onClick={() => editSetting(true)}>

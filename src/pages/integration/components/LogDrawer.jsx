@@ -242,7 +242,7 @@ export default function (props) {
         return (
           <div className="optionCon">
             <span
-              className="ThemeColor3 Hand"
+              className="colorPrimary Hand"
               onClick={() => {
                 setState({
                   id: record.id,

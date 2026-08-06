@@ -20,7 +20,6 @@ const ScaleButton = styled(BgIconButton.Group)`
   right: 12px;
   top: 30px;
 `;
-
 const Success = styled.div`
   display: flex;
   flex-direction: column;
@@ -34,16 +33,12 @@ const Success = styled.div`
     margin: 24px 0 32px;
   }
 `;
-
 const STATUS = {
   NORMAL: 1,
   SUCCESS: 2,
   ERROR: 3,
 };
-
-@withRouter
-@connect(({ appPkg }) => ({ appPkg }))
-export default class NewRecordLand extends Component {
+let NewRecordLand = class NewRecordLand extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -54,16 +49,20 @@ export default class NewRecordLand extends Component {
     this.handleMingoCreateRecordActive = this.handleMingoCreateRecordActive.bind(this);
     this.handleWorksheetInfoReady = this.handleWorksheetInfoReady.bind(this);
   }
+
   componentDidMount() {
     emitter.on('MINGO_CREATE_RECORD_ACTIVE', this.handleMingoCreateRecordActive);
   }
+
   componentWillUnmount() {
     emitter.off('MINGO_CREATE_RECORD_ACTIVE', this.handleMingoCreateRecordActive);
   }
+
   handleAddWorksheetRow(args, callBack) {
     sheetAjax.addWorksheetRow(args).then(res => {
       if (res && res.data) {
         alert(_l('添加成功'));
+
         if (callBack) {
           callBack(res.data);
         }
@@ -72,12 +71,19 @@ export default class NewRecordLand extends Component {
       }
     });
   }
+
   handleMingoCreateRecordActive(value) {
-    this.setState({ mingoActive: value });
+    this.setState({
+      mingoActive: value,
+    });
   }
+
   handleWorksheetInfoReady(worksheetInfo = {}) {
-    this.setState({ allowMingoCreate: String(_.get(worksheetInfo, 'advancedSetting.aifillin')) !== '1' });
+    this.setState({
+      allowMingoCreate: String(_.get(worksheetInfo, 'advancedSetting.aifillin')) !== '1',
+    });
   }
+
   render() {
     const {
       match = {},
@@ -101,8 +107,17 @@ export default class NewRecordLand extends Component {
 
     return (
       <div
-        className={cx('newRecordLand', { isMingoCreate })}
-        style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1600px' } : {}}
+        className={cx('newRecordLand', {
+          isMingoCreate,
+        })}
+        style={
+          isLarge
+            ? {
+                width: 'calc(100% - 64px)',
+                maxWidth: '1600px',
+              }
+            : {}
+        }
       >
         {status === STATUS.NORMAL && (
           <ScaleButton gap={12}>
@@ -112,7 +127,9 @@ export default class NewRecordLand extends Component {
                 text={_l('AI 填写')}
                 iconComponent={<img src={mingoCreateIcon} />}
                 onClick={() => {
-                  window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT };
+                  window.mingoPendingStartTask = {
+                    type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
+                  };
                   emitter.emit('SET_MINGO_VISIBLE');
                 }}
               />
@@ -131,21 +148,36 @@ export default class NewRecordLand extends Component {
               tooltip={isLarge ? _l('缩小') : _l('放大')}
               onClick={() => {
                 safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
-                this.setState({ isLarge: !isLarge });
+                this.setState({
+                  isLarge: !isLarge,
+                });
               }}
             />
             <BgIconButton icon="close" onClick={onClose} />
           </ScaleButton>
         )}
         {status !== STATUS.NORMAL && (
-          <div className="errorCon shadow" style={{ height: window.innerHeight - 130 + 'px' }}>
+          <div
+            className="errorCon shadow"
+            style={{
+              height: window.innerHeight - 130 + 'px',
+            }}
+          >
             {status === STATUS.ERROR && _l('您没有新建记录权限，请联系该应用管理员')}
             {status === STATUS.SUCCESS && (
               <Success>
                 <img src={successPng} alt="" />
                 <span className="status">{_l('创建成功')}</span>
                 <div>
-                  <Button onClick={() => this.setState({ status: STATUS.NORMAL })}>{_l('继续创建')}</Button>
+                  <Button
+                    onClick={() =>
+                      this.setState({
+                        status: STATUS.NORMAL,
+                      })
+                    }
+                  >
+                    {_l('继续创建')}
+                  </Button>
                   <Button
                     type="ghost"
                     className="mLeft10"
@@ -159,7 +191,12 @@ export default class NewRecordLand extends Component {
           </div>
         )}
         {status === STATUS.NORMAL && (
-          <div className="newRecordCon" style={{ minHeight: window.innerHeight - 130 + 'px' }}>
+          <div
+            className="newRecordCon"
+            style={{
+              minHeight: window.innerHeight - 130 + 'px',
+            }}
+          >
             <NewRecord
               noDisableClick
               showFillNext
@@ -174,7 +211,11 @@ export default class NewRecordLand extends Component {
               addType={1}
               visible
               onWorksheetInfoReady={this.handleWorksheetInfoReady}
-              changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
+              changeWorksheetStatusCode={() =>
+                this.setState({
+                  status: STATUS.ERROR,
+                })
+              }
               onAdd={(row, { continueAdd }) => {
                 if (isMingoCreate) {
                   if (continueAdd) {
@@ -188,7 +229,9 @@ export default class NewRecordLand extends Component {
                 }
 
                 if (!continueAdd) {
-                  this.setState({ status: STATUS.SUCCESS });
+                  this.setState({
+                    status: STATUS.SUCCESS,
+                  });
                 }
               }}
               hideNewRecord={onClose}
@@ -199,4 +242,10 @@ export default class NewRecordLand extends Component {
       </div>
     );
   }
-}
+};
+NewRecordLand = withRouter(
+  connect(({ appPkg }) => ({
+    appPkg,
+  }))(NewRecordLand),
+);
+export default NewRecordLand;

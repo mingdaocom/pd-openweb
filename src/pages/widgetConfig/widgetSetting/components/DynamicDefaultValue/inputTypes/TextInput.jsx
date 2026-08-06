@@ -45,9 +45,12 @@ export default class TextInput extends Component {
   componentDidUpdate(prevProps) {
     if (JSON.stringify(this.props.dynamicValue) !== JSON.stringify(prevProps.dynamicValue)) {
       if (this.$tagtextarea) {
-        const cursor = this.$tagtextarea.cmObj.getCursor();
+        const cmObj = this.$tagtextarea?.cmObj;
+        const cursor = cmObj?.getCursor();
         this.setDynamicValue(this.props.dynamicValue);
-        this.$tagtextarea.cmObj.setCursor(cursor);
+        if (cmObj && cursor) {
+          cmObj.setCursor(cursor);
+        }
       }
     }
   }
@@ -82,7 +85,7 @@ export default class TextInput extends Component {
   };
 
   handleDynamicValue = (newField = []) => {
-    if (this.$tagtextarea) {
+    if (this.$tagtextarea && this.$tagtextarea.cmObj) {
       const { cid = '', rcid = '', staticValue } = newField[0];
 
       if (rcid === 'url') {
@@ -126,7 +129,9 @@ export default class TextInput extends Component {
               from !== DYNAMIC_FROM_MODE.FAST_FILTER && this.transferValue(value.trim());
             }}
             onBlur={() => {
-              from === DYNAMIC_FROM_MODE.FAST_FILTER && this.transferValue(this.$tagtextarea.cmObj.getValue());
+              from === DYNAMIC_FROM_MODE.FAST_FILTER &&
+                this.$tagtextarea.cmObj &&
+                this.transferValue(this.$tagtextarea.cmObj.getValue());
             }}
           />
         )}

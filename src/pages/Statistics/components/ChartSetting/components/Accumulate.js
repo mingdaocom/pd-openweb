@@ -3,7 +3,7 @@ import { Button, Checkbox, ConfigProvider, Modal, Radio, Space } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { isOptionControl } from 'statistics/common';
+import { isOptionControl } from 'statistics/common/controlUtils';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
 
 const ShowControlIdWrapper = styled.div`

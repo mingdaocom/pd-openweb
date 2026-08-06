@@ -1,4 +1,3 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 @prefixClass: DateDropDown;
 
 .@{prefixClass}-input {
@@ -9,7 +8,7 @@
   margin: 10px 0;
   @{prefixClass}-menu {
     .MenuItem.active {
-      color: @themeColor3;
+      color: var(--color-primary);
     }
   }
 }

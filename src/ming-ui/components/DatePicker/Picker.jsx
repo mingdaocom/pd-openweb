@@ -58,8 +58,12 @@ class Picker extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ value: nextProps.defaultValue });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        value: this.props.defaultValue,
+      });
+    }
   }
 
   onClick = () => {

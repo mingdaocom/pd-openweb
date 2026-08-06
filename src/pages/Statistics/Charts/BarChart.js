@@ -4,7 +4,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName, getIsAlienationColor } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import { toFixed } from 'src/utils/control';
 import {
   formatControlInfo,
@@ -23,6 +25,7 @@ import {
   getStyleColor,
   reportTypes,
 } from './common';
+import loadG2Plot from './loadG2Plot';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalId'));
@@ -126,23 +129,32 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.BarChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderBarChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.BarChart && this.BarChart.destroy();
+    this.isUnmounted = true;
+    this.destroyBarChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    // 显示设置
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      displaySetup.isPile !== oldDisplaySetup.isPile ||
+      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
+      this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -165,45 +177,56 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const { BarChartConfig } = this.getComponentConfig(nextProps);
-      this.BarChart && this.BarChart.update(BarChartConfig);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.g2plotComponent) {
+      return;
     }
 
     // 切换图表类型 & 堆叠 & 百分比
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      displaySetup.isPile !== oldDisplaySetup.isPile ||
-      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
-      nextProps.isLinkageData !== this.props.isLinkageData
-    ) {
-      this.BarChart && this.BarChart.destroy();
-      this.renderBarChart(nextProps);
+    if (shouldRecreate) {
+      this.renderBarChart(this.props);
+      return;
+    }
+
+    // 显示设置
+    if (shouldUpdate && this.BarChart) {
+      const { BarChartConfig } = this.getComponentConfig(this.props);
+      this.BarChart.update(BarChartConfig);
     }
   }
+  destroyBarChart = () => {
+    if (this.BarChart) {
+      this.BarChart.destroy();
+      this.BarChart = null;
+    }
+  };
   renderBarChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
+
+    if (!this.chartEl || !this.g2plotComponent) {
+      return;
+    }
+
     const { BarChartComponent, BarChartConfig } = this.getComponentConfig(props);
 
-    if (this.chartEl) {
-      this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        (xaxes.controlId || split.controlId);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.BarChart.on('element:click', this.handleClick);
-      }
-
-      this.BarChart && this.BarChart.render();
+    this.destroyBarChart();
+    this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      (xaxes.controlId || split.controlId);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.BarChart.on('element:click', this.handleClick);
     }
+
+    this.BarChart.render();
   }
   handleClick = data => {
     const { reportData, isMobile } = this.props;
@@ -294,6 +317,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.BarChart || !this.g2plotComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -306,7 +334,7 @@ export default class extends Component {
     );
   };
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
@@ -315,6 +343,7 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
     const {
       isPile,
       isPerPile,
@@ -323,12 +352,14 @@ export default class extends Component {
       legendType,
       showChartType,
       showLegend,
-      showNumber,
+      mobileShowNumber,
       ydisplay,
       auxiliaryLines,
       colorRules,
       percent,
     } = displaySetup;
+    const showNumber = displaySetup.showDimension || displaySetup.showNumber;
+    const labelShowNumber = isMobile ? (mobileShowNumber ?? showNumber) : showNumber;
     const showPercent = percent.enable;
     const { position } = getLegendType(legendType);
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId);
@@ -538,7 +569,7 @@ export default class extends Component {
           : undefined,
       },
       label:
-        showNumber || showPercent
+        labelShowNumber || showPercent
           ? {
               position: isPile || isPerPile ? 'middle' : isVertical ? undefined : 'right',
               layout: [
@@ -565,7 +596,7 @@ export default class extends Component {
                     const count = _.reduce(result, (total, item) => total + item.value, 0);
                     const percentValue = value && count ? formatNumberValue((value / count) * 100, percent) : undefined;
 
-                    if (showNumber && showPercent && count) {
+                    if (labelShowNumber && showPercent && count) {
                       return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
                     }
 
@@ -582,7 +613,7 @@ export default class extends Component {
                       : _.get(summary.controlList ? _.find(summary.controlList, { controlId: id }) : summary, 'sum');
                     const percentValue = formatNumberValue((value / count) * 100, percent);
 
-                    if (showNumber && showPercent && count) {
+                    if (labelShowNumber && showPercent && count) {
                       return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
                     }
 

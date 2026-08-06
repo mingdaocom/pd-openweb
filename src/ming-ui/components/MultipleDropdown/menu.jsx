@@ -102,19 +102,25 @@ class MultipleDropdownMenu extends Component {
     this.init(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.props.value) {
-      this.initValue(nextProps);
-    }
+  /**
+   * 递归查找指定选项
+   */
 
-    if (nextProps.options !== this.props.options) {
-      this.initOptions(nextProps);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== prevProps.value) {
+        this.initValue(this.props);
+      }
 
-    if (nextProps.openMenu && nextProps.filter && !this.props.openMenu) {
-      setTimeout(() => {
-        this.search.focus();
-      }, 100);
+      if (this.props.options !== prevProps.options) {
+        this.initOptions(this.props);
+      }
+
+      if (this.props.openMenu && this.props.filter && !prevProps.openMenu) {
+        setTimeout(() => {
+          this.search.focus();
+        }, 100);
+      }
     }
   }
 
@@ -407,7 +413,7 @@ class MultipleDropdownMenu extends Component {
               this.clearCheckedItems(e);
             }}
           >
-            清除选择
+            {_l('清除选择')}
           </button>
         );
 
@@ -461,7 +467,7 @@ class MultipleDropdownMenu extends Component {
           <div className={this.props.multipleHideDropdownNav ? 'Hidden' : 'li dropdown-nav'} key="nav">
             <div>
               <div className="label">
-                <span>请选择</span>
+                <span>{_l('请选择')}</span>
               </div>
               {clearBtn}
             </div>
@@ -473,7 +479,7 @@ class MultipleDropdownMenu extends Component {
             <Icon icon="arrow-left-border" />
             <div>
               <div className="label">
-                <span>返回</span>
+                <span>{_l('返回')}</span>
               </div>
               {clearBtn}
             </div>

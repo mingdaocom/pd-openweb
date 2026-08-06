@@ -88,14 +88,16 @@ export default class InboxFilter extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (_.isEmpty(nextProps.filter)) {
-      this.setState({
-        userValue: null,
-        timeLevel: null,
-        time: null,
-        appId: null,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.isEmpty(this.props.filter)) {
+        this.setState({
+          userValue: null,
+          timeLevel: null,
+          time: null,
+          appId: null,
+        });
+      }
     }
   }
 

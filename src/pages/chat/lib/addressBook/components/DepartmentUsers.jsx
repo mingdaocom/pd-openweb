@@ -84,13 +84,20 @@ export default class DepartmentUsers extends Component {
     this.state = { showDetail: props.selectedAccountId ? true : false, selectedAccountId: props.selectedAccountId };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.groupId, nextProps.groupId)) {
-      this.setState({ showDetail: false });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.groupId, this.props.groupId)) {
+        this.setState({
+          showDetail: false,
+        });
+      }
 
-    if (nextProps.selectedAccountId && !_.isEqual(this.props.selectedAccountId, nextProps.selectedAccountId)) {
-      this.setState({ selectedAccountId: nextProps.selectedAccountId, showDetail: true });
+      if (this.props.selectedAccountId && !_.isEqual(prevProps.selectedAccountId, this.props.selectedAccountId)) {
+        this.setState({
+          selectedAccountId: this.props.selectedAccountId,
+          showDetail: true,
+        });
+      }
     }
   }
 

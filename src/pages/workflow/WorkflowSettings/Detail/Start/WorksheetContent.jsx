@@ -20,7 +20,7 @@ export default ({
     return {
       text: item.name,
       value: item.id,
-      className: item.id === data.appId ? 'ThemeColor3' : '',
+      className: item.id === data.appId ? 'colorPrimary' : '',
     };
   });
   const TYPES = [

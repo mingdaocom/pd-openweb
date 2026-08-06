@@ -6,7 +6,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import orderController from 'src/api/order';
 import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import PayHeader from '../payHeader';
 
 const PaySuccessWrap = styled.div`
@@ -129,8 +129,8 @@ function PaySuccess() {
           className="toMdBtn"
           href={
             orderType === ORDERTYPE.AGAINOTHER
-              ? `/admin/expansionservice/${projectId}/portalupgrade`
-              : `/admin/home/${projectId}`
+              ? pathCompletion(`/admin/expansionservice/${projectId}/portalupgrade`)
+              : pathCompletion(`/admin/home/${projectId}`)
           }
         >
           {orderType === ORDERTYPE.AGAINOTHER ? _l('去续费外部用户') : _l('进入组织')}

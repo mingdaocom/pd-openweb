@@ -157,6 +157,11 @@ const OptionListItem = styled.div`
   }
 `;
 
+const genDefaultOptionsAndChecked = () => {
+  const defaultOptions = getDefaultOptions();
+  return { options: defaultOptions, default: getDefaultCheckedOption(defaultOptions) };
+};
+
 export default function SelectOptions(props) {
   const { data, onChange, globalSheetInfo = {}, fromPortal = false } = props;
   const { type, controlId, strDefault, enumDefault, enumDefault2, options, dataSource } = data;
@@ -202,11 +207,6 @@ export default function SelectOptions(props) {
     if (!dataSource) return;
     getOptionDetail();
   }, [controlId, dataSource]);
-
-  const genDefaultOptionsAndChecked = () => {
-    const defaultOptions = getDefaultOptions();
-    return { options: defaultOptions, default: getDefaultCheckedOption(defaultOptions) };
-  };
 
   // 合并hide
   const formatData = (tempData = []) => {
@@ -496,7 +496,7 @@ export default function SelectOptions(props) {
               if (res) {
                 setStatus(false);
                 getOptionDetail();
-                alert('恢复成功');
+                alert(_l('恢复成功'));
               }
             });
           }}

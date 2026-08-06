@@ -1,10 +1,9 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, lazy, memo, Suspense } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Progress from 'ming-ui/components/Progress';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getClassNameByExt } from 'src/utils/common';
+
+const CircleProgress = lazy(() => import('ming-ui/components/Progress/CircleProgress'));
 
 const Con = styled.div`
   position: relative;
@@ -13,6 +12,7 @@ const Con = styled.div`
   width: 140px;
   height: 106px;
   border-radius: 8px;
+  overflow: hidden;
   border: 1px solid var(--color-border-primary);
   flex: 0 0 auto;
   img {
@@ -53,8 +53,11 @@ const Con = styled.div`
     align-items: center;
     justify-content: center;
     font-size: 12px;
+    /* 固定行高，避免在消息气泡(line-height:24px)等大行高容器里 2 行 clamp 超出 40px 高度被遮挡 */
+    line-height: 16px;
     color: var(--color-text-title);
-    padding: 0 10px;
+    padding: 4px 10px 0;
+    background: var(--color-background-primary);
     word-break: break-all;
     white-space: break-spaces;
     display: -webkit-box;
@@ -89,7 +92,98 @@ const Con = styled.div`
       visibility: visible;
     }
   }
+  body.mobileMingoPage & {
+    .close-icon {
+      visibility: visible;
+    }
+  }
 `;
+
+function getExt(name = '') {
+  return String(name || '')
+    .split('.')
+    .pop()
+    .toLowerCase();
+}
+
+function getIconNameByExt(ext = '') {
+  if (['xls', 'xlsx'].includes(ext)) return 'excel';
+  if (['doc', 'docx', 'dot'].includes(ext)) return 'word';
+  if (['ppt', 'pptx', 'pps'].includes(ext)) return 'ppt';
+  if (['url'].includes(ext)) return 'link';
+  if (['js', 'ts', 'java', 'py', 'html', 'css', 'json', 'xml', 'ini', 'yml', 'yaml', 'less', 'scss'].includes(ext)) {
+    return 'code';
+  }
+
+  if (
+    [
+      'mmap',
+      'xmind',
+      'zip',
+      'rar',
+      '7z',
+      'pdf',
+      'txt',
+      'md',
+      'ai',
+      'psd',
+      'vsd',
+      'mp3',
+      'mp4',
+      'aep',
+      'apk',
+      'ascx',
+      'db',
+      'dmg',
+      'dwg',
+      'eps',
+      'exe',
+      'html',
+      'indd',
+      'iso',
+      'key',
+      'ma',
+      'max',
+      'numbers',
+      'obj',
+      'pages',
+      'prt',
+      'rp',
+      'skp',
+      'xd',
+      'mdy',
+    ].includes(ext)
+  ) {
+    return ext;
+  }
+
+  return 'doc';
+}
+
+function getClassNameByExt(ext) {
+  return `fileIcon-${getIconNameByExt(getExt(ext))}`;
+}
+
+async function previewFile({ source, id, name, url }) {
+  const previewAttachments = (await import('src/components/previewAttachments/previewAttachments')).default;
+
+  previewAttachments({
+    attachments: [
+      source
+        ? {
+            ...source,
+            originalFilename: decodeURIComponent(source.originalFilename),
+            previewAttachmentType: 'COMMON',
+          }
+        : {
+            fileid: id,
+            name: decodeURIComponent(name),
+            path: url,
+            previewAttachmentType: 'QINIU',
+          },
+    ],
+  });
+}
 
 function FileCard({
   className,
@@ -111,24 +205,9 @@ function FileCard({
     <Con
       className={cx(className, { isPicture })}
       onClick={e => {
-        previewAttachments({
-          attachments: [
-            source
-              ? {
-                  ...source,
-                  originalFilename: decodeURIComponent(source.originalFilename),
-                  previewAttachmentType: 'COMMON',
-                }
-              : {
-                  fileid: id,
-                  name: decodeURIComponent(name),
-                  path: url,
-                  previewAttachmentType: 'QINIU',
-                },
-          ],
-        });
         e.stopPropagation();
         e.preventDefault();
+        previewFile({ source, id, name, url });
       }}
     >
       {isPicture && status === 'uploaded' ? (
@@ -137,16 +216,18 @@ function FileCard({
         <Fragment>
           <div className={cx('file-content', status)}>
             {status === 'uploading' && (
-              <Progress.Circle
-                key="text"
-                isAnimation={false}
-                isRound={false}
-                strokeWidth={3}
-                diameter={46}
-                foregroundColor="var(--color-text-disabled)"
-                backgroundColor="var(--color-background-primary)"
-                percent={parseInt(progress)}
-              />
+              <Suspense fallback={null}>
+                <CircleProgress
+                  key="text"
+                  isAnimation={false}
+                  isRound={false}
+                  strokeWidth={3}
+                  diameter={46}
+                  foregroundColor="var(--color-text-disabled)"
+                  backgroundColor="var(--color-background-primary)"
+                  percent={parseInt(progress)}
+                />
+              </Suspense>
             )}
             {status === 'error' && (
               <div className="file-error t-flex t-items-center t-justify-center">

@@ -37,6 +37,28 @@ const Wrap = styled.div`
   }
 `;
 
+const PLUGINS = [
+  'header',
+  'font-bold',
+  'font-italic',
+  'font-underline',
+  'font-strikethrough',
+  'list-unordered',
+  'list-ordered',
+  'block-quote',
+  'block-wrap',
+  'block-code-inline',
+  'block-code-block',
+  'table',
+  'image',
+  'link',
+  // 'clear',
+  'logger',
+  'mode-toggle',
+  'full-screen',
+  'tab-insert',
+];
+
 const Markdown = forwardRef((props, ref) => {
   const { onSave, disabled, projectId, appId, worksheetId, bucket, editProps = {} } = props;
   const [value, setValue] = useState(props.value);
@@ -88,27 +110,6 @@ const Markdown = forwardRef((props, ref) => {
     spaces: _l('空格'),
   });
   MdEditor.useLocale('md_lang');
-  const PLUGINS = [
-    'header',
-    'font-bold',
-    'font-italic',
-    'font-underline',
-    'font-strikethrough',
-    'list-unordered',
-    'list-ordered',
-    'block-quote',
-    'block-wrap',
-    'block-code-inline',
-    'block-code-block',
-    'table',
-    'image',
-    'link',
-    // 'clear',
-    'logger',
-    'mode-toggle',
-    'full-screen',
-    'tab-insert',
-  ];
 
   const handleImageUpload = file => {
     return new Promise((resolve, reject) => {

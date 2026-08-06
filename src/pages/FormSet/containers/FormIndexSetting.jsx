@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { CreateIndex } from 'worksheet/common';
+import CreateIndex from 'worksheet/common/CreateIndex';
 import MoreOption from '../components/MoreOption';
 import '../components/MoreOption.less';
 

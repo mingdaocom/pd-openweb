@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { FlexCenter } from 'worksheet/components/Basics';
+import { pathCompletion } from 'src/utils/common';
 
 const FullCon = styled(FlexCenter)`
   height: 320px;
@@ -49,7 +50,9 @@ export default function NoProjectsStatus(props) {
       <JoinGroupCon>
         <div className="joinOrCreateProject">
           {_l('您还未拥有任何组织！')}
-          <span onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}>{_l('加入')}</span>
+          <span onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'), '__blank')}>
+            {_l('加入')}
+          </span>
           {_l('组织，开始创建您的应用')}
         </div>
       </JoinGroupCon>
@@ -68,7 +71,7 @@ export default function NoProjectsStatus(props) {
           <>
             <span
               className="colorPrimary pointer mLeft5 mRight5"
-              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
+              onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'), '__blank')}
             >
               {_l('创建')}
             </span>
@@ -77,7 +80,7 @@ export default function NoProjectsStatus(props) {
         )}
         <span
           className="colorPrimary pointer mLeft5 mRight5"
-          onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
+          onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'), '__blank')}
         >
           {_l('申请加入')}
         </span>

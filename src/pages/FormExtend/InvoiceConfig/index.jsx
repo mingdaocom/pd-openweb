@@ -202,7 +202,7 @@ export default class InvoiceConfig extends Component {
                           <div className="overflow_ellipsis">{item.text}</div>
                           {item.hasPay && (
                             <div
-                              className="Hand colorPrimary ThemeHoverColor2"
+                              className="Hand colorPrimary hoverColorPrimaryDark"
                               style={{ minWidth: 'fit-content' }}
                               onClick={() => navigateTo(`/admin/invoice/${projectId}/taxNo`)}
                             >

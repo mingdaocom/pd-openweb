@@ -79,6 +79,41 @@ export const Wrap = styled.div`
       object-fit: contain;
     }
   }
+  .logoHeightSet {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    height: 36px;
+    .contentText {
+      font-size: 14px;
+      color: var(--color-text-title);
+    }
+    .ming.Slider {
+      width: 100%;
+      padding: 0;
+    }
+    .logoHeightNumInput {
+      box-sizing: border-box;
+      width: 50px;
+      margin-left: 2px;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 8px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      font-size: 13px;
+      text-align: center;
+      flex-shrink: 0;
+      &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        background: var(--color-background-primary);
+      }
+    }
+  }
   .pageMode {
     li {
       .iconBox {

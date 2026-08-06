@@ -177,17 +177,17 @@ export const TRIGGER_WORKFLOW_CHECKBOX_OPTIONS = [
 ];
 
 export const PERSONNEL_FIELDS = [
-  { id: 'pName', name: '姓名' },
-  { id: 'jobNo', name: '工号' },
-  { id: 'pId', name: '人员ID' },
+  { id: 'pName', name: _l('姓名') },
+  { id: 'jobNo', name: _l('工号') },
+  { id: 'pId', name: _l('人员ID') },
 ];
 export const DEPT_FIELDS = [
-  { id: 'deptName', name: '名称' },
-  { id: 'deptId', name: '部门系统ID' },
+  { id: 'deptName', name: _l('名称') },
+  { id: 'deptId', name: _l('部门系统ID') },
 ];
 export const RELATED_RECORD_FIELDS = [
   { id: 'rId', name: 'ID' },
-  { id: 'rTitle', name: '标题' },
+  { id: 'rTitle', name: _l('标题') },
 ];
 
 export const dataMirrorDestTypes = [

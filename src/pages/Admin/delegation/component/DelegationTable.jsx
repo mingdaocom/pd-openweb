@@ -232,7 +232,7 @@ function DeputeTable(props) {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <Icon icon="moreop" className="textDisabled Font18 hoverTextPrimaryLight Hand TxtMiddle actionIcon" />
+            <Icon icon="moreop" className="textDisabled Font18 hoverColorPrimaryLight Hand TxtMiddle actionIcon" />
           </Trigger>
         )}
       />

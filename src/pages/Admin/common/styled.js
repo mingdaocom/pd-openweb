@@ -131,11 +131,6 @@ export const BillInfoWrap = styled.div`
         }
       }
     }
-    .recordType {
-      li:last-child {
-        margin-left: 20px;
-      }
-    }
   }
   .listTitle {
     display: flex;
@@ -159,6 +154,11 @@ export const BillInfoWrap = styled.div`
     .operation {
       width: 60px;
       text-align: center;
+    }
+    .agentBillingDetail {
+      width: 80px;
+      text-align: center;
+      flex: 0 0 80px;
     }
     .rechargeType {
       flex: 1;
@@ -194,6 +194,11 @@ export const BillInfoWrap = styled.div`
       .operation {
         width: 60px;
         text-align: center;
+      }
+      .agentBillingDetail {
+        width: 80px;
+        text-align: center;
+        flex: 0 0 80px;
       }
 
       .billStatus {
@@ -240,6 +245,41 @@ export const BillInfoWrap = styled.div`
       > span {
         margin-left: 6px;
       }
+    }
+  }
+
+  .listTitle.aiBenefitListTitle,
+  .recordList.aiBenefitRecordList li {
+    display: flex;
+    justify-content: flex-start;
+    gap: 18px;
+    .item {
+      min-width: 0;
+    }
+    .time {
+      flex: 0 0 200px;
+      width: 200px;
+    }
+    .type {
+      flex: 1;
+      padding-right: 0;
+    }
+    .aiBenefitPoint {
+      text-align: right;
+    }
+    .aiBenefitPoint {
+      flex: 0 0 180px;
+      width: 180px;
+    }
+    .createPerson {
+      flex: 0 0 180px;
+      width: 180px;
+      margin-left: 50px;
+    }
+    .agentBillingDetail {
+      flex: 0 0 80px;
+      width: 80px;
+      text-align: center;
     }
   }
 `;

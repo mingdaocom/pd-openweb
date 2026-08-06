@@ -4,10 +4,12 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
@@ -125,6 +127,7 @@ export function QuickFilter(props) {
     updateActiveSavedFilter = () => {},
     pcUpdateFilters = () => {},
     updateFilterControls = () => {},
+    canFilter = true,
   } = props;
   const updateQuickFilter = _.includes([21], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
@@ -133,11 +136,10 @@ export function QuickFilter(props) {
   const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const [filterControls, setFilterControls] = useState([]);
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
-  const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
+  const showSavedFilter = canFilter && !_.get(window, 'shareState.shareId') && base.type !== 'single';
   const [appFilterId, setAppFilterId] = useState('');
 
   const items = useMemo(() => {
-    setValues({});
     return filters
       .map(filter => {
         const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
@@ -155,6 +157,12 @@ export function QuickFilter(props) {
       })
       .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)));
   }, [JSON.stringify(filters)]);
+  const [prevItems, setPrevItems] = useState(items);
+
+  if (items !== prevItems) {
+    setPrevItems(items);
+    setValues({});
+  }
 
   const update = newValues => {
     const valuesToUpdate = newValues || values;
@@ -277,10 +285,29 @@ export function QuickFilter(props) {
       })),
     );
 
+  const filterAddConditionControls = controls => {
+    const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, worksheetInfo?.switches || [], view?.viewId);
+
+    return filterOnlyShowField(
+      showWorkflowControl
+        ? controls
+        : controls.filter(
+            c =>
+              !_.includes(
+                WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId),
+                c.controlId,
+              ),
+          ),
+    );
+  };
+
   const openAppFilter = () => {
+    const { template = {} } = worksheetInfo;
+    const { controls = [] } = template;
+
     compatibleMDJS('customizeFilterForWorksheet', {
       filterId: appFilterId, // 初次使用传空, App随机生成, 需要H5临时存储在对应场景下
-      item: worksheetInfo, // 工作表详细
+      item: { ...worksheetInfo, template: { ...template, controls: filterAddConditionControls(controls) } }, // 工作表详细
       viewId: view.viewId, // 当前视图ID, 可能影响关联记录, 待确认是否需要
       success: function (res) {
         // filter 对应API使用的filterControls, 直接使用即可
@@ -297,9 +324,9 @@ export function QuickFilter(props) {
 
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
-      <div className="header flexRow valignWrapper">
+      {/* <div className="header flexRow valignWrapper">
         <Icon className="textTertiary close" icon="close" onClick={onHideSidebar} />
-      </div>
+      </div> */}
       <div className="flex body">
         {showSavedFilter && !_.isEmpty(savedFilters) && (
           <Fragment>
@@ -310,10 +337,11 @@ export function QuickFilter(props) {
             ].map(item => {
               const { title, data = [] } = item;
               return _.isEmpty(data) ? null : (
-                <Fragment>
+                <Fragment key={title}>
                   <div className="textSecondary bold ellipsis mBottom16">{title}</div>
                   {data.map(it => (
                     <SavedItem
+                      key={it.id}
                       className={cx('ellipsis', { active: activeSavedFilter.id === it.id })}
                       onClick={() => {
                         setFilterControls(formatForSave(it));
@@ -330,7 +358,7 @@ export function QuickFilter(props) {
         )}
 
         {/* APP网页集成自定义筛选 */}
-        {window.isMingDaoApp && allowFilter && (
+        {canFilter && window.isMingDaoApp && allowFilter && (
           <Fragment>
             <div className="flexRow alignCenter Font14 pTop16 pBottom16" onClick={openAppFilter}>
               <span className="bold textPrimary">{_l('自定义筛选')}</span>
@@ -349,6 +377,7 @@ export function QuickFilter(props) {
         <div className="pTop16">
           {items.map((item, i) => (
             <Item
+              key={item.controlId}
               requiredError={
                 requiredErrorVisible &&
                 item.isRequired &&

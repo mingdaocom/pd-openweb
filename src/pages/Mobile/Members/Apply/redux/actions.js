@@ -1,5 +1,6 @@
 import { Dialog } from 'antd-mobile';
 import ajaxRequest from 'src/api/appManagement';
+import { getTranslateInfo } from 'src/utils/app';
 
 export const getAppApplyInfo =
   ({ appId }) =>
@@ -20,11 +21,16 @@ export const getAppApplyInfo =
         .then(),
     ]).then(res => {
       const [applyList, roleList] = res;
+      const translatedRoleList = roleList.map(item => ({
+        ...item,
+        name: getTranslateInfo(appId, null, item.roleId).name || item.name,
+      }));
+
       dispath({
         type: 'UPDATE_APPLY_LIST',
         data: {
           applyList,
-          roleList,
+          roleList: translatedRoleList,
         },
       });
       dispath({

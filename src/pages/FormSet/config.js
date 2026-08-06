@@ -18,6 +18,8 @@ export const permitList = {
   sheetTrash: 14, // 工作表回收站
   statisticsSwitch: 50, // 公共统计
   statisticsSelfSwitch: 51, // 个人统计
+  filterSwitch: 1001, // 筛选操作权限
+  statsSwitch: 1002, // 统计操作权限
   viewShareSwitch: 20, // viewShareSwitch 分享视图
   internalAccessLink: 38, // 内部访问链接
   viewExportSwitch: 21, // viewExportSwitch	导出视图下记录

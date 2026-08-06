@@ -14,12 +14,15 @@ export default class DataFilter extends Component {
       showXAxisType: showXAxisCount < 0 ? 0 : 1,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.showXAxisCount !== this.props.showXAxisCount) {
-      this.setState({
-        count: nextProps.showXAxisCount,
-        showXAxisType: nextProps.showXAxisCount < 0 ? 0 : 1,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.showXAxisCount !== prevProps.showXAxisCount) {
+        this.setState({
+          count: this.props.showXAxisCount,
+          showXAxisType: this.props.showXAxisCount < 0 ? 0 : 1,
+        });
+      }
     }
   }
   getText() {

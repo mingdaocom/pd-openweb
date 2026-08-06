@@ -2,9 +2,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { isEmptyValue } from 'src/utils/control';
+import { getDatePickerConfigs, isEmptyValue } from 'src/utils/controlCommon';
 import { getDynamicValue } from './formUtils';
 import { getAttachmentData } from './formUtils/helper';
 
@@ -193,8 +192,10 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
 
         params[item.id] = rows.map((row = {}) => {
           let rowItem = {};
+          const rowRecordId = _.get(row, 'rowid') || '';
           childMap.forEach(c => {
             const { cid, rcid } = safeParse(c.defsource || '[]')[0] || {};
+            const dynamicRecordId = cid === 'rowid' && rcid ? rowRecordId : recordId;
             const totalRelations = (curControl.relationControls || [])
               .concat(WORKFLOW_SYSTEM_CONTROL)
               .concat(SYSTEM_CONTROL);
@@ -211,7 +212,10 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
                   return i;
                 })
               : formData;
-            rowItem[c.id] = childControl || !cid ? getApiDynamicValue(c, controlValues, keywords, recordId) : '';
+            rowItem[c.id] =
+              cid === 'rowid' || childControl || !cid
+                ? getApiDynamicValue(c, controlValues, keywords, dynamicRecordId)
+                : '';
           });
           return rowItem;
         });

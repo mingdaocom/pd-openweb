@@ -26,8 +26,10 @@ class PostCard extends React.Component {
     this.bindComponentWillLeave();
   }
 
-  componentWillReceiveProps() {
-    this.bindComponentWillLeave();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.bindComponentWillLeave();
+    }
   }
 
   bindComponentWillLeave = () => {

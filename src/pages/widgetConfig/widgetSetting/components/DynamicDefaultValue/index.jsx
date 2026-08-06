@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { getAdvanceSetting as getAdvanceSettingByKey } from 'src/utils/control';

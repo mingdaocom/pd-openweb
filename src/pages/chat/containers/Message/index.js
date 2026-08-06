@@ -193,7 +193,7 @@ class Message extends Component {
           <div className="Message-body">
             {!isDuplicated ? (
               <div className="Message-title ellipsis">
-                <div className={cx('Message-from-name', { ThemeColor3: isMine })}>
+                <div className={cx('Message-from-name', { colorPrimary: isMine })}>
                   {isMine ? _l('我') : fromAccount.name}
                 </div>
               </div>

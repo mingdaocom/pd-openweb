@@ -32,6 +32,14 @@ const SubListSummaryDialog = styled(Dialog)`
   }
 `;
 
+const getTypeList = control => {
+  if (!control) return [];
+  let type = control.sourceControlType || control.type;
+  const summaryInfo = getSummaryInfo(type, control);
+  // 过滤【不显示】
+  return (summaryInfo.list || []).filter(_.identity).filter(item => !(item.type === 'COMMON' && !item.value));
+};
+
 export default function SubListSummaryWidget(props) {
   const { data, controls = [], onChange, onClose } = props;
   const { showControls = [] } = data;
@@ -55,14 +63,6 @@ export default function SubListSummaryWidget(props) {
       return true;
     })
     .map(i => ({ ...i, sectionId: '', relateControls: [] }));
-
-  const getTypeList = control => {
-    if (!control) return [];
-    let type = control.sourceControlType || control.type;
-    const summaryInfo = getSummaryInfo(type, control);
-    // 过滤【不显示】
-    return (summaryInfo.list || []).filter(_.identity).filter(item => !(item.type === 'COMMON' && !item.value));
-  };
 
   const filterSettingControls = filterControls.filter(s => !_.find(settingList, r => r.id === s.controlId));
 

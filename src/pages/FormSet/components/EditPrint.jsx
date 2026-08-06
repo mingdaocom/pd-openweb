@@ -8,6 +8,7 @@ import attachmentAjax from 'src/api/attachment';
 import sheetAjax from 'src/api/worksheet';
 import createUploader from 'src/library/plupload/createUploader';
 import { createEditFileLink } from 'src/pages/UploadTemplateSheet/utils';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import RegExpValidator from 'src/utils/expression';
 import { getFeatureStatus } from 'src/utils/project';
@@ -64,18 +65,18 @@ class EditPrint extends React.Component {
     this.setData();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.templateId !== this.props.templateId ||
-      nextProps.fileType !== this.props.fileType ||
-      !_.isEqual(nextProps.templateData, this.props.templateData)
-    ) {
-      this.uploaderDestroy();
-      this.setData(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.templateId !== prevProps.templateId ||
+        this.props.fileType !== prevProps.fileType ||
+        !_.isEqual(this.props.templateData, prevProps.templateData)
+      ) {
+        this.uploaderDestroy();
+        this.setData(this.props);
+      }
     }
-  }
 
-  componentDidUpdate() {
     if (!this.state.bindCreateUpload) {
       this.createUploader(this.props.fileType);
     }
@@ -443,7 +444,7 @@ class EditPrint extends React.Component {
           </span>
           <Icon
             icon="close"
-            className="mLeft10 textTertiary ThemeHoverColor3 Hand"
+            className="mLeft10 textTertiary hoverColorPrimary Hand"
             onClick={() => {
               onClose();
             }}
@@ -463,7 +464,7 @@ class EditPrint extends React.Component {
             <p
               className="btnTable mTop20 Hand"
               onClick={() => {
-                window.open(`/worksheet/uploadTemplateSheet/${worksheetId}`);
+                window.open(pathCompletion(`/worksheet/uploadTemplateSheet/${worksheetId}`));
               }}
             >
               {_l('开始制作')}

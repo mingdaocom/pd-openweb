@@ -271,7 +271,7 @@ export default function StructureSet(props) {
                     const defSource = getAdvanceSetting(newData, 'defsource') || [];
                     const tempTopFilters = [];
                     defSource.map(def => {
-                      tempTopFilters.push(_.get(JSON.parse(def.staticValue), '0'));
+                      tempTopFilters.push(_.get(safeParse(def.staticValue, 'array'), '0'));
                     });
                     updateCurrentView({
                       ...view,

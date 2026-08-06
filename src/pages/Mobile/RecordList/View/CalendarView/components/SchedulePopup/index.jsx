@@ -2,6 +2,7 @@ import React, { Fragment, memo, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Icon, LoadDiv, MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
 import RecordCard from 'mobile/RecordList/RecordCard';
+import { getFormateView } from '../../util';
 import EmptyStatus from '../EmptyStatus';
 import './index.less';
 
@@ -83,7 +84,7 @@ const ScheduleModal = props => {
                     <RecordCard
                       key={item.rowid}
                       data={item}
-                      view={view}
+                      view={getFormateView(view)}
                       appId={base.appId}
                       projectId={worksheetInfo.projectId}
                       controls={controls}

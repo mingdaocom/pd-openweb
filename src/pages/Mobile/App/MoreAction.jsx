@@ -8,6 +8,7 @@ import accountSettingApi from 'src/api/accountSetting';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
 import homeApi from 'src/api/homeApp';
+import { getSystemLangKey } from 'src/common/langConfig';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 
 const ModalWrap = styled(Popup)`
@@ -94,18 +95,10 @@ export default function MoreAction(props) {
   };
 
   const handleSetLang = value => {
-    const langCodeObjs = {
-      en: 'en',
-      ja: 'ja',
-      zh_hant: 'zh-Hant',
-      zh_hans: 'zh-Hans',
-    };
-    const langCode =
-      value === ''
-        ? langCodeObjs[originalLang]
-          ? getCurrentLangCode(langCodeObjs[originalLang])
-          : 0
-        : getCurrentLangCode(langCodeObjs[value]);
+    const sysLang =
+      value === '' ? getSystemLangKey(originalLang) || window.getDefaultLangKey() : getSystemLangKey(value);
+    const langCode = getCurrentLangCode(sysLang);
+
     accountSettingApi
       .editAccountSetting({
         settingType: '20',
@@ -113,7 +106,7 @@ export default function MoreAction(props) {
       })
       .then(data => {
         if (data) {
-          if (_.isNumber(value === '' ? 0 : getCurrentLangCode(langCodeObjs[value] || ''))) {
+          if (_.isNumber(langCode)) {
             accountSettingApi
               .editAccountSetting({
                 settingType: '6',
@@ -121,7 +114,7 @@ export default function MoreAction(props) {
               })
               .then(res => {
                 if (res) {
-                  setCookie('i18n_langtag', langCodeObjs[value] ? value : 'zh-Hans');
+                  setCookie('i18n_langtag', sysLang);
                   window.location.reload();
                 }
               });

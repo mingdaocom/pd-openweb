@@ -347,7 +347,7 @@ function RecordColor(params) {
           }}
           classNamePopup="addControlDrop"
           comp={() => (
-            <AddButton className="mTop4 Bold Font13 ThemeColor3 TxtCenter">
+            <AddButton className="mTop4 Bold Font13 colorPrimary TxtCenter">
               <i className="icon icon-add Font16 mRight5"></i>
               {_l('选择字段')}
             </AddButton>

@@ -1,13 +1,11 @@
 import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
-import domtoimage from 'dom-to-image';
 import { get } from 'lodash';
 import _ from 'lodash';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { reportTypes } from 'statistics/Charts/common';
 import { SYS_COLOR } from 'src/pages/Admin/settings/config';
 import { defaultTitleStyles } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -43,7 +41,48 @@ export const enumWidgetType = enumObj({
   tabs: 9,
   card: 10,
   image: 11,
+  subsection: 12,
 });
+
+export const CUSTOM_PAGE_IFRAME_ALLOW_LIST = [
+  'geolocation',
+  'microphone',
+  'camera',
+  'fullscreen',
+  'clipboard-read',
+  'clipboard-write',
+];
+
+export const CUSTOM_PAGE_IFRAME_ALLOW = `${CUSTOM_PAGE_IFRAME_ALLOW_LIST.join('; ')};`;
+
+export const getMergedIframeAllow = allow => {
+  const permissions = (allow || '')
+    .split(';')
+    .map(permission => permission.trim())
+    .filter(Boolean);
+
+  CUSTOM_PAGE_IFRAME_ALLOW_LIST.forEach(permission => {
+    if (!permissions.includes(permission)) {
+      permissions.push(permission);
+    }
+  });
+
+  return `${permissions.join('; ')};`;
+};
+
+export const addIframePermissions = html => {
+  if (!html || typeof document === 'undefined') return html;
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+
+  wrap.querySelectorAll('iframe').forEach(iframe => {
+    iframe.setAttribute('allow', getMergedIframeAllow(iframe.getAttribute('allow')));
+    iframe.setAttribute('allowfullscreen', 'true');
+  });
+
+  return wrap.innerHTML;
+};
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
@@ -65,6 +104,8 @@ export const getDefaultLayout = ({
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 3 };
     } else if (type === 'image') {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 4 };
+    } else if (type === 'subsection') {
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 3, minW: 48, minH: 2 };
     } else {
       return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 4 };
     }
@@ -82,6 +123,8 @@ export const getDefaultLayout = ({
       return { x: 0, y: y + h, w: 4, h: 2, minW, minH: 1 };
     } else if (enumType === 'image') {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 2 };
+    } else if (enumType === 'subsection') {
+      return { x: 0, y: y + h, w: 4, h: 1, minW: 4, minH: 1 };
     } else {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 7 : 6, minW, minH: 2 };
     }
@@ -122,6 +165,7 @@ export const getComponentTitleText = component => {
   if (enumType === 'tabs') return _.get(componentConfig, 'name') || _l('标签页');
   if (enumType === 'card') return _.get(componentConfig, 'name') || _l('卡片');
   if (enumType === 'image') return _.get(componentConfig, 'name') || _l('图片');
+  if (enumType === 'subsection') return _l('分段');
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
@@ -195,151 +239,6 @@ export const genUrl = (url, para, info) => {
   }, '');
   if (!paraStr) return url;
   return url.includes('?') ? `${url}&${paraStr}` : `${url}?${paraStr}`;
-};
-
-const blobToImg = blob => {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      const img = new Image();
-      img.src = reader.result;
-      img.addEventListener('load', () => resolve(img));
-    });
-    reader.readAsDataURL(blob);
-  });
-};
-
-const imgToCanvas = img => {
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0);
-  return canvas;
-};
-
-const addHintWatermark = (canvas, layouts) => {
-  return new Promise(resolve => {
-    const text = _l('不支持打印');
-    const ctx = canvas.getContext('2d');
-    ctx.font = '40px';
-    ctx.fillStyle = '#757575';
-    ctx.textAlign = 'center';
-    layouts.forEach(({ left, top }) => {
-      ctx.fillText(text, left, top);
-    });
-    resolve(canvas);
-    // canvas.toBlob(blob => resolve(blob));
-  });
-};
-
-const addUserWatermark = (canvas, currentProject) => {
-  const getValue = key => {
-    switch (key) {
-      case 'mobilePhone':
-        return (_.get(md, 'global.Account.mobilePhone') || '').substr(-4, 4);
-      case 'email':
-        return (_.get(md, 'global.Account.email') || '').replace(/@.*/g, '');
-      case 'companyName':
-        return currentProject.companyName || '';
-      default:
-        return _.get(md, `global.Account.${key}`) || '';
-    }
-  };
-
-  const getContent = () => {
-    if (currentProject.enabledWatermarkTxt) {
-      return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
-    }
-
-    return md.global.Account.fullname + '/' + (getValue('mobilePhone') || getValue('email'));
-  };
-
-  const content = getContent();
-
-  return new Promise(resolve => {
-    const ctx = canvas.getContext('2d');
-
-    ctx.font = '18px normal';
-    ctx.fillStyle = 'rgba(0, 0, 0, .06)';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const angle = (50 * Math.PI) / 180;
-    const horizontalGap = 212;
-    const verticalGap = 222;
-
-    for (let y = 0; y < canvas.height; y += verticalGap) {
-      for (let x = 0; x < canvas.width; x += horizontalGap) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        ctx.fillText(content, 0, 0);
-        ctx.restore();
-      }
-    }
-
-    resolve(canvas);
-  });
-};
-
-export const createFontLink = () => {
-  return new Promise(resolve => {
-    const link = document.createElement('link');
-    link.onload = resolve;
-    link.setAttribute('class', 'fontlinksheet');
-    link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('type', 'text/css');
-    link.setAttribute('href', '/staticfiles/iconfont/iconfont.css');
-    document.head.appendChild(link);
-  });
-};
-
-export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) => {
-  return new Promise(resolve => {
-    const wrap =
-      document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
-    const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
-    const embedUrls = wrap.querySelectorAll('.widgetContent.embedUrl');
-    const countryLayers = [
-      ...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`),
-      ...wrap.querySelectorAll(`.statisticsCard-${reportTypes.WorldMap}`),
-    ].map(item => item.parentNode.parentNode);
-    const { offsetWidth, offsetHeight } = wrap;
-    const fontlinksheet = document.querySelector('.fontlinksheet');
-    document.querySelectorAll('.mapboxgl-ctrl').forEach(item => {
-      item.remove();
-    });
-    domtoimage
-      .toBlob(wrap, {
-        bgcolor: pageBgColor || '#f5f5f5',
-        width: offsetWidth,
-        height: offsetHeight,
-      })
-      .then(async blob => {
-        const newImage = await blobToImg(blob);
-        const canvas = imgToCanvas(newImage);
-        const layouts = [...embedUrls, ...countryLayers].map(el => {
-          const { left, width, top, height } = el.getBoundingClientRect();
-          return {
-            left: left - wrapLeft + width / 2,
-            top: top - wrapTop + height / 2,
-          };
-        });
-        let newCanvas = null;
-        newCanvas = await addHintWatermark(canvas, layouts);
-        if (isUserWatermark) {
-          newCanvas = await addUserWatermark(newCanvas, currentProject);
-        }
-
-        fontlinksheet && fontlinksheet.remove();
-        newCanvas.toBlob(blob => resolve(blob));
-      })
-      .catch((error, data) => {
-        fontlinksheet && fontlinksheet.remove();
-        console.log(error, data);
-      });
-  });
 };
 
 export const parseLink = (link, param) => {
@@ -709,7 +608,7 @@ export const syncThemeConfig = (config, themeMode = window.themeMode || 'light')
   if (config.pageStyleType === themeMode) {
     return config;
   } else {
-    const { pivoTableColorIndex = 1, numberChartColorIndex = 1, titleStyles = defaultTitleStyles } = config;
+    const { pivoTableColorIndex = 1, titleStyles = defaultTitleStyles } = config;
 
     if (themeMode === 'light') {
       return {

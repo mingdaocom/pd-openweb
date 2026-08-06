@@ -29,11 +29,7 @@ export default function createPermissionCheckWrapper(Comp) {
           if (able) {
             setLoading(false);
           } else {
-            setError(
-              _l(
-                '抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！',
-              ),
-            );
+            setError(_l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'));
             setLoading(false);
           }
         })

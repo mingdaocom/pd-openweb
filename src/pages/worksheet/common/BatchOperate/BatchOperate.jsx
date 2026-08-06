@@ -96,40 +96,49 @@ class BatchOperate extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { appId, worksheetId, viewId, permission, updateViewPermission = () => {} } = this.props;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { appId, worksheetId, viewId, permission, updateViewPermission = () => {} } = prevProps;
 
-    if (nextProps.worksheetId !== this.props.worksheetId || nextProps.viewId !== this.props.viewId) {
-      this.setState({
-        customButtons: [],
-      });
-    }
-
-    let needReloadButtons = false;
-    const nextSelectedRow = nextProps.selectedRows.length === 1 && nextProps.selectedRows[0];
-    const nowSelectedRow = this.props.selectedRows.length === 1 && this.props.selectedRows[0];
-    let updateRowId;
-
-    if (
-      (!nowSelectedRow && nextSelectedRow) ||
-      (nowSelectedRow && nextSelectedRow && nowSelectedRow.rowid !== nextSelectedRow.rowid)
-    ) {
-      updateRowId = nextSelectedRow.rowid;
-      needReloadButtons = true;
-    } else if (nowSelectedRow && !nextSelectedRow && nextProps.selectedRows.length) {
-      needReloadButtons = true;
-    }
-
-    if (nextProps.viewId === this.props.viewId && nextProps.selectedLength && !this.props.selectedLength) {
-      needReloadButtons = true;
-      this.setState({ loading: false });
-      if (_.isEmpty(permission)) {
-        updateViewPermission({ appId, worksheetId, viewId });
+      if (this.props.worksheetId !== prevProps.worksheetId || this.props.viewId !== prevProps.viewId) {
+        this.setState({
+          customButtons: [],
+        });
       }
-    }
 
-    if (needReloadButtons) {
-      this.loadCustomButtons(updateRowId);
+      let needReloadButtons = false;
+      const nextSelectedRow = this.props.selectedRows.length === 1 && this.props.selectedRows[0];
+      const nowSelectedRow = prevProps.selectedRows.length === 1 && prevProps.selectedRows[0];
+      let updateRowId;
+
+      if (
+        (!nowSelectedRow && nextSelectedRow) ||
+        (nowSelectedRow && nextSelectedRow && nowSelectedRow.rowid !== nextSelectedRow.rowid)
+      ) {
+        updateRowId = nextSelectedRow.rowid;
+        needReloadButtons = true;
+      } else if (nowSelectedRow && !nextSelectedRow && this.props.selectedRows.length) {
+        needReloadButtons = true;
+      }
+
+      if (this.props.viewId === prevProps.viewId && this.props.selectedLength && !prevProps.selectedLength) {
+        needReloadButtons = true;
+        this.setState({
+          loading: false,
+        });
+
+        if (_.isEmpty(permission)) {
+          updateViewPermission({
+            appId,
+            worksheetId,
+            viewId,
+          });
+        }
+      }
+
+      if (needReloadButtons) {
+        this.loadCustomButtons(updateRowId);
+      }
     }
   }
 
@@ -152,11 +161,13 @@ class BatchOperate extends React.Component {
       this.getWorksheetBtnsAjax.then(data => {
         this.setState({
           customButtonLoading: false,
+          // 过滤已停用的按钮（status === 0）
           customButtons: replaceBtnsTranslateInfo(appId, data).filter(
             btn =>
-              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
-              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
-              (btn.writeObject === 1 && btn.writeType === 1),
+              btn.status !== 0 &&
+              (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
+                btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
+                (btn.writeObject === 1 && btn.writeType === 1)),
           ),
         });
       });
@@ -354,12 +365,12 @@ class BatchOperate extends React.Component {
     const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
 
     if (window.isMDClient) {
-      alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
+      alert(_l('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器'), 3);
       return;
     }
 
     if (disablePrint) {
-      alert('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
+      alert(_l('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器'), 3);
       return;
     }
 
@@ -452,6 +463,8 @@ class BatchOperate extends React.Component {
           isCharge={isCharge}
           count={selectedLength}
           buttons={customButtons}
+          listgroup={_.get(view, 'advancedSetting.listgroup')}
+          listbtns={_.get(view, 'advancedSetting.listbtns')}
           appId={appId}
           viewId={viewId}
           recordId={selectedRows.length === 1 && selectedRows[0].rowid}
@@ -833,7 +846,7 @@ class BatchOperate extends React.Component {
             <Tooltip placement="bottom" title={_l('刷新视图')}>
               <i
                 className={cx(
-                  'refreshBtn icon icon-task-later refresh textTertiary Font18 pointer ThemeHoverColor3 mTop5 mRight12',
+                  'refreshBtn icon icon-task-later refresh textTertiary Font18 pointer hoverColorPrimary mTop5 mRight12',
                 )}
                 onClick={() => {
                   refresh({ noClearSelected: true, updateWorksheetControls: true });
@@ -912,7 +925,7 @@ class BatchOperate extends React.Component {
                     : []),
                 ]}
               >
-                <i className="icon icon-more_horiz  textTertiary Font18 pointer ThemeHoverColor3  mRight12" />
+                <i className="icon icon-more_horiz  textTertiary Font18 pointer hoverColorPrimary  mRight12" />
               </SubButton>
             )}
           </div>

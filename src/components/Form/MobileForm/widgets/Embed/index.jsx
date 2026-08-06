@@ -1,8 +1,9 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { lazy, memo, Suspense, useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
@@ -48,12 +49,16 @@ const EmbedWrap = styled.div`
       .searchInputComp {
         ${props =>
           _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
-            ? { display: 'none;' }
+            ? {
+                display: 'none;',
+              }
             : {}}
       }
     }
   }
 `;
+const LoadableChartContent = lazy(() => import('mobile/CustomPage/ChartContent'));
+const LoadableEmbedPreview = lazy(() => import('./EmbedPreview'));
 
 const Embed = props => {
   const {
@@ -79,36 +84,35 @@ const Embed = props => {
   const latestProps = useRef(props);
   const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
   const { height, rownum = '10' } = advancedSetting;
-  const [{ resultData, needUpdate, ChartComponents, viewType, errorCode }, setState] = useSetState({
+  const [{ resultData, needUpdate, viewType, errorCode }, setState] = useSetState({
     resultData: '',
     needUpdate: Math.random(),
-    ChartComponents: null,
     viewType: '',
     errorCode: null,
   });
-
   latestProps.current = props;
   latestResultData.current = resultData;
+  const getControls = useCallback(() => {
+    worksheetAjax
+      .getWorksheetInfo({
+        worksheetId: wsid,
+        getViews: true,
+      })
+      .then(({ template = {}, views = [] }) => {
+        const curView = _.find(views, v => v.viewId === reportid);
 
-  const getControls = useCallback(
-    component => {
-      worksheetAjax
-        .getWorksheetInfo({ worksheetId: wsid, getViews: true })
-        .then(({ template = {}, views = [] }) => {
-          const curView = _.find(views, v => v.viewId === reportid);
-          setState({
-            ChartComponents: component,
-            viewType: String(_.get(curView, 'viewType')),
-          });
-          viewControlsRef.current = _.get(template, 'controls') || [];
-          setValue();
-        })
-        .catch(err => {
-          setState({ errorCode: err.errorCode });
+        setState({
+          viewType: String(_.get(curView, 'viewType')),
         });
-    },
-    [dataSource],
-  );
+        viewControlsRef.current = _.get(template, 'controls') || [];
+        setValue();
+      })
+      .catch(err => {
+        setState({
+          errorCode: err.errorCode,
+        });
+      });
+  }, [dataSource]);
 
   const handleReloadIFrame = () => {
     if (_.isFunction(_.get(iframeRef, 'current.contentDocument.location.reload'))) {
@@ -122,12 +126,9 @@ const Embed = props => {
 
   const initFunc = () => {
     if (enumDefault === 2) {
-      import('mobile/CustomPage/ChartContent').then(component => {
-        setState({ ChartComponents: component });
-        setValue();
-      });
+      setValue();
     } else if (enumDefault === 3) {
-      import('./EmbedPreview').then(getControls);
+      getControls();
     } else {
       setValue();
     }
@@ -162,7 +163,9 @@ const Embed = props => {
 
     if (enumDefault === 1) {
       if (value && value !== _resultData) {
-        setState({ resultData: value });
+        setState({
+          resultData: value,
+        });
       }
     } else {
       const currentTimeForSecond = useCachedCurrentTime ? currentTimeRef.current : new Date();
@@ -189,25 +192,29 @@ const Embed = props => {
       clearInterval(embedWatch.current);
     };
   }, []);
-
   useEffect(() => {
     initFunc(() => {
       // 嵌入链接无法主动刷新，变更src刷新
       if (enumDefault === 1 && iframeRef.current) {
         const tmpUrl = _.get(iframeRef, 'current.src');
+
         iframeRef.current.src = 'about:blank';
+
         const _t = setTimeout(() => {
           iframeRef.current.src = tmpUrl;
           clearTimeout(_t);
         }, 300);
       } else {
-        setState({ needUpdate: Math.random() });
+        setState({
+          needUpdate: Math.random(),
+        });
       }
     });
   }, [flag, recordId]);
 
   const getContent = () => {
     const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;
+
     const isShareView = _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
 
     if (errorCode === 300016) {
@@ -255,42 +262,50 @@ const Embed = props => {
         </div>
       );
     } else {
-      if (!ChartComponents || !wsid) return null;
+      if (!wsid) return null;
 
       if (enumDefault === 3) {
         return (
           <div className="embedContainer viewContainer">
-            <ChartComponents.default
-              appId={appid || appId}
-              setting={{
-                value: wsid,
-                viewId: reportid,
-                config: {
-                  fromEmbed: true,
-                  isAddRecord: enumDefault2 !== 1,
-                  searchRecord: true,
-                  ...(viewType === VIEW_DISPLAY_TYPE.sheet ? { pageCount: rownum } : {}),
-                  fullShowTable: true,
-                  minRowCount: 2,
-                  isDraft,
-                  embedNeedUpdate: needUpdate,
-                },
-              }}
-              filtersGroup={resultData}
-            />
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableEmbedPreview
+                appId={appid || appId}
+                setting={{
+                  value: wsid,
+                  viewId: reportid,
+                  config: {
+                    fromEmbed: true,
+                    isAddRecord: enumDefault2 !== 1,
+                    searchRecord: true,
+                    ...(viewType === VIEW_DISPLAY_TYPE.sheet
+                      ? {
+                          pageCount: rownum,
+                        }
+                      : {}),
+                    fullShowTable: true,
+                    minRowCount: 2,
+                    isDraft,
+                    embedNeedUpdate: needUpdate,
+                  },
+                }}
+                filtersGroup={resultData}
+              />
+            </Suspense>
           </div>
         );
       }
 
       return (
         <div className="embedContainer chartPadding flexColumn">
-          <ChartComponents.default
-            reportId={reportid}
-            pageId={isShareView ? viewId : recordId}
-            filters={resultData}
-            needUpdate={needUpdate}
-            viewId={viewIdForPermit}
-          />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableChartContent
+              reportId={reportid}
+              pageId={isShareView ? viewId : recordId}
+              filters={resultData}
+              needUpdate={needUpdate}
+              viewId={viewIdForPermit}
+            />
+          </Suspense>
         </div>
       );
     }
@@ -315,5 +330,4 @@ Embed.propTypes = {
   disabled: PropTypes.bool,
   formDisabled: PropTypes.bool,
 };
-
 export default memo(Embed);

@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
@@ -12,6 +12,7 @@ import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFile
 import './index.less';
 
 const SHEET_AT_ALL = _l('@工作表全体成员');
+
 const ROW_AT_ALL = _l('@记录全体成员');
 
 const formatEmpty = value => {
@@ -22,8 +23,7 @@ const formatEmpty = value => {
   return value || '';
 };
 
-@connect()
-class AddDiscuss extends Component {
+let AddDiscuss = class AddDiscuss extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,15 +31,20 @@ class AddDiscuss extends Component {
       files: [],
       members: [],
       showSelectUser: false,
-      allowExAccountDiscuss: false, //允许外部用户讨论
-      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+      allowExAccountDiscuss: false,
+      //允许外部用户讨论
+      exAccountDiscussEnum: 0,
+      //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
       temporaryDiscuss: {}, // 暂存填写内容
     };
     this.isLock = false;
   }
+
   componentDidMount() {
     this.getPortalConfigSet();
+
     const { discussionInfo, temporaryDiscuss } = _.get(this.props, 'match.params');
+
     this.setState({
       value: discussionInfo.content || undefined,
       temporaryDiscuss,
@@ -53,24 +58,30 @@ class AddDiscuss extends Component {
   getPortalConfigSet = () => {
     const { params } = this.props.match;
     const { appId } = params;
-
-    externalPortalAjax.getConfig({ appId }).then(res => {
-      const {
-        allowExAccountDiscuss, //允许外部用户讨论
-        exAccountDiscussEnum,
-      } = res;
-      this.setState({
-        allowExAccountDiscuss, //允许外部用户讨论
-        exAccountDiscussEnum,
+    externalPortalAjax
+      .getConfig({
+        appId,
+      })
+      .then(res => {
+        const {
+          allowExAccountDiscuss,
+          //允许外部用户讨论
+          exAccountDiscussEnum,
+        } = res;
+        this.setState({
+          allowExAccountDiscuss,
+          //允许外部用户讨论
+          exAccountDiscussEnum,
+        });
       });
-    });
   };
 
   handlePushValue(text) {
     text = text + ' ';
     const { value = '', temporaryDiscuss } = this.state;
-    const { replyId, replyName } = _.get(this.props, 'match.params.discussionInfo');
-    // 当前光标所在位置
+
+    const { replyId, replyName } = _.get(this.props, 'match.params.discussionInfo'); // 当前光标所在位置
+
     const cursorPosition = getCaretPosition(this.textarea);
 
     const temp = _.assign(temporaryDiscuss, {
@@ -80,6 +91,7 @@ class AddDiscuss extends Component {
         replyName,
       },
     });
+
     this.props.handleTemporaryDiscuss(temp);
     this.setState(
       {
@@ -91,12 +103,14 @@ class AddDiscuss extends Component {
       },
     );
   }
+
   handleSendMessage() {
     const {
       value,
       files,
       members,
-      allowExAccountDiscuss, //允许外部用户讨论
+      allowExAccountDiscuss,
+      //允许外部用户讨论
       exAccountDiscussEnum,
       temporaryDiscuss,
     } = this.state;
@@ -113,9 +127,8 @@ class AddDiscuss extends Component {
       });
     }
 
-    let entityType = 0;
+    let entityType = 0; //外部用户且未开启讨论 不能内部讨论
 
-    //外部用户且未开启讨论 不能内部讨论
     if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
       entityType = 2;
     }
@@ -126,7 +139,6 @@ class AddDiscuss extends Component {
     }
 
     if (this.isLock) return;
-
     this.isLock = true;
     discussionAjax
       .addDiscussion({
@@ -143,10 +155,14 @@ class AddDiscuss extends Component {
         if (result.data) {
           if (!_.isEmpty(temporaryDiscuss)) {
             delete temporaryDiscuss[replyId || 'empty'];
-            this.setState({ temporaryDiscuss });
+            this.setState({
+              temporaryDiscuss,
+            });
             this.props.handleTemporaryDiscuss(temporaryDiscuss);
           } else {
-            this.setState({ temporaryDiscuss: {} });
+            this.setState({
+              temporaryDiscuss: {},
+            });
             this.props.handleTemporaryDiscuss({});
           }
 
@@ -184,7 +200,6 @@ class AddDiscuss extends Component {
     const { projectId, handleTemporaryDiscuss, recordPartner = [] } = this.props;
     const { appId, discussionInfo } = this.props.match.params;
     const { replyId, replyName } = discussionInfo;
-
     return (
       <div className="addDiscuss flexColumn h100">
         <div className="discussHeader valignWrapper pLeft10 pRight10">
@@ -204,21 +219,32 @@ class AddDiscuss extends Component {
           spellCheck={false}
           value={value}
           onChange={value => {
-            const temp = _.assign(temporaryDiscuss, { [replyId || 'empty']: { replyId, content: value, replyName } });
+            const temp = _.assign(temporaryDiscuss, {
+              [replyId || 'empty']: {
+                replyId,
+                content: value,
+                replyName,
+              },
+            });
 
             if (!_.trim(value)) {
               delete temp[replyId || 'empty'];
             }
 
             handleTemporaryDiscuss(temp);
-            this.setState({ value, temporaryDiscuss: temp });
+            this.setState({
+              value,
+              temporaryDiscuss: temp,
+            });
           }}
         />
         {files.length ? <div className="filesWrapper">{this.renderFiles()}</div> : null}
         <div className="handleBar flexRow alignItemsCenter">
           <div className="flexRow flex alignItemsCenter">
             <UploadFileWrapper
-              style={{ paddingTop: '3px' }}
+              style={{
+                paddingTop: '3px',
+              }}
               files={files}
               projectId={projectId}
               appId={appId}
@@ -239,7 +265,14 @@ class AddDiscuss extends Component {
               </div>
             )}
             {!md.global.Account.isPortal && (
-              <div className="textTertiary bold Font15" onClick={() => this.setState({ showSelectUser: true })}>
+              <div
+                className="textTertiary bold Font15"
+                onClick={() =>
+                  this.setState({
+                    showSelectUser: true,
+                  })
+                }
+              >
                 <span className="TxtMiddle">{_l('@成员')}</span>
               </div>
             )}
@@ -258,11 +291,11 @@ class AddDiscuss extends Component {
             recordPartner={recordPartner}
             filterAccountIds={[md.global.Account.accountId]}
             onSave={members => {
-              const { value = '' } = this.state;
-              // 当前光标所在位置
-              const cursorPosition = getCaretPosition(this.textarea);
+              const { value = '' } = this.state; // 当前光标所在位置
 
+              const cursorPosition = getCaretPosition(this.textarea);
               const atUser = `${members.map(item => `@${item.fullname}`).join(' ')} `;
+
               const temp = _.assign(temporaryDiscuss, {
                 [replyId || 'empty']: {
                   replyId,
@@ -272,7 +305,6 @@ class AddDiscuss extends Component {
               });
 
               this.props.handleTemporaryDiscuss(temp);
-
               this.setState(
                 {
                   value: value.slice(0, cursorPosition) + atUser + value.slice(cursorPosition),
@@ -283,15 +315,17 @@ class AddDiscuss extends Component {
             }}
             onClose={() => {
               this.textarea && this.textarea.focus();
-              this.setState({ showSelectUser: false });
+              this.setState({
+                showSelectUser: false,
+              });
             }}
           />
         )}
       </div>
     );
   }
-}
-
+};
+AddDiscuss = connect()(AddDiscuss);
 export default props => {
   const { appId, worksheetId, viewId, rowId, discussionInfo } = props;
   const {
@@ -304,12 +338,20 @@ export default props => {
     handleTemporaryDiscuss = () => {},
     recordPartner,
   } = props;
-
   return (
     <Popup closeOnMaskClick className={cx('mobileModal', className)} onClose={onClose} visible={visible}>
       {(rowId || worksheetId) && (
         <AddDiscuss
-          match={{ params: { appId, worksheetId, viewId, rowId, discussionInfo, temporaryDiscuss } }}
+          match={{
+            params: {
+              appId,
+              worksheetId,
+              viewId,
+              rowId,
+              discussionInfo,
+              temporaryDiscuss,
+            },
+          }}
           onAdd={onAdd}
           onClose={onClose}
           projectId={projectId}

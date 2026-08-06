@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { colorGroup, getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
-import { getIsAlienationColor } from 'statistics/common';
+import { getIsAlienationColor } from 'statistics/common/reportDataUtils';
 import BaseColor from './BaseColor';
 import RuleColor from './RuleColor';
 

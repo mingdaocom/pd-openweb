@@ -1,30 +1,18 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
-import WidgetRowHeight from '../WidgetRowHeight';
-import ControlDirection from './ControlDirection';
-
-const DISPLAY_LIST = [
-  {
-    text: _l('经典模式'),
-    value: '0',
-  },
-  {
-    text: _l('电子表格模式'),
-    value: '1',
-  },
-];
+import TableConfig from './component/TableConfig';
+import TreeTableLevel from './component/TreeTableLevel';
 
 export default function RelateStyle(props) {
   const { data, onChange } = props;
   const {
     alternatecolor = '1',
-    sheettype = '0',
     allowedit = '1',
     layercontrolid,
     showtype,
@@ -33,6 +21,7 @@ export default function RelateStyle(props) {
     hidenumber,
     direction = '0',
     querytype,
+    openstatistics,
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
   const tableControls = _.get(data, 'relationControls') || [];
@@ -48,31 +37,7 @@ export default function RelateStyle(props) {
 
   return (
     <Fragment>
-      <ControlDirection {...props} />
-      <SettingItem hidden={direction === '1'}>
-        <div className="settingItemTitle">
-          {_l('交互方式')}{' '}
-          <Tooltip
-            placement="bottom"
-            title={
-              <span>
-                {_l('经典模式：点整行打开记录')}
-                <br />
-                {_l('电子表格模式：点单元格选中字段，按空格键打开记录')}
-              </span>
-            }
-          >
-            <i className="icon-help textTertiary Font16"></i>
-          </Tooltip>
-        </div>
-        <RadioGroup
-          size="middle"
-          checkedValue={sheettype}
-          data={DISPLAY_LIST}
-          onChange={value => onChange(handleAdvancedSettingChange(data, { sheettype: value }))}
-        />
-      </SettingItem>
-      <WidgetRowHeight {...props} />
+      <TableConfig {...props} />
 
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
@@ -112,21 +77,24 @@ export default function RelateStyle(props) {
               );
             }}
             noData={_l('未添加关联本表字段')}
-            onChange={value =>
+            onChange={value => {
+              if (layercontrolid === value) return;
               onChange(
                 handleAdvancedSettingChange(data, {
                   layercontrolid: value || '',
-                  ...(value ? { showcount: '1' } : {}),
+                  ...(value
+                    ? { showcount: '1', defaultlayer: '5', ...(openstatistics === '1' ? { openstatistics: '0' } : {}) }
+                    : {}),
                 }),
-              )
-            }
+              );
+            }}
           />
           <div className="mTop10 textTertiary">
             {_l('选择一个一对多关系的本表关联字段，数据将按此字段的父级（单条）、子级（多条）关系构成树形表格')}
           </div>
         </SettingItem>
       )}
-
+      {layercontrolid && <TreeTableLevel {...props} />}
       <SettingItem>
         <div className="settingItemTitle">{_l('其他')}</div>
         <div className="labelWrap">
@@ -145,7 +113,7 @@ export default function RelateStyle(props) {
               onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: String(+!checked) }))}
             >
               <span style={{ marginRight: '4px' }}>{_l('允许行内编辑')}</span>
-              <Tooltip placement="bottom" title={_l('勾选后可以在单元格直接编辑 Excel')}>
+              <Tooltip placement="bottom" title={_l('无需打开记录详情，在表格行内直接编辑字段')}>
                 <i className="icon-help textTertiary Font16"></i>
               </Tooltip>
             </Checkbox>

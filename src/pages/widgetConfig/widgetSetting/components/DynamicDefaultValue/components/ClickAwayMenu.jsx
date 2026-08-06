@@ -2,22 +2,31 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Menu, MenuItem } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 
 const ClearSelect = styled.div`
   padding: 4px 16px 6px 16px;
   color: var(--color-text-secondary);
   cursor: pointer;
 `;
-
-@withClickAway
-export default class ClickAwayMenu extends Component {
+let ClickAwayMenu = class ClickAwayMenu extends Component {
   render() {
     const { types, handleTimeSelect, dynamicValue, showClear = true } = this.props;
     return (
-      <Menu style={{ width: 'calc(100% - 36px)' }}>
+      <Menu
+        style={{
+          width: 'calc(100% - 36px)',
+        }}
+      >
         {!_.isEmpty(dynamicValue) && showClear && (
-          <ClearSelect key={'clear'} onClick={() => handleTimeSelect({ id: 'clear' })}>
+          <ClearSelect
+            key={'clear'}
+            onClick={() =>
+              handleTimeSelect({
+                id: 'clear',
+              })
+            }
+          >
             {_l('清除选择')}
           </ClearSelect>
         )}
@@ -29,4 +38,6 @@ export default class ClickAwayMenu extends Component {
       </Menu>
     );
   }
-}
+};
+ClickAwayMenu = ClickAway.wrap(ClickAwayMenu);
+export default ClickAwayMenu;

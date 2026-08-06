@@ -757,7 +757,7 @@ export const TitleContentWrap = styled.div`
       text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
       font-size: ${props => props.titleSize};
       line-height: ${props => (parseInt(props.titleSize) > 18 ? props.titleSize : '18px')};
-      color: ${props => props.titleColor || 'var(--color-text-title)'} !important;
+      color: ${props => props.titleColor || 'var(--color-text-primary)'} !important;
       ${props => props.titleStyle || ''};
       &.hideTitle {
         color: var(--color-text-tertiary) !important;

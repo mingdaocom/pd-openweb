@@ -60,7 +60,7 @@ const CommonBoard = props => {
         {viewData.map(item => {
           if (item.key === '-1' && !item.rows?.length) return;
           return (
-            <div className="groupHeaderItemWrap">
+            <div key={item.key} className="groupHeaderItemWrap">
               <GroupByControl
                 canFold={false}
                 appId={appId}
@@ -100,7 +100,7 @@ const CommonBoard = props => {
               addBoardViewRecord={addBoardViewRecord}
               viewData={viewData}
               viewRootEl={viewport}
-              {..._.pick(props, ['updateViewCard', 'delBoardViewRecord'])}
+              {..._.pick(props, ['delBoardViewRecord'])}
             />
           );
         })}

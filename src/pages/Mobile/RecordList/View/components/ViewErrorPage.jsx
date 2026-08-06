@@ -33,12 +33,12 @@ const ViewErrorPageContainer = styled.div`
 `;
 
 export default function ViewErrorPage(props) {
-  const { icon, viewName, color } = props;
+  const { icon, viewName, color, errorInfo = _l('视图配置错误，请联系管理员') } = props;
   return (
     <ViewErrorPageContainer className="flexColumn valignWrapper">
       <Icon className="errorIcon" icon={icon} style={{ color }} />
       <div className="errorTitle">{viewName}</div>
-      <div className="errorInfo">{_l('视图配置错误，请联系管理员')}</div>
+      <div className="errorInfo">{errorInfo}</div>
     </ViewErrorPageContainer>
   );
 }

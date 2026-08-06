@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
 import FilterInput, { NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
 import { conditionAdapter, formatQuickFilter, turnControl, validate } from 'mobile/RecordList/QuickFilter/utils';
 import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
@@ -27,7 +26,7 @@ const Con = styled.div`
     background-color: var(--color-border-secondary);
   }
   .body {
-    padding: 0 15px;
+    padding: 15px;
     overflow: auto;
     .controlWrapper {
       margin-bottom: 20px;
@@ -94,8 +93,17 @@ const formatFilterValuesToText = (control, item) => {
 };
 
 function QuickFilter(props) {
-  const { enableBtn, advancedSetting, filters, getFiltersText, updateQuickFilter, onCloseDrawer } = props;
+  const {
+    enableBtn,
+    advancedSetting,
+    filters,
+    getFiltersText,
+    defaultTriggerUpdate = false,
+    updateQuickFilter,
+    onCloseDrawer,
+  } = props;
   const store = useRef({});
+  const defaultTriggered = useRef(false);
   const [values, setValues] = useState({});
   const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
@@ -117,9 +125,9 @@ function QuickFilter(props) {
     [JSON.stringify(filters)],
   );
 
-  const update = newValues => {
+  const update = (newValues, { closeDrawer = true, skipRequiredCheck } = {}) => {
     const valuesToUpdate = newValues || values;
-    const needCheckRequired = _.get(advancedSetting, 'requiredcids.length');
+    const needCheckRequired = _.get(advancedSetting, 'requiredcids.length') && !skipRequiredCheck;
     const itemsWithValues = items.map((filter, i) => ({
       ...filter,
       filterType: filter.dataType === 36 ? filter.filterType : filter.filterType || (filter.dataType === 29 ? 24 : 2),
@@ -172,7 +180,9 @@ function QuickFilter(props) {
       updateQuickFilter([]);
     }
 
-    enableBtn && onCloseDrawer();
+    if (closeDrawer && enableBtn) {
+      onCloseDrawer();
+    }
   };
 
   const handleQuery = () => {
@@ -205,6 +215,14 @@ function QuickFilter(props) {
     );
 
   useEffect(() => {
+    if (defaultTriggerUpdate && !defaultTriggered.current) {
+      defaultTriggered.current = true;
+      // 自动触发(自定义页面筛选器进入即筛选)时不校验必填：必填未配默认值不应拦截首次自动筛选，
+      // 空必填字段由下方 validate 过滤自然忽略、照常筛选，与 PC 端 QuickFilter 行为一致。
+      update(undefined, { closeDrawer: false, skipRequiredCheck: true });
+      return;
+    }
+
     if (!enableBtn) {
       update();
     }
@@ -212,12 +230,13 @@ function QuickFilter(props) {
 
   return (
     <Con className="flexColumn h100 overflowHidden">
-      <div className="header flexRow valignWrapper">
+      {/* <div className="header flexRow valignWrapper">
         <Icon className="textTertiary close" icon="close" onClick={onCloseDrawer} />
-      </div>
+      </div> */}
       <div className="flex body">
         {items.map((item, i) => (
           <Item
+            key={item.controlId}
             requiredError={
               requiredErrorVisible &&
               item.isRequired &&

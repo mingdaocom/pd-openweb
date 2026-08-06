@@ -8,7 +8,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Input, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import AddDialog from './AddDialog';
@@ -267,7 +267,7 @@ function PluginSettings(params) {
       <div className="mTop4 textSecondary">
         {_l('配置使用本视图时需要的设置项，对应变量可以在插件代码中引用')}
         <span
-          className="editHref ThemeColor3 mLeft5 Hand"
+          className="editHref colorPrimary mLeft5 Hand"
           onClick={() => {
             params.onUpdateTab('ParameterSet');
           }}
@@ -286,7 +286,7 @@ function PluginSettings(params) {
           <div className="actionCon TxtRight">
             <Tooltip title={_l('清空参数')}>
               <i
-                className="icon-clean_all Font20 textTertiary ThemeHoverColor3 Hand"
+                className="icon-clean_all Font20 textTertiary hoverColorPrimary Hand"
                 onClick={() => {
                   setState({
                     key: moment().format('YYYYMMDDhhmmss'),
@@ -365,14 +365,14 @@ function PluginSettings(params) {
             }}
             getPopupContainer={() => document.body}
           >
-            <span className="textTertiary Bold Hand flexRow alignItemsCenter ThemeHoverColor3">
+            <span className="textTertiary Bold Hand flexRow alignItemsCenter hoverColorPrimary">
               <Icon icon={'add'} className="Font20" />
               <span className="mLeft4">{_l('参数%05037')}</span>
             </span>
           </Trigger>
           <span className="mLeft8 textPlaceholder">｜</span>
           <span
-            className="mLeft8 textTertiary Bold Hand ThemeHoverColor3"
+            className="mLeft8 textTertiary Bold Hand hoverColorPrimary"
             onClick={() => {
               setState({ addVisible: true });
             }}
@@ -382,7 +382,7 @@ function PluginSettings(params) {
           <span className="flex"></span>
           {paramSettings.length > 0 && (
             <span
-              className="textTertiary Bold Hand ThemeHoverColor3"
+              className="textTertiary Bold Hand hoverColorPrimary"
               onClick={() => {
                 var jsonStr = JSON.stringify(paramSettings);
                 var blob = new Blob([jsonStr], { type: 'application/json' });
@@ -511,4 +511,4 @@ function PluginSettings(params) {
   );
 }
 
-export default errorBoundary(PluginSettings);
+export default ErrorBoundary.wrap(PluginSettings);

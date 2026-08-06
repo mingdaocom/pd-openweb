@@ -31,7 +31,7 @@ import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import Search from 'src/pages/workflow/components/Search';
-import { emitter } from 'src/utils/common';
+import { emitter, pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import SelectUser from '../../components/SelectUser';
@@ -96,20 +96,25 @@ export default class AppManagement extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.projectId, this.props.projectId)) {
-      this.setState({
-        list: null,
-        status: '',
-        order: 3,
-        pageIndex: 1,
-        keyword: '',
-        loading: false,
-        isFree: false,
-      });
+  componentWillUnmount() {
+    emitter.removeListener('updateState', this.updateState);
+  }
 
-      const { projectId } = nextProps;
-      this.checkExportOrImportAuth(projectId);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.projectId, prevProps.projectId)) {
+        this.setState({
+          list: null,
+          status: '',
+          order: 3,
+          pageIndex: 1,
+          keyword: '',
+          loading: false,
+          isFree: false,
+        });
+        const { projectId } = this.props;
+        this.checkExportOrImportAuth(projectId);
+      }
     }
   }
 
@@ -257,7 +262,7 @@ export default class AppManagement extends Component {
           </div>
           <div className="flex name mLeft10 overflowHidden">
             <div
-              className={cx('flexRow nameBox ThemeColor3', { unable: !item.status })}
+              className={cx('flexRow nameBox colorPrimary', { unable: !item.status })}
               onClick={() => {
                 if (item.createType === 1) {
                   window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.appId));
@@ -286,7 +291,7 @@ export default class AppManagement extends Component {
             </div>
           </div>
         </div>
-        {hasDataBase && <div className="columnWidth dataBase">{item.dbInstance || _l('系统默认数据库')}</div>}
+        {hasDataBase && <div className="columnWidth dataBase WordBreak">{item.dbInstance || _l('系统默认数据库')}</div>}
         <div className="columnWidth">
           {item.createType !== 1 ? item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-'}
         </div>
@@ -322,7 +327,7 @@ export default class AppManagement extends Component {
             <Tooltip title={_l('使用分析')}>
               <span
                 className={cx(
-                  'textTertiary Hand Font18 icon-worksheet_column_chart hoverTextPrimaryLight mRight16 chartIcon',
+                  'textTertiary Hand Font18 icon-worksheet_column_chart hoverColorPrimaryLight mRight16 chartIcon',
                   {
                     isShow: item.createType !== 1,
                   },
@@ -333,7 +338,7 @@ export default class AppManagement extends Component {
                     return;
                   }
 
-                  window.open(`/app/${item.appId}/analytics/${projectId}`, '__blank');
+                  window.open(pathCompletion(`/app/${item.appId}/analytics/${projectId}`), '__blank');
                 }}
               ></span>
             </Tooltip>
@@ -425,7 +430,7 @@ export default class AppManagement extends Component {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <span className="textTertiary Hand Font18 icon-moreop hoverTextPrimaryLight"></span>
+            <span className="textTertiary Hand Font18 icon-moreop hoverColorPrimaryLight"></span>
           </Trigger>
         </div>
       </div>
@@ -510,7 +515,7 @@ export default class AppManagement extends Component {
 
     return (
       <span
-        className={cx('textTertiary ThemeHoverColor3 pointer w100 oaButton updateAppCharge', {
+        className={cx('textTertiary hoverColorPrimary pointer w100 oaButton updateAppCharge', {
           disabled: transferLoading,
         })}
         onClick={() => this.chargeFn(appId, caid)}
@@ -663,7 +668,7 @@ export default class AppManagement extends Component {
                 <Fragment>
                   {licenseType === 1 ? (
                     <MdLink
-                      className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                      className="colorPrimary hoverColorPrimaryDark mLeft20 NoUnderline"
                       to={`/admin/upgradeservice/${this.props.projectId}${vertionType ? '/' + vertionType : ''}`}
                     >
                       {_l('升级版本')}
@@ -671,7 +676,7 @@ export default class AppManagement extends Component {
                   ) : (
                     <a
                       href="javascript:void(0);"
-                      className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                      className="colorPrimary hoverColorPrimaryDark mLeft20 NoUnderline"
                       onClick={() => {
                         purchaseMethodFunc({ projectId: this.props.projectId });
                       }}
@@ -729,7 +734,7 @@ export default class AppManagement extends Component {
             <div className="flex mLeft10 appName">{_l('应用名称')}</div>
             {hasDataBase && <div className="columnWidth dataBase WordBreak">{_l('所属数据库')}</div>}
             <div className="columnWidth flexRow">
-              <div className="pointer ThemeHoverColor3 pRight12" style={{ zIndex: 1 }}>
+              <div className="pointer hoverColorPrimary pRight12" style={{ zIndex: 1 }}>
                 {_l('工作表数')}
               </div>
             </div>
@@ -737,15 +742,15 @@ export default class AppManagement extends Component {
             <div className="columnWidth">{_l('状态')}</div>
             <div className="columnWidth flexRow">
               <div
-                className="pointer ThemeHoverColor3 pRight12"
+                className="pointer hoverColorPrimary pRight12"
                 style={{ zIndex: 1 }}
                 onClick={() => this.updateState({ order: order === 3 ? 4 : 3 })}
               >
                 {_l('创建时间')}
               </div>
               <div className="flexColumn manageListOrder">
-                <Icon icon="arrow-up" className={cx({ ThemeColor3: order === 4 })} />
-                <Icon icon="arrow-down" className={cx({ ThemeColor3: order === 3 })} />
+                <Icon icon="arrow-up" className={cx({ colorPrimary: order === 4 })} />
+                <Icon icon="arrow-down" className={cx({ colorPrimary: order === 3 })} />
               </div>
             </div>
             <div className="columnWidth">{_l('拥有者')}</div>

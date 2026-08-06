@@ -97,8 +97,8 @@ export default class UploadFile extends Component {
     this.initUpload();
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (nextState.isComplete !== this.state.isComplete) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.isComplete !== this.state.isComplete) {
       this.initUpload();
     }
   }

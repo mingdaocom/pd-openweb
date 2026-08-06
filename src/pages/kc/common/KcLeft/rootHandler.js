@@ -31,8 +31,8 @@ export function addNewRoot(args, cb) {
         cb(root);
       }
     })
-    .then(() => alert('创建成功'))
-    .catch(() => alert('创建失败，请稍后再试', 3));
+    .then(() => alert(_l('创建成功')))
+    .catch(() => alert(_l('创建失败，请稍后再试'), 3));
 }
 
 /**
@@ -79,7 +79,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
           .removeRootMember({ id: rootId, memberID: md.global.Account.accountId })
           .then(data => {
             if (data && data.result) {
-              alert(messageTitle + '成功');
+              alert(_l('%0成功', messageTitle));
               if (typeof cb === 'function') {
                 cb(rootId);
               }

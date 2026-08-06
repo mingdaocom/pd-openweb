@@ -4,21 +4,21 @@ import { bindActionCreators } from 'redux';
 import api from 'api/homeApp';
 import _ from 'lodash';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, getCurrentSubPath, pathCompletion } from 'src/utils/common';
 import { navigateTo } from '../../../router/navigateTo';
 import { getIds } from '../util';
 import AppDetail from './AppDetail';
 import './index.less';
 
-@connect(undefined, dispatch => ({
-  updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
-}))
-export default class AppPkgHeader extends Component {
+let AppPkgHeader = class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
     this.isRequest = false;
+    const subPath = getCurrentSubPath();
+
     if (
-      (props.path === '/worksheet/:worksheetId?' || props.path === '/worksheet/:worksheetId/view/:viewId') &&
+      (props.path === subPath + '/worksheet/:worksheetId?' ||
+        props.path === subPath + '/worksheet/:worksheetId/view/:viewId') &&
       location.href.indexOf('/row/') < 0
     ) {
       this.compatibleWorksheetRoute();
@@ -27,46 +27,61 @@ export default class AppPkgHeader extends Component {
     const { appId, groupId, worksheetId } = getIds(props);
 
     if (appId && !worksheetId && !groupId) {
-      this.completePara({ appId, groupId });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { appId, groupId, worksheetId } = getIds(nextProps);
-
-    if (appId === _.get(window, 'appInfo.id') && _.get(window, 'appInfo.currentPcNaviStyle') === 2) {
-      return;
-    }
-
-    if (appId !== getIds(this.props).appId || groupId !== getIds(this.props).groupId) {
-      this.isRequest = false;
-    }
-
-    if (appId && !worksheetId && !groupId) {
-      this.completePara({ appId, groupId });
+      this.completePara({
+        appId,
+        groupId,
+      });
     }
   }
 
   // 兼容形如 /worksheet/:worksheetId?的旧工作表路由
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { appId, groupId, worksheetId } = getIds(this.props);
+
+      if (appId === _.get(window, 'appInfo.id') && _.get(window, 'appInfo.currentPcNaviStyle') === 2) {
+        return;
+      }
+
+      if (appId !== getIds(prevProps).appId || groupId !== getIds(prevProps).groupId) {
+        this.isRequest = false;
+      }
+
+      if (appId && !worksheetId && !groupId) {
+        this.completePara({
+          appId,
+          groupId,
+        });
+      }
+    }
+  } // 兼容形如 /worksheet/:worksheetId?的旧工作表路由
+
   compatibleWorksheetRoute = () => {
     const { worksheetId, viewId } = getIds(this.props);
-    api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
-      if (appId && appSectionId) {
-        if (browserIsMobile()) {
-          location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`;
-        } else {
-          navigateTo(
-            `/app/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
-            true,
-          );
+    api
+      .getAppSimpleInfo({
+        workSheetId: worksheetId,
+      })
+      .then(({ appId, appSectionId, workSheetId }) => {
+        if (appId && appSectionId) {
+          if (browserIsMobile()) {
+            location.href = pathCompletion(
+              `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
+            );
+          } else {
+            navigateTo(
+              `/app/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
+              true,
+            );
+          }
         }
-      }
-    });
+      });
   };
-
   /**
    * 参数补齐
    */
+
   completePara = data => {
     if (this.isRequest) return;
     this.isRequest = true;
@@ -87,7 +102,10 @@ export default class AppPkgHeader extends Component {
 
   render() {
     const { ...props } = this.props;
-
     return <AppDetail {...props} />;
   }
-}
+};
+AppPkgHeader = connect(undefined, dispatch => ({
+  updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
+}))(AppPkgHeader);
+export default AppPkgHeader;

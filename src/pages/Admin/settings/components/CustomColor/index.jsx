@@ -330,7 +330,7 @@ export default class CustomColor extends Component {
           <div className="flexRow alignItemsCenter">
             <Icon
               icon="backspace"
-              className="Font22 ThemeHoverColor3 pointer"
+              className="Font22 hoverColorPrimary pointer"
               onClick={() => navigateTo(`/admin/settings/${this.props.projectId}`)}
             />
             <div className="Font17 bold flex mLeft10">

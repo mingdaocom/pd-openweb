@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import AttachmentConfig from './AttachmentConfig';
 import CascaderConfig from './CascaderConfig';
 import DateConfig from './DateConfig';
@@ -10,6 +10,7 @@ import DropConfig from './DropConfig';
 import FormulaDateConfig from './FormulaDateConfig';
 import NumberConfig from './NumberConfig';
 import RelateConfig from './RelateConfig';
+import RelateSearchConfig from './RelateSearchConfig';
 import RoleConfig from './RoleConfig';
 import ScoreConfig from './ScoreConfig';
 import SubListConfig from './SubListConfig';
@@ -31,6 +32,7 @@ const TYPE_TO_COMP = {
   38: FormulaDateConfig,
   46: TimeConfig,
   48: RoleConfig,
+  51: RelateSearchConfig,
 };
 
 export default function WidgetConfig(props) {
@@ -177,62 +179,6 @@ export default function WidgetConfig(props) {
           <span>{_l('允许使用上次的签名')}</span>
         </Checkbox>
       </div>
-    );
-  }
-
-  // 查询记录
-  if (type === 51) {
-    const [isHiddenOtherViewRecord] = (strDefault || '000').split('');
-    return (
-      <Fragment>
-        <div className="labelWrap">
-          <Checkbox
-            className="allowSelectRecords"
-            size="small"
-            checked={!!+isHiddenOtherViewRecord}
-            onClick={checked => {
-              onChange({
-                strDefault: updateConfig({
-                  config: strDefault,
-                  value: +!checked,
-                  index: 0,
-                }),
-              });
-            }}
-          >
-            <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
-            <Tooltip
-              placement="bottom"
-              title={
-                <span>
-                  {_l('未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段')}
-                </span>
-              }
-            >
-              <i className="icon icon-help textTertiary Font16 mLeft5 pointer" />
-            </Tooltip>
-          </Checkbox>
-        </div>
-        {/* <div className="labelWrap">
-          <Checkbox
-            className="allowSelectRecords"
-            size="small"
-            text={_l('显示计数')}
-            checked={showcount !== '1'}
-            onClick={checked =>
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  showcount: checked ? '1' : '0',
-                }),
-              )
-            }
-          >
-            <Tooltip placement="bottom" title={_l('在表单中显示查询记录的数量')}>
-              <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
-            </Tooltip>
-          </Checkbox>
-        </div> */}
-      </Fragment>
     );
   }
 

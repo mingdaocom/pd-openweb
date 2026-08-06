@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import {
   addOtherParam,
@@ -19,7 +20,7 @@ if (code) {
     if (checkOriginUrl(url)) {
       location.replace(decodeURIComponent(url));
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     ajax.post({
@@ -39,7 +40,7 @@ if (code) {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           });
         }
@@ -55,7 +56,7 @@ if (code) {
     if (checkOriginUrl(newUrl)) {
       location.replace(newUrl);
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     const hosts = location.host.split('.');
@@ -70,7 +71,11 @@ if (code) {
         const { clientId, state } = result.data;
         const defaultCallBackUrl = 'https://login.dingtalk.com/oauth2/auth';
         const redirect_uri = encodeURIComponent(
-          `${location.origin}/auth/dingding?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
+          pathCompletion(`/auth/dingding?url=${newUrl ? encodeURIComponent(newUrl) : ''}`),
+          {
+            hasDomain: true,
+            localHasDomain: true,
+          },
         );
         location.replace(
           `${defaultCallBackUrl}?redirect_uri=${redirect_uri}&response_type=code&client_id=${clientId}&scope=openid&state=${state}&prompt=consent`,

@@ -322,7 +322,7 @@ function Filters(props, ref) {
                     }}
                   />
                   <div className="flex"></div>
-                  <div className="clearButton ThemeColor3" onClick={() => actions.clearConditions()}>
+                  <div className="clearButton colorPrimary" onClick={() => actions.clearConditions()}>
                     {_l('清空')}
                   </div>
                 </div>

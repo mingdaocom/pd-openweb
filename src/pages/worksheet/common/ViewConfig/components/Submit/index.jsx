@@ -172,10 +172,24 @@ function ActionCon(props) {
       }}
       getPopupContainer={() => document.body}
     >
-      <Icon icon={'more_horiz'} className="ThemeHoverColor3 Hand action mLeft12 Font16" />
+      <Icon icon={'more_horiz'} className="hoverColorPrimary Hand action mLeft12 Font16" />
     </Trigger>
   );
 }
+
+const handleCopy = content => {
+  copy(content);
+  alert(_l('复制成功'));
+};
+
+const renderText = (content, renderTxt) => {
+  return (
+    <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
+      <div className="flex">{renderTxt ? renderTxt() : content}</div>
+      <Icon className="Hand mLeft10" icon={'content-copy'} />
+    </div>
+  );
+};
 
 export default function SubmitConfig(params) {
   const { view = {}, onChangeView, appId, updateCurrentViewState, projectId } = params;
@@ -201,10 +215,6 @@ export default function SubmitConfig(params) {
       configuration,
     });
   }, [params]);
-  const handleCopy = content => {
-    copy(content);
-    alert(_l('复制成功'));
-  };
 
   const handleScroll = (pageIndex, reGet) => {
     if (!_.get(view, 'pluginInfo.id')) {
@@ -275,15 +285,6 @@ export default function SubmitConfig(params) {
       });
   };
 
-  const renderText = (content, renderTxt) => {
-    return (
-      <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
-        <div className="flex">{renderTxt ? renderTxt() : content}</div>
-        <Icon className="Hand mLeft10" icon={'content-copy'} />
-      </div>
-    );
-  };
-
   return (
     <Wrap className="flexColumn">
       <ScrollView className="submitCon flex" onScrollEnd={() => handleScroll(pageIndex + 1)}>
@@ -303,7 +304,7 @@ export default function SubmitConfig(params) {
             return (
               <div className="">
                 {`mdye push -m `}
-                <span className="ThemeColor3">{`"COMMENTS"`}</span>
+                <span className="colorPrimary">{`"COMMENTS"`}</span>
               </div>
             );
           })}
@@ -313,7 +314,7 @@ export default function SubmitConfig(params) {
             {_l('选择一个已提交的代码应用到视图')}{' '}
             <Icon
               icon={'task-later'}
-              className="textDisabled ThemeHoverColor3 Hand Font16 mLeft5"
+              className="textDisabled hoverColorPrimary Hand Font16 mLeft5"
               onClick={() => {
                 handleScroll(1, true);
               }}

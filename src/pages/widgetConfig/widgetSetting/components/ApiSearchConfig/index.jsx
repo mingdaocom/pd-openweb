@@ -7,9 +7,10 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
+import { pathCompletion } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import DropdownSelectFields from '../../../components/DropdownSelectFields';
 import { SettingItem } from '../../../styled';
 import { dealRequestControls } from '../../../util/data';
@@ -135,10 +136,10 @@ function BasicInfo(props) {
                 <span className="flexCenter">
                   <span className="Bold ellipsis">{apiInfo.name}</span>{' '}
                   <i
-                    className="icon-launch textTertiary mLeft5 ThemeHoverColor3 Hand"
+                    className="icon-launch textTertiary mLeft5 hoverColorPrimary Hand"
                     onClick={e => {
                       e.stopPropagation();
-                      window.open(`/integrationApi/${data.dataSource}`);
+                      window.open(pathCompletion(`/integrationApi/${data.dataSource}`));
                     }}
                   />
                 </span>

@@ -26,9 +26,7 @@ const LiCon = styled.li`
     background-color: ${props => props.iconColor} !important;
   }
 `;
-
-@connect(state => state, dispatch => bindActionCreators({ changeBoardViewData }, dispatch))
-export default class SortableAppItem extends Component {
+let SortableAppItem = class SortableAppItem extends Component {
   static propTypes = {
     value: shape({
       name: string,
@@ -40,7 +38,6 @@ export default class SortableAppItem extends Component {
     renameAppGroup: func,
     ensurePointerVisible: func,
   };
-
   static defaultProps = {
     onAppItemConfigClick: _.noop,
     renameAppGroup: _.noop,
@@ -59,26 +56,29 @@ export default class SortableAppItem extends Component {
     this.$nameRef = createRef();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.ids = getIds(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.ids = getIds(this.props);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     const { appSectionId } = this.props.value;
-    const { groupId } = getIds(this.props);
+    const { groupId: currentGroupId } = this.ids;
+    const { groupId: nextGroupId } = getIds(nextProps);
     return (
       compareProps(this.props.match.params, nextProps.match.params, ['appId', 'groupId']) ||
       compareProps(this.props, nextProps, ['value']) ||
       compareProps(this.props.appPkg, nextProps.appPkg, ['displayIcon']) ||
       compareProps(this.state, nextState) ||
-      appSectionId === groupId
+      appSectionId === currentGroupId ||
+      appSectionId === nextGroupId
     );
   }
 
   switchVisible = (obj, cb) => {
     this.setState(obj, cb);
   };
-
   handleFocus = () => {
     setTimeout(() => {
       this.$nameRef && this.$nameRef.current && this.$nameRef.current.select();
@@ -87,14 +87,21 @@ export default class SortableAppItem extends Component {
   handleNameBlur = (data, e) => {
     let { value } = e.target;
     value = value.trim();
-
     const { renameAppGroup } = this.props;
     const { appSectionId, type } = data;
     const isNeedSendRequest = (value !== DEFAULT_GROUP_NAME && !!value) || type === DEFAULT_CREATE;
-    renameAppGroup(appSectionId, { name: value }, isNeedSendRequest);
-    if (this.state.dbClickedAppGroupId) this.setState({ dbClickedAppGroupId: '' });
+    renameAppGroup(
+      appSectionId,
+      {
+        name: value,
+      },
+      isNeedSendRequest,
+    );
+    if (this.state.dbClickedAppGroupId)
+      this.setState({
+        dbClickedAppGroupId: '',
+      });
   };
-
   getFirstAppItemId = () => {
     const { value, appPkg } = this.props;
     const isCharge = appPkg.viewHideNavi;
@@ -105,7 +112,10 @@ export default class SortableAppItem extends Component {
         : workSheetInfo.filter(item => [1, 4].includes(item.status) && !item.navigateHide))[0] || {};
 
     if (firstAppItem.type === 2) {
-      const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId }) || {};
+      const { workSheetInfo = [] } =
+        _.find(childSections, {
+          appSectionId: firstAppItem.workSheetId,
+        }) || {};
       const childrenFirstAppItem =
         (isCharge
           ? workSheetInfo
@@ -115,7 +125,6 @@ export default class SortableAppItem extends Component {
       return firstAppItem.workSheetId;
     }
   };
-
   getNavigateUrl = appSectionId => {
     const { appPkg } = this.props;
     let { appId } = getIds(this.props);
@@ -125,7 +134,9 @@ export default class SortableAppItem extends Component {
     }
 
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
+
     const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
 
     if (appPkg.pcNaviStyle === 2) {
@@ -139,7 +150,6 @@ export default class SortableAppItem extends Component {
 
     return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
   };
-
   handleKeyDown = e => {
     const { key, keyCode } = e;
 
@@ -163,7 +173,7 @@ export default class SortableAppItem extends Component {
     } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
-    const { groupId } = this.ids;
+    const { groupId } = getIds(this.props);
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
     const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
@@ -171,7 +181,10 @@ export default class SortableAppItem extends Component {
     const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[0] === '1';
     return (
       <LiCon
-        className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}
+        className={cx({
+          active: isFocus || groupId === appSectionId,
+          isCanConfigAppGroup: isShowConfigIcon,
+        })}
         textColor={['light'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
         iconColor={['light', 'black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
         lightIconColor={['light'].includes(appPkg.themeType) ? convertColor(appPkg.iconColor) : ''}
@@ -199,9 +212,14 @@ export default class SortableAppItem extends Component {
             className="sortableItem stopPropagation"
             to={url}
             onClick={() => {
-              if (this.ids.groupId !== appSectionId) {
+              if (groupId !== appSectionId) {
                 changeBoardViewData([]);
-                sessionStorage.setItem('addBehaviorLogInfo', JSON.stringify({ type: 'group' }));
+                sessionStorage.setItem(
+                  'addBehaviorLogInfo',
+                  JSON.stringify({
+                    type: 'group',
+                  }),
+                );
               }
 
               if (appPkg.pcNaviStyle === 2) {
@@ -227,13 +245,24 @@ export default class SortableAppItem extends Component {
           <Trigger
             action={['click']}
             popupVisible={visible}
-            onPopupVisibleChange={visible => this.switchVisible({ visible })}
+            onPopupVisibleChange={visible =>
+              this.switchVisible({
+                visible,
+              })
+            }
             popupAlign={{
               points: ['tl', 'bl'],
               offset: [-63, 13],
             }}
             popup={
-              <Menu className="appGroupConfigWrap" onClickAway={() => this.switchVisible({ visible: false })}>
+              <Menu
+                className="appGroupConfigWrap"
+                onClickAway={() =>
+                  this.switchVisible({
+                    visible: false,
+                  })
+                }
+              >
                 {APP_GROUP_CONFIG.map(({ type, icon, text, ...rest }) => {
                   if (isLock && type !== 'rename') return '';
                   return (
@@ -241,7 +270,16 @@ export default class SortableAppItem extends Component {
                       key={type}
                       icon={<Icon icon={icon} />}
                       onClick={() =>
-                        this.switchVisible({ visible: false }, () => onAppItemConfigClick({ id: type, appSectionId }))
+                        this.switchVisible(
+                          {
+                            visible: false,
+                          },
+                          () =>
+                            onAppItemConfigClick({
+                              id: type,
+                              appSectionId,
+                            }),
+                        )
                       }
                       {...rest}
                     >
@@ -254,12 +292,29 @@ export default class SortableAppItem extends Component {
           >
             <div
               className="topTri"
-              style={{ display: isShowConfigIcon ? 'block' : 'none' }}
-              onClick={() => this.switchVisible({ visible: true })}
+              style={{
+                display: isShowConfigIcon ? 'block' : 'none',
+              }}
+              onClick={() =>
+                this.switchVisible({
+                  visible: true,
+                })
+              }
             />
           </Trigger>
         )}
       </LiCon>
     );
   }
-}
+};
+SortableAppItem = connect(
+  state => state,
+  dispatch =>
+    bindActionCreators(
+      {
+        changeBoardViewData,
+      },
+      dispatch,
+    ),
+)(SortableAppItem);
+export default SortableAppItem;

@@ -533,7 +533,7 @@ export default function AttachmentVerify(props) {
           {showwatermark === '1' && (
             <Tooltip placement="bottom" title={_l('水印设置')}>
               <i
-                className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
+                className="icon-settings textTertiary Font16 Hand Right hoverColorPrimary"
                 onClick={() => {
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.waterMark);

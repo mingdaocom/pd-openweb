@@ -7,11 +7,12 @@ import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { dialogSelectDept } from 'ming-ui/functions';
 import groupController from 'src/api/group';
-import createGroup from 'src/pages/Group/createGroup';
+import createGroup from 'src/pages/Group/createGroup/load';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
 import Config from '../../config';
 import './index.less';
+import { pathCompletion } from 'src/utils/common';
 
 const { Search } = Input;
 
@@ -48,7 +49,7 @@ export default class GroupsList extends Component {
           return (
             <div className="nameBox">
               <img src={record.avatar} alt="avatar" />
-              <a className="overflow_ellipsis" href={`/group/groupValidate?gID=${record.groupId}`} target="_blank">
+              <a className="overflow_ellipsis" href={pathCompletion(`/group/groupValidate?gID=${record.groupId}`)} target="_blank">
                 {text}
               </a>
             </div>
@@ -144,7 +145,7 @@ export default class GroupsList extends Component {
             </div>
           );
           return (
-            <Dropdown overlay={menu} trigger={['click']} placement="topLeft" autoAdjustOverflow>
+            <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" autoAdjustOverflow>
               <span className="icon-moreop Font18 pointer textTertiary"></span>
             </Dropdown>
           );

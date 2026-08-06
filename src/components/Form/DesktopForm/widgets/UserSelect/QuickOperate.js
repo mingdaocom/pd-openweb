@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import UserController from 'src/api/user';
 import { WIDGET_VALUE_ID } from 'src/components/Form/core/config';
+import { pathCompletion } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
 
 const QuickOperateWrap = styled.div`
@@ -174,7 +175,7 @@ export default function QuickOperate(props) {
         const res = getBaseInfo();
 
         if (option.value === 'chat' && res.accountStatus === 1 && res.isContact) {
-          window.open(`/windowChat?id=${item.accountId}`);
+          window.open(pathCompletion(`/windowChat?id=${item.accountId}`));
         } else if (
           option.value === 'email' &&
           res.accountStatus === 1 &&

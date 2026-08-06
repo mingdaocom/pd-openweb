@@ -4,16 +4,13 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { MdLink } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withHoverState from 'ming-ui/decorators/withHoverState';
 import { getClassNameByExt } from 'src/utils/common';
 import { getIconNameByExt } from 'src/utils/common';
 import { NODE_STATUS, NODE_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
+import HoverState from '../decorators/withHoverState';
 import { humanDateTime, humanFileSize } from '../utils';
 import ExtIcon from './ExtIcon';
 import KcAppMenu from './KcAppMenu';
-
-const HoverState = createDecoratedComponent(withHoverState);
 
 const ONE_PX_IMG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8A/////wn7A/2j0UkKAAAAAElFTkSuQmCC';
@@ -39,6 +36,7 @@ export default class KcAppItem extends React.Component {
     handleAddLinkFile: PropTypes.func,
     loadListById: PropTypes.func,
     onAddLinkFile: PropTypes.func,
+    setRef: PropTypes.func,
   };
 
   state = {
@@ -46,9 +44,13 @@ export default class KcAppItem extends React.Component {
     hoverMoreActionsBtn: false,
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectedItems.size > 1) {
-      this.setState({ clickMoreActionsBtn: false });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectedItems.size > 1) {
+        this.setState({
+          clickMoreActionsBtn: false,
+        });
+      }
     }
   }
 
@@ -77,6 +79,7 @@ export default class KcAppItem extends React.Component {
       download,
       loadListById,
       onAddLinkFile,
+      setRef,
     } = this.props;
     const isCreateUser = item.owner.accountId === md.global.Account.accountId;
     const isUrl = item.viewType === NODE_VIEW_TYPE.LINK;
@@ -114,6 +117,7 @@ export default class KcAppItem extends React.Component {
     if (isList || isRecycle) {
       return (
         <li
+          ref={setRef}
           data-id={item.id}
           className={cx('nodeItem noSelect flexRow', animation, className, {
             active: selected,
@@ -206,14 +210,14 @@ export default class KcAppItem extends React.Component {
           <span className={cx('nodeActionIcons Relative', { hide: !this.state.clickMoreActionsBtn })}>
             <Tooltip title={_l('分享')}>
               <span className={cx('mLeft15', { hide: isRecycle })}>
-                <i className={cx('preview icon-share pointer ThemeColor3')} onClick={() => onShareNode(item)} />
+                <i className={cx('preview icon-share pointer colorPrimary')} onClick={() => onShareNode(item)} />
               </span>
             </Tooltip>
             {(item.isAdmin || (item.canEdit && item.canDownload) || item.canDownload) && (
               <Tooltip title={_l('下载')}>
                 <span>
                   <i
-                    className={cx('download icon-kc-hover-download pointer ThemeColor3', { hide: isRecycle })}
+                    className={cx('download icon-kc-hover-download pointer colorPrimary', { hide: isRecycle })}
                     onClick={download}
                   />
                 </span>
@@ -226,7 +230,7 @@ export default class KcAppItem extends React.Component {
                   ref={moreActions => (this.moreActions = moreActions)}
                   className={cx(
                     'actions pointer',
-                    { ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
+                    { colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
                     isRecycle ? 'hide' : 'icon-more_horiz',
                   )}
                   thisArg={this}
@@ -240,7 +244,7 @@ export default class KcAppItem extends React.Component {
               <Tooltip title={_l('彻底删除')}>
                 <span>
                   <i
-                    className={cx('download icon-trash pointer ThemeColor3', { hide: !isRecycle })}
+                    className={cx('download icon-trash pointer colorPrimary', { hide: !isRecycle })}
                     onClick={() => removeNode(NODE_STATUS.DELETED)}
                   />
                 </span>
@@ -249,7 +253,7 @@ export default class KcAppItem extends React.Component {
             {(item.isAdmin || isCreateUser) && (
               <Tooltip title={_l('还原')}>
                 <span>
-                  <i className={cx('icon-rotate pointer ThemeColor3', { hide: !isRecycle })} onClick={restoreNode} />
+                  <i className={cx('icon-rotate pointer colorPrimary', { hide: !isRecycle })} onClick={restoreNode} />
                 </span>
               </Tooltip>
             )}
@@ -267,7 +271,7 @@ export default class KcAppItem extends React.Component {
                 ? item.updater.accountId === md.global.Account.accountId
                   ? _l('我')
                   : item.updater.fullname
-                : '无修改'}
+                : _l('无修改')}
             </span>
           </span>
           <span className="size" title={item.size ? humanFileSize(item.size, 2) : undefined}>
@@ -279,7 +283,11 @@ export default class KcAppItem extends React.Component {
       /* 缩略视图*/
 
       return (
-        <li data-id={item.id} className={cx('nodeItem noSelect thumbnailItem Relative', { active: selected })}>
+        <li
+          ref={setRef}
+          data-id={item.id}
+          className={cx('nodeItem noSelect thumbnailItem Relative', { active: selected })}
+        >
           <div className="thumbnailImg">
             {item.previewUrl || (item.type !== NODE_TYPE.FOLDER && getIconNameByExt(item.ext) === 'doc') ? (
               item.previewUrl ? (
@@ -353,7 +361,7 @@ export default class KcAppItem extends React.Component {
                   ref={moreActions => (this.moreActions = moreActions)}
                   component="span"
                   className={cx('actions pointer icon-more_horiz', {
-                    ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
+                    colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
                   })}
                   thisArg={this}
                   hoverStateName="hoverMoreActionsBtn"

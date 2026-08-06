@@ -218,7 +218,7 @@ export default class FilterItemTexts extends React.Component {
               onClear();
             }}
           >
-            <i className="icon-cancel textTertiary Font16 ThemeHoverColor3 TxtMiddle"></i>
+            <i className="icon-cancel textTertiary Font16 hoverColorPrimary TxtMiddle"></i>
           </div>
         )}
         <div className="editFilter">

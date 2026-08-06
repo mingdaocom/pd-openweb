@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { Dialog, Icon } from 'ming-ui';
@@ -18,30 +18,24 @@ export default function HomePage({ match, location: routerLocation, authority })
   const { projectId } = _.get(match, 'params');
   const { companyName } = getCurrentProject(projectId);
   const [data, setData] = useSetState({ basicLoading: true, hideBalance: true });
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(0);
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
   const isMingdaoSaas = !window.platformENV.isOverseas && !window.platformENV.isLocal;
+  const isNocolySaas = window.platformENV.isOverseas && !window.platformENV.isLocal;
   const trialAuthenticate = isMingdaoSaas && isTrial && !data.authType;
 
-  useEffect(() => {
-    document.title = _l('组织管理 - 首页 - %0', companyName);
-    getBaseData();
-    getUsageData();
-    getVersionInfo();
-    window.platformENV.isOverseas && !window.platformENV.isLocal && displayPaySuccess();
-    getBalanceLimitNoticeSettings();
-  }, []);
-
   // 获取版本信息
-  const getVersionInfo = () => {
-    processVersionAjax.getProcessUseCount({ companyId: projectId }).then(res => {
+  const getVersionInfo = useCallback(() => {
+    return processVersionAjax.getProcessUseCount({ companyId: projectId }).then(res => {
       setData(res);
     });
-  };
+  }, [projectId, setData]);
 
   // 获取基本信息
-  const getBaseData = () => {
-    projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: false }).then(res => {
+  const getBaseData = useCallback(() => {
+    return projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: false }).then(res => {
       if (!res.currentLicense.version) {
         res.currentLicense.version = { name: _l('免费版') };
       }
@@ -60,11 +54,11 @@ export default function HomePage({ match, location: routerLocation, authority })
       resData.basicLoading = false;
       setData(resData);
     });
-  };
+  }, [projectId, setData]);
 
   // 获取用量信息
-  const getUsageData = () => {
-    projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: false, onlyUsage: true }).then(res => {
+  const getUsageData = useCallback(() => {
+    return projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: false, onlyUsage: true }).then(res => {
       const {
         effectiveApkCount,
         effectiveApkStorageCount,
@@ -92,16 +86,16 @@ export default function HomePage({ match, location: routerLocation, authority })
         effectiveVectorKnowledgeChunkCount: effectiveVectorKnowledgeChunkCount || 0,
       });
     });
-  };
+  }, [projectId, setData]);
 
   // 获取组织余额警告提醒
-  const getBalanceLimitNoticeSettings = () => {
-    projectSettingAjax.getOnlyManagerSettings({ projectId }).then(res => {
-      res && setData({ balanceInfo: res.balanceLimitNotice });
+  const getBalanceLimitNoticeSettings = useCallback(() => {
+    return projectSettingAjax.getOnlyManagerSettings({ projectId }).then(res => {
+      res && setData({ balanceInfo: res.balanceLimitNotice, allowMingoAgentCharge: res?.allowMingoAgentCharge });
     });
-  };
+  }, [projectId, setData]);
 
-  const displayPaySuccess = () => {
+  const displayPaySuccess = useCallback(() => {
     const onClose = () => {
       location.replace(location.href.split('#')[0]);
     };
@@ -125,7 +119,26 @@ export default function HomePage({ match, location: routerLocation, authority })
         ),
       });
     }
-  };
+  }, [routerLocation.hash]);
+
+  const refreshHomePageData = useCallback(() => {
+    return Promise.all([getBaseData(), getUsageData(), getVersionInfo(), getBalanceLimitNoticeSettings()]);
+  }, [getBalanceLimitNoticeSettings, getBaseData, getUsageData, getVersionInfo]);
+
+  const handleRefreshHomePageData = useCallback(() => {
+    setRefreshing(true);
+    setRefreshFlag(value => value + 1);
+
+    refreshHomePageData().finally(() => {
+      setRefreshing(false);
+    });
+  }, [refreshHomePageData]);
+
+  useEffect(() => {
+    document.title = _l('组织管理 - 首页 - %0', companyName);
+    refreshHomePageData();
+    isNocolySaas && displayPaySuccess();
+  }, [companyName, displayPaySuccess, isNocolySaas, refreshHomePageData]);
 
   const params = {
     projectId,
@@ -142,9 +155,9 @@ export default function HomePage({ match, location: routerLocation, authority })
   return (
     <HomePageWrap>
       <div className="basicInfo">
-        <VersionCard {...params} />
+        <VersionCard {...params} refreshing={refreshing} onRefresh={handleRefreshHomePageData} />
         <UserCard {...params} />
-        {window.platformENV.isPlatform && <AccountBalance {...params} />}
+        {window.platformENV.isPlatform && <AccountBalance {...params} refreshFlag={refreshFlag} />}
       </div>
       <OrgQuota {...params} />
       <QuickEntrance {...params} />
@@ -155,6 +168,8 @@ export default function HomePage({ match, location: routerLocation, authority })
           'autoPurchaseWorkflowExtPack',
           'autoPurchaseApkStorageExtPack',
           'autoPurchaseDataPipelineExtPack',
+          'autoPurchaseExternalUserExtPack',
+          'allowMingoAgentCharge',
         ])}
         onClose={() => setData({ balanceManageVisible: false })}
         onChange={value => setData(value)}

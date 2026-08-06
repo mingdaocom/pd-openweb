@@ -51,7 +51,7 @@ export default class MemberList extends Component {
         render: (text, record) => {
           return (
             <div
-              className="Hand ThemeColor3 Font13 adminHoverColor"
+              className="Hand colorPrimary Font13 adminHoverColor"
               onClick={() =>
                 record.groupUserRole === 1
                   ? this.handleDelete(record.accountId, record.fullname)
@@ -184,7 +184,7 @@ export default class MemberList extends Component {
             {selectKeys.length ? (
               <Fragment>
                 <span className="Font16 color_b Bold">{_l(`已选择%0条`, selectKeys.length)}</span>
-                <div className="ThemeColor3 mLeft30 Hand" onClick={() => this.handleSet()}>
+                <div className="colorPrimary mLeft30 Hand" onClick={() => this.handleSet()}>
                   <span className="icon icon-sp_filter_none_white"></span>
                   <span>{_l('设置为管理员')}</span>
                 </div>

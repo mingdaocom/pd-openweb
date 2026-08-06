@@ -7,6 +7,7 @@ import { Icon, Menu, SvgIcon, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import HistoryVersion from 'src/pages/workflow/WorkflowSettings/Header/HistoryVersion.jsx';
+import { pathCompletion } from 'src/utils/common';
 import { ActWrap, LogoWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
 
 // 接口名称最多 100 字符，接口说明最多 400 字符
@@ -148,7 +149,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                       <MenuItemWrap
                         icon={<Icon icon="launch" className="Font17 mLeft5" />}
                         onClick={() => {
-                          window.open(`/integrationApi/${listId}`);
+                          window.open(pathCompletion(`/integrationApi/${listId}`));
                         }}
                       >
                         <span>{_l('新页面打开')}</span>
@@ -209,7 +210,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
         )}
         {location.href.indexOf('integrationApi') < 0 && (
           <i
-            className={'icon-close Font24 TxtMiddle Hand LineHeight35 textTertiary hoverTextPrimaryLight closeBtn'}
+            className={'icon-close Font24 TxtMiddle Hand LineHeight35 textTertiary hoverColorPrimaryLight closeBtn'}
             onClick={() => onCancel && onCancel()}
           />
         )}
@@ -225,7 +226,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
             className="act InlineBlock TxtMiddle TxtCenter mLeft0 mRight32 Hand LineHeight36"
             onClick={() => {
               if (history.length === 1) {
-                location.href = '/integration';
+                location.href = pathCompletion('/integration');
               } else {
                 history.back();
               }

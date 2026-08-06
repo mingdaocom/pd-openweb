@@ -53,6 +53,17 @@ function useInterval(callback, delay) {
   }, [delay]);
 }
 
+const methodIconMap = {
+  [TwofactorType.mobilePhone]: 'phone',
+  [TwofactorType.email]: 'email',
+  [TwofactorType.totp]: 'gpp_good',
+};
+const onBack = () => {
+  // 返回上一层
+  window.localStorage.removeItem('LoginCheckList'); //避免自动登录过来的带LoginCheckList来回跳转
+  window.history.back();
+};
+
 const Twofactor = forwardRef(function Twofactor(props, ref) {
   const verifyLen = 6;
   const { type, sendFn, state, isFail, enabledTypes = [], mobilePhone, email, hasSend = false } = props;
@@ -79,11 +90,6 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
     [TwofactorType.totp]: _l('使用验证器应用验证'),
   };
 
-  const methodIconMap = {
-    [TwofactorType.mobilePhone]: 'phone',
-    [TwofactorType.email]: 'email',
-    [TwofactorType.totp]: 'gpp_good',
-  };
   useEffect(() => {
     //填写完整=>进入登录接口
     if (verifyCode.replace(/[^\d]/g, '').trim().length >= verifyLen) {
@@ -177,12 +183,6 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
     sendFn();
   };
 
-  const onBack = () => {
-    // 返回上一层
-    window.localStorage.removeItem('LoginCheckList'); //避免自动登录过来的带LoginCheckList来回跳转
-    window.history.back();
-  };
-
   const onLogin = () => {
     loginAjax
       .mDTwofactorLogin({
@@ -203,6 +203,19 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
         } = LoginResult;
 
         if (accountResult === accountSuccess) {
+          if (res.encryptPassword) {
+            safeLocalStorageSetItem(
+              'LoginCheckList',
+              JSON.stringify({
+                accountId: res.accountId,
+                encryptPassword: res.encryptPassword,
+                loginType: 0,
+                time: new Date(),
+                ua: window.navigator.userAgent,
+              }),
+            );
+          }
+
           setPssId(res.sessionId);
           let data = { sessionId: res.sessionId, state: state };
 

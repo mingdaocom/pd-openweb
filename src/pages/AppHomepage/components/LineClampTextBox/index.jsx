@@ -22,11 +22,13 @@ export default class lineClampTextBox extends Component {
   shouldComponentUpdate(nextProps) {
     return compareProps(nextProps, this.props, ['text']);
   }
-  componentWillUpdate() {
+
+  componentDidUpdate() {
     setTimeout(() => {
       this.renderLineClampText();
     }, 0);
   }
+
   renderLineClampText() {
     /**
      * 兼容firefox浏览器不支持 line-clamp

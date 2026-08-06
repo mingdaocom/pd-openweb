@@ -127,14 +127,6 @@ export default class CommentListItem extends React.Component {
     });
   }
 
-  /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
-  }
-
   renderMoreAction() {
     const { popupVisible } = this.state;
 
@@ -150,16 +142,13 @@ export default class CommentListItem extends React.Component {
         }}
         popup={() => (
           <Menu>
-            <li
-              className="overflow_ellipsis Hand Red"
-              onClick={evt => this.checkMouseDownIsLeft(evt) && this.delComment()}
-            >
+            <li className="overflow_ellipsis Hand Red" onClick={() => this.delComment()}>
               {_l('删除讨论')}
             </li>
           </Menu>
         )}
       >
-        <Icon className="ThemeHoverColor3 TxtMiddle Font18" icon="more_horiz" />
+        <Icon className="hoverColorPrimary TxtMiddle Font18" icon="more_horiz" />
       </Trigger>
     );
   }
@@ -199,7 +188,7 @@ export default class CommentListItem extends React.Component {
               <span>
                 <span className="pLeft5">{_l('回复')}</span>
                 <UserName
-                  className="userName pointer ThemeColor3 pLeft5 userMessage"
+                  className="userName pointer colorPrimary pLeft5 userMessage"
                   user={{
                     userName: replyAccount.fullname,
                     accountId: replyAccount.accountId,
@@ -209,7 +198,7 @@ export default class CommentListItem extends React.Component {
                 />
                 <Tooltip title={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />} type="white">
                   <span
-                    className="msgTip icon-task-reply-msg ThemeColor3 pLeft5"
+                    className="msgTip icon-task-reply-msg colorPrimary pLeft5"
                     onMouseOver={() => !this.ajax && this.fetchReplyMsg()}
                   />
                 </Tooltip>
@@ -237,7 +226,7 @@ export default class CommentListItem extends React.Component {
           <div className="actionsWrap">
             <a
               className={cx('replyBtn Bold', { Hidden: !children && !popupVisible })}
-              onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.props.switchReplyComment(comment.discussionId)}
+              onClick={() => this.props.switchReplyComment(comment.discussionId)}
             >
               {_l('回复')}
             </a>
@@ -259,7 +248,7 @@ export default class CommentListItem extends React.Component {
                   href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${location.latitude}&name=${
                     location.name || ''
                   }&src=uriapi`}
-                  className="commentLocation Font12 ThemeColor3 Hand"
+                  className="commentLocation Font12 colorPrimary Hand"
                   rel="noopener noreferrer"
                   target="_blank"
                 >

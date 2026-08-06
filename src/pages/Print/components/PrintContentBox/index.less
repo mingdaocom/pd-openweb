@@ -1,20 +1,49 @@
+.printContentBox {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.printItemsViewport {
+  width: max-content;
+  min-width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
 .printItemsBox {
   font-family: 'Arial,Microsoft YaHei,SimHei,SimSun' !important;
   color: #000;
-  max-width: 800px;
+  width: var(--print-page-width, 800px);
   margin: 20px auto;
-  background: #fff;
-  padding: 18px 36px;
-  // min-height: calc(100% + 1px);
+
+  .printContent {
+    width: var(--print-page-width, 800px);
+    padding: 18px 36px;
+    box-sizing: border-box;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
 
   .printItemSeparator {
     margin: 50px 0;
-    width: 100%;
+    width: var(--print-page-width, 800px);
     height: 5px;
     background: #f0f0f0;
   }
 }
+
 @media print {
+  .printTem .printItemsViewport {
+    display: contents;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .printTem .printContent {
+    box-shadow: none;
+  }
+
   .printItemSeparator {
     break-after: page;
   }

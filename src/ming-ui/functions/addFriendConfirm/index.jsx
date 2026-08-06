@@ -6,6 +6,10 @@ import addressBookController from 'src/api/addressBook';
 import userController from 'src/api/user';
 import './css/style.css';
 
+const handleClose = () => {
+  $('.addFriendConfirm').parent().remove();
+};
+
 function AddFriendConfirm(props) {
   const { accountId, callback } = props;
   const [data, setData] = useState(null);
@@ -64,10 +68,6 @@ function AddFriendConfirm(props) {
       });
   };
 
-  const handleClose = () => {
-    $('.addFriendConfirm').parent().remove();
-  };
-
   if (!data) return null;
 
   return (
@@ -89,7 +89,7 @@ function AddFriendConfirm(props) {
           <Fragment>
             <div>
               <Input
-                className="inputControl ThemeBorderColor3 w100"
+                className="inputControl borderColorPrimary w100"
                 placeholder={_l('组织（必填）')}
                 value={data.companyName}
                 data-type="company"
@@ -103,7 +103,7 @@ function AddFriendConfirm(props) {
             </div>
             <div>
               <Input
-                className="inputControl ThemeBorderColor3 w100"
+                className="inputControl borderColorPrimary w100"
                 placeholder={_l('职位（必填）')}
                 value={data.profession}
                 data-type="profession"
@@ -119,7 +119,7 @@ function AddFriendConfirm(props) {
         )}
         <div>
           <Textarea
-            className="inputControl applyMsg ThemeBorderColor3"
+            className="inputControl applyMsg borderColorPrimary"
             defaultValue={data.message || _l('我是%0', md.global.Account.fullname)}
             onChange={value => {
               setData({

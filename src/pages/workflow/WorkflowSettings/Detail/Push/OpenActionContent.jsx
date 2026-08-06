@@ -129,7 +129,7 @@ export default class OpenActionContent extends Component {
     const views = worksheetInfo.views.map(o => ({
       text: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'ThemeColor3' : '',
+      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 

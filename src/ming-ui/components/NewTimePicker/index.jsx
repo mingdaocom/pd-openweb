@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import TimeMenu from './time-menu';
 import './style.less';
@@ -30,6 +29,7 @@ class Time extends Component {
     };
 
     this.button = null;
+    this.root = null;
   }
 
   componentDidMount() {
@@ -38,19 +38,20 @@ class Time extends Component {
     window.addEventListener('keydown', this.keyDownListener, false);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.state.value) {
-      const value = nextProps.value || {
-        hour: 0,
-        minute: 0,
-        second: 0,
-      };
-      const label = this.getTimeLabel(value);
-
-      this.setState({
-        value,
-        label,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== this.state.value) {
+        const value = this.props.value || {
+          hour: 0,
+          minute: 0,
+          second: 0,
+        };
+        const label = this.getTimeLabel(value);
+        this.setState({
+          value,
+          label,
+        });
+      }
     }
   }
 
@@ -75,9 +76,9 @@ class Time extends Component {
   };
 
   clickListener = e => {
-    const node = ReactDOM.findDOMNode(this);
+    const node = this.root;
 
-    if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
+    if (node && (node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
     }
   };
@@ -140,7 +141,7 @@ class Time extends Component {
     const classNames = classList.join(' ');
 
     return (
-      <div className={classNames}>
+      <div className={classNames} ref={root => (this.root = root)}>
         <button
           ref={button => {
             this.button = button;

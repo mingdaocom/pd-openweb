@@ -1,19 +1,14 @@
 # 静态文件
-rewrite ^/favicon.png /staticfiles/favicon.png break;
 rewrite ^/(favicon.*) /staticfiles/$1 break;
 rewrite ^/robots.txt /staticfiles/robots.txt break;
 rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
-rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
-rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
 rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
 rewrite ^/choroplethData/(.*) /staticfiles/choroplethData/$1 break;
 
 # 纯静态页面
 rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
-rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
 rewrite (?i)^/appShortCut /staticfiles/html/appShortCut.html break;
 rewrite (?i)^/filedownloaddenied /staticfiles/html/downloadDenied.html break;
-rewrite (?i)^/404 /staticfiles/html/404.html break;
 rewrite (?i)^/wechatmerchantguide /staticfiles/html/wechatmerchantguide.html break;
 rewrite (?i)^/alimerchantguide /staticfiles/html/alimerchantguide.html break;
 
@@ -41,7 +36,7 @@ rewrite (?i)^/public/form/ /publicworksheet.html break;
 rewrite (?i)^/public/apidoc /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/public/chatbot /chatbotshare.html break;
-rewrite (?i)^/public/mingo /mingo-land.html  break;
+rewrite (?i)^/public/mingo/plan /public-mingo-plan.html break;
 rewrite (?i)^/embed/page /custompageembed.html break;
 rewrite (?i)^/embed/chart /chartembed.html break;
 rewrite (?i)^/embed/view /viewembed.html break;
@@ -53,7 +48,6 @@ rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
 rewrite (?i)^/mingo /mingo-land.html break;
 rewrite (?i)^/invoice /invoice-land.html break;
-
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
 
@@ -76,8 +70,7 @@ rewrite (?i)^/cancellation /cancellation.html break;
 # 个人账户邮箱验证
 rewrite (?i)^/emailvalidate /emailvalidate.html break;
 
-# 重置密码和install安装
-rewrite (?i)^/resetPassword /resetPassword.html break;
+# install安装
 rewrite (?i)^/privateImageInstall /privateImageInstall.html break;
 
 # auth
@@ -88,12 +81,13 @@ rewrite (?i)^/auth/workwx /auth-workwx.html break;
 rewrite (?i)^/auth/chatTools /auth-chat-tools.html break;
 rewrite (?i)^/auth/welink /auth-welink.html break;
 rewrite (?i)^/auth/feishu /auth-feishu.html break;
+rewrite (?i)^/auth/workdd /auth-workdd.html break;
 rewrite (?i)^/auth/microsoft /auth-microsoft.html break;
 rewrite (?i)^/auth/dingding /auth-dingding.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
 rewrite (?i)^/sso/sso  /sso-sso.html break;
 rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
-rewrite (?i)^/legalportal /legalportal.html break;
+rewrite (?i)^/zendesk/sso  /sso-zendesk.html break;
 rewrite (?i)^/microsoftAuth /microsoftAuth.html break;
 
 # 主站

@@ -100,7 +100,7 @@ export default function (props) {
             }))}
             renderPointer={() => {
               return (
-                <span className={'custom mTop16 ThemeHoverColor3 TxtCenter Hand textPrimary'}>
+                <span className={'custom mTop16 hoverColorPrimary TxtCenter Hand textPrimary'}>
                   <Icon type="add" className="" />
                   <span className="mLeft3">{_l('自定义排序')}</span>
                 </span>

@@ -106,6 +106,7 @@ function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
 export default class CellControl extends React.Component {
   static propTypes = {
     isSubList: PropTypes.bool,
+    disableValidate: PropTypes.bool,
     className: PropTypes.string,
     tableFromModule: PropTypes.number,
     style: PropTypes.shape({}),
@@ -125,6 +126,7 @@ export default class CellControl extends React.Component {
     clearCellError: PropTypes.func,
     cellUniqueValidate: PropTypes.func,
     onCellFocus: PropTypes.func,
+    registerRef: PropTypes.func,
   };
 
   static defaultProps = {
@@ -147,9 +149,13 @@ export default class CellControl extends React.Component {
     this.id = Math.random().toString().slice(2);
   }
 
-  componentDidMount() {
-    const { registerRef } = this.props;
+  handleRegisterRef = (registerRef, ...args) => {
+    if (_.isFunction(registerRef)) {
+      registerRef(...args);
+    }
+  };
 
+  componentDidMount() {
     if (!_.isUndefined(this.props.isediting)) {
       this.setState({ isediting: this.props.isediting });
     }
@@ -158,23 +164,25 @@ export default class CellControl extends React.Component {
       this.setState({ error: this.props.error });
     }
 
-    registerRef(this);
+    this.handleRegisterRef(this.props.registerRef, this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.state.error && !nextProps.error) {
-      this.setState({ error: null });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.state.error && !this.props.error) {
+        this.setState({
+          error: null,
+        });
+      }
 
-    if (nextProps.cellIndex !== this.props.cellIndex) {
-      const { registerRef } = this.props;
-      registerRef(this, nextProps.cellIndex);
+      if (this.props.cellIndex !== prevProps.cellIndex) {
+        this.handleRegisterRef(prevProps.registerRef, this, this.props.cellIndex);
+      }
     }
   }
 
   componentWillUnmount() {
-    const { registerRef } = this.props;
-    registerRef(undefined);
+    this.handleRegisterRef(this.props.registerRef, undefined);
   }
 
   componentDidCatch(error, errorInfo) {
@@ -272,7 +280,27 @@ export default class CellControl extends React.Component {
   }
 
   onValidate = value => {
-    const { projectId, cell, row, checkRulesErrorOfControl, rowFormData, clearCellError, appId } = this.props;
+    const {
+      projectId,
+      cell,
+      row,
+      checkRulesErrorOfControl,
+      rowFormData,
+      clearCellError,
+      appId,
+      disableValidate,
+      tableFromModule,
+    } = this.props;
+
+    // 自定义默认值等配置场景：彻底跳过校验（手机/电话/身份证等格式、必填、规则均不处理），输入原样保留为默认值。
+    if (disableValidate) {
+      if (this.state.error || this.props.error) {
+        this.setState({ error: null, ignoreErrorMessage: false });
+        clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
+      }
+
+      return { errorType: null, errorText: null };
+    }
 
     // 百分比值处理
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
@@ -283,6 +311,13 @@ export default class CellControl extends React.Component {
       { ...(cell.type === 10 ? mergeControlAdvancedSetting(cell, { otherrequired: '0' }) : { ...cell }), value },
       row,
     );
+
+    // 子表内必填改为仅保存时校验：编辑期不因必填报错（允许清空/留空，关联等所有字段一致），
+    // 由 getSubListError 在保存时用真实 required 统一拦截。格式等其它校验仍照常实时进行。
+    if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST && errorType === 'REQUIRED') {
+      errorType = '';
+    }
+
     let errorText;
 
     if (
@@ -393,7 +428,7 @@ export default class CellControl extends React.Component {
   };
 
   handleTableKeyDown = (e, cache) => {
-    const { tableType, cell, onClick } = this.props;
+    const { tableType, cell, onClick, tableFromModule } = this.props;
     const { isediting } = this.state;
     const haveEditingStatus = this.haveEditingStatus(cell);
     const key = String(e.key || '');
@@ -422,7 +457,13 @@ export default class CellControl extends React.Component {
     window.cellLastKey = key;
     switch (key) {
       case 'Backspace':
-        if (this.editable && haveEditingStatus && !isediting && !cell.required) {
+        // 子表内必填仅保存时校验：允许直接按 Backspace 清空必填单元格。
+        if (
+          this.editable &&
+          haveEditingStatus &&
+          !isediting &&
+          (!cell.required || tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST)
+        ) {
           this.handleUpdateCell({ value: cell.type === 29 ? '[]' : '' });
         }
 
@@ -529,6 +570,10 @@ export default class CellControl extends React.Component {
       if (!isediting && !error) {
         clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
         $('.mdTableErrorTip').remove();
+      } else if (!isediting && error && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+        // 子表场景：失焦时把校验错误持久化到 cellErrors，主记录保存时由 getSubListErrorOfStore 兜底拦截。
+        // 当用户重新进入编辑并填入合法值时，onValidate 会调用 clearCellError 清掉该条
+        clearCellError(`${(row || {}).rowid}-${cell.controlId}`, error);
       }
 
       if (isediting) {
@@ -602,7 +647,7 @@ export default class CellControl extends React.Component {
       setActiveRow = () => {},
     } = this.props;
     onMouseDown();
-    setActiveRow(row.rowid);
+    setActiveRow(row?.rowid);
     const haveEditingStatus = this.haveEditingStatus(cell);
 
     if (tableType === 'classic') {
@@ -813,7 +858,12 @@ export default class CellControl extends React.Component {
       gridHeight,
       popupContainer,
       projectId,
-      cell: { ...cell },
+      // 子表内必填仅保存时校验：把传给控件的 required 关掉，放开各控件"必填不可清空"的硬守卫
+      //（删除最后一项、清空按钮、取消勾选、关联必选等），保存时仍由 getSubListError 用真实 required 校验。
+      cell: {
+        ...cell,
+        ...(tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? { required: false } : {}),
+      },
       rowFormData,
       masterData,
       columnStyle,

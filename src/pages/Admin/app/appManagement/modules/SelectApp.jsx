@@ -50,7 +50,7 @@ export default class SelectApp extends React.Component {
       pageSize: 30,
       keyword,
       sourceType: 2,
-      filterType: 1, // 1:过滤加锁应用 0 or null 默认
+      filterType: 0, // 1:过滤加锁应用 0 or null 默认
     });
     this.postList.then(({ apps }) => {
       const filteredApps = apps.filter(item => item.createType !== 1);
@@ -132,7 +132,7 @@ export default class SelectApp extends React.Component {
           <div className="marginLeftAuto">
             <span className="textTertiary">{item.sheetCount}</span>
             <span
-              className="hoverTextPrimaryLight icon-clear mLeft32 textTertiary"
+              className="hoverColorPrimaryLight icon-clear mLeft32 textTertiary"
               onClick={() => _this.updateSelectList(true, item)}
             ></span>
           </div>
@@ -220,7 +220,7 @@ export default class SelectApp extends React.Component {
             {_l('下一步')}
           </button>
           <div
-            className="Right mRight40 textTertiary hoverTextPrimaryLight Hand LineHeight36"
+            className="Right mRight40 textTertiary hoverColorPrimaryLight Hand LineHeight36"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

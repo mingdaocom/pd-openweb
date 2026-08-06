@@ -97,9 +97,9 @@ function ConnectDataBase(props) {
       ...hostParams,
     }).then(res => {
       if (res) {
-        alert('保存成功');
+        alert(_l('保存成功'));
         onOk();
-      } else alert('创建失败', 2);
+      } else alert(_l('创建失败'), 2);
     });
   };
 
@@ -158,7 +158,7 @@ function ConnectDataBase(props) {
       okText={id ? _l('保存') : _l('创建')}
       footerLeftElement={() => (
         <div className="flexRow alignItemsCenter">
-          <div className="colorPrimary ThemeHoverColor2 Hand" onClick={testConnection}>
+          <div className="colorPrimary hoverColorPrimaryDark Hand" onClick={testConnection}>
             {pending ? _l('连接中，请稍后…') : _l('测试连接')}
           </div>
           <Tooltip
@@ -231,7 +231,7 @@ function ConnectDataBase(props) {
         ))}
         <div
           style={{ width: 'fit-content' }}
-          className="colorPrimary ThemeHoverColor2 Hand mTop4 mBottom16"
+          className="colorPrimary hoverColorPrimaryDark Hand mTop4 mBottom16"
           onClick={() => {
             const newIndex = addressList.length;
             setAddressList(addressList.concat({ host: '', port: 27017 }));

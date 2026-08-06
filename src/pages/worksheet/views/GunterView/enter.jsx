@@ -7,9 +7,10 @@ import { saveView, updateWorksheetControls } from 'worksheet/redux/actions';
 import SelectFieldForStartOrEnd from 'worksheet/views/components/SelectFieldForStartOrEnd';
 import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
+import { getControlsForGunter, isGunterGroupMultiSelectControl } from 'src/pages/worksheet/views/GunterView/util.js';
 import { getAdvanceSetting } from 'src/utils/control';
 import SelectField from '../components/SelectField';
+import UnNormal from '../components/UnNormal';
 import Gunter from './index.jsx';
 
 const Wrap = styled.div`
@@ -18,11 +19,11 @@ const Wrap = styled.div`
   background: var(--color-background-secondary);
   overflow: hidden;
 `;
-@connect(state => ({ ...state.sheet }), dispatch => bindActionCreators({ saveView, updateWorksheetControls }, dispatch))
-export default class GunterEnter extends Component {
+let GunterEnter = class GunterEnter extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     const {
       isCharge,
@@ -35,11 +36,17 @@ export default class GunterEnter extends Component {
       setViewConfigVisible,
     } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
+    const groupControl = controls.find(item => item.controlId === view.viewControl);
     let timeControls = getControlsForGunter(controls);
     timeControls = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate); //开始时间字段已删除
+
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate); //结束时间字段已删除
+
+    if (view.viewControl && isGunterGroupMultiSelectControl(groupControl)) {
+      return <UnNormal errorText={_l('该字段不支持作为分组')} renderRefresh={false} />;
+    }
 
     if (
       isDelete ||
@@ -64,27 +71,34 @@ export default class GunterEnter extends Component {
                   }
 
                   let viewData = {};
-                  const { moreSort } = view;
+                  const { moreSort } = view; // 第一次创建Gunter时，配置排序数据
 
-                  // 第一次创建Gunter时，配置排序数据
                   if (!moreSort) {
                     const { begindate = '' } = getAdvanceSetting(viewNew);
                     viewData = {
                       sortCid: begindate,
                       editAttrs: ['moreSort', 'sortCid', 'sortType', 'advancedSetting'],
                       moreSort: [
-                        { controlId: begindate, isAsc: true },
-                        { controlId: 'ctime', isAsc: false },
+                        {
+                          controlId: begindate,
+                          isAsc: true,
+                        },
+                        {
+                          controlId: 'ctime',
+                          isAsc: false,
+                        },
                       ],
                       sortType: 2,
                     };
                   }
 
-                  let infoData = { ...viewNew, ...viewData };
-                  // 刚特图创建时 displayControls 默认带上标题字段
-                  const titleControl = _.find(controls, { attribute: 1 });
-                  const defaultDisplayControls = titleControl ? [titleControl.controlId] : [];
+                  let infoData = { ...viewNew, ...viewData }; // 刚特图创建时 displayControls 默认带上标题字段
 
+                  const titleControl = _.find(controls, {
+                    attribute: 1,
+                  });
+
+                  const defaultDisplayControls = titleControl ? [titleControl.controlId] : [];
                   this.props.saveView(data, {
                     ...infoData,
                     displayControls: defaultDisplayControls,
@@ -110,4 +124,16 @@ export default class GunterEnter extends Component {
 
     return <Gunter view={view} noLoadAtDidMount={noLoadAtDidMount} />;
   }
-}
+};
+GunterEnter = connect(
+  state => ({ ...state.sheet }),
+  dispatch =>
+    bindActionCreators(
+      {
+        saveView,
+        updateWorksheetControls,
+      },
+      dispatch,
+    ),
+)(GunterEnter);
+export default GunterEnter;

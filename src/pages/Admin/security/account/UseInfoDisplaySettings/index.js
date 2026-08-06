@@ -76,7 +76,7 @@ export default class UseInfoDisplaySettings extends Component {
       <div className="orgManagementWrap useInfoDisplayWrap">
         <div className="orgManagementHeader">
           <div className="flexRow alignItemsCenter">
-            <i className="icon-backspace Font22 ThemeHoverColor3 Hand" onClick={onClose} />
+            <i className="icon-backspace Font22 hoverColorPrimary Hand" onClick={onClose} />
             <h5 className="Font17 bold mLeft10 mBottom0">{_l('成员信息显示')}</h5>
           </div>
         </div>

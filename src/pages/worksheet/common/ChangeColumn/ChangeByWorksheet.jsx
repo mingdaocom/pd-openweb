@@ -33,7 +33,7 @@ export default function ChangedIcon(props) {
   const { onOk = () => {}, skipConfirm = false } = props;
   const [popupVisible, setPopupVisible] = useState();
   return (
-    <button className="iconButton textTertiary ThemeHoverColor3" onClick={skipConfirm ? onOk : undefined}>
+    <button className="iconButton textTertiary hoverColorPrimary" onClick={skipConfirm ? onOk : undefined}>
       <Trigger
         popupVisible={popupVisible}
         onPopupVisibleChange={newvisible => {

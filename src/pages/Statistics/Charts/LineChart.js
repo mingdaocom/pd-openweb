@@ -3,7 +3,9 @@ import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, isFormatNumber, isTimeControl } from 'statistics/common';
+import { isFormatNumber, isTimeControl } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import { toFixed } from 'src/utils/control';
 import {
   formatControlInfo,
@@ -18,6 +20,7 @@ import {
   getMinValue,
   reportTypes,
 } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const lastDateText = _l('上一期');
 
@@ -88,7 +91,8 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
     const name = item.originalX;
     cloneData.forEach((element, index) => {
       const lastElement = cloneData[index - 1];
-      const lastValue = lastElement && isPile ? (lastElement.value.filter(n => n.originalX === item.originalX)[0]?.v ?? 0) : 0;
+      const lastValue =
+        lastElement && isPile ? (lastElement.value.filter(n => n.originalX === item.originalX)[0]?.v ?? 0) : 0;
       const current = element.value.filter(n => {
         if (isPile && n.originalX === name) {
           n.v = n.v + lastValue;
@@ -148,23 +152,34 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.LineChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderLineChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.LineChart && this.LineChart.destroy();
+    this.isUnmounted = true;
+    this.destroyLineChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    // 显示设置
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      displaySetup.isPile !== oldDisplaySetup.isPile ||
+      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
+      displaySetup.accumulatePerPile !== oldDisplaySetup.accumulatePerPile ||
+      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
+      this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -186,51 +201,56 @@ export default class extends Component {
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(style.chartShowLabelIds, oldStyle.chartShowLabelIds) ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const { LineChartConfig } = this.getComponentConfig(nextProps);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
 
-      if (this.LineChart) {
-        this.LineChart.update(LineChartConfig);
-        this.LineChart.render();
-      }
+    if (!this.g2plotComponent) {
+      return;
     }
 
     // 切换图表类型 & 堆叠 & 累计 & 百分比
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      displaySetup.isPile !== oldDisplaySetup.isPile ||
-      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
-      displaySetup.accumulatePerPile !== oldDisplaySetup.accumulatePerPile ||
-      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
-      nextProps.isLinkageData !== this.props.isLinkageData
-    ) {
-      this.LineChart && this.LineChart.destroy();
-      this.renderLineChart(nextProps);
+    if (shouldRecreate) {
+      this.renderLineChart(this.props);
+      return;
+    }
+
+    // 显示设置
+    if (shouldUpdate && this.LineChart) {
+      const { LineChartConfig } = this.getComponentConfig(this.props);
+      this.LineChart.update(LineChartConfig);
     }
   }
+  destroyLineChart = () => {
+    if (this.LineChart) {
+      this.LineChart.destroy();
+      this.LineChart = null;
+    }
+  };
   renderLineChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
+
+    if (!this.chartEl || !this.g2plotComponent) {
+      return;
+    }
+
     const { LineChartComponent, LineChartConfig } = this.getComponentConfig(props);
 
-    if (this.chartEl) {
-      this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        (xaxes.controlId || split.controlId);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.LineChart.on('element:click', this.handleClick);
-      }
-
-      this.LineChart.render();
+    this.destroyLineChart();
+    this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      (xaxes.controlId || split.controlId);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.LineChart.on('element:click', this.handleClick);
     }
+
+    this.LineChart.render();
   }
   handleClick = ({ data, gEvent }) => {
     const { reportData, isMobile } = this.props;
@@ -324,6 +344,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.LineChart || !this.g2plotComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -336,12 +361,24 @@ export default class extends Component {
     );
   };
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, contrastMap, displaySetup, xaxes, yaxisList, split } = reportData;
-    const { isPile, isPerPile, isAccumulate, accumulatePerPile, xdisplay, ydisplay, legendType, auxiliaryLines } =
-      displaySetup;
+    const {
+      isPile,
+      isPerPile,
+      isAccumulate,
+      accumulatePerPile,
+      xdisplay,
+      ydisplay,
+      legendType,
+      auxiliaryLines,
+      mobileShowNumber,
+    } = displaySetup;
+    const showNumber = displaySetup.showDimension || displaySetup.showNumber;
+    const isMobile = props.isMobile || layoutType === 'mobile';
+    const labelShowNumber = isMobile ? (mobileShowNumber ?? showNumber) : showNumber;
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -521,13 +558,13 @@ export default class extends Component {
             }
           : undefined,
       },
-      point: displaySetup.showNumber
+      point: labelShowNumber
         ? {
             shape: 'point',
             size: 3,
           }
         : false,
-      label: displaySetup.showNumber
+      label: labelShowNumber
         ? {
             layout: [
               displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null,

@@ -55,12 +55,16 @@ export const filterDailyScheduleData = (calendarFormatData, date) => {
   });
 };
 
-export const getFormateView = (view, formatDataItem) => {
-  const { displayControls } = view;
-  const { startData, endData } = formatDataItem;
+export const getFormateView = (view, formatDataItem = {}) => {
+  const { displayControls = [] } = view;
+  const { startData = {}, endData = {} } = formatDataItem;
   const controls = [startData.controlId, endData.controlId, ...displayControls].filter(Boolean);
   return {
     ...view,
+    advancedSetting: {
+      ...view.advancedSetting,
+      viewtitle: '',
+    },
     displayControls: [...new Set(controls)],
   };
 };

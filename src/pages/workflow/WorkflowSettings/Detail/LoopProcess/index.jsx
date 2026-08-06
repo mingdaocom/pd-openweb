@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID } from '../../enum';
 import { checkConditionsIsNull } from '../../utils';
 import {
@@ -27,18 +28,26 @@ export default class LoopProcess extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -51,6 +60,10 @@ export default class LoopProcess extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.actionId === ACTION_ID.CONDITION_LOOP && !result.conditions.length) {
           result.conditions = [[{}]];
         }
@@ -82,10 +95,6 @@ export default class LoopProcess extends Component {
     const { data, saveRequest } = this.state;
     const { conditions } = data;
 
-    if (saveRequest) {
-      return;
-    }
-
     if (data.actionId === ACTION_ID.CONDITION_LOOP && !conditions.length) {
       alert(_l('循环退出条件不能为空'), 2);
       return;
@@ -93,6 +102,10 @@ export default class LoopProcess extends Component {
 
     if (checkConditionsIsNull(conditions)) {
       alert(_l('循环退出条件的判断值不能为空'), 2);
+      return;
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -133,7 +146,7 @@ export default class LoopProcess extends Component {
           </div>
           {data.subProcessId && data.subProcessName && (
             <i
-              className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2 pointer"
+              className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark pointer"
               onMouseDown={this.openSubProcess}
             />
           )}
@@ -209,7 +222,7 @@ export default class LoopProcess extends Component {
     return (
       <div className="addActionBtn mTop15">
         <span
-          className={data.appId ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
+          className={data.appId ? 'borderColorPrimary' : 'textDisabled borderTertiary'}
           onClick={() => this.updateSource({ conditions: [[{}]] })}
         >
           <i className="icon-add Font16" />
@@ -223,7 +236,7 @@ export default class LoopProcess extends Component {
     const { data } = this.state;
 
     evt.stopPropagation();
-    window.open(`/workflowedit/${data.subProcessId}`);
+    window.open(pathCompletion(`/workflowedit/${data.subProcessId}`));
   };
 
   render() {
@@ -247,7 +260,7 @@ export default class LoopProcess extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect onSave={this.onSave} />
+        <DetailFooter {...this.props} isCorrect={!_.isEqual(data, this.cacheResult)} onSave={this.onSave} />
       </Fragment>
     );
   }

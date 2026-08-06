@@ -238,7 +238,7 @@ export default class DingSyncCourse extends React.Component {
           <br />
           {_l('选择可见范围后即可创建应用')}
           <br />
-          应用Logo：
+          {_l('应用Logo：')}
           <span
             className="downloadLogo"
             onClick={() => {

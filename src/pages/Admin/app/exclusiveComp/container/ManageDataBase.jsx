@@ -165,7 +165,7 @@ function ManageDataBase(props) {
               </ActionOpWrap>
             }
           >
-            <Icon icon="moreop" className="Font18 textTertiary hoverTextPrimaryLight Hand" />
+            <Icon icon="moreop" className="Font18 textTertiary hoverColorPrimaryLight Hand" />
           </Trigger>
         );
       },
@@ -266,7 +266,7 @@ function ManageDataBase(props) {
     <Fragment>
       <div className="manageDataBase">
         <div className="HeaderWrap exclusiveCompHeader">
-          <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
+          <span className="icon-backspace Font22 hoverColorPrimary" onClick={() => history.go(-1)}></span>
           <span className="dataAuthorizeLabel">{_l('应用管理')}</span>
           <span className="dataAuthorizeName textSecondary flex">{baseInfo.name}</span>
           <Tooltip title={_l('刷新')}>

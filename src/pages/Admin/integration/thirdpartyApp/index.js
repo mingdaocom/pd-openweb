@@ -9,7 +9,7 @@ import SelfBuiltThirdPartyApp from './components/SelfBuiltThirdPartyApp';
 import './index.less';
 
 const TABS = [
-  { key: 'public', label: _l('公共') },
+  { key: 'public', label: _l('平台级') },
   { key: 'self_built', label: _l('自建') },
 ];
 
@@ -32,7 +32,7 @@ export default function ThirdpartyApp(props) {
       <AdminTitle prefix={_l('集成 - 第三方应用')} />
       <div className="orgManagementHeader">
         {!window.platformENV.isLocal && !window.platformENV.isOverseas ? (
-          <div>{_l('公共')}</div>
+          <div>{_l('平台级')}</div>
         ) : (
           <div className="tabBox">
             {TABS.map(item => (

@@ -258,7 +258,7 @@ class BackupFromFilesCom extends Component {
             {analyzeLoading && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
-                  <i className="icon-loading_button Font20 ThemeColor3"></i>
+                  <i className="icon-loading_button Font20 colorPrimary"></i>
                 </div>
                 <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
               </div>

@@ -100,22 +100,24 @@ class PortalCon extends React.Component {
     this.fetchPorBaseInfo();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { canEditApp, canEditUser } = nextProps;
-    const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { canEditApp, canEditUser } = this.props;
+      const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
 
-    if (!_.isEqual(this.props.portal.quickTag, nextProps.portal.quickTag) && !!nextProps.portal.quickTag.tab) {
-      this.setState({
-        tab: nextProps.portal.quickTag.tab || tab,
-      });
-    }
+      if (!_.isEqual(prevProps.portal.quickTag, this.props.portal.quickTag) && !!this.props.portal.quickTag.tab) {
+        this.setState({
+          tab: this.props.portal.quickTag.tab || tab,
+        });
+      }
 
-    const listType = _.get(nextProps, ['match', 'params', 'listType']);
+      const listType = _.get(this.props, ['match', 'params', 'listType']);
 
-    if (listType === 'pending' && !_.isEqual(listType, _.get(this.props, ['match', 'params', 'listType']))) {
-      this.setState({
-        tab: tab,
-      });
+      if (listType === 'pending' && !_.isEqual(listType, _.get(prevProps, ['match', 'params', 'listType']))) {
+        this.setState({
+          tab: tab,
+        });
+      }
     }
   }
 

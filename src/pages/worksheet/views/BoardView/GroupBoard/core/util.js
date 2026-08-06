@@ -325,16 +325,16 @@ export const getGroupOptions = (viewData, view, control, otherParams = {}) => {
       options.push({
         accountId: 'user-undefined',
         combination: '{"accountId":"user-undefined","fullname":"未指定"}',
-        fullname: '未指定',
+        fullname: _l('未指定'),
         id: 'user-undefined',
         key: 'user-undefined',
-        name: '未指定',
+        name: _l('未指定'),
       });
     }
   } else if (groupempty === '1') {
     options.push({
       key: '-1',
-      name: '未分组',
+      name: _l('未分组'),
     });
   }
 

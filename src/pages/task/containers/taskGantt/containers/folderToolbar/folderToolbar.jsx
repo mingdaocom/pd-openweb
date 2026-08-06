@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
+import createTask from 'src/components/createTask/load';
 import GanttDialog from '../../component/ganttDialog';
 import config from '../../config/config';
 import {
@@ -17,8 +17,7 @@ import {
 } from '../../redux/actions';
 import './folderToolbar.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class FolderToolbar extends Component {
   constructor(props) {
     super(props);
@@ -30,9 +29,17 @@ class FolderToolbar extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.taskConfig, this.props.taskConfig)) {
-      this.setState({ ganttDialogVisible: false });
+  /**
+   * 返回当前状态所对应的名称
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.taskConfig, prevProps.taskConfig)) {
+        this.setState({
+          ganttDialogVisible: false,
+        });
+      }
     }
   }
 
@@ -61,14 +68,6 @@ class FolderToolbar extends Component {
   }
 
   /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
-  }
-
-  /**
    * 切换视图
    * @param  {number} viewType
    */
@@ -93,7 +92,6 @@ class FolderToolbar extends Component {
    * @param  {object} evt
    */
   showTaskLevel(evt) {
-    this.checkMouseDownIsLeft(evt);
     this.setState({
       showLevel: !this.state.showLevel,
       taskLevelOffsetLeft: evt.currentTarget.offsetLeft,
@@ -114,7 +112,7 @@ class FolderToolbar extends Component {
    * 创建任务
    */
   createTask() {
-    $.CreateTask();
+    createTask();
   }
 
   /**
@@ -157,9 +155,7 @@ class FolderToolbar extends Component {
         <span className="taskStatusBox">
           <span
             className="taskStatus pointer"
-            onMouseDown={evt =>
-              this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })
-            }
+            onClick={() => this.setState({ showOperator: !this.state.showOperator })}
           >
             <span>{this.getTaskStatusName()}</span>
             <i className="Font12 icon-arrow-down-border" />
@@ -176,7 +172,7 @@ class FolderToolbar extends Component {
               return (
                 <li
                   key={i}
-                  className={cx('ThemeBGColor3', { ThemeColor3: stateConfig.currentStatus === item.value })}
+                  className={cx('bgColorPrimary', { colorPrimary: stateConfig.currentStatus === item.value })}
                   onClick={() => this.switchStatus(item.value)}
                 >
                   <i className={item.icon} />
@@ -216,7 +212,7 @@ class FolderToolbar extends Component {
         </ul>
 
         <Tooltip title={_l('展开层级')}>
-          <span className="folderGanttLevelBtn pointer" onMouseDown={evt => this.showTaskLevel(evt)}>
+          <span className="folderGanttLevelBtn pointer" onClick={evt => this.showTaskLevel(evt)}>
             <i className="icon-task-show-tree Font15" />
           </span>
         </Tooltip>
@@ -230,7 +226,7 @@ class FolderToolbar extends Component {
           >
             {taskLevelList.map((item, i) => {
               return (
-                <li key={i} className="ThemeBGColor3" onClick={() => this.switchLevel(item.value)}>
+                <li key={i} className="bgColorPrimary" onClick={() => this.switchLevel(item.value)}>
                   {item.text}
                 </li>
               );
@@ -240,7 +236,7 @@ class FolderToolbar extends Component {
 
         {this.props.showStaticGantt && (
           <span
-            className="Right pointer mRight20 folderStaticGantt ThemeColor3"
+            className="Right pointer mRight20 folderStaticGantt colorPrimary"
             onClick={() => this.switchGanttDialogVisible()}
           >
             <i className="Font16 icon-gantt_chart mRight5" />

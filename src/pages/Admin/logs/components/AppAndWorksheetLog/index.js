@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -33,6 +33,7 @@ import {
   PRIVATE_APP_WORKSHEET_LOG_COLUMNS,
   TAB_LIST,
 } from '../../enum';
+import { completeAdminLogLinks } from '../../utils';
 import WorksheetLogDrawer from '../WorksheetLogDrawer';
 
 const FlexWrap = styled.div`
@@ -118,6 +119,12 @@ const AvatarWrap = styled.div`
   background: var(--color-background-secondary);
 `;
 const PAGE_SIZE = 50;
+const SOURCE_TYPE_LABEL = {
+  1: _l('界面操作'),
+  3: _l('个人访问令牌'),
+  4: _l('应用密钥'),
+  5: 'HAP-CLI',
+};
 export default class AppAndWorksheetLog extends Component {
   constructor(props) {
     super(props);
@@ -264,12 +271,13 @@ export default class AppAndWorksheetLog extends Component {
                       rUserList: extrasAccounts,
                     })
                   : '';
-                const txt = (isUser ? message : opeartContent).replace(/<a.*?>/, '').replace(/<\/a>/, '');
+                const content = completeAdminLogLinks(isUser ? message : opeartContent);
+                const txt = content.replace(/<a.*?>/, '').replace(/<\/a>/, '');
                 return opeartContent ? (
                   <Tooltip title={<spam>{txt}</spam>} placement="bottom">
                     <span
                       className="wMax100 ellipsis InlineBlock"
-                      dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
+                      dangerouslySetInnerHTML={{ __html: filterXss(content) }}
                     ></span>
                   </Tooltip>
                 ) : (
@@ -280,7 +288,7 @@ export default class AppAndWorksheetLog extends Component {
                   <span>{_.get(_.find(OPERATE_LIST, it => it.value === operationType) || {}, 'label') || '-'}</span>
                 );
               case 'sourceType':
-                return <span>{souceType === 2 ? sourceName : _l('官方')}</span>;
+                return <span>{SOURCE_TYPE_LABEL[souceType] || sourceName}</span>;
               case 'operationDatetime':
                 return <span>{dateConvertToUserZone(operationDatetime)}</span>;
               default:
@@ -533,8 +541,11 @@ export default class AppAndWorksheetLog extends Component {
         placeholder: _l('全部'),
         allowClear: true,
         options: [
-          { value: 1, label: _l('官方') },
-          { value: 2, label: _l('第三方应用') },
+          { value: 1, label: _l('界面操作') },
+          { value: 2, label: _l('OAuth 应用') },
+          { value: 3, label: _l('个人访问令牌') },
+          { value: 4, label: _l('应用密钥') },
+          { value: 5, label: 'HAP-CLI' },
         ],
         value: operationSource,
         filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
@@ -542,7 +553,7 @@ export default class AppAndWorksheetLog extends Component {
       {
         key: 'integrationApp',
         type: 'select',
-        label: _l('第三方应用'),
+        label: _l('OAuth 应用'),
         placeholder: _l('全部'),
         allowClear: true,
         mode: 'multiple',
@@ -587,7 +598,7 @@ export default class AppAndWorksheetLog extends Component {
         filterArr = ['operationSource', 'integrationApp'];
       }
 
-      if (operationSource === 1) {
+      if (operationSource && operationSource !== 2) {
         filterArr = [...filterArr, 'integrationApp'];
       }
 
@@ -849,6 +860,7 @@ export default class AppAndWorksheetLog extends Component {
                 />
               </Tooltip>
             )}
+
             <ArchivedList
               type={3}
               showSelectItem={false}
@@ -907,7 +919,7 @@ export default class AppAndWorksheetLog extends Component {
                 </div>
                 <Icon
                   icon="cancel"
-                  className="Font20 mLeft10 textTertiary ThemeHoverColor3 pointer"
+                  className="Font20 mLeft10 textTertiary hoverColorPrimary pointer"
                   onClick={() => this.setState({ archivedItem: {}, searchValues: {} }, this.getLogList)}
                 />
               </Box>

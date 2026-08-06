@@ -37,17 +37,17 @@ class DateTime extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectedValue !== this.props.selectedValue) {
-      const mode = nextProps.timePicker ? 'datetime' : nextProps.mode;
-      const selectedValue = nextProps.selectedValue ? moment(nextProps.selectedValue).toDate() : null;
-
-      const label = selectedValue ? LibCalender.formatTime(selectedValue, mode, nextProps.timeMode) : '';
-
-      this.setState({
-        value: selectedValue,
-        label,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectedValue !== prevProps.selectedValue) {
+        const mode = this.props.timePicker ? 'datetime' : this.props.mode;
+        const selectedValue = this.props.selectedValue ? moment(this.props.selectedValue).toDate() : null;
+        const label = selectedValue ? LibCalender.formatTime(selectedValue, mode, this.props.timeMode) : '';
+        this.setState({
+          value: selectedValue,
+          label,
+        });
+      }
     }
   }
 

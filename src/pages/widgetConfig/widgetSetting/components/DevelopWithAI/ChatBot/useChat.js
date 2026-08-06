@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createParser } from 'eventsource-parser';
 import { find, findLast, get, omit } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import agentApi from 'src/api/agent';
 import sseAjax from 'src/api/sse';
 import { MESSAGE_TYPE } from './enum';
 
@@ -37,8 +38,7 @@ class ChunkLoader {
   }
 }
 
-function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageDone = () => {}, onError = () => {} }) {
-  const cache = useRef({});
+function useChatBot({ sessionId, params = [], defaultMessages = [], currentCode, onError = () => {} }) {
   const [firstInputMessage, setFirstInputMessage] = useState();
   const [messages, setMessages] = useState(defaultMessages);
   const [code, setCode] = useState(currentCode);
@@ -76,92 +76,80 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
     setLoading(false);
   };
 
-  const sendMessage = async (content, { noCode = false, imageUrl } = {}) => {
-    if (!content.trim()) return;
-    if (imageUrl) {
-      content = [
-        {
-          type: 'text',
-          text: content,
-        },
-        {
-          type: 'image_url',
-          image_url: {
-            url: imageUrl,
-          },
-        },
-      ];
-    }
+  const sendMessage = async (content, { noCode = false, attachment } = {}) => {
+    const text = (content || '').trim();
+    if (!text && !attachment) return;
+
+    // 展示用 content：有附件时用 OpenAI 风格数组，便于 Markdown 预览图片
+    const displayContent = attachment
+      ? [
+          { type: 'text', text: content },
+          { type: 'image_url', image_url: { url: attachment.url } },
+        ]
+      : content;
 
     await abortRequest();
     abortControllerRef.current = new AbortController();
 
     if (messages.length === 1) {
-      setFirstInputMessage(content);
+      setFirstInputMessage(displayContent);
     }
 
-    const userMessage = { role: 'user', content };
+    const userMessage = { role: 'user', content: displayContent };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
     setIsRequesting(true);
 
     try {
-      let isContinuous = messages.length > 2;
+      // 附件入参遵循 agent 服务 AgentAttachment 契约：type / url（无 token）/ name / size
+      const attachments = attachment
+        ? [
+            {
+              type: 'image',
+              url: (attachment.url || '').replace(/\?.*/, ''),
+              name: attachment.name,
+              size: attachment.size,
+            },
+          ]
+        : undefined;
 
-      function getMessageList() {
-        let result = [...messages, userMessage];
-        const lastMessageWithCode = findLast(
-          messages,
-          message => message.role === 'assistant' && message.content.includes('```mdy.free_field'),
-        );
-
-        if (code && isContinuous && lastMessageWithCode) {
-          const codeContent = lastMessageWithCode.content.split('```mdy.free_field')[0];
-          lastMessageWithCode.content = `${codeContent}\`\`\`mdy.free_field\n${code}\`\`\``;
-          result = [{ role: 'user', content: firstInputMessage }, lastMessageWithCode, userMessage];
-        } else if (code && !noCode) {
-          result = [
-            lastMessageWithCode || { role: 'assistant', content: `\`\`\`mdy.free_field\n${code}\`\`\`` },
-            userMessage,
-          ];
-        }
-
-        return result;
-      }
-
-      const response = await sseAjax.setupCustomField(
+      const response = await agentApi.agentExecuteStream(
         {
-          codeType: 3,
-          params,
-          messageList: getMessageList()
-            .filter(message => message.type !== MESSAGE_TYPE.SHOW_NOT_SEND)
-            .map(message => omit(message, ['id', 'type']))
-            .map(message => {
-              if (find(message.content, { type: 'image_url' })) {
-                const content = message.content.map(item => {
-                  if (item.type === 'image_url') {
-                    item = {
-                      type: 'image_url',
-                      image_url: {
-                        url: item.image_url.url.replace(/\?.*/, ''),
-                      },
-                    };
-                  }
-
-                  return item;
-                });
-                return { ...message, content };
-              } else {
-                return message;
-              }
-            }),
+          message: content,
+          attachments,
+          sessionId,
+          agentName: 'custom-field-agent',
+          context: { params, code },
         },
-        {
-          abortController: abortControllerRef.current,
-          isReadableStream: true,
-        },
+        { abortController: abortControllerRef.current },
       );
+      // {
+      //   codeType: 3,
+      //   params,
+      //   messageList: getMessageList()
+      //     .filter(message => message.type !== MESSAGE_TYPE.SHOW_NOT_SEND)
+      //     .map(message => omit(message, ['id', 'type']))
+      //     .map(message => {
+      //       if (find(message.content, { type: 'image_url' })) {
+      //         const content = message.content.map(item => {
+      //           if (item.type === 'image_url') {
+      //             item = {
+      //               type: 'image_url',
+      //               image_url: {
+      //                 url: item.image_url.url.replace(/\?.*/, ''),
+      //               },
+      //             };
+      //           }
+
+      //           return item;
+      //         });
+      //         return { ...message, content };
+      //       } else {
+      //         return message;
+      //       }
+      //     }),
+      // },
 
       setIsRequesting(false);
 
@@ -172,7 +160,6 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
       const parser = createParser(event => {
         if (event.type === 'event') {
           if (event.data === '[DONE]') {
-            onMessageDone(cache.current.messages);
             return;
           }
 
@@ -182,7 +169,12 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
 
           try {
             const data = JSON.parse(event.data);
-            const messageContent = get(data, 'choices.0.delta.content') || '';
+
+            if (data.EventType !== 'text-delta') {
+              return;
+            }
+
+            const messageContent = data.Delta || '';
 
             setMessages(prev => {
               const lastMessage = prev[prev.length - 1];
@@ -194,7 +186,6 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
                   codeIsClosed: ((lastMessage.content + messageContent).match(/```/g) || []).length % 2 === 0,
                 },
               ];
-              cache.current.messages = newMessages;
               return newMessages;
             });
           } catch (error) {

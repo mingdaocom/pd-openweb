@@ -21,20 +21,17 @@ const ganttTarget = {
     }
   },
 };
-
-@DropTarget(config.DRAG_GANTT, ganttTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop(),
-}))
-export default class TaskTimeBar extends Component {
+let TaskTimeBar = class TaskTimeBar extends Component {
   render() {
     const { item, connectDropTarget } = this.props;
-
     return connectDropTarget(
       <div
-        className={cx('taskTimeBars', { taskTimeBarsHover: this.props.dragHoverIndex === this.props.index })}
-        style={{ height: item.taskTimeBars.length * 26 }}
+        className={cx('taskTimeBars', {
+          taskTimeBarsHover: this.props.dragHoverIndex === this.props.index,
+        })}
+        style={{
+          height: item.taskTimeBars.length * 26,
+        }}
       >
         {item.taskTimeBars.map((timeBars, row) =>
           timeBars.map((data, col) => {
@@ -48,4 +45,10 @@ export default class TaskTimeBar extends Component {
       </div>,
     );
   }
-}
+};
+TaskTimeBar = DropTarget(config.DRAG_GANTT, ganttTarget, (connect, monitor) => ({
+  connectDropTarget: connect.dropTarget(),
+  isOver: monitor.isOver(),
+  canDrop: monitor.canDrop(),
+}))(TaskTimeBar);
+export default TaskTimeBar;

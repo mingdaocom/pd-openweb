@@ -4,6 +4,7 @@ import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { addFriendConfirm } from 'ming-ui/functions';
 import API, { editIgnoreRecommends } from '../api';
+import { pathCompletion } from 'src/utils/common';
 
 export default class RecommendsList extends React.Component {
   constructor() {
@@ -22,17 +23,19 @@ export default class RecommendsList extends React.Component {
     this.fetch();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isLoaded !== this.props.isLoaded && nextProps.isLoaded === false) {
-      this.setState(
-        {
-          isLoading: false,
-          pageIndex: 1,
-          hasMore: true,
-          listData: null,
-        },
-        this.fetch,
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.isLoaded !== prevProps.isLoaded && this.props.isLoaded === false) {
+        this.setState(
+          {
+            isLoading: false,
+            pageIndex: 1,
+            hasMore: true,
+            listData: null,
+          },
+          this.fetch,
+        );
+      }
     }
   }
 
@@ -120,11 +123,11 @@ export default class RecommendsList extends React.Component {
                 return (
                   <tr key={item.accountId}>
                     <td className="userItem pRight24">
-                      <a href={'/user_' + item.accountId} className="Hand NoUnderline" target="_blank">
+                      <a href={pathCompletion('/user_' + item.accountId)} className="Hand NoUnderline" target="_blank">
                         <img className="circle avatar" src={item.avatar} />
                       </a>
                       <a
-                        href={'/user_' + item.accountId}
+                        href={pathCompletion('/user_' + item.accountId)}
                         className="Bold Hand overflow_ellipsis textPrimary mLeft8"
                         title={item.fullname}
                       >

@@ -45,18 +45,21 @@ export default class DateCalc extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { widget } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { widget } = this.props;
 
-    if (widget.id !== this.props.widget.id) {
-      const dataSource = widget.data.dataSource;
-      this.setState({
-        formulaStr: dataSource || '',
-        changed: !dataSource,
-        formulaColumnSelectVisible: false,
-      });
-      if (this.tagtextarea) {
-        this.tagtextarea.setValue(dataSource || '');
+      if (widget.id !== prevProps.widget.id) {
+        const dataSource = widget.data.dataSource;
+        this.setState({
+          formulaStr: dataSource || '',
+          changed: !dataSource,
+          formulaColumnSelectVisible: false,
+        });
+
+        if (this.tagtextarea) {
+          this.tagtextarea.setValue(dataSource || '');
+        }
       }
     }
   }

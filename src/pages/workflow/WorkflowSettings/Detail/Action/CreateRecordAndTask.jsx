@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Dropdown, PriceTip, Radio, Support } from 'ming-ui';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { pathCompletion } from 'src/utils/common';
 import { APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
 import { AddOptions, SelectNodeObject, SingleControlValue } from '../components';
 
@@ -25,9 +26,17 @@ export default class CreateRecordAndTask extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.data.selectNodeId !== this.props.data.selectNodeId) {
-      this.setState({ isBatch: !!nextProps.data.selectNodeId });
+  /**
+   * 切换工作表
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.data.selectNodeId !== prevProps.data.selectNodeId) {
+        this.setState({
+          isBatch: !!this.props.data.selectNodeId,
+        });
+      }
     }
   }
 
@@ -88,7 +97,7 @@ export default class CreateRecordAndTask extends Component {
                 <Support
                   type={3}
                   href="https://help.mingdao.com/workflow/sms-failure"
-                  text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
+                  text={<span className="colorPrimary hoverColorPrimaryDark">{_l('收不到短信？')}</span>}
                 />
               </Fragment>
             )}
@@ -100,7 +109,10 @@ export default class CreateRecordAndTask extends Component {
             {_l(
               '本节点使用前，请确保已开通开票税号。电子开票采用异步处理方式，节点执行时将等待开票结果，开票完成后再继续后续流程。该开票为自动操作，无需管理员审核。',
             )}
-            <span className="ThemeColor3 pointer" onClick={() => window.open(`/admin/invoice/${companyId}/taxNo`)}>
+            <span
+              className="colorPrimary pointer"
+              onClick={() => window.open(pathCompletion(`/admin/invoice/${companyId}/taxNo`))}
+            >
               {_l('前往组织后台开通')}
             </span>
 
@@ -287,8 +299,8 @@ export default class CreateRecordAndTask extends Component {
                 <div className="Font13 textSecondary mTop5">
                   {_l('开票税号未授权，请')}
                   <span
-                    className="ThemeColor3 pointer"
-                    onClick={() => window.open(`/admin/invoice/${companyId}/taxNo`)}
+                    className="colorPrimary pointer"
+                    onClick={() => window.open(pathCompletion(`/admin/invoice/${companyId}/taxNo`))}
                   >
                     {_l('前往组织后台授权')}
                   </span>

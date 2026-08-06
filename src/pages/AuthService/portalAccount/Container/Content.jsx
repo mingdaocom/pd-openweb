@@ -7,6 +7,7 @@ import { navigateTo } from 'router/navigateTo';
 import { Checkbox, Icon, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { validation } from 'src/pages/AuthService/util.js';
+import { pathCompletion } from 'src/utils/common';
 import { WrapWXCon } from '../style';
 import Form from './Form';
 
@@ -119,14 +120,10 @@ export default function (props) {
           <div className="mTop16 flexRow alignItemsCenter">
             {findPassword && (
               <span
-                className="Hand ThemeHoverColor3 textPrimary Font14"
+                className="Hand hoverColorPrimary textPrimary Font14"
                 style={{ margin: '0 0 0 auto' }}
                 onClick={() => {
-                  navigateTo(
-                    `${window.subPath || ''}/findPwd?appId=${appId}${
-                      props.customLink ? '&customLink=' + props.customLink : ''
-                    }`,
-                  );
+                  navigateTo(`/findPwd?appId=${appId}${props.customLink ? '&customLink=' + props.customLink : ''}`);
                 }}
               >
                 {_l('忘记密码')}
@@ -170,18 +167,18 @@ export default function (props) {
                 <div className="flex alignItemsCenter">
                   {_l('同意')}
                   <span
-                    className="ThemeColor3 Hand mRight5 mLeft5"
+                    className="colorPrimary Hand mRight5 mLeft5"
                     onClick={() => {
-                      window.open(`${location.origin}${window.subPath || ''}/agreen?appId=${appId}`);
+                      window.open(pathCompletion(`/agreen?appId=${appId}`));
                     }}
                   >
                     《{_l('用户协议')}》
                   </span>
                   {_l('与')}
                   <span
-                    className="ThemeColor3 Hand mLeft5"
+                    className="colorPrimary Hand mLeft5"
                     onClick={() => {
-                      window.open(`${location.origin}${window.subPath || ''}/privacy?appId=${appId}`);
+                      window.open(`/privacy?appId=${appId}`);
                     }}
                   >
                     《{_l('隐私政策')}》

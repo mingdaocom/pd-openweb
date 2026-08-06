@@ -68,7 +68,10 @@ export default class CustomTextarea extends Component {
 
       if (cursor.line === lastLine) {
         setTimeout(() => {
-          this.tagtextarea?.cmObj?.scrollIntoView({ line: lastLine, ch: 0 }, 50);
+          const cmObj = this.tagtextarea?.cmObj;
+          if (cmObj) {
+            cmObj.scrollIntoView({ line: cmObj.lineCount() - 1, ch: 0 }, 50);
+          }
         }, 10);
       }
     }
@@ -116,9 +119,10 @@ export default class CustomTextarea extends Component {
           }}
           onFocus={onFocus}
           renderTag={tag => {
-            const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
+            const key = tag.replace(/^\$|\$$/g, '');
+            const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
             const nodeObj = formulaMap[ids[0]] || {};
-            const controlObj = formulaMap[ids.join('-')] || {};
+            const controlObj = formulaMap[key] || {};
 
             return (
               <Tag
@@ -147,7 +151,7 @@ export default class CustomTextarea extends Component {
         />
         {content && onlyOneValue && (
           <i
-            className="icon-delete ThemeHoverColor3 Absolute textSecondary Font16 pointer"
+            className="icon-delete hoverColorPrimary Absolute textSecondary Font16 pointer"
             style={{ right: 46, top: 10 }}
             onClick={() => onChange(null, '')}
           />

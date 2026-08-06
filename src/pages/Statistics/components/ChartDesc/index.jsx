@@ -20,9 +20,14 @@ export default class ChartDesc extends Component {
       desc,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.desc !== this.props.desc) {
-      this.setState({ desc: nextProps.desc });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.desc !== prevProps.desc) {
+        this.setState({
+          desc: this.props.desc,
+        });
+      }
     }
   }
   handleSave = () => {
@@ -65,11 +70,16 @@ export default class ChartDesc extends Component {
           }}
         />
         <div className="TxtRight pTop20 pBottom5">
-          <Button type="text" size="small" className="textSecondary hoverTextPrimaryLight" onClick={this.props.onClose}>
+          <Button
+            type="text"
+            size="small"
+            className="textSecondary hoverColorPrimaryLight"
+            onClick={this.props.onClose}
+          >
             {_l('取消')}
           </Button>
           <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button type="primary" size="small" className="mLeft10 hoverBgPrimaryDark" onClick={this.handleSave}>
+            <Button type="primary" size="small" className="mLeft10 hoverBgColorPrimaryDark" onClick={this.handleSave}>
               {_l('保存')}
             </Button>
           </ConfigProvider>

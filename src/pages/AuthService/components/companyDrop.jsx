@@ -4,13 +4,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 
 const WrapCon = styled.div`
   .controlDropdown {
     height: auto;
     .itemT {
       background: var(--color-background-secondary);
-      border-radius: 4px 4px 4px 4px;
+      border-radius: 6px;
       padding: 3px 8px 3px 10px;
       border: 1px solid var(--color-border-secondary);
       line-height: 20px;
@@ -23,12 +24,12 @@ const WrapCon = styled.div`
     }
     span.itemSpan {
       color: var(--color-text-title) !important;
-      font-size: 15px;
+      font-size: 14px;
     }
     .ming.Item .Item-content:not(.disabled):hover {
       span.itemSpan {
-        color: var(--color-white) !important;
-        font-size: 15px;
+        color: var(--color-text-inverse) !important;
+        font-size: 14px;
       }
     }
     .Dropdown--border,
@@ -37,16 +38,16 @@ const WrapCon = styled.div`
     }
     .Dropdown--input {
       height: auto !important;
-      min-height: 40px;
+      min-height: 48px;
       padding: 4px !important;
       .Dropdown--placeholder {
-        line-height: 42px !important;
+        line-height: 40px !important;
       }
       .icon-arrow-down-border {
-        line-height: 52px !important;
+        line-height: 40px !important;
       }
       .value {
-        line-height: 42px !important;
+        line-height: 40px !important;
         display: flex !important;
         & > div {
           flex: 1 !important;
@@ -61,6 +62,7 @@ const WrapCon = styled.div`
 
 function Drop(props) {
   const { updateCompany = () => {}, updateState = () => {}, info = {} } = props;
+  const openSearch = !browserIsMobile();
   const [{ dropDownVisible, extraDatas, warnList }, setState] = useSetState({
     dropDownVisible: false,
     extraDatas: {},
@@ -72,7 +74,7 @@ function Drop(props) {
       extraDatas: props.extraDatas,
       warnList: props.warnList,
     });
-  }, [props]);
+  }, [props, setState]);
 
   return (
     <WrapCon>
@@ -80,7 +82,7 @@ function Drop(props) {
         selectClose={info.multiple !== 1}
         cancelAble={info.multiple === 1}
         showItemTitle
-        openSearch
+        openSearch={openSearch}
         menuClass={''}
         value={
           !_.get(extraDatas, `${info.id}`) || _.get(extraDatas, `${info.id}`).length <= 0
@@ -117,7 +119,7 @@ function Drop(props) {
                   __html: item.text,
                 }}
               />
-              {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" style={{ left: 0 }} />}
+              {isCur && <Icon icon="done" className="Relative colorPrimary Font18" style={{ left: 0 }} />}
             </div>
           );
         }}
@@ -169,7 +171,6 @@ function Drop(props) {
               placeholder: _l('请选择'),
               popupVisible: dropDownVisible,
               onVisibleChange: visible => setState({ dropDownVisible: visible }),
-              openSearch: true,
             }
           : {})}
       />

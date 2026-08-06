@@ -55,19 +55,19 @@ class TaskStage extends Component {
     this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar.bind(this));
   }
 
-  componentWillReceiveProps(nextProps) {
-    // 减少proejctId不同的而发生的请求
-    const nextConfig = Object.assign({}, nextProps.taskConfig);
-    const currentConfig = Object.assign({}, this.props.taskConfig);
-
-    nextConfig.projectId = '';
-    currentConfig.projectId = '';
-
-    if ((nextProps.taskConfig.folderId && !_.isEqual(nextConfig, currentConfig)) || config.isGetData) {
-      // 解决props未更新问题
-      setTimeout(() => {
-        this.init();
-      }, 0);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      // 减少proejctId不同的而发生的请求
+      const nextConfig = Object.assign({}, this.props.taskConfig);
+      const currentConfig = Object.assign({}, prevProps.taskConfig);
+      nextConfig.projectId = '';
+      currentConfig.projectId = '';
+      if ((this.props.taskConfig.folderId && !_.isEqual(nextConfig, currentConfig)) || config.isGetData) {
+        // 解决props未更新问题
+        setTimeout(() => {
+          this.init();
+        }, 0);
+      }
     }
   }
 
@@ -180,7 +180,7 @@ class TaskStage extends Component {
           operation={
             auth === config.auth.Charger ? (
               <span
-                className="updateChargeBtn ThemeColor3"
+                className="updateChargeBtn colorPrimary"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: folderId,
@@ -391,7 +391,7 @@ class TaskStage extends Component {
         .hide()
         .end()
         .find('.stageHeader')
-        .append('<input class="updateStageName boderRadAll_3 ThemeBorderColor3" maxlength="100" />')
+        .append('<input class="updateStageName boderRadAll_3 borderColorPrimary" maxlength="100" />')
         .end()
         .find('input.updateStageName')
         .focus()
@@ -512,6 +512,13 @@ class TaskStage extends Component {
 
     // 页面滚动条
     $taskList.on('mousedown', '.listStage', event => {
+      if (
+        this.state.openTaskDetail &&
+        !$(event.target).closest('.singleTaskStage, .addNewTask, .stageHeader, .bottomNewBox').length
+      ) {
+        return;
+      }
+
       const $listStage = $('#taskList .listStage');
       const listStageWidth = $listStage.width();
       const listStageContentWidth =

@@ -42,7 +42,7 @@ export default function RowDetailModal(props) {
       return;
     }
 
-    if (!switchDisabled[type]) {
+    if (!switchDisabled[type] && formContent.current) {
       const hasError = formContent.current.handleSave(false, true);
 
       if (disabled || !(!_.isUndefined(hasError) && !hasError)) {
@@ -68,8 +68,8 @@ export default function RowDetailModal(props) {
               className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => {
                 closeConfirmFunc.close();
-                onClose();
                 deleteRow(rowid);
+                onClose();
               }}
             >
               {_l('放弃')}
@@ -79,6 +79,7 @@ export default function RowDetailModal(props) {
               color="primary"
               onClick={() => {
                 closeConfirmFunc.close();
+                if (!formContent.current) return;
                 const hasError = formContent.current.handleSave(false, false, false);
 
                 if (!(!_.isUndefined(hasError) && !hasError)) {
@@ -104,6 +105,7 @@ export default function RowDetailModal(props) {
           <i
             className="icon icon-copy Font18 colorPrimary mLeft10"
             onClick={() => {
+              if (!formContent.current) return;
               const rowData = formContent.current.isVerified();
               rowData && copyRow(rowData);
             }}
@@ -116,6 +118,11 @@ export default function RowDetailModal(props) {
             onClick={() => {
               if ($('.mobileChildTableRowDetailDialog').find('.fileUpdateLoading').length) {
                 alert(_l('附件正在上传，请稍后'), 3);
+                return;
+              }
+
+              if (!formContent.current) {
+                onClose();
                 return;
               }
 
@@ -150,7 +157,7 @@ export default function RowDetailModal(props) {
           {!isExceed && (
             <Button
               className="flex mRight6 bold textSecondary Font13"
-              onClick={() => formContent.current.handleSave(true)}
+              onClick={() => formContent.current && formContent.current.handleSave(true)}
             >
               {_l('继续创建')}
             </Button>
@@ -158,7 +165,7 @@ export default function RowDetailModal(props) {
           <Button
             color="primary"
             className="flex mLeft6 mRight6 bold Font13"
-            onClick={() => formContent.current.handleSave()}
+            onClick={() => formContent.current && formContent.current.handleSave()}
           >
             {_l('确认')}
           </Button>

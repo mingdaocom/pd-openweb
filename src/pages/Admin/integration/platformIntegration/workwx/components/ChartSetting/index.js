@@ -3,6 +3,7 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Input } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   padding: 20px 24px 0;
@@ -63,7 +64,7 @@ export default function ChartSetting(props) {
           disabled={!newURL}
           className="mLeft20"
           onClick={() => {
-            setCopyValue(`${location.origin}/auth/chatTools?p=${projectId}&url=${newURL.split('?')[0]}`);
+            setCopyValue(pathCompletion(`/auth/chatTools?p=${projectId}&url=${newURL.split('?')[0]}`));
           }}
         >
           {_l('生成企微链接')}

@@ -279,7 +279,7 @@ export default function Number(props) {
                     />
                   ) : (
                     <span
-                      className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36"
+                      className="colorPrimary hoverColorPrimaryDark pointer LineHeight36"
                       onClick={() => setVisible(true)}
                     >
                       {_l('设置')}

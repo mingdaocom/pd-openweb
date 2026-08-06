@@ -18,18 +18,26 @@ export default class Example extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -42,6 +50,10 @@ export default class Example extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
       });
   }
@@ -61,7 +73,7 @@ export default class Example extends Component {
     const { data, saveRequest } = this.state;
     const { name, actionId, fieldValue, fieldControlId, fieldNodeId, formulaValue, number } = data;
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -104,12 +116,14 @@ export default class Example extends Component {
         />
         <div className="flex overflowHidden">
           <ScrollView>
-            <div className="workflowDetailBox">内容</div>
+            <div className="workflowDetailBox">{_l('内容')}</div>
           </ScrollView>
         </div>
         <DetailFooter
           {...this.props}
-          isCorrect={data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue}
+          isCorrect={
+            data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue && !_.isEqual(data, this.cacheResult)
+          }
           onSave={this.onSave}
         />
       </Fragment>

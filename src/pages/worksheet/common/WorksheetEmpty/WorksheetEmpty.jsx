@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -7,10 +7,11 @@ import Trigger from 'rc-trigger';
 import { Button, Icon } from 'ming-ui';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
-import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import { addWorkSheet, createAppItem, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
 import store from 'src/redux/configureStore';
 import './WorksheetEmpty.less';
+
+const LoadableDialogImportExcelCreate = lazy(() => import('src/pages/worksheet/components/DialogImportExcelCreate'));
 
 const createWorksheetList = [
   { type: 'blank', icon: 'plus', createType: 'worksheet', name: _l('从空白创建') },
@@ -165,19 +166,21 @@ class WorksheetEmpty extends Component {
           />
         ) : null}
         {dialogImportExcel && (
-          <DialogImportExcelCreate
-            appId={appId}
-            projectId={projectId}
-            refreshPage={() =>
-              this.props.getSheetList({
-                appId,
-                appSectionId: groupId,
-              })
-            }
-            groupId={groupId}
-            onCancel={() => this.setState({ dialogImportExcel: false })}
-            createType="worksheet"
-          />
+          <Suspense fallback={null}>
+            <LoadableDialogImportExcelCreate
+              appId={appId}
+              projectId={projectId}
+              refreshPage={() =>
+                this.props.getSheetList({
+                  appId,
+                  appSectionId: groupId,
+                })
+              }
+              groupId={groupId}
+              onCancel={() => this.setState({ dialogImportExcel: false })}
+              createType="worksheet"
+            />
+          </Suspense>
         )}
       </div>
     );

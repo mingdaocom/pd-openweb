@@ -491,8 +491,8 @@ class TaskTime extends Component {
               </Fragment>
             ) : data.startTime ? (
               <div
-                className={cx('detailTimeNowStart ThemeColor3 ThemeBorderColor3', {
-                  'pointer ThemeHoverColor2 ThemeHoverBorderColor2': hasAuth,
+                className={cx('detailTimeNowStart colorPrimary borderColorPrimary', {
+                  'pointer hoverColorPrimaryDark hoverBorderColorPrimaryDark': hasAuth,
                 })}
                 onClick={() =>
                   hasAuth && this.updateTaskActualStartTime(moment(getCurrentTime()).format('YYYY-MM-DD HH:00'))

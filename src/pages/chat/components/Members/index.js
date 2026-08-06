@@ -36,11 +36,14 @@ export default class Members extends Component {
       groupMemberCount: 0,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    const { session } = nextProps;
 
-    if (session.groupMemberCount !== this.state.groupMemberCount) {
-      this.getGroupUsers();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { session } = this.props;
+
+      if (session.groupMemberCount !== this.state.groupMemberCount) {
+        this.getGroupUsers();
+      }
     }
   }
   componentDidMount() {
@@ -81,7 +84,7 @@ export default class Members extends Component {
           </span>
           <span
             onClick={this.props.onSetPanelVisible.bind(this, true)}
-            className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
+            className="ChatPanel-sessionInfo-hander-entry colorPrimary"
           >
             {' '}
             {_l('所有成员')}

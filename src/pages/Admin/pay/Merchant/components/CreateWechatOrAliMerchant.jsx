@@ -7,8 +7,9 @@ import _, { isEmpty } from 'lodash';
 import { Button, Dialog, Icon, LoadDiv, Textarea } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
-import WeChatServiceAccount, { setWeChatServiceAccountsDialog } from 'src/components/WeChatServiceAccountsDialog';
+import { setWeChatServiceAccountsDialog } from 'src/components/WeChatServiceAccountsDialog';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
+import { pathCompletion } from 'src/utils/common';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import './createMerchant.less';
 
@@ -45,10 +46,10 @@ export default function CreateWechatOrAliMerchant(props) {
     projectId,
     merchantPaymentChannel,
     currentMerchantInfo = {},
-    onClose = () => {},
-    changeCreateMerchant = () => {},
-    updateCurrentMerchant = () => {},
-    getDataList = () => {},
+    onClose = () => { },
+    changeCreateMerchant = () => { },
+    updateCurrentMerchant = () => { },
+    getDataList = () => { },
   } = props;
   const isCreate = _.isEmpty(currentMerchantInfo);
 
@@ -106,7 +107,7 @@ export default function CreateWechatOrAliMerchant(props) {
         };
         setFormData({
           ...merchantInfo,
-          ...clearSecretInfo(merchantInfo.appId),
+          ...clearSecretInfo(),
           initData: merchantInfo,
         });
       })
@@ -143,7 +144,7 @@ export default function CreateWechatOrAliMerchant(props) {
     }
   };
 
-  const clearSecretInfo = appId => {
+  const clearSecretInfo = () => {
     return {
       appSecret: '',
       privateKey: '',
@@ -192,7 +193,7 @@ export default function CreateWechatOrAliMerchant(props) {
           title: _l('验证商户信息'),
           paymentModule: 5,
           orderId: res.orderId,
-          payFinished: ({ onCancel = () => {} }) => {
+          payFinished: ({ onCancel = () => { } }) => {
             alert(_l('保存成功'));
             onCancel();
             updateData();
@@ -247,7 +248,7 @@ export default function CreateWechatOrAliMerchant(props) {
     if (!formData?.appId && weChatServiceAccounts.length > 1) {
       return (
         <div
-          className="Hand colorPrimary hoverTextPrimaryLight mTop10"
+          className="Hand colorPrimary hoverColorPrimaryLight mTop10"
           onClick={() =>
             setWeChatServiceAccountsDialog({
               projectId,
@@ -321,9 +322,8 @@ export default function CreateWechatOrAliMerchant(props) {
               renderAppId(item)
             ) : (
               <Textarea
-                className={`w100 placeholderColor ${
-                  _.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
-                }`}
+                className={`w100 placeholderColor ${_.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
+                  }`}
                 style={{ maxHeight: 350 }}
                 value={formData[item.field]}
                 placeholder={item.placeholder}
@@ -346,7 +346,7 @@ export default function CreateWechatOrAliMerchant(props) {
     <Fragment>
       <div className="orgManagementHeader">
         <div className="createMerchantHeader bold Font17">
-          <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer mRight10" onClick={onClose} />
+          <Icon icon="backspace" className="Font22 hoverColorPrimary pointer mRight10" onClick={onClose} />
           {isWechat ? _l('微信支付') : _l('支付宝支付')}
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function CreateWechatOrAliMerchant(props) {
                   <span className="TxtMiddle mRight5">
                     {_l('2、资金直达微信，本平台仅收取商户功能费，支持先试用后付费，点击')}
                   </span>
-                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>
+                  <a target="_blank" href={pathCompletion(`/upgrade/choose?projectId=${projectId}`)}>
                     {_l('查看具体费用')}
                   </a>
                 </div>
@@ -376,7 +376,7 @@ export default function CreateWechatOrAliMerchant(props) {
               <div>{_l('3、密钥、证书等字段信息采用动态加密存储，保存后掩码显示，保障信息安全')}</div>
               <div>
                 <span className="TxtMiddle mRight5"> {_l('4、配置内容请参考')}</span>
-                <a target="_blank" href={`${md.global.Config.WebUrl}wechatmerchantguide`}>
+                <a target="_blank" href={pathCompletion(`/wechatmerchantguide`)}>
                   {_l('商户号配置指引')}
                 </a>
               </div>
@@ -397,7 +397,7 @@ export default function CreateWechatOrAliMerchant(props) {
                   <span className="TxtMiddle mRight5">
                     {_l('2、资金直达支付宝，本平台仅收取商户功能费，支持先试用后付费，点击')}
                   </span>
-                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>
+                  <a target="_blank" href={pathCompletion(`/upgrade/choose?projectId=${projectId}`)}>
                     {_l('查看具体费用')}
                   </a>
                 </div>
@@ -406,7 +406,7 @@ export default function CreateWechatOrAliMerchant(props) {
               <div>{_l('4、密钥、证书等字段信息采用动态加密存储，保存后掩码显示，保障信息安全')}</div>
               <div>
                 <span className="TxtMiddle mRight5"> {_l('5、配置内容请参考')}</span>{' '}
-                <a target="_blank" href={`${md.global.Config.WebUrl}alimerchantguide`}>
+                <a target="_blank" href={pathCompletion(`/alimerchantguide`)}>
                   {_l('商户号配置指引')}
                 </a>
               </div>

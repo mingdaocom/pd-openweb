@@ -161,7 +161,7 @@ export default class DetailList extends Component {
         {item.isMember ? (
           <span className="Hand Green">{_l('已加入')}</span>
         ) : (
-          <span className="Hand ThemeColor3" onClick={() => this.reInvite(item.accountId)}>
+          <span className="Hand colorPrimary" onClick={() => this.reInvite(item.accountId)}>
             {_l('再次发送')}
           </span>
         )}

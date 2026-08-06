@@ -32,6 +32,7 @@ import {
 import ColumnHead from 'worksheet/components/BaseColumnHead';
 import Pagination from 'worksheet/components/Pagination';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import emptyPng from 'src/pages/worksheet/assets/record.png';
 import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
@@ -267,13 +268,15 @@ export default function SelectDialog({ ...args }) {
     get(control, 'advancedSetting.fastfiltersview');
   const fastFiltersView = fastFiltersViewId && find(worksheetInfo.views, { viewId: fastFiltersViewId });
   const [fastFilters, setFastFilters] = useState((fastFiltersView && get(fastFiltersView, 'fastFilters')) || []);
-  let controlsForShow = (
-    get(control, 'advancedSetting.chooseshow') === '1'
+  const isSingleRelateRecordDropdown =
+    control.type === 29 &&
+    control.enumDefault === 1 &&
+    String(get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
+  const controlIdsForShow =
+    get(control, 'advancedSetting.chooseshow') === '1' && !isSingleRelateRecordDropdown
       ? safeParse(get(control, 'advancedSetting.chooseshowids'), 'array')
-      : showControls
-  )
-    .map(controlId => find(controls, { controlId }))
-    .filter(identity);
+      : showControls;
+  let controlsForShow = controlIdsForShow.map(controlId => find(controls, { controlId })).filter(identity);
   const titleControl = getTitleControl(control, controls);
   const titleControlId = get(titleControl, 'controlId');
   const titleMaskData =
@@ -298,7 +301,7 @@ export default function SelectDialog({ ...args }) {
   if (isEmpty(controlsForShow)) {
     controlsForShow = [titleControl].filter(identity);
     if (showMoreControls) {
-      controlsForShow = controls.filter(c => c.controlId !== titleControl.controlId).slice(0, 4);
+      controlsForShow = (titleControlId ? controls.filter(c => c.controlId !== titleControlId) : controls).slice(0, 4);
     }
   }
 
@@ -395,7 +398,7 @@ export default function SelectDialog({ ...args }) {
           return;
         }
 
-        if (activeRowIndex !== -1) {
+        if (activeRowIndex !== -1 && records[activeRowIndex]) {
           handleToggleSelect(records[activeRowIndex].rowid, activeRowIndex);
         }
       } else if (e.key === 'ArrowDown') {
@@ -548,7 +551,7 @@ export default function SelectDialog({ ...args }) {
     >
       <Con>
         <RefreshBtn onClick={refresh}>
-          <i className="icon icon-task-later ThemeHoverColor3"></i>
+          <i className="icon icon-task-later hoverColorPrimary"></i>
         </RefreshBtn>
         <Header
           showNewRecord={showNewRecord}
@@ -787,7 +790,7 @@ export default function SelectDialog({ ...args }) {
                           {getEmptyText({ keyWords, error })}
                           {allowShowIgnoreAllFilters && (
                             <div
-                              className="ignoreAllFilters ThemeColor3 Font14 mTop10 Hand"
+                              className="ignoreAllFilters colorPrimary Font14 mTop10 Hand"
                               onClick={() => setIgnoreAllFilters(true)}
                             >
                               {_l('查看全部记录')}
@@ -834,7 +837,7 @@ export default function SelectDialog({ ...args }) {
                     {getEmptyText({ keyWords, error })}
                     {allowShowIgnoreAllFilters && (
                       <div
-                        className="ignoreAllFilters ThemeColor3 Font14 mTop10 Hand"
+                        className="ignoreAllFilters colorPrimary Font14 mTop10 Hand"
                         onClick={() => setIgnoreAllFilters(true)}
                       >
                         {_l('查看全部记录')}

@@ -8,7 +8,7 @@ import { Button, Dialog, LoadDiv, Qr } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import preall from 'src/common/preall';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getPathWithoutSubPath, getRequest } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import PayErrorIcon from '../components/PayErrorIcon';
 import { getOrderStatusInfo } from '../config';
@@ -27,6 +27,13 @@ const formatWeChatPayInfo = payInfo => {
 };
 
 const fn = match('/orderpay/:orderId/:paymentModule?');
+
+const getOrderPayParams = () => {
+  const { params } = fn(getPathWithoutSubPath(location.pathname)) || {};
+
+  return params || {};
+};
+
 export default class OrderPay extends Component {
   constructor(props) {
     super(props);
@@ -42,20 +49,27 @@ export default class OrderPay extends Component {
   componentDidMount() {
     // 手机后台切换页面返回当前页时重新获取数据确保支付信息显示准确
     if (browserIsMobile()) {
-      window.addEventListener('visibilitychange', () => {
-        if (!document.hidden && this.state.orderStatus === 0) {
-          clearTimeout(this.timer);
-          this.getData();
-        }
-      });
+      window.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
 
     this.getData();
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+    window.removeEventListener('visibilitychange', this.handleVisibilityChange);
+  }
+
+  handleVisibilityChange = () => {
+    if (!document.hidden && this.state.orderStatus === 0) {
+      clearTimeout(this.timer);
+      this.getData();
+    }
+  };
+
   getData = async orderId => {
     const { payLoading } = this.state;
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
 
     orderId = orderId ? orderId : this.props.orderId ? this.props.orderId : params.orderId;
 
@@ -100,7 +114,7 @@ export default class OrderPay extends Component {
   // 支付宝支付
   handleAliPay = () => {
     const { orderInfo } = this.state;
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
     const orderId = this.props.orderId ? this.props.orderId : params.orderId;
     if (this.state.payLoading) return;
     this.setState({ payLoading: true });
@@ -126,7 +140,7 @@ export default class OrderPay extends Component {
 
   // 微信授权并支付
   getWeChatPayInfo = async wechatPayStatus => {
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
     const orderId = this.props.orderId ? this.props.orderId : params.orderId;
     const { code } = getRequest() || {};
 
@@ -163,13 +177,16 @@ export default class OrderPay extends Component {
               // 使用以上方式判断前端返回,微信团队郑重提示：
               //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
               this.setState({ payLoading: false });
-            } else if (res.err_msg == 'get_brand_wcpay_request:cancel' || res.err_msg == 'get_brand_wcpay_request:fail') {
+            } else if (
+              res.err_msg == 'get_brand_wcpay_request:cancel' ||
+              res.err_msg == 'get_brand_wcpay_request:fail'
+            ) {
               res.err_msg == 'get_brand_wcpay_request:fail' && alert(res.err_msg, 2);
               // 取消支付||支付失败
               window.history.replaceState(
                 {},
                 '',
-                `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+                `${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
               );
               this.setState({ payLoading: false });
             } else {
@@ -178,6 +195,7 @@ export default class OrderPay extends Component {
             }
           });
         };
+
         if (typeof WeixinJSBridge === 'undefined') {
           document.addEventListener('WeixinJSBridgeReady', invokeWxPay, false);
         } else {
@@ -188,7 +206,7 @@ export default class OrderPay extends Component {
         window.history.replaceState(
           {},
           '',
-          `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+          `${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
         );
         this.setState({ payLoading: false });
       });
@@ -207,7 +225,7 @@ export default class OrderPay extends Component {
 
   // 轮询订单状态
   pollOrderStatus = (orderInfo = {}) => {
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
     const { orderId } = orderInfo;
 
     paymentAjax
@@ -250,7 +268,7 @@ export default class OrderPay extends Component {
   checkPayOrder = () => {
     const { orderInfo = {} } = this.state;
     const { orderId } = orderInfo;
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
 
     paymentAjax
       .checkPayOrder({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
@@ -388,7 +406,7 @@ export default class OrderPay extends Component {
 
   renderOrderQrCode = (orderId, type) => {
     const isMobile = browserIsMobile();
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
 
     Dialog.confirm({
       overlayClosable: true,
@@ -399,7 +417,9 @@ export default class OrderPay extends Component {
         <Fragment>
           <div className="qrCode">
             <Qr
-              content={`${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`}
+              content={`${md.global.Config.WebUrl}orderpay/${orderId}${
+                params.paymentModule ? '/' + params.paymentModule : ''
+              }`}
               width={250}
               height={250}
             />
@@ -413,7 +433,7 @@ export default class OrderPay extends Component {
   };
 
   render() {
-    const { params } = fn(location.pathname) || {};
+    const params = getOrderPayParams();
     const { loading, orderInfo = {}, orderStatus, payLoading, expireCountdown, errorMessage } = this.state;
     const {
       description,

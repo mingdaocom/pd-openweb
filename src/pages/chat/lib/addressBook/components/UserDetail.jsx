@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -12,6 +12,7 @@ import UserMoreProfile from 'src/components/UserInfoComponents/UserMoreProfile.j
 import API, { removeFriend } from '../api';
 import { config } from '../config';
 import AddFriend from './AddFriend';
+import { pathCompletion } from 'src/utils/common';
 
 const defaultState = {
   data: null,
@@ -36,11 +37,13 @@ export default class UserDetail extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.accountId && nextProps.accountId !== this.props.accountId) {
-      this.fetchUserDetail(nextProps.accountId);
-    } else if (nextProps.accountId === null) {
-      this.setState(defaultState);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.accountId && this.props.accountId !== prevProps.accountId) {
+        this.fetchUserDetail(this.props.accountId);
+      } else if (this.props.accountId === null) {
+        this.setState(defaultState);
+      }
     }
   }
 
@@ -107,7 +110,7 @@ export default class UserDetail extends React.Component {
     if (!isFriend) {
       return (
         <span
-          className="Right textSecondary Hand ThemeHoverColor3"
+          className="Right textSecondary Hand hoverColorPrimary"
           onClick={() => checkCertification({ isPersonal: true, checkSuccess: this.addFriendConfirm })}
         >
           <i className="Font14 icon-custom_add_circle TxtMiddle" />
@@ -132,7 +135,7 @@ export default class UserDetail extends React.Component {
               </Menu>
             }
           >
-            <span className="textSecondary Hand ThemeHoverColor3">
+            <span className="textSecondary Hand hoverColorPrimary">
               <i className="Font14 icon-check_circle TxtMiddle" />
               <span className="mLeft5 TxtMiddle Font12">{_l('我的好友')}</span>
               <i className="Font14 mLeft5 icon-moreop TxtMiddle" />
@@ -173,7 +176,7 @@ export default class UserDetail extends React.Component {
         <div className="detail-btns mTop24 mBottom24 flexRow alignItemsCenter bold">
           <a
             href="javascript:void 0;"
-            className="detail-btn ThemeBGColor3 ThemeHoverBGColor2 NoUnderline"
+            className="detail-btn bgColorPrimary hoverBgColorPrimaryDark NoUnderline"
             onClick={() => {
               if (isContact) {
                 config.callback({ accountId });
@@ -185,7 +188,7 @@ export default class UserDetail extends React.Component {
             <Icon icon="chat" className="mRight5 Font18 TxtMiddle" />
             {_l('发消息')}
           </a>
-          <a href={'/user_' + accountId} className="detail-btn textSecondary mLeft10 NoUnderline" target="_blank">
+          <a href={pathCompletion('/user_' + accountId)} className="detail-btn textSecondary mLeft10 NoUnderline" target="_blank">
             <Icon icon="dynamic-empty" className="mRight10 Font17 TxtMiddle" />
             {_l('TA的动态')}
           </a>

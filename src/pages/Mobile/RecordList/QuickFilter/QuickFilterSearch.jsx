@@ -67,9 +67,10 @@ export default function QuickFilterSearch(props) {
     updateActiveSavedFilter = () => {},
     base = {},
     config = {},
+    canFilter = true,
   } = props;
   const { allowFilter = true } = config;
-  const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
+  const showSavedFilter = canFilter && !_.get(window, 'shareState.shareId') && base.type !== 'single';
 
   const filtersControl = quickFilterWithDefault
     .map(filter => ({
@@ -97,6 +98,7 @@ export default function QuickFilterSearch(props) {
         savedFilters={savedFilters}
         activeSavedFilter={activeSavedFilter}
         filterControls={props.filterControls}
+        canFilter={canFilter}
         onHideSidebar={handleOpenDrawer}
         updateActiveSavedFilter={updateActiveSavedFilter}
       />
@@ -108,7 +110,7 @@ export default function QuickFilterSearch(props) {
       {showSearch && (
         <Search inputPlaceholder={groupControlId ? _l('搜索') : ''} textFilters={[]} viewType={view.viewType} />
       )}
-      {((window.isMingDaoApp ? allowFilter : false) ||
+      {((canFilter && window.isMingDaoApp && allowFilter) ||
         !_.isEmpty(filtersControl) ||
         (showSavedFilter && !_.isEmpty(savedFilters))) && (
         <FilterWrapper>

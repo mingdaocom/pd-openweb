@@ -346,7 +346,7 @@ export default function RelateOperate(props) {
             {allowbatch === '1' && (
               <Tooltip placement="bottom" title={_l('批量设置')}>
                 <i
-                  className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
+                  className="icon-settings textTertiary Font16 Hand Right hoverColorPrimary"
                   onClick={() => setVisible(true)}
                 ></i>
               </Tooltip>

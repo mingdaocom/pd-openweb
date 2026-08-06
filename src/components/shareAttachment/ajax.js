@@ -2,7 +2,7 @@
 import chatController from 'src/api/chat';
 import groupController from 'src/api/group';
 import taskCenterController from 'src/api/taskCenter';
-import 'src/components/createTask/createTask';
+import createTask from 'src/components/createTask/load';
 
 export function _getMyTaskList(params) {
   return new Promise((resolve, reject) => {
@@ -58,15 +58,15 @@ export function _convertToOtherAttachment(params) {
 }
 
 export function createNewTask() {
-  return new Promise(resolve => {
-    $.CreateTask({
+  return new Promise((resolve, reject) => {
+    createTask({
       relationCallback: function (result) {
         resolve({
           taskID: result.taskID,
           taskName: result.taskName,
         });
       },
-    });
+    }).catch(reject);
   });
 }
 

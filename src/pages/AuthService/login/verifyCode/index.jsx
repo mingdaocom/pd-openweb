@@ -217,7 +217,7 @@ export default function (props) {
     <Wrap>
       <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>
         <div
-          className="Hand back textSecondary ThemeHoverColor3"
+          className="Hand back textSecondary hoverColorPrimary"
           onClick={() => {
             onChange({ step: '' });
           }}

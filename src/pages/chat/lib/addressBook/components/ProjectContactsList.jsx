@@ -47,13 +47,20 @@ export default class ProjectContactList extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.departmentsList, nextProps.departmentsList)) {
-      this.setState({ department: nextProps.departmentsList, selects: [nextProps.projectId] });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.departmentsList, this.props.departmentsList)) {
+        this.setState({
+          department: this.props.departmentsList,
+          selects: [this.props.projectId],
+        });
+      }
 
-    if (!_.isEqual(this.props.departmentLoading, nextProps.departmentLoading)) {
-      this.setState({ departmentLoading: nextProps.departmentLoading });
+      if (!_.isEqual(prevProps.departmentLoading, this.props.departmentLoading)) {
+        this.setState({
+          departmentLoading: this.props.departmentLoading,
+        });
+      }
     }
   }
 

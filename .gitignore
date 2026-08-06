@@ -1,4 +1,4 @@
-﻿# macOS and Windows system files
+# macOS and Windows system files
 .DS_Store
 Thumbs.db
 
@@ -33,3 +33,4 @@ package-lock.json
 .codegraph/
 .scannerwork
 *.llog
+

@@ -5,47 +5,78 @@ import { Provider } from 'react-redux';
 import { Dialog, Modal } from 'antd-mobile';
 import _ from 'lodash';
 import preall from 'src/common/preall';
+import { loadSDK } from 'src/components/Form/core/utils';
 import { formatPortalHref } from 'src/pages/Portal/util';
 import store from 'src/redux/configureStore';
 import genRouteComponent from 'src/router/genRouteComponent';
 import { navigateTo } from 'src/router/navigateTo';
 import { socketInit } from 'src/socket/mobileSocketInit';
-import { getRequest } from 'src/utils/common';
+import { getPathWithoutSubPath, getRequest, pathCompletion } from 'src/utils/common';
 import DeclareConfirm from './components/DeclareConfirm';
 import { PORTAL, ROUTE_CONFIG } from './config';
 import './index.less';
 
-@preall
-@withRouter
-@DeclareConfirm
-class App extends Component {
-  constructor(props) {
-    super(props);
+let App = class App extends Component {
+  genRouteComponent = genRouteComponent();
 
-    socketInit();
-
-    // 处理底部导航缓存内容过多localStorage溢出问题
-    Object.keys(localStorage).forEach(key => {
-      if (key.indexOf('currentNavWorksheetInfo') > -1) {
-        localStorage.removeItem(key);
-      }
-    });
-
-    this.genRouteComponent = genRouteComponent();
-  }
   componentDidMount() {
     this.switchPath(this.props.location);
+    this.initPageEnv();
+    this.initSession();
+    this.clearNavWorksheetCache();
+    this.registerMobileNavigateTo();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.location.pathname !== prevProps.location.pathname) {
+        Dialog.clear();
+        Modal.clear();
+        this.switchPath(this.props.location);
+      }
+    }
+  }
+
+  switchPath(url) {
+    const { hash } = url;
+
+    if (hash.includes('noredirect')) {
+      sessionStorage.setItem('noredirect', true);
+      return;
+    } else if (sessionStorage.getItem('noredirect')) {
+      return;
+    }
+  }
+
+  initPageEnv() {
+    socketInit();
+    loadSDK();
+    document.body.classList.add('bgPrimary');
+  }
+
+  initSession() {
     sessionStorage.setItem('entryUrl', location.href);
+
     const { pc_slide = '' } = getRequest();
 
     if (pc_slide.includes('true')) {
       sessionStorage.setItem('dingtalk_pc_slide', 'true');
     }
+  }
 
-    document.body.classList.add('bgPrimary');
+  clearNavWorksheetCache() {
+    Object.keys(localStorage).forEach(key => {
+      if (key.indexOf('currentNavWorksheetInfo') > -1) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
 
+  registerMobileNavigateTo() {
     window.mobileNavigateTo = (url, isReplace) => {
-      url = (window.subPath || '') + url;
+      url = pathCompletion(url, {
+        hasDomain: false,
+      });
 
       if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
         url = url + '#publicapp' + window.publicAppAuthorization;
@@ -58,23 +89,7 @@ class App extends Component {
       }
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.location.pathname !== this.props.location.pathname) {
-      Dialog.clear();
-      Modal.clear();
-      this.switchPath(nextProps.location);
-    }
-  }
-  switchPath(url) {
-    const { hash } = url;
 
-    if (hash.includes('noredirect')) {
-      sessionStorage.setItem('noredirect', true);
-      return;
-    } else if (sessionStorage.getItem('noredirect')) {
-      return;
-    }
-  }
   render() {
     const isPortal = md.global.Account.isPortal;
     const ROUTER = isPortal ? _.pick(ROUTE_CONFIG, PORTAL) : ROUTE_CONFIG;
@@ -89,10 +104,12 @@ class App extends Component {
             const home = '/mobile/dashboard';
             const page = '/mobile/recordList/';
             const record = '/mobile/record/';
+            const pathname = getPathWithoutSubPath(location.pathname);
+
             const setHash = url => navigateTo(url + decodeURIComponent(location.hash), true);
 
-            if (location.pathname.includes(record)) {
-              const param = location.pathname.replace(record, '').split('/');
+            if (pathname.includes(record)) {
+              const param = pathname.replace(record, '').split('/');
               const [appId, worksheetId, viewId, rowId] = param;
 
               if (!viewId) {
@@ -100,8 +117,8 @@ class App extends Component {
               } else {
                 return setHash(home);
               }
-            } else if (location.pathname.includes(page)) {
-              const param = location.pathname.replace(page, '').split('/');
+            } else if (pathname.includes(page)) {
+              const param = pathname.replace(page, '').split('/');
               return setHash(param.length === 1 ? `/mobile/app/${param[0]}` : home);
             } else if (!isPortal) {
               return setHash(home);
@@ -111,7 +128,8 @@ class App extends Component {
       </Switch>
     );
   }
-}
+};
+App = preall(withRouter(DeclareConfirm(App)));
 
 class Mobile extends Component {
   render() {
@@ -126,5 +144,4 @@ class Mobile extends Component {
 }
 
 const root = createRoot(document.getElementById('app'));
-
 root.render(<Mobile />);

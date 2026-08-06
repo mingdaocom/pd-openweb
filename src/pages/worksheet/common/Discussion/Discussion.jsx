@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import DiscussLogFile from '../../components/DiscussLogFile';
 import './Discussion.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const clickAwayExceptions = [
   '.Discussion',
   '.folderSelectDialog',

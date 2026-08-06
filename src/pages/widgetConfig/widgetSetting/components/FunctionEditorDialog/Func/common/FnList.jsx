@@ -69,6 +69,12 @@ const fnFilterByControl = (fnName, control) => {
   return true;
 };
 
+const commonly = {
+  name: _l('常用函数'),
+  type: 'commonly',
+  functions: ['IF', 'CONCAT', 'AVERAGE', 'SUM', 'NETWORKDAY', 'DATEADD', 'DATEIF'],
+};
+
 export default function FnList(props) {
   const { keywords, insertFn, control } = props;
   const functionNames = Object.keys(functionDetails);
@@ -96,11 +102,6 @@ export default function FnList(props) {
         (!keywords || SearchFn(keywords, fnName) || SearchFn(keywords, functionDetails[fnName].name)),
     ),
   }));
-  const commonly = {
-    name: _l('常用函数'),
-    type: 'commonly',
-    functions: ['IF', 'CONCAT', 'AVERAGE', 'SUM', 'NETWORKDAY', 'DATEADD', 'DATEIF'],
-  };
 
   if (!keywords && commonly.functions.length) {
     functionListOfTypes = [commonly].concat(functionListOfTypes);

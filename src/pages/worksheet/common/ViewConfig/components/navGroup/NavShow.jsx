@@ -134,7 +134,7 @@ export default function NavShow(props) {
   ] = useSetState({
     filterVisible: false,
     filters: [],
-    relateControls,
+    relateControls: [],
     data: {},
     showSysWorkflow: true,
     showChangeName: false,

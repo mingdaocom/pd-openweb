@@ -4,9 +4,8 @@ import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
-import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Checkbox, Dialog, Icon, LoadDiv, PriceTip, QiniuUpload } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import * as actions from '../redux/actions';
 
@@ -29,6 +28,27 @@ const Wrap = styled.div`
     }
   }
 `;
+
+const downLoadByUrl = url => {
+  window
+    .mdyAPI(
+      '',
+      '',
+      {},
+      {
+        ajaxOptions: {
+          responseType: 'blob',
+          type: 'GET',
+          url: url,
+        },
+        customParseResponse: true,
+      },
+    )
+    .then(data => {
+      let filename = `${_l('外部用户导入模板')}.xlsx`;
+      saveAs(data, filename);
+    });
+};
 
 function AddUserDialog(props) {
   const { appId, show, setAddUserDialog, getUserList, changeIsSendMsgs } = props;
@@ -72,27 +92,6 @@ function AddUserDialog(props) {
               setLoading(false);
             },
           );
-      });
-  };
-
-  const downLoadByUrl = url => {
-    window
-      .mdyAPI(
-        '',
-        '',
-        {},
-        {
-          ajaxOptions: {
-            responseType: 'blob',
-            type: 'GET',
-            url: url,
-          },
-          customParseResponse: true,
-        },
-      )
-      .then(data => {
-        let filename = `${_l('外部用户导入模板')}.xlsx`;
-        saveAs(data, filename);
       });
   };
 
@@ -142,24 +141,17 @@ function AddUserDialog(props) {
                 <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {(file || {}).name}</span>
               </span>
             </div>
-            <Checkbox
-              className="TxtCenter InlineBlock Hand mTop10 textSecondary"
-              text={
-                <span>
-                  {_l('邀请用户并发送短信/邮箱')}
-                  {window.platformENV.isPlatform &&
-                    _l(
-                      '（短信%0/条、邮箱%1/封，自动从企业账户扣除。）',
-                      _.get(md, 'global.PriceConfig.SmsPrice'),
-                      _.get(md, 'global.PriceConfig.EmailPrice'),
-                    )}
-                </span>
-              }
-              checked={isSendMsgs}
-              onClick={() => {
-                setIsSend(!isSendMsgs);
-              }}
-            />
+            <div className="flexRow alignItemsCenter mTop10">
+              <Checkbox
+                className="TxtCenter InlineBlock Hand textSecondary"
+                text={_l('邀请用户并发送短信/邮箱')}
+                checked={isSendMsgs}
+                onClick={() => {
+                  setIsSend(!isSendMsgs);
+                }}
+              />
+              {window.platformENV.isPlatform && <PriceTip />}
+            </div>
           </React.Fragment>
         ) : (
           <React.Fragment>

@@ -11,10 +11,12 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { getTranslateInfo } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import AddApproveWay from './components/AddApproveWay';
 import OtherAction from './components/OtherAction';
 import PrintList from './components/PrintList';
 import { ACTION_LIST, ACTION_TO_METHOD, OPERATION_LIST } from './config';
+import { canDirectSubmitApproveAction } from './utils';
 
 export default class Header extends Component {
   static propTypes = {
@@ -63,6 +65,13 @@ export default class Header extends Component {
   handleClick = id => {
     const { onSubmit, data } = this.props;
     const { ignoreRequired, encrypt, auth } = (data || {}).flowNode || {};
+    const translateInfo = getTranslateInfo(_.get(data, 'app.id'), _.get(data, 'parentId'), _.get(data, 'flowNode.id'));
+    const btnDescMap = data.btnDescMap || {};
+    const actionBtnDescMap = {
+      4: translateInfo.btndescmap_4 || btnDescMap[4],
+      5: translateInfo.btndescmap_5 || btnDescMap[5],
+      17: translateInfo.btndescmap_17 || btnDescMap[17],
+    };
 
     // 加签方式特殊处理
     if (id === 'sign') {
@@ -111,18 +120,20 @@ export default class Header extends Component {
       return;
     }
 
+    /**
+     * 撤回委托
+     */
+    if (id === 'taskRevokeEntrust') {
+      this.request('operation', { operationType: 20 }, true);
+      return;
+    }
+
     // 打开操作层
     const openOperatorDialog = () => {
       // 通过、否决、退回 不配置 意见、签名、安全直接提交
       if (_.includes(['pass', 'overrule', 'return'], id)) {
-        const typeList = auth[id === 'pass' ? 'passTypeList' : 'overruleTypeList'];
-
-        if (typeList.length === 1 && typeList[0] === 101) {
-          if (!encrypt) {
-            this.handleAction({ action: id });
-          } else {
-            this.safeAuthentication(() => this.handleAction({ action: id }));
-          }
+        if (canDirectSubmitApproveAction({ action: id, auth, encrypt, btnDescMap: actionBtnDescMap })) {
+          this.handleAction({ action: id });
         } else {
           this.setState({ action: id, otherActionVisible: true });
         }
@@ -325,7 +336,7 @@ export default class Header extends Component {
 
     return (
       <span
-        className={cx('refreshBtn Font20 textTertiary ThemeHoverColor3 Hand mRight10', {
+        className={cx('refreshBtn Font20 textTertiary hoverColorPrimary Hand mRight10', {
           isLoading,
         })}
         onClick={onRefresh}
@@ -350,7 +361,8 @@ export default class Header extends Component {
       noAuth,
       instanceId,
     } = this.props;
-    const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
+    const { flowNode, operationTypeList, app, processName } = data;
+    const btnMap = data.btnMap || {};
     const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
     const translateInfo = getTranslateInfo(app.id, data.parentId, flowNode.id);
 
@@ -371,11 +383,13 @@ export default class Header extends Component {
         currentWorkItem && currentWorkItem.type && currentWorkItem.type !== 0
           ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType] || {}
           : {};
-      const urgeTime = (
-        (works || [])
-          .filter(o => o.allowUrge && o.urgeTime)
-          .sort((a, b) => (moment(a.urgeTime) < moment(b.urgeTime) ? 1 : -1))[0] || {}
-      ).urgeTime;
+      const urgeTime = _.get(
+        _.maxBy(
+          (works || []).filter(o => o.allowUrge && o.urgeTime),
+          o => moment(o.urgeTime).valueOf(),
+        ),
+        'urgeTime',
+      );
 
       return (
         <Fragment>
@@ -421,20 +435,19 @@ export default class Header extends Component {
                       .sort((a, b) => a.sort - b.sort)
                       .map(item => {
                         let { id, text, icon } = item;
+                        const buttonText =
+                          isRequest && id === action ? _l('处理中...') : isUrged && id === 'urge' ? _l('已催办') : text;
                         return (
                           <Button
                             disabled={isRequest || (isUrged && id === 'urge')}
                             key={id}
                             size={'tiny'}
+                            title={buttonText}
                             onClick={() => this.handleClick(id)}
                             className={cx('headerBtn mLeft10', id)}
                           >
                             <Icon type={icon} className="Font16 mRight3" />
-                            {isRequest && id === action
-                              ? _l('处理中...')
-                              : isUrged && id === 'urge'
-                                ? _l('已催办')
-                                : text}
+                            <span className="headerBtnText">{buttonText}</span>
                           </Button>
                         );
                       })}
@@ -447,7 +460,7 @@ export default class Header extends Component {
                 >
                   <Tooltip title={_l('更多操作')} placement="bottom">
                     <div className="iconWrap flexRow">
-                      <Icon icon="more_horiz textSecondary ThemeHoverColor3" />
+                      <Icon icon="more_horiz textSecondary hoverColorPrimary" />
                     </div>
                   </Tooltip>
 
@@ -468,7 +481,11 @@ export default class Header extends Component {
                         <PrintList {...this.props} onClose={() => this.setState({ moreOperationVisible: false })} />
                       )}
 
-                      <MenuItem onClick={() => window.open(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)}>
+                      <MenuItem
+                        onClick={() =>
+                          window.open(pathCompletion(`/app/${app.id}/workflowdetail/record/${id}/${workId}`))
+                        }
+                      >
                         <Icon icon="launch" />
                         <span className="actionText">{_l('新页面打开')}</span>
                       </MenuItem>

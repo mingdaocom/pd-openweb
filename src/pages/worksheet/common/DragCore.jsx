@@ -9,6 +9,9 @@ export default function DragCore({ className, style, setRef, children, onDrag, o
 
   const handleMouseDown = useCallback(
     e => {
+      // 阻止浏览器在按下拖拽手柄时发起文本选择（避免拖拽宽度时选中详情内文本）
+      e.preventDefault();
+
       const now = Date.now();
       const timeSinceLastClick = now - lastClickTimeRef.current;
 

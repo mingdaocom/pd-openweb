@@ -28,7 +28,7 @@ export const Wrap = styled.div`
       color: var(--color-primary);
       font-weight: bold;
       &:hover {
-        color: var(--color-link-hover);
+        color: var(--color-primary-light);
       }
     }
     .lineCenter {
@@ -37,24 +37,38 @@ export const Wrap = styled.div`
       border: 1px solid var(--color-border-secondary);
     }
   }
+  .authSwitchEntry {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-secondary);
+    .authSwitchLink {
+      color: var(--color-primary);
+      font-size: 15px;
+      font-weight: 400;
+      &:hover {
+        color: var(--color-primary-light);
+      }
+    }
+  }
   .btnForLogin {
     font-weight: 600;
     width: 100%;
     height: 48px;
     line-height: 48px;
     display: block;
-    background: #2296f3;
-    border-radius: 4px;
+    background: var(--color-primary);
+    border-radius: 6px;
     font-size: 16px;
-    color: var(--color-white);
+    color: var(--color-text-inverse);
     margin-top: 32px;
     text-align: center;
 
     &:hover {
-      background: var(--color-link-hover);
+      background: var(--color-primary-dark);
     }
     &:active {
-      background: var(--color-primary-focus);
+      background: var(--color-primary-dark);
     }
   }
 
@@ -66,7 +80,18 @@ export const Wrap = styled.div`
   .findPassword {
     color: var(--color-text-title) !important;
     &:hover {
-      color: var(--color-link-hover) !important;
+      color: var(--color-primary-light) !important;
+    }
+  }
+  .loginModeSwitch {
+    margin: 16px 0 24px;
+    color: var(--color-primary);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+    &:hover {
+      color: var(--color-primary-light);
     }
   }
   .cbRememberPasswordDiv {
@@ -89,6 +114,28 @@ export const Wrap = styled.div`
     }
   }
   .tpLogin {
+    .tpLoginDivider {
+      display: flex;
+      align-items: center;
+      margin: 16px 0;
+      color: var(--color-text-tertiary);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--color-border-primary);
+      }
+
+      span {
+        padding: 0 24px;
+      }
+    }
+
     .title {
       font-weight: bold;
       font-size: 14px;
@@ -103,7 +150,7 @@ export const Wrap = styled.div`
       height: 48px;
       background: var(--color-background-primary);
       border-radius: 3px;
-      border: 1px solid var(--color-border-secondary);
+      border: 1px solid var(--color-border-primary);
       display: block;
       text-decoration: none;
       text-align: center;
@@ -111,11 +158,11 @@ export const Wrap = styled.div`
       min-width: 0;
       align-items: center;
       justify-content: center;
-      margin-bottom: 5px;
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 14px;
-      color: var(--color-text-title);
+      margin-bottom: 8px;
+      margin-top: 4px;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text-primary);
 
       i {
         display: inline-block;
@@ -130,8 +177,8 @@ export const Wrap = styled.div`
         -moz-osx-font-smoothing: grayscale;
       }
       &:hover {
-        box-shadow: 0px 1px 2px #00000014;
-        background-color: var(--color-background-secondary);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        background-color: var(--color-background-tertiary);
       }
       span.txt {
         max-width: 80%;

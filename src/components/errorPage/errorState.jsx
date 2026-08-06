@@ -32,7 +32,7 @@ export default class ErrorState extends Component {
         <i className={cx('icon-error1', iconClassName)} />
         <div className="Font17 mTop20">{text}</div>
         {showBtn ? (
-          <span className="Font14 ThemeBGColor3 ThemeHoverBGColor2 noAuthJoin mTop25 pointer" onClick={callback}>
+          <span className="Font14 bgColorPrimary hoverBgColorPrimaryDark noAuthJoin mTop25 pointer" onClick={callback}>
             {btnText}
           </span>
         ) : undefined}

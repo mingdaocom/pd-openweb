@@ -51,11 +51,13 @@ export default class ChangeColumn extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.controlsSorts, nextProps.controlsSorts)) {
-      this.setState({
-        controlsSorts: getControlsSorts(nextProps.columns, nextProps.controlsSorts),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.controlsSorts, this.props.controlsSorts)) {
+        this.setState({
+          controlsSorts: getControlsSorts(this.props.columns, this.props.controlsSorts),
+        });
+      }
     }
   }
 
@@ -160,10 +162,15 @@ export default class ChangeColumn extends Component {
       newList = newList.filter(l => !['showListCount', 'hideListCount'].includes(l.controlId));
     }
 
-    this.setState({ focusControlId: newItems[newIndex].controlId });
+    const controlsSorts = newList.map(l => l.controlId);
+
+    this.setState({
+      focusControlId: newItems[newIndex].controlId,
+      controlsSorts,
+    });
     this.handleChange({
       ...param,
-      controlsSorts: newList.map(l => l.controlId),
+      controlsSorts,
     });
   };
 
@@ -213,7 +220,7 @@ export default class ChangeColumn extends Component {
     const quickOperate = (
       <div className="quickOperate">
         <button
-          className="ThemeHoverColor3"
+          className="hoverColorPrimary"
           onClick={() => {
             if (maxSelectedNum && columns.length >= maxSelectedNum) {
               alert(_l('最多显示%0个字段', maxSelectedNum), 3);
@@ -234,7 +241,7 @@ export default class ChangeColumn extends Component {
               selected: [],
             })
           }
-          className="ThemeHoverColor3"
+          className="hoverColorPrimary"
         >
           {_l('全隐藏')}
         </button>
@@ -281,7 +288,7 @@ export default class ChangeColumn extends Component {
             />
             {search && (
               <i
-                className="icon icon-close textTertiary Hand ThemeHoverColor3"
+                className="icon icon-close textTertiary Hand hoverColorPrimary"
                 onClick={() => {
                   this.setState({ search: '' });
                 }}

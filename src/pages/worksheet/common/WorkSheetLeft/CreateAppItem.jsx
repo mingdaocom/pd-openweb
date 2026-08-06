@@ -1,14 +1,21 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import chatbotIcon from './assets/chatbot.png';
 import customPageIcon from './assets/dashboard.png';
 import worksheetIcon from './assets/worksheet.png';
 import CreateNew from './CreateNew';
 import { CREATE_ITEM_LIST } from './enum';
+
+const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
+
+const iconMaps = {
+  worksheet: worksheetIcon,
+  customPage: customPageIcon,
+  chatbot: chatbotIcon,
+};
 
 export default function CreateAppItem(props) {
   const { isCharge, isUnfold, projectId, appId, groupId, appPkg = {} } = props;
@@ -17,11 +24,6 @@ export default function CreateAppItem(props) {
   const [createMenuVisible, setCreateMenuVisible] = useState(false);
   const [createType, setCreateType] = useState('');
   const [dialogImportExcel, setDialogImportExcel] = useState(false);
-  const iconMaps = {
-    worksheet: worksheetIcon,
-    customPage: customPageIcon,
-    chatbot: chatbotIcon,
-  };
 
   useEffect(() => {
     window.__worksheetLeftReLoad = getSheetList;
@@ -149,16 +151,18 @@ export default function CreateAppItem(props) {
         />
       )}
       {dialogImportExcel && (
-        <DialogImportExcelCreate
-          projectId={projectId}
-          appId={appId}
-          groupId={groupId}
-          onCancel={() => setDialogImportExcel(false)}
-          createType="worksheet"
-          refreshPage={() => {
-            getSheetList({ appId, appSectionId: groupId });
-          }}
-        />
+        <Suspense fallback={null}>
+          <LoadableDialogImportExcelCreate
+            projectId={projectId}
+            appId={appId}
+            groupId={groupId}
+            onCancel={() => setDialogImportExcel(false)}
+            createType="worksheet"
+            refreshPage={() => {
+              getSheetList({ appId, appSectionId: groupId });
+            }}
+          />
+        </Suspense>
       )}
     </Fragment>
   );

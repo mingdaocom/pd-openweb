@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Dropdown, Menu } from 'antd';
@@ -41,30 +41,16 @@ const GroupingItem = styled.div`
     opacity: 1;
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['grouping', 'viewConfig', 'withoutArrangementVisible']),
-    ..._.pick(state.sheet, ['base', 'controls', 'worksheetInfo', 'sheetSwitchPermit']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class GroupItem extends Component {
+const LoadableNewRecord = lazy(() => import('worksheet/common/newRecord/NewRecord'));
+let GroupItem = class GroupItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
       createRecordVisible: false,
       defaultFormData: {},
-      NewRecordComponent: null,
     };
   }
-  componentDidMount() {
-    import('worksheet/common/newRecord/NewRecord').then(component => {
-      this.setState({
-        NewRecordComponent: component.default,
-      });
-    });
-  }
+
   handleChangeSubVisible = (id, visible) => {
     this.props.updateGroupSubVisible(id);
     setTimeout(() => {
@@ -76,7 +62,11 @@ export default class GroupItem extends Component {
   handleCreateRecord = (groupId, isMilepost) => {
     const { base, grouping, controls, viewConfig, sheetSwitchPermit } = this.props;
     const { viewControl, milepost, navTitle } = viewConfig;
-    const titleControl = _.find(controls, { attribute: 1 });
+
+    const titleControl = _.find(controls, {
+      attribute: 1,
+    });
+
     const allowedit = isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId);
 
     if (navTitle && titleControl.type === 2 && allowedit) {
@@ -85,15 +75,29 @@ export default class GroupItem extends Component {
       const defaultFormData = {};
 
       if (viewControl) {
-        const groupControl = _.find(controls, { controlId: viewControl }) || {};
-        let { key: value, name } = _.find(grouping, { key: groupId }) || {};
+        const groupControl =
+          _.find(controls, {
+            controlId: viewControl,
+          }) || {};
+        let { key: value, name } =
+          _.find(grouping, {
+            key: groupId,
+          }) || {};
 
         if ([29].includes(groupControl.type)) {
-          value = JSON.stringify([{ sid: groupId, name }]);
+          value = JSON.stringify([
+            {
+              sid: groupId,
+              name,
+            },
+          ]);
         }
 
         if ([9, 11].includes(groupControl.type)) {
-          const { key } = _.find(groupControl.options, { key: groupId }) || {};
+          const { key } =
+            _.find(groupControl.options, {
+              key: groupId,
+            }) || {};
           value = JSON.stringify([key]);
         }
 
@@ -108,14 +112,23 @@ export default class GroupItem extends Component {
         defaultFormData[milepost] = '1';
       }
 
-      this.setState({ createRecordVisible: true, defaultFormData });
+      this.setState({
+        createRecordVisible: true,
+        defaultFormData,
+      });
     }
   };
+
   renderOverlay({ key, subVisible }) {
     const { worksheetInfo, viewConfig } = this.props;
     const { milepost } = viewConfig;
     return (
-      <MenuOverlayWrapper className="pTop6 pBottom6" style={{ width: 180 }}>
+      <MenuOverlayWrapper
+        className="pTop6 pBottom6"
+        style={{
+          width: 180,
+        }}
+      >
         <Menu.Item
           className="valignWrapper"
           onClick={() => {
@@ -147,6 +160,7 @@ export default class GroupItem extends Component {
       </MenuOverlayWrapper>
     );
   }
+
   renderContent() {
     const { width, viewConfig, widthConfig, group, worksheetInfo, sheetSwitchPermit, withoutArrangementVisible } =
       this.props;
@@ -159,7 +173,11 @@ export default class GroupItem extends Component {
     return (
       <Fragment>
         {!group.hide && (
-          <GroupingItem className={cx('valignWrapper pointer', { allowAdd: allowAdd })}>
+          <GroupingItem
+            className={cx('valignWrapper pointer', {
+              allowAdd: allowAdd,
+            })}
+          >
             <Icon
               className="Font12 textTertiary mRight8"
               icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
@@ -167,7 +185,12 @@ export default class GroupItem extends Component {
                 this.handleChangeSubVisible(group.key, !group.subVisible);
               }}
             />
-            <div className="valignWrapper h100" style={{ width: width - 50 }}>
+            <div
+              className="valignWrapper h100"
+              style={{
+                width: width - 50,
+              }}
+            >
               <div
                 className="textSecondary h100 valignWrapper flex overflow_ellipsis"
                 onClick={() => {
@@ -201,26 +224,35 @@ export default class GroupItem extends Component {
       </Fragment>
     );
   }
+
   renderNewRecord() {
     const { base, worksheetInfo } = this.props;
-    const { defaultFormData, NewRecordComponent } = this.state;
+    const { defaultFormData } = this.state;
     return (
-      <NewRecordComponent
-        visible
-        onAdd={record => {
-          this.props.addNewRecord(record);
-        }}
-        defaultFormData={defaultFormData}
-        hideNewRecord={() => this.setState({ createRecordVisible: false, defaultFormData: {} })}
-        worksheetInfo={worksheetInfo}
-        entityName={worksheetInfo.entityName}
-        projectId={worksheetInfo.projectId}
-        worksheetId={worksheetInfo.worksheetId}
-        appId={base.appId}
-        viewId={base.viewId}
-      />
+      <Suspense fallback={null}>
+        <LoadableNewRecord
+          visible
+          onAdd={record => {
+            this.props.addNewRecord(record);
+          }}
+          defaultFormData={defaultFormData}
+          hideNewRecord={() =>
+            this.setState({
+              createRecordVisible: false,
+              defaultFormData: {},
+            })
+          }
+          worksheetInfo={worksheetInfo}
+          entityName={worksheetInfo.entityName}
+          projectId={worksheetInfo.projectId}
+          worksheetId={worksheetInfo.worksheetId}
+          appId={base.appId}
+          viewId={base.viewId}
+        />
+      </Suspense>
     );
   }
+
   render() {
     const { createRecordVisible } = this.state;
     return (
@@ -230,4 +262,12 @@ export default class GroupItem extends Component {
       </Fragment>
     );
   }
-}
+};
+GroupItem = connect(
+  state => ({
+    ..._.pick(state.sheet.gunterView, ['grouping', 'viewConfig', 'withoutArrangementVisible']),
+    ..._.pick(state.sheet, ['base', 'controls', 'worksheetInfo', 'sheetSwitchPermit']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(GroupItem);
+export default GroupItem;

@@ -1,12 +1,9 @@
 import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/utils/control';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { SYST_PRINT } from './config';
-
-// const FILTER_SYS = ALL_SYS.filter(o => !['ownerid', 'caid', 'ctime', 'utime'].includes(o));
+import { FILTER_SYS, SYST_PRINT } from './config';
 
 export const isRelationControl = type => {
   return [29, 34, 51].includes(type);
@@ -34,7 +31,7 @@ const isSupportedPrintControl = ({ control, needVisible, showControls = [], isRe
   if (forceShow) return true;
 
   // 系统字段
-  const isSystemControl = ALL_SYS.includes(control.controlId);
+  const isSystemControl = FILTER_SYS.includes(control.controlId);
   // 是否可见
   const canVisible = needVisible || controlState(control).visible;
 
@@ -42,9 +39,7 @@ const isSupportedPrintControl = ({ control, needVisible, showControls = [], isRe
 };
 
 //处理打印数据
-export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVisible, info = {} }) => {
-  const { appId, worksheetId } = info;
-
+export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVisible }) => {
   const controls = receiveControls
     .filter(c => isSupportedPrintControl({ control: c, needVisible }))
     .map(control => {
@@ -52,7 +47,9 @@ export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVi
 
       // 关联记录、子表、查询记录 数据处理
       if (isRelationControl(control.type)) {
-        const originalCheckedMap = Object.fromEntries(control.relationControls.map(rc => [rc.controlId, rc.checked]));
+        const originalCheckedMap = Object.fromEntries(
+          (control.relationControls || []).map(rc => [rc.controlId, rc.checked]),
+        );
         const relationData = relationMaps[control.controlId] || {};
         const relationControls = (_.get(relationData, 'template.controls') || [])
           .map(c => ({
@@ -82,7 +79,7 @@ export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVi
     })
     .sort((a, b) => (a.row === b.row ? a.col - b.col : a.row - b.row));
 
-  return replaceControlsTranslateInfo(appId, worksheetId, controls);
+  return controls;
 };
 
 export const SYST_PRINTData = data => {

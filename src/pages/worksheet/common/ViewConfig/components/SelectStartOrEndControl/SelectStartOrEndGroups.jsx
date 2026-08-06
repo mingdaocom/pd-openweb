@@ -307,7 +307,7 @@ export default function SelectStartOrEndGroups(props) {
                 })}
 
               <div
-                className="ThemeColor3 Hand"
+                className="colorPrimary Hand"
                 onClick={() => {
                   setVisibleAddControlDiaLog(true);
                   setVisible(false);

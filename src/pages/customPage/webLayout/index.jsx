@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, memo, Suspense, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { ReactSVG } from 'react-svg';
@@ -8,8 +8,11 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
 import { isLightColor, replaceColor } from 'src/pages/customPage/util';
-import { EditWidget, WidgetContent, WidgetList } from '../components';
-import { bgImages } from '../components/ConfigSideWrap/BgConfig';
+import { bgImages } from '../components/ConfigSideWrap/bgImages';
+import WidgetContent from '../components/WidgetContent';
+
+const EditWidget = lazy(() => import('../components/editWidget'));
+const WidgetList = lazy(() => import('../components/WidgetList'));
 
 const BgImageWrap = styled(ReactSVG)`
   > div,
@@ -198,7 +201,11 @@ function WebLayout(props) {
 
   return (
     <Fragment>
-      {editable && <WidgetList {...props} />}
+      {editable && (
+        <Suspense fallback={null}>
+          <WidgetList {...props} />
+        </Suspense>
+      )}
       {pageConfig.pageBgImage && !editable && renderPageBgImage()}
       <ContentWrap
         ref={$ref}
@@ -242,13 +249,15 @@ function WebLayout(props) {
           )
         )}
         {!_.isEmpty(editingWidget) && (
-          <EditWidget
-            mode="update"
-            widget={editingWidget}
-            onClose={() => setWidget({})}
-            updateWidget={updateWidget}
-            {...rest}
-          />
+          <Suspense fallback={null}>
+            <EditWidget
+              mode="update"
+              widget={editingWidget}
+              onClose={() => setWidget({})}
+              updateWidget={updateWidget}
+              {...rest}
+            />
+          </Suspense>
         )}
       </ContentWrap>
     </Fragment>

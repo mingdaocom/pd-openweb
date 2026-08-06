@@ -353,19 +353,6 @@
           }
         }
       }
-      .flowDetailInput {
-        padding: 8px 12px;
-        border: 1px solid var(--color-border-primary);
-        border-radius: 4px;
-        box-sizing: border-box;
-        resize: none;
-        width: 100%;
-        height: 40px;
-        line-height: 40px;
-        &.errorBorder {
-          border-color: var(--color-error) !important;
-        }
-      }
       .workflowDetailAddBtn {
         align-items: center;
         font-size: 13px;
@@ -452,7 +439,7 @@
       box-sizing: initial;
       font-size: 13px;
       &:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
-      &:not(.ThemeBorderColor3) {
+      &:not(.borderColorPrimary) {
         border-color: var(--color-border-primary) !important;
       }
       &.actionDisabled {
@@ -559,11 +546,6 @@
         padding: 4px 9px 4px;
       }
     }
-    .actionControlText {
-      padding: 5px 10px;
-      line-height: 24px;
-      border-color: var(--color-border-primary);
-    }
     .actionFieldsSplit {
       margin-top: 24px;
       height: 1px;
@@ -582,16 +564,6 @@
     }
     .flowDetailNumber {
       align-items: center;
-      .numberInput {
-        border-color: var(--color-border-primary) !important;
-        width: 48px;
-        height: 36px;
-        border-radius: 5px 0 0 5px;
-        text-align: center;
-        border-width: 1px;
-        border-style: solid;
-        box-sizing: border-box;
-      }
       .numberControlBox {
         width: 36px;
         height: 36px;
@@ -632,7 +604,7 @@
           border-top-right-radius: 3px;
           border-bottom-right-radius: 3px;
         }
-        &.ThemeBGColor3 {
+        &.bgColorPrimary {
           color: var(--color-white);
         }
       }
@@ -656,6 +628,23 @@
           min-height: 248px;
         }
       }
+    }
+    .workflowMjmlPreview {
+      min-height: 300px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 4px;
+      background: var(--color-background-primary);
+      overflow: hidden;
+    }
+    .workflowMjmlPlaceholder {
+      padding: 32px 20px;
+    }
+    .workflowMjmlPreviewFrame {
+      display: block;
+      width: 100%;
+      height: 300px;
+      border: 0;
+      background: var(--color-background-primary);
     }
     .codeEditorFull {
       position: absolute;
@@ -1020,39 +1009,6 @@
       }
     }
   }
-  .workflowDetailColorBtn {
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-primary);
-    cursor: pointer;
-    margin-left: 12px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    .flexColumn {
-      justify-content: center;
-      align-items: center;
-      background: var(--color-background-primary);
-      position: absolute;
-      width: 34px;
-      height: 34px;
-      padding-bottom: 3px;
-      pointer-events: none;
-    }
-    .workflowDetailColor {
-      width: 10px;
-      height: 2px;
-      margin-top: -3px;
-    }
-    input {
-      width: 34px;
-      height: 34px;
-      border: none;
-      position: absolute;
-      cursor: pointer;
-    }
-  }
   .formulaEditorBox {
     &.minH100 {
       .CodeMirror {
@@ -1099,6 +1055,10 @@
       padding: 7px 0;
     }
   }
+  .workflowEmailContentType {
+    width: 200px;
+    flex: 0 0 200px;
+  }
 }
 
 .workflowDialogBox {
@@ -1143,7 +1103,7 @@
     min-width: 100px;
     box-sizing: initial;
     &:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
-    &:not(.ThemeBorderColor3) {
+    &:not(.borderColorPrimary) {
       border-color: var(--color-border-primary) !important;
     }
     &.actionCustomBox {

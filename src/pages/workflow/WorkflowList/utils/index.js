@@ -306,7 +306,7 @@ export const getActionTypeContent = (type, item, disable) => {
     return disable ? (
       item.triggerName
     ) : (
-      <MdLink to={`/workflowedit/${item.triggerId}`} className="textPrimary ThemeHoverColor3">
+      <MdLink to={`/workflowedit/${item.triggerId}`} className="textPrimary hoverColorPrimary">
         {item.triggerName}
       </MdLink>
     );

@@ -3,8 +3,8 @@ import cx from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon, MobileDatePicker } from 'ming-ui';
-import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { getTimeZoneText } from 'src/utils/control';
+import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/utils/controlCommon';
 import {
   dateAppZoneToServerZone,
   dateConvertToServerZone,

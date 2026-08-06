@@ -3,7 +3,9 @@ import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import {
   formatControlInfo,
   formatrChartAxisValue,
@@ -15,6 +17,7 @@ import {
   getLegendType,
   reportTypes,
 } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minValue, maxValue) => {
   if (!data.length) return [];
@@ -91,22 +94,28 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.RadarChart = null;
+    this.RadarComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.RadarComponent = data.Radar;
       this.renderRadarChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.RadarChart && this.RadarChart.destroy();
+    this.isUnmounted = true;
+    this.destroyRadarChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    // 显示设置
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate = this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -116,39 +125,55 @@ export default class extends Component {
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const config = this.getComponentConfig(nextProps);
-      this.RadarChart && this.RadarChart.update(config);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.RadarComponent) {
+      return;
     }
 
-    if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.RadarChart && this.RadarChart.destroy();
-      this.renderRadarChart(nextProps);
+    if (shouldRecreate) {
+      this.renderRadarChart(this.props);
+      return;
+    }
+
+    // 显示设置
+    if (shouldUpdate && this.RadarChart) {
+      const config = this.getComponentConfig(this.props);
+      this.RadarChart.update(config);
     }
   }
+  destroyRadarChart = () => {
+    if (this.RadarChart) {
+      this.RadarChart.destroy();
+      this.RadarChart = null;
+    }
+  };
   renderRadarChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
+
+    if (!this.chartEl || !this.RadarComponent) {
+      return;
+    }
+
     const config = this.getComponentConfig(props);
 
-    if (this.chartEl) {
-      this.RadarChart = new this.RadarComponent(this.chartEl, config);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        (xaxes.controlId || split.controlId);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.RadarChart.on('element:click', this.handleClick);
-      }
-
-      this.RadarChart.render();
+    this.destroyRadarChart();
+    this.RadarChart = new this.RadarComponent(this.chartEl, config);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      (xaxes.controlId || split.controlId);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.RadarChart.on('element:click', this.handleClick);
     }
+
+    this.RadarChart.render();
   }
   handleClick = ({ data, gEvent }) => {
     const { reportData, isMobile } = this.props;
@@ -242,6 +267,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.RadarChart || !this.RadarComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -254,7 +284,7 @@ export default class extends Component {
     );
   };
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, yaxisList, split, xaxes } = reportData;
@@ -263,6 +293,8 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
+    const showNumber = isMobile ? (displaySetup.mobileShowNumber ?? displaySetup.showNumber) : displaySetup.showNumber;
     const { position } = getLegendType(displaySetup.legendType);
     const { ydisplay, auxiliaryLines } = displaySetup;
     const data = formatChartData(
@@ -394,13 +426,13 @@ export default class extends Component {
               },
             }
           : false,
-      point: displaySetup.showNumber
+      point: showNumber
         ? {
             shape: 'circle',
             size: 3,
           }
         : false,
-      label: displaySetup.showNumber
+      label: showNumber
         ? {
             content: ({ originalValue, controlId }) => {
               const id = split.controlId ? newYaxisList[0].controlId : controlId;

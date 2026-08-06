@@ -1,7 +1,8 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useState } from 'react';
 import { createPortal } from 'react-dom';
-import MyProcess from 'src/pages/workflow/MyProcess';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
+
+const LoadableMyProcess = lazy(() => import('src/pages/workflow/MyProcess'));
 
 export default props => {
   const { type, renderContent } = props;
@@ -23,15 +24,17 @@ export default props => {
       />
       {myProcessVisible &&
         createPortal(
-          <MyProcess
-            countData={countData}
-            onCancel={() => {
-              setMyProcessVisible(false);
-            }}
-            updateCountData={countData => {
-              setCountData(countData);
-            }}
-          />,
+          <Suspense fallback={null}>
+            <LoadableMyProcess
+              countData={countData}
+              onCancel={() => {
+                setMyProcessVisible(false);
+              }}
+              updateCountData={countData => {
+                setCountData(countData);
+              }}
+            />
+          </Suspense>,
           document.querySelector('#containerWrapper'),
         )}
     </Fragment>

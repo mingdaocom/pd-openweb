@@ -319,7 +319,7 @@ export default props => {
                   })}
                 </div>
 
-                {worksheets.length ? renderDataList() : <div className="emptyContent">_l('还没有创建工作表')</div>}
+                {worksheets.length ? renderDataList() : <div className="emptyContent">{_l('还没有创建工作表')}</div>}
               </div>
             ))}
 

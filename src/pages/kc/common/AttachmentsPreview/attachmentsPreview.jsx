@@ -15,7 +15,7 @@ import * as Actions from './actions/action';
 import AttachmentInfo from './attachmentInfo';
 import AttachmentsLoading from './attachmentsLoading';
 import CodeViewer from './codeViewer/codeViewer';
-import { LOADED_STATUS, PREVIEW_TYPE } from './constant/enum';
+import { CODE_PREVIEW_EXTENSIONS, LOADED_STATUS, PREVIEW_TYPE } from './constant/enum';
 import * as previewUtil from './constant/util';
 import ImageViewer from './imageViewer/imageViewer';
 import PreviewHeader from './previewHeader/previewHeader';
@@ -43,6 +43,7 @@ class AttachmentsPreview extends React.Component {
     style: { opacity: 0 },
     attInfoFolded: true,
     showThumbnail: false,
+    showHtmlSource: false,
   };
 
   componentDidMount() {
@@ -76,6 +77,12 @@ class AttachmentsPreview extends React.Component {
     $(document).off('keydown', this.handleKeyDown);
     if (window.closeFns) {
       delete window.closeFns[this.id];
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.index !== this.props.index && this.state.showHtmlSource) {
+      this.setState({ showHtmlSource: false });
     }
   }
 
@@ -140,6 +147,21 @@ class AttachmentsPreview extends React.Component {
     this.refImageViewer && this.refImageViewer.rotate(reverse ? 90 : -90);
   };
 
+  getIframeKey({ mode, attachment, index, ext }) {
+    const sourceNode = attachment.sourceNode || {};
+    const fileId =
+      attachment.fileID ||
+      attachment.fileId ||
+      attachment.id ||
+      sourceNode.fileID ||
+      sourceNode.fileId ||
+      sourceNode.refId ||
+      sourceNode.id ||
+      index;
+
+    return `${mode}-${fileId}-${ext}`;
+  }
+
   bigit = () => {
     this.refImageViewer && this.refImageViewer.bigit();
   };
@@ -181,64 +203,23 @@ class AttachmentsPreview extends React.Component {
     }
 
     if (
-      _.includes(
-        [
-          'md',
-          'js',
-          'ts',
-          'java',
-          'py',
-          'rb',
-          'cpp',
-          'c',
-          'html',
-          'css',
-          'php',
-          'swift',
-          'go',
-          'rust',
-          'lua',
-          'sql',
-          'pl',
-          'sh',
-          'md',
-          'json',
-          'xml',
-          'cs',
-          'vb',
-          'scala',
-          'perl',
-          'r',
-          'matlab',
-          'groovy',
-          'jsp',
-          'jsx',
-          'tsx',
-          'sass',
-          'less',
-          'scss',
-          'coffee',
-          'asm',
-          'bat',
-          'powershell',
-          'h',
-          'hpp',
-          'm',
-          'mm',
-          'd',
-          'kt',
-          'groovy',
-          'ini',
-          'yml',
-        ],
-        ext,
-      ) &&
+      _.includes(CODE_PREVIEW_EXTENSIONS, ext) &&
       previewType !== PREVIEW_TYPE.MARKDOWN &&
       previewAttachmentType === 'QINIU' &&
       _.get(currentAttachment, 'sourceNode.path')
     ) {
       previewType = ext === 'md' ? PREVIEW_TYPE.MARKDOWN : PREVIEW_TYPE.CODE;
       viewUrl = _.get(currentAttachment, 'sourceNode.path');
+    }
+
+    const htmlPreviewUrl =
+      previewUtil.canPreviewHtml() && previewUtil.isHtmlPreviewExt(ext)
+        ? previewUtil.getHtmlPreviewUrl({ ...currentAttachment, viewUrl })
+        : '';
+
+    if (htmlPreviewUrl) {
+      previewType = this.state.showHtmlSource ? PREVIEW_TYPE.CODE : PREVIEW_TYPE.IFRAME;
+      viewUrl = htmlPreviewUrl;
     }
 
     if (!currentAttachment.msg && getClassNameByExt(ext) === 'fileIcon-mp3') {
@@ -261,6 +242,8 @@ class AttachmentsPreview extends React.Component {
       >
         {isShare && <DocumentTitle title={name + '.' + ext} />}
         <PreviewHeader
+          showSwitchHtmlPreview={!!htmlPreviewUrl}
+          clickSwitchHtmlPreview={() => this.setState({ showHtmlSource: !this.state.showHtmlSource })}
           logExtend={{
             rowId: options.recordId,
             parentWorksheetId: options.masterWorksheetId,
@@ -344,7 +327,10 @@ class AttachmentsPreview extends React.Component {
                         <span className="ellipsis">{name}</span>
                         {ext ? '.' + ext : ''}
                       </p>
-                      <p className="detail">预览失败{typeof error === 'boolean' ? '' : ', ' + errorText}</p>
+                      <p className="detail">
+                        {_l('预览失败')}
+                        {typeof error === 'boolean' ? '' : ', ' + errorText}
+                      </p>
                       {canDownload && showDownload && (
                         <Button
                           className="downloadBtn"
@@ -352,7 +338,7 @@ class AttachmentsPreview extends React.Component {
                             window.open(previewUtil.getDownloadUrl(currentAttachment, this.props.extra));
                           }}
                         >
-                          下载
+                          {_l('下载')}
                         </Button>
                       )}
                     </div>
@@ -390,6 +376,7 @@ class AttachmentsPreview extends React.Component {
                       /*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk && previewService !== 'wps') {
                       return (
                         <iframe
+                          key={this.getIframeKey({ mode: 'pdf', attachment: currentAttachment, index, ext })}
                           width="100%"
                           height="100%"
                           frameborder="0"
@@ -399,6 +386,7 @@ class AttachmentsPreview extends React.Component {
                     }
                     */
                     }
+
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
@@ -419,12 +407,18 @@ class AttachmentsPreview extends React.Component {
                       viewUrl = addToken(viewUrl, false);
                     }
 
+                    const iframeMode = htmlPreviewUrl ? 'html' : previewService === 'wps' ? 'wps' : 'file';
+
                     return (
                       <iframe
+                        key={this.getIframeKey({ mode: iframeMode, attachment: currentAttachment, index, ext })}
                         className="fileViewer iframeViewer"
                         style={{ overflowX: 'hidden', overflowY: 'auto' }}
                         src={viewUrl}
-                        sandbox="allow-forms allow-scripts allow-same-origin allow-modals"
+                        sandbox={
+                          htmlPreviewUrl ? 'allow-scripts' : 'allow-forms allow-scripts allow-same-origin allow-modals'
+                        }
+                        referrerPolicy={htmlPreviewUrl ? 'no-referrer' : undefined}
                       />
                     );
                   case PREVIEW_TYPE.TXT:
@@ -467,14 +461,14 @@ class AttachmentsPreview extends React.Component {
                           {currentAttachment.sourceNode.originLinkUrl}
                         </a>
                         <Button
-                          className="downloadBtn boderRadAll_3 ThemeBGColor3"
+                          className="downloadBtn boderRadAll_3 bgColorPrimary"
                           rel="noopener noreferrer"
                           target="_blank"
                           onClick={() => {
                             window.open(currentAttachment.sourceNode.shortLinkUrl);
                           }}
                         >
-                          打开链接
+                          {_l('打开链接')}
                         </Button>
                       </div>
                     );
@@ -511,7 +505,7 @@ class AttachmentsPreview extends React.Component {
                                   window.open(viewUrl);
                                 }}
                               >
-                                预览
+                                {_l('预览')}
                               </Button>
                             );
                           } else if (canDownload && showDownload) {
@@ -522,13 +516,14 @@ class AttachmentsPreview extends React.Component {
                                   window.open(previewUtil.getDownloadUrl(currentAttachment, this.props.extra));
                                 }}
                               >
-                                下载
+                                {_l('下载')}
                               </Button>
                             );
                           }
                         })()}
                         <p className="detail">
-                          大小：{formatFileSize(currentAttachment.size || currentAttachment.filesize)}
+                          {_l('大小：')}
+                          {formatFileSize(currentAttachment.size || currentAttachment.filesize)}
                         </p>
                       </div>
                     );

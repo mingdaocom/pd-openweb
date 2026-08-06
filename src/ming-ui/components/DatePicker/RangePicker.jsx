@@ -97,7 +97,7 @@ class RangePicker extends Component {
   static defaultProps = {
     locale,
     separator: '至',
-    placeholder: '请选择',
+    placeholder: _l('请选择'),
     selectedValue: [],
     halfData: ['AM', 'PM'],
     mode: 'default',

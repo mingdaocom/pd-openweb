@@ -28,6 +28,10 @@
     white-space: nowrap;
     vertical-align: top;
     font-weight: bold;
+    &.actionUserName {
+      max-width: 45%;
+      flex-shrink: 0;
+    }
   }
 
   .stepName {
@@ -73,6 +77,8 @@
       .action {
         color: var(--color-text-secondary);
         margin-left: 10px;
+        min-width: 0;
+        flex: 1;
         font-size: 14px;
         font-weight: bold;
         &.action-1,

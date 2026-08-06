@@ -67,27 +67,37 @@ class TaskBasic extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { data } = nextProps.taskDetails[nextProps.taskId];
+  /**
+   * 打开详情
+   */
 
-    if (data.taskName !== this.state.taskName) {
-      this.setState({ taskName: data.taskName });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { data } = this.props.taskDetails[this.props.taskId];
 
-    if (nextProps.taskId !== this.props.taskId) {
-      this.setState({
-        showTags: data.tags.length > 0,
-        showAttachment: false,
-        isComplete: false,
-        disabled: false,
-        isEditing: false,
-        attachmentData: [],
-        kcAttachmentData: [],
-      });
-    }
+      if (data.taskName !== this.state.taskName) {
+        this.setState({
+          taskName: data.taskName,
+        });
+      }
 
-    if (nextProps.addTags) {
-      this.setState({ showTags: true });
+      if (this.props.taskId !== prevProps.taskId) {
+        this.setState({
+          showTags: data.tags.length > 0,
+          showAttachment: false,
+          isComplete: false,
+          disabled: false,
+          isEditing: false,
+          attachmentData: [],
+          kcAttachmentData: [],
+        });
+      }
+
+      if (this.props.addTags) {
+        this.setState({
+          showTags: true,
+        });
+      }
     }
   }
 
@@ -136,7 +146,7 @@ class TaskBasic extends Component {
         {!data.folderID ? (
           <Fragment>
             <div
-              className={cx('taskNullFolder', { 'pointer ThemeColor3 ThemeBorderColor3': hasAuth })}
+              className={cx('taskNullFolder', { 'pointer colorPrimary borderColorPrimary': hasAuth })}
               onClick={() => hasAuth && this.props.showRelationControl(RELATION_TYPES.folder)}
             >
               {_l('关联项目')}
@@ -152,7 +162,7 @@ class TaskBasic extends Component {
               )}
             >
               <div
-                className="taskDeatilFolderName pointer ThemeColor3 overflow_ellipsis"
+                className="taskDeatilFolderName pointer colorPrimary overflow_ellipsis"
                 onClick={() => this.openFolder(data.folderID, data.folderCanLook)}
               >
                 {htmlDecodeReg(data.folderName)}
@@ -160,7 +170,7 @@ class TaskBasic extends Component {
             </Tooltip>
             <div className="taskDeatilFolderStage">
               <Dropdown
-                className={cx('mLeft15', { ThemeBGColor3: hasAuth && !data.parentID })}
+                className={cx('mLeft15', { bgColorPrimary: hasAuth && !data.parentID })}
                 data={stages}
                 value={data.stageID}
                 onChange={this.switchTaskStage}
@@ -171,7 +181,7 @@ class TaskBasic extends Component {
             {!(data.ancestors || []).length && (
               <Tooltip title={_l('重新关联项目')}>
                 <span
-                  className="folderBtn ThemeColor3 pointer"
+                  className="folderBtn colorPrimary pointer"
                   onClick={() => this.props.showRelationControl(RELATION_TYPES.folder)}
                 >
                   <i className="icon-edit" />
@@ -227,7 +237,7 @@ class TaskBasic extends Component {
     return (
       <li key={i} className="flexRow">
         <div
-          className="Font16 overflow_ellipsis ThemeColor3 ThemeBorderColor3 pointer"
+          className="Font16 overflow_ellipsis colorPrimary borderColorPrimary pointer"
           onClick={() => this.props.switchTaskDetail(item.taskID)}
         >
           {item.taskName}
@@ -237,7 +247,7 @@ class TaskBasic extends Component {
           <Fragment>
             <Tooltip title={_l('取消关联任务')}>
               <span
-                className="parentBtn ThemeColor3 pointer"
+                className="parentBtn colorPrimary pointer"
                 onClick={() => this.props.relationOnSubmit('', RELATION_TYPES.task)}
               >
                 <i className="icon-delete" />
@@ -245,7 +255,7 @@ class TaskBasic extends Component {
             </Tooltip>
             <Tooltip title={_l('重新关联母任务')}>
               <span
-                className="parentBtn ThemeColor3 pointer"
+                className="parentBtn colorPrimary pointer"
                 onClick={() => this.props.showRelationControl(RELATION_TYPES.task)}
               >
                 <i className="icon-edit" />
@@ -309,7 +319,7 @@ class TaskBasic extends Component {
 
     return (
       <span
-        className="textTertiary ThemeHoverColor3 pointer w100 oaButton updateTaskCharge"
+        className="textTertiary hoverColorPrimary pointer w100 oaButton updateTaskCharge"
         onClick={() => {
           dialogSelectUser({
             sourceId: taskId,
@@ -424,7 +434,7 @@ class TaskBasic extends Component {
     if (!hasAuth && md.global.Account.accountId === account.accountId) {
       return (
         <span
-          className="textTertiary ThemeHoverColor3 pointer w100 oaButton removeTaskMember"
+          className="textTertiary hoverColorPrimary pointer w100 oaButton removeTaskMember"
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {_l('退出任务')}
@@ -437,13 +447,13 @@ class TaskBasic extends Component {
       return (
         <Fragment>
           <span
-            className="textTertiary ThemeHoverColor3 pointer oaButton addMemberAgree"
+            className="textTertiary hoverColorPrimary pointer oaButton addMemberAgree"
             onClick={() => this.clickMemberFn('addMemberAgree', account)}
           >
             {_l('同意')}
           </span>
           <span
-            className="textTertiary ThemeHoverColor3 pointer oaButton addMemberRefuse"
+            className="textTertiary hoverColorPrimary pointer oaButton addMemberRefuse"
             onClick={() => this.clickMemberFn('addMemberRefuse', account)}
           >
             {_l('拒绝')}
@@ -455,13 +465,13 @@ class TaskBasic extends Component {
     return (
       <Fragment>
         <span
-          className="textTertiary ThemeHoverColor3 pointer oaButton updateTaskCharge"
+          className="textTertiary hoverColorPrimary pointer oaButton updateTaskCharge"
           onClick={() => this.clickMemberFn('updateTaskCharge', account)}
         >
           {_l('设为负责人')}
         </span>
         <span
-          className="textTertiary ThemeHoverColor3 pointer oaButton removeTaskMember"
+          className="textTertiary hoverColorPrimary pointer oaButton removeTaskMember"
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {md.global.Account.accountId === account.accountId ? _l('退出任务') : _l('移出任务')}
@@ -611,7 +621,7 @@ class TaskBasic extends Component {
         {data.sourceId && (
           <div className="fromWhere flexRow">
             <i className={cx('mRight10 Font16', FROM_TYPE[data.sourceType].icon)} />
-            <span className="ThemeColor3 pointer" onClick={() => this.openDetail(data.sourceType, data.sourceId)}>
+            <span className="colorPrimary pointer" onClick={() => this.openDetail(data.sourceType, data.sourceId)}>
               {FROM_TYPE[data.sourceType].text}
             </span>
           </div>
@@ -691,13 +701,13 @@ class TaskBasic extends Component {
                   <div className="flexRow taskDetailEditBtn alignItemsCenter">
                     <div className="flex" />
                     <span
-                      className="textTertiary ThemeHoverColor3 mRight24"
+                      className="textTertiary hoverColorPrimary mRight24"
                       onClick={() => this.setState({ isEditing: false })}
                     >
                       {_l('取消')}
                     </span>
                     <span
-                      className="mRight16 taskDetailEditBtnSave ThemeBGColor3 ThemeHoverBGColor2"
+                      className="mRight16 taskDetailEditBtnSave bgColorPrimary hoverBgColorPrimaryDark"
                       onClick={() => {
                         this.updateTaskSummary(this.cacheSummary);
                         this.setState({ isEditing: false });
@@ -726,7 +736,7 @@ class TaskBasic extends Component {
                     onCancel={this.cancelAttachment}
                     onOk={this.addTaskAttachments}
                   >
-                    <span className="detailAttsBtn ThemeColor3">{_l('添加附件')}</span>
+                    <span className="detailAttsBtn colorPrimary">{_l('添加附件')}</span>
                   </UploadFilesTrigger>
                 )}
 
@@ -761,7 +771,7 @@ class TaskBasic extends Component {
                 {(data.member || []).map((item, i) => this.renderMemberItem(item, i, hasAuth))}
                 {hasAuth && (
                   <Tooltip title={_l('添加任务参与者')}>
-                    <span className="ThemeColor3 detailAddMember" onClick={this.addMembers}>
+                    <span className="colorPrimary detailAddMember" onClick={this.addMembers}>
                       <i className="icon-task-add-member-circle" />
                     </span>
                   </Tooltip>

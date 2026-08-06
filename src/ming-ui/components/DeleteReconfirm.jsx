@@ -65,10 +65,13 @@ export default ({
 
   const root = createRoot(container);
 
+  let isClosed = false;
   const closeLayer = () => {
+    if (isClosed) return;
+    isClosed = true;
     setTimeout(() => {
       root.unmount();
-      document.body.removeChild(container);
+      document.body.contains(container) && document.body.removeChild(container);
       onCancel && onCancel();
     }, 0);
   };

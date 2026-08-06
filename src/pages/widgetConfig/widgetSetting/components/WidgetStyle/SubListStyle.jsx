@@ -7,8 +7,8 @@ import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import AttachmentConfig from '../AttachmentConfig';
-import WidgetRowHeight from '../WidgetRowHeight';
-import ControlDirection from './ControlDirection';
+import TableConfig from './component/TableConfig';
+import TreeTableLevel from './component/TreeTableLevel';
 
 const DISPLAY_LIST = [
   {
@@ -33,6 +33,7 @@ export default function SubListStyle(props) {
     detailworksheettype,
     rctitlestyle = '0',
     direction = '0',
+    openstatistics,
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
 
@@ -52,8 +53,7 @@ export default function SubListStyle(props) {
 
   return (
     <Fragment>
-      <ControlDirection {...props} />
-      <WidgetRowHeight {...props} />
+      <TableConfig {...props} />
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
         <Dropdown
@@ -91,20 +91,29 @@ export default function SubListStyle(props) {
             }}
             data={tableData}
             noData={_l('未添加关联本表字段')}
-            onChange={value =>
+            onChange={value => {
+              if (layercontrolid === value) return;
               onChange(
                 handleAdvancedSettingChange(data, {
                   layercontrolid: value || '',
-                  ...(value ? { showcount: '1', showtype: '1' } : {}),
+                  ...(value
+                    ? {
+                        showcount: '1',
+                        showtype: '1',
+                        defaultlayer: '5',
+                        ...(openstatistics === '1' ? { openstatistics: '0' } : {}),
+                      }
+                    : {}),
                 }),
-              )
-            }
+              );
+            }}
           />
           <div className="mTop10 textTertiary">
             {_l('选择一个一对多关系的本表关联字段，数据将按此字段的父级（单条）、子级（多条）关系构成树形表格')}
           </div>
         </SettingItem>
       )}
+      {layercontrolid && <TreeTableLevel {...props} />}
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <AnimationWrap>

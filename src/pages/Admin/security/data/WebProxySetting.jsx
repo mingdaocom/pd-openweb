@@ -198,8 +198,8 @@ export default class WebProxySetting extends Component {
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
-            <div className="Font17 bold flex mLeft10">{_l('API网络代理')}</div>
+            <Icon icon="backspace" className="Font22 hoverColorPrimary pointer" onClick={onClose} />
+            <div className="Font17 bold flex mLeft10">{_l('API 网络代理')}</div>
           </div>
         </div>
         {loading ? (

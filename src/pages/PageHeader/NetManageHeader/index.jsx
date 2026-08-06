@@ -4,6 +4,7 @@ import { match } from 'path-to-regexp';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
+import { getPathWithoutSubPath } from 'src/utils/common';
 import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
 
@@ -39,7 +40,7 @@ const PAGE_HEADER_ROUTE = {
   account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
   group: ['/group/groupValidate'],
-  user: ['user', '/user_:userId?'],
+  user: ['/user', '/user_:userId?'],
   search: ['/search'],
   certification: ['/certification/:roleType?'],
 };
@@ -53,8 +54,9 @@ export default class NetManageHeader extends Component {
   };
 
   getModule = () => {
-    const { path = '' } = this.props;
-    if (_.isEqual(PAGE_HEADER_ROUTE.user, path)) return 'user';
+    const firstPath = _.isArray(this.props.path) ? this.props.path[0] : this.props.path || '';
+    const path = getPathWithoutSubPath(firstPath);
+    if (_.includes(PAGE_HEADER_ROUTE.user, path)) return 'user';
     if (_.includes(PAGE_HEADER_ROUTE.account, path)) return 'account';
     if (_.includes(PAGE_HEADER_ROUTE.admin, path)) return 'admin';
     if (_.includes(PAGE_HEADER_ROUTE.group, path)) return 'group';
@@ -71,7 +73,7 @@ export default class NetManageHeader extends Component {
           <Tooltip title={_l('工作台')}>
             <HomeEntry
               onClick={() => {
-                const { params } = fn(location.pathname) || {};
+                const { params } = fn(getPathWithoutSubPath(location.pathname)) || {};
 
                 if (!_.isEmpty(params)) {
                   localStorage.setItem('currentProjectId', params.projectId);

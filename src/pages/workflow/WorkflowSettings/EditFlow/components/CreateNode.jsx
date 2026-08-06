@@ -48,7 +48,7 @@ export default class CreateNode extends Component {
       ) : (
         <div className="workflowAddActionBox textSecondary Font14">
           {_l('选择要执行的动作，或')}
-          <span className="ThemeColor3 pointer workflowCopyBtn" onClick={() => selectCopy(processId)}>
+          <span className="colorPrimary pointer workflowCopyBtn" onClick={() => selectCopy(processId)}>
             {_l('复制已有节点')}
           </span>
         </div>

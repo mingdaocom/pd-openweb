@@ -76,7 +76,7 @@ class QuickCreateTask {
             size={26}
             operation={
               <span
-                className="quickCreateBtn ThemeColor3"
+                className="quickCreateBtn colorPrimary"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: _this.settings.folderId,
@@ -109,7 +109,7 @@ class QuickCreateTask {
     $('.createNewSingle  .taskStar').on('click', function () {
       $(this).toggleClass('icon-task-star icon-star-hollow');
       if ($(this).hasClass('icon-task-star')) {
-        $(this).removeClass('ThemeColor3');
+        $(this).removeClass('colorPrimary');
       }
     });
 

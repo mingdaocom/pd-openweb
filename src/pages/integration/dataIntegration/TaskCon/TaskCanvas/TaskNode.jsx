@@ -5,8 +5,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import SVG from 'svg.js';
 import { Icon, Menu, MenuItem, UpgradeIcon } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { Circle } from 'worksheet/styled';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -18,8 +17,7 @@ import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { ACTION_LIST, NODE_TYPE_LIST, tBottom, tH, tLine, tW } from './config';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const Wrap = styled.div`
   position: absolute;
   height: auto;
@@ -200,12 +198,16 @@ class TaskNode extends Component {
   componentDidMount() {
     this.drawConnector();
   }
-  componentWillReceiveProps(nextProps) {
-    if (
-      !_.isEqual(_.get(nextProps, 'nodeData.pathIds'), _.get(this.props, 'nodeData.pathIds')) &&
-      _.isEqual(_.get(nextProps, 'nodeData.nodeId'), _.get(this.props, 'nodeData.nodeId'))
-    ) {
-      this.drawConnector(nextProps);
+  //新增节点
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(_.get(this.props, 'nodeData.pathIds'), _.get(prevProps, 'nodeData.pathIds')) &&
+        _.isEqual(_.get(this.props, 'nodeData.nodeId'), _.get(prevProps, 'nodeData.nodeId'))
+      ) {
+        this.drawConnector(this.props);
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { mdNotification } from 'ming-ui/functions';
 import userAJAX from 'src/api/user';
 import { setCaretPosition } from 'src/utils/common';
@@ -30,7 +30,6 @@ const WarnBox = styled.div`
   background: rgba(244, 67, 54, 0.1);
 `;
 
-@errorBoundary
 class ChatPanelSession extends Component {
   constructor(props) {
     super(props);
@@ -65,9 +64,19 @@ class ChatPanelSession extends Component {
     const { session } = this.props;
     delete window[`onChangeChatValue-${session.id}`];
   }
-  componentWillReceiveProps(nextProps) {
-    const value = nextProps.currentSession.value;
-    value && this.focus(value);
+
+  /**
+   * 获取是否是风险账号
+   */
+  /**
+   * 获取是否是风险账号
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const value = this.props.currentSession.value;
+      value && this.focus(value);
+    }
   }
 
   /**
@@ -519,7 +528,7 @@ const ChatPanelSessionConnect = connect(state => {
     isWindow,
     socketState,
   };
-})(ChatPanelSession);
+})(ErrorBoundary.wrap(ChatPanelSession));
 
 class ChatPanelWrapper extends Component {
   constructor(props) {

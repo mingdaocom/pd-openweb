@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 
-export default function (props) {
+function RecordInfoForGallery(props) {
   const { base, worksheetInfo, galleryview, sheetSwitchPermit, views, state, onChangeState, updateRecordEvent } = props;
   const { gallery = [] } = galleryview;
   const { recordId, rowKey } = state;
@@ -59,3 +59,5 @@ export default function (props) {
     />
   );
 }
+
+export default RecordInfoForGallery;

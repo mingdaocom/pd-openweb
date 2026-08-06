@@ -20,9 +20,11 @@ class DateTimeRange extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.selectedValue, this.props.selectedValue)) {
-      this.setState(this.generateState(nextProps));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.selectedValue, prevProps.selectedValue)) {
+        this.setState(this.generateState(this.props));
+      }
     }
   }
 

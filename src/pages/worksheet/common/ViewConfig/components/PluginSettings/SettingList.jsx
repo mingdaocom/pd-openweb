@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, Input, SortableList } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { PARAM_TYPES } from './config';
 import './index.less';
 
@@ -144,4 +144,4 @@ function SettingList(props) {
   );
 }
 
-export default errorBoundary(SettingList);
+export default ErrorBoundary.wrap(SettingList);

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Checkbox, Collapse, Input, Switch } from 'antd';
 import _ from 'lodash';
-import { isNumberControl } from 'statistics/common';
+import { isNumberControl } from 'statistics/common/controlUtils';
 import { Count } from './Count';
 
 export default function allCountPanelGenerator(props) {

@@ -359,7 +359,7 @@ export default function (props) {
             setState({ sending: false });
             break;
           case -4:
-            if ([3, 9].includes(allowUserType)) {
+            if ([3, 6, 9].includes(allowUserType)) {
               //邀请注册，输入验证码
               setState({ isRegister: true, sending: false });
             } else {

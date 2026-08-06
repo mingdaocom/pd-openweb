@@ -1,38 +1,26 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
-import { array, func, string } from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import { array, bool, func, string } from 'prop-types';
+import { Dialog } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import { mapAttachmentForRequest } from 'src/components/Agent/agentService';
 import { hasPermission } from 'src/components/checkPermission';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import { navigateTo } from 'src/router/navigateTo';
+import { emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus, getThemeColors } from 'src/utils/project';
-import CreateAppDialog from './CreateAppDialog';
-import ExternalLinkDialog from './ExternalLinkDialog';
 import SelectDBInstance from './SelectDBInstance';
 
-const ADD_APP_MODE = [
-  { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
-  {
-    id: 'importExcelCreateApp',
-    icon: 'new_excel',
-    text: _l('从Excel创建%01005'),
-    href: '#',
-  },
-  {
-    id: 'installLoacal',
-    icon: 'worksheet_import',
-    text: _l('导入%01006'),
-    featureId: VersionProductType.appImportExport,
-    href: '#',
-  },
-];
+const LoadableCreateAppEntryDialog = lazy(() => import('./CreateAppEntryDialog'));
+const LoadableCreateAppEntryContent = lazy(() => import('./CreateAppEntryContent'));
+const LoadableCreateAppDialog = lazy(() => import('./CreateAppDialog'));
+const LoadableDialogImportExcelCreate = lazy(() => import('src/pages/worksheet/components/DialogImportExcelCreate'));
+const LoadableExternalLinkDialog = lazy(() => import('./ExternalLinkDialog'));
+const LoadableImportApp = lazy(() => import('src/pages/Admin/app/appManagement/modules/ImportApp.jsx'));
 
 export default class AddAppItem extends Component {
   static propTypes = {
@@ -40,6 +28,8 @@ export default class AddAppItem extends Component {
     projectId: string,
     type: string,
     DBInstances: array,
+    // 内联模式：在引导页等场景直接平铺创建入口内容，不渲染「新建应用」触发块
+    inline: bool,
   };
 
   static defaultProps = {
@@ -47,21 +37,104 @@ export default class AddAppItem extends Component {
     DBInstances: [],
   };
 
-  state = { addTypeVisible: false, externalLinkDialogVisible: false, createAppDialogVisible: false };
+  state = { createEntryVisible: false, externalLinkDialogVisible: false, createAppDialogVisible: false };
+
+  // AI 创建：把首条消息（与已上传附件）交给全局 Mingo 抽屉内的 Agent，唤起后自动提交进入 plan 流程
+  handleAiSubmit = (text, attachments) => {
+    const { groupId } = this.props;
+    const trimmed = (text || '').trim();
+    const uploaded = (attachments || []).filter(f => f.status === 'uploaded').map(mapAttachmentForRequest);
+
+    if (!trimmed && !uploaded.length) return;
+    window.mingoInitialMessage = trimmed;
+    if (uploaded.length) {
+      window.mingoInitialAttachments = uploaded;
+    }
+
+    // 分组内创建：把分组 id 交接给 Agent，拼进 stream context.groupId，让新建应用归入该分组
+    if (groupId) {
+      window.mingoInitialGroupId = groupId;
+    }
+
+    window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT };
+    emitter.emit('SET_MINGO_VISIBLE');
+    this.setState({ createEntryVisible: false });
+  };
+
+  // 「更多创建方式」入口，复用原有 handler 与子弹窗，保留原 feature 门禁
+  buildCreateActions = () => {
+    const { projectId, myPermissions = [] } = this.props;
+    const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+    const importFeatureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
+    const hasDataBase =
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+
+    return [
+      {
+        id: 'createFromEmpty',
+        variant: 'card',
+        icon: 'add_circle_outline',
+        iconColor: 'var(--color-primary)',
+        iconBg: '#E2F2FF',
+        title: _l('从空白创建'),
+        desc: _l('从0开始搭建你的应用'),
+        onClick: () => {
+          if (hasDataBase && hasAppResourceAuth) {
+            this.getMyDbInstances('createFromEmpty');
+          } else {
+            this.setState({ createAppDialogVisible: true });
+          }
+        },
+      },
+      {
+        id: 'installFromLib',
+        variant: 'card',
+        icon: 'custom_store',
+        iconColor: '#FF2FB6',
+        iconBg: 'rgba(255, 62, 187, 0.1)',
+        title: _l('从市场安装'),
+        desc: _l('安装开箱即用的应用'),
+        hidden:
+          (window.platformENV.isOverseas || window.platformENV.isLocal) && md.global.SysSettings.hideTemplateLibrary,
+        onClick: () => window.open(`${md.global.Config.MarketUrl}/apps`),
+      },
+      {
+        id: 'importExcelCreateApp',
+        variant: 'row',
+        icon: 'new_excel',
+        title: _l('从Excel创建'),
+        onClick: () => this.setState({ dialogImportExcel: true }),
+      },
+      {
+        id: 'installLoacal',
+        variant: 'row',
+        icon: 'worksheet_import',
+        title: _l('导入MDY文件'),
+        hidden: !importFeatureType,
+        onClick: () => {
+          if (importFeatureType === 2) {
+            buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
+            return;
+          }
+
+          this.setState({ importAppDialog: true });
+        },
+      },
+      {
+        id: 'externalLink',
+        variant: 'row',
+        icon: 'add_link',
+        title: _l('添加外部链接'),
+        onClick: () => this.setState({ externalLinkDialogVisible: true }),
+      },
+    ];
+  };
 
   handleClick = ({ id, href, dbInstanceId }) => {
     const { projectId } = this.props;
-    const { groupId } = this.props;
 
     switch (id) {
-      case 'installFromLib':
-        if (!groupId) {
-          navigateTo(`${href}?projectId=${projectId}`);
-        } else {
-          navigateTo(`${href}?projectId=${projectId}&groupId=${groupId}`);
-        }
-
-        break;
       case 'createFromEmpty':
         const COLORS = getThemeColors(projectId);
         const iconColor = COLORS[_.random(0, COLORS.length - 1)];
@@ -116,6 +189,8 @@ export default class AddAppItem extends Component {
     const { importAppDialog } = this.state;
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
+    if (!importAppDialog) return null;
+
     return (
       <Dialog
         title={_l('导入应用')}
@@ -125,21 +200,23 @@ export default class AddAppItem extends Component {
         overlayClosable={false}
         onCancel={() => this.setState({ importAppDialog: false })}
       >
-        <ImportApp
-          closeDialog={params => {
-            this.setState({ importAppDialog: false, importAppParams: params });
-            const hasDataBase =
-              getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-              (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+        <Suspense fallback={null}>
+          <LoadableImportApp
+            closeDialog={params => {
+              this.setState({ importAppDialog: false, importAppParams: params });
+              const hasDataBase =
+                getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+                (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
 
-            if (hasDataBase && hasAppResourceAuth) {
-              return this.getMyDbInstances('importApp');
-            }
-          }}
-          projectId={projectId}
-          groupId={groupId}
-          groupType={groupType}
-        />
+              if (hasDataBase && hasAppResourceAuth) {
+                return this.getMyDbInstances('importApp');
+              }
+            }}
+            projectId={projectId}
+            groupId={groupId}
+            groupType={groupType}
+          />
+        </Suspense>
       </Dialog>
     );
   };
@@ -189,7 +266,7 @@ export default class AddAppItem extends Component {
 
   handleAddAppItemClick = e => {
     e.stopPropagation();
-    this.setState({ addTypeVisible: true });
+    this.setState({ createEntryVisible: true });
   };
 
   getMyDbInstances = async from => {
@@ -214,103 +291,23 @@ export default class AddAppItem extends Component {
   };
 
   render() {
-    const {
-      groupId,
-      projectId,
-      groupType,
-      children,
-      className = '',
-      createAppFromEmpty,
-      myPermissions = [],
-    } = this.props;
-    const { addTypeVisible, dialogImportExcel, externalLinkDialogVisible, createAppDialogVisible } = this.state;
-    const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+    const { inline, groupId, projectId, groupType, children, className = '', createAppFromEmpty } = this.props;
+    const { createEntryVisible, dialogImportExcel, externalLinkDialogVisible, createAppDialogVisible } = this.state;
 
     return (
       <React.Fragment>
-        <Trigger
-          action={['click']}
-          popupVisible={addTypeVisible}
-          popupAlign={{
-            points: children ? ['tr', 'br'] : ['tl', 'bl'],
-            offset: children ? [0, 5] : [-16, -50],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          popup={
-            <Menu className="addAppItemMenu">
-              {ADD_APP_MODE.filter(
-                o =>
-                  !(
-                    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
-                    o.id === 'installFromLib' &&
-                    md.global.SysSettings.hideTemplateLibrary
-                  ),
-              ).map(({ id, icon, text, href, featureId }) => {
-                const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
-                if (featureId && !featureType) return;
-                return (
-                  <MenuItem
-                    key={id}
-                    icon={<Icon icon={icon} className="addItemIcon Font18" />}
-                    onClick={() => {
-                      this.setState({ addTypeVisible: false });
-                      if (featureType === 2) {
-                        buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
-                        return;
-                      }
-
-                      if (id === 'createFromEmpty') {
-                        const hasDataBase =
-                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          (!window.platformENV.isPlatform ||
-                            (!window.platformENV.isOverseas && !window.platformENV.isLocal));
-
-                        if (hasDataBase && hasAppResourceAuth) {
-                          this.getMyDbInstances('createFromEmpty');
-                          return;
-                        } else {
-                          this.setState({
-                            createAppDialogVisible: true,
-                          });
-                          return;
-                        }
-                      }
-
-                      if (id === 'createFromEmpty') {
-                        const hasDataBase =
-                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          !window.platformENV.isPlatform;
-
-                        if (hasDataBase && hasAppResourceAuth) {
-                          this.getMyDbInstances({ id, href }, 'createFromEmpty');
-
-                          return;
-                        }
-                      }
-
-                      if (id === 'importExcelCreateApp') {
-                        this.setState({ dialogImportExcel: true });
-                      }
-
-                      this.handleClick({ id, href });
-                    }}
-                  >
-                    {text}
-                  </MenuItem>
-                );
-              })}
-              <hr className="divider" />
-              <MenuItem
-                key="externalLink"
-                icon={<Icon icon="add_link" className="addItemIcon Font18" />}
-                onClick={() => this.setState({ externalLinkDialogVisible: true, addTypeVisible: false })}
-              >
-                {_l('添加外部链接')}
-              </MenuItem>
-            </Menu>
-          }
-          onPopupVisibleChange={visible => this.setState({ addTypeVisible: visible })}
-        >
+        {inline ? (
+          // 内联模式：直接铺开创建入口内容（AI 创建 + 更多创建方式），不走「新建应用」触发块与弹窗。
+          // 复用本组件已有的 actions / handleAiSubmit 与全部子弹窗，供新用户 /app/my 引导页使用。
+          <Suspense fallback={null}>
+            <LoadableCreateAppEntryContent
+              projectId={projectId}
+              showAi={!md.global.SysSettings.hideAIBasicFun}
+              actions={this.buildCreateActions()}
+              onAiSubmit={this.handleAiSubmit}
+            />
+          </Suspense>
+        ) : (
           <div className={'addAppItemWrap ' + className}>
             {children ? (
               <div onClick={this.handleAddAppItemClick}>{children}</div>
@@ -321,31 +318,48 @@ export default class AddAppItem extends Component {
               </Fragment>
             )}
           </div>
-        </Trigger>
+        )}
+        {createEntryVisible && (
+          <Suspense fallback={null}>
+            <LoadableCreateAppEntryDialog
+              projectId={projectId}
+              showAi={!md.global.SysSettings.hideAIBasicFun}
+              actions={this.buildCreateActions()}
+              onAiSubmit={this.handleAiSubmit}
+              onClose={() => this.setState({ createEntryVisible: false })}
+            />
+          </Suspense>
+        )}
         {createAppDialogVisible && (
-          <CreateAppDialog
-            projectId={projectId}
-            onSave={this.handleAiCreateApp}
-            onCancel={() => this.setState({ createAppDialogVisible: false, createAppDbInstanceId: undefined })}
-          />
+          <Suspense fallback={null}>
+            <LoadableCreateAppDialog
+              projectId={projectId}
+              onSave={this.handleAiCreateApp}
+              onCancel={() => this.setState({ createAppDialogVisible: false, createAppDbInstanceId: undefined })}
+            />
+          </Suspense>
         )}
         {dialogImportExcel && (
-          <DialogImportExcelCreate
-            projectId={projectId}
-            appGroupType={groupType}
-            appGroupId={groupId}
-            onCancel={() => this.setState({ dialogImportExcel: false })}
-            createType="app"
-          />
+          <Suspense fallback={null}>
+            <LoadableDialogImportExcelCreate
+              projectId={projectId}
+              appGroupType={groupType}
+              appGroupId={groupId}
+              onCancel={() => this.setState({ dialogImportExcel: false })}
+              createType="app"
+            />
+          </Suspense>
         )}
         {this.renderImportApp()}
         {this.renderDBInstances()}
         {externalLinkDialogVisible && (
-          <ExternalLinkDialog
-            projectId={projectId}
-            createAppFromEmpty={createAppFromEmpty}
-            onCancel={() => this.setState({ externalLinkDialogVisible: false })}
-          />
+          <Suspense fallback={null}>
+            <LoadableExternalLinkDialog
+              projectId={projectId}
+              createAppFromEmpty={createAppFromEmpty}
+              onCancel={() => this.setState({ externalLinkDialogVisible: false })}
+            />
+          </Suspense>
         )}
       </React.Fragment>
     );

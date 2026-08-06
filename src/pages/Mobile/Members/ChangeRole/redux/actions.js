@@ -1,4 +1,5 @@
 import ajaxRequest from 'src/api/appManagement';
+import { getTranslateInfo } from 'src/utils/app';
 
 export const getMembersList = appId => dispatch => {
   dispatch({
@@ -9,7 +10,14 @@ export const getMembersList = appId => dispatch => {
     dispatch({
       type: 'UPDATE_ROLE_LIST',
       data: {
-        list: roleInfos,
+        list: roleInfos.map(item => {
+          const translateInfo = getTranslateInfo(appId, null, item.roleId);
+          return {
+            ...item,
+            name: translateInfo.name || item.name,
+            description: translateInfo.description || item.description,
+          };
+        }),
       },
     });
     dispatch({

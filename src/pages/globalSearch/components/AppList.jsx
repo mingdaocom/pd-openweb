@@ -7,6 +7,7 @@ import { Icon, SvgIcon } from 'ming-ui';
 import smartSearchAjax from 'src/api/smartSearch';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import store from 'src/redux/configureStore';
+import { pathCompletion } from 'src/utils/common';
 import { renderText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
@@ -182,9 +183,9 @@ export default function AppList(props) {
     appId,
     viewName = true,
     loadMore = false,
-    getNextPage = () => {},
+    getNextPage = () => { },
     currentProjectId,
-    update = () => {},
+    update = () => { },
   } = props;
 
   const settingInfo = GLOBAL_SEARCH_LIST_SETTING[dataKey];
@@ -223,9 +224,9 @@ export default function AppList(props) {
         ...l,
         value: l.value
           ? l.value
-              .split('|')
-              .filter(text => text.includes(searchKeyword))
-              .join(' ')
+            .split('|')
+            .filter(text => text.includes(searchKeyword))
+            .join(' ')
           : '',
       };
     });
@@ -348,9 +349,9 @@ export default function AppList(props) {
       url =
         item.createType === 1
           ? transferExternalLinkUrl(item.urlTemplate, currentProjectId, item.appId)
-          : encodeURI(`/app/${parameter.filter(o => o).join('/')}`);
+          : encodeURI(pathCompletion(`/app/${parameter.filter(o => o).join('/')}`));
     } else {
-      url = encodeURI(`/app/${item.appId}/${item.itemId}/row/${item.rowId}`);
+      url = encodeURI(pathCompletion(`/app/${item.appId}/${item.itemId}/row/${item.rowId}`));
     }
 
     window.open(url);
@@ -392,9 +393,8 @@ export default function AppList(props) {
     }
 
     return (
-      <div className="noData">{`${
-        dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')
-      }，${_l('可尝试更换关键字搜索')}`}</div>
+      <div className="noData">{`${dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')
+        }，${_l('可尝试更换关键字搜索')}`}</div>
     );
   };
 
@@ -424,9 +424,9 @@ export default function AppList(props) {
                     background:
                       dataKey === 'record'
                         ? `rgba(${parseInt(item.color.slice(1, 3), 16)}, ${parseInt(
-                            item.color.slice(3, 5),
-                            16,
-                          )}, ${parseInt(item.color.slice(5), 16)}, 0.06)`
+                          item.color.slice(3, 5),
+                          16,
+                        )}, ${parseInt(item.color.slice(5), 16)}, 0.06)`
                         : item.itemType === 3
                           ? item.color
                           : 'rgba(178, 178, 178, 0.14)',
@@ -519,7 +519,7 @@ export default function AppList(props) {
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
           <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
-            href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}&appId=${id}`}
+            href={pathCompletion(`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}&appId=${id}`)}
             className="text mLeft24 textTertiary"
             onClick={clickShowHandle}
           >

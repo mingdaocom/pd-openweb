@@ -57,6 +57,7 @@ export default class DepartmentTree extends Component {
   constructor(props) {
     super(props);
     const project = _.find(md.global.Account.projects, { projectId: props.projectId });
+    const isCheckedOnlyMyJoin = localStorage.getItem('isCheckedOnlyMyJoin');
     this.state = {
       groupId: null,
       selects: [_.get(project, 'projectId')],
@@ -69,9 +70,7 @@ export default class DepartmentTree extends Component {
       isMoreDepartment: true,
       department: props.data || [],
       departmentLoading: false,
-      onlyJoinDepartmentChecked: localStorage.getItem('isCheckedOnlyMyJoin')
-        ? JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin'))
-        : false,
+      onlyJoinDepartmentChecked: isCheckedOnlyMyJoin ? safeParse(isCheckedOnlyMyJoin) : false,
     };
   }
 

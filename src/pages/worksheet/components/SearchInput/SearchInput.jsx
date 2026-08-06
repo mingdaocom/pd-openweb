@@ -31,15 +31,21 @@ export default class SearchInput extends Component {
       isCaseSensitive: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (typeof nextProps.active !== 'undefined') {
-      this.setState({
-        isFocus: nextProps.active,
-      });
-    }
 
-    if (this.props.viewId !== nextProps.viewId) {
-      this.setState({ value: '', isFocus: false });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (typeof this.props.active !== 'undefined') {
+        this.setState({
+          isFocus: this.props.active,
+        });
+      }
+
+      if (prevProps.viewId !== this.props.viewId) {
+        this.setState({
+          value: '',
+          isFocus: false,
+        });
+      }
     }
   }
   clear() {
@@ -50,11 +56,13 @@ export default class SearchInput extends Component {
     const { value, isFocus, isCaseSensitive } = this.state;
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder, triggerWhenBlurWithEmpty } = this.props;
     const focusMode = isFocus || isCaseSensitive;
+
     const handleIconClick = () => {
       this.setState({ isFocus: true }, () => {
         $(this.inputEl).focus();
       });
     };
+
     const iconNode =
       !isFocus && searchIcon ? (
         <span onClick={handleIconClick}>{searchIcon}</span>
@@ -126,7 +134,7 @@ export default class SearchInput extends Component {
           {showCaseSensitive && (
             <Tooltip title={isCaseSensitive ? _l('取消区分大小写') : _l('区分大小写')} placement="bottom">
               <div
-                className={cx('caseSensitive', { ThemeColor3: isCaseSensitive })}
+                className={cx('caseSensitive', { colorPrimary: isCaseSensitive })}
                 onMouseDown={() => {
                   this.setState({ isCaseSensitive: !isCaseSensitive });
                   onOk(value, { isCaseSensitive: !isCaseSensitive });

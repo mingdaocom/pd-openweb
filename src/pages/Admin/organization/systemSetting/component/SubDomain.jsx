@@ -228,7 +228,7 @@ export default class SubDomain extends Component {
                     )}
                     <button
                       type="button"
-                      className="ming Button Button--link ThemeColor3 adminHoverColor"
+                      className="ming Button Button--link colorPrimary adminHoverColor"
                       onClick={this.updateVisible.bind(this, true)}
                     >
                       {domainName ? _l('修改') : _l('设置')}
@@ -249,7 +249,7 @@ export default class SubDomain extends Component {
                         key={index}
                         src={img}
                         className={`Hand homeImage ${
-                          currentHomeImage.indexOf(`HomeImage_1${index + 1}.jpg`) > -1 ? 'ThemeBorderColor3' : ''
+                          currentHomeImage.indexOf(`HomeImage_1${index + 1}.jpg`) > -1 ? 'borderColorPrimary' : ''
                         }`}
                         onClick={this.updateHomeImage.bind(this, img, index)}
                       />

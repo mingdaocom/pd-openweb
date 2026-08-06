@@ -10,6 +10,7 @@ import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
+import { getPathWithoutSubPath } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import EditGroup from './EditGroup';
@@ -99,7 +100,7 @@ export default function Groups(props) {
   }));
   const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
   const hasManageAppAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
-  const isAllActive = location.pathname === '/app/my';
+  const isAllActive = getPathWithoutSubPath(location.pathname) === '/app/my';
 
   const staticGroupList = [
     {

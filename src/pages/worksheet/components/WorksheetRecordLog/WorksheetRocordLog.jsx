@@ -52,6 +52,9 @@ function WorksheetRecordLog(props, ref) {
     projectId,
     rowId,
     roleType,
+    allowExport: propsAllowExport,
+    showOperatorFilter: propsShowOperatorFilter,
+    showRequestTypeFilter: propsShowRequestTypeFilter,
   } = props;
   const [{ loading, loadouted, sign, showDivider, lastMark, loadingAll }, setMark] = useSetState({
     loading: false,
@@ -90,6 +93,23 @@ function WorksheetRecordLog(props, ref) {
   });
   const [moreList, setMoreList] = useState([]);
   const [worksheetInfo, setWorksheetInfo] = useState({});
+  const worksheetOperationLogPermission = _.get(worksheetInfo, 'worksheetOperationLogPermission');
+  const logPermission = {
+    allowExport: propsAllowExport,
+    showOperatorFilter: propsShowOperatorFilter,
+    showRequestTypeFilter: propsShowRequestTypeFilter,
+  };
+  const needWorksheetInfo = !appId || Object.values(logPermission).some(value => !_.isBoolean(value));
+  const [worksheetInfoLoading, setWorksheetInfoLoading] = useState(needWorksheetInfo);
+  const allowExport = _.isBoolean(logPermission.allowExport)
+    ? logPermission.allowExport
+    : worksheetOperationLogPermission?.allowExport;
+  const showOperatorFilter = _.isBoolean(logPermission.showOperatorFilter)
+    ? logPermission.showOperatorFilter
+    : (worksheetOperationLogPermission?.showOperatorFilter ?? true);
+  const showRequestTypeFilter = _.isBoolean(logPermission.showRequestTypeFilter)
+    ? logPermission.showRequestTypeFilter
+    : (worksheetOperationLogPermission?.showRequestTypeFilter ?? true);
   let INIT_SIGN = false;
   const isMobile = browserIsMobile();
 
@@ -99,12 +119,11 @@ function WorksheetRecordLog(props, ref) {
   }));
 
   useEffect(() => {
-    const { appId, worksheetId } = props;
-
-    if (!appId) {
+    if (needWorksheetInfo && worksheetId) {
+      setWorksheetInfoLoading(true);
       sheetAjax
         .getWorksheetInfo({
-          worksheetId: worksheetId,
+          worksheetId,
           getViews: true,
           getSwitchPermit: true,
           getTemplate: true,
@@ -112,13 +131,20 @@ function WorksheetRecordLog(props, ref) {
         })
         .then(res => {
           setWorksheetInfo(res);
+        })
+        .finally(() => {
+          setWorksheetInfoLoading(false);
         });
+    } else {
+      setWorksheetInfoLoading(false);
     }
-  }, []);
+  }, [needWorksheetInfo, worksheetId]);
 
   useEffect(() => {
-    initLog();
-  }, [props.rowId, props.filterUniqueIds]);
+    if (!worksheetInfoLoading) {
+      initLog();
+    }
+  }, [props.rowId, props.filterUniqueIds, worksheetInfoLoading]);
 
   useEffect(() => {
     if (
@@ -330,6 +356,8 @@ function WorksheetRecordLog(props, ref) {
   }, 500);
 
   const handleSelectThisUser = item => {
+    if (!showOperatorFilter) return;
+
     let userInfo = {
       accountId: item.accountId,
       avatar: item.avatar,
@@ -368,6 +396,16 @@ function WorksheetRecordLog(props, ref) {
 
   const onChangeData = data => {
     if (!data.value) {
+      changeSelect(
+        undefined,
+        {
+          selectDate: {
+            visible: false,
+            range: undefined,
+          },
+        },
+        { startDateTime: undefined, endDateTime: undefined },
+      );
       return;
     }
 
@@ -461,9 +499,17 @@ function WorksheetRecordLog(props, ref) {
 
   const renderSelectCon = () => {
     if (!showFilter) return null;
+    if (worksheetInfoLoading) {
+      return (
+        <div className={cx('selectCon', 'selectConLoading', { hideEle: isMobile })}>
+          <LoadDiv />
+        </div>
+      );
+    }
 
     const featureStatus = getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
-    const canExport = ['2', '5', '6'].includes(String(roleType)) && featureStatus;
+    const canExport =
+      (_.isBoolean(allowExport) ? allowExport : ['2', '5', '6'].includes(String(roleType))) && featureStatus;
     const columns = filterOnlyShowField(
       _.filter(
         controlsArray,
@@ -477,13 +523,16 @@ function WorksheetRecordLog(props, ref) {
       <div className={cx('selectCon', { hideEle: isMobile })}>
         {_.isEmpty(archivedItem) && (
           <div className="leftCon">
-            <UserPicker
-              projectId={projectId || worksheetInfo.projectId}
-              appId={appId || worksheetInfo.appId}
-              selectUsers={selectUsers}
-              changeSelect={changeSelect}
-            />
-            {selectUsers && selectUsers.length === 1 && isUser(selectUsers[0]) && (
+            {showOperatorFilter && (
+              <UserPicker
+                projectId={projectId || worksheetInfo.projectId}
+                appId={appId || worksheetInfo.appId}
+                selectUsers={selectUsers}
+                changeSelect={changeSelect}
+                showRequestTypeFilter={showRequestTypeFilter}
+              />
+            )}
+            {showRequestTypeFilter && selectUsers && selectUsers.length === 1 && isUser(selectUsers[0]) && (
               <OperatePicker value={requestType} onChange={value => changeSelect(undefined, { requestType: value })} />
             )}
             <AddCondition
@@ -519,7 +568,13 @@ function WorksheetRecordLog(props, ref) {
               }
               action={['click']}
               popupAlign={{ points: ['tr', 'br'], offset: [0, 5] }}
-              popup={<DatePickSelect onChange={onChangeData} />}
+              popup={
+                <DatePickSelect
+                  selectedValue={selectDate.range && selectDate.range.value}
+                  timePicker
+                  onChange={onChangeData}
+                />
+              }
             >
               <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
                 <Icon icon="event" />
@@ -615,7 +670,7 @@ function WorksheetRecordLog(props, ref) {
 
     return (
       <div className="worksheetRocordLogCardTitle flex w100">
-        {isMobile || !showFilter ? (
+        {isMobile || !showFilter || !showOperatorFilter ? (
           content
         ) : (
           <TriggerSelect text={_l('筛选此用户')} onSelect={() => handleSelectThisUser(item)}>
@@ -659,7 +714,7 @@ function WorksheetRecordLog(props, ref) {
                     {!!ua && (
                       <Tooltip title={_l('复制创建时的UA信息')}>
                         <span
-                          className="icon icon-copy textTertiary Font18 Hand ThemeHoverColor3"
+                          className="icon icon-copy textTertiary Font18 Hand hoverColorPrimary"
                           onClick={() => {
                             copy(ua);
                             alert(_l('复制成功'));
@@ -729,36 +784,44 @@ function WorksheetRecordLog(props, ref) {
                 </div>
               );
             })}
-          {!loadingAll && !isFilter() && sign.showLodOldButton && discussList.length === 0 && (
-            <p className="loadOldLog">
-              <span
-                onClick={() => {
-                  setPara({ pageIndexs: { ...pageIndexs, oldLogIndex: 1 } });
-                  setMark({
-                    sign: {
-                      ...sign,
-                      showLodOldButton: false,
-                    },
-                    showDivider: true,
-                  });
-                }}
-              >
-                {_l('继续查看旧版日志')}
-              </span>
-            </p>
-          )}
-          {!loadingAll && !isFilter() && showDivider && discussList.length > 0 && (
-            <Divider className="logDivider">
-              {_l('以下是旧版日志')}
-              <Tooltip
-                title={
-                  <span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>
-                }
-              >
-                <Icon className="Font12" icon="error1" />
-              </Tooltip>
-            </Divider>
-          )}
+          {!loadingAll &&
+            !isFilter() &&
+            (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            sign.showLodOldButton &&
+            discussList.length === 0 && (
+              <p className="loadOldLog">
+                <span
+                  onClick={() => {
+                    setPara({ pageIndexs: { ...pageIndexs, oldLogIndex: 1 } });
+                    setMark({
+                      sign: {
+                        ...sign,
+                        showLodOldButton: false,
+                      },
+                      showDivider: true,
+                    });
+                  }}
+                >
+                  {_l('继续查看旧版日志')}
+                </span>
+              </p>
+            )}
+          {!loadingAll &&
+            !isFilter() &&
+            (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            showDivider &&
+            discussList.length > 0 && (
+              <Divider className="logDivider">
+                {_l('以下是旧版日志')}
+                <Tooltip
+                  title={
+                    <span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>
+                  }
+                >
+                  <Icon className="Font12" icon="error1" />
+                </Tooltip>
+              </Divider>
+            )}
           {renderOldLog()}
         </div>
         {loading && <LoadDiv className="mBottom20" />}

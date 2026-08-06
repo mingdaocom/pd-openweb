@@ -150,7 +150,7 @@ export default function BatchImportApp(props) {
           points: ['tr', 'tl'],
         }}
       >
-        <span className="textTertiary Font18 icon-more_horiz Hand mLeft25 ThemeHoverColor3"></span>
+        <span className="textTertiary Font18 icon-more_horiz Hand mLeft25 hoverColorPrimary"></span>
       </Trigger>
 
       {/* 导出应用 */}

@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import {
   addOtherParam,
@@ -19,7 +20,7 @@ if (code) {
     if (checkOriginUrl(url)) {
       location.replace(decodeURIComponent(url));
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     ajax.post({
@@ -38,7 +39,7 @@ if (code) {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           });
         }
@@ -54,7 +55,7 @@ if (code) {
     if (checkOriginUrl(newUrl)) {
       location.replace(newUrl);
     } else {
-      location.replace(isMobile ? `/mobile` : `/app`);
+      location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
     }
   } else {
     const hosts = location.host.split('.');
@@ -68,7 +69,11 @@ if (code) {
       success: result => {
         const { corpId, agentId, state } = result.data;
         const redirect_uri = encodeURIComponent(
-          `${location.origin}/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
+          pathCompletion(`/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`),
+          {
+            hasDomain: true,
+            localHasDomain: true,
+          },
         );
 
         if (agentId) {

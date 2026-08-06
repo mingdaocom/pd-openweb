@@ -1,54 +1,37 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import 'mobile/MyHome/index.less';
+import { pathCompletion } from 'src/utils/common';
 import './index.less';
 
-@withRouter
-export default class TabBar extends Component {
+let TabBar = class TabBar extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     const { action, history } = this.props;
     return (
       <div className="appTabBar">
         <div
-          className={cx('itemTab', { action: action === 'appHome' })}
+          className={cx('itemTab', {
+            action: action === 'appHome',
+          })}
           onClick={() => {
-            history.push('/mobile/dashboard');
+            history.push(pathCompletion('/mobile/dashboard', { hasDomain: false }));
           }}
         >
           <Icon icon="home" />
           <span>{_l('工作台')}</span>
         </div>
-
-        {!md.global.SysSettings.hideTemplateLibrary && (
-          <div
-            className={cx('itemTab', { action: action === 'appBox' })}
-            onClick={() => {
-              history.push('/mobile/appBox');
-            }}
-          >
-            {window.platformENV.isOverseas || window.platformENV.isLocal ? (
-              <Fragment>
-                <Icon icon="application_library" />
-                <span>{_l('模板库')}</span>
-              </Fragment>
-            ) : (
-              <Fragment>
-                <Icon icon="merchant" />
-                <span>{_l('市场')}</span>
-              </Fragment>
-            )}
-          </div>
-        )}
-
         <div
-          className={cx('itemTab', { action: action === 'myHome' })}
+          className={cx('itemTab', {
+            action: action === 'myHome',
+          })}
           onClick={() => {
-            history.push('/mobile/myHome');
+            history.push(pathCompletion('/mobile/myHome', { hasDomain: false }));
           }}
         >
           <Icon className="Font26" icon="person" />
@@ -57,4 +40,6 @@ export default class TabBar extends Component {
       </div>
     );
   }
-}
+};
+TabBar = withRouter(TabBar);
+export default TabBar;

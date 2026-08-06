@@ -7,6 +7,7 @@ import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import { handleSystemPrintRecord } from 'worksheet/common/recordInfo/RecordForm/PrintList.jsx';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 
@@ -44,7 +45,7 @@ const MenuBox = styled.div`
  * 系统打印
  */
 const systemPrint = props => {
-  const { projectId, id, rowId, workId, data, worksheetId, onClose } = props;
+  const { projectId, instanceId, rowId, workId, data, worksheetId, onClose } = props;
   const appId = data.app.id;
   handleSystemPrintRecord({
     printId: '',
@@ -53,9 +54,9 @@ const systemPrint = props => {
     projectId,
     recordId: rowId,
     rowIds: [rowId],
-    getType: 1,
+    getType: 9,
     appId,
-    instanceId: id,
+    instanceId,
     workId,
   });
 
@@ -65,7 +66,7 @@ const systemPrint = props => {
 /**
  * 模板打印
  */
-const templatePrint = (props, item) => {
+const templatePrint = async (props, item) => {
   const { projectId, data, worksheetId, rowId, viewId, onClose } = props;
   const { id, name, describe, entityName, allowEditAfterPrint } = item;
   const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
@@ -91,12 +92,17 @@ const templatePrint = (props, item) => {
   };
   const printKey = Math.random().toString(36).substring(2);
 
-  webCacheAjax.add({
-    key: `${printKey}`,
-    value: JSON.stringify(printData),
-  });
+  try {
+    await webCacheAjax.add({
+      key: `${printKey}`,
+      value: JSON.stringify(printData),
+      moduleType: 1,
+    });
+  } catch {
+    return;
+  }
 
-  window.open(`${window.subPath || ''}/printForm/${data.app.id}/worksheet/preview/print/${printKey}`);
+  window.open(pathCompletion(`/printForm/${data.app.id}/worksheet/preview/print/${printKey}`));
 
   onClose();
 };

@@ -48,8 +48,18 @@ export default class DragMast extends React.Component {
   componentDidMount() {
     const { min = 280, max = 800, direction } = this.props;
 
+    // 拖拽期间禁用文本选择，避免鼠标移动时选中详情内文本
+    this.prevBodyUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = 'none';
+    try {
+      window.getSelection().removeAllRanges();
+    } catch {
+      // ignore
+    }
+
     if (this.mask) {
       setTimeout(() => {
+        if (!this.mask) return;
         this.mask.addEventListener('mousemove', e => {
           if (direction === 'horizontal') {
             if (e.target === this.mask && e.offsetX > min && e.offsetX < max) {
@@ -70,6 +80,7 @@ export default class DragMast extends React.Component {
 
   componentWillUnmount() {
     document.body.removeEventListener('mouseup', this.handleChange);
+    document.body.style.userSelect = this.prevBodyUserSelect || '';
   }
 
   handleChange = () => {

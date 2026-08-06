@@ -32,21 +32,23 @@ class DateTimePicker extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.state.value) {
-      const value = nextProps.value || new Date();
-      this.setState({
-        value,
-        time: this.getTimeData(
-          {
-            hour: value.getHours(),
-            minute: value.getMinutes(),
-            second: value.getSeconds(),
-          },
-          nextProps,
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== this.state.value) {
+        const value = this.props.value || new Date();
+        this.setState({
           value,
-        ),
-      });
+          time: this.getTimeData(
+            {
+              hour: value.getHours(),
+              minute: value.getMinutes(),
+              second: value.getSeconds(),
+            },
+            this.props,
+            value,
+          ),
+        });
+      }
     }
   }
 

@@ -324,7 +324,7 @@ export default function ReviewFree(props) {
                   </span>
                   {canDown && (
                     <span
-                      className="act ThemeColor3 Hand"
+                      className="act colorPrimary Hand"
                       onClick={() => {
                         let ajaxUrl = md.global.Config.AjaxApiUrl + 'Download/Verify/' + appId;
                         let str = `<form action=${ajaxUrl} method="noVerifyAjax.get" id="forms">
@@ -337,7 +337,7 @@ export default function ReviewFree(props) {
                       <Icon className="Font18 TxtMiddle" type="cloud_download" /> {_l('下载')}
                     </span>
                   )}
-                  <QiniuUpload {...uploadParam} className={cx('act ThemeColor3 Hand')}>
+                  <QiniuUpload {...uploadParam} className={cx('act colorPrimary Hand')}>
                     <Icon className="Font18 TxtMiddle" type="refresh" />
                     {_l('更新')}
                   </QiniuUpload>

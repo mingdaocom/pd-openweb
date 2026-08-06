@@ -4,6 +4,12 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
+import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
+import { FIELD_SIZE_OPTIONS } from '../../tools/config';
+
+const formatValue = val => {
+  return (val || '').toUpperCase();
+};
 
 const IDWidget = props => {
   const {
@@ -13,6 +19,7 @@ const IDWidget = props => {
     triggerCustomEvent,
     disabled,
     formDisabled,
+    advancedSetting = {},
     renderMaskContent,
     handleMaskClick,
     showMaskValue,
@@ -26,14 +33,12 @@ const IDWidget = props => {
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
   const [currentValue, setCurrentValue] = useState(getEditValue());
+  const showClear = isEditing && !!currentValue;
+  const fieldSize = FIELD_SIZE_OPTIONS[advancedSetting.valuesize || '0'];
 
   const getShowValue = () => {
     const value = getEditValue();
     return showMaskValue && value ? dealMaskValue({ ...props, value }) : value || hint;
-  };
-
-  const formatValue = val => {
-    return (val || '').toUpperCase();
   };
 
   const onFocus = event => {
@@ -48,6 +53,7 @@ const IDWidget = props => {
   const onBlur = event => {
     const trimValue = formatValue(event.target.value.trim());
 
+    debouncedOnChange.cancel();
     if (trimValue !== value) {
       props.onChange(trimValue);
     }
@@ -56,18 +62,47 @@ const IDWidget = props => {
     props.onBlur(originValue);
   };
 
+  const handleControlClick = () => {
+    if (disabled) return;
+
+    setIsEditing(true);
+    inputRef.current.focus();
+  };
+
   const debouncedOnChange = useRef(
     _.debounce((props, val) => {
       props.onChange(val);
     }, 300),
   ).current;
 
+  const handleInputChange = event => {
+    const val = formatValue(event.target.value);
+    setCurrentValue(val);
+    debouncedOnChange(props, val);
+  };
+
+  const clearValue = () => {
+    debouncedOnChange.cancel();
+    setCurrentValue('');
+    props.onChange('');
+
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   useEffect(() => {
     setCurrentValue(getEditValue());
   }, [value]);
 
+  useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, []);
+
   return (
-    <div className="Relative">
+    <div className={cx('Relative', { [CLEAR_ICON_SAFE_CLASS]: showClear })}>
       <div
         className={cx('customFormControlBox customFormControlInputView customFormFocusControl', {
           controlEditReadonly: !formDisabled && currentValue && disabled,
@@ -76,13 +111,12 @@ const IDWidget = props => {
         style={{
           zIndex: isEditing ? -1 : 1,
         }}
-        onClick={() => {
-          if (disabled) return;
-          setIsEditing(true);
-          inputRef.current.focus();
-        }}
+        onClick={handleControlClick}
       >
-        <span className={cx({ overflowEllipsis: !currentValue })} onClick={handleMaskClick}>
+        <span
+          className={cx({ overflowEllipsis: !currentValue, customFormPlaceholder: !currentValue })}
+          onClick={handleMaskClick}
+        >
           {getShowValue()}
           {renderMaskContent()}
         </span>
@@ -94,15 +128,12 @@ const IDWidget = props => {
           value={currentValue}
           disabled={disabled}
           ref={inputRef}
-          onChange={event => {
-            const val = formatValue(event.target.value);
-            setCurrentValue(val);
-            debouncedOnChange(props, val);
-          }}
+          onChange={handleInputChange}
           onFocus={onFocus}
           onBlur={onBlur}
         />
       )}
+      {showClear && <ClearValueIcon size={fieldSize} onClear={clearValue} />}
     </div>
   );
 };
@@ -115,6 +146,7 @@ IDWidget.propTypes = {
   triggerCustomEvent: PropTypes.func,
   disabled: PropTypes.bool,
   formDisabled: PropTypes.bool,
+  advancedSetting: PropTypes.object,
 };
 
 export default memo(IDWidget, (prevProps, nextProps) => {

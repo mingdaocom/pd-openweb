@@ -50,7 +50,16 @@ export const WrapHeader = styled.div`
         font-weight: bold;
         font-size: 24px !important;
         padding-left: 16px;
-        line-height: 70px;
+        line-height: initial;
+        display: flex;
+        align-items: center;
+        .appNameText {
+          width: 100%;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
       }
     }
     .appItemsOuterWrap {

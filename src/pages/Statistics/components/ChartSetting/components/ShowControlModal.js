@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import { relevanceImageSize } from 'statistics/common';
+import { relevanceImageSize } from 'statistics/common/reportConfigUtils';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const SearchControlWrapper = styled.div`
@@ -93,7 +93,7 @@ const renderSortableItem = ({ DragHandle, item, otherProps }) => {
         <Icon
           icon="drag"
           style={{ visibility: control ? null : 'hidden' }}
-          className="textTertiary Font16 Right ThemeHoverColor3 Hand dragHandle"
+          className="textTertiary Font16 Right hoverColorPrimary Hand dragHandle"
         />
       </DragHandle>
     </div>
@@ -109,36 +109,50 @@ export default class ShowControlModal extends Component {
       columns: [],
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.dialogVisible && !this.props.dialogVisible) {
-      const columns = nextProps.relationControls
-        .filter(item => {
-          return (
-            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52, 54].includes(item.type) &&
-            !_.find(nextProps.fields, { controlId: item.controlId })
-          );
-        })
-        .sort((a, b) => {
-          if (a.row === b.row) {
-            return a.col - b.col;
-          } else {
-            return a.row - b.row;
-          }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.dialogVisible && !prevProps.dialogVisible) {
+        const columns = this.props.relationControls
+          .filter(item => {
+            return (
+              ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52, 54].includes(item.type) &&
+              !_.find(this.props.fields, {
+                controlId: item.controlId,
+              })
+            );
+          })
+          .sort((a, b) => {
+            if (a.row === b.row) {
+              return a.col - b.col;
+            } else {
+              return a.row - b.row;
+            }
+          });
+        const fieldsColumns = this.props.fields.map(item => {
+          return _.find(this.props.relationControls, {
+            controlId: item.controlId,
+          });
         });
-      const fieldsColumns = nextProps.fields.map(item => {
-        return _.find(nextProps.relationControls, { controlId: item.controlId });
-      });
-      const titleControl = _.find(nextProps.relationControls, { attribute: 1 }) || {};
-      const titleField = {
-        controlId: titleControl.controlId,
-        controlName: titleControl.controlName,
-        controlType: titleControl.controlType,
-      };
-      const isTitleField = _.find(nextProps.fields, { controlId: titleControl.controlId });
-      this.setState({
-        columns: fieldsColumns.concat(columns),
-        selected: isTitleField ? nextProps.fields : [titleField].concat(nextProps.fields),
-      });
+        const titleControl =
+          _.find(this.props.relationControls, {
+            attribute: 1,
+          }) || {};
+        const titleField = {
+          controlId: titleControl.controlId,
+          controlName: titleControl.controlName,
+          controlType: titleControl.controlType,
+        };
+
+        const isTitleField = _.find(this.props.fields, {
+          controlId: titleControl.controlId,
+        });
+
+        this.setState({
+          columns: fieldsColumns.concat(columns),
+          selected: isTitleField ? this.props.fields : [titleField].concat(this.props.fields),
+        });
+      }
     }
   }
   handleSave = () => {

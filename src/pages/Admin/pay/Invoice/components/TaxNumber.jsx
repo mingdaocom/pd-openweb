@@ -199,7 +199,7 @@ const TaxNumber = forwardRef((props, ref) => {
         <div>
           <span>{_l('4、审核操作通常由财务人员完成，建议在')}</span>
           <span
-            className="mLeft3 mRight3 colorPrimary ThemeHoverColor2 pointer"
+            className="mLeft3 mRight3 colorPrimary hoverColorPrimaryDark pointer"
             onClick={() => navigateTo(`/admin/sysroles/${projectId}`)}
           >
             {_l('组织-管理员')}

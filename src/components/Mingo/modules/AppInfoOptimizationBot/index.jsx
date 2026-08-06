@@ -1,19 +1,22 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
-import { isFunction, omit } from 'lodash';
+import { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import sseAjax from 'src/api/sse';
+import agentApi from 'src/api/agent';
 import { useGlobalStore } from 'src/common/GlobalStore';
 import IconBtn from 'src/pages/worksheet/common/recordInfo/RecordForm/IconBtn';
 import useChat from 'src/pages/worksheet/hooks/useChat';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip } from '../../ChatBot/enum';
+import { cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import AppOptimizationComp from './AppOptimizationComp';
+import { buildAppInfoCatalog } from './buildAppInfoCatalog';
 import Recommend from './Recommend';
 import { ConfigPanel } from './Recommend';
 
@@ -94,12 +97,10 @@ function MingoContent(props, ref) {
     disabled = false,
     className,
     maxWidth,
-    base,
     defaultIsChatting = false,
     updateIsChatting = () => {},
     allowEdit = false,
   } = props;
-  const { appId } = base || {};
   const appOptimizationCompRef = useRef(null);
   const [config, setConfig] = useState({
     includeAppName: true,
@@ -112,6 +113,7 @@ function MingoContent(props, ref) {
     currentMessage: '',
     currentJSONLStr: '',
     JSONLIsPiping: false,
+    sessionId: genBotSessionId(),
   });
   const [isChatting, setIsChatting] = useState(defaultIsChatting);
   const [error, setError] = useState();
@@ -133,7 +135,7 @@ function MingoContent(props, ref) {
       //       `,
       //     },
     ],
-    aiCompletionApi: async (messages, { abortController }) => {
+    aiCompletionApi: async (messages, { abortController, agentParams = {} }) => {
       configSnapshotRef.current = { ...config };
       //  0全部 1优化应用名称项 2优化应用项图标
       let optimizeType = 0;
@@ -146,16 +148,22 @@ function MingoContent(props, ref) {
         optimizeType = 2;
       }
 
-      return sseAjax.optimizeAppInfo(
+      const appInfoMessage = buildAppInfoCatalog(appInfo);
+
+      const agentName = optimizeType === 1 ? 'app-info-rename-optimizer' : 'app-info-rename-icon-optimizer';
+
+      return await agentApi.agentExecuteStream(
         {
-          appId,
-          messageList: messages.filter(m => m.role === 'user').map(m => omit(m, ['media'])),
-          optimizeType,
+          agentName,
+          ...agentParams,
+          sessionId: cache.current.sessionId,
+          message: JSON.stringify(appInfoMessage),
+          context: {
+            userLanguage: window.getCurrentLang() || 'zh-Hans',
+          },
+          forceReroute: false,
         },
-        {
-          abortController,
-          isReadableStream: true,
-        },
+        { abortController },
       );
     },
     onMessageDone: (messages = []) => {
@@ -166,12 +174,7 @@ function MingoContent(props, ref) {
         cache.current.handleAbortRequest();
       }
 
-      console.log('onError', error, eventData);
-
-      setError({
-        errorMsg: _l('模型调用失败'),
-        sourceData: eventData,
-      });
+      setError(resolveStreamError(error, eventData));
     },
   });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
@@ -183,10 +186,10 @@ function MingoContent(props, ref) {
     }
   }, []);
 
-  const handleSend = (newMessage, { images, fileIds, media, useFileContentFormat } = {}) => {
+  const handleSend = (newMessage, { images, fileIds, media, useFileContentFormat, attachments } = {}) => {
     appOptimizationCompRef.current?.hidePopup();
     setIsChatting(true);
-    sendMessage(newMessage, { images, fileIds, media, useFileContentFormat });
+    sendMessage(newMessage, { images, fileIds, media, useFileContentFormat, attachments });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
@@ -194,12 +197,14 @@ function MingoContent(props, ref) {
 
   const handleAbortRequest = () => {
     abortRequest();
+    cancelStream(cache.current.sessionId);
   };
 
   cache.current.handleAbortRequest = handleAbortRequest;
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
+      cancelStream(cache.current.sessionId);
       clearMessages();
       configSnapshotRef.current = null;
       configByMessageIdRef.current = {};
@@ -219,10 +224,12 @@ function MingoContent(props, ref) {
     <MingoContentWrap className={className}>
       <MessageListWrap>
         <MessageList
+          showAssistantAvatar={false}
           activeMessageId={activeMessageId}
           allowEdit={allowEdit}
           maxWidth={maxWidth}
           loading={loading}
+          showLoadingWhenContentIsEmpty
           isRequesting={isRequesting}
           messages={messages.filter(item => !item.hidden)}
           ref={messageListRef}
@@ -330,6 +337,8 @@ function MingoContent(props, ref) {
                 fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
                 media: ocrFiles.map(f => f.commonAttachment),
                 useFileContentFormat: true,
+                // 图片与文档都需透传给后端，useChat 会按 mime 映射为 image/doc
+                attachments: files,
               });
             }}
           />

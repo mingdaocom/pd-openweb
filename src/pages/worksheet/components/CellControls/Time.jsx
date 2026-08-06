@@ -3,16 +3,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import TimePicker from 'src/components/Form/DesktopForm/widgets/Time';
 import { renderText } from 'src/utils/control';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class Date extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -34,9 +32,13 @@ export default class Date extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: this.props.cell.value,
+        });
+      }
     }
   }
 

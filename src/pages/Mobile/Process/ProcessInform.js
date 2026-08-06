@@ -7,7 +7,6 @@ import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import Back from '../components/Back';
 import Card from './Card';
 import { processInformTabs } from './enum';
@@ -40,15 +39,8 @@ export default class ProcessInform extends Component {
     this.getTodoList();
     this.getTodoCount();
     workflowPushSoket();
-    window.addEventListener('popstate', this.onQueryChange);
   }
-  componentWillUnmount() {
-    window.addEventListener('popstate', this.onQueryChange);
-  }
-  onQueryChange = () => {
-    if (!this.state.previewRecord || _.isEmpty(this.state.previewRecord)) return;
-    handleReplaceState('page', 'processRecord', () => this.setState({ previewRecord: {} }));
-  };
+
   getTodoList() {
     const param = {};
     const { loading, isMore, currentTab, searchValue, sortParam, queryParam } = this.state;
@@ -259,13 +251,11 @@ export default class ProcessInform extends Component {
             <Card
               item={item}
               type={filter ? filter.type : null}
-              time={createTimeSpan(item.workItem.receiveTime)}
               currentTab={currentTab}
               renderBodyTitle={() => {
                 return item.title;
               }}
               onClick={() => {
-                handlePushState('page', 'processRecord');
                 this.setState({
                   previewRecord: { instanceId: item.id, workId: item.workId },
                 });
@@ -351,7 +341,6 @@ export default class ProcessInform extends Component {
             instanceId={previewRecord.instanceId}
             workId={previewRecord.workId}
             onClose={() => {
-              history.back();
               this.setState({
                 previewRecord: {},
               });

@@ -143,6 +143,17 @@ export default {
     return mdyAPI('ProjectSetting', 'GetAutoPurchaseDataPipelineExtPack', args, options);
   },
   /**
+   * 获取 是否自动订购外部门户用户额度扩充包
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAutoPurchaseExternalUserExtPack: function (args, options = {}) {
+    return mdyAPI('ProjectSetting', 'GetAutoPurchaseExternalUserExtPack', args, options);
+  },
+  /**
    * 获取 API集成 仅管理员 可用开关（integration 简写成 intg）,预警信息
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id
@@ -411,6 +422,30 @@ export default {
    **/
   setAutoPurchaseApkStorageExtPack: function (args, options = {}) {
     return mdyAPI('ProjectSetting', 'SetAutoPurchaseApkStorageExtPack', args, options);
+  },
+  /**
+   * 设置 是否 自动订购外部门户用户额度扩充包
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {boolean} args.autoPurchaseExternalUserExtPack 是否 自动订购外部门户用户额度扩充包
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setAutoPurchaseExternalUserExtPack: function (args, options = {}) {
+    return mdyAPI('ProjectSetting', 'SetAutoPurchaseExternalUserExtPack', args, options);
+  },
+  /**
+   * 设置 是否允许 MingoAgent（AI应用搭建）调用扣费
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {boolean} args.allowMingoAgentCharge 是否允许 MingoAgent 调用扣费接口扣费
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setAllowMingoAgentCharge: function (args, options = {}) {
+    return mdyAPI('ProjectSetting', 'SetAllowMingoAgentCharge', args, options);
   },
   /**
   * 设置 是否允许申请后台组织管理员权限
@@ -757,5 +792,18 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
   projectClearCache: function (args, options = {}) {
     return mdyAPI('ProjectSetting', 'ProjectClearCache', args, options);
+  },
+  /**
+   *
+   * @param {Object} args 请求参数
+   * @param {} args.processType
+   * @param {string} args.projectId
+   * @param {string} args.itemId 组织角色/部门/职位 的Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  clearItemCache: function (args, options = {}) {
+    return mdyAPI('ProjectSetting', 'ClearItemCache', args, options);
   },
 };

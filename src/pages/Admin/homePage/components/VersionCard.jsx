@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+﻿import React, { Fragment, useEffect, useState } from 'react';
 import { Button, Modal } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -10,6 +10,7 @@ import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
+import { pathCompletion } from 'src/utils/common';
 import PurchaseIcon from '../image/purchaseIcon.png';
 import TimeIcon from '../image/time.png';
 import { FreeTrialWrap } from '../styled';
@@ -17,21 +18,31 @@ import { getValue } from '../utils';
 
 // 组织管理首页-版本卡片
 export default function VersionCard(props) {
-  const { projectId, data, isTrial, isFree, isMingdaoSaas, routerLocation, updateData = () => {} } = props;
+  const {
+    projectId,
+    data,
+    isTrial,
+    isFree,
+    isMingdaoSaas,
+    routerLocation,
+    refreshing,
+    updateData = () => {},
+    onRefresh = () => {},
+  } = props;
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, version = {} } = currentLicense;
   const versionIdV2 = parseInt(version.versionIdV2);
   const hasNextLicense = !_.isEmpty(nextLicense);
   const surplus = getValue(expireDays || 0);
   const { version: nextVersion } = nextLicense;
-  const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
-  const [versionInfo, setVersionInfo] = useState({ loading: true });
   const isNocolySaas = window.platformENV.isOverseas && !window.platformENV.isLocal;
+  const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
+  const [versionInfo, setVersionInfo] = useState({ loading: isNocolySaas });
 
   const handleClick = type => {
     switch (type) {
       case 'upgrade':
-        location.assign(`/admin/upgradeservice/${projectId}`);
+        location.assign(pathCompletion(`/admin/upgradeservice/${projectId}`));
         break;
       case 'renew':
         purchaseMethodFunc({ projectId, isTrial });
@@ -61,16 +72,21 @@ export default function VersionCard(props) {
     projectAjax.getInviteGiveRule({ projectId }).then(res => {
       updateData(res);
     });
-  }, [freeTrialVisible]);
+  }, [data.rules, freeTrialVisible, projectId, updateData]);
 
   useEffect(() => {
     isNocolySaas && data.licenseType !== 0 && projectAjax?.getCurrentLicense
       ? projectAjax.getCurrentLicense({ projectId }).then(res => res && setVersionInfo({ ...res, loading: false }))
       : setVersionInfo({ loading: false });
-  }, [data]);
+  }, [data, isNocolySaas, projectId]);
 
   return (
     <div className="infoCard row1">
+      <Icon
+        icon="task-later"
+        className={cx('versionRefreshIcon textTertiary hoverText Font17', { refreshing })}
+        onClick={onRefresh}
+      />
       <div>
         <div className="Font16 bold textPrimary mBottom6">{_l('版本')}</div>
         <div className="Font28 bold textPrimary mBottom8 valignWrapper">
@@ -171,6 +187,7 @@ export default function VersionCard(props) {
               <span className="mRight6">🚀</span>
               {_l('升级')}
             </div>
+
             {!isTrial && versionInfo.id && !versionInfo.isOffLine && (
               <PurchaseExpandPack
                 className="mLeft16"
@@ -213,7 +230,7 @@ export default function VersionCard(props) {
             ))}
           </ul>
           <Button
-            style={{ height: '48px', width: '320px' }}
+            style={{ height: '48px' }}
             type="primary"
             block
             onClick={() => addFriends({ projectId: projectId, fromType: 4 })}

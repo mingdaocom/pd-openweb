@@ -3,8 +3,7 @@ import { Skeleton } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, ScrollView } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import CommonAjax from 'src/api/addressBook';
 import homeAppAjax from 'src/api/homeApp';
 import smartSearchCtrl from 'src/api/smartSearch';
@@ -19,8 +18,7 @@ import UserList from '../components/UserList';
 import { getCurrentProjectId } from '../utils';
 import './GlobalSearchAllContent.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class GlobalSearchAllContent extends Component {
   constructor(props) {
     super(props);
@@ -53,10 +51,12 @@ export default class GlobalSearchAllContent extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.searchKeyword !== this.props.searchKeyword) {
-      const { searchKeyword } = nextProps;
-      this.requestDebounce(searchKeyword);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.searchKeyword !== prevProps.searchKeyword) {
+        const { searchKeyword } = this.props;
+        this.requestDebounce(searchKeyword);
+      }
     }
   }
 
@@ -569,7 +569,7 @@ export default class GlobalSearchAllContent extends Component {
   render() {
     const { searchScope, isApp } = this.state;
     return (
-      <ClickAwayable component="div" id="GlobalSearchAllContentDiv" onClickAwayExceptions={['#GlobalSearch']}>
+      <ClickAwayable id="GlobalSearchAllContentDiv" onClickAwayExceptions={['#GlobalSearch']}>
         <div className="globalSearchAllContent">
           <div className="leftCon">
             {isApp && (

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import './index.less';
 
@@ -58,16 +57,16 @@ export default class SessionItem extends Component {
     const isSilent = 'isSilent' in item ? item.isSilent : false;
     return (
       <div className="SessionList-info">
-        <div className="name ThemeColor10" title={item.name}>
+        <div className="name textPrimary" title={item.name}>
           {item.name}
         </div>
-        <div className="time ThemeColor8" title={item.time}>
+        <div className="time textTertiary" title={item.time}>
           {item.time}
         </div>
-        <div className="msg ThemeColor9" title={msg.con}>
+        <div className="msg textSecondary" title={msg.con}>
           {this.renderImportantInfo()}
           <span className="msg-con">{isDraft ? `${_l('我')}: ${item.sendMsg}` : msg.con}</span>
-          {!isPush || isSilent ? <i className="ThemeColor8 icon-chat-bell-nopush" /> : undefined}
+          {!isPush || isSilent ? <i className="textTertiary icon-chat-bell-nopush" /> : undefined}
         </div>
       </div>
     );
@@ -96,7 +95,7 @@ export default class SessionItem extends Component {
       <div
         className={cx('SessionList-item', {
           active: isActive,
-          ThemeBGColor7: isHover,
+          bgTertiary: isHover,
           topBGColor: visible && isTop,
         })}
         onClick={this.props.onOpenPanel}
@@ -104,7 +103,7 @@ export default class SessionItem extends Component {
         data-id={item.value}
       >
         {/*visible ? (
-          <div onClick={this.props.onRemoveSession} title={_l('关闭会话')} className="delete ThemeColor9">
+          <div onClick={this.props.onRemoveSession} title={_l('关闭会话')} className="delete textSecondary">
             <i className="icon-delete" />
           </div>
         ) : undefined*/}

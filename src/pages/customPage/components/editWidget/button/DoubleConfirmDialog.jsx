@@ -43,7 +43,6 @@ class DoubleConfirmDialog extends React.Component {
         <p className="mTop10 mBottom10">{_l('提示文字')}</p>
         <textarea
           type="textarea"
-          ref="txt"
           value={this.state.doubleConfirm.confirmMsg}
           onChange={event => {
             this.setState({

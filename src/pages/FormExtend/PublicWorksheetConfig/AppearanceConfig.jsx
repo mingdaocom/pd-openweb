@@ -171,15 +171,16 @@ class AppearanceConfig extends React.Component {
     super(props);
     const { projectId } = props.worksheetInfo;
     const COLORS = getThemeColors(projectId);
+    const customColors = (localStorage.getItem('customColors') || '').split(',').filter(_ => _);
     this.state = {
       isUploading: false,
       customColors: (_.find(
-        COLORS.concat((localStorage.getItem('customColors') || '').split(',').filter(_ => _)),
+        COLORS.concat(customColors),
         color => color.toLocaleUpperCase() === this.props.theme.toLocaleUpperCase(),
       )
         ? []
         : [this.props.theme]
-      ).concat((localStorage.getItem('customColors') || '').split(',').filter(_ => _)),
+      ).concat(customColors),
     };
   }
 
@@ -350,7 +351,7 @@ class AppearanceConfig extends React.Component {
           <Con>
             <Absolute right="24" top="-2">
               <Close onClick={onClose}>
-                <i className="icon icon-close ThemeHoverColor3"></i>
+                <i className="icon icon-close hoverColorPrimary"></i>
               </Close>
             </Absolute>
             <H1>{_l('设置封面')}</H1>

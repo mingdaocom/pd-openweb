@@ -1,4 +1,4 @@
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -256,11 +256,26 @@ function OptionItem({
   );
 }
 
+const findScrollableParent = el => {
+  while (el && el !== document.documentElement) {
+    const { overflowY } = window.getComputedStyle(el);
+
+    if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+      return el;
+    }
+
+    el = el.parentElement;
+  }
+
+  return document.documentElement;
+};
+
 function SelectOptions(props, ref) {
   const { onChange, options, data = {}, showAssign = false, fromPortal, enableScore, className, isDialog } = props;
   const [focusIndex, setIndex] = useState(-1);
   const [isDrag, setIsDrag] = useState(false);
   const [focusIndexs, setIndexs] = useState([]);
+  const wrapRef = useRef(null);
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
   const findOther = _.findIndex(options, i => i.key === 'other');
   const noDelOptions = options.filter(i => !i.isDeleted);
@@ -278,6 +293,37 @@ function SelectOptions(props, ref) {
   useImperativeHandle(ref, () => ({
     addOption,
   }));
+
+  useEffect(() => {
+    if (!isDrag || !wrapRef.current) return;
+
+    const scrollEl = findScrollableParent(wrapRef.current);
+    let animationId;
+
+    const handleDragOver = e => {
+      cancelAnimationFrame(animationId);
+      const threshold = 60;
+      const speed = 10;
+      const isDocRoot = scrollEl === document.documentElement;
+      const rect = isDocRoot ? { top: 0, bottom: window.innerHeight } : scrollEl.getBoundingClientRect();
+
+      if (e.clientY - rect.top < threshold) {
+        animationId = requestAnimationFrame(() => {
+          scrollEl.scrollTop -= speed;
+        });
+      } else if (rect.bottom - e.clientY < threshold) {
+        animationId = requestAnimationFrame(() => {
+          scrollEl.scrollTop += speed;
+        });
+      }
+    };
+
+    document.addEventListener('dragover', handleDragOver);
+    return () => {
+      document.removeEventListener('dragover', handleDragOver);
+      cancelAnimationFrame(animationId);
+    };
+  }, [isDrag]);
 
   const addOption = (isOther, nextIndex) => {
     if (notAdd) {
@@ -367,7 +413,7 @@ function SelectOptions(props, ref) {
   const showBorder = isDialog && isDrag && windowHeight - 340 < options.length * 40;
 
   return (
-    <OptionsWrap className={className} showBorder={showBorder}>
+    <OptionsWrap ref={wrapRef} className={className} showBorder={showBorder}>
       <SortableList
         useDragHandle
         items={options}

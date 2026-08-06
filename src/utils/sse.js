@@ -77,7 +77,11 @@ export function parseStreamingJsonlData(content, isStreaming = true) {
     .map(line => {
       try {
         if (!isStreaming) {
-          return JSON.parse(line.replace(/\b0+(\d+(\.\d+)?)\b/g, '$1'));
+          try {
+            return JSON.parse(line);
+          } catch {
+            return JSON.parse(line.replace(/\b0+(\d+(\.\d+)?)\b/g, '$1'));
+          }
         }
 
         const parser = new PartialJsonParser();

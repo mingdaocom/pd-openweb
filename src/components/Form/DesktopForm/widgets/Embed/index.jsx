@@ -1,7 +1,8 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
@@ -41,12 +42,16 @@ const EmbedWrap = styled.div`
       .searchInputComp {
         ${props =>
           _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
-            ? { display: 'none;' }
+            ? {
+                display: 'none;',
+              }
             : {}}
       }
     }
   }
 `;
+const LoadableChart = lazy(() => import('statistics/Card'));
+const LoadableEmbedPreview = lazy(() => import('./EmbedPreview'));
 
 const Embed = props => {
   const {
@@ -65,17 +70,13 @@ const Embed = props => {
     isDraft,
     appId,
   } = props;
-
   const [resultData, setResultData] = useState('');
   const [needUpdate, setNeedUpdate] = useState(Math.random());
-  const [ChartComponents, setChartComponents] = useState(null);
   const [viewType, setViewType] = useState('');
-
   const iframeRef = useRef(null);
   const embedWatchRef = useRef(null);
   const viewControlsRef = useRef([]);
   const currentTimeRef = useRef(new Date());
-
   const latestResultData = useRef(resultData);
   const [errorCode, setErrorCode] = useState(null);
   const propsRef = useRef(props);
@@ -84,12 +85,9 @@ const Embed = props => {
 
   const initFunc = callback => {
     if (enumDefault === 2) {
-      import('statistics/Card').then(component => {
-        setChartComponents(component);
-        setValue();
-      });
+      setValue();
     } else if (enumDefault === 3) {
-      import('./EmbedPreview').then(getControls);
+      getControls();
     } else {
       setValue();
     }
@@ -103,25 +101,24 @@ const Embed = props => {
     }
   };
 
-  const getControls = useCallback(
-    component => {
-      const { reportid, wsid } = safeParse(dataSource || '{}');
+  const getControls = useCallback(() => {
+    const { reportid, wsid } = safeParse(dataSource || '{}');
+    worksheetAjax
+      .getWorksheetInfo({
+        worksheetId: wsid,
+        getViews: true,
+      })
+      .then(({ template = {}, views = [] }) => {
+        const curView = _.find(views, v => v.viewId === reportid);
 
-      worksheetAjax
-        .getWorksheetInfo({ worksheetId: wsid, getViews: true })
-        .then(({ template = {}, views = [] }) => {
-          const curView = _.find(views, v => v.viewId === reportid);
-          setChartComponents(component);
-          setViewType(String(_.get(curView, 'viewType')));
-          viewControlsRef.current = _.get(template, 'controls') || [];
-          setValue();
-        })
-        .catch(err => {
-          setErrorCode(err.errorCode);
-        });
-    },
-    [dataSource],
-  );
+        setViewType(String(_.get(curView, 'viewType')));
+        viewControlsRef.current = _.get(template, 'controls') || [];
+        setValue();
+      })
+      .catch(err => {
+        setErrorCode(err.errorCode);
+      });
+  }, [dataSource]);
 
   const getFilterResult = (currentProps, currentTimeForSecond) =>
     getFilter({
@@ -175,27 +172,29 @@ const Embed = props => {
       }
     }
   }, []);
-
   useEffect(() => {
     initFunc();
     embedWatchRef.current = setInterval(() => setValue({ useCachedCurrentTime: true }), 3000);
-
     return () => {
       clearInterval(embedWatchRef.current);
+
       if (_.isFunction(addRefreshEvents)) {
         addRefreshEvents(controlId, undefined);
       }
     };
   }, []);
-
   useEffect(() => {
     initFunc(() => {
       // 嵌入链接无法主动刷新，变更src刷新
       if (enumDefault === 1 && iframeRef.current) {
         const tmpUrl = _.get(iframeRef, 'current.src');
+
         iframeRef.current.src = 'about:blank';
+
         const _t = setTimeout(() => {
-          iframeRef.current.src = tmpUrl;
+          if (iframeRef.current) {
+            iframeRef.current.src = tmpUrl;
+          }
           clearTimeout(_t);
         }, 300);
       } else {
@@ -203,12 +202,12 @@ const Embed = props => {
       }
     });
   }, [flag, recordId]);
-
   const { height, rownum = '10' } = advancedSetting;
   const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
 
   const getContent = () => {
     const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;
+
     const isShareView = _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
 
     if (errorCode === 300016) {
@@ -256,47 +255,57 @@ const Embed = props => {
         </div>
       );
     } else {
-      if (!ChartComponents || !wsid) return null;
+      if (!wsid) return null;
 
       if (enumDefault === 3) {
         return (
           <div className="embedContainer viewContainer">
-            <ChartComponents.default
-              appId={appid || appId}
-              setting={{
-                value: wsid,
-                viewId: reportid,
-                config: {
-                  fromEmbed: true,
-                  isAddRecord: enumDefault2 !== 1,
-                  searchRecord: true,
-                  ...(viewType === VIEW_DISPLAY_TYPE.sheet ? { pageCount: rownum } : {}),
-                  fullShowTable: true,
-                  minRowCount: 2,
-                  isDraft,
-                  embedNeedUpdate: needUpdate,
-                },
-              }}
-              filtersGroup={resultData}
-            />
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableEmbedPreview
+                appId={appid || appId}
+                setting={{
+                  value: wsid,
+                  viewId: reportid,
+                  config: {
+                    fromEmbed: true,
+                    isAddRecord: enumDefault2 !== 1,
+                    searchRecord: true,
+                    ...(viewType === VIEW_DISPLAY_TYPE.sheet
+                      ? {
+                          pageCount: rownum,
+                        }
+                      : {}),
+                    fullShowTable: true,
+                    minRowCount: 2,
+                    isDraft,
+                    embedNeedUpdate: needUpdate,
+                  },
+                }}
+                filtersGroup={resultData}
+              />
+            </Suspense>
           </div>
         );
       }
 
       return (
         <Fragment>
-          <ChartComponents.default
-            className="embedContainer chartPadding"
-            report={{ id: reportid }}
-            pageId={isShareView ? viewId : recordId}
-            projectId={projectId}
-            appId={appid || appId}
-            sourceType={2}
-            filters={resultData}
-            needUpdate={needUpdate}
-            isCharge={isCharge}
-            viewId={viewIdForPermit}
-          />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableChart
+              className="embedContainer chartPadding"
+              report={{
+                id: reportid,
+              }}
+              pageId={isShareView ? viewId : recordId}
+              projectId={projectId}
+              appId={appid || appId}
+              sourceType={2}
+              filters={resultData}
+              needUpdate={needUpdate}
+              isCharge={isCharge}
+              viewId={viewIdForPermit}
+            />
+          </Suspense>
         </Fragment>
       );
     }
@@ -327,5 +336,4 @@ Embed.propTypes = {
   isDraft: PropTypes.bool,
   appId: PropTypes.string,
 };
-
 export default Embed;

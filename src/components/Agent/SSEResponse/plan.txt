@@ -1,0 +1,767 @@
+event: route-start
+data: {"EventType":"route-start","TraceId":"54172a95cb40f58e136644943de70466","AgentName":null,"Delta":null,"Data":{"Message":"搭建一个简单的客房管理应用，2 个表"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: route-selected
+data: {"EventType":"route-selected","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"agentName":"create-app-plan-streaming"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_8XmcV9F5EXN3PSpWpSuMk1p5","name":"load_skill","skillName":"mingdao-app-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_iLashHdsRxttuBEiFDeQ0gqV","name":"load_skill","skillName":"mingdao-field-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_I35V55f7jmswlFYSKOCLr2wm","name":"load_skill","skillName":"mingdao-view-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_HiCsWUX7Onjgghp9BAK8TYlO","name":"load_skill","skillName":"mingdao-chart-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_551uRPB1t0xE4K3fhTObHYjs","name":"load_skill","skillName":"mingdao-workflow-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_irl8C6GrvR2AhmfQXkGu1YQ8","name":"load_skill","skillName":"mingdao-custom-action-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_mrbG9cy3tk8NoKCKqtc9OAYB","name":"load_skill","skillName":"mingdao-role-design","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-call
+data: {"EventType":"tool-call","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_K4nJPsjOZFTYpCPQQenbz1Zv","name":"load_skill","skillName":"mingdao-app-structure","arguments":{"skillName":{"ValueKind":3}}},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_8XmcV9F5EXN3PSpWpSuMk1p5","name":"load_skill（mingdao-app-design）","skillName":"mingdao-app-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_iLashHdsRxttuBEiFDeQ0gqV","name":"load_skill（mingdao-field-design）","skillName":"mingdao-field-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_I35V55f7jmswlFYSKOCLr2wm","name":"load_skill（mingdao-view-design）","skillName":"mingdao-view-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_HiCsWUX7Onjgghp9BAK8TYlO","name":"load_skill（mingdao-chart-design）","skillName":"mingdao-chart-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_551uRPB1t0xE4K3fhTObHYjs","name":"load_skill（mingdao-workflow-design）","skillName":"mingdao-workflow-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_irl8C6GrvR2AhmfQXkGu1YQ8","name":"load_skill（mingdao-custom-action-design）","skillName":"mingdao-custom-action-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_mrbG9cy3tk8NoKCKqtc9OAYB","name":"load_skill（mingdao-role-design）","skillName":"mingdao-role-design","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: tool-result
+data: {"EventType":"tool-result","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"callId":"call_K4nJPsjOZFTYpCPQQenbz1Zv","name":"load_skill（mingdao-app-structure）","skillName":"mingdao-app-structure","result":{"ValueKind":3},"exception":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: text-delta
+data: {"EventType":"text-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","Data":null,"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"# 1. 应用目标\n\n本应用用于","contentEncoding":"utf-8","sequence":1},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"酒店、民宿或公寓式客房的基础管理","contentEncoding":"utf-8","sequence":2},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"，重点覆盖客房资料维护、入住登记","contentEncoding":"utf-8","sequence":3},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、退房处理、房态同步和经营概览。","contentEncoding":"utf-8","sequence":4},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"方案严格控制为 2 张工作表：`","contentEncoding":"utf-8","sequence":5},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"房间`作为基础资料表，`入住记录","contentEncoding":"utf-8","sequence":6},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"`作为业务过程表，支撑前台日常办","contentEncoding":"utf-8","sequence":7},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"理与主管查看运营情况。\n\n应用目","contentEncoding":"utf-8","sequence":8},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"标是让前台能够快速判断可入住房间","contentEncoding":"utf-8","sequence":9},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、登记客人入住、办理退房；让主管","contentEncoding":"utf-8","sequence":10},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"能够查看当前入住、预离和房态分布","contentEncoding":"utf-8","sequence":11},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"，减少手工台账和房态更新遗漏。\n","contentEncoding":"utf-8","sequence":12},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"\n# 2. 关键设计思路\n\n- ","contentEncoding":"utf-8","sequence":13},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"**以房间为基础主数据**：`房","contentEncoding":"utf-8","sequence":14},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"间`表维护房号、房型、楼层、价格","contentEncoding":"utf-8","sequence":15},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、状态等稳定信息，是后续入住业务","contentEncoding":"utf-8","sequence":16},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"的基础。\n- **以入住记录承载","contentEncoding":"utf-8","sequence":17},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"业务过程**：`入住记录`表记录","contentEncoding":"utf-8","sequence":18},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"每次客人入住、预计退房、实际退房","contentEncoding":"utf-8","sequence":19},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、费用和支付状态，避免把动态入住","contentEncoding":"utf-8","sequence":20},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"过程直接堆在房间表中。\n- **","contentEncoding":"utf-8","sequence":21},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"通过关联实现房态联动**：`入住","contentEncoding":"utf-8","sequence":22},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"记录`关联`房间`，当新增入住或","contentEncoding":"utf-8","sequence":23},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"办理退房时，通过工作流同步房间状","contentEncoding":"utf-8","sequence":24},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"态，降低前台漏改房态的风险。\n-","contentEncoding":"utf-8","sequence":25},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":" **通过视图区分高频任务**：","contentEncoding":"utf-8","sequence":26},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"前台常用`可入住房间`、`在住记","contentEncoding":"utf-8","sequence":27},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"录`、`今日预离`等视图快速筛选","contentEncoding":"utf-8","sequence":28},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"当前要处理的数据。\n- **用仪","contentEncoding":"utf-8","sequence":29},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"表盘满足主管总览**：`客房运营","contentEncoding":"utf-8","sequence":30},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"看板`汇总可入住房间数、在住数量","contentEncoding":"utf-8","sequence":31},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、今日预离、入住趋势和房态结构，","contentEncoding":"utf-8","sequence":32},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"便于日常经营判断。\n\n# 3. ","contentEncoding":"utf-8","sequence":33},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"关键业务控制点\n\n- **房态唯","contentEncoding":"utf-8","sequence":34},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"一控制**：房间是否可入住以`房","contentEncoding":"utf-8","sequence":35},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"间`表状态为准，入住登记和退房动","contentEncoding":"utf-8","sequence":36},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"作通过工作流回写房态，避免多处维","contentEncoding":"utf-8","sequence":37},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"护造成冲突。\n- **入住记录闭","contentEncoding":"utf-8","sequence":38},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"环**：每条`入住记录`从入住登","contentEncoding":"utf-8","sequence":39},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"记开始，到退房时间、房费、支付状","contentEncoding":"utf-8","sequence":40},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"态记录完成后收尾，形成可追溯台账","contentEncoding":"utf-8","sequence":41},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"。\n- **退房提醒**：基于`","contentEncoding":"utf-8","sequence":42},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"入住记录`中的预计退房时间生成提","contentEncoding":"utf-8","sequence":43},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"醒，帮助前台提前关注今日预离客人","contentEncoding":"utf-8","sequence":44},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"。\n- **费用与支付留痕**：","contentEncoding":"utf-8","sequence":45},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"房费金额、押金和支付状态在`入住","contentEncoding":"utf-8","sequence":46},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"记录`中统一记录，为后续核对和简","contentEncoding":"utf-8","sequence":47},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"单经营统计提供基础。\n- **异","contentEncoding":"utf-8","sequence":48},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"常房态处理**：房间可通过自定义","contentEncoding":"utf-8","sequence":49},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"动作标记维修或停用，防止不可用房","contentEncoding":"utf-8","sequence":50},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"间被误选办理入住。\n\n# 4. ","contentEncoding":"utf-8","sequence":51},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"角色（Role）\n\n- **前台","contentEncoding":"utf-8","sequence":52},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"接待**：负责查看房态、办理入住","contentEncoding":"utf-8","sequence":53},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、办理退房和维护入住记录。主要参","contentEncoding":"utf-8","sequence":54},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"与方式为`发起`、`处理`和`登","contentEncoding":"utf-8","sequence":55},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"记结果`。\n- **客房主管**","contentEncoding":"utf-8","sequence":56},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"：负责查看所有房间状态、入住情况","contentEncoding":"utf-8","sequence":57},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"和运营看板，必要时调整房间状态。","contentEncoding":"utf-8","sequence":58},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"主要参与方式为`监督`、`调整`","contentEncoding":"utf-8","sequence":59},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"和`查看分析`。\n- **系统管","contentEncoding":"utf-8","sequence":60},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"理员**：负责维护客房基础资料、","contentEncoding":"utf-8","sequence":61},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"权限和系统配置，拥有完整数据管理","contentEncoding":"utf-8","sequence":62},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"能力。主要参与方式为`配置`和`","contentEncoding":"utf-8","sequence":63},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"管理`。\n\n# 5. 业务流程（","contentEncoding":"utf-8","sequence":64},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"Process & Inform","contentEncoding":"utf-8","sequence":65},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"ation）\n\n- **客房资料","contentEncoding":"utf-8","sequence":66},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"维护流程**：系统管理员或客房主","contentEncoding":"utf-8","sequence":67},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"管在`房间`表中维护房号、房型、","contentEncoding":"utf-8","sequence":68},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"楼层、标准房价、房间状态等基础资","contentEncoding":"utf-8","sequence":69},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"料，作为办理入住时的可选房源。\n","contentEncoding":"utf-8","sequence":70},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"- **入住登记流程**：前台在","contentEncoding":"utf-8","sequence":71},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"`房间`表查看可入住房间，点击办","contentEncoding":"utf-8","sequence":72},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"理入住生成`入住记录`，填写客人","contentEncoding":"utf-8","sequence":73},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"信息、入住时间、预计退房时间、押","contentEncoding":"utf-8","sequence":74},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"金和接待人。\n- **退房结算流","contentEncoding":"utf-8","sequence":75},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"程**：前台在`入住记录`中找到","contentEncoding":"utf-8","sequence":76},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"在住记录，点击办理退房，补充实际","contentEncoding":"utf-8","sequence":77},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"退房时间、房费金额和支付状态，系","contentEncoding":"utf-8","sequence":78},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"统同步释放对应房间。\n- **预","contentEncoding":"utf-8","sequence":79},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"离提醒流程**：系统根据`入住记","contentEncoding":"utf-8","sequence":80},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"录`的预计退房时间提醒前台关注今","contentEncoding":"utf-8","sequence":81},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"日预离客人，避免逾期未处理。\n-","contentEncoding":"utf-8","sequence":82},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":" **运营查看流程**：客房主管","contentEncoding":"utf-8","sequence":83},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"通过`客房运营看板`查看可入住房","contentEncoding":"utf-8","sequence":84},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"间、在住数量、今日预离、入住趋势","contentEncoding":"utf-8","sequence":85},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"和房态分布。\n\n# 6. 应用内","contentEncoding":"utf-8","sequence":86},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"容（Content）\n\n####","contentEncoding":"utf-8","sequence":87},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":" 工作表\n\n- **房间**：维","contentEncoding":"utf-8","sequence":88},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"护每间客房的基础信息和当前房态，","contentEncoding":"utf-8","sequence":89},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"包括房号、房型、楼层、标准房价、","contentEncoding":"utf-8","sequence":90},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"可住人数、设施、状态和负责保洁人","contentEncoding":"utf-8","sequence":91},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"员。自定义动作包括：`办理入住`","contentEncoding":"utf-8","sequence":92},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、`标记维修`、`恢复可用`。\n","contentEncoding":"utf-8","sequence":93},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"- **入住记录**：记录每次入","contentEncoding":"utf-8","sequence":94},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"住业务的完整过程，包括关联房间、","contentEncoding":"utf-8","sequence":95},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"客人信息、入住时间、预计退房时间","contentEncoding":"utf-8","sequence":96},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"、实际退房时间、房费、押金、支付","contentEncoding":"utf-8","sequence":97},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"状态和接待人。自定义动作包括：`","contentEncoding":"utf-8","sequence":98},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"办理退房`、`延迟退房`。\n\n`","contentEncoding":"utf-8","sequence":99},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"``mermaid\nerDiag","contentEncoding":"utf-8","sequence":100},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"ram\n    \"房间\" ||-","contentEncoding":"utf-8","sequence":101},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"-o{ \"入住记录\" : \"产生","contentEncoding":"utf-8","sequence":102},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"入住业务\"\n```\n\n#### ","contentEncoding":"utf-8","sequence":103},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"仪表盘\n\n- **客房运营看板*","contentEncoding":"utf-8","sequence":104},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"*：面向客房主管和系统管理员，展","contentEncoding":"utf-8","sequence":105},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"示房间可用情况、当前在住、今日预","contentEncoding":"utf-8","sequence":106},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"离、近 30 天入住趋势、房型入","contentEncoding":"utf-8","sequence":107},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"住占比和房态分布，用于日常运营判","contentEncoding":"utf-8","sequence":108},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"断。\n\n#### 自动化工作流\n","contentEncoding":"utf-8","sequence":109},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"\n- **入住登记后占用房间**","contentEncoding":"utf-8","sequence":110},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"：当`入住记录`新增时触发，识别","contentEncoding":"utf-8","sequence":111},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"关联房间并同步为占用状态，保证房","contentEncoding":"utf-8","sequence":112},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"态与入住业务一致。\n- **退房","contentEncoding":"utf-8","sequence":113},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"完成后释放房间**：当`入住记录","contentEncoding":"utf-8","sequence":114},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"`更新为退房完成时触发，回写实际","contentEncoding":"utf-8","sequence":115},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"退房结果并释放关联房间。\n- *","contentEncoding":"utf-8","sequence":116},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"*预计退房提醒**：基于`入住记","contentEncoding":"utf-8","sequence":117},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"录`的预计退房时间触发，提醒前台","contentEncoding":"utf-8","sequence":118},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"关注即将退房的在住客人。\n- *","contentEncoding":"utf-8","sequence":119},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"*每日房态检查**：每天定时检查","contentEncoding":"utf-8","sequence":120},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"在住记录与房间状态是否存在不一致","contentEncoding":"utf-8","sequence":121},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"，辅助发现漏处理数据。\n\n###","contentEncoding":"utf-8","sequence":122},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"# AI 助手\n\n本简版应用暂不","contentEncoding":"utf-8","sequence":123},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"配置 AI 助手。当前需求以 2","contentEncoding":"utf-8","sequence":124},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":" 张工作表的标准化登记和房态同步","contentEncoding":"utf-8","sequence":125},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"为主，数据查询和分析由视图与仪表","contentEncoding":"utf-8","sequence":126},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"盘满足。\n\n#### 应用项分组","contentEncoding":"utf-8","sequence":127},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"\n\n- **客房**：`客房运营","contentEncoding":"utf-8","sequence":128},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"看板`、`房间`、`入住记录`。","contentEncoding":"utf-8","sequence":129},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"\n\n# 7. 方案思路总结\n\n本","contentEncoding":"utf-8","sequence":130},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"方案按“基础资料 + 业务过程”","contentEncoding":"utf-8","sequence":131},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"的方式设计 2 张核心表：`房间","contentEncoding":"utf-8","sequence":132},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"`负责维护房源和房态，`入住记录","contentEncoding":"utf-8","sequence":133},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"`负责承载每次入住与退房过程。通","contentEncoding":"utf-8","sequence":134},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"过关联字段、自定义动作和自动化工","contentEncoding":"utf-8","sequence":135},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"作流，将前台操作与房态更新串联起","contentEncoding":"utf-8","sequence":136},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"来，形成从可入住房间查询、入住登","contentEncoding":"utf-8","sequence":137},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"记、退房结算到运营统计的基本闭环","contentEncoding":"utf-8","sequence":138},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"。\n\n该方案适合作为客房管理的轻","contentEncoding":"utf-8","sequence":139},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"量初版，结构简单、易落地，同时保","contentEncoding":"utf-8","sequence":140},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"留了房态同步、预离提醒和运营看板","contentEncoding":"utf-8","sequence":141},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"等关键控制点，后续如需扩展保洁、","contentEncoding":"utf-8","sequence":142},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"维修、订单渠道或财务结算，可在此","contentEncoding":"utf-8","sequence":143},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"","draftVersionId":null,"path":"/plan.md","contentDelta":"基础上继续增加表和流程。\n","contentEncoding":"utf-8","sequence":144},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-draft-started
+data: {"EventType":"artifact-draft-started","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","basedOnVersionId":null,"isNewArtifact":true},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-writing
+data: {"EventType":"artifact-file-writing","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/plan.md","size":5967,"mimeType":"text/plain; charset=utf-8","contentEncoding":"utf-8","content":"# 1. 应用目标\n\n本应用用于酒店、民宿或公寓式客房的基础管理，重点覆盖客房资料维护、入住登记、退房处理、房态同步和经营概览。方案严格控制为 2 张工作表：`房间`作为基础资料表，`入住记录`作为业务过程表，支撑前台日常办理与主管查看运营情况。\n\n应用目标是让前台能够快速判断可入住房间、登记客人入住、办理退房；让主管能够查看当前入住、预离和房态分布，减少手工台账和房态更新遗漏。\n\n# 2. 关键设计思路\n\n- **以房间为基础主数据**：`房间`表维护房号、房型、楼层、价格、状态等稳定信息，是后续入住业务的基础。\n- **以入住记录承载业务过程**：`入住记录`表记录每次客人入住、预计退房、实际退房、费用和支付状态，避免把动态入住过程直接堆在房间表中。\n- **通过关联实现房态联动**：`入住记录`关联`房间`，当新增入住或办理退房时，通过工作流同步房间状态，降低前台漏改房态的风险。\n- **通过视图区分高频任务**：前台常用`可入住房间`、`在住记录`、`今日预离`等视图快速筛选当前要处理的数据。\n- **用仪表盘满足主管总览**：`客房运营看板`汇总可入住房间数、在住数量、今日预离、入住趋势和房态结构，便于日常经营判断。\n\n# 3. 关键业务控制点\n\n- **房态唯一控制**：房间是否可入住以`房间`表状态为准，入住登记和退房动作通过工作流回写房态，避免多处维护造成冲突。\n- **入住记录闭环**：每条`入住记录`从入住登记开始，到退房时间、房费、支付状态记录完成后收尾，形成可追溯台账。\n- **退房提醒**：基于`入住记录`中的预计退房时间生成提醒，帮助前台提前关注今日预离客人。\n- **费用与支付留痕**：房费金额、押金和支付状态在`入住记录`中统一记录，为后续核对和简单经营统计提供基础。\n- **异常房态处理**：房间可通过自定义动作标记维修或停用，防止不可用房间被误选办理入住。\n\n# 4. 角色（Role）\n\n- **前台接待**：负责查看房态、办理入住、办理退房和维护入住记录。主要参与方式为`发起`、`处理`和`登记结果`。\n- **客房主管**：负责查看所有房间状态、入住情况和运营看板，必要时调整房间状态。主要参与方式为`监督`、`调整`和`查看分析`。\n- **系统管理员**：负责维护客房基础资料、权限和系统配置，拥有完整数据管理能力。主要参与方式为`配置`和`管理`。\n\n# 5. 业务流程（Process & Information）\n\n- **客房资料维护流程**：系统管理员或客房主管在`房间`表中维护房号、房型、楼层、标准房价、房间状态等基础资料，作为办理入住时的可选房源。\n- **入住登记流程**：前台在`房间`表查看可入住房间，点击办理入住生成`入住记录`，填写客人信息、入住时间、预计退房时间、押金和接待人。\n- **退房结算流程**：前台在`入住记录`中找到在住记录，点击办理退房，补充实际退房时间、房费金额和支付状态，系统同步释放对应房间。\n- **预离提醒流程**：系统根据`入住记录`的预计退房时间提醒前台关注今日预离客人，避免逾期未处理。\n- **运营查看流程**：客房主管通过`客房运营看板`查看可入住房间、在住数量、今日预离、入住趋势和房态分布。\n\n# 6. 应用内容（Content）\n\n#### 工作表\n\n- **房间**：维护每间客房的基础信息和当前房态，包括房号、房型、楼层、标准房价、可住人数、设施、状态和负责保洁人员。自定义动作包括：`办理入住`、`标记维修`、`恢复可用`。\n- **入住记录**：记录每次入住业务的完整过程，包括关联房间、客人信息、入住时间、预计退房时间、实际退房时间、房费、押金、支付状态和接待人。自定义动作包括：`办理退房`、`延迟退房`。\n\n```mermaid\nerDiagram\n    \"房间\" ||--o{ \"入住记录\" : \"产生入住业务\"\n```\n\n#### 仪表盘\n\n- **客房运营看板**：面向客房主管和系统管理员，展示房间可用情况、当前在住、今日预离、近 30 天入住趋势、房型入住占比和房态分布，用于日常运营判断。\n\n#### 自动化工作流\n\n- **入住登记后占用房间**：当`入住记录`新增时触发，识别关联房间并同步为占用状态，保证房态与入住业务一致。\n- **退房完成后释放房间**：当`入住记录`更新为退房完成时触发，回写实际退房结果并释放关联房间。\n- **预计退房提醒**：基于`入住记录`的预计退房时间触发，提醒前台关注即将退房的在住客人。\n- **每日房态检查**：每天定时检查在住记录与房间状态是否存在不一致，辅助发现漏处理数据。\n\n#### AI 助手\n\n本简版应用暂不配置 AI 助手。当前需求以 2 张工作表的标准化登记和房态同步为主，数据查询和分析由视图与仪表盘满足。\n\n#### 应用项分组\n\n- **客房**：`客房运营看板`、`房间`、`入住记录`。\n\n# 7. 方案思路总结\n\n本方案按“基础资料 + 业务过程”的方式设计 2 张核心表：`房间`负责维护房源和房态，`入住记录`负责承载每次入住与退房过程。通过关联字段、自定义动作和自动化工作流，将前台操作与房态更新串联起来，形成从可入住房间查询、入住登记、退房结算到运营统计的基本闭环。\n\n该方案适合作为客房管理的轻量初版，结构简单、易落地，同时保留了房态同步、预离提醒和运营看板等关键控制点，后续如需扩展保洁、维修、订单渠道或财务结算，可在此基础上继续增加表和流程。\n","inlineSkippedReason":null,"skipped":false},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-written
+data: {"EventType":"artifact-file-written","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/plan.md","contentHash":"sha256:03e0130cef02d264631196474632e8b7d2fdd8c48c28ec18b526c1552c667520","reusedBlob":false,"size":5967,"mimeType":"text/plain; charset=utf-8"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":"[","contentEncoding":"utf-8","sequence":1},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":"\n  {\n    \"name\": \"前台接待\",\n    \"description\": \"负责查看房态、办理入住、办理退房和维护入住记录，主要处理一线客房业务。\",\n    \"permissions\": [\n      \"房间(worksheet)\"","contentEncoding":"utf-8","sequence":2},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"入住记录(worksheet)\"","contentEncoding":"utf-8","sequence":3},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"客房运营看板(customPage)\"\n    ]\n  }","contentEncoding":"utf-8","sequence":4},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n  {\n    \"name\": \"客房主管\",\n    \"description\": \"负责监督客房使用情况、查看运营数据、处理房态调整和异常房间管理。\",\n    \"permissions\": [\n      \"房间(worksheet)\"","contentEncoding":"utf-8","sequence":5},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"入住记录(worksheet)\"","contentEncoding":"utf-8","sequence":6},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"客房运营看板(customPage)\"\n    ]\n  }","contentEncoding":"utf-8","sequence":7},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n  {\n    \"name\": \"系统管理员\",\n    \"description\": \"负责维护客房基础资料、系统配置和完整数据管理。\",\n    \"permissions\": [\n      \"房间(worksheet)\"","contentEncoding":"utf-8","sequence":8},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"入住记录(worksheet)\"","contentEncoding":"utf-8","sequence":9},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":",\n      \"客房运营看板(customPage)\"\n    ]\n  }\n","contentEncoding":"utf-8","sequence":10},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":"]","contentEncoding":"utf-8","sequence":11},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentDelta":"\n","contentEncoding":"utf-8","sequence":12},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-writing
+data: {"EventType":"artifact-file-writing","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","size":834,"mimeType":"text/plain; charset=utf-8","contentEncoding":"utf-8","content":"[\n  {\n    \"name\": \"前台接待\",\n    \"description\": \"负责查看房态、办理入住、办理退房和维护入住记录，主要处理一线客房业务。\",\n    \"permissions\": [\n      \"房间(worksheet)\",\n      \"入住记录(worksheet)\",\n      \"客房运营看板(customPage)\"\n    ]\n  },\n  {\n    \"name\": \"客房主管\",\n    \"description\": \"负责监督客房使用情况、查看运营数据、处理房态调整和异常房间管理。\",\n    \"permissions\": [\n      \"房间(worksheet)\",\n      \"入住记录(worksheet)\",\n      \"客房运营看板(customPage)\"\n    ]\n  },\n  {\n    \"name\": \"系统管理员\",\n    \"description\": \"负责维护客房基础资料、系统配置和完整数据管理。\",\n    \"permissions\": [\n      \"房间(worksheet)\",\n      \"入住记录(worksheet)\",\n      \"客房运营看板(customPage)\"\n    ]\n  }\n]\n","inlineSkippedReason":null,"skipped":false},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-written
+data: {"EventType":"artifact-file-written","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/roles.json","contentHash":"sha256:5bf0133b71de49867c1db14e690945600c002e7c4b9c2a8547bf3f9b47a21efb","reusedBlob":false,"size":834,"mimeType":"text/plain; charset=utf-8"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":"[","contentEncoding":"utf-8","sequence":1},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":"\n  {\n    \"type\": \"dashboard\",\n    \"groupName\": \"客房\",\n    \"name\": \"客房运营看板\",\n    \"description\": \"汇总客房可用、在住、预离、入住趋势和房态分布，帮助主管掌握日常运营情况。\",\n    \"charts\": [\n      \"可入住房间数(NumberChart)\"","contentEncoding":"utf-8","sequence":2},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"当前在住记录数(NumberChart)\"","contentEncoding":"utf-8","sequence":3},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"今日预离数量(NumberChart)\"","contentEncoding":"utf-8","sequence":4},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"未结清金额(NumberChart)\"","contentEncoding":"utf-8","sequence":5},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"近30天入住趋势(LineChart)\"","contentEncoding":"utf-8","sequence":6},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房型入住占比(PieChart)\"","contentEncoding":"utf-8","sequence":7},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房间状态分布(ColumnChart)\"","contentEncoding":"utf-8","sequence":8},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"在住明细透视(PivotTable)\"\n    ]\n  }","contentEncoding":"utf-8","sequence":9},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n  {\n    \"type\": \"worksheet\",\n    \"groupName\": \"客房\",\n    \"name\": \"房间\",\n    \"description\": \"维护客房基础资料和当前房态，是办理入住时选择房源的基础表。\",\n    \"fields\": [\n      \"房间编号(AutoNumber)\"","contentEncoding":"utf-8","sequence":10},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房号(Text)\"","contentEncoding":"utf-8","sequence":11},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房型(SingleSelect)\"","contentEncoding":"utf-8","sequence":12},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"楼层(Number)\"","contentEncoding":"utf-8","sequence":13},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房间状态(SingleSelect)\"","contentEncoding":"utf-8","sequence":14},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"标准房价(Currency)\"","contentEncoding":"utf-8","sequence":15},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"可住人数(Number)\"","contentEncoding":"utf-8","sequence":16},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房间设施(MultipleSelect)\"","contentEncoding":"utf-8","sequence":17},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"负责保洁(Collaborator)\"","contentEncoding":"utf-8","sequence":18},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房间照片(Attachment)\"","contentEncoding":"utf-8","sequence":19},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"备注(RichText)\"\n    ],\n    \"views\": [\n      \"全部客房(Table)\"","contentEncoding":"utf-8","sequence":20},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"可入住房间(Table)\"","contentEncoding":"utf-8","sequence":21},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"需处理房间(Table)\"","contentEncoding":"utf-8","sequence":22},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"客房状态看板(Kanban)\"\n    ]\n  }","contentEncoding":"utf-8","sequence":23},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n  {\n    \"type\": \"worksheet\",\n    \"groupName\": \"客房\",\n    \"name\": \"入住记录\",\n    \"description\": \"记录每次入住、预计退房、实际退房、费用和支付情况，形成客房业务台账。\",\n    \"fields\": [\n      \"入住单号(AutoNumber)\"","contentEncoding":"utf-8","sequence":24},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"关联房间(Relation:房间)\"","contentEncoding":"utf-8","sequence":25},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"客人姓名(Text)\"","contentEncoding":"utf-8","sequence":26},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"手机号(PhoneNumber)\"","contentEncoding":"utf-8","sequence":27},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"证件号(Text)\"","contentEncoding":"utf-8","sequence":28},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"入住状态(SingleSelect)\"","contentEncoding":"utf-8","sequence":29},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"入住时间(DateTime)\"","contentEncoding":"utf-8","sequence":30},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"预计退房时间(DateTime)\"","contentEncoding":"utf-8","sequence":31},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"实际退房时间(DateTime)\"","contentEncoding":"utf-8","sequence":32},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"入住天数(Formula)\"","contentEncoding":"utf-8","sequence":33},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"房费金额(Currency)\"","contentEncoding":"utf-8","sequence":34},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"押金(Currency)\"","contentEncoding":"utf-8","sequence":35},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"支付状态(SingleSelect)\"","contentEncoding":"utf-8","sequence":36},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"前台接待(Collaborator)\"","contentEncoding":"utf-8","sequence":37},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"证件附件(Attachment)\"","contentEncoding":"utf-8","sequence":38},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"备注(RichText)\"\n    ],\n    \"views\": [\n      \"全部入住记录(Table)\"","contentEncoding":"utf-8","sequence":39},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"在住记录(Table)\"","contentEncoding":"utf-8","sequence":40},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"今日预离(Table)\"","contentEncoding":"utf-8","sequence":41},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"入住日历(Calendar)\"","contentEncoding":"utf-8","sequence":42},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":",\n      \"入住状态看板(Kanban)\"\n    ]\n  }\n","contentEncoding":"utf-8","sequence":43},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":"]","contentEncoding":"utf-8","sequence":44},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentDelta":"\n","contentEncoding":"utf-8","sequence":45},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-writing
+data: {"EventType":"artifact-file-writing","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","size":2220,"mimeType":"text/plain; charset=utf-8","contentEncoding":"utf-8","content":"[\n  {\n    \"type\": \"dashboard\",\n    \"groupName\": \"客房\",\n    \"name\": \"客房运营看板\",\n    \"description\": \"汇总客房可用、在住、预离、入住趋势和房态分布，帮助主管掌握日常运营情况。\",\n    \"charts\": [\n      \"可入住房间数(NumberChart)\",\n      \"当前在住记录数(NumberChart)\",\n      \"今日预离数量(NumberChart)\",\n      \"未结清金额(NumberChart)\",\n      \"近30天入住趋势(LineChart)\",\n      \"房型入住占比(PieChart)\",\n      \"房间状态分布(ColumnChart)\",\n      \"在住明细透视(PivotTable)\"\n    ]\n  },\n  {\n    \"type\": \"worksheet\",\n    \"groupName\": \"客房\",\n    \"name\": \"房间\",\n    \"description\": \"维护客房基础资料和当前房态，是办理入住时选择房源的基础表。\",\n    \"fields\": [\n      \"房间编号(AutoNumber)\",\n      \"房号(Text)\",\n      \"房型(SingleSelect)\",\n      \"楼层(Number)\",\n      \"房间状态(SingleSelect)\",\n      \"标准房价(Currency)\",\n      \"可住人数(Number)\",\n      \"房间设施(MultipleSelect)\",\n      \"负责保洁(Collaborator)\",\n      \"房间照片(Attachment)\",\n      \"备注(RichText)\"\n    ],\n    \"views\": [\n      \"全部客房(Table)\",\n      \"可入住房间(Table)\",\n      \"需处理房间(Table)\",\n      \"客房状态看板(Kanban)\"\n    ]\n  },\n  {\n    \"type\": \"worksheet\",\n    \"groupName\": \"客房\",\n    \"name\": \"入住记录\",\n    \"description\": \"记录每次入住、预计退房、实际退房、费用和支付情况，形成客房业务台账。\",\n    \"fields\": [\n      \"入住单号(AutoNumber)\",\n      \"关联房间(Relation:房间)\",\n      \"客人姓名(Text)\",\n      \"手机号(PhoneNumber)\",\n      \"证件号(Text)\",\n      \"入住状态(SingleSelect)\",\n      \"入住时间(DateTime)\",\n      \"预计退房时间(DateTime)\",\n      \"实际退房时间(DateTime)\",\n      \"入住天数(Formula)\",\n      \"房费金额(Currency)\",\n      \"押金(Currency)\",\n      \"支付状态(SingleSelect)\",\n      \"前台接待(Collaborator)\",\n      \"证件附件(Attachment)\",\n      \"备注(RichText)\"\n    ],\n    \"views\": [\n      \"全部入住记录(Table)\",\n      \"在住记录(Table)\",\n      \"今日预离(Table)\",\n      \"入住日历(Calendar)\",\n      \"入住状态看板(Kanban)\"\n    ]\n  }\n]\n","inlineSkippedReason":null,"skipped":false},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-written
+data: {"EventType":"artifact-file-written","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/app-items.json","contentHash":"sha256:1fe181df28a1e5147d385f28b936e301fb76d3e909d3233cf289e7df9b7d3b94","reusedBlob":false,"size":2220,"mimeType":"text/plain; charset=utf-8"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":"[","contentEncoding":"utf-8","sequence":1},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":"\n  {\n    \"worksheet\": \"房间\",\n    \"actions\": [\n      {\n        \"name\": \"办理入住\",\n        \"description\": \"前台在可入住房间上点击，创建一条关联当前房间的入住记录，并填写客人信息、入住时间、预计退房时间和押金等内容。\",\n        \"type\": \"createRelatedRecord\",\n        \"targetWorksheet\": \"入住记录\"\n      }","contentEncoding":"utf-8","sequence":2},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":",\n      {\n        \"name\": \"标记维修\",\n        \"description\": \"客房主管或前台发现房间不可用时点击，填写维修原因或备注，并将当前房间转为不可入住状态。\",\n        \"type\": \"updateCurrentRecord\"\n      }","contentEncoding":"utf-8","sequence":3},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":",\n      {\n        \"name\": \"恢复可用\",\n        \"description\": \"房间维修或停用结束后点击，确认房间已可重新售卖，并更新当前房间状态。\",\n        \"type\": \"updateCurrentRecord\"\n      }\n    ]\n  }","contentEncoding":"utf-8","sequence":4},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":",\n  {\n    \"worksheet\": \"入住记录\",\n    \"actions\": [\n      {\n        \"name\": \"办理退房\",\n        \"description\": \"前台在在住记录上点击，填写实际退房时间、房费金额、支付状态和备注，完成本次入住闭环。\",\n        \"type\": \"updateCurrentRecord\"\n      }","contentEncoding":"utf-8","sequence":5},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":",\n      {\n        \"name\": \"延迟退房\",\n        \"description\": \"客人需要续住或延迟退房时点击，修改预计退房时间并补充延迟说明。\",\n        \"type\": \"updateCurrentRecord\"\n      }\n    ]\n  }\n","contentEncoding":"utf-8","sequence":6},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":"]","contentEncoding":"utf-8","sequence":7},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentDelta":"\n","contentEncoding":"utf-8","sequence":8},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-writing
+data: {"EventType":"artifact-file-writing","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","size":1350,"mimeType":"text/plain; charset=utf-8","contentEncoding":"utf-8","content":"[\n  {\n    \"worksheet\": \"房间\",\n    \"actions\": [\n      {\n        \"name\": \"办理入住\",\n        \"description\": \"前台在可入住房间上点击，创建一条关联当前房间的入住记录，并填写客人信息、入住时间、预计退房时间和押金等内容。\",\n        \"type\": \"createRelatedRecord\",\n        \"targetWorksheet\": \"入住记录\"\n      },\n      {\n        \"name\": \"标记维修\",\n        \"description\": \"客房主管或前台发现房间不可用时点击，填写维修原因或备注，并将当前房间转为不可入住状态。\",\n        \"type\": \"updateCurrentRecord\"\n      },\n      {\n        \"name\": \"恢复可用\",\n        \"description\": \"房间维修或停用结束后点击，确认房间已可重新售卖，并更新当前房间状态。\",\n        \"type\": \"updateCurrentRecord\"\n      }\n    ]\n  },\n  {\n    \"worksheet\": \"入住记录\",\n    \"actions\": [\n      {\n        \"name\": \"办理退房\",\n        \"description\": \"前台在在住记录上点击，填写实际退房时间、房费金额、支付状态和备注，完成本次入住闭环。\",\n        \"type\": \"updateCurrentRecord\"\n      },\n      {\n        \"name\": \"延迟退房\",\n        \"description\": \"客人需要续住或延迟退房时点击，修改预计退房时间并补充延迟说明。\",\n        \"type\": \"updateCurrentRecord\"\n      }\n    ]\n  }\n]\n","inlineSkippedReason":null,"skipped":false},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-written
+data: {"EventType":"artifact-file-written","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/custom-actions.json","contentHash":"sha256:a4c934cf9d3600171907682ebbee9ab4d683198b31389e7328f742dec0ade3f4","reusedBlob":false,"size":1350,"mimeType":"text/plain; charset=utf-8"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":"[","contentEncoding":"utf-8","sequence":1},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":"\n  {\n    \"name\": \"入住登记后占用房间\",\n    \"description\": \"当入住记录新增时触发，根据关联房间同步房态，确保已登记入住的房间不再被重复选择。\",\n    \"trigger\": {\n      \"type\": \"worksheet_event\",\n      \"source\": \"入住记录\",\n      \"label\": \"入住记录新增时\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅处理已选择关联房间且处于有效入住业务中的记录，避免空房间或无效记录触发房态变更\"\n      }","contentEncoding":"utf-8","sequence":2},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"应将关联房间标记为不可继续办理新入住的占用状态，防止同一房间被重复入住\"\n      }","contentEncoding":"utf-8","sequence":3},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"通知前台接待入住登记已生效，通知内容应包含房号、客人姓名和预计退房时间\"\n      }\n    ]\n  }","contentEncoding":"utf-8","sequence":4},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n  {\n    \"name\": \"退房完成后释放房间\",\n    \"description\": \"当入住记录被更新为退房完成时触发，释放关联房间并完成入住记录闭环。\",\n    \"trigger\": {\n      \"type\": \"worksheet_event\",\n      \"source\": \"入住记录\",\n      \"label\": \"入住记录更新为退房完成时\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅处理已填写实际退房时间的入住记录，避免未完成退房的记录提前释放房间\"\n      }","contentEncoding":"utf-8","sequence":5},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"应将关联房间恢复为可再次办理入住的状态，除非该房间已被人工标记为维修或停用\"\n      }","contentEncoding":"utf-8","sequence":6},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"应保留入住记录中的房费金额、支付状态和退房时间，作为后续核对依据\"\n      }\n    ]\n  }","contentEncoding":"utf-8","sequence":7},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n  {\n    \"name\": \"预计退房提醒\",\n    \"description\": \"基于入住记录的预计退房时间触发，提醒前台关注即将退房的在住客人。\",\n    \"trigger\": {\n      \"type\": \"date_field\",\n      \"source\": \"入住记录\",\n      \"label\": \"预计退房时间到达前触发\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅提醒仍处于在住状态且尚未填写实际退房时间的记录\"\n      }","contentEncoding":"utf-8","sequence":8},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"提醒内容应包含房号、客人姓名、手机号和预计退房时间，便于前台联系或确认\"\n      }","contentEncoding":"utf-8","sequence":9},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"对每条符合条件的入住记录分别通知对应前台接待，避免批量提醒导致责任不清\"\n      }\n    ]\n  }","contentEncoding":"utf-8","sequence":10},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n  {\n    \"name\": \"每日房态检查\",\n    \"description\": \"每天定时检查入住记录与房间状态是否一致，辅助发现漏退房、漏释放或误标记房态的问题。\",\n    \"trigger\": {\n      \"type\": \"schedule\",\n      \"source\": \"\",\n      \"label\": \"每天固定时间执行\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"应检查仍处于在住状态的入住记录与关联房间状态是否匹配，发现不一致时通知客房主管\"\n      }","contentEncoding":"utf-8","sequence":11},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"应检查已超过预计退房时间但未填写实际退房时间的记录，并提醒前台跟进\"\n      }","contentEncoding":"utf-8","sequence":12},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":",\n      {\n        \"label\": \"该流程只做检查和提醒，不应自动删除或覆盖人工设置的维修、停用等房间状态\"\n      }\n    ]\n  }\n","contentEncoding":"utf-8","sequence":13},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":"]","contentEncoding":"utf-8","sequence":14},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-content-delta
+data: {"EventType":"artifact-file-content-delta","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentDelta":"\n","contentEncoding":"utf-8","sequence":15},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-writing
+data: {"EventType":"artifact-file-writing","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","size":3031,"mimeType":"text/plain; charset=utf-8","contentEncoding":"utf-8","content":"[\n  {\n    \"name\": \"入住登记后占用房间\",\n    \"description\": \"当入住记录新增时触发，根据关联房间同步房态，确保已登记入住的房间不再被重复选择。\",\n    \"trigger\": {\n      \"type\": \"worksheet_event\",\n      \"source\": \"入住记录\",\n      \"label\": \"入住记录新增时\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅处理已选择关联房间且处于有效入住业务中的记录，避免空房间或无效记录触发房态变更\"\n      },\n      {\n        \"label\": \"应将关联房间标记为不可继续办理新入住的占用状态，防止同一房间被重复入住\"\n      },\n      {\n        \"label\": \"通知前台接待入住登记已生效，通知内容应包含房号、客人姓名和预计退房时间\"\n      }\n    ]\n  },\n  {\n    \"name\": \"退房完成后释放房间\",\n    \"description\": \"当入住记录被更新为退房完成时触发，释放关联房间并完成入住记录闭环。\",\n    \"trigger\": {\n      \"type\": \"worksheet_event\",\n      \"source\": \"入住记录\",\n      \"label\": \"入住记录更新为退房完成时\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅处理已填写实际退房时间的入住记录，避免未完成退房的记录提前释放房间\"\n      },\n      {\n        \"label\": \"应将关联房间恢复为可再次办理入住的状态，除非该房间已被人工标记为维修或停用\"\n      },\n      {\n        \"label\": \"应保留入住记录中的房费金额、支付状态和退房时间，作为后续核对依据\"\n      }\n    ]\n  },\n  {\n    \"name\": \"预计退房提醒\",\n    \"description\": \"基于入住记录的预计退房时间触发，提醒前台关注即将退房的在住客人。\",\n    \"trigger\": {\n      \"type\": \"date_field\",\n      \"source\": \"入住记录\",\n      \"label\": \"预计退房时间到达前触发\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"仅提醒仍处于在住状态且尚未填写实际退房时间的记录\"\n      },\n      {\n        \"label\": \"提醒内容应包含房号、客人姓名、手机号和预计退房时间，便于前台联系或确认\"\n      },\n      {\n        \"label\": \"对每条符合条件的入住记录分别通知对应前台接待，避免批量提醒导致责任不清\"\n      }\n    ]\n  },\n  {\n    \"name\": \"每日房态检查\",\n    \"description\": \"每天定时检查入住记录与房间状态是否一致，辅助发现漏退房、漏释放或误标记房态的问题。\",\n    \"trigger\": {\n      \"type\": \"schedule\",\n      \"source\": \"\",\n      \"label\": \"每天固定时间执行\"\n    },\n    \"intentHints\": [\n      {\n        \"label\": \"应检查仍处于在住状态的入住记录与关联房间状态是否匹配，发现不一致时通知客房主管\"\n      },\n      {\n        \"label\": \"应检查已超过预计退房时间但未填写实际退房时间的记录，并提醒前台跟进\"\n      },\n      {\n        \"label\": \"该流程只做检查和提醒，不应自动删除或覆盖人工设置的维修、停用等房间状态\"\n      }\n    ]\n  }\n]\n","inlineSkippedReason":null,"skipped":false},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-file-written
+data: {"EventType":"artifact-file-written","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"artifactId":"art-5261e7f12b714f0692a35b57144e7d2b","draftVersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","path":"/jsons/workflows.json","contentHash":"sha256:5a970e155aa5465cf15a47bb1fdaf3765544648d0cf10e0d7863fcbcb282a3bf","reusedBlob":false,"size":3031,"mimeType":"text/plain; charset=utf-8"},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: artifact-version-committed
+data: {"EventType":"artifact-version-committed","TraceId":"54172a95cb40f58e136644943de70466","AgentName":null,"Delta":null,"Data":{"id":"art-5261e7f12b714f0692a35b57144e7d2b","versionId":"ver-fd2e34b4f9434009b5a249db24598f2c","name":"客房管理应用","versionLabel":"v1","versionSummary":"新建简版客房管理应用；新增「房间」「入住记录」2 张表；配置前台接待、客房主管、系统管理员角色；新增入住、退房、预离提醒和房态检查流程；新增客房运营看板与高频操作动作","basedOnVersionId":null,"changedPaths":["/jsons/app-items.json","/jsons/custom-actions.json","/jsons/roles.json","/jsons/workflows.json","/plan.md"],"triggeredByMessageId":"e35c7faf58e34dc2bd806b9c7f31c409","extractorWarnings":null},"Debug":null,"ErrorCode":null,"ErrorMessage":null}
+
+event: completed
+data: {"EventType":"completed","TraceId":"54172a95cb40f58e136644943de70466","AgentName":"create-app-plan-streaming","Delta":null,"Data":{"message":"搭建一个简单的客房管理应用，2 个表","routeAgent":"create-app-plan-streaming","description":"应用搭建助手智能体（新版 5 文件结构）；负责明道云应用的「新建」与「持续修改」：角色 / 应用项（工作表 / 仪表盘 / AI 助手） / 自定义动作 / 工作流的设计与落地。典型触发表达：搭建 / 设计 / 规划应用，新建 CRM、HR、项目管理、OA、客户管理、订单管理等系统；以及对既有产出的延续型修改（再加几个字段、多加一张表、改下流程、补一些权限、优化视图、调整角色等）。","prompt":"你是明道云应用搭建助手智能体。核心能力是根据用户需求，规划与设计应用相关结构与流程：角色、应用项（工作表/仪表盘/AI 助手）、自定义动作、工作流，并按照技能 create-app-plan-spec 详细设计方案，落地到对应文件。\n完整设计指南分散在以下 8 个 skill：\n- mingdao-app-design：RPIC 方法论 + plan.md 输出结构 + 修订连带变更分析\n- mingdao-app-structure：角色 / 工作表 / 工作流 / 仪表盘 / 应用项分组 / AI 助手 整体结构原则\n- mingdao-field-design：字段类型 + 紧凑字符串协议（字段）+ worksheet 拓扑排序\n- mingdao-view-design：视图类型 + 紧凑字符串协议（视图）\n- mingdao-chart-design：图表类型 + 紧凑字符串协议（图表）+ 仪表盘布局\n- mingdao-workflow-design：工作流节点选型 + intentHints 写法 + 闭环规则\n- mingdao-custom-action-design：自定义动作三类 + 挂载规则 + custom-actions.json schema\n- mingdao-role-design：紧凑字符串协议（permissions）+ 权限层级\n服务端会在本提示之后追加\"## 本轮已锁定操作目标\"或\"## 上一次产出\"或\"## 当前会话尚无产出\"块，紧接其后还会追加\"## 产物落地协议\"块（fence 协议规约）；你必须先阅读它们再决定意图与输出方式。","skills":[{"Name":"create-app-plan-spec","Type":"inline","Path":""},{"Name":"mingdao-app-design","Type":"file","Path":"skills/mingdao-app-design"},{"Name":"mingdao-app-structure","Type":"file","Path":"skills/mingdao-app-structure"},{"Name":"mingdao-field-design","Type":"file","Path":"skills/mingdao-field-design"},{"Name":"mingdao-view-design","Type":"file","Path":"skills/mingdao-view-design"},{"Name":"mingdao-chart-design","Type":"file","Path":"skills/mingdao-chart-design"},{"Name":"mingdao-workflow-design","Type":"file","Path":"skills/mingdao-workflow-design"},{"Name":"mingdao-custom-action-design","Type":"file","Path":"skills/mingdao-custom-action-design"},{"Name":"mingdao-role-design","Type":"file","Path":"skills/mingdao-role-design"}],"tools":[],"mcp":[],"response":{"responseId":"chatcmpl-DgvyLzml5m1J9vmaVMXxPwluqzSYp","text":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","finishReason":"stop","messageCount":3},"artifact":{"Id":"art-5261e7f12b714f0692a35b57144e7d2b","VersionId":"ver-fd2e34b4f9434009b5a249db24598f2c","Name":"客房管理应用","VersionLabel":"v1","VersionSummary":"新建简版客房管理应用；新增「房间」「入住记录」2 张表；配置前台接待、客房主管、系统管理员角色；新增入住、退房、预离提醒和房态检查流程；新增客房运营看板与高频操作动作"}},"Debug":{"compiledInputMessage":"Current User Message:\n搭建一个简单的客房管理应用，2 个表","rawResponseText":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","extractedContentText":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","structuredContentText":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","responseId":"chatcmpl-DgvyLzml5m1J9vmaVMXxPwluqzSYp","finishReason":"stop","messageCount":3,"messages":[{"role":"assistant","text":"function_call:load_skill","contents":[{"type":"function_call","callId":"call_8XmcV9F5EXN3PSpWpSuMk1p5","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_iLashHdsRxttuBEiFDeQ0gqV","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_I35V55f7jmswlFYSKOCLr2wm","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_HiCsWUX7Onjgghp9BAK8TYlO","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_551uRPB1t0xE4K3fhTObHYjs","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_irl8C6GrvR2AhmfQXkGu1YQ8","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_mrbG9cy3tk8NoKCKqtc9OAYB","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}},{"type":"function_call","callId":"call_K4nJPsjOZFTYpCPQQenbz1Zv","name":"load_skill","arguments":{"skillName":{"ValueKind":3}}}]},{"role":"tool","text":"function_result:call_8XmcV9F5EXN3PSpWpSuMk1p5","contents":[{"type":"function_result","callId":"call_8XmcV9F5EXN3PSpWpSuMk1p5","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_iLashHdsRxttuBEiFDeQ0gqV","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_I35V55f7jmswlFYSKOCLr2wm","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_HiCsWUX7Onjgghp9BAK8TYlO","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_551uRPB1t0xE4K3fhTObHYjs","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_irl8C6GrvR2AhmfQXkGu1YQ8","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_mrbG9cy3tk8NoKCKqtc9OAYB","name":"load_skill","result":{"ValueKind":3},"exception":null},{"type":"function_result","callId":"call_K4nJPsjOZFTYpCPQQenbz1Zv","name":"load_skill","result":{"ValueKind":3},"exception":null}]},{"role":"assistant","text":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n","contents":[{"type":"text","text":"已按“2 个表”设计简版客房管理应用，下面开始落地。  \n"}]}]},"ErrorCode":null,"ErrorMessage":null}

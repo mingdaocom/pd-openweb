@@ -16,7 +16,6 @@ const More = styled.div`
     color: var(--color-primary) !important;
   }
 `;
-
 export const MenuOverlayWrapper = styled(Menu)`
   .ant-dropdown-menu-item {
     padding: 7px 12px;
@@ -28,7 +27,6 @@ export const MenuOverlayWrapper = styled(Menu)`
     background-color: var(--color-primary);
   }
 `;
-
 const GroupingChildWrapper = styled.div`
   height: 29px;
   border-bottom: 1px solid var(--color-border-secondary);
@@ -52,29 +50,38 @@ const GroupingChildWrapper = styled.div`
     background-color: var(--color-primary);
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, [
-      'loading',
-      'grouping',
-      'withoutArrangementVisible',
-      'viewConfig',
-      'groupingScroll',
-    ]),
-    ..._.pick(state.sheet, ['base', 'controls']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class GunterDirectory extends Component {
+let GunterDirectory = class GunterDirectory extends Component {
   constructor(props) {
     super(props);
     const config = localStorage.getItem(`gunterViewColumnWidthConfig-${props.base.viewId}`);
     this.state = {
       dragValue: 0,
-      widthConfig: config ? JSON.parse(config) : { 0: 200 },
+      widthConfig: {
+        0: 200,
+        ...(config ? safeParse(config) : {}),
+      },
     };
   }
+
+  componentWillUnmount() {
+    this.removeDocumentDragListeners();
+  }
+
+  setDocumentDragListeners = (onMouseMove, onMouseUp) => {
+    this.removeDocumentDragListeners();
+    this.documentDragListeners = { onMouseMove, onMouseUp };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  removeDocumentDragListeners = () => {
+    if (!this.documentDragListeners) return;
+    const { onMouseMove, onMouseUp } = this.documentDragListeners;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    this.documentDragListeners = null;
+  };
+
   handleMouseDown = (event, index) => {
     const { groupingScroll } = this.props;
     const { target } = event;
@@ -84,25 +91,23 @@ export default class GunterDirectory extends Component {
     this.setState({
       dragValue: startDragValue,
     });
+
     const setColumnWidth = width => {
       const { widthConfig } = this.state;
-      const data = {
-        ...widthConfig,
-        [index]: width,
-      };
+      const data = { ...widthConfig, [index]: width };
       this.setState(
         {
           widthConfig: data,
         },
         () => {
           const { base, groupingScroll } = this.props;
-          localStorage.setItem(`gunterViewColumnWidthConfig-${base.viewId}`, JSON.stringify(data));
+          safeLocalStorageSetItem(`gunterViewColumnWidthConfig-${base.viewId}`, JSON.stringify(data));
           groupingScroll.refresh();
         },
       );
     };
 
-    document.onmousemove = event => {
+    const handleMouseMove = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
 
@@ -113,17 +118,22 @@ export default class GunterDirectory extends Component {
       }
     };
 
-    document.onmouseup = event => {
-      const x = event.clientX - startClientX;
-      const width = target.parentElement.clientWidth + x;
-      setColumnWidth(width >= minWidth ? width : minWidth);
-      this.setState({
-        dragValue: 0,
-      });
-      document.onmousemove = null;
-      document.onmouseup = null;
+    const handleMouseUp = event => {
+      try {
+        const x = event.clientX - startClientX;
+        const width = target.parentElement.clientWidth + x;
+        setColumnWidth(width >= minWidth ? width : minWidth);
+        this.setState({
+          dragValue: 0,
+        });
+      } finally {
+        this.removeDocumentDragListeners();
+      }
     };
+
+    this.setDocumentDragListeners(handleMouseMove, handleMouseUp);
   };
+
   renderDrag(index) {
     return (
       <div
@@ -134,13 +144,24 @@ export default class GunterDirectory extends Component {
       />
     );
   }
+
   renderControlName() {
     const { dragValue, widthConfig } = this.state;
     const { controls, viewConfig } = this.props;
     const displayControls = viewConfig.displayControls || [];
-    const titleControl = _.find(controls, { controlId: viewConfig.navTitle });
-    const startControl = _.find(controls, { controlId: viewConfig.startId }) || {};
-    const endControl = _.find(controls, { controlId: viewConfig.endId }) || {};
+
+    const titleControl = _.find(controls, {
+      controlId: viewConfig.navTitle,
+    });
+
+    const startControl =
+      _.find(controls, {
+        controlId: viewConfig.startId,
+      }) || {};
+    const endControl =
+      _.find(controls, {
+        controlId: viewConfig.endId,
+      }) || {};
     const startIndex = displayControls.length + 1;
     const endIndex = displayControls.length + 2;
     return (
@@ -148,35 +169,69 @@ export default class GunterDirectory extends Component {
         <RecordWrapper className="valignWrapper groupingControlHeader hide">
           <Icon className="textTertiary Font17 mRight5 Visibility" icon="more_horiz" />
           {titleControl && (
-            <div className="groupingName relative overflow_ellipsis" style={{ width: widthConfig[0] }}>
+            <div
+              className="groupingName relative overflow_ellipsis"
+              style={{
+                width: widthConfig[0],
+              }}
+            >
               {titleControl.controlName}
               {this.renderDrag(0)}
             </div>
           )}
           {displayControls.map((data, index) => (
-            <div className="field" key={data.controlId} style={{ width: widthConfig[index + 1] }}>
+            <div
+              className="field"
+              key={data.controlId}
+              style={{
+                width: widthConfig[index + 1],
+              }}
+            >
               {data.controlName}
               {this.renderDrag(index + 1)}
             </div>
           ))}
-          <div className="field" style={{ width: widthConfig[startIndex] }}>
+          <div
+            className="field"
+            style={{
+              width: widthConfig[startIndex],
+            }}
+          >
             {startControl.controlName || _l('开始时间')}
             {this.renderDrag(startIndex)}
           </div>
-          <div className="field" style={{ width: widthConfig[endIndex] }}>
+          <div
+            className="field"
+            style={{
+              width: widthConfig[endIndex],
+            }}
+          >
             {endControl.controlName || _l('结束时间')}
             {this.renderDrag(endIndex)}
           </div>
           <div className="dayCountField overflow_ellipsis">{_l('时长')}</div>
         </RecordWrapper>
-        {!!dragValue && <div style={{ left: dragValue }} className="dragLine" />}
+        {!!dragValue && (
+          <div
+            style={{
+              left: dragValue,
+            }}
+            className="dragLine"
+          />
+        )}
       </GroupingChildWrapper>
     );
   }
+
   renderOverlay() {
     const { withoutArrangementVisible } = this.props;
     return (
-      <MenuOverlayWrapper className="pTop6 pBottom6" style={{ width: 170 }}>
+      <MenuOverlayWrapper
+        className="pTop6 pBottom6"
+        style={{
+          width: 170,
+        }}
+      >
         <Menu.Item
           className="valignWrapper"
           onClick={() => {
@@ -192,6 +247,7 @@ export default class GunterDirectory extends Component {
       </MenuOverlayWrapper>
     );
   }
+
   renderMore() {
     return (
       <More className="flexRow valignWrapper">
@@ -202,11 +258,17 @@ export default class GunterDirectory extends Component {
       </More>
     );
   }
+
   render() {
     const { width, loading, base } = this.props;
     const { widthConfig } = this.state;
     return (
-      <div className="gunterDirectory flexColumn" style={{ width }}>
+      <div
+        className="gunterDirectory flexColumn"
+        style={{
+          width,
+        }}
+      >
         {!loading && (
           <div className="gunterDirectoryHeader flexColumn">
             {this.renderMore()}
@@ -217,4 +279,18 @@ export default class GunterDirectory extends Component {
       </div>
     );
   }
-}
+};
+GunterDirectory = connect(
+  state => ({
+    ..._.pick(state.sheet.gunterView, [
+      'loading',
+      'grouping',
+      'withoutArrangementVisible',
+      'viewConfig',
+      'groupingScroll',
+    ]),
+    ..._.pick(state.sheet, ['base', 'controls']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(GunterDirectory);
+export default GunterDirectory;

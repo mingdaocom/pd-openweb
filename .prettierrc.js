@@ -5,7 +5,6 @@ module.exports = {
   arrowParens: 'avoid',
   jsxSingleQuote: false,
   semi: true,
-  jsxBracketSameLine: false,
   plugins: ['@trivago/prettier-plugin-sort-imports'],
   importOrder: [
     // react相关，支持子模块导入

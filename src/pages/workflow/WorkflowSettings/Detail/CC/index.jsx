@@ -57,18 +57,26 @@ export default class CC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -82,6 +90,10 @@ export default class CC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, selectNodeId: sId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (isApproval && !result.selectNodeId) {
           this.setState({ isNewCC: true }, () => {
             if (result.flowNodeList && result.flowNodeList[0]?.nodeId) {
@@ -152,7 +164,7 @@ export default class CC extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -187,7 +199,7 @@ export default class CC extends Component {
     const views = this.state.views.map(o => ({
       text: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'ThemeColor3' : '',
+      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 
@@ -218,7 +230,7 @@ export default class CC extends Component {
                 </span>
               </div>
               <span
-                className="ThemeColor3 ThemeHoverColor2 pointer"
+                className="colorPrimary hoverColorPrimaryDark pointer"
                 onClick={() => {
                   this.setState({ isNewCC: true });
                   this.updateSource({
@@ -279,7 +291,7 @@ export default class CC extends Component {
               updateSource={this.updateSource}
             />
             <div
-              className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+              className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
               onClick={() => this.setState({ showSelectUserDialog: true })}
             >
               <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -356,7 +368,7 @@ export default class CC extends Component {
                   <Support
                     type={3}
                     text={_l('帮助')}
-                    className="ThemeColor3 ThemeHoverColor2"
+                    className="colorPrimary hoverColorPrimaryDark"
                     href="https://help.mingdao.com/workflow/node-cc-send-internal-notification"
                   />
                 </div>
@@ -441,7 +453,12 @@ export default class CC extends Component {
         </div>
         <DetailFooter
           {...this.props}
-          isCorrect={!!data.accounts.length && data.selectNodeId && (!isNewCC || (isNewCC && data.viewId))}
+          isCorrect={
+            !!data.accounts.length &&
+            data.selectNodeId &&
+            (!isNewCC || (isNewCC && data.viewId)) &&
+            !_.isEqual(data, this.cacheResult)
+          }
           onSave={this.onSave}
         />
       </Fragment>

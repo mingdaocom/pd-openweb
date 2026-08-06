@@ -47,33 +47,35 @@ class AppRole extends Component {
     $('html').addClass('roleBody');
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.ids = getIds(this.props);
-    const {
-      match: {
-        params: { appId: currentAppId },
-      },
-    } = this.props;
-    const {
-      match: {
-        params: { appId: nextAppId, editType },
-      },
-    } = nextProps;
-    const { hasGetIsOpen, isOpenPortal } = this.state;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.ids = getIds(prevProps);
+      const {
+        match: {
+          params: { appId: currentAppId },
+        },
+      } = prevProps;
+      const {
+        match: {
+          params: { appId: nextAppId, editType },
+        },
+      } = this.props;
+      const { hasGetIsOpen, isOpenPortal } = this.state;
 
-    if (currentAppId !== nextAppId || !hasGetIsOpen) {
-      this.setState({
-        loading: true,
-      });
-      this.fetchPortalInfo(nextProps);
-    } else {
-      if (editType === 'external' && !isOpenPortal) {
-        navigateTo(`/app/${nextAppId}/role`);
+      if (currentAppId !== nextAppId || !hasGetIsOpen) {
+        this.setState({
+          loading: true,
+        });
+        this.fetchPortalInfo(this.props);
+      } else {
+        if (editType === 'external' && !isOpenPortal) {
+          navigateTo(`/app/${nextAppId}/role`);
+        }
+
+        this.setState({
+          editType: editType === 'external' && isOpenPortal ? 1 : 0,
+        });
       }
-
-      this.setState({
-        editType: editType === 'external' && isOpenPortal ? 1 : 0,
-      });
     }
   }
 
@@ -169,11 +171,9 @@ class AppRole extends Component {
         cancelText: isNew ? _l('不创建') : _l('不保存'),
         width: 440,
         onOk: () => {
-          this.child.state.hasChange = false;
-          this.child.setState({
-            hasChange: false,
-          });
-          this.child.onSave(true);
+          const savePromise = this.child.onSave(true);
+          // 确认离开时只有保存成功才继续执行切换，避免保存失败后丢失当前编辑态。
+          savePromise && savePromise.then(success => success && callback && callback());
         },
         onCancel: () => {
           this.child.state.hasChange = false;

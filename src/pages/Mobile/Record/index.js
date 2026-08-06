@@ -1,8 +1,8 @@
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
-import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import Back from 'mobile/components/Back';
 import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
@@ -89,10 +89,11 @@ export const RecordInfoModal = forwardRef(props => {
   }
 
   return (
-    <Popup
+    <MobilePopup
       mask={false}
       position="bottom"
       className={cx('mobileModal RecordInfoModal', className)}
+      layerId={rowId}
       bodyStyle={{ backgroundColor: 'var(--color-background-primary)!important' }}
       onClose={onClose}
       visible={visible}
@@ -108,7 +109,7 @@ export const RecordInfoModal = forwardRef(props => {
           filterWxWork={true}
         />
       )}
-    </Popup>
+    </MobilePopup>
   );
 });
 

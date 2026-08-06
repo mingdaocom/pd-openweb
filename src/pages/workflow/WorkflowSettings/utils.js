@@ -635,7 +635,7 @@ export const checkConditionAllowEmpty = (type, conditionId) => {
 export const clearFlowNodeMapParameter = flowNodeMap => {
   if (!_.isObject(flowNodeMap)) return flowNodeMap;
 
-  flowNodeMap = _.cloneDeep(flowNodeMap);
+  flowNodeMap = _.omitBy(_.cloneDeep(flowNodeMap), _.isUndefined);
 
   Object.keys(flowNodeMap).forEach(key => {
     delete flowNodeMap[key].controls;
@@ -718,6 +718,7 @@ export const getToolName = (name = '') => {
     create_record: _l('新增记录'),
     update_record: _l('更新记录'),
     get_record_pivot_data: _l('汇总'),
+    get_record_discussions: _l('获取记录讨论'),
     wf_pbp_: _l('封装业务流程'),
     wf_api_: _l('集成API'),
     wf_email_: _l('发送邮件'),

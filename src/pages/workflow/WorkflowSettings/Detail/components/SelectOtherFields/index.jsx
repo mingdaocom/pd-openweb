@@ -60,9 +60,17 @@ export default class SelectOtherFields extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.item, this.props.item) || nextProps.sourceAppId !== this.props.sourceAppId) {
-      this.setState({ fieldsData: null });
+  /**
+   * 获取更多控件的值
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.item, prevProps.item) || this.props.sourceAppId !== prevProps.sourceAppId) {
+        this.setState({
+          fieldsData: null,
+        });
+      }
     }
   }
 
@@ -280,7 +288,7 @@ export default class SelectOtherFields extends Component {
       <Fragment>
         <Tooltip title={_l('使用本流程节点对象的值')} placement="bottomLeft">
           <div
-            className="actionControlMore ThemeColor3"
+            className="actionControlMore colorPrimary"
             onClick={() => {
               openLayer();
               this.getFlowNodeAppDtos(item.type, item.enumDefault);
@@ -289,7 +297,7 @@ export default class SelectOtherFields extends Component {
             <i
               className={
                 item.fieldValueId || /\$.*\$/.test(item.fieldValue)
-                  ? 'icon-workflow_ok ThemeColor3'
+                  ? 'icon-workflow_ok colorPrimary'
                   : 'icon-workflow_other'
               }
             />

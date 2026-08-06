@@ -1,6 +1,6 @@
 import moment from 'moment';
 import calendarAjax from 'src/api/calendar';
-import createCalendar from 'src/components/createCalendar/createCalendar';
+import createCalendar from 'src/components/createCalendar/load';
 import calendarEdit from '../calendarDetail';
 import afterRefreshOp from '../calendarDetail/lib/afterRefreshOp';
 import recurCalendarUpdate from '../calendarDetail/lib/recurCalendarUpdateDialog';
@@ -157,7 +157,7 @@ Calendar.Method = {
       loading: function (isLoading) {
         if (isLoading) {
           $('#calendarLoading').show();
-          $('#calInvite').removeClass('ThemeBGColor3');
+          $('#calInvite').removeClass('bgColorPrimary');
           $('#calendar').css('visibility', 'hidden');
         } else {
           $('#calendarLoading').hide();
@@ -247,7 +247,7 @@ Calendar.Method = {
                 settings.End = date.add(30, 'm').format(); // 结束时间计算
               }
 
-              $.CreateCalendar(settings);
+              createCalendar(settings);
             }
 
             Calendar.settings.lastDate = '';
@@ -347,7 +347,7 @@ Calendar.Method = {
     var fcToolbar = $('.fc-toolbar');
     if (fcToolbar.children('.addNewCalendarBox').length == 0) {
       fcToolbar.prepend(
-        '<div class="addNewCalendarBox ThemeBGColor3 ThemeHoverBGColor2" id="addNewCalendar"><i class="icon-plus"></i>' +
+        '<div class="addNewCalendarBox bgColorPrimary hoverBgColorPrimaryDark" id="addNewCalendar"><i class="icon-plus"></i>' +
           _l('新日程') +
           '</div>',
       );
@@ -466,20 +466,20 @@ Calendar.Method = {
 
     // 创建日程
     $('#addNewCalendar').on('click', function () {
-      $.CreateCalendar();
+      createCalendar();
     });
 
-    $('.fc-button-group button').addClass('ThemeColor3 ThemeBorderColor3');
+    $('.fc-button-group button').addClass('colorPrimary borderColorPrimary');
     $('.fc-prev-button,.fc-next-button,.fc-today-button').hover(
       function () {
-        $(this).addClass('ThemeBGColor3');
+        $(this).addClass('bgColorPrimary');
       },
       function () {
-        $(this).removeClass('ThemeBGColor3');
+        $(this).removeClass('bgColorPrimary');
       },
     );
     $('.fc-today-button').on('click', function () {
-      $(this).removeClass('ThemeBGColor3');
+      $(this).removeClass('bgColorPrimary');
     });
   },
 
@@ -973,7 +973,7 @@ Calendar.Event = function () {
   // 列表空白点击创建日程 or 详情 or加载更多
   $('#calendarList')
     .on('click', '.calendarNoListBtn', function () {
-      $.CreateCalendar();
+      createCalendar();
     })
     .on('click', '.calendarListModel li', function (event) {
       var $el = $(this);

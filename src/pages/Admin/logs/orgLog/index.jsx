@@ -15,6 +15,7 @@ import { dateConvertToUserZone } from 'src/utils/project';
 import PageTableCon from '../../components/PageTableCon';
 import SearchWrap from '../../components/SearchWrap';
 import { OPERATE_TYPE, ORG_LOG_OPERATOR, ORG_MANAGE_LOG_COLUMNS, PRIVATE_APP_WORKSHEET_LOG_COLUMNS } from '../enum';
+import { completeAdminLogLinks } from '../utils';
 import HistoryLogs from './HistoryLogs';
 import './style.less';
 
@@ -100,12 +101,13 @@ export default class orgLog extends React.Component {
                     rUserList: extrasAccounts,
                   })
                 : '';
-              const txt = (isUser ? message : opeartContent).replace(/<a.*?>/g, '').replace(/<\/a>/g, '');
+              const content = completeAdminLogLinks(isUser ? message : opeartContent);
+              const txt = content.replace(/<a.*?>/g, '').replace(/<\/a>/g, '');
               return opeartContent ? (
                 <Tooltip title={<spam>{txt}</spam>} placement="bottom">
                   <span
                     className="wMax100 ellipsis InlineBlock"
-                    dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
+                    dangerouslySetInnerHTML={{ __html: filterXss(content) }}
                   ></span>
                 </Tooltip>
               ) : (
@@ -119,7 +121,7 @@ export default class orgLog extends React.Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.fetchLogs();
     this.fetchHistoryLogs();
   }
@@ -332,6 +334,8 @@ export default class orgLog extends React.Component {
                 placeholder: _l('最近30天'),
                 dateFormat: 'YYYY-MM-DD HH:mm:ss',
                 limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
+                timeMode: 'minute',
+                timePicker: true,
                 suffixIcon: <Icon icon="person" className="Font16" />,
               },
             ]}

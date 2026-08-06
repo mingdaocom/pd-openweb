@@ -182,7 +182,7 @@ function ExportDialog(props) {
             </div>
             <button
               type="button"
-              className="ming Button Button--link hoverTextPrimaryLight Bold"
+              className="ming Button Button--link hoverColorPrimaryLight Bold"
               onClick={() => onClose()}
             >
               {_l('取消')}
@@ -191,7 +191,7 @@ function ExportDialog(props) {
               type="button"
               className={cx(
                 'ming Button Button--primary  importBtn Bold mLeft20',
-                selectedList.length <= 0 ? 'Button--disabled' : 'hoverTextPrimaryLight',
+                selectedList.length <= 0 ? 'Button--disabled' : 'hoverColorPrimaryLight',
               )}
               onClick={() => exportConnect()}
             >

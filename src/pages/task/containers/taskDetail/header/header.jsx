@@ -5,12 +5,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dialog, Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
@@ -34,8 +33,7 @@ import { checkIsProject, errorMessage, taskStatusDialog } from '../../../utils/u
 import CopyTask from '../copyTask/copyTask';
 import './header.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class Header extends Component {
   constructor(props) {
     super(props);
@@ -222,7 +220,7 @@ class Header extends Component {
    */
   printTask = () => {
     const { taskId } = this.props;
-    window.open(`/print/task/${taskId}`);
+    window.open(pathCompletion(`/print/task/${taskId}`));
 
     this.setState({ showOperator: false });
   };
@@ -237,7 +235,7 @@ class Header extends Component {
 
     root.render(
       <ShareFolderOrTask
-        shareUrl={md.global.Config.WebUrl + 'apps/task/task_' + this.props.taskId}
+        shareUrl={pathCompletion('/apps/task/task_' + this.props.taskId)}
         shareMessage={_l('打开App扫一扫，在手机上快速显示查看任务详情')}
         linkText={_l('复制任务链接')}
       />,
@@ -249,7 +247,7 @@ class Header extends Component {
    */
   openNewPage = () => {
     this.setState({ showOperator: false });
-    window.open('/apps/task/task_' + this.props.taskId + '?' + getAppFeaturesPath());
+    window.open(pathCompletion('/apps/task/task_' + this.props.taskId));
   };
 
   /**
@@ -310,7 +308,7 @@ class Header extends Component {
 
             if (openType === OPEN_TYPE.detail) {
               setTimeout(() => {
-                navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
+                navigateTo('/apps/task/center');
               }, 300);
             } else {
               this.props.closeDetail();
@@ -346,7 +344,7 @@ class Header extends Component {
       <div className={cx('taskDetailHeader boxSizing flexRow')}>
         <div
           className={cx(
-            'taskDetailStatusBtn ThemeColor3 ThemeBorderColor3',
+            'taskDetailStatusBtn colorPrimary borderColorPrimary',
             { active: data.status },
             { taskDetailStatusBtnNo: !isCharge && !isMember },
           )}
@@ -358,7 +356,7 @@ class Header extends Component {
 
         <div className="flex" />
 
-        <div className="taskDetailHeaderBtn ThemeColor3" onClick={this.refresh}>
+        <div className="taskDetailHeaderBtn colorPrimary" onClick={this.refresh}>
           <i className="icon-loop Font16" />
           {_l('刷新')}
         </div>
@@ -366,7 +364,7 @@ class Header extends Component {
         {(isCharge || isMember) && (
           <Tooltip title={_l('点击添加子任务')}>
             <div
-              className="taskDetailHeaderBtn ThemeColor3 mLeft15"
+              className="taskDetailHeaderBtn colorPrimary mLeft15"
               onClick={(isCharge || isMember) && this.addSubtask}
             >
               <i className="icon-task-card Font16" />
@@ -377,7 +375,7 @@ class Header extends Component {
 
         {data.isTaskMember && (
           <Tooltip title={_l('关闭后将不再接收此任务消息推送（但仍可收到讨论中@你的消息）')} placement="bottomLeft">
-            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onClick={this.updateTaskNotice}>
+            <div className="taskDetailHeaderBtn colorPrimary mLeft15" onClick={this.updateTaskNotice}>
               <i className={cx('Font16', data.notice ? 'icon-more_horiz' : 'icon-chat-bell-nopush')} />
               {data.notice ? _l('已开启提醒') : _l('已关闭提醒')}
             </div>
@@ -386,7 +384,7 @@ class Header extends Component {
 
         {isCharge && (
           <Tooltip title={_l('锁定后任务成员将无法完成和修改任务内容（但仍可参与任务讨论）')} placement="bottomLeft">
-            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onClick={this.updateTaskLocked}>
+            <div className="taskDetailHeaderBtn colorPrimary mLeft15" onClick={this.updateTaskLocked}>
               <i className={cx('Font16', data.locked ? 'icon-lock' : 'icon-task-new-no-locked')} />
               {data.locked ? _l('已锁定') : _l('未锁定')}
             </div>
@@ -395,7 +393,7 @@ class Header extends Component {
 
         <Tooltip title={_l('更多操作')} placement="bottomLeft">
           <div
-            className="taskDetailHeaderBtn ThemeColor3 mLeft15 taskDetailHeaderMoreBtn"
+            className="taskDetailHeaderBtn colorPrimary mLeft15 taskDetailHeaderMoreBtn"
             onClick={() => this.setState({ showOperator: !showOperator })}
           >
             <i className="Font16 icon-moreop" />
@@ -404,7 +402,7 @@ class Header extends Component {
 
         {openType === OPEN_TYPE.dialog && (
           <Tooltip title={_l('关闭')} placement="bottomLeft">
-            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onMouseDown={closeDetail}>
+            <div className="taskDetailHeaderBtn colorPrimary mLeft15" onMouseDown={closeDetail}>
               <i className="Font16 icon-delete" />
             </div>
           </Tooltip>
@@ -502,13 +500,13 @@ class Header extends Component {
               ref={checklistText => {
                 this.checklistText = checklistText;
               }}
-              className="createChecklistText ThemeBorderColor3"
+              className="createChecklistText borderColorPrimary"
               maxLength={100}
               defaultValue={_l('清单')}
               onKeyDown={evt => evt.keyCode === 13 && this.addChecklist()}
             />
             <span
-              className="createChecklistBtn ThemeBGColor3 boderRadAll_3 ThemeHoverBGColor2"
+              className="createChecklistBtn bgColorPrimary boderRadAll_3 hoverBgColorPrimaryDark"
               onClick={this.addChecklist}
             >
               {_l('添加')}

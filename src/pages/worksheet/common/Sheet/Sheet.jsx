@@ -7,7 +7,7 @@ import _, { get, isEqual, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import DragMask from 'worksheet/common/DragMask';
 import { getSheetFilterIdFromUrl } from 'worksheet/common/WorkSheetFilter/util';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
@@ -105,6 +105,8 @@ function getKeyOfFiltersGroup(filtersGroup) {
   }
 }
 
+const previewFallbackView = { viewId: '__preview_all__', viewType: 0, name: _l('全部'), advancedSetting: {} };
+
 function Sheet(props) {
   const {
     loading,
@@ -113,6 +115,7 @@ function Sheet(props) {
     appId,
     groupId,
     worksheetId,
+    activeWorksheetId,
     worksheetInfo,
     flag,
     type = 'common',
@@ -158,7 +161,15 @@ function Sheet(props) {
     const showhide = _.get(view, 'advancedSetting.showhide') || '';
     return !showhide.includes('hpc') && !showhide.includes('hide');
   });
-  const view = _.find(views, { viewId }) || (!viewId && !chartId && (showViews.length ? showViews : views)[0]) || {};
+  // AI 实时预览（previewMode=ai）：建表与建视图之间 views 为空。预览在多张表间切换时，
+  // base.viewId 还残留上一张表的 24 位 viewId（见 redux/reducers/index.js base 的短路），
+  // 导致按 viewId 命不中、又因 viewId 为真跳过 !viewId 兜底 → view={} → UnNormal「无视图」。
+  // 这里在预览态放宽：命不中就退回首个可用视图；连 views 都空则合成一个内置「全部」表格视图。
+  const isAIPreview = /[?&]previewMode=ai(?:&|$)/.test(_.get(window, 'location.search') || '');
+  const view =
+    _.find(views, { viewId }) ||
+    ((!viewId || isAIPreview) && !chartId && (showViews.length ? showViews : views)[0]) ||
+    (isAIPreview && !chartId ? previewFallbackView : {});
   const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
   );
@@ -177,6 +188,7 @@ function Sheet(props) {
     !chartId &&
     (String(view.viewType) !== customize || _.get(view, 'pluginInfo.switchSettings.showFastFilter') === '1');
   const noRecords = isEqual(filtersGroup, [{}]);
+  const filtersGroupKey = getKeyOfFiltersGroup(filtersGroup);
   const needClickToSearch =
     showQuickFilter &&
     !_.includes([sheet], String(view.viewType)) &&
@@ -218,13 +230,13 @@ function Sheet(props) {
     printCharge: config.printCharge,
     allowOpenRecord: config.allowOpenRecord,
     allowAddNewRecord: config.isAddRecord,
-    embedNeedUpdate: config.embedNeedUpdate,
     hideFilter: !isUndefined(config.allowFilter) && !config.allowFilter,
     viewRowsLoading,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
   );
+  const loadWorksheetId = type === 'single' ? worksheetId : activeWorksheetId;
   const viewComp = noRecords ? (
     <EmptyStatus>{_l('没有符合条件的记录')}</EmptyStatus>
   ) : needClickToSearch && _.isEmpty(quickFilter) ? (
@@ -250,11 +262,11 @@ function Sheet(props) {
     />
   );
   useEffect(() => {
-    if (worksheetId) {
+    if (loadWorksheetId) {
       abortPrevWorksheetInfoRequest();
-      loadWorksheet(worksheetId, setLoadRequest);
+      loadWorksheet(loadWorksheetId, setLoadRequest);
     }
-  }, [type === 'single' ? worksheetId : undefined, flag]);
+  }, [loadWorksheetId, flag]);
 
   useEffect(() => {
     if (
@@ -264,10 +276,28 @@ function Sheet(props) {
     ) {
       updateFilters({ filtersGroup }, view);
     }
-  }, [getKeyOfFiltersGroup(filtersGroup), loading]);
+  }, [filtersGroupKey, loading]);
+  useEffect(() => {
+    if (!config.embedNeedUpdate || cache.current.embedNeedUpdate === config.embedNeedUpdate) {
+      return;
+    }
+
+    if (_.isUndefined(cache.current.embedNeedUpdate)) {
+      cache.current.embedNeedUpdate = config.embedNeedUpdate;
+      return;
+    }
+
+    cache.current.embedNeedUpdate = config.embedNeedUpdate;
+
+    if (filtersGroupKey !== getKeyOfFiltersGroup(cache.current.prevFiltersGroup)) {
+      return;
+    }
+
+    refreshSheet(view, { isRefreshBtn: true });
+  }, [config.embedNeedUpdate, filtersGroupKey, refreshSheet, view]);
   useEffect(() => {
     cache.current.prevFiltersGroup = filtersGroup;
-  }, [getKeyOfFiltersGroup(filtersGroup)]);
+  }, [filtersGroupKey]);
   useEffect(() => {
     fireWhenViewLoaded(view, controls);
   }, [view.fastFilters]);
@@ -451,6 +481,7 @@ Sheet.propTypes = {
   loading: PropTypes.bool,
   appId: PropTypes.string,
   groupId: PropTypes.string,
+  activeWorksheetId: PropTypes.string,
   worksheetId: PropTypes.string,
   viewId: PropTypes.string,
   activeViewStatus: PropTypes.number,
@@ -500,4 +531,4 @@ export default connect(
       ]),
       dispatch,
     ),
-)(errorBoundary(Sheet));
+)(ErrorBoundary.wrap(Sheet));

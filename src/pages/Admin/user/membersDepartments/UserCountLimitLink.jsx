@@ -3,6 +3,7 @@ import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMe
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import { getCurrentProject } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/common';
 
 export default function UserCountLimitLink({ projectId }) {
   const { licenseType, version } = getCurrentProject(projectId, true);
@@ -16,7 +17,7 @@ export default function UserCountLimitLink({ projectId }) {
           <Fragment>
             <span>{_l('请去购买')}</span>
             <span
-              className="ThemeColor Hand"
+              className="Hand"
               onClick={() => {
                 !window.platformENV.isOverseas
                   ? purchaseMethodFunc({ projectId })
@@ -38,7 +39,7 @@ export default function UserCountLimitLink({ projectId }) {
         <Fragment>
           <span>{_l('，请')}</span>
           {!window.platformENV.isOverseas ? (
-            <a href={`/admin/expansionserviceResign/${projectId}/user`} target="_self">
+            <a href={pathCompletion(`/admin/expansionserviceResign/${projectId}/user`)} target="_self">
               {_l('购买用户包')}
             </a>
           ) : (

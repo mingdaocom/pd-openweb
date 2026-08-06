@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -12,7 +12,8 @@ import MoreOption from 'src/pages/FormSet/components/MoreOption';
 import TrashDialog from 'src/pages/FormSet/components/Trash';
 import { renderViewScopeText } from 'src/pages/FormSet/util';
 import CreateAIActionDialog from './CreateAIActionDialog';
-import EditAIActionDrawer from './EditAIActionDrawer';
+
+const LoadableEditAIActionDrawer = lazy(() => import('./EditAIActionDrawer'));
 
 const Con = styled.div`
   width: 100%;
@@ -421,8 +422,7 @@ export default function AIAction(props) {
 
       {createAIActionDialogVisible && (
         <CreateAIActionDialog
-          appId={worksheetInfo.appId}
-          worksheetId={worksheetId}
+          worksheetInfo={worksheetInfo}
           onCancel={() => setState({ createAIActionDialogVisible: false })}
           onSuccess={data => {
             handleSave(
@@ -434,22 +434,24 @@ export default function AIAction(props) {
       )}
 
       {editAIActionDrawerVisible && (
-        <EditAIActionDrawer
-          appId={worksheetInfo.appId}
-          worksheetId={worksheetId}
-          projectId={worksheetInfo.projectId}
-          currentActionItem={currentActionItem}
-          columns={worksheetControls
-            .filter(item => {
-              return item.viewDisplay || !('viewDisplay' in item);
-            })
-            .map(control => redefineComplexControl(control))}
-          sheetSwitchPermit={worksheetInfo.switches}
-          saveLoading={saveLoading}
-          getAIActionList={getAIActionList}
-          onClose={() => setState({ editAIActionDrawerVisible: false })}
-          handleSave={handleSave}
-        />
+        <Suspense fallback={null}>
+          <LoadableEditAIActionDrawer
+            appId={worksheetInfo.appId}
+            worksheetId={worksheetId}
+            projectId={worksheetInfo.projectId}
+            currentActionItem={currentActionItem}
+            columns={worksheetControls
+              .filter(item => {
+                return item.viewDisplay || !('viewDisplay' in item);
+              })
+              .map(control => redefineComplexControl(control))}
+            sheetSwitchPermit={worksheetInfo.switches}
+            saveLoading={saveLoading}
+            getAIActionList={getAIActionList}
+            onClose={() => setState({ editAIActionDrawerVisible: false })}
+            handleSave={handleSave}
+          />
+        </Suspense>
       )}
     </Con>
   );

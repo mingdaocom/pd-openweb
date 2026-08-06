@@ -35,6 +35,22 @@ const Wrap = styled.div`
   }
 `;
 
+const changePickerContainerLeft = () => {
+  const changeLeft = () => {
+    $('.ant-picker-range-arrow').css({ transition: 'none' });
+    $('.ant-picker-panel-container').css({
+      marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
+    });
+  };
+
+  setTimeout(() => {
+    $('.ant-picker-input input').on({
+      click: () => changeLeft(),
+      focus: () => changeLeft(),
+    });
+  }, 500);
+};
+
 export default function ResourceSet(props) {
   const { appId, view, updateCurrentView } = props;
   const { rowHeight = 0 } = view;
@@ -65,22 +81,6 @@ export default function ResourceSet(props) {
   useEffect(() => {
     changePickerContainerLeft();
   }, []);
-
-  const changePickerContainerLeft = () => {
-    const changeLeft = () => {
-      $('.ant-picker-range-arrow').css({ transition: 'none' });
-      $('.ant-picker-panel-container').css({
-        marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
-      });
-    };
-
-    setTimeout(() => {
-      $('.ant-picker-input input').on({
-        click: () => changeLeft(),
-        focus: () => changeLeft(),
-      });
-    }, 500);
-  };
 
   return (
     <Wrap>
@@ -321,7 +321,7 @@ export default function ResourceSet(props) {
             })}
           </div>
           <div class="edit LineHeight22">
-            <i class="icon-edit textTertiary ThemeHoverColor3 Font16 Hand"></i>
+            <i class="icon-edit textTertiary hoverColorPrimary Font16 Hand"></i>
           </div>
         </div>
       )}

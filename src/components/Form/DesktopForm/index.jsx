@@ -1,8 +1,9 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
+import { getExpandWidgetIdsMap } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { controlState } from 'src/utils/control';
 import { FROM } from '../core/config';
 import { desktopFormPropTypes } from '../core/formPropTypes';
@@ -11,6 +12,47 @@ import DeskFormWidget from './components/DeskFormWidget';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
 import './style.less';
+
+const useEventCallback = callback => {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  return useCallback((...args) => {
+    if (_.isFunction(callbackRef.current)) {
+      return callbackRef.current(...args);
+    }
+  }, []);
+};
+
+const useStableFunctionProps = props => {
+  const propsRef = useRef(props);
+  const stableFunctionRef = useRef({});
+  propsRef.current = props;
+
+  return useMemo(() => {
+    const stableProps = { ...(props || {}) };
+
+    Object.keys(stableProps).forEach(key => {
+      if (!_.isFunction(stableProps[key])) {
+        return;
+      }
+
+      if (!stableFunctionRef.current[key]) {
+        stableFunctionRef.current[key] = (...args) => {
+          const current = _.get(propsRef.current, key);
+
+          if (_.isFunction(current)) {
+            return current(...args);
+          }
+        };
+      }
+
+      stableProps[key] = stableFunctionRef.current[key];
+    });
+
+    return stableProps;
+  }, [props]);
+};
 
 const DesktopForm = props => {
   const {
@@ -22,17 +64,37 @@ const DesktopForm = props => {
     renderData,
     rulesLoading,
     triggerCustomEvent,
-    setLoadingInfo,
     recordId,
     instanceId,
     tabFocusArr,
   } = props;
+  const stableControlProps = useStableFunctionProps(props.controlProps);
+  const stableWidgetCallbacks = {
+    openRelateSheet: useEventCallback(props.openRelateSheet),
+    registerCell: useEventCallback(props.registerCell),
+    getMasterFormData: useEventCallback(props.getMasterFormData),
+    onBlur: useEventCallback(props.onBlur),
+    triggerCustomEvent: useEventCallback(props.triggerCustomEvent),
+    handleChange: useEventCallback(props.handleChange),
+    checkControlUnique: useEventCallback(props.checkControlUnique),
+    submitFormData: useEventCallback(props.submitFormData),
+    renderVerifyCode: useEventCallback(props.renderVerifyCode),
+    updateRenderData: useEventCallback(props.updateRenderData),
+    setLoadingInfo: useEventCallback(props.setLoadingInfo),
+    setNavVisible: useEventCallback(_.get(tabControlProp, 'setNavVisible')),
+  };
   const { otherTabs = [] } = tabControlProp;
   let { commonData, tabData } = getControlsByTab(renderData, widgetStyle, from, ignoreSection, otherTabs);
   tabData = tabData.filter(control => controlState(control, from).visible).filter(c => !c.hidden);
 
+  const getWidgetTabFocusId = item => {
+    const currentTabFocusId = tabFocusArr[0];
+    return currentTabFocusId && currentTabFocusId.split('~')[1] === item.controlId ? currentTabFocusId : undefined;
+  };
+
   // 是否新建记录
   const isCreated = useMemo(() => !recordId || recordId === '_FAKE_RECORD_ID', [recordId]);
+  const expandWidgetIdsMap = useMemo(() => getExpandWidgetIdsMap(renderData, from), [renderData, from]);
 
   /**
    * 渲染表单
@@ -42,10 +104,11 @@ const DesktopForm = props => {
       disabled,
       worksheetId,
       filledByAiMap = {},
-      controlProps,
       forceFull,
       isDraft,
-      tabControlProp: { setNavVisible } = {},
+      smsVerification,
+      smsVerificationFiled,
+      verifyCode,
     } = props;
     const formList = [];
     let prevRow = -1;
@@ -66,6 +129,10 @@ const DesktopForm = props => {
       const displayRowInfo = getWidgetDisplayRow({ item, data, widgetStyle });
       const id = `formItem-${worksheetId}-${item.controlId}`;
       const formItemId = `${instanceId}~${item.controlId}`;
+      const widgetVerifyCode =
+        window.isPublicWorksheet && smsVerification && item.type === 3 && smsVerificationFiled === item.controlId
+          ? verifyCode
+          : undefined;
 
       formList.push(
         <div
@@ -114,25 +181,57 @@ const DesktopForm = props => {
 
           {/**控件内容 */}
           <DeskFormWidget
-            {...props}
+            disabled={disabled}
+            initSource={props.initSource}
+            flag={props.flag}
+            projectId={props.projectId}
+            worksheetId={worksheetId}
+            recordId={recordId}
+            viewId={props.viewId}
+            appId={props.appId}
+            from={from}
+            sheetSwitchPermit={props.sheetSwitchPermit}
+            systemControlData={props.systemControlData}
+            popupContainer={props.popupContainer}
+            isCharge={props.isCharge}
+            widgetStyle={widgetStyle}
+            mobileApprovalRecordInfo={props.mobileApprovalRecordInfo}
+            customWidgets={props.customWidgets}
+            isDraft={isDraft}
+            masterData={props.masterData}
+            disabledChildTableCheck={props.disabledChildTableCheck}
+            formDidMountFlag={props.formDidMountFlag}
+            controlRefs={props.controlRefs}
+            dataFormat={props.dataFormat}
+            disabledFunctions={props.disabledFunctions}
+            renderData={renderData}
+            verifyCode={widgetVerifyCode}
+            {...stableWidgetCallbacks}
             item={{
               ...item,
-              ...controlProps,
-              setLoadingInfo,
+              ...stableControlProps,
+              setLoadingInfo: stableWidgetCallbacks.setLoadingInfo,
               richTextControlCount,
               formItemId,
               isDraft: isDraft || from === FROM.DRAFT,
-              ...(item.type === 22 ? { setNavVisible } : {}),
+              ...(item.type === 22
+                ? {
+                    setNavVisible: stableWidgetCallbacks.setNavVisible,
+                    expandWidgetIds: expandWidgetIdsMap[item.controlId] || [],
+                  }
+                : {}),
             }}
             isCreated={isCreated}
-            renderData={renderData}
-            tabFocusId={tabFocusArr[0]}
+            tabFocusId={getWidgetTabFocusId(item)}
           />
         </div>,
       );
 
       prevRow = item.row;
-      preIsSection = (item.type === 22 || item.type === 10010) && data.filter(d => d.row === item.row).length === 1;
+      preIsSection =
+        (item.type === 22 || item.type === 10010) &&
+        item.size === 12 &&
+        data.filter(d => d.row === item.row).length === 1;
     });
 
     return formList;

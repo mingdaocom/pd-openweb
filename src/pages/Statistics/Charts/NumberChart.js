@@ -6,10 +6,11 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { images } from 'statistics/components/ChartStyle/components/BgPicker/Image';
 import { browserIsMobile } from 'src/utils/common';
 import { toFixed } from 'src/utils/control';
-import { formatContrastTypes, isFormatNumber, isTimeControl } from '../common';
+import { isFormatNumber, isTimeControl } from '../common/controlUtils';
+import { formatContrastTypes } from '../common/timeUtils';
+import { loadPresetImage, normalizePresetImageIndex } from '../components/ChartStyle/components/BgPicker/presetImages';
 import { defaultNumberChartStyle, sizeTypes } from '../enum';
 import { formatrChartValue, getStyleColor } from './common';
 
@@ -305,9 +306,76 @@ export default class extends Component {
       param: null,
       linkageMatch: null,
       isLinkageMatch: false,
+      presetBgImage: null,
+      presetBgImageIndex: null,
     };
   }
   componentDidMount() {
+    this.updatePresetBgImage();
+    this.updateNumberHeader();
+  }
+  componentDidUpdate(prevProps) {
+    if (this.getPresetBgImageIndex(prevProps) !== this.getPresetBgImageIndex(this.props)) {
+      this.updatePresetBgImage();
+    }
+
+    if (
+      _.get(prevProps, 'reportData.displaySetup.showTitle') !== _.get(this.props, 'reportData.displaySetup.showTitle')
+    ) {
+      this.updateNumberHeader();
+    }
+  }
+  componentWillUnmount() {
+    this.isUnmounted = true;
+  }
+  getPresetBgImageIndex = props => {
+    const { reportData = {} } = props;
+    const { xaxes = {}, yaxisList = [], style = {} } = reportData;
+    const { numberChartStyle = {} } = style;
+    const { bgStyleValue, bgImageIndex } = numberChartStyle;
+    const oneNumber = !xaxes.controlId && yaxisList.length === 1;
+
+    return oneNumber && bgStyleValue === 'image' ? normalizePresetImageIndex(bgImageIndex) : null;
+  };
+  updatePresetBgImage = () => {
+    const presetBgImageIndex = this.getPresetBgImageIndex(this.props);
+    const loadId = (this.presetBgImageLoadId || 0) + 1;
+    this.presetBgImageLoadId = loadId;
+
+    if (!presetBgImageIndex) {
+      if (this.state.presetBgImage || this.state.presetBgImageIndex) {
+        this.setState({
+          presetBgImage: null,
+          presetBgImageIndex: null,
+        });
+      }
+
+      return;
+    }
+
+    loadPresetImage(presetBgImageIndex)
+      .then(presetBgImage => {
+        if (this.isUnmounted || loadId !== this.presetBgImageLoadId) {
+          return;
+        }
+
+        this.setState({
+          presetBgImage,
+          presetBgImageIndex,
+        });
+      })
+      .catch(() => {
+        if (this.isUnmounted || loadId !== this.presetBgImageLoadId) {
+          return;
+        }
+
+        this.setState({
+          presetBgImage: null,
+          presetBgImageIndex,
+        });
+      });
+  };
+  updateNumberHeader = () => {
     const { sourceType, isThumbnail } = this.props;
     const { reportId, xaxes, yaxisList, displaySetup } = this.props.reportData;
     const el = document.querySelector(`.statisticsCard-${reportId}`);
@@ -328,7 +396,7 @@ export default class extends Component {
         el.classList.remove('hideChartHeader');
       }
     }
-  }
+  };
   getParentNode() {
     const { isThumbnail, reportData } = this.props;
     const { reportId } = reportData;
@@ -442,7 +510,13 @@ export default class extends Component {
 
     if (bgStyleValue === 'image') {
       const { bgImageIndex } = numberChartStyle;
-      const src = images(`./${bgImageIndex}.jpg`);
+      const { presetBgImage, presetBgImageIndex } = this.state;
+      const src = normalizePresetImageIndex(bgImageIndex) === presetBgImageIndex ? presetBgImage : null;
+
+      if (!src) {
+        return {};
+      }
+
       return {
         backgroundImage: `url(${src})`,
         backgroundSize: 'cover',

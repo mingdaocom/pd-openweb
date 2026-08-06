@@ -181,7 +181,7 @@ export default function AppAccess(props) {
             >
               <Icon
                 icon="moreop"
-                className="textTertiary Hand Font18 hoverTextPrimaryLight"
+                className="textTertiary Hand Font18 hoverColorPrimaryLight"
                 onClick={() => setState({ actionId: record.limitId })}
               />
             </Trigger>
@@ -282,7 +282,7 @@ export default function AppAccess(props) {
     <div className="orgManagementWrap">
       <div className="orgManagementHeader">
         <div className="flexRow alignItemsCenter">
-          <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
+          <Icon icon="backspace" className="Font22 hoverColorPrimary pointer" onClick={onClose} />
           <div className="Font17 bold flex mLeft10">{_l('应用访问')}</div>
         </div>
       </div>

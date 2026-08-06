@@ -26,7 +26,95 @@ const createEventHandler = (event, customHandler) => {
   }
 };
 
-export default function DeskFormWidget(props) {
+// 这些大对象在 DeskFormWidget 内不直接消费，实际需要的数据已在父组件拆到 item 或独立 prop。
+// 如果后续在本组件中直接读取这些属性，需要从忽略列表移除，避免 memo 漏掉必要渲染。
+const IGNORE_COMPARE_PROP_KEYS = new Set([
+  'controlProps',
+  'data',
+  'errorItems',
+  'filledByAiMap',
+  'loadingItems',
+  'rules',
+  'searchConfig',
+  'tabControlProp',
+  'tabFocusArr',
+  'uniqueErrorItems',
+]);
+
+// 函数属性由父组件稳定引用包装；这里只比较会影响当前控件行为的函数入口。
+const COMPARE_FUNCTION_PROP_KEYS = new Set([
+  'checkControlUnique',
+  'getMasterFormData',
+  'handleChange',
+  'onBlur',
+  'openRelateSheet',
+  'registerCell',
+  'renderVerifyCode',
+  'submitFormData',
+  'triggerCustomEvent',
+  'updateRenderData',
+]);
+
+const ALWAYS_RENDER_CONTROL_TYPES = new Set([29, 34]);
+
+const FORM_DATA_DEPENDENT_CONTROL_TYPES = new Set([14, 15, 16, 26, 27, 35, 43, 45, 46, 47, 48, 49, 50, 51]);
+
+const getItemType = props => _.get(props, 'item.type');
+const shouldAlwaysRender = (prevProps, nextProps) =>
+  ALWAYS_RENDER_CONTROL_TYPES.has(getItemType(prevProps)) || ALWAYS_RENDER_CONTROL_TYPES.has(getItemType(nextProps));
+const needRenderData = props => FORM_DATA_DEPENDENT_CONTROL_TYPES.has(getItemType(props)) || isCustomWidget(props.item);
+
+const shouldIgnoreProp = (key, prevProps, nextProps) =>
+  IGNORE_COMPARE_PROP_KEYS.has(key) ||
+  (key === 'renderData' && !needRenderData(prevProps) && !needRenderData(nextProps));
+
+const isSameByValue = (prevValue, nextValue) => {
+  if (Object.is(prevValue, nextValue)) {
+    return true;
+  }
+
+  if ((_.isArray(prevValue) || _.isPlainObject(prevValue)) && (_.isArray(nextValue) || _.isPlainObject(nextValue))) {
+    return _.isEqual(prevValue, nextValue);
+  }
+
+  return false;
+};
+
+const isSameItem = (prevItem = {}, nextItem = {}) => {
+  const itemKeys = _.uniq(Object.keys(prevItem).concat(Object.keys(nextItem)));
+
+  return itemKeys.every(key => isSameByValue(prevItem[key], nextItem[key]));
+};
+
+const arePropsEqual = (prevProps, nextProps) => {
+  if (shouldAlwaysRender(prevProps, nextProps)) {
+    return false;
+  }
+
+  const propKeys = _.uniq(Object.keys(prevProps).concat(Object.keys(nextProps)));
+
+  return propKeys.every(key => {
+    if (key === 'item') {
+      return isSameItem(prevProps.item, nextProps.item);
+    }
+
+    if (shouldIgnoreProp(key, prevProps, nextProps)) {
+      return true;
+    }
+
+    if (key === 'renderData') {
+      return Object.is(prevProps.renderData, nextProps.renderData);
+    }
+
+    if (isFunction(prevProps[key]) && isFunction(nextProps[key]) && !COMPARE_FUNCTION_PROP_KEYS.has(key)) {
+      return true;
+    }
+
+    return isSameByValue(prevProps[key], nextProps[key]);
+  });
+};
+
+function DeskFormWidget(props) {
   const {
     disabled,
     initSource,
@@ -52,7 +140,6 @@ export default function DeskFormWidget(props) {
     disabledChildTableCheck,
     formDidMountFlag,
     onBlur = () => {},
-    renderData,
     item: originItem,
     triggerCustomEvent = () => {},
     handleChange,
@@ -64,6 +151,7 @@ export default function DeskFormWidget(props) {
     isCreated,
     tabFocusId,
     updateRenderData,
+    renderData,
   } = props;
   const [showMaskValue, setShowMaskValue] = useState(false);
   const itemRef = useRef(null);
@@ -219,7 +307,7 @@ export default function DeskFormWidget(props) {
       return (
         <CustomFormItemControlWrap className="customFormItemControl" isShowRefreshBtn={isShowRefreshBtn}>
           <div className="customFormNull" />
-          {!recordId && hintShowAsText && <WidgetsDesc item={item} from={from} />}
+          {hintShowAsText && <WidgetsDesc item={item} from={from} />}
           {isShowRefreshBtn && (
             <RefreshBtn {..._.pick(props, ['worksheetId', 'recordId'])} item={item} onChange={handleChange} />
           )}
@@ -246,7 +334,6 @@ export default function DeskFormWidget(props) {
       recordId,
       appId,
       viewIdForPermit: viewId,
-      renderData,
       isDraft: isDraft || from === FROM.DRAFT, // 子表单条记录详情from不对，新增参数以供使用
       initSource,
       masterData,
@@ -257,6 +344,7 @@ export default function DeskFormWidget(props) {
       renderMaskContent,
       createEventHandler,
       dataFormat,
+      renderData,
       onChange: (value, cid = controlId, searchByChange) => {
         // 使用 ref 获取最新的 item，自动避开闭包问题
         const currentItem = itemRef.current;
@@ -284,12 +372,14 @@ export default function DeskFormWidget(props) {
             ? `${currentItem.value || ''}`.trim()
             : ''
           : newVal;
+        const isTextWidget = !isUnTextWidget(currentItem);
+        const valueChanged = newValue !== originValue;
 
         if (currentItem.unique && newValue) {
           checkControlUnique(controlId, currentItem.type, newValue);
         }
 
-        if (newValue && newValue !== originValue) {
+        if (newValue && valueChanged) {
           dataFormat.current.updateDataBySearchConfigs({
             control: { ...currentItem, value: newValue },
             searchType: 'onBlur',
@@ -297,7 +387,7 @@ export default function DeskFormWidget(props) {
         }
 
         // 文本类失焦触发自定义事件
-        if (newValue !== originValue && !isUnTextWidget(currentItem)) {
+        if (valueChanged && isTextWidget) {
           triggerCustomEvent({
             ...currentItem,
             newItem: { ...currentItem, value: newValue },
@@ -354,3 +444,5 @@ export default function DeskFormWidget(props) {
 
   return renderWidgetsContent();
 }
+
+export default React.memo(DeskFormWidget, arePropsEqual);

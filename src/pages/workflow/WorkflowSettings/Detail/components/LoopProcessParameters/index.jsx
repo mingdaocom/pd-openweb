@@ -158,7 +158,7 @@ export default props => {
                   <div className="mLeft10 w45 flexRow mTop8 Font16 alignItemsCenter">
                     <Icon
                       icon={item.attribute === 1 ? 'ic_title' : 'title'}
-                      className={cx('textSecondary ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
+                      className={cx('textSecondary hoverColorPrimary pointer', { colorPrimary: item.attribute === 1 })}
                       onClick={() => {
                         updateSource({
                           controls: data.controls.map(o => {
@@ -188,7 +188,7 @@ export default props => {
       {isFirstNode && (
         <div className="mTop10">
           <span
-            className="ThemeHoverColor2 pointer ThemeColor3"
+            className="hoverColorPrimaryDark pointer colorPrimary"
             onClick={() =>
               updateSource({
                 controls: data.controls.concat({

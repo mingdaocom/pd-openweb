@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { getFirstGroupDefaultValue, getSecondGroupDefaultValue } from 'worksheet/views/BoardView/util';
-import { handlePushState } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/common';
 
 const AddBtnWrap = styled.div`
   display: flex;
@@ -40,12 +40,8 @@ const AddRecordBtn = props => {
 
   const handleClick = () => {
     if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-      window.location.href = `/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`;
+      window.location.href = pathCompletion(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
       return;
-    }
-
-    if (window.isMingDaoApp) {
-      handlePushState('page', 'newRecord');
     }
 
     const firstGroupValue = getFirstGroupDefaultValue(itemFirstGroup, boardData);

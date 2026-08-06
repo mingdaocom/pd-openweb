@@ -163,7 +163,7 @@ export default class EncryptBaseInfo extends Component {
               <div className="flex"></div>
               <div className="flex-shrink-0">
                 <span
-                  className="ThemeColor3 ThemeHoverColor2 Hand"
+                  className="colorPrimary hoverColorPrimaryDark Hand"
                   onClick={() => this.setState({ showEditEncryptConfig: true })}
                 >
                   {_l('编辑配置')}

@@ -1,9 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
 import { Dropdown } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { renderText } from 'src/pages/Role/PortalCon/tabCon/util';
+import { getTranslateInfo } from 'src/utils/app';
 import { userStatusList } from './config';
 
 const renderHeader = (filterStatus, setFilterStatus, setFastFilters, filterStatusNum) => {
@@ -11,7 +13,7 @@ const renderHeader = (filterStatus, setFilterStatus, setFastFilters, filterStatu
     <React.Fragment>
       <Dropdown
         isAppendToBody
-        data={[{ value: '', text: '所有状态' }].concat(userStatusList)}
+        data={[{ value: '', text: _l('所有状态') }].concat(userStatusList)}
         value={filterStatus}
         renderValue={_l('状态')}
         menuClass="Width120"
@@ -44,7 +46,15 @@ const renderControl = (text, data) => {
   return (userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === portal_status) || {}).text;
 };
 
-export const getColumns = (controls, roleList, filterStatus, setFilterStatus, setFastFilters, filterStatusNum) => {
+export const getColumns = (
+  controls,
+  roleList,
+  filterStatus,
+  setFilterStatus,
+  setFastFilters,
+  filterStatusNum,
+  appId,
+) => {
   let columns = [];
   let controlsFormat = controls
     .filter(o => !['portal_avatar', 'partal_id'].includes(o.controlId))
@@ -108,7 +118,8 @@ export const getColumns = (controls, roleList, filterStatus, setFilterStatus, se
             role = '';
           }
 
-          const roleName = (roleList.find(o => o.roleId === role) || {}).name;
+          const roleInfo = roleList.find(o => o.roleId === role) || {};
+          const roleName = getTranslateInfo(appId, null, roleInfo.roleId).name || roleInfo.name;
           return (
             <span className="overflow_ellipsis WordBreak" title={roleName}>
               {roleName}
@@ -205,9 +216,16 @@ export const getColumnsShowControls = ({
           if (!data.rowid) return;
           if (portal_status === '5') {
             if (o.value === '7') {
-              externalPortalAjax.removeUsers({ appId, rowIds: [data.rowid] }).then(() => {
-                setSelectedIds([]); //清除选择
-                getList(); //重新获取当前页面数据
+              Dialog.confirm({
+                title: <span className="Red">{_l('确认取消邀请该用户吗')}</span>,
+                buttonType: 'danger',
+                okText: _l('确定'),
+                onOk: () => {
+                  externalPortalAjax.removeUsers({ appId, rowIds: [data.rowid] }).then(() => {
+                    setSelectedIds([]); //清除选择
+                    getList(); //重新获取当前页面数据
+                  });
+                },
               });
             } else if (o.value === '1') {
               updateActivationStatus([data.rowid]);

@@ -48,7 +48,8 @@ export function getSheetListFirstId(sheetList = [], isCharge = true) {
 }
 
 export const moveSheetCache = (appId, groupId) => {
-  const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+  const storageKey = `mdAppCache_${md.global.Account.accountId}_${appId}`;
+  const storage = safeParse(localStorage.getItem(storageKey) || '{}');
   const worksheets = (storage.worksheets || []).map(data => {
     if (data.groupId === groupId) {
       data.worksheetId = '';
@@ -58,7 +59,7 @@ export const moveSheetCache = (appId, groupId) => {
   });
   storage.worksheets = worksheets;
   storage.lastWorksheetId = '';
-  safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
+  safeLocalStorageSetItem(storageKey, JSON.stringify(storage));
 };
 
 export const getHighAuthSheetSwitchPermit = (sheetSwitchPermit, worksheetId) => {
@@ -67,9 +68,7 @@ export const getHighAuthSheetSwitchPermit = (sheetSwitchPermit, worksheetId) => 
 
 // 本地存储当前选中菜单
 export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
-  const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
-    ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
-    : {};
+  const sheetConfigNavInfo = safeParse(localStorage.getItem('sheetConfigNavInfo') || '{}');
 
   if (!sheetConfigNavInfo[worksheetId]) {
     sheetConfigNavInfo[worksheetId] = {};
@@ -82,7 +81,7 @@ export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
     delete sheetConfigNavInfo[sheetIds[0]];
   }
 
-  localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
+  safeLocalStorageSetItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
 };
 
 export function getListStyle(listStyleStrOfView, listStyleStrOfWorksheet) {
@@ -145,9 +144,41 @@ export function getSheetOperatesButtons(view, { buttons = [], printList = [] } =
     if (c.type === 'btn') {
       const matchBtn = find(buttons, b => b.btnId === c.id);
 
-      if (matchBtn) {
+      // 过滤已停用的按钮（status === 0）
+      if (matchBtn && matchBtn.status !== 0) {
         result.push({ ...matchBtn, type: 'custom_button' });
       }
+    } else if (c.type === 'group') {
+      const layoutKey = c.source === 'detail' ? 'detailgroup' : 'listgroup';
+      const groupLayout = safeParse(get(view, `advancedSetting.${layoutKey}`), 'array');
+      const groupDef = (groupLayout || []).find(g => g && g.type === 'group' && g.id === c.id);
+
+      if (!groupDef) {
+        return;
+      }
+
+      // 行内操作里分组优先于单按钮，组内按钮可能已不在 actioncolumn 中，这里按分组布局展开并过滤停用按钮。
+      const memberButtons = (groupDef.btns || [])
+        .map(id => find(buttons, b => b.btnId === id))
+        .filter(Boolean)
+        .filter(b => b.status !== 0)
+        .map(b => ({ ...b, type: 'custom_button' }));
+
+      if (!memberButtons.length) {
+        return;
+      }
+
+      result.push({
+        type: 'group_ref',
+        btnId: `group:${c.source || 'list'}:${c.id}`,
+        id: c.id,
+        source: c.source,
+        name: groupDef.name,
+        icon: groupDef.icon,
+        iconUrl: groupDef.iconUrl,
+        iconColor: groupDef.iconColor,
+        buttons: memberButtons,
+      });
     } else if (c.type === 'print') {
       const printItem = find(printList, p => p.id === c.id);
 
@@ -185,6 +216,14 @@ export function getSheetOperatesButtons(view, { buttons = [], printList = [] } =
     }
   });
   return result.filter(identity);
+}
+
+export function getSheetOperateButtonIds(buttons = []) {
+  return _.flatMap(buttons, button =>
+    button.type === 'group_ref' && _.isArray(button.buttons)
+      ? button.buttons.map(member => member.btnId)
+      : [button.btnId],
+  ).filter(Boolean);
 }
 
 export function getSheetOperatesButtonsStyle(view) {
@@ -227,10 +266,12 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
   const showMore = buttons.length > visibleNum;
   const moreButtonWidth = 28;
   const cellBorderWidth = 1 * 2;
+  const groupChevronWidth = 16;
 
   function getButtonWidth(button, { noMarginRight = false } = {}) {
     let buttonWidth = 0;
     let textWidth = 0;
+    const isGroup = button && button.type === 'group_ref';
 
     if (style === 'icon') {
       buttonWidth = 28 + (noMarginRight ? 0 : marginRight);
@@ -240,7 +281,11 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
         textWidth = 200;
       }
 
-      buttonWidth = textWidth + buttonPadding + (showIcon && button.icon ? iconWidth + iconMarginRight : 0);
+      buttonWidth =
+        textWidth +
+        buttonPadding +
+        (showIcon && button.icon ? iconWidth + iconMarginRight : 0) +
+        (isGroup ? groupChevronWidth : 0);
     } else if (style === 'standard') {
       textWidth = getTextWidth(button.name, fontSize);
       if (textWidth > 200) {
@@ -251,6 +296,7 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
         textWidth +
         buttonPadding +
         (showIcon && button.icon ? iconWidth + iconMarginRight : 0) +
+        (isGroup ? groupChevronWidth : 0) +
         (noMarginRight ? 0 : marginRight) +
         2;
     }
@@ -304,16 +350,28 @@ export function filterButtonBySheetSwitchPermit(
 
 function getSheetStylesOfObject(object) {
   const listStyle = get(object, 'advancedSetting.liststyle');
-  return listStyle
-    ? {
-        updateTime: safeParse(listStyle).time,
-        columnStyles: safeParse(listStyle).styles.reduce((a, b) => Object.assign({}, a, { [b.cid]: b }), {}),
-        sheetColumnWidths: safeParse(listStyle).styles.reduce((a, b) => ({ ...a, [b.cid]: b.width }), {}),
-      }
-    : {
-        columnStyles: {},
-        sheetColumnWidths: {},
-      };
+
+  if (!listStyle) {
+    return {
+      columnStyles: {},
+      sheetColumnWidths: {},
+    };
+  }
+
+  const { time: updateTime, styles = [] } = safeParse(listStyle);
+  const columnStyles = {};
+  const sheetColumnWidths = {};
+
+  styles.forEach(item => {
+    columnStyles[item.cid] = item;
+    sheetColumnWidths[item.cid] = item.width;
+  });
+
+  return {
+    updateTime,
+    columnStyles,
+    sheetColumnWidths,
+  };
 }
 
 export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetInfo } = {}) {

@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse } from 'antd';
+import { LoadDiv } from 'ming-ui';
 import { EXPAND_ITEMS } from '../../config/widget';
 import { supportSettingCollapse } from '../../util';
-import CollapseComponents from '../components/index';
 import WorksheetReference from '../components/WorksheetReference';
 import { SettingCollapseWrap } from './styled';
 
 const { Panel } = Collapse;
 
 const totalExpandKeys = EXPAND_ITEMS.map(i => i.key);
+const collapseComponents = {
+  WidgetBase: lazy(() => import('../components/WidgetBase')),
+  WidgetOperate: lazy(() => import('../components/WidgetOperate')),
+  WidgetHighSetting: lazy(() => import('../components/WidgetHighSetting')),
+  WidgetSecurity: lazy(() => import('../components/WidgetSecurity')),
+  BothWayRelate: lazy(() => import('../components/BothWayRelate')),
+  WidgetPermission: lazy(() => import('../components/WidgetPermission')),
+  WidgetMobile: lazy(() => import('../components/WidgetMobile')),
+};
 
 export default function SettingContent(props) {
   const { data: { controlId } = {}, from } = props;
@@ -19,10 +28,16 @@ export default function SettingContent(props) {
     const defaultItems = [];
     EXPAND_ITEMS.forEach(item => {
       if (supportSettingCollapse(props, item.key)) {
-        const Widget = CollapseComponents[item.name];
+        const Widget = collapseComponents[item.name];
+        if (!Widget) return;
+
         defaultItems.push({
           ...item,
-          children: <Widget {...props} />,
+          children: (
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <Widget {...props} />
+            </Suspense>
+          ),
         });
       }
     });

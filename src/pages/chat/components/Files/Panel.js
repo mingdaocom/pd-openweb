@@ -205,7 +205,7 @@ export default class FilesPanel extends Component {
       <div className="ChatPanel-addToolbar-menu ChatPanel-FilesPanel-filterDate">
         {filterDate.map((item, index) => (
           <div
-            className={cx('item', { ThemeBGColor3: index === selectedIndex })}
+            className={cx('item', { bgColorPrimary: index === selectedIndex })}
             onClick={this.handleDateChange.bind(this, item.date, index)}
             key={index}
           >
@@ -213,7 +213,7 @@ export default class FilesPanel extends Component {
           </div>
         ))}
         <RangePicker {...rangePickerProps}>
-          <div className={cx('item', { ThemeBGColor3: selectedIndex === 4 })}>{_l('自定义时间')}</div>
+          <div className={cx('item', { bgColorPrimary: selectedIndex === 4 })}>{_l('自定义时间')}</div>
         </RangePicker>
         <div className="item" onClick={this.handleClearDate.bind(this)}>
           {_l('清除')}

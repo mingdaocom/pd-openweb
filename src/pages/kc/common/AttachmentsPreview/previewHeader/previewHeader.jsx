@@ -35,6 +35,8 @@ class PreviewHeader extends React.Component {
     fromType: PropTypes.number,
     error: PropTypes.bool,
     changePreviewService: PropTypes.func,
+    showSwitchHtmlPreview: PropTypes.bool,
+    clickSwitchHtmlPreview: PropTypes.func,
   };
 
   constructor(props) {
@@ -127,6 +129,8 @@ class PreviewHeader extends React.Component {
       isDraft,
       wpsEditUrl,
       allowEdit,
+      showSwitchHtmlPreview,
+      clickSwitchHtmlPreview,
     } = this.props;
     const { name, ext } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
@@ -255,6 +259,8 @@ class PreviewHeader extends React.Component {
             this.props,
           );
         }}
+        showSwitchHtmlPreview={showSwitchHtmlPreview}
+        clickSwitchHtmlPreview={clickSwitchHtmlPreview}
         showShare={
           canDownload &&
           showShare &&

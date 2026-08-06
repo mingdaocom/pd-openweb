@@ -201,6 +201,7 @@ export default function StepsVerifyDialog(props) {
     getAccountSettings,
     onCancel,
   } = props;
+  const isForceTwoFactorAuthentication = md.global?.SysSettings?.twoFactorAuthenticationSwitchType === 2;
 
   const editAccountTwoAuthenticationSetting = (settingType, settingValue) => {
     accountSettingAjax.editAccountTwoAuthenticationSetting({ settingType, settingValue }).then(res => {
@@ -232,6 +233,17 @@ export default function StepsVerifyDialog(props) {
   };
 
   const handleSwitch = item => {
+    const enabledAuthenticationCount = [
+      twoAuthenticationMobilePhoneEnabled,
+      twoAuthenticationEmailEnabled,
+      twoAuthenticationTotpEnabled,
+    ].filter(Boolean).length;
+
+    if (isForceTwoFactorAuthentication && props[item.checked] && enabledAuthenticationCount <= 1) {
+      alert(_l('平台强制开启两步验证'), 2);
+      return;
+    }
+
     if (item.value === 'authenticator') {
       authenticatorFunc({
         updateTwoAuthentication,
@@ -299,7 +311,7 @@ export default function StepsVerifyDialog(props) {
               ((item.value === 'mobilePhone' &&
                 twoAuthenticationMobilePhoneEnabled &&
                 !twoAuthenticationEmailEnabled) ||
-                (item.value === 'email' && twoAuthenticationEmailEnabled && !twoAuthenticationTotpEnabled)));
+                (item.value === 'email' && twoAuthenticationEmailEnabled && !twoAuthenticationMobilePhoneEnabled)));
           return (
             <div className="methodItem">
               {disabled ? (

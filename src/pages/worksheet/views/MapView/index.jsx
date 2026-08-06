@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
@@ -17,8 +17,11 @@ import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { browserIsMobile } from 'src/utils/common';
 import { getMapConfig } from 'src/utils/control';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import { updateWorksheetControls } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import { filterAndFormatterControls, isDisabledCreate } from '../util';
@@ -27,6 +30,21 @@ import PinMarker from './components/PinMarker';
 import ToolBar from './components/ToolBar';
 import GMap from './GMap/GMap';
 import { calculatePoleCenter, calculateZoomLevel, parseRecord } from './utils';
+
+const DEFAULT_MAP_ZOOM = 5;
+
+const getValidZoom = value => {
+  const zoom = Number(value);
+  return _.isFinite(zoom) ? zoom : undefined;
+};
+
+const getMapZoomStorageKey = viewId => `mapViewZoom-${viewId}`;
+
+const getLocalMapZoom = viewId => {
+  if (!viewId) return undefined;
+
+  return getValidZoom(localStorage.getItem(getMapZoomStorageKey(viewId)));
+};
 
 const Con = styled.div`
   position: relative;
@@ -98,7 +116,24 @@ function MapView(props) {
     sheetButtons,
     printList,
   } = props;
-  const mapLocation = safeParse(_.get(view, 'advancedSetting.maplocation')) || {};
+  const viewControl = view.viewControl;
+  const coverCid = view.coverCid;
+  const viewAdvancedSettingData = _.get(view, 'advancedSetting');
+  const viewAdvancedSetting = useMemo(() => viewAdvancedSettingData || {}, [viewAdvancedSettingData]);
+  const mapLocationSetting = viewAdvancedSetting.maplocation;
+  const mapLocation = useMemo(() => safeParse(mapLocationSetting) || {}, [mapLocationSetting]);
+  const viewMapSettingKey = useMemo(
+    () =>
+      JSON.stringify({
+        viewControl,
+        coverCid,
+        advancedSetting: {
+          ..._.omit(viewAdvancedSetting, 'maplocation'),
+          maplocation: JSON.stringify(_.omit(mapLocation, 'zoom')),
+        },
+      }),
+    [viewControl, coverCid, viewAdvancedSetting, mapLocation],
+  );
   const { mapViewState, refreshMap } = mapView;
   const { entityName, advancedSetting = {} } = worksheetInfo;
   const isMobile = browserIsMobile();
@@ -109,7 +144,8 @@ function MapView(props) {
   const gMapRef = useRef();
   const newRecordBtnRef = useRef();
   const rippleRef = useRef(null);
-  const [zoom, setZoom] = useState(5);
+  const ignoreNextZoomChangeRef = useRef();
+  const [zoom, setZoom] = useState(getLocalMapZoom(viewId) ?? getValidZoom(mapLocation.zoom) ?? DEFAULT_MAP_ZOOM);
   const [center, setCenter] = useState([116.4, 39.9]);
   const [originalCenter, setOriginalCenter] = useState([116.4, 39.9]);
   const [markers, setMarkers] = useState([]);
@@ -120,6 +156,47 @@ function MapView(props) {
   const [clickLnglat, setClickLnglat] = useState(null);
   const [mapControl, setMapControl] = useState({});
   const mapViewRequest = useRef(null);
+  const mapViewConfigRef = useRef(mapViewConfig);
+
+  const resetAddRecordBtn = useCallback(() => {
+    const button = newRecordBtnRef.current;
+    if (!button) return;
+    button.style.display = 'none';
+  }, []);
+
+  const saveMapZoom = useMemo(
+    () =>
+      _.debounce(nextZoom => {
+        const validZoom = getValidZoom(nextZoom);
+
+        if (_.isUndefined(validZoom) || validZoom === getLocalMapZoom(viewId)) return;
+
+        safeLocalStorageSetItem(getMapZoomStorageKey(viewId), validZoom);
+      }, 500),
+    [viewId],
+  );
+
+  useEffect(() => {
+    return () => saveMapZoom.cancel();
+  }, [saveMapZoom]);
+
+  useEffect(() => {
+    mapViewConfigRef.current = mapViewConfig;
+  }, [mapViewConfig]);
+
+  const handleZoomChange = nextZoom => {
+    const validZoom = getValidZoom(nextZoom);
+
+    if (_.isUndefined(validZoom)) return;
+    setZoom(validZoom);
+
+    if (ignoreNextZoomChangeRef.current === validZoom) {
+      ignoreNextZoomChangeRef.current = undefined;
+      return;
+    }
+
+    saveMapZoom(validZoom);
+  };
 
   // 获取所有记录 ID
   const allRecordIds = useMemo(() => {
@@ -134,7 +211,7 @@ function MapView(props) {
   }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
   // 获取按钮 ID
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
 
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetInfo.worksheetId, allRecordIds, btnIds);
@@ -144,22 +221,49 @@ function MapView(props) {
     resetAddRecordBtn();
   };
 
+  const init = useCallback(() => {
+    if (!viewId || !viewControl) return;
+
+    const { showtitle, viewtitle } = mapViewConfigRef.current;
+    const mapControl = controls.find(l => l.controlId === viewControl);
+    setMapControl(mapControl);
+    setMapViewConfig({
+      positionId: viewControl,
+      loadNum: 1000,
+      titleId: viewAdvancedSetting.viewtitle
+        ? viewAdvancedSetting.viewtitle
+        : (controls.find(l => l.attribute === 1) || {}).controlId,
+      abstract: viewAdvancedSetting.abstract,
+      coverId: coverCid,
+      tagcolorid: viewAdvancedSetting.tagcolorid,
+      tagType: viewAdvancedSetting.tagType,
+      showtitle: viewAdvancedSetting.showtitle,
+      viewtitle: viewAdvancedSetting.viewtitle,
+    });
+    initMapViewData(
+      undefined,
+      showtitle !== viewAdvancedSetting.showtitle || viewtitle !== viewAdvancedSetting.viewtitle,
+      mapViewRequest.current,
+    );
+    resetAddRecordBtn();
+  }, [controls, coverCid, initMapViewData, resetAddRecordBtn, viewAdvancedSetting, viewControl, viewId]);
+
   useEffect(() => {
     if (!mapViewRequest.current) mapViewRequest.current = uuidv4();
   }, []);
 
   useEffect(() => {
     init();
-  }, [viewId, view.advancedSetting, view.coverCid]);
+  }, [init, viewMapSettingKey]);
 
   useEffect(() => {
-    if (!viewId || !view.viewControl || !mapViewState.searchData) return;
+    if (!viewId || !viewControl || !mapViewState.searchData) return;
 
     const coordinate = parseRecord(mapViewState.searchData, mapViewConfig, controls);
     setIsCurrentPosition(false);
     setCenter([coordinate.position.x, coordinate.position.y]);
     resetAddRecordBtn();
-  }, [mapViewState.searchData]);
+  }, [controls, mapViewConfig, mapViewState.searchData, resetAddRecordBtn, viewControl, viewId]);
 
   useEffect(() => {
     if (conRef.current) {
@@ -172,16 +276,12 @@ function MapView(props) {
         .map(r => parseRecord(r, mapViewConfig, controls))
         .filter(d => !_.isEmpty(d.position));
       const coordinates = parsedData.map(c => [c.position.y, c.position.x]);
-      let newZoom = calculateZoomLevel(coordinates, size.width, size.height, 1) || 5;
+      const savedZoom = getLocalMapZoom(viewId) ?? getValidZoom(mapLocation.zoom);
+      let newZoom = savedZoom ?? calculateZoomLevel(coordinates, size.width, size.height, 1) ?? DEFAULT_MAP_ZOOM;
 
-      if (newZoom < 5) {
-        newZoom = 5;
-      } else if (newZoom > 19) {
-        newZoom = 19;
-      }
-
+      ignoreNextZoomChangeRef.current = newZoom;
       setMarkers(parsedData);
-      setZoom(Math.floor(newZoom));
+      setZoom(newZoom);
 
       const { type, location = 1, value } = mapLocation;
       const mapLocationValue = safeParse(value) || {};
@@ -208,45 +308,7 @@ function MapView(props) {
       setCenter(curCenter);
       setOriginalCenter(curCenter);
     }
-  }, [mapView.mapViewData, mapViewConfig]);
-
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => setRecordInfoRowId(null));
-  };
-
-  const init = () => {
-    if (!viewId || !view.viewControl) return;
-
-    const { showtitle, viewtitle } = mapViewConfig;
-    const mapControl = controls.find(l => l.controlId === view.viewControl);
-    setMapControl(mapControl);
-    setMapViewConfig({
-      positionId: view.viewControl,
-      loadNum: 1000,
-      titleId: _.get(view, 'advancedSetting.viewtitle')
-        ? _.get(view, 'advancedSetting.viewtitle')
-        : (controls.find(l => l.attribute === 1) || {}).controlId,
-      abstract: _.get(view, 'advancedSetting.abstract'),
-      coverId: _.get(view, 'coverCid'),
-      tagcolorid: _.get(view, 'advancedSetting.tagcolorid'),
-      tagType: _.get(view, 'advancedSetting.tagType'),
-      showtitle: _.get(view, 'advancedSetting.showtitle'),
-      viewtitle: _.get(view, 'advancedSetting.viewtitle'),
-    });
-    initMapViewData(
-      undefined,
-      showtitle !== _.get(view, 'advancedSetting.showtitle') || viewtitle !== _.get(view, 'advancedSetting.viewtitle'),
-      mapViewRequest.current,
-    );
-    resetAddRecordBtn();
-  };
+  }, [controls, mapLocation, mapView.mapViewData, mapViewConfig, resetAddRecordBtn, viewId]);
 
   const handleSelectField = obj => {
     if (!isCharge) return;
@@ -278,12 +340,6 @@ function MapView(props) {
     }
 
     aMapRef.current?.moveCenter(originalCenter);
-  };
-
-  const resetAddRecordBtn = () => {
-    const button = newRecordBtnRef.current;
-    if (!button) return;
-    button.style.display = 'none';
   };
 
   const isShowAddRecord = () => {
@@ -436,14 +492,16 @@ function MapView(props) {
       isMobile: isMobile,
       mobileCloseCard: mobileCloseCard,
       onChangeRecordId: value => {
-        handlePushState('page', 'recordDetail');
         setRecordInfoRowId(value);
       },
       getData: () => initMapViewData(view),
       buttonsCheckStatus: buttonsCheckStatus,
     };
 
-    const eventProps = isMobile ? {} : { setCenter, getLatLngOnClick, resetAddRecordBtn, setOriginalCenter };
+    const eventProps = {
+      onZoomChange: handleZoomChange,
+      ...(isMobile ? {} : { setCenter, getLatLngOnClick, resetAddRecordBtn, setOriginalCenter }),
+    };
 
     return (
       <Con
@@ -500,6 +558,7 @@ function MapView(props) {
           appId={appId}
           worksheetId={worksheetInfo.worksheetId}
           enablePayment={worksheetInfo.enablePayment}
+          worksheetInfo={worksheetInfo}
           viewId={viewId}
           rowId={recordInfoRowId}
           onClose={() => setRecordInfoRowId(null)}

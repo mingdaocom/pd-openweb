@@ -251,6 +251,17 @@ export const CodeSnippetEdit = ({
   );
 };
 
+const TITLE = {
+  0: _l('选择代码片段'),
+  1: _l('插入JavaScript代码片段'),
+  2: _l('插入Python代码片段'),
+};
+const TYPES = [
+  { text: _l('系统预设'), value: 1 },
+  { text: _l('组织'), value: 2 },
+  { text: _l('个人'), value: 3 },
+];
+
 const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {} }) => {
   const [tabIndex, setTabIndex] = useState(window.platformENV.isOverseas || window.platformENV.isLocal ? 2 : 1);
   const [keywords, setKeywords] = useState('');
@@ -266,17 +277,6 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
   const inputName = useRef(null);
   const tagtextarea = useRef(null);
   const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
-
-  const TITLE = {
-    0: _l('选择代码片段'),
-    1: _l('插入JavaScript代码片段'),
-    2: _l('插入Python代码片段'),
-  };
-  const TYPES = [
-    { text: _l('系统预设'), value: 1 },
-    { text: _l('组织'), value: 2 },
-    { text: _l('个人'), value: 3 },
-  ];
 
   if (window.platformENV.isOverseas || window.platformENV.isLocal) {
     _.remove(TYPES, o => o.value === 1);
@@ -379,7 +379,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
               return (
                 <li
                   key={index}
-                  className={cx({ 'ThemeColor3 active': tabIndex === item.value })}
+                  className={cx({ 'colorPrimary active': tabIndex === item.value })}
                   onClick={() => {
                     setData([]);
                     setTabIndex(item.value);
@@ -401,7 +401,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
             />
             {keywords && (
               <i
-                className="icon-cancel Font16 textSecondary ThemeHoverColor3"
+                className="icon-cancel Font16 textSecondary hoverColorPrimary"
                 onClick={() => {
                   setKeywords('');
                   inputName.current.value = '';
@@ -505,7 +505,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
                   {keywords ? (
                     <Fragment>
                       {_l('未搜索到')}
-                      <span className="ThemeColor3"> "{keywords}" </span>
+                      <span className="colorPrimary"> "{keywords}" </span>
                       {_l('相关的代码片段')}
                     </Fragment>
                   ) : (

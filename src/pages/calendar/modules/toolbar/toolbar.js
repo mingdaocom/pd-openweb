@@ -41,7 +41,7 @@ Toolbar.Event = function () {
     $('#calendarLoading').show();
     $('#calendar,#calendarList').hide();
 
-    $(this).addClass('ThemeBGColor8');
+    $(this).addClass('bgColorPrimaryTransparent');
     Toolbar.settings.pageIndex = 1;
     $('#invitedCalendars').css('height', $(window).height() - $('#topBarContainer').height() - 90);
 
@@ -52,13 +52,13 @@ Toolbar.Event = function () {
   // 退出未确认模块
   $('#exitInvited').on({
     mouseover: function () {
-      $(this).addClass('ThemeBGColor2').removeClass('ThemeBGColor3');
+      $(this).addClass('bgColorPrimaryDark').removeClass('bgColorPrimary');
     },
     mouseout: function () {
-      $(this).addClass('ThemeBGColor3').removeClass('ThemeBGColor2');
+      $(this).addClass('bgColorPrimary').removeClass('bgColorPrimaryDark');
     },
     click: function () {
-      $('#calInvite').removeClass('ThemeBGColor8');
+      $('#calInvite').removeClass('bgColorPrimaryTransparent');
       document.title = _l('日程');
       Toolbar.Calendar.rememberClickRefresh();
     },
@@ -480,8 +480,8 @@ Toolbar.Method = {
 
           // 点击切换
           $iCalAbout.click(function () {
-            $('#iCalAbout td').removeClass('ThemeBGColor5 Select');
-            $(this).addClass('Select ThemeBGColor5');
+            $('#iCalAbout td').removeClass('bgColorPrimaryTransparent Select');
+            $(this).addClass('Select bgColorPrimaryTransparent');
             var type = $(this).attr('type');
             var $iCalContent_two = $('#iCalContent_two');
             if (type == 1) {
@@ -501,7 +501,7 @@ Toolbar.Method = {
           // 经过改变背景颜色
           $iCalAbout.hover(
             function () {
-              if (!$(this).hasClass('ThemeBGColor5')) {
+              if (!$(this).hasClass('bgColorPrimaryTransparent')) {
                 $(this).addClass('iCalAboutHover');
               }
             },

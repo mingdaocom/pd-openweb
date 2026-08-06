@@ -104,14 +104,14 @@ export default ({ processId, onClose = () => {} }) => {
         <Support
           type={3}
           text={_l('了解更多')}
-          className="ThemeColor3 ThemeHoverColor2 mLeft5"
+          className="colorPrimary hoverColorPrimaryDark mLeft5"
           href="https://help.mingdao.com/workflow/configuration#operation-mode"
         />
         <div className="flex" />
-        <div className="ThemeHoverColor3 pointer" onClick={() => removePendingProcess()}>
+        <div className="hoverColorPrimary pointer" onClick={() => removePendingProcess()}>
           {_l('取消等待中的流程')}
         </div>
-        <div className="icon-refresh1 Font16 ThemeHoverColor3 pointer mLeft15" onClick={() => getSerialList()}></div>
+        <div className="icon-refresh1 Font16 hoverColorPrimary pointer mLeft15" onClick={() => getSerialList()}></div>
       </div>
 
       <div className="list bold textSecondary Font14 mTop30 pBottom5">
@@ -152,7 +152,7 @@ export default ({ processId, onClose = () => {} }) => {
                 {index === 0 && (
                   <Tooltip title={_l('中止')}>
                     <span onClick={() => removePendingProcess(item.id)}>
-                      <i className="icon-delete Font16 pointer ThemeHoverColor3 textSecondary" />
+                      <i className="icon-delete Font16 pointer hoverColorPrimary textSecondary" />
                     </span>
                   </Tooltip>
                 )}

@@ -77,9 +77,13 @@ export default class Condition extends Component {
     this.cityPickerSearchRef = React.createRef();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.controls, this.props.controls)) {
-      this.setState({ controlsData: this.getFieldData(nextProps.controls || []) });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.controls, prevProps.controls)) {
+        this.setState({
+          controlsData: this.getFieldData(this.props.controls || []),
+        });
+      }
     }
   }
 
@@ -285,14 +289,14 @@ export default class Condition extends Component {
             item.conditionId === '5' ||
             item.conditionId === '6') && (
             <Tooltip title={_l('当选择多个值，则表示是其中任何一个值时，即符合条件')} placement="bottomLeft">
-              <span className="triggerTipIcon ThemeColor3 Block">
+              <span className="triggerTipIcon colorPrimary Block">
                 <i className="icon-info Font16" />
               </span>
             </Tooltip>
           )}
           {(item.conditionId === '2' || item.conditionId === '4') && (
             <Tooltip title={_l('当选择多个值，则表示不是其中所有值时，才符合条件')} placement="bottomLeft">
-              <span className="triggerTipIcon ThemeColor3 Block">
+              <span className="triggerTipIcon colorPrimary Block">
                 <i className="icon-info Font16" />
               </span>
             </Tooltip>
@@ -303,23 +307,23 @@ export default class Condition extends Component {
             {singleCondition ? (
               <Fragment>
                 {i === 0 && this.props.data.length === 1 && (
-                  <span className="ThemeBorderColor3" onClick={() => this.addAndCondition(i)}>
+                  <span className="borderColorPrimary" onClick={() => this.addAndCondition(i)}>
                     + {_l('且')}
                   </span>
                 )}
                 {j === 0 && i === this.props.data.length - 1 && (
-                  <span className="ThemeBorderColor3" onClick={this.addOrCondition}>
+                  <span className="borderColorPrimary" onClick={this.addOrCondition}>
                     + {_l('或')}
                   </span>
                 )}
               </Fragment>
             ) : (
               <Fragment>
-                <span className="ThemeBorderColor3" onClick={() => this.addAndCondition(i)}>
+                <span className="borderColorPrimary" onClick={() => this.addAndCondition(i)}>
                   + {_l('且')}
                 </span>
                 {hasOr && (isLast || !openNewFilter) && (
-                  <span className="ThemeBorderColor3" onClick={this.addOrCondition}>
+                  <span className="borderColorPrimary" onClick={this.addOrCondition}>
                     + {_l('或')}
                   </span>
                 )}
@@ -393,7 +397,7 @@ export default class Condition extends Component {
             onChange={filedId => this.switchField({ i, j, filedId })}
           />
         )}
-        <i className="icon-trash Font16 ThemeColor3 triggerTipIcon" onClick={() => this.deleteCondition(i, j)} />
+        <i className="icon-trash Font16 colorPrimary triggerTipIcon" onClick={() => this.deleteCondition(i, j)} />
 
         {showControlsIndex === `${i}-${j}` && (
           <ActionFields
@@ -552,7 +556,7 @@ export default class Condition extends Component {
               <input
                 key={filedId + conditionId}
                 type="text"
-                className="triggerConditionNum flex ThemeBorderColor3 clearBorderRadius"
+                className="triggerConditionNum flex borderColorPrimary clearBorderRadius"
                 defaultValue={conditionValues[0] ? conditionValues[0].value : ''}
                 placeholder={_.includes(['15', '16'], conditionId) ? _l('最小值') : ''}
                 onKeyUp={evt => this.clearNoNum(evt)}
@@ -572,7 +576,7 @@ export default class Condition extends Component {
                 <input
                   key={filedId + conditionId}
                   type="text"
-                  className="triggerConditionNum flex ThemeBorderColor3 clearBorderRadius"
+                  className="triggerConditionNum flex borderColorPrimary clearBorderRadius"
                   defaultValue={conditionValues[1] ? conditionValues[1].value : ''}
                   placeholder={_.includes(['15', '16'], conditionId) ? _l('最大值') : ''}
                   onKeyUp={evt => this.clearNoNum(evt)}
@@ -732,7 +736,7 @@ export default class Condition extends Component {
             </div>
 
             {conditionValues[0] && (conditionValues[0].type === 20 || execType === 20) && (
-              <div className="mTop10 triggerConditionNum triggerConditionDate ThemeBorderColor3">
+              <div className="mTop10 triggerConditionNum triggerConditionDate borderColorPrimary">
                 <DateTime
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
@@ -760,7 +764,7 @@ export default class Condition extends Component {
             {conditionValues[0] && conditionValues[0].controlId ? (
               this.renderSelectFieldsValue(conditionValues[0], i, j)
             ) : (
-              <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+              <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
                 <DateTime
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
@@ -787,7 +791,7 @@ export default class Condition extends Component {
               {conditionValues[1] && conditionValues[1].controlId ? (
                 this.renderSelectFieldsValue(conditionValues[1], i, j, true)
               ) : (
-                <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+                <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
                   <DateTime
                     selectedValue={
                       conditionValues[1] && conditionValues[1].value ? moment(conditionValues[1].value) : null
@@ -821,7 +825,7 @@ export default class Condition extends Component {
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
             <div
-              className={cx('flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius', {
+              className={cx('flex triggerConditionNum triggerConditionList borderColorPrimary clearBorderRadius', {
                 pTop2: conditionValues.length,
               })}
               onClick={() => this.cityPickerSearchRef.current.focus()}
@@ -893,7 +897,7 @@ export default class Condition extends Component {
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
             <div
-              className={cx('flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius', {
+              className={cx('flex triggerConditionNum triggerConditionList borderColorPrimary clearBorderRadius', {
                 pTop2: conditionValues.length,
               })}
               onClick={evt => {
@@ -970,7 +974,7 @@ export default class Condition extends Component {
             {conditionValues[0] && conditionValues[0].controlId ? (
               this.renderSelectFieldsValue(conditionValues[0], i, j)
             ) : (
-              <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+              <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
                 <TimePicker
                   className="triggerConditionTime"
                   showNow={false}
@@ -996,7 +1000,7 @@ export default class Condition extends Component {
               {conditionValues[1] && conditionValues[1].controlId ? (
                 this.renderSelectFieldsValue(conditionValues[1], i, j, true)
               ) : (
-                <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+                <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
                   <TimePicker
                     className="triggerConditionTime"
                     showNow={false}
@@ -1373,7 +1377,7 @@ export default class Condition extends Component {
 
     return (
       <div
-        className={cx('actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox', {
+        className={cx('actionControlBox flex borderColorPrimary clearBorderRadius ellipsis actionCustomBox', {
           actionCustomBoxError: !item.nodeName || !item.controlName,
         })}
       >
@@ -1389,7 +1393,7 @@ export default class Condition extends Component {
           />
         </span>
         <i
-          className="icon-delete actionControlDel ThemeColor3"
+          className="icon-delete actionControlDel colorPrimary"
           onClick={() => this.updateDynamicConditionValue({ ...item, i, j, second, isDel: true })}
         />
       </div>

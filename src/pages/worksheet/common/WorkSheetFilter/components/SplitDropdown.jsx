@@ -85,7 +85,7 @@ export default function SplitDropdown(props) {
         ) : (
           <span className="text">{['', _l('且%25000'), _l('或')][type]}</span>
         )}
-        <FlexCenter className="removeGroup ThemeHoverColor3" onClick={onDelete}>
+        <FlexCenter className="removeGroup hoverColorPrimary" onClick={onDelete}>
           <i className="icon icon-close"></i>
         </FlexCenter>
       </Fragment>

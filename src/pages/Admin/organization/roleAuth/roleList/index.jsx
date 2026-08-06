@@ -35,16 +35,14 @@ class RoleList extends React.Component {
   }
 
   componentDidMount() {
+    this.getMyRoles();
+    this.getCanApplyRoles();
+
     const { manualRef } = this.props;
 
     if (manualRef) {
       manualRef(this);
     }
-  }
-
-  componentWillMount() {
-    this.getMyRoles();
-    this.getCanApplyRoles();
   }
 
   getMyRoles(isReload) {

@@ -178,7 +178,7 @@ const OrgRole = props => {
 
       {!disabled && (
         <div
-          className="TxtCenter textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
+          className="TxtCenter textSecondary hoverBorderColorPrimary hoverColorPrimary pointer addBtn"
           onClick={() => pickOrgRole()}
           ref={pickRef}
         >

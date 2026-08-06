@@ -19,7 +19,11 @@ import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -117,7 +121,7 @@ function HierarchyMix(props) {
     return buttons;
   }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
 
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
 

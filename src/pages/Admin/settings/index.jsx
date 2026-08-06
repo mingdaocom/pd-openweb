@@ -8,6 +8,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Config from '../config';
+import AppEmailService from './components/AppEmailService';
 import CustomColor from './components/CustomColor/index';
 import CustomIcon from './components/CustomIcon';
 
@@ -27,6 +28,7 @@ const Item = styled.div`
 
 const CONFIGS = [
   {
+    featureId: VersionProductType.customIcon,
     key: 'customIcon',
     title: _l('自定义图标'),
     descrption: _l('上传并管理自定义图标，用于应用配置，支持 SVG 格式'),
@@ -38,6 +40,13 @@ const CONFIGS = [
     descrption: _l('自定义颜色可用于应用、自定义页面等地方'),
     clickFunc: 'openCustomColor',
   },
+  {
+    featureId: VersionProductType.appAccessPolicy,
+    key: 'appEmailService',
+    title: _l('应用邮件服务'),
+    descrption: _l('配置应用于工作流、外部门户的邮件通知使用的发送服务'),
+    clickFunc: 'openAppEmailService',
+  },
 ];
 export default class GeneralSettings extends Component {
   constructor(props) {
@@ -46,16 +55,23 @@ export default class GeneralSettings extends Component {
     this.state = {
       uploadSvg: type === 'customicon',
       customColor: type === 'customcolor',
+      appEmailService: type === 'appemailservice',
       projectId: _.get(props, 'match.params.projectId'),
     };
     Config.setPageTitle(_l('应用管理 - 通用设置'));
   }
 
   componentDidMount() {
-    const { uploadSvg, customColor } = this.state;
+    const { uploadSvg, customColor, appEmailService } = this.state;
 
-    if (uploadSvg || customColor) {
-      uploadSvg ? this.openCustomSvg(false) : this.openCustomColor(false);
+    if (uploadSvg || customColor || appEmailService) {
+      if (uploadSvg) {
+        this.openCustomSvg(false);
+      } else if (customColor) {
+        this.openCustomColor(false);
+      } else {
+        this.openAppEmailService(false);
+      }
     }
   }
 
@@ -78,8 +94,20 @@ export default class GeneralSettings extends Component {
     toLink && navigateTo(`/admin/settings/${this.state.projectId}/customcolor`);
   };
 
+  openAppEmailService = (toLink = true) => {
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.appAccessPolicy);
+
+    if (featureType === '2') {
+      buriedUpgradeVersionDialog(Config.projectId, VersionProductType.appAccessPolicy);
+      return;
+    }
+
+    this.setState({ appEmailService: true });
+    toLink && navigateTo(`/admin/settings/${this.state.projectId}/appemailservice`);
+  };
+
   render() {
-    let { uploadSvg, customColor } = this.state;
+    let { uploadSvg, customColor, appEmailService } = this.state;
 
     if (uploadSvg) {
       return <CustomIcon projectId={Config.projectId} />;
@@ -89,20 +117,27 @@ export default class GeneralSettings extends Component {
       return <CustomColor projectId={Config.projectId} />;
     }
 
+    if (appEmailService) {
+      return <AppEmailService projectId={Config.projectId} />;
+    }
+
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader Font17">{_l('通用设置')}</div>
         <Fragment>
           {CONFIGS.map(item => {
-            const { key, title, descrption, clickFunc } = item;
-            const featureType = getFeatureStatus(Config.projectId, VersionProductType.customIcon);
-            if (key === 'customIcon' && !featureType) return;
+            const { key, title, descrption, clickFunc, featureId } = item;
+            const featureType = getFeatureStatus(Config.projectId, featureId);
+
+            if (featureId && !featureType) return;
+
             return (
               <ConfigItemWrap
+                key={key}
                 className={cx({ hoverStyle: clickFunc, Hand: clickFunc })}
                 onClick={clickFunc ? this[clickFunc] : () => {}}
               >
-                <Item key={key}>
+                <Item>
                   <div className="flex">
                     <div className="bold mBottom5 Font14">
                       {title}

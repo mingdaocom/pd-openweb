@@ -1,6 +1,8 @@
 import _ from 'lodash';
-import mingoAjax from 'src/api/mingo';
+import agentApi from 'src/api/agent';
+import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
@@ -163,9 +165,7 @@ export const setKnowledgeDesc = (dispatch, { desc }) => {
   });
 };
 
-export const generateKnowledgeBasePlan = async (dispatch, { appId, allWorksheetList, isreload = false }) => {
-  const params = { appId, isreload, langType: getCurrentLangCode() };
-
+export const generateKnowledgeBasePlan = async (dispatch, { appId, allWorksheetList }) => {
   if (md.global.SysSettings.hideAIBasicFun) {
     dispatch({ type: 'SET_AI_LOADING', loading: false });
     dispatch({ type: 'SET_KNOWLEDGE_RECOMMEND_SCHEMES', list: [] });
@@ -174,10 +174,21 @@ export const generateKnowledgeBasePlan = async (dispatch, { appId, allWorksheetL
 
   try {
     dispatch({ type: 'SET_AI_LOADING', loading: true });
-    const result = await mingoAjax.generateKnowledgeBasePlan(params);
-    console.log(result);
+    const appStructureInfo = await appManagementAjax.getAppStructureInfo({ appId });
+
+    const params = {
+      agentName: 'rag-plan-recommender',
+      sessionId: genBotSessionId(),
+      message: _l('开始'),
+      context: {
+        userLanguage: window.getCurrentLang() || 'zh-Hans',
+        appStructure: JSON.stringify(appStructureInfo),
+      },
+    };
+    const result = await agentApi.agentExecute(params);
+
     if (result) {
-      const { recommended_plans = [] } = result;
+      const { recommended_plans = [] } = result.data || {};
       const worksheetMap = allWorksheetList.reduce((acc, item) => {
         acc[item.worksheetId] = item;
         return acc;

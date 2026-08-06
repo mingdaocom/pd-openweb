@@ -274,7 +274,7 @@ export default function ImportDialog(props) {
               percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
             />
             <span
-              className="icon-cancel textTertiary Font16 hoverTextPrimaryLight mLeft12 LineHeight22"
+              className="icon-cancel textTertiary Font16 hoverColorPrimaryLight mLeft12 LineHeight22"
               onClick={() => {
                 uploaderWrap.current.uploader.stop();
                 uploaderWrap.current.uploader.removeFile(file);
@@ -291,7 +291,7 @@ export default function ImportDialog(props) {
         {/* {file.name && file.loaded === file.size && !errTip && (
           <div className="flexRow mTop16">
             <div className="notificationIconWrap">
-              <i className="icon-loading_button Font20 ThemeColor3"></i>
+              <i className="icon-loading_button Font20 colorPrimary"></i>
             </div>
             <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
           </div>
@@ -319,14 +319,14 @@ export default function ImportDialog(props) {
           <div className="exportBottomOption mTop16">
             <button
               type="button"
-              className="ming Button Button--link hoverTextPrimaryLight Bold"
+              className="ming Button Button--link hoverColorPrimaryLight Bold"
               onClick={() => onClose()}
             >
               {_l('取消')}
             </button>
             <button
               type="button"
-              className="ming Button Button--primary hoverTextPrimaryLight importBtn Bold mLeft20"
+              className="ming Button Button--primary hoverColorPrimaryLight importBtn Bold mLeft20"
               onClick={() => importConnect()}
             >
               {_l('立即导入')}

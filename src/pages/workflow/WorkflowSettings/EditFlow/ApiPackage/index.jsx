@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { pathCompletion } from 'src/utils/common';
 import { CreateNode, NodeOperate } from '../components';
 
 export default class ApiPackage extends Component {
@@ -30,7 +31,7 @@ export default class ApiPackage extends Component {
       <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">{item.appName}</div>
         <i
-          className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2"
+          className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark"
           onMouseDown={this.openApiPackage}
         />
         <div className="flex" />
@@ -42,7 +43,7 @@ export default class ApiPackage extends Component {
     const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/integrationConnect/${item.appId}`);
+    window.open(pathCompletion(`/integrationConnect/${item.appId}`));
   };
 
   render() {

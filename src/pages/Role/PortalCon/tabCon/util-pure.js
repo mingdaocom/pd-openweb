@@ -1,3 +1,5 @@
+import { getTranslateInfo } from 'src/utils/app';
+
 export const getStrBytesLength = (str = '', bytesLength = 16) => {
   let result = '';
   let strlen = str.length; // 字符串长度
@@ -22,4 +24,22 @@ export const getStrBytesLength = (str = '', bytesLength = 16) => {
       return result;
     }
   }
+};
+
+export const translatePortalRoleOptions = (appId, controls = []) => {
+  return controls.map(item => {
+    if (item.controlId === 'portal_role') {
+      return {
+        ...item,
+        options: (item.options || []).map(option => {
+          return {
+            ...option,
+            value: getTranslateInfo(appId, null, option.key).name || option.value,
+          };
+        }),
+      };
+    }
+
+    return item;
+  });
 };

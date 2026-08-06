@@ -6,9 +6,12 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { getDateToEn } from 'src/pages/widgetConfig/util/setting';
+import { getTranslateInfo } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToUserZone } from 'src/utils/project';
 import {
+  BASE_PRINT_CONTENT_WIDTH,
   DEFAULT_FONT_SIZE,
   DefaultNameWidth,
   FONT_STYLE,
@@ -23,8 +26,10 @@ import {
 import { SYST_PRINT_TXT } from '../../core/config';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 import getPrintContent from '../../core/getPrintContent';
-import { getFormData, isRelation, sortByShowControls } from '../../core/util';
+import { isRelation, sortByShowControls } from '../../core/util';
 import RelationTable from '../RelationTable';
+import { getRelationTilePrintData } from '../RelationTable/utils';
+import { getPrintOperationLogActionText } from './utils';
 import './index.less';
 
 const RELATION_SHOW_TYPES = [
@@ -78,9 +83,11 @@ export default class Con extends React.Component {
     this.loadWorksheetShortUrl();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (_.get(this.props, ['printData', 'shareType']) !== _.get(nextProps, ['printData', 'shareType'])) {
-      this.loadWorksheetShortUrl(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.get(prevProps, ['printData', 'shareType']) !== _.get(this.props, ['printData', 'shareType'])) {
+        this.loadWorksheetShortUrl(this.props);
+      }
     }
   }
 
@@ -113,9 +120,7 @@ export default class Con extends React.Component {
     }
 
     // 对内分享链接
-    const url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || ''}/row/${
-      rowId || rowIdForQr
-    }`;
+    const url = pathCompletion(`/app/${appId}/${worksheetId}/${viewId || ''}/row/${rowId || rowIdForQr}`);
     this.setState({ shareUrl: url });
   };
 
@@ -140,7 +145,11 @@ export default class Con extends React.Component {
       enableEmptyPlaceholder,
       emptyPlaceholderMode,
     } = printData;
-    const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
+    const contentWidth = _.get(printData, 'layout.previewContentWidth') || BASE_PRINT_CONTENT_WIDTH;
+    const contentScale = contentWidth / BASE_PRINT_CONTENT_WIDTH;
+    const nameWidth = Math.round(
+      ((advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth) * contentScale,
+    );
     const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
     let dataInfo = {
       recordId: rowId || rowIdForQr,
@@ -190,7 +199,7 @@ export default class Con extends React.Component {
       }
     });
 
-    const valueWidth = _.floor((728 - nameWidth * 6) / 6);
+    const valueWidth = _.floor((contentWidth - nameWidth * 6) / 6);
 
     return (
       <React.Fragment>
@@ -230,7 +239,7 @@ export default class Con extends React.Component {
               return null;
             }
 
-            return this.renderRelations(item[0], dataInfo);
+            return this.renderRelations(item[0], dataInfo, contentWidth);
           }
 
           let hideNum = 0;
@@ -383,7 +392,10 @@ export default class Con extends React.Component {
                   }
 
                   return item[0].type !== 10010 ? (
-                    <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex03">
+                    <tr
+                      style={STYLE_PRINT.controlDiv}
+                      className={`trFlex trFlex03 ${item[0].type === 45 ? 'printEmbedRow' : ''}`}
+                    >
                       <td
                         width={nameWidth}
                         style={{
@@ -400,9 +412,9 @@ export default class Con extends React.Component {
                           ...STYLE_PRINT.controlDiv_span,
                           ...STYLE_PRINT.controlDiv_span_value,
                           ...expStyle,
-                          width: 728 - nameWidth,
+                          width: contentWidth - nameWidth,
                         }}
-                        width={728 - nameWidth}
+                        width={contentWidth - nameWidth}
                         colSpan={11}
                         className="printTd"
                         data-type={item[0].type}
@@ -427,11 +439,15 @@ export default class Con extends React.Component {
                   );
 
                   let allCountSize = _.sum(data.map(item => item.size));
+                  const hasEmbedControl = data.some(it => it.type === 45);
 
                   if (data.length > 0) {
                     return (
                       <React.Fragment>
-                        <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex04">
+                        <tr
+                          style={STYLE_PRINT.controlDiv}
+                          className={`trFlex trFlex04 ${hasEmbedControl ? 'printEmbedRow' : ''}`}
+                        >
                           {data.map((it, i) => {
                             let span = 12 * (it.size / allCountSize);
                             const hideTitle = _.get(it, 'advancedSetting.hidetitle') === '1';
@@ -457,15 +473,15 @@ export default class Con extends React.Component {
                                     overflow: 'hidden',
                                     width:
                                       data.length !== 1
-                                        ? `${728 * (it.size / allCountSize) - nameWidth}px`
-                                        : `${728 - nameWidth}px`,
+                                        ? `${contentWidth * (it.size / allCountSize) - nameWidth}px`
+                                        : `${contentWidth - nameWidth}px`,
                                     borderBottom: '0.1px solid #ddd',
                                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
                                   width={
                                     data.length !== 1
-                                      ? `${728 * (it.size / allCountSize) - nameWidth}`
-                                      : 728 - nameWidth
+                                      ? `${contentWidth * (it.size / allCountSize) - nameWidth}`
+                                      : contentWidth - nameWidth
                                   }
                                   colSpan={span - 1}
                                   className={`printTd${it.size}`}
@@ -498,9 +514,9 @@ export default class Con extends React.Component {
     );
   }
 
-  renderRelations = (tableList, dataInfo) => {
+  renderRelations = (tableList, dataInfo, contentWidth) => {
     const { printData, handChange, params } = this.props;
-    const { type, from, projectId } = params;
+    const { type, from } = params;
     const {
       showData,
       relationStyle = [],
@@ -642,6 +658,7 @@ export default class Con extends React.Component {
             dataSource={list}
             controls={controls}
             allControls={allControlsOfRelation}
+            contentWidth={contentWidth}
             orderNumberCheck={orderNumberCheck}
             id={tableList.controlId}
             tableList={tableList}
@@ -670,18 +687,16 @@ export default class Con extends React.Component {
                 }
 
                 let controlList = controls.filter(it => {
-                  let data = {
-                    ...it,
-                    value: o[it.controlId],
-                    isRelateMultipleSheet: true,
-                    showUnit: true,
+                  let data = getRelationTilePrintData({
+                    control: it,
+                    dataInfo: _.pick(dataInfo, ['recordId', 'appId', 'worksheetId', 'viewIdForPermit', 'projectId']),
+                    tableList,
+                    record: o,
+                    controls,
+                    allControls,
                     fileStyle: relationFileStyle,
-                    dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
-                    user_info: relationUserInfo,
-                    controls: getFormData(controls, o),
-                    projectId,
-                    allControls: getFormData(allControls, o),
-                  };
+                    userInfo: relationUserInfo,
+                  });
 
                   return this.isShow(
                     getPrintContent({
@@ -718,17 +733,22 @@ export default class Con extends React.Component {
                         cellSpacing="0"
                       >
                         {controlList.map((it, index) => {
-                          let data = {
-                            ...it,
-                            value: o[it.controlId],
-                            isRelateMultipleSheet: true,
-                            showUnit: true,
+                          let data = getRelationTilePrintData({
+                            control: it,
+                            dataInfo: _.pick(dataInfo, [
+                              'recordId',
+                              'appId',
+                              'worksheetId',
+                              'viewIdForPermit',
+                              'projectId',
+                            ]),
+                            tableList,
+                            record: o,
+                            controls,
+                            allControls,
                             fileStyle: relationFileStyle,
-                            dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
-                            user_info: relationUserInfo,
-                            controls: getFormData(controls, o),
-                            projectId,
-                          };
+                            userInfo: relationUserInfo,
+                          });
 
                           if ([29].includes(it.type)) {
                             let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
@@ -837,8 +857,9 @@ export default class Con extends React.Component {
     );
   };
 
-  renderWorks = (_works = undefined, _name) => {
-    const { printData } = this.props;
+  renderWorks = (_works = undefined, _name, parentId) => {
+    const { printData, params } = this.props;
+    const { appId } = params;
     const { workflow = [], processName, approvePosition } = printData;
     const works = _works || workflow;
     const visibleItemLength = works.filter(item => item.checked).length;
@@ -888,6 +909,7 @@ export default class Con extends React.Component {
                     {works.map((item, index) => {
                       return item.workItems.map((workItem, workItemIndex) => {
                         const { workItemLog, signature, operationTime, receiveTime } = workItem;
+                        const translateInfo = parentId ? getTranslateInfo(appId, parentId, item.flowNode.id) : {};
                         if (!item.checked) return null;
                         const isSysAction = operationTime === receiveTime;
                         return (
@@ -924,14 +946,15 @@ export default class Con extends React.Component {
                               }}
                             >
                               <span style={{ verticalAlign: 'middle' }} className="controlName">
-                                {workItem.type === 0
-                                  ? TRIGGER_ACTION[Number(item.flowNode.triggerId)] || OPERATION_LOG_ACTION['0']
-                                  : workItem.workItemLog &&
-                                    (workItem.workItemLog.action === 5 && workItem.workItemLog.actionTargetName
-                                      ? _l('退回到%0', workItem.workItemLog.actionTargetName)
-                                      : workItem.workItemLog.action === 22 && workItem.type === 3
-                                        ? _l('无需填写')
-                                        : OPERATION_LOG_ACTION[workItem.workItemLog.action])}
+                                {getPrintOperationLogActionText({
+                                  workItem,
+                                  flowNode: item.flowNode,
+                                  translateInfo,
+                                  operationLogActionMap: OPERATION_LOG_ACTION,
+                                  triggerActionMap: TRIGGER_ACTION,
+                                  formatReturnText: name => _l('退回到%0', name),
+                                  noNeedFillText: _l('无需填写'),
+                                })}
                               </span>
                             </td>
                             <td
@@ -1071,7 +1094,11 @@ export default class Con extends React.Component {
                       };
                     });
 
-                    return <React.Fragment>{this.renderWorks(_workList, l.processInfo.processName)}</React.Fragment>;
+                    return (
+                      <React.Fragment>
+                        {this.renderWorks(_workList, l.processInfo.processName, l.processInfo.parentId)}
+                      </React.Fragment>
+                    );
                   })}
                 </div>
               );
@@ -1157,7 +1184,7 @@ export default class Con extends React.Component {
 
   render() {
     const { shareUrl } = this.state;
-    const { printData, controls, signature } = this.props;
+    const { printData, controls, signature, params } = this.props;
     const { workflow = [], approval = [], attributeName, advanceSettings = [] } = printData;
     const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
@@ -1179,26 +1206,22 @@ export default class Con extends React.Component {
         )}
         {(printData.logoChecked || printData.formNameChecked || printData.qrCode) && (
           <table style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
-            <tr>
-              <td
-                style={{
-                  width: '33.3%',
-                }}
-              >
+            <tr style={{ display: 'flex', alignItems: 'center' }}>
+              <td>
                 <span style={{ flex: 1, paddingTop: 10 }}>
                   {this.isShow(printData.projectLogo, printData.logoChecked) && (
                     <img src={printData.projectLogo} alt="" height={60} style={STYLE_PRINT.img} />
                   )}
                 </span>
               </td>
-              <td style={{ width: '33.3%', textAlign: 'center' }}>
+              <td style={{ flex: 1, textAlign: 'center' }}>
                 <span className="preWrap WordBreak" style={STYLE_PRINT.reqTitle}>
                   {this.isShow(printData.formName, printData.formNameChecked && formNameSite === '0')
                     ? printData.formName
                     : ''}
                 </span>
               </td>
-              <td style={{ width: '33.3%', textAlign: 'right' }}>
+              <td style={{ textAlign: 'right' }}>
                 <span style={{ flex: 1, textAlign: 'right' }}>
                   {this.isShow(shareUrl, printData.qrCode) && <Qr content={shareUrl} width={80} height={80} />}
                 </span>
@@ -1298,7 +1321,7 @@ export default class Con extends React.Component {
             {printData.printAccount && (
               <span className="mRight24">
                 {_l('打印人：')}
-                {md.global.Account.fullname}
+                {md.global.Account.fullname || params.printer}
               </span>
             )}
             {printData.printTime && (

@@ -3,20 +3,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { quickSelectDept } from 'ming-ui/functions';
 import { dealRenderValue, dealUserRange } from 'src/components/Form/core/utils';
 import DepartmentTooltip from 'src/components/Form/DesktopForm/widgets/DepartmentSelect/DepartmentTooltip';
 import EditableCellCon from '../EditableCellCon';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
-// 反转文本用于 RTL 显示（实现从头省略）
-const reverseTextForRTL = text => {
-  if (!text) return text;
-  return text.split('').reverse().join('');
-};
+const ClickAwayable = ClickAway;
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -32,6 +25,7 @@ export default class Text extends React.Component {
     projectId: PropTypes.string,
     updateCell: PropTypes.func,
     updateEditingStatus: PropTypes.func,
+    onValidate: PropTypes.func,
     onClick: PropTypes.func,
   };
   constructor(props) {
@@ -40,21 +34,26 @@ export default class Text extends React.Component {
       value: safeParse(props.cell.value, 'array'),
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: safeParse(nextProps.cell.value, 'array') });
-    }
 
-    const single = nextProps.cell.enumDefault === 0;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: safeParse(this.props.cell.value, 'array'),
+        });
+      }
 
-    if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
-      this.handleSelect();
-    }
+      const single = this.props.cell.enumDefault === 0;
 
-    if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
-      setTimeout(() => {
+      if (this.cell.current && single && !prevProps.isediting && this.props.isediting) {
         this.handleSelect();
-      }, 200);
+      }
+
+      if (!single && !prevProps.isediting && this.props.isediting && _.isEmpty(prevProps.cell.value)) {
+        setTimeout(() => {
+          this.handleSelect();
+        }, 200);
+      }
     }
   }
   cell = React.createRef();
@@ -78,11 +77,17 @@ export default class Text extends React.Component {
   };
 
   handleChange = () => {
-    const { updateCell } = this.props;
+    const { updateCell, onValidate } = this.props;
     const { value } = this.state;
+    const newValue = JSON.stringify(value);
     updateCell({
-      value: JSON.stringify(value),
+      value: newValue,
     });
+    // 部门通过浮层选择即时提交，不走输入/失焦校验流程；必填报错后重新选择需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (_.isFunction(onValidate)) {
+      onValidate(newValue);
+    }
   };
 
   selectDepartments = (e, cb) => {
@@ -185,9 +190,7 @@ export default class Text extends React.Component {
   renderDepartmentTag(department, allowDelete) {
     const { style, isediting, cell = {} } = this.props;
     const needRTL = _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete;
-    const isPureNumber = /^[\d\s\/]+$/.test(department.departmentName);
-    const displayName =
-      needRTL && isPureNumber ? reverseTextForRTL(department.departmentName) : department.departmentName;
+    const renderName = needRTL ? <bdi dir="ltr">{department.departmentName}</bdi> : department.departmentName;
 
     return (
       <span
@@ -198,11 +201,8 @@ export default class Text extends React.Component {
         style={{ maxWidth: style.width - 20 }}
       >
         <div className="flexRow">
-          <div
-            className="departmentName flex ellipsis"
-            style={needRTL ? { direction: 'rtl', unicodeBidi: isPureNumber ? 'bidi-override' : 'normal' } : {}}
-          >
-            {displayName}
+          <div className="departmentName flex ellipsis" style={needRTL ? { direction: 'rtl' } : {}}>
+            {renderName}
             {department.deleteCount > 1 && <span className="textPrimary mLeft5">{department.deleteCount}</span>}
           </div>
           {isediting && allowDelete && (

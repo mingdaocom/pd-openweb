@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import { Dropdown, Menu } from 'antd';
@@ -14,8 +14,7 @@ import UnNormal from 'worksheet/views/components/UnNormal';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import ConversationList from 'src/components/Mingo/modules/WorkflowChatBot/ConversationList';
 import { navigateTo } from 'src/router/navigateTo';
-import { setAppThemeColor } from 'src/utils/common';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion, setAppThemeColor } from 'src/utils/common';
 import defaultProfile from './assets/profile.png';
 import Edit from './Edit';
 import MoreMenu from './MoreMenu';
@@ -73,6 +72,7 @@ const Chatbot = props => {
   const [navVisible, setNavVisible] = useState(localStorage.getItem(`chatbotNavVisible`) ? true : false);
   const [editVisible, setEditVisible] = useState(sessionStorage.getItem(`chatbotNewCreate-${data.chatbotId}`));
   const [chatbotAppItem, setChatbotAppItem] = useState({});
+  const requestRef = useRef({});
   const isDark = _.get(chatbotConfig.config, 'isDark') || false;
   const isCharge = canEditApp(appPkg.permissionType);
   const chatbotName = data.name || chatbotAppItem.workSheetName;
@@ -85,29 +85,62 @@ const Chatbot = props => {
 
   useEffect(() => {
     const { chatbotId } = data;
-    Promise.all([
-      homeAppApi.getItemDetailByAppId({
-        appId,
-        itemIds: [chatbotId],
-      }),
-      processApi.getChatbotConfig({ chatbotId }),
-    ]).then(data => {
-      const [appItme, config] = data;
-
-      if (browserIsMobile() && appItme[0].sectionId) {
-        location.href = `/mobile/chatbot/${appId}/${appItme[0].sectionId}/${chatbotId}/${data.conversationId || ''}${location.search || ''}`;
-        return;
-      }
-
-      if (appItme[0].iconColor) {
-        setAppThemeColor(appItme[0].iconColor);
-      }
-
-      setChatbotAppItem(appItme[0]);
-      setChatbotConfig(config);
-      setLoading(false);
+    const appItemRequest = homeAppApi.getItemDetailByAppId({
+      appId,
+      itemIds: [chatbotId],
     });
-  }, []);
+    const configRequest = processApi.getChatbotConfig({ chatbotId });
+
+    requestRef.current = { appItemRequest, configRequest };
+    setLoading(true);
+    setChatbotAppItem({});
+    setChatbotConfig({});
+
+    Promise.all([appItemRequest, configRequest])
+      .then(res => {
+        if (
+          requestRef.current.appItemRequest !== appItemRequest ||
+          requestRef.current.configRequest !== configRequest
+        ) {
+          return;
+        }
+
+        const [appItem, config] = res;
+
+        if (browserIsMobile() && appItem[0].sectionId) {
+          location.href = pathCompletion(
+            `/mobile/chatbot/${appId}/${appItem[0].sectionId}/${chatbotId}/${data.conversationId || ''}${location.search || ''}`,
+          );
+          return;
+        }
+
+        if (appItem[0].iconColor) {
+          setAppThemeColor(appItem[0].iconColor);
+        }
+
+        setChatbotAppItem(appItem[0]);
+        setChatbotConfig(config);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (
+          requestRef.current.appItemRequest !== appItemRequest ||
+          requestRef.current.configRequest !== configRequest
+        ) {
+          return;
+        }
+
+        setLoading(false);
+      });
+
+    return () => {
+      appItemRequest.abort && appItemRequest.abort();
+      configRequest.abort && configRequest.abort();
+      if (requestRef.current.appItemRequest === appItemRequest && requestRef.current.configRequest === configRequest) {
+        requestRef.current = {};
+      }
+    };
+  }, [appId, data.chatbotId]);
 
   if (loading) {
     return (
@@ -186,7 +219,9 @@ const Chatbot = props => {
               icon="launch"
               className="Font20 textTertiary pointer"
               onClick={() => {
-                window.open(`/embed/chatbot/${appPkg.id}/${data.chatbotId}/${data.conversationId || ''}`);
+                window.open(
+                  pathCompletion(`/embed/chatbot/${appPkg.id}/${data.chatbotId}/${data.conversationId || ''}`),
+                );
               }}
             />
           </div>
@@ -205,7 +240,7 @@ const Chatbot = props => {
                     <div>{_l('编辑对话机器人')}</div>
                   </div>
                 </Menu.Item>
-                <Menu.Item key="flow" onClick={() => window.open(`/workflowedit/${data.chatbotId}`)}>
+                <Menu.Item key="flow" onClick={() => window.open(pathCompletion(`/workflowedit/${data.chatbotId}`))}>
                   <div className="flexRow valignWrapper">
                     <Icon icon="hr_structure" className="Font18 mLeft5 mRight10 textTertiary" />
                     <div>{_l('配置流程')}</div>

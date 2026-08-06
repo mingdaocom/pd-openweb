@@ -108,7 +108,7 @@ export default function SelectFieldForStartOrEnd(props) {
       begindate = begindateOrFirst ? (timeControls[0] || {}).controlId : '',
       enddate,
       calendarcids = '[]',
-    } = obj.advancedSetting;
+    } = obj.advancedSetting || {};
 
     try {
       calendarcids = JSON.parse(calendarcids);

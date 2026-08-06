@@ -188,6 +188,7 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -395,6 +396,17 @@ export default {
   **/
   updateWorksheetRow: function (args, options = {}) {
     return mdyAPI('PublicWorksheet', 'UpdateWorksheetRow', args, options);
+  },
+  /**
+  * 检查当前用户是否已达到公开表单填写次数上限
+在表单初始化时调用，提前告知用户是否可以继续填写
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  checkLimitWriteFrequency: function (args, options = {}) {
+    return mdyAPI('PublicWorksheet', 'CheckLimitWriteFrequency', args, options);
   },
   /**
    * 提交公开表单信息（行记录）

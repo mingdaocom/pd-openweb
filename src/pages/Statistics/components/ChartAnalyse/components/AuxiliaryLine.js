@@ -108,11 +108,14 @@ class LineConfigModal extends Component {
       lineConfig: {},
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible && !this.props.visible) {
-      this.setState({
-        lineConfig: nextProps.lineConfig,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible && !prevProps.visible) {
+        this.setState({
+          lineConfig: this.props.lineConfig,
+        });
+      }
     }
   }
   handleSave = () => {

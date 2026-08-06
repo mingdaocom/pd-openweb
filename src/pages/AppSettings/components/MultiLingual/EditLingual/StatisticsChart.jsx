@@ -2,36 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import report from 'statistics/api/report';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import BaseChart from './components/BaseChart';
 import EditInput from './EditInput';
-
-const Wrap = styled.div`
-  .reportNav {
-    width: 180px;
-    .report {
-      height: 36px;
-      border-radius: 4px;
-      padding: 0 10px;
-      margin-right: 12px;
-      &:hover {
-        background-color: var(--color-background-hover);
-      }
-    }
-  }
-  .reportWrap {
-    .reportName {
-      padding: 3px;
-    }
-    .nodeItem {
-      padding: 0 3px;
-    }
-  }
-`;
 
 export default function StatisticsChart(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -81,10 +57,10 @@ export default function StatisticsChart(props) {
     );
   }
 
-  const handlePositionReport = item => {
-    const el = document.querySelector(`.report-${item.id}`);
+  const handlePositionItem = item => {
+    const el = document.querySelector(`.navItem-${item.id}`);
     const className = 'highlight';
-    const highlightEl = el.querySelector('.reportName');
+    const highlightEl = el.querySelector('.itemName');
     $(highlightEl)
       .addClass(className)
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
@@ -95,17 +71,17 @@ export default function StatisticsChart(props) {
     }
   };
 
-  const renderReportNav = item => {
+  const renderNav = item => {
     const data = _.find(translateData, { correlationId: item.id }) || {};
     const translateInfo = data.data || {};
     return (
-      <div className="report flexRow alignItemsCenter pointer" key={item.id} onClick={() => handlePositionReport(item)}>
+      <div className="navItem flexRow alignItemsCenter pointer" key={item.id} onClick={() => handlePositionItem(item)}>
         <span className="mLeft5 Font13 ellipsis">{translateInfo.name || item.name}</span>
       </div>
     );
   };
 
-  const renderReportContent = item => {
+  const renderContent = item => {
     const data = _.find(translateData, { correlationId: item.id }) || {};
     const translateInfo = data.data || {};
     const comparisonLangInfo = getTranslateInfo(app.id, null, item.id, comparisonLangData);
@@ -124,8 +100,8 @@ export default function StatisticsChart(props) {
     };
 
     return (
-      <div className={cx('flexColumn mBottom30 reportWrap', `report-${item.id}`)} key={item.id}>
-        <div className="flexRow alignItemsCenter mBottom15 reportName">
+      <div className={cx('flexColumn mBottom30', `navItem-${item.id}`)} key={item.id}>
+        <div className="flexRow alignItemsCenter mBottom15 itemName">
           <span className="flex Font14 bold ellipsis">{translateInfo.name || item.name}</span>
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
@@ -157,8 +133,8 @@ export default function StatisticsChart(props) {
   };
 
   return (
-    <Wrap className="flexRow pAll10 h100">
-      <div className="reportNav flexColumn">
+    <div className="flexRow pAll10 h100">
+      <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
@@ -174,12 +150,12 @@ export default function StatisticsChart(props) {
           )}
         </div>
         <ScrollView className="h100">
-          {reportList.filter(report => report.name.includes(searchValue)).map(report => renderReportNav(report))}
+          {reportList.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="h100" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">{reportList.map(report => renderReportContent(report))}</div>
+        <div className="pLeft20 pRight20">{reportList.map(item => renderContent(item))}</div>
       </ScrollView>
-    </Wrap>
+    </div>
   );
 }

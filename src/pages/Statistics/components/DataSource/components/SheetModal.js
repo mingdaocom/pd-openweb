@@ -9,6 +9,7 @@ import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
 import { getTranslateInfo } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 
@@ -360,7 +361,7 @@ export default class SheetModal extends Component {
                                 <Button
                                   type="primary"
                                   onClick={() => {
-                                    window.open(`/app/${this.state.appId}/settings/aggregations`);
+                                    window.open(pathCompletion(`/app/${this.state.appId}/settings/aggregations`));
                                   }}
                                   style={{ borderRadius: 20 }}
                                 >
@@ -450,7 +451,7 @@ export default class SheetModal extends Component {
             getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
               <div
                 className="flexRow alignItemsCenter colorPrimary pointer"
-                onClick={() => window.open(`/app/${this.state.appId}/settings/aggregations`)}
+                onClick={() => window.open(pathCompletion(`/app/${this.state.appId}/settings/aggregations`))}
               >
                 <Icon icon="add" className="mRight2" />
                 {_l('新建聚合表')}

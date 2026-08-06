@@ -10,6 +10,7 @@ import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import variableApi from 'src/api/variable';
 import DatePickSelect from 'worksheet/components/DatePickerSelect';
+import { completeAdminLogLinks } from 'src/pages/Admin/logs/utils';
 
 const LogDrawer = styled(Drawer)`
   color: var(--color-text-title);
@@ -306,7 +307,9 @@ export default function VarLog(props) {
                   <span className="Font12 mRight8">{item.operator.fullname}</span>
                   <span
                     className="logContent"
-                    dangerouslySetInnerHTML={{ __html: filterXSS(item.opeartContent) }}
+                    dangerouslySetInnerHTML={{
+                      __html: filterXSS(completeAdminLogLinks(item.opeartContent)),
+                    }}
                   ></span>
                 </div>
                 <div className="Font12 textTertiary nowrap pTop2">{item.operationDatetime}</div>

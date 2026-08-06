@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { isRelateRecordTableControl } from 'src/utils/control';
@@ -14,6 +15,7 @@ const ResourceViewWrap = styled.div`
   background-color: var(--color-background-primary);
   min-height: 0;
 `;
+const LoadableResourceView = lazy(() => import('src/pages/worksheet/views/ResourceView'));
 
 function MobileResourceView(props) {
   const { view, controls, sheetSwitchPermit } = props;
@@ -32,23 +34,16 @@ function MobileResourceView(props) {
         sheetSwitchPermit,
       ) || []
     ).find(it => it.controlId === view.viewControl) || {};
-  const [Component, setComponent] = useState(null);
-
-  useEffect(() => {
-    import('src/pages/worksheet/views/ResourceView').then(component => {
-      setComponent(component.default);
-    });
-  }, []);
 
   if (!viewControlInfo.controlId) {
     return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="var(--color-success)" />;
   }
 
-  if (!Component) return;
-
   return (
     <ResourceViewWrap>
-      <Component {...props} />;
+      <Suspense fallback={<LoadDiv className="mTop10" />}>
+        <LoadableResourceView {...props} />
+      </Suspense>
     </ResourceViewWrap>
   );
 }

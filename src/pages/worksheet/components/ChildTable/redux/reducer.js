@@ -53,10 +53,27 @@ function base(state = {}, action) {
   }
 }
 
+const DIRTY_MARKING_ACTIONS = [
+  'ADD_ROW',
+  'ADD_ROWS',
+  'UPDATE_ROW',
+  'UPDATE_ROWS',
+  'DELETE_ROW',
+  'DELETE_ROWS',
+  'CLEAR_AND_SET_ROWS',
+];
+
 function changes(state = {}, action) {
+  if (_.includes(DIRTY_MARKING_ACTIONS, action.type)) {
+    return { ...state, isDirty: true };
+  }
+
   switch (action.type) {
     case 'DELETE_ALL':
-      return { ...state, isDeleteAll: true };
+      return { ...state, isDeleteAll: true, isDirty: true };
+    case 'LOAD_ROWS':
+    case 'INIT_ROWS':
+    case 'FORCE_SET_OUT_ROWS':
     case 'RESET_CHANGES':
     case 'RESET':
       return {};
@@ -114,6 +131,7 @@ const ROWS_HANDLED_ACTIONS = [
 
 function rows(state = [], action) {
   const emptyCount = action.emptyCount || 0;
+
   // 无关 action 不重建空行，避免重新生成 empty rowid 导致在途交互（focus/paste）丢失行引用
   if (!_.includes(ROWS_HANDLED_ACTIONS, action.type)) {
     return state.length < emptyCount && !browserIsMobile() ? fillEmptyRows(state, emptyCount) : state;
@@ -137,6 +155,11 @@ function rows(state = [], action) {
       newState = action.rows.map(row => ({ ...row }));
       break;
     case 'ADD_ROW':
+      if (action.insertRowId === '__HEAD__') {
+        newState = [action.row, ...newState];
+        break;
+      }
+
       insertIndex = action.insertRowId ? _.findIndex(newState, r => r.rowid === action.insertRowId) : -1;
       if (insertIndex >= 0) {
         newState.splice(insertIndex + 1, 0, action.row);
@@ -190,6 +213,20 @@ function pagination(state = { pageIndex: 1, pageSize: 20, count: 0 }, action) {
   }
 }
 
+// 子表"未筛选时的真实总行数"：筛选态下 state.rows 只是服务端筛选后的子集，
+// 无法据此判空触发必填，故由 actions 在未筛选加载时落总数、筛选态下按本地增删增量维护。
+// 默认 null = 未知（从未在未筛选态加载过），判空时回退旧的安全策略，避免误报必填。
+function realCount(state = null, action) {
+  switch (action.type) {
+    case 'SET_REAL_COUNT':
+      return _.isNumber(action.value) ? Math.max(0, action.value) : null;
+    case 'RESET':
+      return null;
+    default:
+      return state;
+  }
+}
+
 function sortConfig(state = null, action) {
   switch (action.type) {
     case 'UPDATE_SORT_CONFIG':
@@ -198,6 +235,17 @@ function sortConfig(state = null, action) {
     case 'LOAD_ROWS':
     case 'CLEAR_AND_SET_ROWS':
       return null;
+    default:
+      return state;
+  }
+}
+
+function filterControls(state = [], action) {
+  switch (action.type) {
+    case 'UPDATE_FILTER_CONTROLS':
+      return action.filterControls || [];
+    case 'RESET':
+      return [];
     default:
       return state;
   }
@@ -214,5 +262,7 @@ export default combineReducers({
   rows,
   changes,
   pagination,
+  realCount,
   sortConfig,
+  filterControls,
 });

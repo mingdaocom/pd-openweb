@@ -5,7 +5,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Icon } from 'ming-ui';
-import { formatContrastTypes, formatLineChartContrastTypes } from 'statistics/common';
+import { formatContrastTypes, formatLineChartContrastTypes } from 'statistics/common/timeUtils';
 
 const { RangePicker } = DatePicker;
 

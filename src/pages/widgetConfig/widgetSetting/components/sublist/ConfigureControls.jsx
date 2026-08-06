@@ -167,7 +167,7 @@ const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHan
     <WidgetInfo>
       <DragHandle>
         <div className="iconOption grab">
-          <i className="icon-drag textTertiary ThemeHoverColor3"></i>
+          <i className="icon-drag textTertiary hoverColorPrimary"></i>
         </div>
       </DragHandle>
       <div className="widgetItem noSelect overflow_ellipsis pointer" onMouseDown={configureWidget}>
@@ -178,7 +178,7 @@ const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHan
       </div>
       <div className="iconOption">
         <Tooltip title={_l('复制')}>
-          <i className="copy icon-copy pointer textTertiary ThemeHoverColor3 Font16" onMouseDown={copyWidget}></i>
+          <i className="copy icon-copy pointer textTertiary hoverColorPrimary Font16" onMouseDown={copyWidget}></i>
         </Tooltip>
       </div>
       <div className="iconOption mRight5">
@@ -209,9 +209,18 @@ export default function ConfigureControl(props) {
     setWidgetIndex(-1);
   }, [data.controlId]);
 
+  // 子表字段增删改序后，controlssorts 必须跟着 showControls 一起更新，否则渲染时列顺序会错乱
+  const updateControlsWithSorts = nextControls => ({
+    ...handleAdvancedSettingChange(data, {
+      controlssorts: JSON.stringify(nextControls.map(({ controlId }) => controlId)),
+    }),
+    relationControls: nextControls,
+    showControls: nextControls.map(({ controlId }) => controlId),
+  });
+
   const addControl = control => {
     const nextControls = controls.concat(control);
-    onChange({ relationControls: nextControls, showControls: nextControls.map(({ controlId }) => controlId) });
+    onChange(updateControlsWithSorts(nextControls));
     // 滚动条拖底
     if (count >= 10 && $wrap && $wrap.current) {
       const wrapTimer = setTimeout(() => {
@@ -367,13 +376,13 @@ export default function ConfigureControl(props) {
 
   const handleDeleteWidget = index => {
     const newRelationControls = update(controls, { $splice: [[index, 1]] });
-    onChange({ relationControls: newRelationControls, showControls: newRelationControls.map(i => i.controlId) });
+    onChange(updateControlsWithSorts(newRelationControls));
   };
 
   const handleCopyWidget = index => {
     const curControl = controls[index];
     const newRelationControls = controls.concat([dealCopyWidgetId(curControl)]);
-    onChange({ relationControls: newRelationControls, showControls: newRelationControls.map(i => i.controlId) });
+    onChange(updateControlsWithSorts(newRelationControls));
   };
 
   const handleControlDataChange = (id, obj) => {
@@ -429,13 +438,7 @@ export default function ConfigureControl(props) {
             items={controls}
             itemKey="controlId"
             onSortEnd={nextControls => {
-              onChange({
-                ...handleAdvancedSettingChange(data, {
-                  controlssorts: JSON.stringify(nextControls.map(item => item.controlId)),
-                }),
-                relationControls: nextControls,
-                showControls: nextControls.map(({ controlId }) => controlId),
-              });
+              onChange(updateControlsWithSorts(nextControls));
             }}
             renderItem={({ item, index, DragHandle }) => (
               <SortableItem

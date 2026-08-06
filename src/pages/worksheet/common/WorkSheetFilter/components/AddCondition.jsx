@@ -20,13 +20,17 @@ export default class AddCondition extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.from === 'fastFilter' &&
-      nextProps.defaultVisible !== this.state.columnListVisible &&
-      !_.isUndefined(nextProps.defaultVisible)
-    ) {
-      this.setState({ columnListVisible: nextProps.defaultVisible });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.from === 'fastFilter' &&
+        this.props.defaultVisible !== this.state.columnListVisible &&
+        !_.isUndefined(this.props.defaultVisible)
+      ) {
+        this.setState({
+          columnListVisible: this.props.defaultVisible,
+        });
+      }
     }
   }
 

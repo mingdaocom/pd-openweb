@@ -26,21 +26,28 @@ export default class SyncDialog extends Component {
     this.ajaxWorkWXUsers = null;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      (!_.isEqual(this.props.isBindRelationship, nextProps.isBindRelationship) && nextProps.isBindRelationship) ||
-      (nextProps.integrationType === 7 && nextProps.visible)
-    ) {
-      this.setState({ loading: true }, () => {
-        this.getBindList();
-      });
-    } else if (nextProps.isBindRelationship === false) {
-      this.setState({
-        mingDaoUserInfos: nextProps.mingDaoUserInfos,
-        bindQWUserIds: nextProps.bindQWUserIds,
-        filterMatchPhoneBindUserIds: nextProps.filterMatchPhoneBindUserIds,
-        logDetailItems: nextProps.logDetailItems,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        (!_.isEqual(prevProps.isBindRelationship, this.props.isBindRelationship) && this.props.isBindRelationship) ||
+        (this.props.integrationType === 7 && this.props.visible)
+      ) {
+        this.setState(
+          {
+            loading: true,
+          },
+          () => {
+            this.getBindList();
+          },
+        );
+      } else if (this.props.isBindRelationship === false) {
+        this.setState({
+          mingDaoUserInfos: this.props.mingDaoUserInfos,
+          bindQWUserIds: this.props.bindQWUserIds,
+          filterMatchPhoneBindUserIds: this.props.filterMatchPhoneBindUserIds,
+          logDetailItems: this.props.logDetailItems,
+        });
+      }
     }
   }
 

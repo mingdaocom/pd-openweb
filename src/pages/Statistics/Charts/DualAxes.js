@@ -4,7 +4,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { formatterTooltipTitle } from 'statistics/common/timeUtils';
 import { toFixed } from 'src/utils/control';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import {
@@ -21,6 +23,19 @@ import {
   reportTypes,
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
+import loadG2Plot from './loadG2Plot';
+
+const getXAxisKey = item => (_.isNil(item.originalId) || item.originalId === '' ? item.name : item.originalId);
+
+const getXAxisLabel = (value, data) => {
+  const item = _.find(data, item => item.xAxisKey === value);
+
+  if (item) {
+    return item.name || _l('空');
+  }
+
+  return _.isNil(value) || value === '' ? _l('空') : value;
+};
 
 const getLineChartXAxis = (controlId, data) => {
   if (controlId) {
@@ -32,9 +47,9 @@ const getLineChartXAxis = (controlId, data) => {
         result.push(item);
       }
     });
-    return result.map(item => item.name);
+    return _.uniqBy(result, 'xAxisKey').map(item => item.xAxisKey);
   } else {
-    return _.uniqBy(data.map(item => item.name));
+    return _.uniqBy(data, 'xAxisKey').map(item => item.xAxisKey);
   }
 };
 
@@ -60,19 +75,26 @@ export default class extends Component {
       linkageMatch: null,
     };
     this.DualAxes = null;
+    this.DualAxesComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.DualAxesComponent = data.DualAxes;
       this.renderDualAxesChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.DualAxes && this.DualAxes.destroy();
+    this.isUnmounted = true;
+    this.destroyDualAxesChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, rightY, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
+  componentDidUpdate(prevProps) {
+    const { displaySetup, rightY, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = prevProps.reportData;
 
     if (_.isEmpty(rightY)) {
       return;
@@ -80,9 +102,14 @@ export default class extends Component {
 
     const rightYDisplay = rightY.display.ydisplay;
     const oldRightYDisplay = oldRightY.display.ydisplay;
-
-    // 显示设置
-    if (
+    const shouldRecreate =
+      displaySetup.isPile !== oldDisplaySetup.isPile ||
+      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
+      rightY.display.isAccumulate !== oldRightY.display.isAccumulate ||
+      rightY.display.accumulatePerPile !== oldRightY.display.accumulatePerPile ||
+      rightY.display.isPile !== oldRightY.display.isPile ||
+      this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -110,50 +137,59 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const config = this.getComponentConfig(nextProps);
-      this.DualAxes && this.DualAxes.update(config);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.DualAxesComponent) {
+      return;
     }
 
     // 堆叠 & 累计
-    if (
-      displaySetup.isPile !== oldDisplaySetup.isPile ||
-      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
-      rightY.display.isAccumulate !== oldRightY.display.isAccumulate ||
-      rightY.display.accumulatePerPile !== oldRightY.display.accumulatePerPile ||
-      rightY.display.isPile !== oldRightY.display.isPile ||
-      nextProps.isLinkageData !== this.props.isLinkageData
-    ) {
-      this.DualAxes && this.DualAxes.destroy();
-      this.renderDualAxesChart(nextProps);
+    if (shouldRecreate) {
+      this.renderDualAxesChart(this.props);
+      return;
+    }
+
+    // 显示设置
+    if (shouldUpdate && this.DualAxes) {
+      const config = this.getComponentConfig(this.props);
+      this.DualAxes.update(config);
     }
   }
+  destroyDualAxesChart = () => {
+    if (this.DualAxes) {
+      this.DualAxes.destroy();
+      this.DualAxes = null;
+    }
+  };
   renderDualAxesChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
+
+    if (!this.chartEl || !this.DualAxesComponent) {
+      return;
+    }
+
     const config = this.getComponentConfig(props);
 
-    if (this.chartEl) {
-      this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        (xaxes.controlId || split.controlId);
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.DualAxes.on('element:click', this.handleClick);
-      }
-
-      this.DualAxes.render();
+    this.destroyDualAxesChart();
+    this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      (xaxes.controlId || split.controlId);
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.DualAxes.on('element:click', this.handleClick);
     }
+
+    this.DualAxes.render();
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts } = reportData;
@@ -162,6 +198,7 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
     const splitId = split.controlId;
     const xaxesId = xaxes.controlId;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, colorRules } = displaySetup;
@@ -186,43 +223,53 @@ export default class extends Component {
       : formatLineChartData(contrastMap, rightY.yaxisList, {}, _.get(rightY, 'split.controlId'));
     let names = [];
 
+    data.forEach(item => {
+      item.xAxisKey = getXAxisKey(item);
+    });
+    lineData.forEach(item => {
+      item.xAxisKey = getXAxisKey(item);
+    });
+
     const newYaxisList = formatYaxisList(data, yaxisList);
     const newRightYaxisList = formatYaxisList(lineData, rightY.yaxisList);
 
     const countConfig =
       showPileTotal && isPile && (yaxisList.length > 1 || splitId) ? formatDataCount(data, true, newYaxisList) : [];
+    countConfig.forEach(item => {
+      item.position.xAxisKey = getXAxisKey(item.position);
+    });
 
     if (isLeftSort) {
-      names = data.map(item => item.name);
+      names = _.uniqBy(data, 'xAxisKey').map(item => item.xAxisKey);
       sortLineXAxis = getLineChartXAxis(splitId ? null : leftSorts[0].controlId, data);
     }
 
     if (isRightSort) {
-      names = _.uniqBy(lineData.map(item => item.name));
+      names = _.uniqBy(lineData, 'xAxisKey').map(item => item.xAxisKey);
       sortLineXAxis = getLineChartXAxis(rightY.splitId ? null : rightSorts[0].controlId, lineData);
     }
 
     if (!(isLeftSort || isRightSort)) {
-      names = data.map(item => item.name);
+      names = _.uniqBy(data, 'xAxisKey').map(item => item.xAxisKey);
       sortLineXAxis = getLineChartXAxis(null, data);
     }
 
     if (sortLineXAxis.length) {
       data = data
         .filter(item => {
-          return sortLineXAxis.includes(item.name);
+          return sortLineXAxis.includes(item.xAxisKey);
         })
         .map(item => {
-          item.sortIndex = names.indexOf(item.name);
+          item.sortIndex = names.indexOf(item.xAxisKey);
           return item;
         })
         .sort((a, b) => a.sortIndex - b.sortIndex);
       lineData = lineData
         .filter(item => {
-          return sortLineXAxis.includes(item.name);
+          return sortLineXAxis.includes(item.xAxisKey);
         })
         .map(item => {
-          item.sortIndex = names.indexOf(item.name);
+          item.sortIndex = names.indexOf(item.xAxisKey);
           return item;
         })
         .sort((a, b) => a.sortIndex - b.sortIndex);
@@ -259,7 +306,12 @@ export default class extends Component {
       yaxisList: rightY.yaxisList,
       colors: rightYColors,
     });
-    const rightYShowNumber = rightYDisplay.showNumber ?? true;
+    const showNumber = isMobile
+      ? (displaySetup.mobileShowNumber ?? displaySetup.showNumber ?? true)
+      : (displaySetup.showNumber ?? true);
+    const rightYShowNumber = isMobile
+      ? (rightYDisplay.mobileShowNumber ?? rightYDisplay.showNumber ?? true)
+      : (rightYDisplay.showNumber ?? true);
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -316,7 +368,7 @@ export default class extends Component {
 
         return color;
       },
-      label: displaySetup.showNumber
+      label: showNumber
         ? {
             position: displaySetup.isPile ? 'middle' : 'top',
             layout: [
@@ -375,12 +427,17 @@ export default class extends Component {
       item.rightValue = item.value;
     });
 
+    const emptyData =
+      data.length || lineData.length
+        ? []
+        : getEmptyChartData(reportData).map(item => ({ ...item, xAxisKey: getXAxisKey(item) }));
+    const allData = data.concat(lineData, emptyData);
     const topPadding = position === 'bottom' ? 20 : 15;
 
     const baseConfig = {
-      data: data.length || lineData.length ? [data, lineData] : [getEmptyChartData(reportData), []],
+      data: data.length || lineData.length ? [data, lineData] : [emptyData, []],
       appendPadding: [topPadding, 0, 5, 0],
-      xField: 'name',
+      xField: 'xAxisKey',
       yField: ['value', 'rightValue'],
       yAxis: {
         value: {
@@ -453,10 +510,10 @@ export default class extends Component {
         },
       },
       meta: {
-        name: {
+        xAxisKey: {
           type: 'cat',
           ...(sortLineXAxis.length ? { values: sortLineXAxis } : {}),
-          formatter: value => value || _l('空'),
+          formatter: value => getXAxisLabel(value, allData),
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -535,7 +592,8 @@ export default class extends Component {
           ? {
               autoRotate: displaySetup.fontStyle ? true : false,
               autoHide: true,
-              formatter: name => {
+              formatter: value => {
+                const name = getXAxisLabel(value, allData);
                 return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
               style: {
@@ -545,11 +603,6 @@ export default class extends Component {
           : null,
         line: ydisplay.lineStyle === 1 ? {} : null,
       },
-      // slider: style.showXAxisSlider ? {
-      //   start: 0,
-      //   end: 0.5,
-      //   formatter: () => null
-      // } : undefined,
       legend: displaySetup.showLegend
         ? {
             position,
@@ -575,7 +628,7 @@ export default class extends Component {
 
     if (yreportType === reportTypes.LineChart) {
       baseConfig.geometryOptions = [
-        Object.assign({}, lineConfig, { color: colors, label: displaySetup.showNumber ? lineLabelConfig : false }),
+        Object.assign({}, lineConfig, { color: colors, label: showNumber ? lineLabelConfig : false }),
         lineConfig,
       ];
     }
@@ -692,6 +745,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.DualAxes || !this.DualAxesComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {

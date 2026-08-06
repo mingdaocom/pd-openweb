@@ -52,7 +52,9 @@ const StyleDefault = props => {
     defaultConfig.color ||
     (_.includes(['cardtitlestyle'], editKey) && data.type !== 34
       ? 'var(--color-text-secondary)'
-      : 'var(--color-text-title)');
+      : editKey.startsWith('title')
+        ? 'var(--color-text-primary)'
+        : 'var(--color-text-title)');
   return (
     <Fragment>
       <SectionItem key={editKey}>
@@ -250,7 +252,6 @@ const OtherDefault = props => {
 // 文本框高度
 const TextHeightLimit = props => {
   const { data, onChange } = props;
-  const { type } = data;
   const { minheight = '90', maxheight } = getAdvanceSetting(data);
   return (
     <SettingItem>

@@ -204,7 +204,7 @@ export default function (props) {
                         }}
                       >
                         <div className="flex WordBreak overflow_ellipsis">{renderItemCon(record)}</div>
-                        {isHas && <Icon className="ThemeColor3 Font18" icon="ok" />}
+                        {isHas && <Icon className="colorPrimary Font18" icon="ok" />}
                       </div>
                     );
                   })}

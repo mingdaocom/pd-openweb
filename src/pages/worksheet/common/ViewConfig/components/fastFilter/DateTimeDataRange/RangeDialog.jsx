@@ -58,7 +58,7 @@ export default function (props) {
             className={cx(
               ' mLeft20 TxtTop',
               DATE_TYPE_PASS.filter(o => defaultRange.includes(o)).length > 0
-                ? 'Hand ThemeColor3'
+                ? 'Hand colorPrimary'
                 : 'textDisabled disabledBtn',
             )}
             onClick={() => {
@@ -71,7 +71,7 @@ export default function (props) {
             className={cx(
               'mLeft20 TxtTop',
               DATE_TYPE_FUTURE.filter(o => defaultRange.includes(o)).length > 0
-                ? 'Hand ThemeColor3'
+                ? 'Hand colorPrimary'
                 : 'textDisabled disabledBtn',
             )}
             onClick={() => {

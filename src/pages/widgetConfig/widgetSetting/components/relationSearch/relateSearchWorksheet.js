@@ -57,7 +57,7 @@ function FilterRelateSearch(props) {
         <div className="Font14 pBottom8">
           {_l('查询工作表')}
           <span
-            className="ThemeColor3 ThemeHoverColor2 Hand Bold mLeft8"
+            className="colorPrimary hoverColorPrimaryDark Hand Bold mLeft8"
             onClick={() =>
               toEditWidgetPage({
                 sourceId: sheetId,

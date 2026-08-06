@@ -49,6 +49,16 @@ const Footer = styled.div`
   }
 `;
 
+const formatAppFile = (file = {}) => ({
+  id: file.id || file.fileID,
+  fileID: file.fileID,
+  name: file.name || file.originalFileName || file.originalFilename || file.fileName,
+  size: file.size,
+  type: file.type,
+  url: file.url,
+  status: 'uploaded',
+});
+
 const CompositeInput = forwardRef((props, ref) => {
   const { step, text, loading, error, onStart, onReset, onGenerateRecord } = useVoice();
 
@@ -73,23 +83,35 @@ const CompositeInput = forwardRef((props, ref) => {
     setExistingFiles(prev => [...prev, ...files]);
   };
 
+  const clearUploadFiles = () => {
+    uploadFileRef.current?.clearUploadFiles?.();
+  };
+
+  const resetInput = () => {
+    clearUploadFiles();
+    setExistingFiles([]);
+    setValue('');
+  };
+
   const onUploadProgress = (up, file) => {
     const progress = ((file.loaded / file.size) * 100).toFixed(0);
     setExistingFiles(oldFiles => [
-      ...oldFiles.map(f => (f.id === file.id ? { ...f, status: 'uploading', file, progress } : f)),
+      ...oldFiles.map(f => (f.id === file.id ? { ...f, status: 'uploading', progress } : f)),
     ]);
   };
 
   const onUploaded = (up, file) => {
     setExistingFiles(oldFiles => [
-      ...oldFiles.map(f => (f.id === file.id ? { ...f, status: 'uploaded', file, url: file.url } : f)),
+      ...oldFiles.map(f =>
+        f.id === file.id ? { ...f, status: 'uploaded', url: file.url, file: { id: file.id, url: file.url } } : f,
+      ),
     ]);
   };
 
   const removeFile = ({ id }) => {
-    setExistingFiles(existingFiles.filter(f => f.id !== id));
+    setExistingFiles(files => files.filter(f => f.id !== id));
     if (!window.isMingDaoApp) {
-      uploadFileRef.current?.uploader?.uploader?.removeFile({ id });
+      uploadFileRef.current?.removeUploadFile?.({ id }, { silent: true });
     }
   };
 
@@ -114,14 +136,14 @@ const CompositeInput = forwardRef((props, ref) => {
     onGenerateRecord({ text: value, filesList: existingFiles });
     onReset();
     setVisible(false);
-    setExistingFiles([]);
-    setValue('');
+    resetInput();
   };
 
   const onCancel = () => {
     if (isEmpty()) {
       onReset();
       setVisible(false);
+      resetInput();
     } else {
       setConfirmVisible(true);
     }
@@ -139,7 +161,7 @@ const CompositeInput = forwardRef((props, ref) => {
         const { sessionId, completed, error, uploading } = res;
         setUploadSessionId(sessionId);
         if (completed?.length) {
-          setExistingFiles(prev => [...prev, ...completed.map(item => ({ ...item, id: item.fileID }))]);
+          setExistingFiles(prev => [...prev, ...completed.map(formatAppFile)]);
         }
 
         if (!uploading && error) {
@@ -149,6 +171,12 @@ const CompositeInput = forwardRef((props, ref) => {
       cancel: () => {},
     });
   };
+
+  useEffect(() => {
+    return () => {
+      clearUploadFiles();
+    };
+  }, []);
 
   if (!visible || loading) return null;
 
@@ -163,8 +191,7 @@ const CompositeInput = forwardRef((props, ref) => {
           onConfirm={() => {
             onReset();
             setVisible(false);
-            setExistingFiles([]);
-            setValue('');
+            resetInput();
             setConfirmVisible(false);
           }}
         />
@@ -196,7 +223,7 @@ const CompositeInput = forwardRef((props, ref) => {
                       existingFiles={existingFiles}
                       onUploadProgress={onUploadProgress}
                       onUploaded={onUploaded}
-                      removeFile={file => setFiles(oldFiles => oldFiles.filter(f => f.id !== file.id))}
+                      removeFile={removeFile}
                     >
                       <Icon icon="attachment" />
                     </UploadFiles>

@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, Progress, QiniuUpload } from 'ming-ui';
-import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import {
   checkAccountUploadLimit,
@@ -11,176 +10,11 @@ import {
   formatResponseData,
   getFilesSize,
 } from 'src/components/UploadFiles/utils';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { generateRandomPassword } from 'src/utils/common';
 import { getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
+import { processImageFile } from './imageProcessor';
 import './index.less';
-
-const WATERMARK_TEXT_LIMIT = 200;
-
-function getLimitedWatermarkText(text) {
-  if (!text) return '';
-
-  const chars = Array.from(text);
-  return chars.length > WATERMARK_TEXT_LIMIT ? `${chars.slice(0, WATERMARK_TEXT_LIMIT).join('')}...` : text;
-}
-
-function getDynamicWrapTxt(dynamicTxt, canvasWidth, ctx, fontSize) {
-  if (!dynamicTxt) return [];
-
-  ctx.font = `${fontSize}px 'Fira Sans'`;
-  var paragraphs = dynamicTxt.split('\n');
-  const txtList = [];
-  paragraphs.forEach(function (paragraph) {
-    paragraph = paragraph.trim();
-
-    var words = paragraph.split('');
-    var line = '';
-
-    for (var n = 0; n < words.length; n++) {
-      var testLine = line + words[n];
-      var metrics = ctx.measureText(testLine);
-      var testWidth = metrics.width;
-      if (testWidth > canvasWidth && n > 0) {
-        txtList.push(line);
-        line = words[n];
-      } else {
-        line = testLine;
-      }
-    }
-
-    txtList.push(line);
-  });
-
-  return txtList;
-}
-
-function compressImage(file, quality) {
-  return new Promise(resolve => {
-    var reader = new FileReader();
-    reader.onload = function (event) {
-      var image = new Image();
-      image.src = event.target.result;
-      image.onload = function () {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        ctx.drawImage(image, 0, 0);
-        try {
-          var compressedDataUrl = canvas.toDataURL(file.type, quality);
-          var byteString = atob(compressedDataUrl.split(',')[1]);
-          var mimeType = compressedDataUrl.split(',')[0].split(':')[1].split(';')[0];
-          var ab = new ArrayBuffer(byteString.length);
-          var ia = new Uint8Array(ab);
-          for (var i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
-
-          var blob = new Blob([ab], { type: mimeType });
-          var compressedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
-          if (compressedFile.size < file.size) {
-            resolve(compressedFile);
-          } else {
-            resolve(file);
-          }
-        } catch (error) {
-          console.error(error);
-          resolve(file);
-        }
-      };
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, currentLocation }) {
-  const isNew = !!_.get(advancedSetting, 'h5watermark');
-  let textLayouts = [];
-  let dynamicTxt = '';
-
-  if (!isNew) {
-    const { formattedAddress, position } = currentLocation || {};
-
-    if (md.global.Account.fullname && watermark.includes('user')) {
-      textLayouts.push(md.global.Account.fullname);
-    }
-
-    if (watermark.includes('time')) {
-      textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
-    }
-
-    if (formattedAddress && watermark.includes('address')) {
-      textLayouts.push(formattedAddress);
-    }
-
-    if (position && watermark.includes('xy')) {
-      textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
-    }
-  } else {
-    dynamicTxt = getDynamicValue(dynamicControls, {
-      controlId: 'temp',
-      type: 2,
-      advancedSetting: {
-        defsource: JSON.stringify(transferValue(advancedSetting.h5watermark)),
-      },
-    });
-  }
-
-  return new Promise(resolve => {
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-      const image = new Image();
-
-      image.onload = function () {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0);
-
-        const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
-        const lineSpacing = 6;
-        const xOffset = 20;
-        const textMaxWidth = canvas.width - xOffset * 2;
-
-        textLayouts = isNew
-          ? getDynamicWrapTxt(getLimitedWatermarkText(dynamicTxt), textMaxWidth, ctx, fontSize)
-          : textLayouts;
-
-        // 绘制背景
-        const bgColoryOffset = fontSize * textLayouts.length + lineSpacing * textLayouts.length;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.fillRect(0, canvas.height - bgColoryOffset - fontSize, canvas.width, bgColoryOffset + fontSize);
-
-        // 绘制文字
-        ctx.font = `${fontSize}px 'Fira Sans'`;
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.backgroundColor = 'var(--color-border-tertiary)';
-
-        textLayouts.forEach((text, index) => {
-          const i = textLayouts.length - index;
-          const yOffset = canvas.height - fontSize * i - lineSpacing * i;
-          ctx.fillText(text, xOffset, yOffset + 10);
-        });
-
-        canvas.toBlob(blob => {
-          var compressedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
-          resolve(compressedFile);
-        });
-      };
-
-      image.src = event.target.result;
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
 
 export class UploadFileWrapper extends Component {
   constructor(props) {
@@ -190,12 +24,16 @@ export class UploadFileWrapper extends Component {
     };
     this.currentFile = null;
     this.id = `uploadFiles-${generateRandomPassword(10)}`;
+    this.uploading = false;
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.files.length !== this.props.files.length) {
-      this.setState({
-        files: nextProps.files,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.files.length !== prevProps.files.length) {
+        this.setState({
+          files: this.props.files,
+        });
+      }
     }
   }
 
@@ -217,23 +55,38 @@ export class UploadFileWrapper extends Component {
           return;
         }
 
+        if (self.uploading) {
+          self.removeFiles(uploader, files);
+          return;
+        }
+
+        self.setUploadLock(uploader, true);
+
         //判断应用上传量是否达到上限
         const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
 
         if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
           const filesSize = getFilesSize(files);
           const params = { projectId, appId, fromType: 9 };
-          const available = await checkAccountUploadLimit(filesSize, params);
+          let available;
+
+          try {
+            available = await checkAccountUploadLimit(filesSize, params);
+          } catch (error) {
+            console.error(error);
+            self.setUploadLock(uploader, false);
+            return;
+          }
 
           if (!available) {
             alert(_l('应用附件上传量已到最大值'), 3);
             self.onRemoveAll(uploader);
             self.props.onChange([], true);
+            self.setUploadLock(uploader, false);
             return;
           }
         }
 
-        self.uploading = true;
         const start = () => {
           if (advancedSetting) {
             let isAvailable;
@@ -241,6 +94,7 @@ export class UploadFileWrapper extends Component {
             isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
             if (!isAvailable) {
               self.onRemoveAll(uploader);
+              self.setUploadLock(uploader, false);
               return;
             }
           }
@@ -261,6 +115,7 @@ export class UploadFileWrapper extends Component {
               });
               if (errors.length === files.length) {
                 self.onRemoveAll(uploader);
+                self.setUploadLock(uploader, false);
                 return;
               } else {
                 files.forEach(item => {
@@ -296,7 +151,11 @@ export class UploadFileWrapper extends Component {
             files: newFiles,
           });
           self.props.onChange(newFiles);
-          nextStart && nextStart();
+          if (nextStart) {
+            nextStart();
+          } else {
+            self.setUploadLock(uploader, false);
+          }
         };
 
         const watermark = _.get(advancedSetting, 'h5watermark') || _.get(advancedSetting, 'watermark');
@@ -304,70 +163,68 @@ export class UploadFileWrapper extends Component {
         const isWebcompress = _.get(advancedSetting, 'webcompress') !== '0';
 
         if (isWatermark || isWebcompress) {
-          Promise.all(
-            files
-              .filter(file => {
-                const ext = RegExpValidator.getExtOfFileName(file.name);
-                return RegExpValidator.fileIsPicture(`.${ext}`);
-              })
-              .map(file => {
-                return new Promise(async resolve => {
-                  const nativeFile = file.getNative();
-                  let newFile = nativeFile;
-
-                  if (isWatermark) {
-                    const dynamicControlIds = _.get(advancedSetting, 'h5watermark')
-                      ? _.get(advancedSetting, 'h5watermark').split('$')
-                      : JSON.parse(advancedSetting.watermark || null).filter(
-                          v => !!v && !_.includes(['user', 'time', 'address', 'xy'], v),
-                        );
-                    const { formattedAddress, position } = currentLocation || {};
-                    const dynamicControls = _.map(dynamicControlIds, item => {
-                      if (item === 'user' && md.global.Account.fullname) {
-                        return { controlId: 'user', type: 2, value: md.global.Account.fullname };
-                      }
-
-                      if (item === 'time') {
-                        return { controlId: 'time', type: 2, value: moment().format('YYYY-MM-DD HH:mm:ss') };
-                      }
-
-                      if (item === 'address' && formattedAddress) {
-                        return { controlId: 'address', type: 2, value: formattedAddress };
-                      }
-
-                      if (item === 'xy' && position) {
-                        return {
-                          controlId: 'xy',
-                          type: 2,
-                          value: `${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`,
-                        };
-                      }
-
-                      return _.find(formData, v => v.controlId === item);
-                    })
-                      .filter(_.identity)
-                      .filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type)); // 文本、数值、金额、邮箱、日期、时间、电话、座机
-
-                    newFile = await addWaterMarker(newFile, watermark, {
-                      dynamicControls,
-                      advancedSetting,
-                      currentLocation,
-                    });
-                  }
-
-                  if (isWebcompress) {
-                    newFile = await compressImage(newFile, 0.3);
-                  }
-
-                  file.size = newFile.size;
-                  file.setSource({ size: newFile.size });
-                  file.getSource().setSource(newFile);
-                  resolve();
-                });
-              }),
-          ).then(() => {
-            start();
+          const pictureFiles = files.filter(file => {
+            const ext = RegExpValidator.getExtOfFileName(file.name);
+            return RegExpValidator.fileIsPicture(`.${ext}`);
           });
+
+          const getDynamicControls = () => {
+            const dynamicControlIds = _.get(advancedSetting, 'h5watermark')
+              ? _.get(advancedSetting, 'h5watermark').split('$')
+              : safeParse(advancedSetting.watermark || null, 'array').filter(
+                  v => !!v && !_.includes(['user', 'time', 'address', 'xy'], v),
+                );
+            const { formattedAddress, position } = currentLocation || {};
+
+            return _.map(dynamicControlIds, item => {
+              if (item === 'user' && md.global.Account.fullname) {
+                return { controlId: 'user', type: 2, value: md.global.Account.fullname };
+              }
+
+              if (item === 'time') {
+                return { controlId: 'time', type: 2, value: moment().format('YYYY-MM-DD HH:mm:ss') };
+              }
+
+              if (item === 'address' && formattedAddress) {
+                return { controlId: 'address', type: 2, value: formattedAddress };
+              }
+
+              if (item === 'xy' && position) {
+                return {
+                  controlId: 'xy',
+                  type: 2,
+                  value: `${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`,
+                };
+              }
+
+              return _.find(formData, v => v.controlId === item);
+            })
+              .filter(_.identity)
+              .filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type)); // 文本、数值、金额、邮箱、日期、时间、电话、座机
+          };
+
+          for (const file of pictureFiles) {
+            try {
+              const nativeFile = file.getNative();
+              const newFile = await processImageFile(nativeFile, {
+                needWatermark: !!isWatermark,
+                watermark,
+                dynamicControls: isWatermark ? getDynamicControls() : [],
+                advancedSetting,
+                currentLocation,
+                needCompress: isWebcompress,
+                quality: 0.3,
+              });
+
+              file.size = newFile.size;
+              file.setSource({ size: newFile.size });
+              file.getSource().setSource(newFile);
+            } catch (error) {
+              console.error(error);
+            }
+          }
+
+          start();
         } else {
           start();
         }
@@ -408,9 +265,10 @@ export class UploadFileWrapper extends Component {
           files: newFiles,
         });
         self.props.onChange(newFiles, !newFiles.filter(n => 'progress' in n).length);
+        self.removeFile(uploader, file);
       },
       onUploadComplete() {
-        self.uploading = false;
+        self.setUploadLock(self.currentFile, false);
       },
       onError(uploader, error) {
         if (error.code === window.plupload.FILE_SIZE_ERROR) {
@@ -418,6 +276,9 @@ export class UploadFileWrapper extends Component {
         } else {
           alert(_l('上传失败，请稍后再试。'), 3);
         }
+
+        self.setUploadLock(uploader, false);
+        self.removeFile(uploader, error.file);
       },
       onInit() {
         const ele = self.uploadContainer && self.uploadContainer.querySelector('input');
@@ -446,12 +307,35 @@ export class UploadFileWrapper extends Component {
     };
     return method;
   }
+  setUploadLock(uploader, locked) {
+    this.uploading = locked;
+    this.setBrowseDisabled(uploader, locked);
+  }
+  setBrowseDisabled(uploader, disabled) {
+    const target = uploader || this.currentFile;
+
+    if (target && target.disableBrowse) {
+      target.disableBrowse(disabled);
+    }
+  }
+  removeFile(uploader, file) {
+    if (!uploader || !file) return;
+
+    const id = file.id || file;
+
+    setTimeout(() => {
+      if (!uploader.files || _.find(uploader.files, { id })) {
+        uploader.removeFile({ id });
+      }
+    }, 0);
+  }
+  removeFiles(uploader, files = []) {
+    if (!uploader || !files.length) return;
+
+    files.forEach(item => this.removeFile(uploader, item));
+  }
   onRemoveAll(uploader) {
-    uploader.files.forEach(item => {
-      setTimeout(() => {
-        uploader.removeFile({ id: item.id });
-      }, 0);
-    });
+    this.removeFiles(uploader, uploader.files);
   }
   render() {
     const { appId, worksheetId, projectId } = this.props;

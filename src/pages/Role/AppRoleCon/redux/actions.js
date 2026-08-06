@@ -139,6 +139,12 @@ export const getApplyList = (props, isApply) => {
 
 let ajax = null;
 
+const isDefaultPagingModel = (appRolePagingModel = {}) => {
+  const { keywords = '', searchMemberType = 0 } = appRolePagingModel;
+
+  return !keywords && !searchMemberType;
+};
+
 export const getUserList = (props, isUserList) => {
   // isAllCount 用于左侧nav的计数 全部
   return (dispatch, getState) => {
@@ -161,7 +167,8 @@ export const getUserList = (props, isUserList) => {
           ...appRolePagingModel,
         });
     ajax.then(res => {
-      ['all', 'apply', 'outsourcing'].includes(roleId) &&
+      roleId === 'all' &&
+        isDefaultPagingModel(appRolePagingModel) &&
         dispatch({ type: 'UPDATE_APPUSER_LIST_ALL_TOTAL', data: res.totalCount });
       dispatch(setUser(res));
       dispatch(setUserList(pageIndex > 1 ? userList.concat(res.memberModels || []) : res.memberModels || []));

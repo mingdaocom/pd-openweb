@@ -238,7 +238,7 @@ export default function WidgetIntro(props) {
 
     // 下拉转多选需要设置排列方式
     if (type === 11) {
-      onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0', checktype: '1' } });
+      onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0', checktype: '1', allowadd: '' } });
       return;
     }
 

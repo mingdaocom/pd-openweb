@@ -10,6 +10,13 @@ import { SYS } from '../../../../../widgetConfig/config/widget';
 import AddControlDiaLog from './AddControlDiaLog';
 import './SelectStartOrEnd.less';
 
+const renderOptionLabel = item => (
+  <div className="flexRow alignItemsCenter">
+    <i className={cx('icon textTertiary mRight12 Font16', 'icon-' + getIconByType(item.type))} />
+    <span className="flex WordBreak overflow_ellipsis">{item.controlName}</span>
+  </div>
+);
+
 const TimeSelect = ({
   value,
   options,
@@ -20,12 +27,6 @@ const TimeSelect = ({
   canAddControl,
   onAddControl,
 }) => {
-  const renderOptionLabel = item => (
-    <div className="flexRow alignItemsCenter">
-      <i className={cx('icon textTertiary mRight12 Font16', 'icon-' + getIconByType(item.type))} />
-      <span className="flex WordBreak overflow_ellipsis">{item.controlName}</span>
-    </div>
-  );
   const renderErrorValue = () => (
     <div className="flexRow alignItemsCenter Red">
       <Icon icon="error1" className="Font14 mRight8" />

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import { reportTypes } from '../Charts/common';
-import { chartNav } from '../common';
+import { chartNav } from '../common/chartNav';
 import HeaderDisplaySetup from '../components/HeaderDisplaySetup';
 import * as actions from '../redux/actions.js';
 

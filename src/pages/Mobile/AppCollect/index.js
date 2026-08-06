@@ -72,6 +72,7 @@ export default class RecordCollect extends Component {
             markedAppItems.map((item, index) => {
               return (
                 <ApplicationItem
+                  key={item.id}
                   direction="horizontal"
                   index={index}
                   radius={40}

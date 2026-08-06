@@ -258,6 +258,7 @@ export default {
    * 获取开票订单详情
    * @param {Object} args 请求参数
    * @param {string} args.orderId 支付订单号
+   * @param {string} args.invoiceId 开票单号
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

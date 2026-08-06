@@ -9,7 +9,7 @@ import shareFolderAjax from 'src/api/shareFolder';
 import preall from 'src/common/preall';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile, downloadFile, getClassNameByExt } from 'src/utils/common';
+import { browserIsMobile, downloadFile, getClassNameByExt, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import MobileSharePreview from '../shareMobile/shareMobile';
 import fileItemHtml from './tpl/fileItem.html';
@@ -60,7 +60,7 @@ var ShareFolder = function (options) {
 
         SF.init();
       } else if (data.position) {
-        location.href = '/apps/kc' + data.position;
+        location.href = pathCompletion('/apps/kc' + data.position);
       } else {
         SF.$container.text(_l('当前文件不存在或您没有查看权限'));
       }
@@ -427,7 +427,7 @@ ShareFolder.prototype = {
     );
   },
   navigateByHash(data) {
-    window.location =
+    window.location.href =
       window.location.origin + window.location.pathname + window.location.search + '#' + qs.stringify(data);
   },
   getHashParams: function () {
@@ -468,9 +468,9 @@ ShareFolder.prototype = {
           var newUrl =
             'https://www.mingdao.com/login?ReturnUrl=' +
             encodeURIComponent(window.location.href.replace(window.location.origin, 'https://www.mingdao.com'));
-          window.location = newUrl;
+          window.location.href = newUrl;
         } else {
-          window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
+          window.location.href = pathCompletion('/login?ReturnUrl=' + encodeURIComponent(window.location.href));
         }
       },
     });
@@ -480,9 +480,9 @@ ShareFolder.prototype = {
       var newUrl =
         'https://www.mingdao.com/login?ReturnUrl=' +
         encodeURIComponent(window.location.href.replace(window.location.origin, 'https://www.mingdao.com'));
-      window.location = newUrl;
+      window.location.href = newUrl;
     } else {
-      window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
+      window.location.href = pathCompletion('/login?ReturnUrl=' + encodeURIComponent(window.location.href));
     }
   },
   alert: function (str, time) {

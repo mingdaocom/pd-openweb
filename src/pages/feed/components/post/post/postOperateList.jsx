@@ -3,11 +3,10 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dialog, Menu, MenuItem } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createCalendar from 'src/components/createCalendar/createCalendar';
+import ClickAway from 'ming-ui/components/ClickAway';
+import createCalendar from 'src/components/createCalendar/load';
 import addOldTask from 'src/components/createTask/addOldTask';
-import createTask from 'src/components/createTask/createTask';
+import createTask from 'src/components/createTask/load';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 import postEnum from '../../../constants/postEnum';
 import {
@@ -22,8 +21,7 @@ import editShareScope from '../postComponent/editShareScope/editShareScope';
 import EditPostDialog from './EditPostDialog';
 import EditVoteEndTimeDialog from './EditVoteEndTimeDialog';
 import './postOperateList.css';
-
-const ClickAway = createDecoratedComponent(withClickAway);
+import { pathCompletion } from 'src/utils/common';
 
 const { POST_TYPE } = postEnum;
 
@@ -98,7 +96,7 @@ class PostOperateList extends React.Component {
       title: _l('请选择置顶时长'),
       children: (
         <div>
-          <div className="mTop20 ThemeColor3 Font14" id="feedTopTime">
+          <div className="mTop20 colorPrimary Font14" id="feedTopTime">
             <label>
               <input type="radio" name="feedTopTime" defaultChecked value="24" />
               24{_l('小时')}
@@ -276,7 +274,7 @@ class PostOperateList extends React.Component {
           <MenuItem
             target="_blank"
             rel="noopener noreferrer"
-            href={'/' + postItem.source.appUrl + '?appDetailID=' + postItem.source.detailID}
+            href={pathCompletion('/' + postItem.source.appUrl + '?appDetailID=' + postItem.source.detailID)}
           >
             {_l('查看任务')}
           </MenuItem>

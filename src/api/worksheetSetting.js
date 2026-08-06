@@ -5,7 +5,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {string} args.worksheetId 工作表id
    * @param {string} args.appId 应用Id
-   * @param {string} args.mchid 商户号
+   * @param {string} args.mchId 商户号
    * @param {object} args.scenes 支付场景
    * @param {string} args.payContentControlId 支付内容控件
    * @param {string} args.payAmountControlId 支付金额控件

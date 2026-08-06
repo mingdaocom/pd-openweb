@@ -5,7 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import openAuthorAjax from 'src/api/openAuthor';
-import { SCOPE_LIST } from '../enum';
+import { SCOPE_LIST } from 'src/pages/Admin/components/ApiScopeList/enum';
 import AuthScope from './AuthScope';
 import UseScope from './UseScope';
 

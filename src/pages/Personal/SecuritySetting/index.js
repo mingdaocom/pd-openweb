@@ -103,6 +103,11 @@ export default class SecuritySetting extends Component {
   }
 
   openVerify = checked => {
+    if (md.global?.SysSettings?.twoFactorAuthenticationSwitchType === 2 && checked) {
+      alert(_l('平台强制开启两步验证'), 2);
+      return;
+    }
+
     identityVerificationFunc({
       verificationSuccess: () => {
         if (!checked) {
@@ -275,7 +280,7 @@ export default class SecuritySetting extends Component {
     //两步验证开关
     const showTwoFactorAuthentication =
       (!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
-      md.global?.SysSettings?.twoFactorAuthenticationSwitchType === 3;
+      _.includes([2, 3], md.global?.SysSettings?.twoFactorAuthenticationSwitchType);
     // 构建优先级顺序文案：TOTP > 配置的类型 > 其他类型
     const priorityType = md.global?.SysSettings?.twoFactorAuthenticationPriorityType;
     const priorityTypeMap = {
@@ -358,7 +363,7 @@ export default class SecuritySetting extends Component {
                         </div>
                         <div>
                           <span
-                            className="settingTwoAuthenticationBtn ThemeColor3 ThemeHoverColor2"
+                            className="settingTwoAuthenticationBtn colorPrimary hoverColorPrimaryDark"
                             onClick={() => {
                               identityVerificationFunc({
                                 verificationSuccess: () => {

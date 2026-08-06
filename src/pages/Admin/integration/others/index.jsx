@@ -2,16 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import {
-  Button,
-  Checkbox,
-  Dropdown,
-  Icon,
-  LoadDiv,
-  Switch,
-  UpgradeIcon,
-  VerifyPasswordConfirm,
-} from 'ming-ui';
+import { Button, Checkbox, Dropdown, Icon, LoadDiv, Switch, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
 import { hasPermission } from 'src/components/checkPermission';
@@ -65,7 +56,7 @@ const DATA_INFO = [
     key: 'orgKey',
     label: _l('开放接口'),
     showSetting: false,
-    docLink: md.global.Config.WebUrl + 'apidoc/',
+    docLink: `${md.global.Config.OpenApiDocUrl}/organization`,
     description: _l('此密钥是用于访问系统企业授权开放API接口的凭证'),
   },
   // {
@@ -800,7 +791,7 @@ export default class OtherTool extends Component {
                     <div>
                       <button
                         type="button"
-                        className="ming Button Button--link ThemeColor3 pLeft0 adminHoverColor Block"
+                        className="ming Button Button--link colorPrimary pLeft0 adminHoverColor Block"
                         onClick={this.checkHasKey}
                       >
                         {_l('查看密钥')}
@@ -810,7 +801,7 @@ export default class OtherTool extends Component {
                   {showSetting && (
                     <button
                       type="button"
-                      className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
+                      className={cx('ming Button Button--link mLeft24 colorPrimary mTop2 TxtTop adminHoverColor', {
                         hidden: !this.state[key],
                       })}
                       onClick={() => {
@@ -840,7 +831,7 @@ export default class OtherTool extends Component {
                 <div className="toolItemDescribe">
                   {description}
                   {docLink && (
-                    <a href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} className="mLeft5" target="_blank">
+                    <a href={docLink + (lang === 'zh-Hans' ? '/zh-Hans/' : '/en/')} className="mLeft5" target="_blank">
                       {_l('查看文档')}
                     </a>
                   )}

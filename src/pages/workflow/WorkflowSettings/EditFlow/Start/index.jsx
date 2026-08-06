@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import { pathCompletion } from 'src/utils/common';
 import {
   ACTION_ID,
   APP_TYPE,
@@ -238,7 +239,7 @@ export default class Start extends Component {
           {item.isCallBack && (
             <div className="workflowContentInfo ellipsis">
               {_l('已启用平台API能力')}
-              <span className="ThemeColor3 ThemeHoverColor2 mLeft5" onMouseDown={this.openDocument}>
+              <span className="colorPrimary hoverColorPrimaryDark mLeft5" onMouseDown={this.openDocument}>
                 {_l('查看文档')}
                 <i className="mLeft5 icon-task-new-detail Font12" />
               </span>
@@ -300,7 +301,7 @@ export default class Start extends Component {
     const { relationId } = this.props;
 
     evt.stopPropagation();
-    window.open(`/worksheetapi/${relationId}`);
+    window.open(pathCompletion(`/worksheetapi/${relationId}`));
   };
 
   render() {

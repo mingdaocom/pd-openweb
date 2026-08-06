@@ -4,12 +4,6 @@
     align-items: center;
   }
 
-  .searchGroupBox {
-    .ant-btn-icon-only {
-      height: 36px;
-    }
-  }
-
   .groupContent {
     flex: 1;
     min-height: 0;
@@ -60,7 +54,6 @@
 
       .itemCreate {
         width: 116px;
-        height: 36px;
         border-radius: 18px;
       }
 
@@ -89,10 +82,6 @@
       padding: 16px 16px !important;
     }
   }
-}
-
-.groupItemFlexEnd {
-  align-items: flex-end;
 }
 
 .tableList {
@@ -127,11 +116,6 @@
   }
 }
 
-.backBox {
-  display: flex;
-  align-items: center;
-}
-
 .color_b {
   color: var(--color-text-title);
 }
@@ -150,13 +134,13 @@
 
 .menuOption {
   padding: 6px 0;
-  width: 138px;
+  min-width: 138px;
   border-radius: 3px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
   background-color: var(--color-background-primary);
 
   div {
-    padding-left: 24px;
+    padding: 0 16px;
     line-height: 36px;
     cursor: pointer;
 
@@ -165,10 +149,4 @@
       color: var(--color-white);
     }
   }
-}
-
-.dialogContentDept {
-  color: var(--color-text-title);
-  font-size: 17px;
-  font-weight: 600;
 }

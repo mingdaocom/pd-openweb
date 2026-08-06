@@ -23,6 +23,15 @@ const PopupWrapper = styled.div`
   }
 `;
 
+const textInfo = {
+  1: { title: _l('反馈'), desc: _l('描述使用过程中遇到的问题，反馈通知给流程拥有者'), okText: _l('发送') },
+  2: {
+    title: _l('反馈给平台'),
+    desc: _l('描述使用过程中遇到的问题，提交反馈至平台，会自动收集提问、AI 回答、工具请求参数，不会收集具体业务数据。'),
+    okText: _l('提交'),
+  },
+};
+
 function GetHelp(props) {
   const { onClose, type = 1, chatbotId, messageId, instanceId, flowNodeId } = props; //type: 1: 用户反馈 2: 管理员反馈
   const [loading, setLoading] = useState(type === 1);
@@ -32,17 +41,6 @@ function GetHelp(props) {
   const [personalInfoVisible, setPersonalInfoVisible] = useState(false);
   const isMobile = browserIsMobile();
   const textareaRef = useRef();
-
-  const textInfo = {
-    1: { title: _l('反馈'), desc: _l('描述使用过程中遇到的问题，反馈通知给流程拥有者'), okText: _l('发送') },
-    2: {
-      title: _l('反馈给平台'),
-      desc: _l(
-        '描述使用过程中遇到的问题，提交反馈至平台，会自动收集提问、AI 回答、工具请求参数，不会收集具体业务数据。',
-      ),
-      okText: _l('提交'),
-    },
-  };
 
   useEffect(() => {
     onInit();

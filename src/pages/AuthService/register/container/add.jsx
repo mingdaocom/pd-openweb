@@ -5,10 +5,11 @@ import styled from 'styled-components';
 import { Support } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import RegisterController from 'src/api/register';
+import { pathCompletion } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 
 const Wrap = styled.div`
-  min-height: 460px;
+  min-height: 400px;
 `;
 
 export default function (props) {
@@ -85,7 +86,7 @@ export default function (props) {
                   });
                 }
 
-                location.href = '/personal?type=enterprise';
+                location.href = pathCompletion('/personal?type=enterprise');
               },
             });
           } else {
@@ -160,18 +161,20 @@ export default function (props) {
   // 根据当前语言生成帮助文档路径，日语没有帮助文档，所以显示英文
   const helpPath = currentLang === 'zh-Hant' ? 'zh-Hant/' : ['en', 'ja'].includes(currentLang) ? 'en/' : '';
   const helpLink = `https://help.mingdao.com/${helpPath}org/id/`;
-
+  const showBack = !location.href.match(/enterpriseRegister(\.htm)?\?type=add/i);
   return (
     <Wrap>
       {loading && <div className="loadingLine"></div>}
-      {!location.href.match(/enterpriseRegister(\.htm)?\?type=add/i) && (
+      {showBack && (
         <span className="mTop40 Font15 InlineBlock Hand backspaceT" onClick={() => onChange({ step: 'createOrAdd' })}>
           <span className="backspace"></span>
           {_l('返回')}
         </span>
       )}
-      <div className="title mTop16 Font26 Bold">{_l('请填写组织门牌号')}</div>
-      <p className="mTop6 textPrimary Font15">{_l('组织门牌号可以通过管理员获取')}</p>
+      <div className={cx('title Font28 Bold textPrimary', !showBack ? 'mTop24' : 'mTop16')}>
+        {_l('请填写组织门牌号')}
+      </div>
+      <p className="mTop6 textSecondary Font15">{_l('组织门牌号可以通过管理员获取')}</p>
       {renderCon()}
       <Support type={3} href={helpLink} text={_l('没有组织门牌号？')} className="mTop16 InlineBlock" />
       <span

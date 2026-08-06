@@ -5,9 +5,8 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
-import 'src/components/createTask/createTask';
-import { getAppFeaturesPath } from 'src/utils/app';
-import { addToken } from 'src/utils/common';
+import loadCreateTask from 'src/components/createTask/load';
+import { addToken, pathCompletion } from 'src/utils/common';
 import Comm from '../comm/comm';
 import * as Common from './common';
 import { FREQUENCY, MEMBER_STATUS, RECURTYPE } from './constant';
@@ -105,16 +104,13 @@ export default class CalendarDetail extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const {
-      data: { calendar, keyStatus, token, thirdUser },
-    } = nextProps;
-    this.setState({
-      ...calendar,
-      keyStatus,
-      token,
-      thirdUser,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const {
+        data: { calendar, keyStatus, token, thirdUser },
+      } = this.props;
+      this.setState({ ...calendar, keyStatus, token, thirdUser });
+    }
   }
 
   changeDialogHeight() {
@@ -326,11 +322,9 @@ export default class CalendarDetail extends Component {
     const openDetailPage = () => {
       const { id, recurTime } = this.state;
       window.open(
-        '/apps/calendar/detail_' +
-          id +
-          (recurTime ? '_' + moment(recurTime).format('YYYYMMDDHHmmss') : '') +
-          '?' +
-          getAppFeaturesPath(),
+        pathCompletion(
+          '/apps/calendar/detail_' + id + (recurTime ? '_' + moment(recurTime).format('YYYYMMDDHHmmss') : ''),
+        ),
       );
     };
 
@@ -400,7 +394,7 @@ export default class CalendarDetail extends Component {
         }
       });
 
-      $.CreateTask({
+      loadCreateTask({
         CalenderID: id,
         recurTime,
         TaskName: title,

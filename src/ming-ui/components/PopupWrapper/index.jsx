@@ -3,6 +3,7 @@ import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import useHistoryBackClose from 'src/utils/mobileNavigation';
 import './index.less';
 
 const PopupWrapper = ({
@@ -24,6 +25,8 @@ const PopupWrapper = ({
   headerType = 'default',
   headerTitleAlign = 'center',
   children,
+  layerId,
+  historyUrlParams,
 }) => {
   const handleConfirm = () => {
     if (confirmDisable) return;
@@ -35,6 +38,9 @@ const PopupWrapper = ({
     onClear();
   };
 
+  // 接管浏览器返回 → 关闭弹层；多层嵌套时由全局栈按栈顶顺序响应
+  useHistoryBackClose({ visible, layerId, onClose, urlParams: historyUrlParams });
+
   return (
     <Popup
       visible={visible}
@@ -45,6 +51,7 @@ const PopupWrapper = ({
       maskClassName={maskClassName}
       maskStyle={maskStyle}
       mask={mask}
+      layerId={layerId}
     >
       <div className="popupWrapper">
         {headerType === 'default' && (
@@ -130,6 +137,7 @@ PopupWrapper.propTypes = {
   // 使用withIcon时，标题对齐方式
   headerTitleAlign: PropTypes.oneOf(['left', 'center']),
   children: PropTypes.node,
+  historyUrlParams: PropTypes.object,
 };
 
 export default memo(PopupWrapper);

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -14,6 +13,7 @@ import PostFooter from './postFooter';
 import PostMain from './postMain';
 import PostOperator from './postOperator';
 import PostUsernameGroup from './postUsernameGroup';
+import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态卡片内部内容, 包括动态、相应类型动态的附加信息、操作项、回复/标签等
@@ -39,7 +39,7 @@ class PostBody extends React.Component {
     let button;
 
     if (this.state.selectedOperation === postEnum.OPERATE_TYPE.comment) {
-      button = ReactDom.findDOMNode(this.commentButton);
+      button = this.commentButton;
       if (!button) {
         return;
       }
@@ -132,7 +132,7 @@ class PostBody extends React.Component {
 
     if (this.props.isSummary) {
       viewDetail = (
-        <a href={'/feeddetail?itemID=' + postItem.postID} className="topPostViewDetailLink">
+        <a href={pathCompletion('/feeddetail?itemID=' + postItem.postID)} className="topPostViewDetailLink">
           {(() => {
             switch (postItem.postType) {
               case '1':
@@ -214,8 +214,8 @@ class PostBody extends React.Component {
           <Tooltip title={_l('回复')}>
             <span
               className={cx(
-                'postActionIcon ThemeBorderColor5 Hand Relative',
-                this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'ThemeColor3' : 'ThemeColor4',
+                'postActionIcon borderColorPrimaryDark Hand Relative',
+                this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'colorPrimary' : 'colorPrimaryLight',
               )}
               onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleCommentBox}
             >
@@ -233,7 +233,12 @@ class PostBody extends React.Component {
           </Tooltip>
 
           {!postItem.Secretary && postItem.user ? (
-            <span className={cx('postActionIcon ThemeBorderColor5', postItem.liked ? 'ThemeColor3' : 'ThemeColor4')}>
+            <span
+              className={cx(
+                'postActionIcon borderColorPrimaryDark',
+                postItem.liked ? 'colorPrimary' : 'colorPrimaryLight',
+              )}
+            >
               <Tooltip title={postItem.liked ? _l('取消点赞') : _l('点赞')}>
                 <span>
                   <i className={cx('Hand icon-some-praise')} onClick={this.toggleLike} />
@@ -253,8 +258,8 @@ class PostBody extends React.Component {
           <Tooltip title={this.props.postItem.isFav ? _l('取消收藏') : _l('收藏')}>
             <div
               className={cx(
-                'postActionIcon ThemeBorderColor5 Hand postOperatorFavBtn',
-                this.props.postItem.isFav ? 'favorited' : 'ThemeColor4',
+                'postActionIcon borderColorPrimaryDark Hand postOperatorFavBtn',
+                this.props.postItem.isFav ? 'favorited' : 'colorPrimaryLight',
               )}
               onClick={this.props.postItem.isFav ? this.handleRemoveFavorite : this.handleFavorite}
               ref={favBtn => {

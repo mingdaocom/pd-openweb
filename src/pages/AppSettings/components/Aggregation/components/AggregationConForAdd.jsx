@@ -49,7 +49,7 @@ export default function AddAggregation(props) {
           className={cx(
             'mTop16 Bold alignItemsCenter flexRow',
             (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 ? '' : 'Hand',
-            isMax ? 'textDisabled' : 'textSecondary ThemeHoverColor3',
+            isMax ? 'textDisabled' : 'textSecondary hoverColorPrimary',
           )}
         >
           <Icon icon="add" className="Font16" />
@@ -219,7 +219,7 @@ export default function AddAggregation(props) {
         ) : (
           <span className="InlineBlock">
             <span
-              className={cx('Hand mTop16 textSecondary ThemeHoverColor3 Bold flexRow alignItemsCenter', {
+              className={cx('Hand mTop16 textSecondary hoverColorPrimary Bold flexRow alignItemsCenter', {
                 mLeft25: !isMax,
               })}
               onClick={() => {

@@ -8,7 +8,7 @@ import projectSettingController from 'src/api/projectSetting';
 import structureController from 'src/api/structure';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 import Relation from 'src/pages/Admin/user/reportRelation';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import './index.less';
 
 const barList = [
@@ -123,7 +123,7 @@ export default class ReportRelation extends Component {
         extraTabs: [
           {
             id: 'structureUsers',
-            name: '所有人',
+            name: _l('所有人'),
             type: 4,
             page: true,
             actions: {
@@ -187,7 +187,7 @@ export default class ReportRelation extends Component {
   }
 
   handleGoAdmin() {
-    location.href = '/admin/reportRelation/' + this.state.projectId;
+    location.href = pathCompletion('/admin/reportRelation/' + this.state.projectId);
   }
 
   renderContent() {
@@ -250,7 +250,7 @@ export default class ReportRelation extends Component {
   renderBuildItem(param) {
     const { allowStructureSelfEdit, subTotalCount } = this.state;
     return (
-      <div className={cx('node', param.status === 4 ? 'disabled' : 'ThemeHoverBorderColor3')}>
+      <div className={cx('node', param.status === 4 ? 'disabled' : 'hoverBorderColorPrimary')}>
         <div className="userItem">
           <img src={param.avatar} className="avatar" />
           <div className="info">
@@ -285,7 +285,7 @@ export default class ReportRelation extends Component {
           <div className="headerIcon">
             <Icon
               icon="backspace"
-              className="Hand mRight18 TxtMiddle Font24 hoverTextPrimaryLight"
+              className="Hand mRight18 TxtMiddle Font24 hoverColorPrimaryLight"
               onClick={() => navigateTo('/personal?type=enterprise')}
             ></Icon>
             <span className="Font17 Bold">{_l('我的汇报关系')}</span>
@@ -305,7 +305,7 @@ export default class ReportRelation extends Component {
           </div>
           <div>
             <span
-              className={cx('ThemeColor3 Hand hoverTextPrimaryLight', { Hidden: !hasProjectAdminAuth })}
+              className={cx('colorPrimary Hand hoverColorPrimaryLight', { Hidden: !hasProjectAdminAuth })}
               onClick={() => this.handleGoAdmin()}
             >
               {_l('去管理后台查看')}

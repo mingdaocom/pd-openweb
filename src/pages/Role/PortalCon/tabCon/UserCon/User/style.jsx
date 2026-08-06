@@ -107,6 +107,13 @@ export const Wrap = styled.div(
         background: var(--color-primary-transparent);
       }
     }
+    .disabledAction {
+      background: var(--color-background-primary) !important;
+      color: var(--color-text-disabled) !important;
+      border: 1px solid var(--color-border-secondary) !important;
+      cursor: not-allowed!important;
+      pointer-events: none;
+    }
     .del {
       background: rgba(244, 67, 54, 0.1);
       color: rgba(244, 67, 54, 1);

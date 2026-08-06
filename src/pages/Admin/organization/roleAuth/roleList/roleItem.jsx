@@ -139,13 +139,13 @@ export default function RoleItem(props) {
           <div className="roleOperation">
             <span
               onClick={e => !hasApply && onClickHandle(e, 'applyRole')}
-              className={cx(hasApply ? 'textDisabled' : 'ThemeColor3 adminHoverColor Hand')}
+              className={cx(hasApply ? 'textDisabled' : 'colorPrimary adminHoverColor Hand')}
             >
               {_l('申请')}
             </span>
           </div>
         ) : (
-          <div className={cx('roleOperation', { ThemeColor3: role.allowAssignSamePermission || isSuperAdmin })}>
+          <div className={cx('roleOperation', { colorPrimary: role.allowAssignSamePermission || isSuperAdmin })}>
             {(role.allowAssignSamePermission || isSuperAdmin) && (
               <span className="adminHoverColor" onClick={e => onClickHandle(e, 'addMember')}>
                 {_l('添加成员')}
@@ -175,7 +175,7 @@ export default function RoleItem(props) {
               >
                 <Icon
                   icon="moreop"
-                  className="textTertiary Hand Font18 hoverTextPrimaryLight TxtMiddle"
+                  className="textTertiary Hand Font18 hoverColorPrimaryLight TxtMiddle"
                   onClick={e => e.stopPropagation()}
                 />
               </Trigger>

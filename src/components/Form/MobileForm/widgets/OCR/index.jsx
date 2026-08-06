@@ -5,6 +5,7 @@ import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { pathCompletion } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 
@@ -34,9 +35,19 @@ const OCR = props => {
 
   const handleClear = up => {
     setIsUploading(false);
-    up.splice(0, up.files.length);
     cacheFile.current = [];
-    up.disableBrowse(false);
+
+    if (!up) return;
+
+    if (up.removeFile && _.isArray(up.files)) {
+      up.files.slice().forEach(file => {
+        up.removeFile({ id: file.id });
+      });
+    } else if (_.isArray(up.files)) {
+      up.files.splice(0, up.files.length);
+    }
+
+    up.disableBrowse && up.disableBrowse(false);
   };
 
   const handleUpdate = (itemData = {}) => {
@@ -45,8 +56,8 @@ const OCR = props => {
 
   const handleSearch = (up, file) => {
     if (!dataSource) {
-      setIsUploading(false);
-      up && up.disableBrowse(false);
+      handleClear(up);
+      setMingDaoAppUploading(false);
       return alert(_l('模版为空或已删除'), 3);
     }
 
@@ -74,38 +85,50 @@ const OCR = props => {
       params.formId = window.publicWorksheetShareId;
     }
 
-    postList.current = ajax.excuteApiQuery(params);
+    const currentPost = ajax.excuteApiQuery(params);
+    postList.current = currentPost;
 
-    postList.current.then(res => {
-      if (res.code === 20008) {
-        setIsUploading(false);
-        up && up.disableBrowse(false);
-        upgradeVersionDialog({
-          projectId,
-          okText: _l('立即充值'),
-          hint: _l('信用点不足，请联系管理员充值'),
-          explainText: <div></div>,
-          onOk: () => {
-            location.href = `/admin/valueaddservice/${projectId}`;
-          },
-        });
+    currentPost
+      .then(res => {
+        if (postList.current !== currentPost) return;
+
+        if (res.code === 20008) {
+          handleClear(up);
+          upgradeVersionDialog({
+            projectId,
+            okText: _l('立即充值'),
+            hint: _l('信用点不足，请联系管理员充值'),
+            explainText: <div></div>,
+            onOk: () => {
+              location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
+            },
+          });
+          setMingDaoAppUploading(false);
+          return;
+        }
+
+        if (res.message) {
+          alert(res.message, 3);
+          handleClear(up);
+          setMingDaoAppUploading(false);
+          return;
+        }
+
+        handleClear(up);
+        handleUpdate(res.apiQueryData);
         setMingDaoAppUploading(false);
-        return;
-      }
+      })
+      .catch(() => {
+        if (postList.current !== currentPost) return;
 
-      if (res.message) {
-        alert(res.message, 3);
-        setIsUploading(false);
-        up && up.disableBrowse(false);
+        handleClear(up);
         setMingDaoAppUploading(false);
-        return;
-      }
-
-      setIsUploading(false);
-      up && up.disableBrowse(false);
-      handleUpdate(res.apiQueryData);
-      setMingDaoAppUploading(false);
-    });
+      })
+      .finally(() => {
+        if (postList.current === currentPost) {
+          postList.current = null;
+        }
+      });
   };
 
   const handleUploaded = (up, file, info) => {
@@ -128,7 +151,12 @@ const OCR = props => {
 
     if (advancedSetting.ocrmaptype === '2') {
       // 批量没有配置子表，不执行
-      if (!advancedSetting.ocrcid) return;
+      if (!advancedSetting.ocrcid) {
+        handleClear(up);
+        setMingDaoAppUploading(false);
+        return;
+      }
+
       // 批量,附件信息都收集完了在请求
       if (_.get(up, 'files.length') !== cacheFile.current.length) return;
       // 子表数量达到上限
@@ -152,81 +180,87 @@ const OCR = props => {
       ? cacheFile.current.map(i => `${i.serverName}/${i.key}`)
       : cacheFile.current.map(i => i.serverName + i.key);
 
-    ajax.ocr({ worksheetId, controlId, data, type: 1 }).then(result => {
-      const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
+    ajax
+      .ocr({ worksheetId, controlId, data, type: 1 })
+      .then(result => {
+        const ocrmap = safeParse(advancedSetting.ocrmap || '[]', 'array');
 
-      // 批量映射子表
-      if (advancedSetting.ocrmaptype === '2') {
-        const rows = _.get(result, 'data');
-        const errorCount = cacheFile.current.length - rows.length;
+        // 批量映射子表
+        if (advancedSetting.ocrmaptype === '2') {
+          const rows = _.get(result, 'data');
+          const errorCount = cacheFile.current.length - rows.length;
 
-        if (errorCount) {
-          alert(_l(`${errorCount}个文件识别错误`), 3);
+          if (errorCount) {
+            alert(_l(`${errorCount}个文件识别错误`), 3);
+          }
+
+          const childRows = [];
+          rows.forEach(row => {
+            let newRow = {};
+            (row.data || []).map(i => {
+              const currentItem = ocrmap.find(o => o.cid === i.controlId);
+
+              // 附件
+              if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
+                newRow[i.controlId] = JSON.stringify({
+                  attachments: [cacheFile.current[row.index]],
+                  knowledgeAtts: [],
+                  attachmentData: [],
+                });
+              } else {
+                newRow[i.controlId] = i.value;
+              }
+            });
+            if (!_.isEmpty(newRow)) {
+              childRows.push(newRow);
+            }
+          });
+
+          const subValue = {
+            action: 'append',
+            rows: childRows,
+          };
+          onChange(subValue, advancedSetting.ocrcid);
+          handleClear(up);
+          return;
         }
 
-        const childRows = [];
-        rows.forEach(row => {
-          let newRow = {};
-          (row.data || []).map(i => {
-            const currentItem = ocrmap.find(o => o.cid === i.controlId);
+        if (result.code === 1) {
+          result.data.forEach(item => {
+            const currentItem = ocrmap.find(o => o.cid === item.controlId);
+            let newValue;
 
             // 附件
             if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
-              newRow[i.controlId] = JSON.stringify({
-                attachments: [cacheFile.current[row.index]],
+              newValue = JSON.stringify({
+                attachments: cacheFile.current,
                 knowledgeAtts: [],
                 attachmentData: [],
               });
+            } else if (currentItem.subCid) {
+              // 子表
+              newValue = {
+                action: 'clearAndSet',
+                rows: item.childs,
+              };
             } else {
-              newRow[i.controlId] = i.value;
+              newValue = item.value;
             }
+
+            setMingDaoAppUploading(false);
+            onChange(newValue, item.controlId);
           });
-          if (!_.isEmpty(newRow)) {
-            childRows.push(newRow);
-          }
-        });
-
-        const subValue = {
-          action: 'append',
-          rows: childRows,
-        };
-        onChange(subValue, advancedSetting.ocrcid);
-        handleClear(up);
-        return;
-      }
-
-      if (result.code === 1) {
-        result.data.forEach(item => {
-          const currentItem = ocrmap.find(o => o.cid === item.controlId);
-          let newValue;
-
-          // 附件
-          if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
-            newValue = JSON.stringify({
-              attachments: cacheFile.current,
-              knowledgeAtts: [],
-              attachmentData: [],
-            });
-          } else if (currentItem.subCid) {
-            // 子表
-            newValue = {
-              action: 'clearAndSet',
-              rows: item.childs,
-            };
-          } else {
-            newValue = item.value;
-          }
-
+        } else {
           setMingDaoAppUploading(false);
-          onChange(newValue, item.controlId);
-        });
-      } else {
-        setMingDaoAppUploading(false);
-        alert(result.errorMsg, 2);
-      }
+          alert(result.errorMsg, 2);
+        }
 
-      handleClear(up);
-    });
+        handleClear(up);
+      })
+      .catch(() => {
+        handleClear(up);
+        setMingDaoAppUploading(false);
+      });
   };
 
   // APP内网页集成调用原生上传附件，上传完后进行文本识别
@@ -336,6 +370,10 @@ const OCR = props => {
       onAdd={up => {
         setIsUploading(true);
         up.disableBrowse();
+      }}
+      onError={(up, err, errorTip) => {
+        alert(errorTip || _l('上传失败'), 2);
+        handleClear(up);
       }}
       onInit={() => {
         if (_.get(props, 'strDefault') === '10') {

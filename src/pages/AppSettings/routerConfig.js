@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { VersionProductType } from 'src/utils/enum';
 
 export const routerConfigs = [
   {
@@ -71,7 +72,7 @@ export const routerConfigs = [
   {
     type: 'language',
     icon: 'language',
-    featureId: 35,
+    featureId: VersionProductType.multiLanguage,
     text: _l('语言'),
     component: () => import('./components/MultiLingual'),
   },

@@ -1,4 +1,4 @@
-import { notification } from 'antd';
+﻿import { notification } from 'antd';
 import _ from 'lodash';
 import io from 'socket.io-client';
 import exportPivotTableSocket from 'statistics/components/socket';
@@ -8,7 +8,7 @@ import knowledgeSocketInit from 'src/pages/AppSettings/components/Knowledge/sock
 import appManageSocket from 'src/pages/AppSettings/components/socket';
 import workflowSocketInit from 'src/pages/workflow/socket';
 import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ImportDataFromExcel';
-import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/index.js';
+import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/socketHandlers/wsexcelbatch';
 import { getPssId } from 'src/utils/pssId';
 import customNotice from './customNotice';
 
@@ -17,7 +17,7 @@ export const socketInit = () => {
     window.IM = {};
     const server = _.get(window, 'config.SERVER_NAME');
     const socket = io.connect(server, {
-      path: '/mds2',
+      path: `${window.__customSubPath__}/mds2`,
       reconnectionAttempts: 100,
       timeout: 15000,
       query:

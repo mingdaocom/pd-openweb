@@ -38,20 +38,22 @@ class FolderDetail extends Component {
     this.getFolderDetail();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.taskConfig.folderId && nextProps.taskConfig.folderId !== this.props.taskConfig.folderId) {
-      // 解决props未更新问题
-      setTimeout(() => {
-        this.setState({
-          isEditing: false,
-          tabIndex: 1,
-          onlyLook: false,
-          logPageIndex: 1,
-          logs: [],
-        });
-        $('.taskList .scroll-viewport').scrollTop(0);
-        this.getFolderDetail();
-      }, 0);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.taskConfig.folderId && this.props.taskConfig.folderId !== prevProps.taskConfig.folderId) {
+        // 解决props未更新问题
+        setTimeout(() => {
+          this.setState({
+            isEditing: false,
+            tabIndex: 1,
+            onlyLook: false,
+            logPageIndex: 1,
+            logs: [],
+          });
+          $('.taskList .scroll-viewport').scrollTop(0);
+          this.getFolderDetail();
+        }, 0);
+      }
     }
   }
 
@@ -157,7 +159,7 @@ class FolderDetail extends Component {
         })
         .then(source => {
           if (source.status) {
-            alert('修改成功');
+            alert(_l('修改成功'));
             this.setState({ data: Object.assign({}, data, { describe: source.data }) });
           } else {
             errorMessage(source.error);
@@ -172,7 +174,7 @@ class FolderDetail extends Component {
   renderFolderCharge() {
     const { data } = this.state;
     const operation = (
-      <span className="folderDetailOpBtn updateFolderCharge ThemeColor3" onClick={this.updateFolderChargeEvents}>
+      <span className="folderDetailOpBtn updateFolderCharge colorPrimary" onClick={this.updateFolderChargeEvents}>
         {_l('项目托付给他人')}
       </span>
     );
@@ -227,19 +229,19 @@ class FolderDetail extends Component {
         return (
           <Fragment>
             <span
-              className="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderChargeFix borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
             >
               {_l('设为负责人')}
             </span>
             <span
-              className="folderDetailOpBtn updateFolderMember borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderMember borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
             </span>
             <span
-              className="folderDetailOpBtn updateFolderLeave fixWidth ThemeColor3"
+              className="folderDetailOpBtn updateFolderLeave fixWidth colorPrimary"
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
             >
               {_l('移出')}
@@ -250,13 +252,13 @@ class FolderDetail extends Component {
         return (
           <Fragment>
             <span
-              className="folderDetailOpBtn updateFolderMember borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderMember borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
             </span>
             <span
-              className="folderDetailOpBtn updateFolderLeave ThemeColor3"
+              className="folderDetailOpBtn updateFolderLeave colorPrimary"
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
             >
               {accountID === md.global.Account.accountId ? _l('退出') : _l('移出')}
@@ -290,7 +292,7 @@ class FolderDetail extends Component {
           <Tooltip title={_l('添加项目管理员')}>
             <span>
               <i
-                className="icon-task-add-member-circle pointer ThemeColor3"
+                className="icon-task-add-member-circle pointer colorPrimary"
                 onClick={evt => this.addFolderMembersEvents(evt, true)}
               />
             </span>
@@ -313,19 +315,19 @@ class FolderDetail extends Component {
         return (
           <Fragment>
             <span
-              className="folderDetailOpBtn updateFolderApplyAdmin borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderApplyAdmin borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderApplyAdmin', accountID, avatar, fullName)}
             >
               {_l('设为管理员')}
             </span>
             <span
-              className="folderDetailOpBtn updateFolderApplyMember borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderApplyMember borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderApplyMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
             </span>
             <span
-              className="folderDetailOpBtn updateFolderRefuse fixWidth ThemeColor3"
+              className="folderDetailOpBtn updateFolderRefuse fixWidth colorPrimary"
               onClick={() => this.clickEvents('updateFolderRefuse', accountID, avatar, fullName)}
             >
               {_l('拒绝')}
@@ -338,20 +340,20 @@ class FolderDetail extends Component {
           <Fragment>
             {data.chargeUser.accountID === md.global.Account.accountId && (
               <span
-                className="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3"
+                className="folderDetailOpBtn updateFolderChargeFix borderRight colorPrimary"
                 onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
               >
                 {_l('设为负责人')}
               </span>
             )}
             <span
-              className="folderDetailOpBtn updateFolderAdmin borderRight ThemeColor3"
+              className="folderDetailOpBtn updateFolderAdmin borderRight colorPrimary"
               onClick={() => this.clickEvents('updateFolderAdmin', accountID, avatar, fullName)}
             >
               {_l('设为管理员')}
             </span>
             <span
-              className={cx('folderDetailOpBtn updateFolderLeave ThemeColor3', {
+              className={cx('folderDetailOpBtn updateFolderLeave colorPrimary', {
                 fixWidth: data.chargeUser.accountID === md.global.Account.accountId,
               })}
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
@@ -363,7 +365,7 @@ class FolderDetail extends Component {
       } else if (accountID === md.global.Account.accountId) {
         return (
           <span
-            className="folderDetailOpBtn updateFolderLeave ThemeColor3"
+            className="folderDetailOpBtn updateFolderLeave colorPrimary"
             onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
           >
             {_l('退出')}
@@ -413,7 +415,7 @@ class FolderDetail extends Component {
           <Tooltip title={_l('添加项目成员')}>
             <span>
               <i
-                className="icon-task-add-member-circle pointer ThemeColor3"
+                className="icon-task-add-member-circle pointer colorPrimary"
                 onClick={evt => this.addFolderMembersEvents(evt, false)}
               />
             </span>
@@ -1072,7 +1074,7 @@ class FolderDetail extends Component {
                   )}
                 </span>
                 {data.isAdmin && (
-                  <span className="ThemeColor3 pointer mLeft5" onClick={this.editRange}>
+                  <span className="colorPrimary pointer mLeft5" onClick={this.editRange}>
                     {_l('更改')}
                   </span>
                 )}
@@ -1087,13 +1089,13 @@ class FolderDetail extends Component {
           <div className="folderDetailTabList boderRadAll_3 mTop10">
             <ul className="folderDetailTab relative">
               <li
-                className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 1 })}
+                className={cx('commItem borderColorPrimary colorPrimary', { active: tabIndex === 1 })}
                 onClick={() => this.switchTabs(1)}
               >
                 {_l('讨论')}
               </li>
               <li
-                className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 2 })}
+                className={cx('commItem borderColorPrimary colorPrimary', { active: tabIndex === 2 })}
                 onClick={() => this.switchTabs(2)}
               >
                 {_l('日志')}
@@ -1103,7 +1105,7 @@ class FolderDetail extends Component {
                   className={cx('isOnlyLook', { checked: onlyLook })}
                   onClick={() => this.setState({ onlyLook: !onlyLook })}
                 >
-                  <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                  <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                   {_l('只显示和我有关')}
                 </span>
               )}

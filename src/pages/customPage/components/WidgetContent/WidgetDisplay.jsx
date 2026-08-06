@@ -1,22 +1,31 @@
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, lazy, Suspense, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import MobileFilter from 'mobile/CustomPage/FilterContent';
-import MobileView from 'mobile/CustomPage/ViewContent';
-import { reportTypes } from 'statistics/Charts/common';
+import { LoadDiv } from 'ming-ui';
 import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { getEnumType } from '../../util';
-import CarouselPreview from '../editWidget/carousel/Carousel';
-import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
 import Image from '../editWidget/Image';
 import RichText from '../editWidget/richText';
-import Tabs from '../editWidget/tabs';
+import Subsection from '../editWidget/subsection';
 import PreviewWraper from '../previewContent';
-import ButtonList from './ButtonList';
-import ChartDisplay from './ChartDisplay';
-import ViewDisplay from './ViewDisplay';
+
+const ButtonList = lazy(() => import('./ButtonList'));
+const ChartDisplay = lazy(() => import('./ChartDisplay'));
+const CarouselPreview = lazy(() => import('../editWidget/carousel/Carousel'));
+const FiltersGroupPreview = lazy(() => import('../editWidget/filter/FiltersGroupPreview'));
+const Tabs = lazy(() => import('../editWidget/tabs'));
+const ViewDisplay = lazy(() => import('./ViewDisplay'));
+const MobileFilter = lazy(() => import('mobile/CustomPage/FilterContent'));
+const MobileView = lazy(() => import('mobile/CustomPage/ViewContent'));
+const NUMBER_CHART_REPORT_TYPE = 10;
+
+const LazyDisplayFallback = () => (
+  <div className="w100 h100 flexRow alignItemsCenter justifyContentCenter">
+    <LoadDiv />
+  </div>
+);
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -126,93 +135,107 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
 
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
-      return <RichText editable={editable} widget={widget} value={translateInfo.description || value || ''} />;
+      return (
+        <RichText editable={editable} widget={widget} value={value ? translateInfo.description || value || '' : ''} />
+      );
     }
 
     if (componentType === 'button') {
       return (
-        <ButtonList
-          editable={editable}
-          button={button}
-          ids={ids}
-          layoutType={layoutType}
-          widget={widget}
-          customPageConfig={rest.config || {}}
-          {...rest}
-        />
+        <Suspense fallback={<LazyDisplayFallback />}>
+          <ButtonList
+            editable={editable}
+            button={button}
+            ids={ids}
+            layoutType={layoutType}
+            widget={widget}
+            customPageConfig={rest.config || {}}
+            {...rest}
+          />
+        </Suspense>
       );
     }
 
     if (componentType === 'analysis') {
       return (
-        <ChartDisplay
-          widget={widget}
-          $cardRef={$cardRef}
-          needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
-          needRefresh={!editable}
-          pageEditable={editable}
-          isCharge={isCharge}
-          className={cx({ disableChart: editable && widget.reportType === reportTypes.NumberChart })}
-          customPageConfig={rest.config || {}}
-          themeColor={rest.themeColor}
-          isLock={rest.isLock}
-          permissionType={rest.permissionType}
-          appId={ids.appId}
-          pageId={worksheetId}
-          report={{ id: value, name }}
-          sourceType={1}
-          needUpdate={needUpdate}
-          worksheetId={ids.worksheetId}
-          projectId={projectId}
-          layoutType={layoutType}
-          mobileCount={_.get(widget, 'config.mobileCount')}
-          mobileFontSize={_.get(widget, 'config.mobileFontSize')}
-        />
+        <Suspense fallback={<LazyDisplayFallback />}>
+          <ChartDisplay
+            widget={widget}
+            $cardRef={$cardRef}
+            needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
+            needRefresh={!editable}
+            pageEditable={editable}
+            isCharge={isCharge}
+            className={cx({ disableChart: editable && widget.reportType === NUMBER_CHART_REPORT_TYPE })}
+            customPageConfig={rest.config || {}}
+            themeColor={rest.themeColor}
+            isLock={rest.isLock}
+            permissionType={rest.permissionType}
+            appId={ids.appId}
+            pageId={worksheetId}
+            report={{ id: value, name }}
+            sourceType={1}
+            needUpdate={needUpdate}
+            worksheetId={ids.worksheetId}
+            projectId={projectId}
+            layoutType={layoutType}
+            mobileCount={_.get(widget, 'config.mobileCount')}
+            mobileFontSize={_.get(widget, 'config.mobileFontSize')}
+          />
+        </Suspense>
       );
     }
 
     if (componentType === 'view') {
       if (browserIsMobile()) {
-        return <MobileView appId={ids.appId} setting={widget} />;
+        return (
+          <Suspense fallback={<LazyDisplayFallback />}>
+            <MobileView appId={ids.appId} setting={widget} />
+          </Suspense>
+        );
       }
 
       return (
         editingWidget.viewId !== widget.viewId && (
-          <ViewDisplay
-            themeColor={rest.themeColor}
-            layoutType={layoutType}
-            className={cx({ disableSingleView: editable })}
-            appId={ids.appId}
-            setting={{
-              ...widget,
-              config: {
-                ...widget.config,
-                refresh: _.get(rest.config, 'refresh'),
-                printCharge: appId === widget.apkId ? isCharge : false,
-              },
-            }}
-          />
+          <Suspense fallback={<LazyDisplayFallback />}>
+            <ViewDisplay
+              themeColor={rest.themeColor}
+              layoutType={layoutType}
+              className={cx({ disableSingleView: editable })}
+              appId={ids.appId}
+              setting={{
+                ...widget,
+                config: {
+                  ...widget.config,
+                  refresh: _.get(rest.config, 'refresh'),
+                  printCharge: appId === widget.apkId ? isCharge : false,
+                },
+              }}
+            />
+          </Suspense>
         )
       );
     }
 
     if (componentType === 'tabs' || componentType === 'card') {
       return (
-        <Tabs
-          ids={ids}
-          themeColor={props.themeColor}
-          widget={widget}
-          setWidget={props.setWidget}
-          editable={editable}
-          layoutType={layoutType}
-          customPageConfig={rest.config || {}}
-          projectId={projectId}
-          isCharge={isCharge}
-          isLock={props.isLock}
-          permissionType={props.permissionType}
-          editingWidget={props.editingWidget}
-          addRecord={props.addRecord}
-        />
+        <Suspense fallback={<LazyDisplayFallback />}>
+          <Tabs
+            ids={ids}
+            themeColor={props.themeColor}
+            widget={widget}
+            setWidget={props.setWidget}
+            editable={editable}
+            layoutType={layoutType}
+            customPageConfig={rest.config || {}}
+            projectId={projectId}
+            isCharge={isCharge}
+            isLock={props.isLock}
+            permissionType={props.permissionType}
+            editingWidget={props.editingWidget}
+            addRecord={props.addRecord}
+          />
+        </Suspense>
       );
     }
 
@@ -225,28 +248,40 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     if (componentType === 'carousel') {
       const { config, componentConfig } = widget;
       return (
-        <CarouselPreview
-          editable={editable}
-          config={config}
-          componentConfig={componentConfig}
-          customPageConfig={rest.config || {}}
-        />
+        <Suspense fallback={<LazyDisplayFallback />}>
+          <CarouselPreview
+            editable={editable}
+            config={config}
+            componentConfig={componentConfig}
+            customPageConfig={rest.config || {}}
+          />
+        </Suspense>
       );
     }
 
     if (componentType === 'filter') {
       if (layoutType === 'mobile') {
-        return <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />;
+        return (
+          <Suspense fallback={<LazyDisplayFallback />}>
+            <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />
+          </Suspense>
+        );
       } else {
         return (
-          <FiltersGroupPreview
-            className={cx({ disableFiltersGroup: editable })}
-            appId={ids.appId}
-            projectId={projectId}
-            widget={widget}
-          />
+          <Suspense fallback={<LazyDisplayFallback />}>
+            <FiltersGroupPreview
+              className={cx({ disableFiltersGroup: editable })}
+              appId={ids.appId}
+              projectId={projectId}
+              widget={widget}
+            />
+          </Suspense>
         );
       }
+    }
+
+    if (componentType === 'subsection') {
+      return <Subsection editable={editable} widget={widget} />;
     }
   };
 

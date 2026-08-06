@@ -58,29 +58,34 @@ class CommentList extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const changeSource = nextProps.entityType !== this.props.entityType || this.props.sourceId !== nextProps.sourceId; //内部和外部讨论 || 源id改变
-    const hasNewComments = nextProps.commentList.length > this.props.commentList.length;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const changeSource = this.props.entityType !== prevProps.entityType || prevProps.sourceId !== this.props.sourceId; //内部和外部讨论 || 源id改变
+      //内部和外部讨论 || 源id改变
+      const hasNewComments = this.props.commentList.length > prevProps.commentList.length;
 
-    if (
-      changeSource ||
-      this.props.containAttachment !== nextProps.containAttachment ||
-      this.props.focusType !== nextProps.focusType ||
-      this.props.keywords !== nextProps.keywords ||
-      this.props.isFocus !== nextProps.isFocus
-    ) {
-      this.abortRequest();
-      this.setState(
-        {
-          pageIndex: 1,
-          containAttachment: nextProps.containAttachment,
-          showReplyCommentId: '',
-          isEmptyDiscussion: changeSource ? false : this.state.isEmptyDiscussion,
-        },
-        this.fetch,
-      );
-    } else if (hasNewComments && this.state.isEmptyDiscussion) {
-      this.setState({ isEmptyDiscussion: false });
+      if (
+        changeSource ||
+        prevProps.containAttachment !== this.props.containAttachment ||
+        prevProps.focusType !== this.props.focusType ||
+        prevProps.keywords !== this.props.keywords ||
+        prevProps.isFocus !== this.props.isFocus
+      ) {
+        this.abortRequest();
+        this.setState(
+          {
+            pageIndex: 1,
+            containAttachment: this.props.containAttachment,
+            showReplyCommentId: '',
+            isEmptyDiscussion: changeSource ? false : this.state.isEmptyDiscussion,
+          },
+          this.fetch,
+        );
+      } else if (hasNewComments && this.state.isEmptyDiscussion) {
+        this.setState({
+          isEmptyDiscussion: false,
+        });
+      }
     }
   }
 

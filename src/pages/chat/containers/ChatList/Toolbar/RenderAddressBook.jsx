@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
-import AddressBook from 'src/pages/chat/lib/addressBook';
 import * as actions from 'src/pages/chat/redux/actions';
 import Constant from 'src/pages/chat/utils/constant';
 import { createDiscussion } from 'src/pages/chat/utils/group';
 import * as socket from 'src/pages/chat/utils/socket';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
+import { getPathWithoutSubPath } from 'src/utils/common';
+
+const LoadableAddressBook = lazy(() => import('src/pages/chat/lib/addressBook'));
 
 const RenderAddressBook = props => {
   const { showAddressBook } = props;
@@ -47,12 +49,12 @@ const RenderAddressBook = props => {
         case 70:
         case 102:
           // 全局搜索
-          let path = location.pathname.split('/');
+          const pathname = getPathWithoutSubPath(location.pathname);
+          let path = pathname.split('/');
           GlobalSearch({
             match: {
               params: {
-                appId:
-                  location.pathname.startsWith('/app/') && path.length > 2 && path[2].length > 20 ? path[2] : undefined,
+                appId: pathname.startsWith('/app/') && path.length > 2 && path[2].length > 20 ? path[2] : undefined,
               },
             },
             onClose: () => {},
@@ -159,15 +161,19 @@ const RenderAddressBook = props => {
   };
 
   return (
-    <AddressBook
-      showAddressBook={showAddressBook}
-      closeDialog={data => {
-        props.setShowAddressBook(false);
-        if (data && !data.target) {
-          handleAddressBook(data);
-        }
-      }}
-    />
+    showAddressBook && (
+      <Suspense fallback={null}>
+        <LoadableAddressBook
+          showAddressBook={showAddressBook}
+          closeDialog={data => {
+            props.setShowAddressBook(false);
+            if (data && !data.target) {
+              handleAddressBook(data);
+            }
+          }}
+        />
+      </Suspense>
+    )
   );
 };
 

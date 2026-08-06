@@ -1,4 +1,3 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 @input-width: 70px;
 @input-height: 32px; // 输入框的高度
 // 选项
@@ -29,12 +28,12 @@
       border-color: var(--color-text-disabled);
     }
     &:focus {
-      border-color: @themeColor3;
+      border-color: var(--color-primary);
     }
   }
   // 时间选择器输入框
   &-input {
-    color: @grayDarker;
+    color: var(--color-text-primary);
     font-size: @timpicker-font;
     width: @input-width;
     border-radius: @ptimepicker-radius;
@@ -70,9 +69,9 @@
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    color: @gray;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: @grayDark;
+      color: var(--color-text-secondary);
     }
   }
   // 下拉面板
@@ -102,7 +101,7 @@
   }
   &-select-item {
     cursor: pointer;
-    color: @grayDark;
+    color: var(--color-text-secondary);
     text-align: left;
     font-size: @timpicker-font;
     padding-left: @select-item-padding-left;
@@ -110,20 +109,20 @@
     line-height: @select-item-height;
     &:hover {
       color: var(--color-white);
-      background-color: @themeColor3;
+      background-color: var(--color-primary);
       &.actived {
         color: var(--color-white);
       }
       &.disabled {
-        color: @grayLight;
+        color: var(--color-text-disabled);
         background-color: var(--color-background-primary);
       }
     }
     &.actived {
-      color: @themeColor3;
+      color: var(--color-primary);
     }
     &.disabled {
-      color: @grayLight;
+      color: var(--color-text-disabled);
     }
   }
 }

@@ -36,6 +36,34 @@ const Drag = styled.div(
 `,
 );
 
+const renderLoading = () => {
+  return (
+    <div className="Relative w100">
+      <Skeleton
+        style={{ flex: 1 }}
+        direction="column"
+        widths={['30%', '40%', '90%', '60%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+      <Skeleton
+        style={{ flex: 1 }}
+        direction="column"
+        widths={['40%', '55%', '100%', '80%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+      <Skeleton
+        style={{ flex: 2 }}
+        direction="column"
+        widths={['45%', '100%', '100%', '100%']}
+        active
+        itemStyle={{ marginBottom: '10px' }}
+      />
+    </div>
+  );
+};
+
 export default function Resource(props) {
   const isM = browserIsMobile();
   const { fetchRows, getRelationControls, view, getTimeList, resourceview, controls } = props;
@@ -79,33 +107,6 @@ export default function Resource(props) {
       maxWidth: viewEl ? (50 / 100) * viewEl.offsetWidth : 0,
     });
   }, []);
-  const renderLoading = () => {
-    return (
-      <div className="Relative w100">
-        <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
-          active
-          itemStyle={{ marginBottom: '10px' }}
-        />
-        <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['40%', '55%', '100%', '80%']}
-          active
-          itemStyle={{ marginBottom: '10px' }}
-        />
-        <Skeleton
-          style={{ flex: 2 }}
-          direction="column"
-          widths={['45%', '100%', '100%', '100%']}
-          active
-          itemStyle={{ marginBottom: '10px' }}
-        />
-      </div>
-    );
-  };
 
   const handleToolClick = () => {
     const $wrap = document.querySelector('.resourceView');

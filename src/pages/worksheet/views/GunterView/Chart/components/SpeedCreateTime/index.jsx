@@ -16,7 +16,6 @@ const SpeedCreateTimeWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.04);
   pointer-events: none;
 `;
-
 const TimeWrapper = styled.div`
   width: 100%;
   height: 14px;
@@ -27,7 +26,6 @@ const TimeWrapper = styled.div`
   background-color: var(--color-background-primary);
   cursor: pointer;
 `;
-
 const MilepostTimeWrapper = styled.div`
   position: absolute;
   top: 0;
@@ -55,7 +53,6 @@ const MilepostTimeWrapper = styled.div`
     border-right-color: inherit;
   }
 `;
-
 const recordHeight = 32;
 const milepostWidth = 22;
 const borderRight = 1;
@@ -114,16 +111,14 @@ const getWithoutArrangementIndexs = (grouping, milepost) => {
       });
     }
   });
-  return { records, indexs, milepostIndexs };
+  return {
+    records,
+    indexs,
+    milepostIndexs,
+  };
 };
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['gunterView', 'base']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class SpeedCreateTime extends Component {
+let SpeedCreateTime = class SpeedCreateTime extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -140,34 +135,48 @@ export default class SpeedCreateTime extends Component {
       withoutArrangementMilepostIndexs: [],
     };
   }
-  componentWillReceiveProps({ gunterView }) {
-    if (
-      gunterView.periodType !== this.props.gunterView.periodType ||
-      _.get(gunterView.periodList[0], 'time') !== _.get(this.props.gunterView.periodList[0], 'time') ||
-      _.get(gunterView.periodList[0], 'width') !== _.get(this.props.gunterView.periodList[0], 'width') ||
-      !_.isEqual(gunterView.grouping, this.props.gunterView.grouping)
-    ) {
-      this.initPeriodList(gunterView);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { gunterView } = this.props;
+
+      if (
+        gunterView.periodType !== prevProps.gunterView.periodType ||
+        _.get(gunterView.periodList[0], 'time') !== _.get(prevProps.gunterView.periodList[0], 'time') ||
+        _.get(gunterView.periodList[0], 'width') !== _.get(prevProps.gunterView.periodList[0], 'width') ||
+        !_.isEqual(gunterView.grouping, prevProps.gunterView.grouping)
+      ) {
+        this.initPeriodList(gunterView);
+      }
     }
   }
+
   componentDidMount() {
     const { gunterView, base } = this.props;
     const { viewConfig } = gunterView;
     const { startId, endId } = viewConfig;
     this.debounceHandleMouseMove = _.throttle(this.handleMouseMove, 50);
     this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
-    this.gunterViewEl.addEventListener('mousemove', this.debounceHandleMouseMove);
-    this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
+    if (this.gunterViewEl) {
+      this.gunterViewEl.addEventListener('mousemove', this.debounceHandleMouseMove);
+      this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
+    }
     gunterView.chartScroll.on('scrollStart', this.handleMouseLeave);
     this.initPeriodList(gunterView);
-    this.setState({ disable: (startId || '').includes('time') || (endId || '').includes('time') });
+    this.setState({
+      disable: (startId || '').includes('time') || (endId || '').includes('time'),
+    });
   }
+
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;
-    this.gunterViewEl.removeEventListener('mousemove', this.debounceHandleMouseMove);
-    this.gunterViewEl.removeEventListener('mouseleave', this.handleMouseLeave);
+    if (this.gunterViewEl) {
+      this.gunterViewEl.removeEventListener('mousemove', this.debounceHandleMouseMove);
+      this.gunterViewEl.removeEventListener('mouseleave', this.handleMouseLeave);
+    }
     chartScroll.off('scrollStart', this.handleMouseLeave);
   }
+
   initPeriodList({ grouping, periodList, periodType, viewConfig }) {
     const newPeriodList = flattenPeriodList(periodList, periodType, viewConfig);
     const { records, indexs, milepostIndexs } = getWithoutArrangementIndexs(grouping, viewConfig.milepost);
@@ -179,8 +188,12 @@ export default class SpeedCreateTime extends Component {
       records,
     });
   }
+
   handleMouseLeave = () => {
-    this.setState({ left: null, top: null });
+    this.setState({
+      left: null,
+      top: null,
+    });
   };
   addRecordTime = () => {
     const { hoverIndex, records, time, isMilepost } = this.state;
@@ -224,6 +237,7 @@ export default class SpeedCreateTime extends Component {
       updateRecordTime(record, start, end);
     }
   };
+
   getAxisTime(clientX, periodList) {
     const { chartScroll } = this.props.gunterView;
     const scrollX = Math.abs(chartScroll.x);
@@ -234,6 +248,7 @@ export default class SpeedCreateTime extends Component {
 
     for (let i = 0; i < periodList.length; i++) {
       leftValue = leftValue + periodList[i].width;
+
       if (scrollLeft > leftValue) {
         indexValue = i;
       } else {
@@ -241,8 +256,13 @@ export default class SpeedCreateTime extends Component {
       }
     }
 
-    return { indexValue, leftValue, scrollLeft };
+    return {
+      indexValue,
+      leftValue,
+      scrollLeft,
+    };
   }
+
   handleMouseMove = event => {
     const { periodList, dayPeriodList, withoutArrangementIndexs, withoutArrangementMilepostIndexs } = this.state;
     const { chartScroll } = this.props.gunterView;
@@ -280,6 +300,7 @@ export default class SpeedCreateTime extends Component {
       this.handleMouseLeave();
     }
   };
+
   render() {
     const { disable, left, top, width, records, hoverIndex, isMilepost } = this.state;
     const record = records[hoverIndex];
@@ -315,4 +336,9 @@ export default class SpeedCreateTime extends Component {
       </Fragment>
     );
   }
-}
+};
+SpeedCreateTime = connect(
+  state => ({ ..._.pick(state.sheet, ['gunterView', 'base']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(SpeedCreateTime);
+export default SpeedCreateTime;

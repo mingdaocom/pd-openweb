@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Dialog } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
-import { isTimeControl } from 'statistics/common';
+import { isTimeControl } from 'statistics/common/controlUtils';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';

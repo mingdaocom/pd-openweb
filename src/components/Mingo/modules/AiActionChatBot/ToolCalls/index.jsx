@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import { get } from 'lodash';
 import styled from 'styled-components';
@@ -179,7 +179,7 @@ function JSONDataComp({ data }) {
   return (
     <JSONDataCon>
       <div className="title">json</div>
-      <JsonView src={data} displayDataTypes={false} displayObjectSize={false} name={null} />
+      <JsonView data={data} />
     </JSONDataCon>
   );
 }

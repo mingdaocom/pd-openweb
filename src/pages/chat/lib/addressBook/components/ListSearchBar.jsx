@@ -7,7 +7,7 @@ import { dialogSelectUser } from 'ming-ui/functions';
 import InviteController from 'src/api/invitation';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';
-import createGroup from 'src/pages/Group/createGroup';
+import createGroup from 'src/pages/Group/createGroup/load';
 import { existAccountHint } from 'src/utils/inviteCommon';
 
 export default class SearchBar extends React.Component {
@@ -21,11 +21,13 @@ export default class SearchBar extends React.Component {
     this.searchHandler = this.searchHandler.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.keywords !== this.props.keywords) {
-      this.setState({
-        value: nextProps.keywords,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.keywords !== prevProps.keywords) {
+        this.setState({
+          value: this.props.keywords,
+        });
+      }
     }
   }
 
@@ -71,7 +73,6 @@ export default class SearchBar extends React.Component {
         });
         break;
       case 'groups':
-        // FIXME: 不是异步的话dom事件绑定不上 同pageHead
         createGroup({ projectId });
         break;
       default:
@@ -101,7 +102,7 @@ export default class SearchBar extends React.Component {
             <Icon
               icon={isGroup ? 'group_add' : 'invite'}
               className={cx(
-                'contacts-search-addbtn pLeft12 pRight20 textTertiary Hand ThemeHoverColor3',
+                'contacts-search-addbtn pLeft12 pRight20 textTertiary Hand hoverColorPrimary',
                 isGroup ? 'Font22' : 'Font18 mLeft5',
               )}
               onClick={this.addHandler}

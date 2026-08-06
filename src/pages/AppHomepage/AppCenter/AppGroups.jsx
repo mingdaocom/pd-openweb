@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { shape, string } from 'prop-types';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
+import { getPathWithoutSubPath } from 'src/utils/common';
 import { CreateActions, initialState, reducer } from './appHomeReducer';
 import AppGrid from './components/AppGrid';
 import CreateFirstApp from './components/CreateFirstApp';
@@ -20,7 +21,7 @@ const Con = styled.div`
 function AppGroups(props) {
   const activeGroupId = _.get(props, 'match.params.groupId');
   const activeGroupType = _.get(props, 'match.params.groupType');
-  const isOwnedApp = location.pathname.includes('/app/my/owned');
+  const isOwnedApp = getPathWithoutSubPath(location.pathname).includes('/app/my/owned');
   const { currentProject, projectId, dashboardColor, myPermissions = [] } = props;
   const cache = useRef({});
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -63,7 +64,7 @@ function AppGroups(props) {
   }, [activeGroupId, isOwnedApp]);
 
   useEffect(() => {
-    if (cache.current.projectLoaded && location.pathname !== '/app/my') {
+    if (cache.current.projectLoaded && getPathWithoutSubPath(location.pathname) !== '/app/my') {
       navigateTo('/app/my', false, true);
     }
 
@@ -71,7 +72,17 @@ function AppGroups(props) {
   }, [projectId]);
 
   if (!(groupsLoading || appsLoading) && noApps && projectId && projectId !== 'external') {
-    return <CreateFirstApp projectId={projectId} myPermissions={myPermissions} />;
+    return (
+      <CreateFirstApp
+        projectId={projectId}
+        myPermissions={myPermissions}
+        createAppFromEmpty={(...args) => {
+          actions.createAppFromEmpty(...args, id => {
+            args[0].createType !== 1 ? navigateTo('/app/' + id) : alert(_l('添加外部链接成功'));
+          });
+        }}
+      />
+    );
   }
 
   return (

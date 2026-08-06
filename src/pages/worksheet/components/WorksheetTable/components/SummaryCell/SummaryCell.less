@@ -17,6 +17,7 @@
     }
   }
   .summaryName {
+    display: none;
     color: var(--color-text-tertiary);
   }
   .summaryValue {
@@ -27,6 +28,9 @@
     line-height: 28px;
     font-size: 16px;
     color: var(--color-text-tertiary);
+  }
+  &:hover .summaryName {
+    display: inline;
   }
   &.withBackground {
     background-color: var(--color-background-secondary) !important;

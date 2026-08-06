@@ -134,12 +134,10 @@
     height: 100%;
     top: 0;
     &-cards {
-      width: 1600px;
-      margin: 0 auto;
-      flex: 1 0 auto;
-      display: flex;
-      flex-flow: row wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 530px);
       justify-content: center;
+      gap: 20px;
     }
     &-wrapper {
       padding: 10px;
@@ -148,13 +146,6 @@
   }
   .statisticsCard {
     width: 528px;
-    &-empty {
-      opacity: 0;
-      height: 0;
-      margin: 0;
-      width: 528px;
-      overflow: hidden;
-    }
   }
 }
 

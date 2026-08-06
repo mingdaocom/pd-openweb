@@ -1,13 +1,11 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
-import CodeMirror from 'codemirror';
-import 'codemirror/addon/display/placeholder';
 import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
 import { MODE } from './enum';
-import 'codemirror/lib/codemirror.css';
+import loadCodeMirror from './loadCodeMirror';
 import './TagTextarea.less';
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
@@ -60,12 +58,21 @@ export default class TagTextarea extends React.Component {
   }
 
   componentDidMount() {
+    this.props.getRef(this);
+    this.initCodeMirror();
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.props.getRef(undefined);
+  }
+
+  initCodeMirror = () => {
     const {
       defaultValue,
       height,
       onFocus,
       onBlur,
-      getRef,
       readonly,
       noCursor,
       placeholder,
@@ -73,117 +80,121 @@ export default class TagTextarea extends React.Component {
       lineNumbers,
       maxHeight = 500,
     } = this.props;
-    getRef(this);
+
     if (this.cmcon) {
-      this.cmObj = CodeMirror(this.cmcon, {
-        value: defaultValue,
-        mode: codeMirrorMode || null,
-        lineNumbers,
-        lineWrapping: true,
-        readOnly: readonly,
-        cursorHeight: noCursor || readonly ? 0 : 1,
-        placeholder: placeholder || null,
-      });
-      if (height) {
-        this.cmObj.setSize('100%', typeof height === 'number' ? `${height}px` : height);
-      }
+      loadCodeMirror(codeMirrorMode).then(CodeMirror => {
+        if (this.unmounted || !this.cmcon) return;
 
-      if (defaultValue) {
-        this.updateTextareaView();
-        // this.cmObj.execCommand('goDocEnd');
-      }
+        const nextValue = _.isUndefined(this.pendingValue) ? defaultValue : this.pendingValue;
+        this.cmObj = CodeMirror(this.cmcon, {
+          value: nextValue,
+          mode: codeMirrorMode || null,
+          lineNumbers,
+          lineWrapping: true,
+          readOnly: readonly,
+          cursorHeight: noCursor || readonly ? 0 : 1,
+          placeholder: placeholder || null,
+        });
 
-      this.cmObj.on('change', this.handleCMChange);
-      this.cmObj.on('beforeChange', (cm, obj) => {
-        if (this.cmcon) {
-          if (this.cmcon.querySelector('.CodeMirror-sizer').clientHeight >= maxHeight - 2) {
-            if (this.cmcon.classList.contains('autoHeight')) {
-              this.cmcon.classList.remove('autoHeight');
+        if (height) {
+          this.cmObj.setSize('100%', typeof height === 'number' ? `${height}px` : height);
+        }
+
+        if (nextValue) {
+          this.updateTextareaView();
+          // this.cmObj.execCommand('goDocEnd');
+        }
+
+        this.cmObj.on('change', this.handleCMChange);
+        this.cmObj.on('beforeChange', (cm, obj) => {
+          if (this.cmcon) {
+            if (this.cmcon.querySelector('.CodeMirror-sizer').clientHeight >= maxHeight - 2) {
+              if (this.cmcon.classList.contains('autoHeight')) {
+                this.cmcon.classList.remove('autoHeight');
+              }
+
+              this.cmcon.style.height = maxHeight + 'px';
+            } else {
+              if (!this.cmcon.classList.contains('autoHeight')) {
+                this.cmcon.classList.add('autoHeight');
+              }
+
+              this.cmcon.style.height = 'auto';
             }
-
-            this.cmcon.style.height = maxHeight + 'px';
-          } else {
-            if (!this.cmcon.classList.contains('autoHeight')) {
-              this.cmcon.classList.add('autoHeight');
-            }
-
-            this.cmcon.style.height = 'auto';
           }
-        }
 
-        if (obj.origin === 'undo' || obj.origin === 'redo') {
-          return;
-        }
+          if (obj.origin === 'undo' || obj.origin === 'redo') {
+            return;
+          }
 
-        // 事件内，mode只能从每次this.props取，不然取不到最新
-        if (
-          this.props.mode === MODE.ONLYTAG &&
-          obj.origin !== '+delete' &&
-          obj.origin !== 'inserttag' &&
-          obj.origin !== 'setValue'
-        ) {
-          obj.cancel();
-        }
+          // 事件内，mode只能从每次this.props取，不然取不到最新
+          if (
+            this.props.mode === MODE.ONLYTAG &&
+            obj.origin !== '+delete' &&
+            obj.origin !== 'inserttag' &&
+            obj.origin !== 'setValue'
+          ) {
+            obj.cancel();
+          }
 
-        let { text } = obj;
+          let { text } = obj;
 
-        // 事件内，mode只能从每次this.props取，不然取不到最新
-        if (
-          this.props.mode === MODE.FORMULA &&
-          obj.origin !== '+delete' &&
-          obj.origin !== 'inserttag' &&
-          obj.origin !== 'setValue'
-        ) {
-          text = text.map(t =>
-            t
-              .toUpperCase()
-              .split('')
-              .filter(t => (obj.origin === 'paste' ? /[0-9A-Z+\-*/(),.$]/ : /[0-9A-Z+\-*/(),.]/).test(t))
-              .join(''),
-          );
-        }
+          // 事件内，mode只能从每次this.props取，不然取不到最新
+          if (
+            this.props.mode === MODE.FORMULA &&
+            obj.origin !== '+delete' &&
+            obj.origin !== 'inserttag' &&
+            obj.origin !== 'setValue'
+          ) {
+            text = text.map(t =>
+              t
+                .toUpperCase()
+                .split('')
+                .filter(t => (obj.origin === 'paste' ? /[0-9A-Z+\-*/(),.$]/ : /[0-9A-Z+\-*/(),.]/).test(t))
+                .join(''),
+            );
+          }
 
-        if (
-          this.props.mode === MODE.DATE &&
-          obj.origin !== '+delete' &&
-          obj.origin !== 'inserttag' &&
-          obj.origin !== 'setValue'
-        ) {
-          text = text.map(t =>
-            t
-              .split('')
-              .filter(t => (obj.origin === 'paste' ? /[0-9YMdhm+\-$]/ : /[0-9YMdhm+-]/).test(t))
-              .join(''),
-          );
-        }
+          if (
+            this.props.mode === MODE.DATE &&
+            obj.origin !== '+delete' &&
+            obj.origin !== 'inserttag' &&
+            obj.origin !== 'setValue'
+          ) {
+            text = text.map(t =>
+              t
+                .split('')
+                .filter(t => (obj.origin === 'paste' ? /[0-9YMdhm+\-$]/ : /[0-9YMdhm+-]/).test(t))
+                .join(''),
+            );
+          }
 
-        obj.update(obj.from, obj.to, text);
-      });
-      this.cmObj.on('focus', (...args) => {
-        this.cmcon.classList.add('active');
-        onFocus(...args);
-      });
-      this.cmObj.on('blur', (...args) => {
-        if (this.cmcon) {
-          this.cmcon.classList.remove('active');
-        }
+          obj.update(obj.from, obj.to, text);
+        });
+        this.cmObj.on('focus', (...args) => {
+          this.cmcon.classList.add('active');
+          onFocus(...args);
+        });
+        this.cmObj.on('blur', (...args) => {
+          if (this.cmcon) {
+            this.cmcon.classList.remove('active');
+          }
 
-        if (!_.isUndefined(this.tempValue)) {
-          this.props.onChange(null, this.tempValue, this.tempObj);
-          this.tempValue = undefined;
-          this.tempObj = undefined;
-        }
+          if (!_.isUndefined(this.tempValue)) {
+            this.props.onChange(null, this.tempValue, this.tempObj);
+            this.tempValue = undefined;
+            this.tempObj = undefined;
+          }
 
-        onBlur(...args);
+          onBlur(...args);
+        });
       });
     }
-  }
-
-  componentWillUnmount() {
-    this.props.getRef(undefined);
-  }
+  };
 
   updateTextareaView = () => {
+    if (!this.cmObj) return;
+
     const { mode, operatorsSetMargin } = this.props;
     const value = this.cmObj.getValue();
 
@@ -199,6 +210,9 @@ export default class TagTextarea extends React.Component {
   };
 
   setValue = value => {
+    this.pendingValue = value || '';
+    if (!this.cmObj) return;
+
     this.cmObj.setValue(value || '');
   };
 
@@ -277,6 +291,8 @@ export default class TagTextarea extends React.Component {
   };
 
   insertColumnTag = id => {
+    if (!this.cmObj) return;
+
     const { mode, autoComma } = this.props;
     const position = this.cmObj.getCursor();
     const editorValue = this.cmObj.getValue();
@@ -302,13 +318,13 @@ export default class TagTextarea extends React.Component {
     return (
       <div className={cx('tagInputarea', className, { flexRow: rightIcon })}>
         <div
-          className={cx('tagInputareaIuput autoHeight ThemeBorderColor3', { 'flex hasRightIcon': rightIcon })}
+          className={cx('tagInputareaIuput autoHeight borderColorPrimary', { 'flex hasRightIcon': rightIcon })}
           ref={con => (this.cmcon = con)}
           style={{ maxHeight }}
         />
         {rightIcon && (
           <Tooltip title={_l('添加字段')}>
-            <span className="rightIcon Hand ThemeHoverColor3" onClick={onAddClick}>
+            <span className="rightIcon Hand hoverColorPrimary" onClick={onAddClick}>
               <i className="icon icon-workflow_other"></i>
             </span>
           </Tooltip>

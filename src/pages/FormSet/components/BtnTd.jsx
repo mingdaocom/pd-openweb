@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dialog, Icon, SvgIcon } from 'ming-ui';
+import { Icon, Input, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
-import MoreOption from '../components/MoreOption';
-
-const confirm = Dialog.confirm;
+import { WORKSHEET_BTN_OPTION_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/customBtn/config';
+import CustomBtnMoreOption from './CustomBtnMoreOption';
 
 export default function BtnTd(props) {
   const input = useRef(null);
@@ -59,81 +59,102 @@ export default function BtnTd(props) {
       });
   };
 
-  const optionWorksheetBtn = ({ appId, viewId, optionType }) => {
+  const optionWorksheetBtn = ({
+    appId,
+    viewId,
+    optionType,
+    successText = _l('删除成功'),
+    failText = _l('删除失败'),
+  }) => {
     sheetAjax
       .optionWorksheetBtn({
         appId,
         viewId,
         btnId: it.btnId,
         worksheetId,
-        optionType: optionType, // * @param { integer } args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮
+        optionType: optionType, // * @param { integer } args.optionType 操作类型 9：删除按钮 12：停用按钮 13：启用按钮
       })
       .then(data => {
         if (data) {
-          alert(_l('删除成功'));
+          if (successText) {
+            alert(successText);
+          }
+
           getSheetBtns();
         } else {
-          alert(_l('删除失败'), 2);
+          alert(failText, 2);
         }
       });
   };
 
+  const handleToggleEnable = targetDisabled => {
+    optionWorksheetBtn({
+      appId,
+      viewId: '',
+      optionType: targetDisabled ? WORKSHEET_BTN_OPTION_TYPE.disable : WORKSHEET_BTN_OPTION_TYPE.enable,
+      successText: '',
+      failText: targetDisabled ? _l('停用失败') : _l('启用失败'),
+    });
+  };
+
   const renderTxt = () => {
-    let listviews = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
     const canBatchViewIds = views
       .filter(o => o.viewType === 0 || (o.viewType === 2 && _.get(o, 'advancedSetting.hierarchyViewType') === '3'))
       .map(o => o.viewId);
-    listviews = listviews.filter(o => canBatchViewIds.includes(o));
-    const dt = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
     const noBatch = (it.writeObject === 2 || it.writeType === 2) && it.clickType === 3; //填写且配置了关联=>不能设置成批量按钮
-    const allList = !noBatch ? [...dt, ...listviews] : dt;
-    const data = _.uniq(allList);
-
-    if (data.length > 0) {
-      let str = data
-        .map(item => {
-          let view = views.find(o => o.viewId === item) || {};
-          return view.name;
-        })
-        .filter(l => l)
+    const detailViews = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
+    const listViews = safeParse(_.get(it, 'advancedSetting.listviews'), 'array').filter(o =>
+      canBatchViewIds.includes(o),
+    );
+    const viewIds = _.uniq(noBatch ? detailViews : detailViews.concat(listViews));
+    if (viewIds.length > 0) {
+      return viewIds
+        .map(id => _.get(_.find(views, { viewId: id }), 'name'))
+        .filter(Boolean)
         .join(',');
-      return str;
     }
 
     return _l('未分配视图');
   };
 
-  const color = !it.color
-    ? 'var(--color-primary)'
-    : it.color === 'transparent' && !it.icon
-      ? 'var(--color-text-tertiary)'
-      : it.color === 'transparent'
+  const color =
+    !it.color || it.color !== 'transparent'
+      ? it.color || 'var(--color-primary)'
+      : it.icon
         ? 'var(--color-text-title)'
-        : it.color;
+        : 'var(--color-text-tertiary)';
+  const isDisabled = it.status === 0; //0停用
+  const iconColor = isDisabled ? 'var(--color-text-disabled)' : color;
+
+  const handleMoreOptionVisibleChange = showMoreOption =>
+    setState({ showMoreOption, templateId: showMoreOption ? it.btnId : '' });
+
+  const handleDelete = () => optionWorksheetBtn({ appId, viewId: '', optionType: 9 });
+
   return (
-    <div className="printTemplatesList-tr printBtnsList-tr">
+    <div className={cx('printTemplatesList-tr printBtnsList-tr', { disabledCustomBtn: isDisabled })}>
       <div className="name flex mRight20 valignWrapper overflowHidden">
         {!!it.iconUrl && it.icon.endsWith('_svg') ? (
           <SvgIcon
             className="InlineBlock TxtTop mRight13 Icon iconTitle"
             addClassName="TxtMiddle"
             url={it.iconUrl}
-            fill={color}
+            fill={iconColor}
             size={24}
           />
         ) : (
           <Icon
             icon={it.icon || 'custom_actions'}
             style={{
-              color: color,
+              color: iconColor,
             }}
             className="iconTitle Font24 mRight13"
           />
         )}
         {isRename ? (
-          <input
-            type="text"
-            ref={input}
+          <Input
+            className="flex"
+            manualRef={input}
             defaultValue={it.name}
             onBlur={e => {
               const newName = _.trim(e.target.value);
@@ -175,7 +196,10 @@ export default function BtnTd(props) {
           />
         ) : (
           <Tooltip title={it.name}>
-            <span className="overflow_ellipsis">{it.name}</span>
+            <span className="overflow_ellipsis">
+              {it.name}
+              {isDisabled && <span className="textTertiary Normal mLeft5">{`[${_l('停用')}]`}</span>}
+            </span>
           </Tooltip>
         )}
       </div>
@@ -195,13 +219,17 @@ export default function BtnTd(props) {
       <div className="activeCon mRight8 w120px">
         <Trigger
           popupVisible={showDropOption}
-          action={['click']}
+          action={isDisabled ? [] : ['click']}
           popupAlign={{
             points: ['tl', 'bl'],
             overflow: { adjustX: true, adjustY: true },
           }}
           getPopupContainer={() => document.body}
           onPopupVisibleChange={showDropOption => {
+            if (isDisabled) {
+              return;
+            }
+
             setState({ showDropOption, templateId: showDropOption ? it.btnId : '' });
           }}
           popup={
@@ -236,11 +264,15 @@ export default function BtnTd(props) {
             />
           }
         >
-          <span className="Hand Bold">{_l('使用范围')}</span>
+          <span className={cx('Bold', { Hand: !isDisabled })}>{_l('使用范围')}</span>
         </Trigger>
         <span
-          className="Hand mLeft20 Bold"
+          className={cx('mLeft20 Bold', { Hand: !isDisabled })}
           onClick={() => {
+            if (isDisabled) {
+              return;
+            }
+
             onChange({
               isEdit: true,
               showCreateCustomBtn: true,
@@ -252,48 +284,16 @@ export default function BtnTd(props) {
         </span>
       </div>
       <div className="more w80px TxtCenter">
-        <Icon
-          icon="more_horiz"
-          className="moreActive Hand Font18 textTertiary hoverColorPrimary"
-          onClick={() => {
-            setState({
-              showMoreOption: true,
-              templateId: it.btnId,
-            });
-          }}
+        <CustomBtnMoreOption
+          item={it}
+          isDisabled={isDisabled}
+          visible={showMoreOption}
+          setFn={data => setState(data)}
+          onCopy={handleCopy}
+          onDelete={handleDelete}
+          onToggleEnable={handleToggleEnable}
+          onVisibleChange={handleMoreOptionVisibleChange}
         />
-        {showMoreOption && (
-          <MoreOption
-            showCopy
-            onCopy={() => {
-              return confirm({
-                title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', it.name)}</span>,
-                description: _l('将复制目标自定义动作的所有节点和配置'),
-                onOk: () => {
-                  handleCopy();
-                },
-              });
-            }}
-            delTxt={_l('删除')}
-            description={_l('动作将被删除，请确认执行此操作')}
-            showMoreOption={showMoreOption}
-            onClickAwayExceptions={[]}
-            onClickAway={() => {
-              setState({
-                showMoreOption: false,
-              });
-            }}
-            setFn={data => setState(data)}
-            deleteFn={() => {
-              optionWorksheetBtn({
-                appId,
-                viewId: '', //* @param { string } args.viewId 视图ID
-                optionType: 9, // * @param { integer } args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮
-                callback: () => {},
-              });
-            }}
-          />
-        )}
       </div>
     </div>
   );

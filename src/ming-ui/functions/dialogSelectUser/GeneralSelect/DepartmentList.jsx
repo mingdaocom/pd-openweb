@@ -122,11 +122,14 @@ class Department extends Component {
       moreIdLoading: '',
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.departmentMoreIds, nextProps.departmentMoreIds)) {
-      this.setState({
-        moreIdLoading: '',
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.departmentMoreIds, this.props.departmentMoreIds)) {
+        this.setState({
+          moreIdLoading: '',
+        });
+      }
     }
   }
 
@@ -238,7 +241,7 @@ class Department extends Component {
             ) : null}
             {checkIncludeChilren && !disabled && (
               <span
-                className="Hand onlySelf ThemeColor3 pRight5"
+                className="Hand onlySelf colorPrimary pRight5"
                 onClick={e => {
                   e.stopPropagation();
                   this.props.onChangeSelectedOnly(department);

@@ -73,7 +73,17 @@ export default function ListItemLayer(props) {
 
   const renderContent = () => {
     if (!item && !$init.current) return null;
-    const { enumType } = item || $init.current.item;
+    const { enumType, isTemplate, templateIcon, templateName } = item || $init.current.item;
+
+    if (isTemplate) {
+      return (
+        <div className="content">
+          {templateIcon && <i className={`Font18 icon-${templateIcon}`}></i>}
+          <span>{templateName}</span>
+        </div>
+      );
+    }
+
     if (isEmpty(DEFAULT_CONFIG[enumType])) return;
     const { icon, widgetName } = DEFAULT_CONFIG[enumType];
     return (

@@ -7,6 +7,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import smsApi from 'src/api/sms';
 import SmsSignSet from 'src/components/SmsSignSet';
+import { pathCompletion } from 'src/utils/common';
 import { RELATION_TYPE } from '../../enum';
 import { getControlTypeName, handleGlobalVariableName } from '../../utils';
 import {
@@ -85,23 +86,27 @@ export default class Message extends Component {
     this.getTwilioBaseInfo();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.setState({ keywords: '' });
-      this.getNodeDetail(nextProps);
-    }
-
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.setState({
+          keywords: '',
+        });
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
+    }
+
     if (
       this.tagBox &&
       prevState.data.messageTemplate &&
@@ -135,6 +140,10 @@ export default class Message extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
       });
   }
@@ -164,7 +173,7 @@ export default class Message extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -204,7 +213,7 @@ export default class Message extends Component {
               <Support
                 type={3}
                 href="https://help.mingdao.com/workflow/sms-failure"
-                text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
+                text={<span className="colorPrimary hoverColorPrimaryDark">{_l('收不到短信？')}</span>}
               />
             </div>
             {window.platformENV.isOverseas && twilioBaseInfo?.name && (
@@ -226,7 +235,7 @@ export default class Message extends Component {
           updateSource={this.updateSource}
         />
         <div
-          className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+          className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
         >
           <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -259,7 +268,10 @@ export default class Message extends Component {
                   {_l('发送港澳台或国际短信需先配置服务商，否则将无法送达。请前往组织后台完成配置。')}
                 </div>
                 <div className="TxtRight">
-                  <Button type="primary" onClick={() => (location.href = `/admin/weixin/${this.props.companyId}`)}>
+                  <Button
+                    type="primary"
+                    onClick={() => (location.href = pathCompletion(`/admin/weixin/${this.props.companyId}`))}
+                  >
                     {_l('前往配置')}
                   </Button>
                 </div>
@@ -315,9 +327,10 @@ export default class Message extends Component {
               }}
               readonly
               renderTag={tag => {
-                const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
+                const key = tag.replace(/^\$|\$$/g, '');
+                const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
                 const nodeObj = data.formulaMap[ids[0]] || {};
-                const controlObj = data.formulaMap[ids.join('-')] || {};
+                const controlObj = data.formulaMap[key] || {};
 
                 if (!nodeObj.name || !controlObj.name) {
                   return <span style={{ color: 'var(--color-warning)' }}>({_l('缺少字段变量')})</span>;
@@ -336,13 +349,13 @@ export default class Message extends Component {
             <div className="mTop15">
               {status !== 0 && (
                 <span
-                  className="flowTplBtn ThemeBorderColor3 ThemeColor3"
+                  className="flowTplBtn borderColorPrimary colorPrimary"
                   onClick={status === 1 ? this.setTemplate : this.editTemplate}
                 >
                   {_l('修改')}
                 </span>
               )}
-              <span className="flowTplBtn ThemeBorderColor3 ThemeColor3" onClick={this.delTemplate}>
+              <span className="flowTplBtn borderColorPrimary colorPrimary" onClick={this.delTemplate}>
                 {_l('删除')}
               </span>
             </div>
@@ -420,7 +433,7 @@ export default class Message extends Component {
         <div className="mTop20 flexRow">
           <div className="flex">{_l('选择已有模板')}</div>
           <div
-            className="ThemeColor3 ThemeHoverColor2 pointer"
+            className="colorPrimary hoverColorPrimaryDark pointer"
             onClick={() => this.setState({ addNewTemplate: true, sign: '' })}
           >
             <i className="icon-plus mRight5" />
@@ -432,7 +445,7 @@ export default class Message extends Component {
           <input
             type="text"
             placeholder={_l('搜索')}
-            className="ThemeBorderColor3 actionControlBox flex pLeft35 pRight10 pTop0 pBottom0"
+            className="borderColorPrimary actionControlBox flex pLeft35 pRight10 pTop0 pBottom0"
             value={keywords}
             onChange={evt => this.setState({ keywords: evt.currentTarget.value.trim() })}
           />
@@ -521,7 +534,7 @@ export default class Message extends Component {
 
     return (
       <div className="pBottom20">
-        <div className="ThemeColor3 ThemeHoverColor2 pointer">
+        <div className="colorPrimary hoverColorPrimaryDark pointer">
           <span
             className="pointer"
             onClick={() => {
@@ -594,7 +607,7 @@ export default class Message extends Component {
 
         <div className="mTop30">
           <span
-            className="saveTplBtn ThemeBGColor3 ThemeHoverBGColor2"
+            className="saveTplBtn bgColorPrimary hoverBgColorPrimaryDark"
             onClick={() => {
               const newTestArray = _.uniq(messageContent.match(/\$[^ \r\n]+?\$/g) || []);
 
@@ -701,7 +714,7 @@ export default class Message extends Component {
 
     return (
       <Fragment>
-        <div className="ThemeColor3 ThemeHoverColor2 pointer">
+        <div className="colorPrimary hoverColorPrimaryDark pointer">
           <span
             className="pointer"
             onClick={() => {
@@ -717,7 +730,7 @@ export default class Message extends Component {
         </div>
         <div className="mTop20 flexRow alignItemsCenter">
           <div className="flex Font18 bold">{_l('短信模板')}</div>
-          <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.editTemplate}>
+          <div className="colorPrimary hoverColorPrimaryDark pointer" onClick={this.editTemplate}>
             {_l('修改模板的内容')}
           </div>
         </div>
@@ -732,17 +745,15 @@ export default class Message extends Component {
               this.tagtextarea = tagtextarea;
             }}
             renderTag={tag => {
-              const ids = (this.mapData[tag] || '')
-                .replace(/\$/g, '')
-                .split(/([a-zA-Z0-9#]{24,32})-/)
-                .filter(item => item);
+              const key = (this.mapData[tag] || tag).replace(/^\$|\$$/g, '');
+              const ids = key.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
               const nodeObj = data.formulaMap[ids[0]] || {};
-              const controlObj = data.formulaMap[ids.join('-')] || {};
+              const controlObj = data.formulaMap[key] || {};
 
               if (!nodeObj.name || !controlObj.name) {
                 return (
                   <span
-                    className="fieldInsertBtn ThemeBGColor4 ThemeHoverBGColor3"
+                    className="fieldInsertBtn bgColorPrimary hoverBgColorPrimaryDark"
                     onClick={() => this.insertFields(tag)}
                   >
                     {_l('点击插入字段')}
@@ -795,7 +806,7 @@ export default class Message extends Component {
         </div>
 
         <div className="mTop30">
-          <span className="saveTplBtn ThemeBGColor3 ThemeHoverBGColor2" onClick={this.saveTemplateSetting}>
+          <span className="saveTplBtn bgColorPrimary hoverBgColorPrimaryDark" onClick={this.saveTemplateSetting}>
             {_l('保存')}
           </span>
         </div>
@@ -891,7 +902,7 @@ export default class Message extends Component {
         {!addNewTemplate && !showSetTemplate && (
           <DetailFooter
             {...this.props}
-            isCorrect={data.accounts.length && data.messageTemplate.id}
+            isCorrect={data.accounts.length && data.messageTemplate.id && !_.isEqual(data, this.cacheResult)}
             onSave={this.onSave}
           />
         )}

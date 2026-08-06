@@ -5,6 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import process from 'src/pages/workflow/api/process';
+import { pathCompletion } from 'src/utils/common';
 
 const STATUS_TEXT = {
   1: _l('执行成功'),
@@ -133,7 +134,10 @@ class WorkflowHistory extends Component {
             <div className="empty">{_l('没有行记录')}</div>
           ) : (
             data[activeStatus].map(item => (
-              <li key={item.instanceId} onClick={() => window.open(`/worksheet/${item.appId}/row/${item.sourceId}`)}>
+              <li
+                key={item.instanceId}
+                onClick={() => window.open(pathCompletion(`/worksheet/${item.appId}/row/${item.sourceId}`))}
+              >
                 <div className="overflow_ellipsis" style={{ maxWidth: 300 }}>
                   {item.title}
                 </div>
@@ -161,7 +165,7 @@ export default function workflowHistory(props) {
   function handleClose() {
     setTimeout(() => {
       root.unmount();
-      document.body.removeChild(div);
+      div.remove();
 
       if (_.isFunction(props.onCancel)) {
         props.onCancel();

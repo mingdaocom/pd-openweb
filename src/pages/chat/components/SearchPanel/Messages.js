@@ -26,7 +26,7 @@ const highlightMessageText = (keyword, message) => {
 
   const reg = new RegExp(_.escapeRegExp(keyword), 'g');
   message = htmlEncodeReg(message.replace(reg, '*#span1#*' + keyword + '*#span2#*'));
-  message = message.replace(/\*#span1#\*/g, '<span class="ThemeColor3">').replace(/\*#span2#\*/g, '</span>');
+  message = message.replace(/\*#span1#\*/g, '<span class="colorPrimary">').replace(/\*#span2#\*/g, '</span>');
   return message;
 };
 
@@ -43,18 +43,21 @@ export default class Messages extends Component {
     const { searchText } = this.props;
     this.updateMessages(searchText);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.searchText !== this.props.searchText) {
-      this.setState(
-        {
-          loading: false,
-          pageIndex: 1,
-          messages: [],
-        },
-        () => {
-          this.updateMessages(nextProps.searchText);
-        },
-      );
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.searchText !== prevProps.searchText) {
+        this.setState(
+          {
+            loading: false,
+            pageIndex: 1,
+            messages: [],
+          },
+          () => {
+            this.updateMessages(this.props.searchText);
+          },
+        );
+      }
     }
   }
   updateMessages(searchText) {

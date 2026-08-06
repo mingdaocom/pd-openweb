@@ -77,6 +77,9 @@ export const allSwitchKeys = [
   ...viewSwitch,
   ...recordSwitch,
   ...approveSwitch,
+  // 角色操作权限，仅用于兼容、归一化 GetWorksheetInfo 返回的 switches，不在功能开关界面展示
+  1001,
+  1002,
 ];
 export const allSwitch = [
   { list: worksheetSwitch, txt: _l('工作表'), key: '1' },

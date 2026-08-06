@@ -1,13 +1,43 @@
 ﻿import _ from 'lodash';
 import flowNode from '../api/flowNode';
 import process from '../api/process';
-import { APP_TYPE } from '../WorkflowSettings/enum';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import { APP_TYPE, RELATION_TYPE } from '../WorkflowSettings/enum';
+
+const getAppLangDetail = async flowInfo => {
+  const appId = _.get(flowInfo, 'relationId');
+
+  if (_.isEmpty(flowInfo) || flowInfo.relationType !== RELATION_TYPE.APP || !appId) return;
+
+  try {
+    const langInfo = flowInfo.langInfo || (await homeAppApi.getAppLangInfo({ appId }, { silent: true }));
+
+    if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+      const lang = await appManagementApi.getAppLangDetail(
+        {
+          appId,
+          appLangId: langInfo.appLangId,
+          projectId: langInfo.projectId || flowInfo.companyId,
+        },
+        { silent: true },
+      );
+
+      window[`langData-${appId}`] = (lang || {}).items || [];
+      window[`langVersion-${appId}`] = langInfo.version;
+    }
+  } catch {
+    // 语言包加载失败不影响工作流编辑页打开
+  }
+};
 
 // 获取工作流基础信息
 export const getFlowInfo = processId => dispatch => {
   process
     .getProcessPublish({ processId }, { isIntegration: location.href.indexOf('integration') > -1 })
-    .then(result => {
+    .then(async result => {
+      await getAppLangDetail(result);
+
       dispatch({
         type: 'GET_FLOW_INFO',
         data: result,

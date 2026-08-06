@@ -1,26 +1,36 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import { Support } from 'ming-ui';
-import mingoAjax from 'src/api/mingo';
+import agentApi from 'src/api/agent';
+import { buildFormFieldsControls } from 'src/components/Mingo/ChatBot/utils';
 import CreateAIDialog from 'src/pages/worksheet/components/CreateAIDialog';
+import { genBotSessionId } from 'src/utils/agentSession';
+import { pathCompletion } from 'src/utils/common';
 
 export default function CreateAIActionDialog(props) {
-  const { appId, worksheetId, onCancel, onSuccess } = props;
+  const { worksheetInfo = {}, onCancel, onSuccess } = props;
   const [{ remark, loadingAIsuggestions, generateLoading, suggestionList }, setState] = useSetState({
     suggestionList: [],
   });
 
   const generateSuggestionList = (isReload = false) => {
     setState({ loadingAIsuggestions: true });
-    mingoAjax
-      .generateAIActionInfo({
-        appId,
-        worksheetId,
-        isReload,
-        langType: window.getCurrentLangCode(),
+    agentApi
+      .agentExecute({
+        agentName: 'record-ai-actions-recommender',
+        sessionId: genBotSessionId(),
+        message: _l('开始'),
+        forceRefresh: isReload,
+        context: {
+          language: window.getCurrentLang() || 'zh-Hans',
+          appName: worksheetInfo.appName,
+          worksheetName: worksheetInfo.name,
+          worksheetRemark: worksheetInfo.remark,
+          fields: JSON.stringify(buildFormFieldsControls(worksheetInfo)),
+        },
       })
-      .then(({ recommendations = [] }) => {
+      .then(res => {
+        const recommendations = res?.data?.recommendations || [];
         setState({
           loadingAIsuggestions: false,
           suggestionList: [
@@ -28,27 +38,38 @@ export default function CreateAIActionDialog(props) {
             ...recommendations,
           ].map(item => ({ ...item, summary: item.name })),
         });
+      })
+      .catch(() => {
+        setState({ loadingAIsuggestions: false, suggestionList: [] });
       });
   };
 
   const handleOk = (params = {}) => {
     setState({ generateLoading: true });
-    mingoAjax
-      .generateAIActionInfo({
-        name: params?.name || '',
-        appId,
-        worksheetId,
-        description: params?.remark || remark,
-        isReload: false,
-        langType: window.getCurrentLangCode(),
+    const description = params?.remark || remark;
+    agentApi
+      .agentExecute({
+        agentName: 'record-ai-action-builder',
+        sessionId: genBotSessionId(),
+        message: _l('开始'),
+        context: {
+          appName: worksheetInfo.appName,
+          worksheetName: worksheetInfo.name,
+          worksheetRemark: worksheetInfo.remark,
+          taskName: params?.name || '',
+          taskDescription: description,
+          fields: JSON.stringify(buildFormFieldsControls(worksheetInfo)),
+          language: window.getCurrentLang() || 'zh-Hans',
+        },
       })
-      .then(data => {
-        const res = _.isArray(data?.recommendations)
-          ? _.find(data.recommendations, v => v.name === params?.name) || {}
-          : data;
-        onSuccess({ ...res, description: params?.remark || remark });
+      .then(res => {
+        const data = res?.data || {};
+        onSuccess({ ...data });
         setState({ generateLoading: false });
         onCancel();
+      })
+      .catch(() => {
+        setState({ generateLoading: false });
       });
   };
 
@@ -67,7 +88,7 @@ export default function CreateAIActionDialog(props) {
         !window.platformENV.isOverseas && !window.platformENV.isLocal ? (
           <span>
             <span>{_l('AI 动作消耗的Token将从组织信用点扣除')}</span>
-            <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
+            <Support type={3} text={_l('了解模型价格')} href={pathCompletion('/billingrules')} />
           </span>
         ) : (
           _l('您可以选择下列选项，快速创建 AI 动作.')

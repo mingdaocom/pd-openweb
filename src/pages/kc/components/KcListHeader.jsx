@@ -8,12 +8,9 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withHoverState from 'ming-ui/decorators/withHoverState';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
-
-const HoverState = createDecoratedComponent(withHoverState);
+import HoverState from '../decorators/withHoverState';
 
 export default class KcListHeader extends Component {
   static propTypes = {
@@ -93,7 +90,7 @@ export default class KcListHeader extends Component {
           <div className="kcRightHeadPosition flexRow boxSizing">
             <span className={cx({ kcPositionFirst: !currentFolder })}>
               <a
-                className="kcPosition firstPosition ThemeHoverColor3 ellipsis"
+                className="kcPosition firstPosition hoverColorPrimary ellipsis"
                 href={encodeURI(rootNameAndLink.link)}
                 title={rootNameAndLink.name}
               >
@@ -103,7 +100,7 @@ export default class KcListHeader extends Component {
             <span className={cx({ hide: !isRecycle })}>
               {' '}
               >{' '}
-              <a className="kcPosition ellipsis ThemeHoverColor3" onClick={() => loadRecycleBin(true)}>
+              <a className="kcPosition ellipsis hoverColorPrimary" onClick={() => loadRecycleBin(true)}>
                 {_l('回收站')}
               </a>
             </span>
@@ -125,7 +122,7 @@ export default class KcListHeader extends Component {
                     <span key={i} className={keywords && !isGlobalSearch ? 'positionSpan' : 'flex relative'}>
                       &nbsp;>{' '}
                       <span className={cx({ lastPosition: !keywords || isGlobalSearch })}>
-                        <a className="kcPosition ellipsis ThemeHoverColor3" href={encodeURI(href)} title={part}>
+                        <a className="kcPosition ellipsis hoverColorPrimary" href={encodeURI(href)} title={part}>
                           {part}
                         </a>
                       </span>
@@ -133,7 +130,7 @@ export default class KcListHeader extends Component {
                   ) : (
                     <span className="positionSpan" key={i}>
                       &nbsp;>{' '}
-                      <a className="kcPosition ellipsis ThemeHoverColor3" href={encodeURI(href)} title={part}>
+                      <a className="kcPosition ellipsis hoverColorPrimary" href={encodeURI(href)} title={part}>
                         {part}
                       </a>
                     </span>
@@ -165,11 +162,10 @@ export default class KcListHeader extends Component {
             <span className="tip-con InlineBlock">
               <i
                 className={cx(
-                  'icon-info showDetail ThemeHoverColor3',
-                  { ThemeColor3: isPinDetail },
+                  'icon-info showDetail hoverColorPrimary',
+                  { colorPrimary: isPinDetail },
                   { hide: isRecycle },
                 )}
-                ref="toggleDetailAndTogglePinBtn"
                 onClick={toggleDetailAndTogglePin}
               />
             </span>
@@ -177,7 +173,7 @@ export default class KcListHeader extends Component {
           <Tooltip title={isList ? _l('切换为缩略图') : _l('切换为列表')}>
             <span className="tip-con InlineBlock">
               <i
-                className={cx('ThemeHoverColor3', { hide: isRecycle }, isList ? 'icon-home-navigation' : 'icon-list')}
+                className={cx('hoverColorPrimary', { hide: isRecycle }, isList ? 'icon-home-navigation' : 'icon-list')}
                 onClick={changeKcView}
               />
             </span>
@@ -231,7 +227,7 @@ export default class KcListHeader extends Component {
             popupAlign={{ offset: [-70, 2], overflow: { adjustX: 2, adjustY: 1 } }}
           >
             <span
-              className={cx('kcRightAdd ThemeBGColor3 ThemeHoverBGColor2', {
+              className={cx('kcRightAdd bgColorPrimary hoverBgColorPrimaryDark', {
                 hide:
                   isRecycle ||
                   ((isRecycle || currentRoot === PICK_TYPE.STARED || currentRoot === PICK_TYPE.RECENT || isReadOnly) &&
@@ -247,7 +243,7 @@ export default class KcListHeader extends Component {
             component="span"
             thisArg={this}
             hoverStateName="hoverAddNodeBtn"
-            className={cx('kcRightDel boderRadAll_3', hoverAddNodeBtn ? 'ThemeBGColor2' : 'ThemeBGColor3', {
+            className={cx('kcRightDel boderRadAll_3', hoverAddNodeBtn ? 'bgColorPrimaryDark' : 'bgColorPrimary', {
               hide: !isRecycle,
             })}
             onClick={() => onSelectAllItems(true, () => onRemoveNode(NODE_STATUS.DELETED))}

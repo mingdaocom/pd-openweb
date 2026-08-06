@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { pathCompletion } from 'src/utils/common';
 import { NumberRange, SettingItem } from '../../../styled';
 import AttachmentVerify from './AttachmentVerify';
 import DateVerify from './DateVerify';
@@ -140,11 +141,11 @@ export default function WidgetVerify(props) {
                         <br />
                         {_l('若要确保数据绝对唯一，可创建该字段的唯一索引。')}
                         <span
-                          className="pointer ThemeColor3"
+                          className="pointer colorPrimary"
                           onClick={e => {
                             e.stopPropagation();
                             window.open(
-                              `${location.origin}/worksheet/formSet/edit/${globalSheetInfo.worksheetId}/indexSetting`,
+                              pathCompletion(`/worksheet/formSet/edit/${globalSheetInfo.worksheetId}/indexSetting`),
                             );
                           }}
                         >

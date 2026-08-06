@@ -77,7 +77,10 @@ export default function DateFilter(props) {
                     onChange({ ...item, value: [moment(start).format(), moment(end).format()] });
                     setVisible(false);
                   }}
-                  onClear={() => onChange({ ...item, value: undefined })}
+                  onClear={() => {
+                    onChange({ ...item, value: undefined, key: 'clear' });
+                    setVisible(false);
+                  }}
                   onSelect={() => {}}
                 >
                   <li className={cx('selectItem', { active: value && value.key === item.key })}>{_l('自定义日期')}</li>

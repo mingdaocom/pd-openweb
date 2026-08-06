@@ -212,12 +212,21 @@ function Others(props) {
   };
 
   const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
+  const displayUserList =
+    pageIndex <= 1 && loading
+      ? []
+      : !keyWords
+        ? userList
+        : userList.filter(o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0);
+  const titleCount = keyWords ? displayUserList.length : total;
+  const titleCountTxt = titleCount > 0 ? _l('%0个外协用户', titleCount) : '';
+
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all' })}>
       <div className="bar flexRow alignItemsCenter barActionCon">
         <div className="title flex">
           <span className="Font17 Bold">{props.title}</span>
-          <span className="textTertiary mLeft10">{_l('%0个外协用户', total || 0)}</span>
+          <span className="textTertiary mLeft10">{titleCountTxt}</span>
         </div>
         {selectedIds.length > 0 && (
           <div>
@@ -266,15 +275,9 @@ function Others(props) {
           setSelectedIds(list);
         }}
         showCheck={canEdit}
-        list={
-          pageIndex <= 1 && loading
-            ? []
-            : !keyWords
-              ? userList
-              : userList.filter(o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0)
-        }
+        list={displayUserList}
         pageIndex={pageIndex}
-        total={total}
+        total={titleCount}
         onScrollEnd={() => {
           if (userList.length >= total || userList.length < pageSize * pageIndex || loading) {
             return;

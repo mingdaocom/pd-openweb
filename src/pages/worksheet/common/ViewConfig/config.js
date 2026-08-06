@@ -51,6 +51,47 @@ export const setList = [
   { key: 'titlewrap', txt: _l('标题行文字换行') },
 ];
 
+export const REFRESH_TIME_OPTIONS = [
+  {
+    text: _l('关闭'),
+    value: '0',
+  },
+  {
+    text: _l('10秒'),
+    value: '10',
+  },
+  {
+    text: _l('20秒'),
+    value: '20',
+  },
+  {
+    text: _l('30秒'),
+    value: '30',
+  },
+  {
+    text: _l('1分钟'),
+    value: '60',
+  },
+  {
+    text: _l('2分钟'),
+    value: '120',
+  },
+  {
+    text: _l('3分钟'),
+    value: '180',
+  },
+  {
+    text: _l('4分钟'),
+    value: '240',
+  },
+  {
+    text: _l('5分钟'),
+    value: '300',
+  },
+];
+
+export const REFRESH_TIME_VALUES = REFRESH_TIME_OPTIONS.map(item => item.value).filter(value => value !== '0');
+
 export const manageViewFilter = ['Filter', 'Controls', 'MobileSet', 'urlParams'];
 
 export const MaxNavW = 500;

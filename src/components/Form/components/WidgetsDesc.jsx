@@ -46,9 +46,13 @@ class WidgetsDesc extends React.Component {
 
     if (hintShowAsText) {
       return (
-        <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 textSecondary w100 WordBreak">
+        <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 textSecondary w100">
           <span className="descTxt" ref={formcon => (this.formconBox = formcon)}>
-            <span ref={formcon => (this.formcon = formcon)} className="descText">
+            <span
+              ref={formcon => (this.formcon = formcon)}
+              className="descText"
+              style={{ wordBreak: 'normal', overflowWrap: 'break-word' }}
+            >
               <Linkify properties={{ target: '_blank' }}>{item.desc}</Linkify>
             </span>
             <span
@@ -83,6 +87,8 @@ class WidgetsDesc extends React.Component {
                 overflowY: 'auto',
                 color: '#fff',
                 whiteSpace: 'pre-wrap',
+                wordBreak: 'normal',
+                overflowWrap: 'break-word',
               }}
             >
               {item.desc}

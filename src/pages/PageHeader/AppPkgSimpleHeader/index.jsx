@@ -27,27 +27,24 @@ const HeaderWrap = styled.div`
     justify-content: center;
     align-items: center;
     line-height: normal;
-    margin-left: -3px;
+    margin-left: 10px;
   }
-  .textDisabled {
-    &:hover {
-      color: var(--color-text-tertiary) !important;
-      .applicationIcon {
-        box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
-      }
-    }
+  .simpleHeaderBackIcon {
+    line-height: 1;
+    cursor: pointer;
   }
 `;
+
+const titleInfo = {
+  logs: _l('日志'),
+  analytics: _l('使用分析'),
+  settings: _l('应用管理'),
+};
 
 function AppPkgSimpleHeader(props) {
   const { appId, navTab } = _.get(props, 'match.params') || '';
   const [appDetail, setAppDetail] = useState({});
   const routerInfo = _.find(['logs', 'analytics', 'settings'], it => props.path.indexOf(it) > -1);
-  const titleInfo = {
-    logs: _l('日志'),
-    analytics: _l('使用分析'),
-    settings: _l('应用管理'),
-  };
   const text = titleInfo[routerInfo] || '';
   const currentSettingMenu = (_.find(routerConfigs, v => v.type === navTab) || { text: _l('选项集') }).text;
 
@@ -81,42 +78,41 @@ function AppPkgSimpleHeader(props) {
 
   const name = getTranslateInfo(appId, null, appId).name || appDetail.name;
 
+  const handleBackToApp = () => {
+    window.disabledSideButton = true;
+
+    const storage = safeParse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
+    if (storage) {
+      const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+      navigateTo(
+        `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
+          .filter(o => o && !_.includes(['undefined', 'null'], o))
+          .join('/')}?from=insite`,
+      );
+    } else {
+      navigateTo(`/app/${appId}`);
+    }
+  };
+
   return (
     <HeaderWrap className="flexRow alignItemsCenter">
       <DocumentTitle
         title={`${name ? name + ' - ' : ''}${text}${routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''}`}
       />
 
+      <i
+        className="icon-backspace simpleHeaderBackIcon Font20 textTertiary hoverColorPrimary"
+        onClick={handleBackToApp}
+      />
+
       <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
-        <div
-          className="flexRow pointer textDisabled alignItemsCenter"
-          onClick={() => {
-            window.disabledSideButton = true;
-
-            const storage =
-              JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
-
-            if (storage) {
-              const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-              navigateTo(
-                `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
-                  .filter(o => o && !_.includes(['undefined', 'null'], o))
-                  .join('/')}?from=insite`,
-              );
-            } else {
-              navigateTo(`/app/${appId}`);
-            }
-          }}
-        >
-          <i className="icon-navigate_before Font20" />
-          <div className="applicationIcon" style={{ backgroundColor: appDetail.iconColor }}>
-            <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
-          </div>
+        <div className="applicationIcon" style={{ backgroundColor: appDetail.iconColor }}>
+          <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
         </div>
       </Tooltip>
 
-      <div className="flex nativeTitle Font17 bold mLeft16">{text}</div>
-      <div className="mRight20">{_l('应用ID：%0', appId)}</div>
+      <div className="flex nativeTitle Font17 bold mLeft10">{text}</div>
     </HeaderWrap>
   );
 }

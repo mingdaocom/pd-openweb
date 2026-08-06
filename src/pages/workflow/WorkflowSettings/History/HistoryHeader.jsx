@@ -75,7 +75,8 @@ export default class HistoryHeader extends Component {
   render() {
     const { onRefresh, isSerial, processId, batchIds, archivedItem, expireType } = this.props;
     const { status, isRefresh, showDialog } = this.state;
-    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+    const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+    const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
     const stopIdsCount = batchIds.filter(o => o.status === 1 && o.instanceType !== -1).length;
     const refreshIdsCount = batchIds.filter(
       o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause) && o.instanceType !== -1,
@@ -145,8 +146,14 @@ export default class HistoryHeader extends Component {
               />
             </div>
             <DatePicker.RangePicker
-              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+              locale={datePickerLocale}
               showTime
+              ranges={{
+                [_l('此刻')]: () => {
+                  const now = moment();
+                  return [now, now];
+                },
+              }}
               disabledDate={currentDate => {
                 if (_.isEmpty(archivedItem)) return currentDate > moment();
 
@@ -157,7 +164,7 @@ export default class HistoryHeader extends Component {
             />
 
             {isSerial && (
-              <div className="clearFilter ThemeColor3" onClick={() => this.setState({ showDialog: true })}>
+              <div className="clearFilter colorPrimary" onClick={() => this.setState({ showDialog: true })}>
                 {_l('查看串行等待中的流程')}
               </div>
             )}
@@ -186,8 +193,8 @@ export default class HistoryHeader extends Component {
           >
             <Icon
               className={cx(
-                'Font18 pointer ThemeHoverColor3 Block',
-                isRefresh ? 'historyRefresh ThemeColor3' : 'textSecondary',
+                'Font18 pointer hoverColorPrimary Block',
+                isRefresh ? 'historyRefresh colorPrimary' : 'textSecondary',
               )}
               icon="ic_refresh_black"
             />

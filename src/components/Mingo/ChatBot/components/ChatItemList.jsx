@@ -8,7 +8,7 @@ import { Dialog, Icon, Input, Menu, MenuItem, MobileConfirmPopup, PopupWrapper, 
 import ScrollView from 'ming-ui/components/ScrollView';
 import appManagementApi from 'src/api/appManagement';
 import { getPublicShare, updatePublicShareStatus } from 'src/pages/worksheet/components/Share/controller';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import 'rc-trigger/assets/index.css';
 

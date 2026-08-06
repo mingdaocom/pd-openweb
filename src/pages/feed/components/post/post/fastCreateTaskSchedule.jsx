@@ -2,15 +2,12 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createCalendar from 'src/components/createCalendar/createCalendar';
-import createTask from 'src/components/createTask/createTask';
+import createCalendar from 'src/components/createCalendar/load';
+import createTask from 'src/components/createTask/load';
 import './postOperateList.css';
-
-const ClickAway = createDecoratedComponent(withClickAway);
 
 class FastCreateTaskSchedule extends React.Component {
   static propTypes = {

@@ -53,7 +53,7 @@ export const QUICK_ENTRY_CONFIG = [
 export const UPLOAD_COUNT = [
   {
     key: 'effectiveApkCount',
-    limit: undefined,
+    limit: 'limitApkCount',
     text: _l('应用数'),
     unit: _l('个'),
     link: 'app',
@@ -119,6 +119,8 @@ export const UPLOAD_COUNT = [
     numUnit: _l('人'),
     PurchaseExpandPack: true,
     isLocalFilter: true,
+    autoPurchase: 'autoPurchaseExternalUserExtPack',
+    autoPurchaseText: _l('用量不足时自动消耗信用点增补'),
   },
   {
     key: 'useExecCount',

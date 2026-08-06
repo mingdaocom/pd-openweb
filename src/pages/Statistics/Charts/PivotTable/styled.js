@@ -98,25 +98,20 @@ const PivotTableContent = styled.div`
       overflow-wrap: break-word;
       z-index: 2;
     }
-    .data-bar,
-    .data-bg {
+    .cell-content[style*='--pivot-table-cell-bg']::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--pivot-table-cell-bg);
+      z-index: 0;
+    }
+    .data-bar {
       position: absolute;
       top: 0;
       width: 100%;
       height: 100%;
-    }
-    .data-bg {
-      z-index: 0;
-    }
-    .data-bar,
-    .data-axis {
       z-index: 1;
-    }
-    .data-axis {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      border-left: 1px dashed var(--color-text-title);
+      box-sizing: border-box;
     }
     .ant-table-cell-fix-left {
       z-index: 3;

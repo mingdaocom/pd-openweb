@@ -164,7 +164,7 @@ function FunctionalSwitch(props) {
     const { viewIds = [], state } = info.showData;
 
     if (viewIds.length <= 0 && !diaRang && state) {
-      alert('至少选中一个视图！', 3);
+      alert(_l('至少选中一个视图！'), 3);
       return;
     }
 
@@ -320,7 +320,7 @@ function FunctionalSwitch(props) {
                                 {((25 === oo && info.data.find(a => a.type === 25).state) ||
                                   (statisticsConst === oo && !noStatistics)) && (
                                   <span
-                                    className="batchIsOpen Right Hand ThemeHoverColor3"
+                                    className="batchIsOpen Right Hand hoverColorPrimary"
                                     onClick={() => {
                                       if (25 === oo) {
                                         safeLocalStorageSetItem('batchIsOpen', hideBatch ? null : '1');

@@ -7,7 +7,6 @@ import { LoadDiv } from 'ming-ui';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import EmptyStatus from '../EmptyStatus';
 
 const processList = [
@@ -110,18 +109,6 @@ export default function Process(props) {
     getList();
   }, [currentTab]);
 
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
-  const onQueryChange = () => {
-    if (_.isEmpty(previewRecord)) return;
-    handleReplaceState('page', 'processRecord', () => setData({ previewRecord: {} }));
-  };
-
   const getTodoCountData = () => {
     getTodoCount().then(countData => {
       setData({ countData });
@@ -191,6 +178,7 @@ export default function Process(props) {
           {processList.map(item => {
             return (
               <div
+                key={item.key}
                 className={cx('processItem flex LineHeight15 pTop8', {
                   active: item.tab === currentTab,
                 })}
@@ -213,9 +201,9 @@ export default function Process(props) {
             todoList.slice(0, 5).map(item => {
               return (
                 <div
+                  key={`${item.id}-${item.workId}`}
                   className="listItem flexRow alignItemsCenter"
                   onClick={() => {
-                    handlePushState('page', 'processRecord');
                     setData({ previewRecord: { instanceId: item.id, workId: item.workId } });
                   }}
                 >
@@ -263,6 +251,7 @@ export default function Process(props) {
         {processList.map(item => {
           return (
             <div
+              key={item.key}
               className="processItem flexColumn flex alignItemsCenter mTop10"
               onClick={() => {
                 if (item.key === 'waitingExamine') {

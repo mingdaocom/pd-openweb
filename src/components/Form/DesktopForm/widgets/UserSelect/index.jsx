@@ -68,7 +68,7 @@ const UserSelect = props => {
         ? users
         : _.uniqBy(
             replaceItem
-              ? currentValue.map(v => (v.accountId === replaceItem.accountId ? users[0] : v))
+              ? currentValue.map(v => (v.accountId === replaceItem.accountId ? users[0] : v)).filter(Boolean)
               : currentValue.concat(users),
             'accountId',
           );
@@ -145,6 +145,7 @@ const UserSelect = props => {
   };
 
   const renderItem = ({ item, dragging, isLayer }) => {
+    if (!item) return null;
     const disablePopover = disabled || dragging || isLayer;
     const showMenu = showId === item.accountId && !disablePopover;
 
@@ -227,7 +228,7 @@ const UserSelect = props => {
 
       {!disabled && (
         <div
-          className="TxtCenter textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
+          className="TxtCenter textSecondary hoverBorderColorPrimary hoverColorPrimary pointer addBtn"
           ref={pickRef}
           onClick={() => pickUser()}
         >

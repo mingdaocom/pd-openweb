@@ -6,6 +6,7 @@ import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
@@ -16,16 +17,19 @@ import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS } from 'worksheet/constants/en
 import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/Form/core/config';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
-import { updateOptionsOfControls } from 'src/utils/control';
 import {
+  checkCellIsEmpty,
   controlState,
   isRelateRecordTableControl,
   parseAdvancedSetting,
   replaceByIndex,
   sortControlByIds,
+  updateOptionsOfControls,
 } from 'src/utils/control';
+import { canAsUniqueWidget } from 'src/utils/controlCommon';
+import { compatibleMDJS } from 'src/utils/project';
 import {
   copySublistRow,
   filterEmptyChildTableRows,
@@ -39,9 +43,75 @@ import MobileTable from './MobileTable';
 import RowDetailMobile from './RowDetailMobileModal';
 import SearchInput from './SearchInput';
 import TableComponent from './TableComponent';
+import { normalizeSDKFilterControls } from './utils';
+
+const HorizontalChildTableContent = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: ${props => (props.$height ? `${props.$height}px` : '100%')};
+  width: ${props => (props.$width ? `${props.$width}px` : '100%')};
+  overflow: hidden;
+  box-sizing: border-box;
+  ${props =>
+    props.$isHorizontalPortrait &&
+    `
+      transform: rotate(90deg);
+      transform-origin: top left;
+      left: ${props.$height}px;
+    `}
+  ${props =>
+    props.$isHorizontal &&
+    !props.$isHorizontalPortrait &&
+    `
+      padding-left: constant(safe-area-inset-left);
+      padding-left: env(safe-area-inset-left);
+      padding-right: constant(safe-area-inset-right);
+      padding-right: env(safe-area-inset-right);
+      max-height: 100dvh;
+      max-width: 100dvw;
+    `}
+  .horizontalScrollContent {
+    flex: 1;
+    min-height: 0;
+    padding: 0 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-text-disabled) transparent;
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-text-disabled);
+      border-radius: 6px;
+    }
+  }
+  .horizontalTableContent {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    > .mobileChildTableCon {
+      flex: 1;
+      min-height: 0 !important;
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const getViewportSize = () => {
+  const viewport = window.visualViewport;
+
+  return {
+    width: Math.round((viewport && viewport.width) || window.innerWidth || document.documentElement.clientWidth),
+    height: Math.round((viewport && viewport.height) || window.innerHeight || document.documentElement.clientHeight),
+  };
+};
 
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
 const MAX_COUNT = 1000;
+const DEFAULT_TABLE_PAGE_SIZE = 20;
+const EXPAND_TABLE_PAGE_SIZE = 200;
 
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
@@ -60,6 +130,8 @@ class ChildTable extends React.Component {
     mobileIsEdit: PropTypes.bool,
     showSearch: PropTypes.bool,
     showExport: PropTypes.bool,
+    filterControls: PropTypes.arrayOf(PropTypes.shape({})),
+    setFilterControls: PropTypes.func,
   };
 
   static defaultProps = {
@@ -75,20 +147,18 @@ class ChildTable extends React.Component {
       previewRowIndex: null,
       recordVisible: false,
       loading: !!props.recordId && !props.initSource && !(get(props, 'base.loaded') || get(props, 'base.reset')),
-      selectedRowIds: [],
       pageIndex: 1,
       keywords: '',
       pageSize: this.settings.rownum,
       headHeight: 34,
-      frozenIndex: this.settings.frozenIndex,
-      frozenIndexChanged: false,
-      disableMaskDataControls: {},
       rowsLoadingStatus: {},
       showLoadingMask: false,
       h5height: props.control.advancedSetting.h5height || '0',
-      showExpand: false,
+      showExpand: false, // 全屏显示子表
+      expandShowType: 'current',
+      appFilterId: '',
+      viewportSize: getViewportSize(),
     };
-    this.state.sheetColumnWidths = this.getSheetColumnWidths();
     this.controls = props.controls;
     this.abortController = typeof AbortController !== 'undefined' && new AbortController();
     this.requestPool = createRequestPool({ abortController: this.abortController });
@@ -101,7 +171,11 @@ class ChildTable extends React.Component {
     };
 
     this.deleteConformAction = null;
+    this.dataFormatCacheMap = new Map();
     props.registerCell(this);
+    this.rowsLoading = {};
+    this.viewportResizeTimer = null;
+    this.expandPaginationFrame = null;
   }
 
   componentDidMount() {
@@ -116,77 +190,67 @@ class ChildTable extends React.Component {
     if (_.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, options => this.refresh(null, options));
     }
-
-    window.addEventListener('keydown', this.handleKeyDown);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.refreshFlag && nextProps.refreshFlag !== this.props.refreshFlag) {
-      this.refresh();
-    }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps !== this.props) {
+      if (this.props.refreshFlag && this.props.refreshFlag !== prevProps.refreshFlag) {
+        this.refresh();
+      }
 
-    const { initRows } = this.props;
-    this.updateDefsourceOfControl(nextProps);
-    const control = this.props.control;
-    const nextControl = nextProps.control;
-    const isAddRecord = !nextProps.recordId;
-    const valueChanged = !_.isEqual(control.value, nextControl.value);
-    this.valueChanged = valueChanged;
-    if (nextProps.recordId !== this.props.recordId) {
-      this.refresh(nextProps, { needResetControls: false });
-    } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
-      initRows([]);
-    }
+      const { initRows } = this.props;
+      this.updateDefsourceOfControl(this.props);
+      const control = prevProps.control;
+      const nextControl = this.props.control;
+      const isAddRecord = !this.props.recordId;
+      const valueChanged = !_.isEqual(control.value, nextControl.value);
 
-    if (
-      nextControl.controlId !== control.controlId ||
-      !_.isEqual(nextControl.showControls, control.showControls) ||
-      !_.isEqual(
-        (control.relationControls || []).map(a => a.fieldPermission),
-        (nextControl.relationControls || []).map(a => a.fieldPermission),
-      ) ||
-      !_.isEqual(
-        (control.relationControls || []).map(a => a.required),
-        (nextControl.relationControls || []).map(a => a.required),
-      )
-    ) {
-      this.setState(
-        {
-          controls: this.getControls(nextProps),
-        },
-        () => {
-          if (!_.isEqual(nextControl.showControls, control.showControls)) {
-            this.setState({
-              sheetColumnWidths: this.getSheetColumnWidths(nextProps.control),
-            });
-          }
-        },
-      );
-    }
+      if (this.props.recordId !== prevProps.recordId) {
+        this.refresh(this.props, {
+          needResetControls: false,
+        });
+      } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
+        initRows([]);
+      }
 
-    // 重新渲染子表来适应新宽度
-    if (
-      nextProps.control.sideVisible !== this.props.control.sideVisible ||
-      nextProps.control.formWidth !== this.props.control.formWidth
-    ) {
-      try {
-        setTimeout(() => {
-          if (this.worksheettable && this.worksheettable.current) {
-            this.worksheettable.current.handleUpdate();
-          }
-        }, 100);
-      } catch (err) {
-        console.error(err);
+      if (
+        nextControl.controlId !== control.controlId ||
+        !_.isEqual(nextControl.showControls, control.showControls) ||
+        !_.isEqual(
+          (control.relationControls || []).map(a => a.fieldPermission),
+          (nextControl.relationControls || []).map(a => a.fieldPermission),
+        ) ||
+        !_.isEqual(
+          (control.relationControls || []).map(a => a.required),
+          (nextControl.relationControls || []).map(a => a.required),
+        )
+      ) {
+        this.setState({
+          controls: this.getControls(this.props),
+        });
+      }
+
+      if (!_.isEqual(prevProps.rows, this.props.rows)) {
+        const { pageIndex, pageSize } = this.state;
+        const pageNum = Math.ceil(this.props.rows.length / pageSize);
+
+        if (pageIndex > pageNum && pageNum) {
+          this.setState({
+            pageIndex: pageNum,
+          });
+        }
+
+        if (get(this.props, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
+          this.dataFormatCacheMap.clear();
+        }
       }
     }
 
-    if (!_.isEqual(this.props.rows, nextProps.rows)) {
-      const { pageIndex, pageSize } = this.state;
-      const pageNum = Math.ceil(nextProps.rows.length / pageSize);
-
-      if (pageIndex > pageNum) {
-        this.setState({ pageIndex: pageNum });
-      }
+    if (!prevState.showExpand && this.state.showExpand) {
+      this.addViewportResizeListener();
+      this.updateViewportSize();
+    } else if (prevState.showExpand && !this.state.showExpand) {
+      this.removeViewportResizeListener();
     }
   }
 
@@ -200,7 +264,14 @@ class ChildTable extends React.Component {
       !_.isEqual(this.props.cellErrors, nextProps.cellErrors) ||
       !_.isEqual(this.props.mobileIsEdit, nextProps.mobileIsEdit) ||
       !_.isEqual(this.props.control.relationControls, nextProps.control.relationControls) ||
-      !_.isEqual(this.props.control.fieldPermission, nextProps.control.fieldPermission)
+      !_.isEqual(this.props.control.fieldPermission, nextProps.control.fieldPermission) ||
+      !_.isEqual(this.props.filterControls, nextProps.filterControls) ||
+      this.props.refreshFlag !== nextProps.refreshFlag ||
+      this.props.recordId !== nextProps.recordId ||
+      !_.isEqual(this.props.control.value, nextProps.control.value) ||
+      this.props.control.controlId !== nextProps.control.controlId ||
+      !_.isEqual(this.props.control.showControls, nextProps.control.showControls) ||
+      !_.isEqual(this.props.lastAction, nextProps.lastAction)
     );
   }
 
@@ -212,10 +283,64 @@ class ChildTable extends React.Component {
     }
 
     this.abortController && this.abortController.abort && this.abortController.abort();
+    this.dataFormatCacheMap.clear();
+    this.removeViewportResizeListener();
+    clearTimeout(this.viewportResizeTimer);
+    window.cancelAnimationFrame && window.cancelAnimationFrame(this.expandPaginationFrame);
   }
 
-  worksheettable = React.createRef();
   searchRef = React.createRef();
+
+  addViewportResizeListener = () => {
+    window.addEventListener('resize', this.handleViewportResize);
+    window.addEventListener('orientationchange', this.handleViewportResize);
+    window.visualViewport && window.visualViewport.addEventListener('resize', this.handleViewportResize);
+  };
+
+  removeViewportResizeListener = () => {
+    window.removeEventListener('resize', this.handleViewportResize);
+    window.removeEventListener('orientationchange', this.handleViewportResize);
+    window.visualViewport && window.visualViewport.removeEventListener('resize', this.handleViewportResize);
+  };
+
+  handleViewportResize = () => {
+    clearTimeout(this.viewportResizeTimer);
+    this.viewportResizeTimer = setTimeout(this.updateViewportSize, 100);
+  };
+
+  updateViewportSize = () => {
+    const viewportSize = getViewportSize();
+
+    if (_.isEqual(viewportSize, this.state.viewportSize)) return;
+
+    this.setState({ viewportSize });
+  };
+
+  updateExpandPagination = showExpand => {
+    const { updatePagination = () => {} } = this.props;
+
+    if (window.cancelAnimationFrame && this.expandPaginationFrame) {
+      window.cancelAnimationFrame(this.expandPaginationFrame);
+      this.expandPaginationFrame = null;
+    }
+
+    updatePagination({ pageIndex: 1, pageSize: DEFAULT_TABLE_PAGE_SIZE });
+
+    if (!showExpand) return;
+
+    const updateLargePage = () => {
+      this.expandPaginationFrame = null;
+      updatePagination({ pageIndex: 1, pageSize: EXPAND_TABLE_PAGE_SIZE });
+    };
+
+    if (window.requestAnimationFrame) {
+      this.expandPaginationFrame = window.requestAnimationFrame(() => {
+        this.expandPaginationFrame = window.requestAnimationFrame(updateLargePage);
+      });
+    } else {
+      updateLargePage();
+    }
+  };
 
   get settings() {
     const { control = {} } = this.props;
@@ -246,10 +371,6 @@ class ChildTable extends React.Component {
   get worksheetInfo() {
     const { base = {} } = this.props;
     return base.worksheetInfo || {};
-  }
-
-  get showAsPages() {
-    return get(this, 'props.control.advancedSetting.showtype') === '2' && false;
   }
 
   getControls(props, { newControls } = {}) {
@@ -293,7 +414,11 @@ class ChildTable extends React.Component {
       console.log(err);
     }
 
-    let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
+    // controlssorts 可能是子表新增字段之前存下的旧排序，缺失的字段按显示字段顺序补齐，
+    // 避免落到接口返回的无序 controls 上导致列顺序错乱
+    const sortedControlIds = _.isEmpty(controlssorts) ? showControls : _.uniq(controlssorts.concat(showControls));
+
+    let result = sortControlByIds(controls, sortedControlIds).map(c => {
       const control = { ...c };
       const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
 
@@ -305,17 +430,20 @@ class ChildTable extends React.Component {
       if (!_.find(showControls, scid => control.controlId === scid)) {
         if (control.type === 52) {
           control.hidden = true;
+          if (isWorkflow) {
+            control.fieldPermission = (control.fieldPermission || '000').replace(/^(\d)\d(\d)$/, '$11$2');
+          }
         } else {
-          control.fieldPermission = '000';
+          control.fieldPermission = (control.fieldPermission || '000').replace(/^\d(\d)\d$/, '0$10');
         }
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
       }
 
-      if (!useUserPermission) {
-        if (!isWorkflow) {
-          control.controlPermissions = '111';
-        } else {
+      if (!useUserPermission && !isWorkflow) {
+        control.controlPermissions = '111';
+      } else {
+        if (isWorkflow) {
           control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
         }
       }
@@ -350,21 +478,38 @@ class ChildTable extends React.Component {
     return result;
   }
 
+  updateAbortController = () => {
+    this.abortController && this.abortController.abort && this.abortController.abort();
+    this.abortController = typeof AbortController !== 'undefined' && new AbortController();
+    this.requestPool = createRequestPool({ abortController: this.abortController });
+    this.dataFormatCacheMap.clear();
+  };
+
   getControl(controlId) {
     return _.find(this.state.controls, { controlId });
   }
 
   updateDefsourceOfControl(nextProps) {
     const { recordId, masterData } = nextProps || this.props;
-    const { controls } = this.state;
     const relateRecordControl = (nextProps || this.props).control;
-    this.setState({
-      controls: handleUpdateDefsourceOfControl({ recordId, relateRecordControl, masterData, controls }),
+    this.setState(oldState => {
+      return {
+        controls: handleUpdateDefsourceOfControl({
+          recordId,
+          relateRecordControl,
+          masterData,
+          controls: oldState.controls,
+        }),
+      };
     });
   }
 
-  loadRows = (nextProps, { needResetControls } = {}) => {
-    const { control, recordId, masterData, loadRows, from } = nextProps || this.props;
+  loadRows = (nextProps, { needResetControls, isRefresh } = {}) => {
+    const { control, recordId, masterData, loadRows, from, base = {} } = nextProps || this.props;
+    const { instanceId, workId, worksheetInfo, originControls } = base;
+    const isWorkflow =
+      ((instanceId && workId) || window?.shareState?.isPublicWorkflowRecord) &&
+      worksheetInfo?.workflowChildTableSwitch !== false;
 
     if (!recordId || !masterData) {
       return;
@@ -379,10 +524,13 @@ class ChildTable extends React.Component {
       from,
       setLoadingInfo: control.setLoadingInfo,
       callback: res => {
+        // 子表刷新没有重置 dataForm 的错误状态
+        if (_.isFunction(get(control, 'dataFormat.current.revalidateControl'))) {
+          control.dataFormat.current.revalidateControl(control.controlId);
+        }
+
         if (res === null) {
-          this.setState({
-            error: _l('没有权限'),
-          });
+          this.setState({ error: _l('没有权限') });
           return;
         }
 
@@ -392,6 +540,7 @@ class ChildTable extends React.Component {
           let newControls = (_.get(res, 'worksheet.template.controls') || _.get(res, 'template.controls')).concat(
             systemControls,
           );
+          // 这里要和 getControls 一起统一到 action 内处理
           const { uniqueControlIds } = parseAdvancedSetting(control.advancedSetting);
           newControls = newControls.map(c => ({
             ...c,
@@ -402,7 +551,13 @@ class ChildTable extends React.Component {
           }
         }
 
-        this.setState(state);
+        this.setState(state, () => {
+          if (isWorkflow && isRefresh) {
+            if (!_.isEmpty(originControls) && _.isFunction(control.updateRelationControls)) {
+              control.updateRelationControls(control.controlId, originControls);
+            }
+          }
+        });
       },
     });
   };
@@ -411,53 +566,98 @@ class ChildTable extends React.Component {
     const { updatePagination = () => {} } = nextProps || this.props;
     const { showExpand } = this.state;
 
-    this.setState({
-      loading: true,
-      sortedControl: undefined,
-      keywords: undefined,
-      isBatchEditing: false,
-      selectedRowIds: [],
-      pageIndex: 1,
-    });
-    updatePagination({ pageIndex: 1, pageSize: showExpand ? 200 : 20 });
-    this.loadRows(nextProps, { needResetControls });
+    this.setState({ loading: true, keywords: undefined, pageIndex: 1 });
+
+    updatePagination({ pageIndex: 1, pageSize: showExpand ? EXPAND_TABLE_PAGE_SIZE : DEFAULT_TABLE_PAGE_SIZE });
+    this.loadRows(nextProps, { needResetControls, isRefresh: true });
     if (get(this, 'searchRef.current.clear')) {
       this.searchRef.current.clear();
+    }
+
+    this.dataFormatCacheMap.clear();
+  };
+
+  openAppFilter = columns => {
+    const { appId, control = {}, recordId, setFilterControls, updatePagination = () => {} } = this.props;
+    const { showControls } = control;
+    const { appFilterId, showExpand } = this.state;
+    const worksheetInfo = {
+      ...this.worksheetInfo,
+      appId: this.worksheetInfo.appId || appId,
+      worksheetId: this.worksheetInfo.worksheetId || control.dataSource,
+      template: {
+        ...this.worksheetInfo.template,
+        controls: columns.filter(v =>
+          _.isArray(showControls) && showControls.length ? _.includes(showControls, v.controlId) : true,
+        ),
+      },
+    };
+
+    compatibleMDJS('customizeFilterForWorksheet', {
+      filterId: appFilterId,
+      item: worksheetInfo,
+      viewId: control.viewId,
+      canReset: true,
+      success: res => {
+        const filterId = get(res, 'filterId');
+        const filterControls = normalizeSDKFilterControls(safeParse(get(res, 'filter'), 'array'));
+
+        setFilterControls(filterControls);
+        if (!recordId) return;
+
+        updatePagination({ pageIndex: 1, pageSize: showExpand ? EXPAND_TABLE_PAGE_SIZE : DEFAULT_TABLE_PAGE_SIZE });
+        this.setState(
+          {
+            appFilterId: filterId || appFilterId,
+            loading: true,
+            keywords: '',
+            pageIndex: 1,
+            isMobileSearchFocus: false,
+          },
+          () => {
+            if (get(this, 'searchRef.current.clear')) {
+              this.searchRef.current.clear();
+            }
+
+            this.loadRows(undefined, { needResetControls: false });
+          },
+        );
+        this.dataFormatCacheMap.clear();
+      },
+      cancel: res => {
+        console.log('cancel', res);
+      },
+    });
+  };
+
+  triggerCustomEvent = () => {
+    if (_.isFunction(get(this, 'props.control.triggerCustomEvent'))) {
+      get(this, 'props.control.triggerCustomEvent')(ADD_EVENT_ENUM.CHANGE);
     }
   };
 
   getShowColumns() {
+    const { control } = this.props;
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
-
-    let columns = controls
-      .filter(
-        c =>
-          c.type !== 34 &&
-          !isRelateRecordTableControl(c) &&
-          !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
-      )
-      .map(c => _.assign({}, c));
+    const { h5showtype } = parseAdvancedSetting(control.advancedSetting);
+    let columns = !controls.length
+      ? [{}]
+      : controls
+          .filter(c =>
+            h5showtype == '2'
+              ? c.type !== 34 &&
+                !isRelateRecordTableControl(c) &&
+                !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type)
+              : _.find(control.showControls, scid => scid === c.controlId) &&
+                c.type !== 34 &&
+                controlState(c).visible &&
+                !isRelateRecordTableControl(c) &&
+                !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
+          )
+          .map(c => _.assign({}, c));
 
     return columns;
-  }
-
-  getSheetColumnWidths(control) {
-    control = control || this.props.control;
-    const columns = this.getShowColumns();
-    const result = {};
-    let widths = [];
-
-    try {
-      widths = JSON.parse(control.advancedSetting.widths);
-    } catch (err) {
-      console.log(err);
-    }
-
-    columns.forEach((column, i) => {
-      result[column.controlId] = widths[i];
-    });
-    return result;
   }
 
   newRow = (defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill, isImportFromExcel } = {}) => {
@@ -489,9 +689,10 @@ class ChildTable extends React.Component {
     }
 
     const { addRow } = this.props;
+    const rowId = `temp-${uuidv4()}`;
     addRow(
       Object.assign({}, _.omit(copySublistRow(this.state.controls, row), ['updatedControlIds']), {
-        rowid: `temp-${uuidv4()}`,
+        rowid: rowId,
         allowedit: true,
         isCopy: true,
         pid: row.pid,
@@ -500,6 +701,7 @@ class ChildTable extends React.Component {
       row.rowid,
     );
     this.handleSwitch({ next: true });
+    this.triggerCustomEvent();
   };
 
   rowUpdate(
@@ -523,6 +725,7 @@ class ChildTable extends React.Component {
         {
           isQueryWorksheetFill,
           asyncUpdate: true,
+          userTriggerChange: false,
           updateSuccessCb: needUpdateRow => {
             this.handleRowDetailSave(needUpdateRow);
           },
@@ -533,7 +736,8 @@ class ChildTable extends React.Component {
     const formdata = new DataFormat({
       requestPool: this.requestPool,
       data: this.state.controls.map(c => {
-        let controlValue = (row || {})[c.controlId];
+        const importedValue = (row || {})[c.controlId];
+        let controlValue = importedValue;
 
         if (_.isUndefined(controlValue) && (isCreate || !row)) {
           controlValue = c.value;
@@ -543,7 +747,9 @@ class ChildTable extends React.Component {
           ...c,
           isSubList: true,
           isQueryWorksheetFill,
-          isImportFromExcel,
+          // 仅对真正导入了非空值的单元格打 isImportFromExcel：未映射/空的列其值来自默认值或计算，
+          // 不应被导入守卫保护，否则其首遍计算值会被当作导入值保留，挡掉依赖回填后的二次重算
+          isImportFromExcel: isImportFromExcel && !checkCellIsEmpty(importedValue),
           value: controlValue,
         };
       }),
@@ -557,38 +763,31 @@ class ChildTable extends React.Component {
       masterRecordRowId: recordId,
       noAutoSubmit: true,
       updateLoadingItems: loadingInfo => {
-        if (row && !row.needShowLoading) return;
-        this.setState(prev => {
-          const newRowsLoadingStatus = {
-            ...prev.rowsLoadingStatus,
-            [rowId]: !_.every(Object.values(loadingInfo), b => !b),
-          };
-          const newShowLoadingMask = !Object.values(newRowsLoadingStatus).every(v => v === false);
+        if (!row || !row.needShowLoading) return;
+        this.rowsLoading[rowId] = !_.every(Object.values(loadingInfo), b => !b);
+        const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+
+        if (newShowLoadingMask !== this.showLoadingMask) {
           this.setState({
             showLoadingMask: newShowLoadingMask,
           });
-          return {
-            ...prev,
-            rowsLoadingStatus: newRowsLoadingStatus,
-          };
-        });
+        }
+
+        this.showLoadingMask = newShowLoadingMask;
       },
       onAsyncChange: (changes, dataFormat) => {
         flushSync(() => {
           if (rowId && row && row.needShowLoading) {
-            this.setState(prev => {
-              const newRowsLoadingStatus = {
-                ...prev.rowsLoadingStatus,
-                [rowId]: !_.every(Object.values(dataFormat.loadingInfo), b => !b),
-              };
+            this.rowsLoading[rowId] = !_.every(Object.values(dataFormat.loadingInfo), b => !b);
+            const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+
+            if (newShowLoadingMask !== this.showLoadingMask) {
               this.setState({
-                showLoadingMask: !Object.values(newRowsLoadingStatus).every(v => v === false),
+                showLoadingMask: newShowLoadingMask,
               });
-              return {
-                ...prev,
-                rowsLoadingStatus: newRowsLoadingStatus,
-              };
-            });
+            }
+
+            this.showLoadingMask = newShowLoadingMask;
           }
 
           if (!_.isEmpty(changes.controlIds)) {
@@ -612,29 +811,13 @@ class ChildTable extends React.Component {
         rowid: row ? row.rowid : rowId,
         updatedControlIds: _.uniqBy(((row && row.updatedControlIds) || []).concat(formdata.getUpdateControlIds())),
       },
-      ...formdata.getDataSource(),
+      ..._.filter(formdata.getDataSource(), c => c.controlId !== 'rowid'),
     ].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-  }
-
-  handleSetPageIndexWhenAddRow(newRowsLength) {
-    const { pageSize, pageIndex } = this.state;
-    let newPageIndex = pageIndex;
-
-    if (this.showAsPages && newRowsLength > pageSize) {
-      newPageIndex = Math.ceil(newRowsLength / pageSize);
-      if (pageIndex !== newPageIndex) {
-        this.setState({ pageIndex: newPageIndex });
-      }
-    }
-
-    return newPageIndex;
   }
 
   handleAddRowByLine = () => {
     const { from, control, addRow, rows } = this.props;
-    const { pageSize } = this.state;
     const maxCount = this.settings.maxCount;
-    const maxShowRowCount = this.settings.rownum;
     const controlPermission = controlState(control, from);
     const disabled = !controlPermission.editable || control.disabled;
     let { allowadd } = parseAdvancedSetting(control.advancedSetting);
@@ -645,34 +828,13 @@ class ChildTable extends React.Component {
       return;
     }
 
-    const newPageIndex = this.handleSetPageIndexWhenAddRow(filteredRows.length + 1);
     this.updateDefsourceOfControl();
     const row = this.newRow();
     addRow(row);
-    setTimeout(() => {
-      try {
-        this.worksheettable.current.table.refs.setScroll(0, rows.length + 1 > maxShowRowCount ? 100000 : 0);
-        setTimeout(() => {
-          const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
-            '.cell.row-' +
-              (this.showAsPages && newPageIndex > 1
-                ? filteredRows.length % (pageSize * (newPageIndex - 1))
-                : filteredRows.length) +
-              '.canedit',
-          );
-
-          if (activeCell) {
-            activeCell.click();
-          }
-        }, 100);
-      } catch (err) {
-        console.log(err);
-      }
-    }, 100);
   };
 
   handleAddRowsFromRelateRecord = batchAddControls => {
-    const { addRows, control, rows } = this.props;
+    const { addRows, control, rows, appId } = this.props;
     let { h5showtype, h5abstractids = [] } = parseAdvancedSetting(control.advancedSetting);
     const { entityName } = this.worksheetInfo;
     const { controls } = this.state;
@@ -686,7 +848,9 @@ class ChildTable extends React.Component {
     const tempRow = this.newRow();
 
     mobileSelectRecord({
+      layerId: `mobileSelectRecord-${control.controlId}`,
       entityName,
+      appId,
       canSelectAll: true,
       multiple: true,
       control: relateRecordControl,
@@ -719,7 +883,7 @@ class ChildTable extends React.Component {
             return row;
           }),
         );
-        this.handleSetPageIndexWhenAddRow(rowsLength + selectedRecords.length);
+        this.triggerCustomEvent();
         setTimeout(() => {
           try {
             const ele = document.querySelector('.mobileSheetRowRecord .recordScroll');
@@ -729,8 +893,6 @@ class ChildTable extends React.Component {
                 h5showtype === '2' ? 36 * ((_.isEmpty(h5abstractids) ? 3 : h5abstractids.length) + 1) : 36;
               ele.scrollTop = ele.scrollTop + (selectedRecords.length - 1) * itemHeight;
             }
-
-            this.worksheettable.current.table.refs.setScroll(0, 100000);
           } catch (err) {
             console.log(err);
           }
@@ -786,9 +948,29 @@ class ChildTable extends React.Component {
     }
 
     update.apply(this);
+    this.triggerCustomEvent();
   }
 
-  handleRowDetailSave = (row, updatedControlIds) => {
+  handleClearCellError = (rowid, updatedControlIds = [], { validateAll } = {}) => {
+    const { cellErrors, updateCellErrors } = this.props;
+
+    if (!rowid || _.isEmpty(cellErrors)) {
+      return;
+    }
+
+    const newCellErrors = validateAll
+      ? _.omitBy(cellErrors, (value, key) => key.startsWith(`${rowid}-`))
+      : _.omit(
+          cellErrors,
+          updatedControlIds.map(controlId => `${rowid}-${controlId}`),
+        );
+
+    if (!_.isEqual(newCellErrors, cellErrors)) {
+      updateCellErrors(newCellErrors);
+    }
+  };
+
+  handleRowDetailSave = (row, updatedControlIds, saveOptions = {}) => {
     const { updateRow, addRow } = this.props;
     const { previewRowIndex, controls } = this.state;
     const newControls = updateOptionsOfControls(
@@ -811,6 +993,11 @@ class ChildTable extends React.Component {
             .filter(c => _.find(updatedControlIds, cid => ((c.advancedSetting || {}).defsource || '').includes(cid)))
             .map(c => c.controlId),
         );
+
+        if (!saveOptions.hasError) {
+          this.handleClearCellError(row.rowid, updatedControlIds, saveOptions);
+        }
+
         if (previewRowIndex > -1) {
           updateRow({ rowid: row.rowid, value: row });
         } else {
@@ -976,6 +1163,7 @@ class ChildTable extends React.Component {
       showSearch,
       masterData,
       isDraft,
+      filterControls = [],
       pagination = {},
       updatePagination = () => {},
     } = this.props;
@@ -1003,16 +1191,14 @@ class ChildTable extends React.Component {
       previewRowIndex,
       recordVisible,
       controls,
-      isBatchEditing,
-      selectedRowIds,
-      pageSize,
-      pageIndex,
       keywords,
       isEditCurrentRow,
       isMobileSearchFocus,
       isAddRowByLine,
       h5height,
       showExpand,
+      expandShowType,
+      viewportSize,
     } = this.state;
 
     const batchAddControls = batchcids.map(id => _.find(controls, { controlId: id })).filter(_.identity);
@@ -1046,17 +1232,16 @@ class ChildTable extends React.Component {
 
     let tableData = tableRows;
 
-    if (showAsPages) {
-      tableData = tableData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
-    }
+    const currentRow = previewRowIndex > -1 && previewRowIndex < tableData.length ? tableData[previewRowIndex] : null;
 
-    const { showAsPages } = this;
-    const h5ShowType = _.get(control || {}, 'advancedSetting.h5showtype');
+    const expandH5ShowType = showExpand && expandShowType === 'table' ? '3' : h5showtype;
+    const Component =
+      expandH5ShowType === '3' ? TableComponent : expandH5ShowType === '2' ? ChildTableFlatComp : MobileTable;
+    const isExpandTable = showExpand && expandH5ShowType === '3';
+    const isHorizontalPortrait = isExpandTable && viewportSize.width <= viewportSize.height;
 
-    const Component = h5showtype === '2' ? ChildTableFlatComp : h5showtype === '3' ? TableComponent : MobileTable;
-
-    const operateComp = (
-      <Fragment>
+    const renderOperateComp = () => (
+      <div className="operates">
         {showSearch && (
           <SearchInput
             ref={this.searchRef}
@@ -1085,6 +1270,13 @@ class ChildTable extends React.Component {
             onBlur={() => this.setState({ isMobileSearchFocus: false })}
           />
         )}
+        {!isMobileSearchFocus && window.isMingDaoApp && !mobileIsEdit && (
+          <span className="mLeft12" onClick={() => this.openAppFilter(columns)}>
+            <div className="operateBtnBox">
+              <i className={cx('icon icon-worksheet_filter', { colorPrimaryLight: !_.isEmpty(filterControls) })} />
+            </div>
+          </span>
+        )}
         {!isMobileSearchFocus && recordId && (
           <span className="mLeft12" onClick={() => this.refresh()}>
             <div className="operateBtnBox">
@@ -1093,7 +1285,7 @@ class ChildTable extends React.Component {
           </span>
         )}
         {/* 设置行高 */}
-        {!isMobileSearchFocus && !mobileIsEdit && !this.props.disabled && h5ShowType === '3' && (
+        {!isMobileSearchFocus && !mobileIsEdit && !this.props.disabled && expandH5ShowType === '3' && (
           <span className="mLeft12" onClick={() => this.setState({ showRowHeightModal: true })}>
             <div className="operateBtnBox">
               <i
@@ -1104,46 +1296,59 @@ class ChildTable extends React.Component {
             </div>
           </span>
         )}
-        {!mobileIsEdit && !keywords && (
-          <span
-            className="mLeft12"
-            onClick={() => {
-              this.setState({ showExpand: !showExpand });
-              updatePagination({ pageIndex: 1, pageSize: !showExpand ? 200 : 20 });
-            }}
-          >
-            <div className="operateBtnBox">
-              <i className={cx('icon', { 'themeIcon icon-zoom_out2': showExpand, 'icon-enlarge1': !showExpand })} />
-            </div>
-          </span>
+        {!isMobileSearchFocus && !mobileIsEdit && !keywords && (
+          <Fragment>
+            {!showExpand && h5showtype !== '3' && (
+              <span
+                className="mLeft12"
+                onClick={() => {
+                  const nextShowExpand = !(showExpand && expandShowType === 'table');
+                  this.setState({
+                    showExpand: nextShowExpand,
+                    expandShowType: 'table',
+                    viewportSize: getViewportSize(),
+                  });
+                  this.updateExpandPagination(nextShowExpand);
+                }}
+              >
+                <div className="operateBtnBox">
+                  <i
+                    className={cx('icon', {
+                      'themeIcon icon-zoom_out2': showExpand && expandShowType === 'table',
+                      'icon-table': !showExpand || expandShowType !== 'table',
+                    })}
+                  />
+                </div>
+              </span>
+            )}
+            <span
+              className="mLeft12"
+              onClick={() => {
+                this.setState({
+                  showExpand: !showExpand,
+                  expandShowType: 'current',
+                  viewportSize: getViewportSize(),
+                });
+                this.updateExpandPagination(!showExpand);
+              }}
+            >
+              <div className="operateBtnBox">
+                <i className={cx('icon', { 'themeIcon icon-zoom_out2': showExpand, 'icon-enlarge1': !showExpand })} />
+              </div>
+            </span>
+          </Fragment>
         )}
-      </Fragment>
+      </div>
     );
 
     const content = (
-      <div className={cx('mobileChildTableCon', { 'flex flexColumn': h5ShowType === '3' && showExpand })}>
+      <div className={cx('mobileChildTableCon', { 'flex flexColumn': expandH5ShowType === '3' && showExpand })}>
         {!_.isEmpty(cellErrors) && (
           <span className="errorTip ellipsis" style={{ top: -31 }}>
             {_l('请正确填写%0', control.controlName)}{' '}
           </span>
         )}
-        {isBatchEditing && !!selectedRowIds.length && (
-          <div className="selectedTip">{_l('已选择%0条记录', selectedRowIds.length)}</div>
-        )}
-        {!showExpand && (
-          <div
-            className="operates"
-            style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              marginTop: -6,
-              paddingRight: h5ShowType === '3' ? 20 : 0,
-            }}
-          >
-            {operateComp}
-          </div>
-        )}
+        {!showExpand && renderOperateComp()}
         {!loading && (
           <Component
             sheetSwitchPermit={sheetSwitchPermit}
@@ -1165,6 +1370,8 @@ class ChildTable extends React.Component {
             appId={appId}
             worksheetId={control.dataSource}
             rules={rules}
+            // 平铺子表内部的 CustomFields 需要查询默认值配置来触发查询工作表回填
+            searchConfig={searchConfig}
             cellErrors={cellErrors}
             projectId={projectId}
             allowedit={allowedit}
@@ -1174,7 +1381,7 @@ class ChildTable extends React.Component {
             isDraft={isDraft}
             showControls={control.showControls}
             h5height={h5height} //表格行高
-            masterData={() => this.props.masterData}
+            masterData={masterData}
             getMasterFormData={() => this.props.masterData.formData}
             useUserPermission={useUserPermission}
             recordId={recordId}
@@ -1238,7 +1445,7 @@ class ChildTable extends React.Component {
             isEditCurrentRow={isEditCurrentRow}
             masterData={masterData}
             isWorkflow
-            ignoreLock={/^(temp|default|empty)/.test((tableData[previewRowIndex] || {}).rowid)}
+            ignoreLock={/^(temp|default|empty)/.test((currentRow || {}).rowid)}
             visible
             aglinBottom={!!recordId}
             from={from === FROM.DRAFT ? 3 : from}
@@ -1259,20 +1466,19 @@ class ChildTable extends React.Component {
                 _l('创建%0', control.controlName)
               )
             }
-            disabled={disabled || (!/^temp/.test(_.get(tableData, `${previewRowIndex}.rowid`)) && !allowedit)}
+            disabled={disabled || (!/^temp/.test((currentRow || {}).rowid) && !allowedit)}
             isExceed={isExceed}
             mobileIsEdit={mobileIsEdit}
             allowDelete={
-              /^temp/.test(_.get(tableData, `${previewRowIndex}.rowid`)) ||
-              (allowcancel &&
-                (useUserPermission && !!recordId ? _.get(tableData[previewRowIndex], 'allowdelete') : true))
+              /^temp/.test((currentRow || {}).rowid) ||
+              (allowcancel && (useUserPermission && !!recordId ? _.get(currentRow, 'allowdelete') : true))
             }
             allowCopy={allowadd && allowCopy && isEditCurrentRow && !disabled}
             controls={controls.map(c => ({
               ...c,
               hidden: !_.includes(control.showControls, c.controlId) ? true : c.hidden,
             }))}
-            data={previewRowIndex > -1 ? tableData[previewRowIndex] || {} : this.newRow()}
+            data={currentRow || this.newRow()}
             switchDisabled={{
               prev: previewRowIndex === 0,
               next: previewRowIndex === filterEmptyChildTableRows(tableData.filter(r => !r.isSubListFooter)).length - 1,
@@ -1302,26 +1508,33 @@ class ChildTable extends React.Component {
 
     return (
       <Fragment>
-        {content}
+        {!showExpand && content}
         {showExpand && (
           <Popup
             className="mobileModal full expandChildTable"
+            position="left"
             visible={showExpand}
             onMaskClick={() => this.setState({ showExpand: false })}
           >
-            <div className={cx('Relative w100 h100 flexColumn', { expandChildTableCon: h5ShowType !== '3' })}>
-              <div className="expandChildTableHeader">
-                <div className="controlLabelName flex ellipsis">
-                  {control.controlName}
-                  {`(${pagination.count})`}
+            <HorizontalChildTableContent
+              $isHorizontal={isExpandTable}
+              $isHorizontalPortrait={isHorizontalPortrait}
+              $height={isExpandTable ? (isHorizontalPortrait ? viewportSize.width : viewportSize.height) : undefined}
+              $width={isExpandTable ? (isHorizontalPortrait ? viewportSize.height : viewportSize.width) : undefined}
+            >
+              <div className={cx('Relative w100 h100 flexColumn', { expandChildTableCon: expandH5ShowType !== '3' })}>
+                <div className="expandChildTableHeader">
+                  <div className="controlLabelName flex ellipsis">
+                    {control.controlName}
+                    {`(${pagination.count})`}
+                  </div>
+                  {renderOperateComp()}
                 </div>
-                <div className={cx('flexRow operates', { w100: isMobileSearchFocus })}>
-                  <div className="flex"></div>
-                  {operateComp}
+                <div className={cx('horizontalScrollContent', { horizontalTableContent: expandH5ShowType === '3' })}>
+                  {content}
                 </div>
               </div>
-              {content}
-            </div>
+            </HorizontalChildTableContent>
           </Popup>
         )}
       </Fragment>
@@ -1336,6 +1549,7 @@ const mapStateToProps = state => ({
   lastAction: state.lastAction,
   cellErrors: state.cellErrors,
   pagination: state.pagination,
+  filterControls: state.filterControls,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1349,6 +1563,7 @@ const mapDispatchToProps = dispatch => ({
   updateCellErrors: bindActionCreators(actions.updateCellErrors, dispatch),
   updateBase: bindActionCreators(actions.updateBase, dispatch),
   updatePagination: bindActionCreators(actions.updatePagination, dispatch),
+  setFilterControls: bindActionCreators(actions.setFilterControls, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChildTable);

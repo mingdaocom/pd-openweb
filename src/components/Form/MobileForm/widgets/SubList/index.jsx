@@ -1,14 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import ChildTable from '../../components/ChildTable';
-
-const SubListWrap = styled.div`
-  &.tableWrap {
-    margin-right: -20px;
-  }
-`;
 
 export default function SubList(props) {
   const {
@@ -53,6 +46,7 @@ export default function SubList(props) {
           'WORKSHEET_SHEETVIEW_APPEND_ROWS',
           'UPDATE_PAGINATION',
           'UPDATE_SORT_CONFIG',
+          'UPDATE_FILTER_CONTROLS',
         ],
         lastAction.type,
       ) &&
@@ -106,7 +100,7 @@ export default function SubList(props) {
   };
 
   return (
-    <SubListWrap className={`mobileSubList ${_.get(control, 'advancedSetting.h5showtype') === '3' ? 'tableWrap' : ''}`}>
+    <div className="mobileSubList">
       <ChildTable
         showSearch
         showExport
@@ -132,14 +126,14 @@ export default function SubList(props) {
         onChange={handleChange}
         mobileIsEdit={!disabled && !formDisabled}
       />
-    </SubListWrap>
+    </div>
   );
 }
 
-SubList.PropTypes = {
+SubList.propTypes = {
   from: PropTypes.number,
   formDisabled: PropTypes.bool,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({}), PropTypes.arrayOf(PropTypes.shape({}))]),
   worksheetId: PropTypes.string,
   recordId: PropTypes.string,
   dataSource: PropTypes.string,

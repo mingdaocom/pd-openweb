@@ -6,13 +6,12 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, ScrollView, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import AddAppItem from './AddAppItem';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import AppList from './AppList';
@@ -20,8 +19,7 @@ import HomeSetting from './HomeSetting';
 import NoProjectsStatus from './NoProjectsStatus';
 import SearchInput from './SearchInput';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const Con = styled.div`
   flex: 1;
   display: flex;

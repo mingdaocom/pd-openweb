@@ -22,7 +22,7 @@ import ScanQRCode from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
 import { addBehaviorLog, dateConvertToServerZone, mdAppResponse } from 'src/utils/project';
 import { genUrl } from '../../util';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
@@ -95,6 +95,13 @@ const getStaticIdValues = input => {
 };
 
 let currentBtn = {};
+
+const refreshComponent = () => {
+  const { refreshObjects = [] } = currentBtn.config;
+  refreshObjects.forEach(item => {
+    window[`refresh-${item.objectId}`] && window[`refresh-${item.objectId}`]();
+  });
+};
 
 export function ButtonList({
   ids,
@@ -261,7 +268,7 @@ export function ButtonList({
 
       if (window.isMingDaoApp) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
-        window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
+        window.location.href = pathCompletion(btnId ? `${url}?btnId=${btnId}` : url);
         return;
       }
 
@@ -286,7 +293,7 @@ export function ButtonList({
           urlName = viewId ? '/mobile/recordList' : '/mobile/customPage';
         }
 
-        let url = `${window.subPath || ''}${urlName}/${appId}/${appSectionId}/${value}`;
+        let url = `${urlName}/${appId}/${appSectionId}/${value}`;
 
         if (viewId) {
           url += `/${viewId}`;
@@ -298,9 +305,9 @@ export function ButtonList({
       const url = getUrl();
 
       if (window.isMingDaoApp) {
-        window.location.href = url;
+        window.location.href = pathCompletion(url);
       } else if (openMode === 2) {
-        window.open(url);
+        window.open(pathCompletion(url));
       } else {
         navigateTo(url);
       }
@@ -442,7 +449,9 @@ export function ButtonList({
         const run = (shareData = {}) => {
           if (shareData.rowId) {
             if (window.isMingDaoApp) {
-              window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
+              window.location.href = pathCompletion(
+                `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`,
+              );
             } else {
               setPreviewRecord(shareData);
             }
@@ -526,12 +535,9 @@ export function ButtonList({
         if (window.mobileNavigateTo) {
           window.mobileNavigateTo(url);
         } else {
-          location.href = url;
+          location.href = pathCompletion(url);
         }
       } else {
-        // window.open(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
-        //     result,
-        //   )}&filterId=${filterId}&searchId=${searchId}`);
         showFilteredRecords({
           appId,
           worksheetId: value,
@@ -548,13 +554,6 @@ export function ButtonList({
       runStartProcessByPBC(scanBtn, result);
     }
   }
-
-  const refreshComponent = () => {
-    const { refreshObjects = [] } = currentBtn.config;
-    refreshObjects.forEach(item => {
-      window[`refresh-${item.objectId}`] && window[`refresh-${item.objectId}`]();
-    });
-  };
 
   const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
 

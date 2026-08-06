@@ -15,9 +15,9 @@ import './attachment.less';
 
 const attachmentSettings = {
   dialog:
-    '<ul id="attachmentOperation" class="boxShadow5"><li data-type="share" class="ThemeBGColor3">' +
+    '<ul id="attachmentOperation" class="boxShadow5"><li data-type="share" class="bgColorPrimary">' +
     _l('分享') +
-    '</li><li data-type="download" class="ThemeBGColor3">' +
+    '</li><li data-type="download" class="bgColorPrimary">' +
     _l('下载') +
     '</li></ul>',
   itemData: null,
@@ -37,11 +37,9 @@ class Attachment extends Component {
     };
   }
 
-  componentWillMount() {
-    this.getFolderFiles();
-  }
-
   componentDidMount() {
+    this.getFolderFiles();
+
     const $taskList = $('#taskList');
 
     // 更多操作
@@ -123,29 +121,35 @@ class Attachment extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    // 切换项目
-    if (nextProps.taskConfig.folderId && nextProps.taskConfig.folderId !== this.props.taskConfig.folderId) {
-      this.setState({ pageIndex: 1, isFirstPostComplete: true, dataSource: [] }, () => {
-        this.getFolderFiles();
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      // 切换项目
+      if (this.props.taskConfig.folderId && this.props.taskConfig.folderId !== prevProps.taskConfig.folderId) {
+        this.setState(
+          {
+            pageIndex: 1,
+            isFirstPostComplete: true,
+            dataSource: [],
+          },
+          () => {
+            this.getFolderFiles();
+          },
+        );
+      }
     }
-  }
 
-  componentDidUpdate() {
     const that = this;
     const domHeight = $('#taskAttachmentList .taskAttachmentListBox').height();
     const elementHeight = $('#taskAttachmentList .taskAttachmentListBox ul').height();
     let mRight = 0;
-
     /* 存在滚动条*/
+
     if (domHeight < elementHeight) {
       mRight = window.isChrome ? 10 : 17;
     }
 
-    $('#taskAttachmentList .attachmentheader').css('marginRight', mRight);
+    $('#taskAttachmentList .attachmentheader').css('marginRight', mRight); // 滚动加载更多
 
-    // 滚动加载更多
     $('#taskList')
       .find('.taskAttachmentScroll')
       .on('scroll', function () {
@@ -159,9 +163,14 @@ class Attachment extends Component {
           if (nScrollTop + nDivHight + 30 >= nScrollHight) {
             $('#attachmentLoading').removeClass('Hidden');
             const pageIndex = that.state.pageIndex + 1;
-            that.setState({ pageIndex }, () => {
-              that.getFolderFiles();
-            });
+            that.setState(
+              {
+                pageIndex,
+              },
+              () => {
+                that.getFolderFiles();
+              },
+            );
           }
         }
       });
@@ -267,7 +276,7 @@ class Attachment extends Component {
             </div>
           </span>
           <span
-            className={cx('attachmentTask ThemeColor3 overflow_ellipsis attachmentTaskName', {
+            className={cx('attachmentTask colorPrimary overflow_ellipsis attachmentTaskName', {
               pointer: !item.isFolder,
             })}
             onClick={this.openDetail.bind(this, item)}
@@ -278,7 +287,7 @@ class Attachment extends Component {
           <span className="attachmentPerson">
             <img src={item.createUserAvatar} className="taskFolderAvatar pointer" data-accountid={item.accountId} />
             <span
-              className="icon-more_horiz attachmentListOperation Font16 ThemeColor3"
+              className="icon-more_horiz attachmentListOperation Font16 colorPrimary"
               data-source={JSON.stringify(item)}
             />
           </span>
@@ -333,7 +342,7 @@ class Attachment extends Component {
                 <span className="taskSuffix overflow_ellipsis">{item.ext}</span>
               </div>
               <div
-                className={cx('taskThumbnailName overflow_ellipsis ThemeColor3 attachmentTaskName', {
+                className={cx('taskThumbnailName overflow_ellipsis colorPrimary attachmentTaskName', {
                   pointer: !item.isFolder,
                 })}
                 onClick={this.openDetail.bind(this, item)}
@@ -341,7 +350,7 @@ class Attachment extends Component {
                 {item.isFolder ? '-' : item.taskName}
               </div>
               <span
-                className="icon-more_horiz taskThumbnailOperation Font16 ThemeColor3"
+                className="icon-more_horiz taskThumbnailOperation Font16 colorPrimary"
                 data-source={JSON.stringify(item)}
               />
             </div>
@@ -411,7 +420,7 @@ class Attachment extends Component {
     return (
       <div id="taskList" className="flexColumn attachmentBox">
         <div className="attachmentBar boxSizing">
-          <span className="switchView ThemeColor3">
+          <span className="switchView colorPrimary">
             <i
               className={cx('switchViewBtn pointer', attachmentViewType === 1 ? 'icon-home-navigation' : 'icon-list')}
               onClick={this.switch}

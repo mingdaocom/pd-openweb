@@ -14,6 +14,7 @@ import {
   putControlByOrder,
   resetWidgets,
 } from '../util';
+import { createTemplateDialog } from '../util/createTemplate';
 import { batchCopyWidgets, batchShiftWidgets, deleteSection, handleAddWidgets } from '../util/data';
 import { batchRemoveItems, insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
 import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
@@ -421,6 +422,11 @@ export default function DisplayItem(props) {
 
     if (mode === 'copy') {
       batchCopyWidgets(props, [data]);
+      return;
+    }
+
+    if (mode === 'template') {
+      createTemplateDialog({ ...props, templateControls: [data] });
       return;
     }
 

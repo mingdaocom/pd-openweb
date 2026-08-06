@@ -1,7 +1,7 @@
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 
 export const getGreetingText = () => {
   const hours = new Date().getHours();
@@ -75,6 +75,16 @@ export const urlToBase64 = url => {
         reader.readAsDataURL(blob);
       });
     });
+};
+
+export const getUrlWithRandomQuery = (url = '', random = Math.random()) => {
+  return `${url}?${random}`;
+};
+
+export const getImageBase64UploadData = (base64 = '', ext = 'jpg') => {
+  const imageExt = String(ext).replace(/^\./, '').toLowerCase() === 'gif' ? 'gif' : 'jpeg';
+
+  return String(base64).replace(`data:image/${imageExt};base64,`, '');
 };
 
 export const coverUrls = [

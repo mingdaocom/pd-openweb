@@ -182,6 +182,7 @@ export default function SendToChat(props) {
                   >
                     <UserHead
                       className="mRight10"
+                      secretType={account.type}
                       user={{
                         userHead: account.logo,
                         accountId: account.value,

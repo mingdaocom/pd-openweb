@@ -121,6 +121,20 @@ function renderContent(data, recordInfo, extendParam) {
   }
 }
 
+const isVisibleLog = (item, control) => {
+  if (
+    ((item.newValue || item.newText) === '' && (item.oldValue || item.oldText) === '') ||
+    ['thirdprimary'].includes(item.id)
+  )
+    return false;
+
+  const controlPermissions = (control && control.controlPermissions) || '000';
+  const visible =
+    controlPermissions[0] === '1' || item.id.length !== 24 || SUBLIST_FILE_EDIT_TYPE.includes(item.editType);
+
+  return visible;
+};
+
 export default function WorksheetRecordLogItem(props) {
   const { childData, recordInfo, extendParam, selectFieldChange } = props;
   const { selectField, moreList = [], setMoreList, lastMark, showFilter } = extendParam;
@@ -152,20 +166,6 @@ export default function WorksheetRecordLogItem(props) {
     }
 
     return null;
-  };
-
-  const isVisibleLog = (item, control) => {
-    if (
-      ((item.newValue || item.newText) === '' && (item.oldValue || item.oldText) === '') ||
-      ['thirdprimary'].includes(item.id)
-    )
-      return false;
-
-    const controlPermissions = (control && control.controlPermissions) || '000';
-    const visible =
-      controlPermissions[0] === '1' || item.id.length !== 24 || SUBLIST_FILE_EDIT_TYPE.includes(item.editType);
-
-    return visible;
   };
 
   const getExtendText = (item, control) => {

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import sheetApi from 'src/api/worksheet';
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
 import './index.less';
 
@@ -120,7 +120,7 @@ class Search extends Component {
           const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${newRows[0].rowid}`;
 
           if (window.isMingDaoApp) {
-            location.href = url;
+            location.href = pathCompletion(url);
           } else {
             window.mobileNavigateTo(url, true);
           }
@@ -172,7 +172,7 @@ class Search extends Component {
           const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`;
 
           if (window.isMingDaoApp) {
-            location.href = url;
+            location.href = pathCompletion(url);
           } else {
             window.mobileNavigateTo(url);
           }

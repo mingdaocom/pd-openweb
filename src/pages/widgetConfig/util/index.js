@@ -2,8 +2,7 @@ import { compose } from 'redux';
 import update from 'immutability-helper';
 import _, { findIndex, flatten, get, includes, isArray, isEmpty, isObject, keys, omit, sortBy } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
-import { getColorValue } from 'src/utils/control';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import {
   HAVE_HIGH_SETTING_WIDGET,
   HAVE_MASK_WIDGET,
@@ -84,7 +83,7 @@ export const toEditWidgetPage = (paras, isOpenNew = true) => {
   url = searchPara ? `${url}?${searchPara}` : url;
 
   if (isOpenNew) {
-    window.open(url);
+    window.open(pathCompletion(url));
   } else {
     navigateTo(url);
   }
@@ -125,41 +124,41 @@ export const putControlBySection = controls => {
 // 按顺序将控件摆放在二维数组中
 export const putControlByOrder = controls => {
   const obj = {};
-  let maxRow = 0;
-  let cacheData = [];
 
   // 按照row排序
-  controls.forEach(item => {
+  controls.forEach((item, originIndex) => {
     if (!item.size) item = { ...item, size: getDefaultSizeByData(item) };
-    const { row, col } = item;
+    const { row } = item;
+    const currentItem = { item, originIndex };
 
     if (isEmpty(obj[row])) {
-      obj[row] = [item];
+      obj[row] = [currentItem];
     } else {
-      // 兼容row相同控件排列问题
-      // if (getCurrentRowSize(obj[row]) + item.size > WHOLE_SIZE) {
-      //   cacheData.push(item);
-      // } else {
-      obj[row] = update(obj[row], { $splice: [[col, 0, item]] });
-      // }
+      obj[row].push(currentItem);
     }
-
-    if (row > maxRow) {
-      maxRow = row;
-    }
-  });
-
-  cacheData.forEach((item, i) => {
-    obj[maxRow + i + 1] = [item];
   });
 
   return keys(obj)
     .sort((a, b) => +a - +b)
-    .map(key => {
+    .reduce((result, key) => {
       // 每一行里按照col排序
-      const row = obj[key];
-      return sortBy(row, 'col');
-    });
+      const row = sortBy(obj[key], [({ item }) => item.col, 'originIndex']).map(({ item }) => item);
+      const rows = [];
+
+      row.forEach(item => {
+        const currentRow = rows[rows.length - 1];
+
+        // 兼容row、col相同或历史脏数据导致单行宽度溢出的情况，顺延到下一行呈现
+        if (currentRow && getCurrentRowSize(currentRow) + item.size <= WHOLE_SIZE) {
+          currentRow.push(item);
+        } else {
+          rows.push([item]);
+        }
+      });
+
+      result.push(...rows);
+      return result;
+    }, []);
 };
 
 export const dealControlData = (controls = []) => {
@@ -381,17 +380,6 @@ export const formatSearchConfigs = (res = {}) => {
   return res.queries.map(item => {
     return { ...item, templates: [{ controls: (res.templates || {})[item.sourceId] || [] }] };
   });
-};
-
-export const getRgbaByColor = (color, alpha) => {
-  color = getColorValue(color);
-  let sColorChange = [];
-
-  for (let i = 1; i < 7; i += 2) {
-    sColorChange.push(parseInt(`0x${color.slice(i, i + 2)}`));
-  }
-
-  return `rgba(${sColorChange.join(',')},${alpha})`;
 };
 
 // 支持左右布局的控件

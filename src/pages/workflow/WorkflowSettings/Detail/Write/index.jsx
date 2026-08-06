@@ -60,18 +60,26 @@ export default class Write extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -85,6 +93,10 @@ export default class Write extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (sId) {
           result = Object.assign({}, data, {
             selectNodeId: result.selectNodeId,
@@ -168,7 +180,7 @@ export default class Write extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -297,7 +309,7 @@ export default class Write extends Component {
                 updateSource={this.updateSource}
               />
               <div
-                className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
+                className="mTop12 flexRow colorPrimary workflowDetailAddBtn"
                 onClick={() => this.setState({ showSelectUserDialog: true })}
               >
                 <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -416,7 +428,12 @@ export default class Write extends Component {
                       this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
                     }
                   />
-                  <Schedule {...this.props} schedule={data.schedule} updateSource={this.updateSource} />
+                  <Schedule
+                    {...this.props}
+                    schedule={data.schedule}
+                    formulaMap={data.formulaMap}
+                    updateSource={this.updateSource}
+                  />
                 </Fragment>
               )}
 
@@ -427,7 +444,7 @@ export default class Write extends Component {
                     <Support
                       type={3}
                       text={_l('帮助')}
-                      className="ThemeColor3 ThemeHoverColor2"
+                      className="colorPrimary hoverColorPrimaryDark"
                       href="https://help.mingdao.com/workflow/node-approve#field"
                     />
                   </div>
@@ -483,7 +500,11 @@ export default class Write extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.selectNodeId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.selectNodeId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

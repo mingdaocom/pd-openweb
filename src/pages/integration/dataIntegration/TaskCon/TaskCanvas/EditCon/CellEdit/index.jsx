@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
@@ -130,25 +129,27 @@ export default class CellEdit extends Component {
       });
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.node, nextProps.node) || !_.isEqual(this.props, nextProps)) {
-      this.setState(
-        {
-          node: nextProps.node || {},
-        },
-        () => {
-          const { nodeType = '' } = nextProps.node;
 
-          if (nodeType === 'DEST_TABLE') {
-            this.getFieldsDataTypeMatch(nextProps);
-          } else if (nodeType === 'SOURCE_TABLE') {
-            this.getSourceFieldList(nextProps);
-          }
-        },
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.node, this.props.node) || !_.isEqual(prevProps, this.props)) {
+        this.setState(
+          {
+            node: this.props.node || {},
+          },
+          () => {
+            const { nodeType = '' } = this.props.node;
+
+            if (nodeType === 'DEST_TABLE') {
+              this.getFieldsDataTypeMatch(this.props);
+            } else if (nodeType === 'SOURCE_TABLE') {
+              this.getSourceFieldList(this.props);
+            }
+          },
+        );
+      }
     }
-  }
-  componentDidUpdate() {
+
     setTimeout(() => {
       let isERR = $('.isNoMatchOption').length > 0;
 
@@ -315,7 +316,7 @@ export default class CellEdit extends Component {
     const { nodeType = '' } = node;
     return (
       <span
-        className="ThemeColor3 Hand mLeft10 Font13"
+        className="colorPrimary Hand mLeft10 Font13"
         onClick={() => {
           if (['JOIN'].includes(nodeType)) {
             let fields = setFeildAlias([

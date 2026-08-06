@@ -1,0 +1,329 @@
+.fileIcon-folder {
+  background: url('newfileIcons/folder.png') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-folderShared {
+  background: url('newfileIcons/folderShared.png') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-myfile {
+  background: url('newfileIcons/folder.png') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-7z {
+  background: url('newfileIcons/rar.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ai {
+  background: url('newfileIcons/ai.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-doc,
+.fileIcon-docx {
+  background: url('newfileIcons/doc.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-excel {
+  background: url('newfileIcons/xls.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-img {
+  background: url('newfileIcons/jpg.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-link {
+  background: url('newfileIcons/url.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mmap {
+  background: url('newfileIcons/mmap.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-pdf {
+  background: url('newfileIcons/pdf.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ppt {
+  background: url('newfileIcons/ppt.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-psd {
+  background: url('newfileIcons/psd.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-rar {
+  background: url('newfileIcons/rar.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-txt {
+  background: url('newfileIcons/txt.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-vsd {
+  background: url('newfileIcons/vsd.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-word {
+  background: url('newfileIcons/docx.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mdy {
+  background: url('newfileIcons/mdy.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-xmind {
+  background: url('newfileIcons/xmind.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-zip {
+  background: url('newfileIcons/rar.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-aep {
+  background: url('newfileIcons/aep.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-apk {
+  background: url('newfileIcons/apk.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ascx {
+  background: url('newfileIcons/ascx.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-db {
+  background: url('newfileIcons/db.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-dmg {
+  background: url('newfileIcons/dmg.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-dwg {
+  background: url('newfileIcons/dwg.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-eps {
+  background: url('newfileIcons/eps.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-exe {
+  background: url('newfileIcons/exe.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-html {
+  background: url('newfileIcons/html.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-indd {
+  background: url('newfileIcons/indd.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-iso {
+  background: url('newfileIcons/iso.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-key {
+  background: url('newfileIcons/key.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ma {
+  background: url('newfileIcons/ma.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-max {
+  background: url('newfileIcons/max.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mp3 {
+  background: url('newfileIcons/mp3.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mp4 {
+  background: url('newfileIcons/mp4.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-numbers {
+  background: url('newfileIcons/numbers.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-obj {
+  background: url('newfileIcons/obj.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-pages {
+  background: url('newfileIcons/pages.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-prt {
+  background: url('newfileIcons/prt.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-rp {
+  background: url('newfileIcons/rp.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-skp {
+  background: url('newfileIcons/skp.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-xd {
+  background: url('newfileIcons/xd.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-code {
+  background: url('newfileIcons/code.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-md {
+  background: url('newfileIcons/md.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-worksheet {
+  background: url('newfileIcons/ic_file_worksheet.png') no-repeat;
+}
+
+.fileIcon-folder,
+.fileIcon-folderShared,
+.fileIcon-myfile,
+.fileIcon-7z,
+.fileIcon-ai,
+.fileIcon-doc,
+.fileIcon-docx,
+.fileIcon-excel,
+.fileIcon-img,
+.fileIcon-link,
+.fileIcon-mmap,
+.fileIcon-pdf,
+.fileIcon-ppt,
+.fileIcon-psd,
+.fileIcon-rar,
+.fileIcon-txt,
+.fileIcon-vsd,
+.fileIcon-word,
+.fileIcon-mdy,
+.fileIcon-xmind,
+.fileIcon-zip,
+.fileIcon-aep,
+.fileIcon-apk,
+.fileIcon-ascx,
+.fileIcon-db,
+.fileIcon-dmg,
+.fileIcon-dwg,
+.fileIcon-eps,
+.fileIcon-exe,
+.fileIcon-html,
+.fileIcon-indd,
+.fileIcon-iso,
+.fileIcon-key,
+.fileIcon-ma,
+.fileIcon-max,
+.fileIcon-mp3,
+.fileIcon-mp4,
+.fileIcon-numbers,
+.fileIcon-obj,
+.fileIcon-pages,
+.fileIcon-prt,
+.fileIcon-rp,
+.fileIcon-skp,
+.fileIcon-xd,
+.fileIcon-code,
+.fileIcon-md,
+.fileIcon-worksheet {
+  display: inline-block;
+  -webkit-background-size: cover !important;
+  background-size: cover !important;
+  overflow: hidden;
+  text-indent: -9999px;
+  text-align: left;
+}

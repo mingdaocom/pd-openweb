@@ -3,7 +3,7 @@ import workWeiXinAjax from 'src/api/workWeiXin';
 
 export const INTEGRATION_INFO = {
   3: {
-    text: '企业微信',
+    text: _l('企业微信'),
     checkAjax: workWeiXinAjax.checkWorkWXToMingByApp,
     getAddressAjax: workWeiXinAjax.getWorkWXStructureInfo,
     getRelationsAjax: workWeiXinAjax.getWorkWxUserRelations,
@@ -11,7 +11,7 @@ export const INTEGRATION_INFO = {
     syncAjax: workWeiXinAjax.syncWorkWXToMingByApp,
   },
   1: {
-    text: '钉钉',
+    text: _l('钉钉'),
     checkAjax: workWeiXinAjax.checkWorkDDToMing,
     getAddressAjax: workWeiXinAjax.getDDStructureInfo,
     getRelationsAjax: workWeiXinAjax.getDDUserRelations,
@@ -19,7 +19,7 @@ export const INTEGRATION_INFO = {
     syncAjax: workWeiXinAjax.syncWorkDDToMing,
   },
   6: {
-    text: '飞书',
+    text: _l('飞书'),
     checkAjax: workWeiXinAjax.checkFeiShuToMingByApp,
     getAddressAjax: workWeiXinAjax.getFeiShuStructureInfo,
     getRelationsAjax: workWeiXinAjax.getFeiShuUserRelations,

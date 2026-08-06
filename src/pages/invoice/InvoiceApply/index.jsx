@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { Popup } from 'antd-mobile';
 import { match } from 'path-to-regexp';
@@ -6,7 +6,7 @@ import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import paymentApi from 'src/api/payment';
 import userApi from 'src/api/user';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, getPathWithoutSubPath } from 'src/utils/common';
 import { INVOICE_STATUS } from '../constant';
 import InvoiceStatus from '../InvoiceStatus';
 import Apply from './Apply';
@@ -20,14 +20,10 @@ const InvoiceApply = props => {
   const [accountEmail, setAccountEmail] = useState('');
   const [invoiceDetail, setInvoiceDetail] = useState({});
 
-  const orderId = props.orderId || invoiceParams(location.pathname)?.params?.orderId; //支付订单id
+  const orderId = props.orderId || invoiceParams(getPathWithoutSubPath(location.pathname))?.params?.orderId; //支付订单id
   const isMobile = browserIsMobile();
 
-  useEffect(() => {
-    getInfo();
-  }, []);
-
-  const getInfo = async () => {
+  const getInfo = useCallback(async () => {
     const orderRes = await paymentApi.getPayOrder({ orderId });
     setOrderInfo(orderRes);
 
@@ -46,7 +42,11 @@ const InvoiceApply = props => {
 
       setStatusType('status');
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    Promise.resolve().then(getInfo);
+  }, [getInfo]);
 
   if (statusType === 'loading') {
     return isLandPage ? (

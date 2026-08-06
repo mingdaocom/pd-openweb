@@ -1,26 +1,29 @@
-﻿import React, { Component, Fragment } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Textarea from 'ming-ui/components/Textarea';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import ChecklistItem from './checklistItem';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const ClickAwayable = ClickAway;
 let root;
+
+function getNode(component) {
+  return component && component.getNode ? component.getNode() : null;
+}
 
 class ChecklistOperator extends Component {
   componentDidMount() {
     const { isShowOperator } = this.props;
     const clipboardText = this.props.data.name;
+
     const items = _.map(this.props.data.items, item => {
       return `\n${item.name}`;
     });
@@ -41,11 +44,11 @@ class ChecklistOperator extends Component {
         className="boxShadow5 boderRadAll_3 checklistOperator"
         onClickAway={() => this.props.isShowOperator()}
       >
-        <li className="ThemeBGColor3" onClick={() => this.props.updateChecklistName()}>
+        <li className="bgColorPrimary" onClick={() => this.props.updateChecklistName()}>
           <i className="icon-edit" />
           {_l('重命名')}
         </li>
-        <li className="ThemeBGColor3 clipboard">
+        <li className="bgColorPrimary clipboard">
           <i className="icon-task-new-copy Font14" />
           {_l('复制清单')}
           <Tooltip
@@ -57,7 +60,7 @@ class ChecklistOperator extends Component {
             </span>
           </Tooltip>
         </li>
-        <li className="ThemeBGColor3" onClick={() => this.props.removeCheckList()}>
+        <li className="bgColorPrimary" onClick={() => this.props.removeCheckList()}>
           <i className="icon-trash" />
           {_l('删除清单')}
         </li>
@@ -68,15 +71,16 @@ class ChecklistOperator extends Component {
 
 const checklistSource = {
   beginDrag(props, monitor, component) {
-    const preview = findDOMNode(component).outerHTML;
-    const componentRect = findDOMNode(component).getBoundingClientRect();
-    const outerWidth = $(findDOMNode(component)).outerWidth();
-    config.height = $(findDOMNode(component)).outerHeight();
+    const node = getNode(component);
+    if (!node) return { index: props.index };
+    const preview = node.outerHTML;
+    const componentRect = node.getBoundingClientRect();
+    const outerWidth = $(node).outerWidth();
+    config.height = $(node).outerHeight();
     config.offset = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,
     };
-
     root = createRoot($('.taskDetailDragPreviewBox:last')[0]);
     root.render(<DragPreview preview={preview} width={outerWidth} />);
     props.checklistBeginDrag(props.data, props.index);
@@ -84,15 +88,15 @@ const checklistSource = {
       index: props.index,
     };
   },
+
   isDragging(props, monitor) {
     const preview = $('.taskDetailDragPreview:last')[0];
     const clientOffset = monitor.getClientOffset();
 
     if (preview && clientOffset) {
       preview.style.left = clientOffset.x - config.offset.x + 'px';
-      preview.style.top = clientOffset.y - config.offset.y + 'px';
+      preview.style.top = clientOffset.y - config.offset.y + 'px'; // 处理滚动条滚动
 
-      // 处理滚动条滚动
       clearInterval(config.setInterval);
       config.setInterval = setInterval(() => {
         const scrollEl = $('.taskDetailScroll .scroll-viewport');
@@ -107,17 +111,19 @@ const checklistSource = {
       }, 200);
     }
   },
+
   endDrag(props) {
     props.checklistDrop();
     clearInterval(config.setInterval);
     root.unmount();
   },
 };
-
 const checklistTarget = {
   hover(props, monitor, component) {
     const dragIndex = monitor.getItem().index;
-    const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
+    const node = getNode(component);
+    if (!node) return;
+    const hoverBoundingRect = node.getBoundingClientRect();
     const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
     const clientOffset = monitor.getClientOffset();
     const hoverClientY = clientOffset.y - hoverBoundingRect.top;
@@ -133,17 +139,7 @@ const checklistTarget = {
     props.checklistHover(props.index);
   },
 };
-
-@DragSource(config.CHECKLIST, checklistSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
-@DropTarget(config.CHECKLIST, checklistTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop(),
-}))
-export default class Checklist extends Component {
+let Checklist = class Checklist extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -152,21 +148,29 @@ export default class Checklist extends Component {
       checklistAdd: props.showAddItem,
     };
   }
-
   /**
    * 修改名称
    */
+
+  setNode = node => {
+    this.node = node;
+  };
+
+  getNode = () => this.node;
+
   editName() {
     if (!this.props.noAuth) {
-      this.setState({ isEditName: true });
+      this.setState({
+        isEditName: true,
+      });
       this.props.noDragIndexUpdate(this.props.index);
     }
   }
-
   /**
    * 修改清单名称
    * @param  {object} evt
    */
+
   checklistNameUpdate(evt) {
     if (evt.keyCode === 13 || evt.type === 'blur') {
       if (evt.keyCode === 13) {
@@ -174,8 +178,9 @@ export default class Checklist extends Component {
       }
 
       const name = evt.currentTarget.value.trim();
-
-      this.setState({ isEditName: false });
+      this.setState({
+        isEditName: false,
+      });
       this.props.noDragIndexUpdate(-1);
 
       if (name) {
@@ -183,11 +188,11 @@ export default class Checklist extends Component {
       }
     }
   }
-
   /**
    * 添加检查项
    * @param  {object} evt
    */
+
   checklistAdd(evt) {
     if (evt.keyCode === 13 || evt.type === 'blur') {
       if (evt.keyCode === 13) {
@@ -199,37 +204,38 @@ export default class Checklist extends Component {
       if (name) {
         this.props.noDragIndexUpdate(-1);
         this.props.addItems(this.props.data.checkListId, name);
+
         if (evt.keyCode === 13) {
           $(evt.currentTarget).val('').focus();
         } else {
-          this.setState({ checklistAdd: false });
+          this.setState({
+            checklistAdd: false,
+          });
         }
       } else {
         this.props.noDragIndexUpdate(-1);
-        this.setState({ checklistAdd: false });
+        this.setState({
+          checklistAdd: false,
+        });
       }
     }
-  }
-
-  /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
   }
 
   render() {
     const { data, connectDragSource, connectDropTarget } = this.props;
     const items = data.items || [];
     const sum = items.length;
+
     const completedSum = _.filter(items, item => item.status).length;
+
     const percent = (Math.floor((completedSum / sum) * 100) || 0) + '%';
+
     const isHidden = _.includes(this.props.taskFoldStatus, data.checkListId);
 
     if (data === 'blank') {
       return (
         <div
+          ref={this.setNode}
           style={{
             height: config.height + 'px',
             backgroundColor: 'var(--color-border-secondary)',
@@ -245,7 +251,11 @@ export default class Checklist extends Component {
         <div className="taskChecklist">
           <div className="taskChecklistHead">
             <i className="icon-list" />
-            <div className={cx('taskChecklistName Font14', { Hidden: this.state.isEditName })}>
+            <div
+              className={cx('taskChecklistName Font14', {
+                Hidden: this.state.isEditName,
+              })}
+            >
               <span onClick={() => this.editName()}>{data.name}</span>
               <span className="taskChecklistCount Font14">
                 {completedSum}/{sum}
@@ -264,20 +274,31 @@ export default class Checklist extends Component {
             ) : undefined}
             {this.props.noAuth ? undefined : (
               <i
-                className={cx('icon-moreop pointer ThemeColor3', { Hidden: this.state.isEditName })}
-                onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ isShowOperator: true })}
+                className={cx('icon-moreop pointer colorPrimary', {
+                  Hidden: this.state.isEditName,
+                })}
+                onClick={() => this.setState({ isShowOperator: true })}
               />
             )}
             {this.state.isShowOperator ? (
               <ChecklistOperator
                 updateChecklistName={() => {
-                  this.setState({ isEditName: true, isShowOperator: false });
+                  this.setState({
+                    isEditName: true,
+                    isShowOperator: false,
+                  });
                   this.props.noDragIndexUpdate(this.props.index);
                 }}
-                isShowOperator={() => this.setState({ isShowOperator: false })}
+                isShowOperator={() =>
+                  this.setState({
+                    isShowOperator: false,
+                  })
+                }
                 data={data}
                 removeCheckList={() => {
-                  this.setState({ isShowOperator: false });
+                  this.setState({
+                    isShowOperator: false,
+                  });
                   this.props.removeCheckList(data.checkListId);
                 }}
               />
@@ -285,7 +306,7 @@ export default class Checklist extends Component {
             <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
               <span className="taskDetailFold">
                 <i
-                  className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                  className={cx('pointer colorPrimary', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
                   onClick={() => this.props.updateTaskFoldStatus(data.checkListId)}
                 />
               </span>
@@ -297,7 +318,12 @@ export default class Checklist extends Component {
               <div className="taskChecklistPercent mTop15">
                 <span className="taskChecklistPercentNum">{percent}</span>
                 <div className="percentBox">
-                  <div className="percentSize" style={{ width: percent }} />
+                  <div
+                    className="percentSize"
+                    style={{
+                      width: percent,
+                    }}
+                  />
                 </div>
               </div>
 
@@ -327,10 +353,10 @@ export default class Checklist extends Component {
               </div>
 
               {this.state.checklistAdd && (
-                <div className="taskChecklistAdd flexRow ThemeBGColor6">
+                <div className="taskChecklistAdd flexRow bgColorPrimaryTransparent">
                   <span className="icon-task-status-no checklistItemStatus Font15" />
                   <Textarea
-                    className="ThemeBGColor6 flex"
+                    className="bgColorPrimaryTransparent flex"
                     minHeight={20}
                     isFocus
                     onKeyDown={evt => this.checklistAdd(evt)}
@@ -341,9 +367,13 @@ export default class Checklist extends Component {
 
               {!this.props.noAuth && items.length < 100 && (
                 <span
-                  className={cx('taskChecklistItemAdd ThemeColor3 pointer', { Hidden: this.state.checklistAdd })}
+                  className={cx('taskChecklistItemAdd colorPrimary pointer', {
+                    Hidden: this.state.checklistAdd,
+                  })}
                   onClick={() => {
-                    this.setState({ checklistAdd: true });
+                    this.setState({
+                      checklistAdd: true,
+                    });
                     this.props.noDragIndexUpdate(this.props.index);
                   }}
                 >
@@ -358,11 +388,22 @@ export default class Checklist extends Component {
     };
 
     return (
-      <div>
+      <div ref={this.setNode}>
         {this.props.noDragIndex === this.props.index || this.props.noAuth
           ? checklist()
           : connectDragSource(connectDropTarget(checklist()))}
       </div>
     );
   }
-}
+};
+Checklist = DragSource(config.CHECKLIST, checklistSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}))(
+  DropTarget(config.CHECKLIST, checklistTarget, (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop(),
+  }))(Checklist),
+);
+export default Checklist;

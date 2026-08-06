@@ -23,40 +23,6 @@
     bottom: 0;
     background-color: transparent;
   }
-  .remindSaveWrap {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 1;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .remindSaveContent {
-      width: 480px;
-      position: relative;
-      background-color: var(--color-background-primary);
-      border-radius: 3px;
-      box-shadow:
-        0 4px 20px rgb(0, 0, 0, 0.2),
-        0 2px 6px rgb(0, 0, 0, 0 15);
-      .title {
-        padding: 20px 24px 16px;
-      }
-      .closeBtn {
-        position: absolute;
-        border: 0;
-        right: 5px;
-        top: 2px;
-      }
-      .footer {
-        text-align: right;
-        padding: 30px 24px 20px;
-      }
-    }
-  }
   .prompt {
     font-size: 14px;
     background-color: var(--color-yellow-black);
@@ -127,6 +93,10 @@
     &.disabled {
       background-color: var(--color-background-secondary);
       border: 1px solid var(--color-background-secondary);
+    }
+    &.phoneNumberEditWrapper {
+      display: flex;
+      padding: 0;
     }
   }
   .status {
@@ -208,11 +178,6 @@
   }
   .formInfoWrap .ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border: 1px solid var(--color-background-secondary);
-  }
-  .ThemeHoverColor {
-    &:hover {
-      color: var(--color-primary) !important;
-    }
   }
 }
 

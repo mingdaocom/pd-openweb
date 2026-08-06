@@ -420,7 +420,7 @@ function Monitor(props) {
                   <div className="item flex">{!o.ip ? o.operator : `${o.operator}（${o.ip}）`}</div>
                   <div className="item flex2 WordBreak">{o.center}</div>
                   <div
-                    className={cx('item width100 ThemeColor3', { Hand: !!o.errorDetail })}
+                    className={cx('item width100 colorPrimary', { Hand: !!o.errorDetail })}
                     onClick={() => {
                       if (!o.errorDetail) {
                         return;
@@ -483,7 +483,7 @@ function Monitor(props) {
                   {_l('报错信息')}
                   <Icon
                     type="copy"
-                    className="textTertiary Font18 Hand mLeft10 ThemeHoverColor3"
+                    className="textTertiary Font18 Hand mLeft10 hoverColorPrimary"
                     onClick={() => {
                       copy(errorDetail);
                       alert(_l('复制成功'));

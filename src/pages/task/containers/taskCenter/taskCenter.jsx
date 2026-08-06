@@ -1,7 +1,6 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import 'src/components/createTask/createTask';
 import ErrorState from 'src/components/errorPage/errorState';
 import config from '../../config/config';
 import {
@@ -131,7 +130,7 @@ class TaskCenter extends Component {
         ) {
           // 批量操作?
           if ($('#batchTask').length > 0 && $('#batchTask').hasClass('slideLeft')) {
-            $('#taskList .selectTask').removeClass('selectTask ThemeBGColor6');
+            $('#taskList .selectTask').removeClass('selectTask bgColorPrimaryTransparent');
             $('#batchTask')
               .removeClass('slideLeft')
               .on('webkitTransitionEnd transitionEnd', function () {
@@ -204,29 +203,29 @@ class TaskCenter extends Component {
       });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const pathname = nextProps.pathname || '';
-    const folderIndex =
-      pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const pathname = this.props.pathname || '';
+      const folderIndex =
+        pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
 
-    if (pathname !== this.props.pathname && folderIndex > 0) {
-      const paramSize = pathname.indexOf('folder_') > -1 ? 7 : 16;
-      const folderId = pathname.substring(folderIndex + paramSize);
+      if (pathname !== prevProps.pathname && folderIndex > 0) {
+        const paramSize = pathname.indexOf('folder_') > -1 ? 7 : 16;
+        const folderId = pathname.substring(folderIndex + paramSize); // 不同项目更新数据
 
-      // 不同项目更新数据
-      if (folderId !== this.props.taskConfig.folderId) {
-        this.init(folderId);
+        if (folderId !== prevProps.taskConfig.folderId) {
+          this.init(folderId);
+          $('.folderList li').removeClass('bgColorPrimaryTransparent');
+          $('.folderList li[data-id=' + pathname.substring(folderIndex + 7) + ']')
+            .eq(0)
+            .addClass('bgColorPrimaryTransparent');
+        }
+      } // 应用进入
 
-        $('.folderList li').removeClass('ThemeBGColor8');
-        $('.folderList li[data-id=' + pathname.substring(folderIndex + 7) + ']')
-          .eq(0)
-          .addClass('ThemeBGColor8');
+      // 应用进入
+      if (prevProps.hideNavigation && this.props.folderId !== prevProps.folderId) {
+        this.init(this.props.folderId);
       }
-    }
-
-    // 应用进入
-    if (this.props.hideNavigation && nextProps.folderId !== this.props.folderId) {
-      this.init(nextProps.folderId);
     }
   }
 
@@ -389,7 +388,7 @@ class TaskCenter extends Component {
 
     return (
       <div className="folderSearchBar boderRadAll_3">
-        <span className="pointer ThemeColor3" onClick={() => this.props.dispatch(updateKeyWords(''))}>
+        <span className="pointer colorPrimary" onClick={() => this.props.dispatch(updateKeyWords(''))}>
           {_l('清除')}
         </span>
         <span className="mLeft20">{_l('所有与“%0”相关的任务', searchKeyWords)}</span>

@@ -74,14 +74,17 @@ class Score extends Component {
       this.onMouseLeave = this.onMouseLeave.bind(this);
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if ('score' in nextProps) {
-      this.setState({
-        foregroundColor: nextProps.foregroundColor,
-        lastColor: nextProps.foregroundColor,
-        score: nextProps.score,
-        lastScore: nextProps.score,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if ('score' in this.props) {
+        this.setState({
+          foregroundColor: this.props.foregroundColor,
+          lastColor: this.props.foregroundColor,
+          score: this.props.score,
+          lastScore: this.props.score,
+        });
+      }
     }
   }
   onSelect(index, event) {

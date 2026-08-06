@@ -67,21 +67,25 @@ class TaskCanvas extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.curId) {
-      this.setState({
-        currentId: nextProps.curId,
-      });
-    }
+  //删除节点
 
-    if (!_.isEqual(nextProps.flowData.flowNodes, this.props.flowData.flowNodes)) {
-      const { flowData = {} } = nextProps;
-      const { flowNodes, firstNodeId } = flowData;
-      this.setState({
-        flowNodes,
-        list: formatDataWithLine(formatTaskNodeData(_.values(flowNodes), firstNodeId)),
-        loading: false,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.curId) {
+        this.setState({
+          currentId: this.props.curId,
+        });
+      }
+
+      if (!_.isEqual(this.props.flowData.flowNodes, prevProps.flowData.flowNodes)) {
+        const { flowData = {} } = this.props;
+        const { flowNodes, firstNodeId } = flowData;
+        this.setState({
+          flowNodes,
+          list: formatDataWithLine(formatTaskNodeData(_.values(flowNodes), firstNodeId)),
+          loading: false,
+        });
+      }
     }
   }
 

@@ -122,7 +122,7 @@ function FilterTitleItem(props) {
     >
       <VerticalMiddle className="content">
         <DragHandle>
-          <i className="icon icon-drag dragger hoverShow ThemeHoverColor3"></i>
+          <i className="icon icon-drag dragger hoverShow hoverColorPrimary"></i>
         </DragHandle>
         <i className="icon icon-worksheet_filter filterIcon"></i>
         <span title={name} className="Font14 mLeft10 ellipsis">
@@ -138,14 +138,14 @@ function FilterTitleItem(props) {
         {canEdit ? (
           <Tooltip placement="bottom" title={_l('编辑')}>
             <i
-              className="icon icon-edit Hand editIcon hoverShow ThemeHoverColor3 Font16 mRight12"
+              className="icon icon-edit Hand editIcon hoverShow hoverColorPrimary Font16 mRight12"
               onClick={() => onEditFilter(filter)}
             ></i>
           </Tooltip>
         ) : (
           <Tooltip placement="bottom" title={_l('查看')}>
             <i
-              className="icon icon-visibility Hand moreMenu hoverShow ThemeHoverColor3 Font16 mRight12"
+              className="icon icon-visibility Hand moreMenu hoverShow hoverColorPrimary Font16 mRight12"
               onClick={() => onEditFilter(filter)}
             ></i>
           </Tooltip>
@@ -215,7 +215,7 @@ function FilterTitleItem(props) {
           }
           onPopupVisibleChange={setMoreMenuActive}
         >
-          <i className="icon icon-more_horiz Hand moreMenu hoverShow ThemeHoverColor3"></i>
+          <i className="icon icon-more_horiz Hand moreMenu hoverShow hoverColorPrimary"></i>
         </Trigger>
       </div>
     </FilterTitleItemCon>

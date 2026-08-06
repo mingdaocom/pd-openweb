@@ -299,7 +299,7 @@ function Setting(props) {
                     >
                       <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
                       <span className="mLeft10 flex textPrimary ellipsis">{item.text}</span>
-                      {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
+                      {isCur && <Icon icon="done" className="Relative colorPrimary Font18" />}
                     </div>
                   );
                 }}

@@ -133,13 +133,13 @@ class DialogBase extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.type !== this.props.type) {
-      this.autoPosition();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.type !== prevProps.type) {
+        this.autoPosition();
+      }
     }
-  }
 
-  componentDidUpdate() {
     this.autoPosition();
   }
 

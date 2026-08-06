@@ -57,7 +57,6 @@ function PrintTemSetting(props) {
   } = props;
 
   const advanceMap = _.keyBy(advanceSettings, 'key');
-
   const type = advanceMap.export_type?.value || '0';
   const exportName = advanceMap.export_name?.value;
   const enableEmptyPlaceholder = !!Number(advanceMap.enableEmptyPlaceholder?.value);

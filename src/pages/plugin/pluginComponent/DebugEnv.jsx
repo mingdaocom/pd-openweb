@@ -292,7 +292,7 @@ export default function DebugEnv(props) {
       </div>
       {configType !== pluginConfigType.create && !debugEnvList.filter(item => item.isEdit).length && (
         <div
-          className="mTop24 InlineBlock colorPrimary ThemeHoverColor2 pointer"
+          className="mTop24 InlineBlock colorPrimary hoverColorPrimaryDark pointer"
           onClick={() => {
             const newDebugEnvList = debugEnvList.concat([{ isEdit: true }]);
             onChangeDebugEnvList(newDebugEnvList);

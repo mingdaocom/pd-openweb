@@ -429,7 +429,7 @@ export default class UpgradeProcess extends Component {
                 {(analyzeLoading || compareLoading) && (
                   <div className="flexRow mTop16">
                     <div className="notificationIconWrap">
-                      <i className="icon-loading_button Font20 ThemeColor3"></i>
+                      <i className="icon-loading_button Font20 colorPrimary"></i>
                     </div>
                     {
                       <span className="textSecondary mLeft10">
@@ -452,7 +452,7 @@ export default class UpgradeProcess extends Component {
                     </Button>,
                   )
                 : this.renderUploadBtn(
-                    <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
+                    <div className={cx('Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
                   )}
           </div>
         )}

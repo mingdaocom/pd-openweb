@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js';
+import { pathCompletion } from 'src/utils/common';
 import { getPssId, setPssId } from 'src/utils/pssId';
 import {
   addOtherParam,
@@ -43,7 +44,7 @@ function loginSuccess(url, appscheme) {
   if (checkOriginUrl(url)) {
     location.replace(decodeURIComponent(url));
   } else {
-    location.replace(isMobile ? `/mobile` : `/app`);
+    location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
   }
 }
 
@@ -79,7 +80,7 @@ if (code) {
             if (checkOriginUrl(url)) {
               location.replace(decodeURIComponent(url));
             } else {
-              location.replace(isMobile ? `/mobile` : `/app`);
+              location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
             }
           });
         }
@@ -114,6 +115,10 @@ if (code) {
           location.origin.includes('meihua.mingdao.com');
         const redirect_uri = encodeURIComponent(
           `${isDevelopment || !location.origin.includes('mingdao.com') ? location.origin : 'https://www.mingdao.com'}/auth/microsoft`,
+          {
+            hasDomain: true,
+            localHasDomain: true,
+          },
         );
         const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirect_uri}&response_mode=query&scope=openid&state=${state_appscheme}&code_challenge=${code_challenge}&code_challenge_method=S256`;
         location.href = authUrl;

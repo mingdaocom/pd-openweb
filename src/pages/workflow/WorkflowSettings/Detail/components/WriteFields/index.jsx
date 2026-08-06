@@ -349,7 +349,7 @@ export default class WriteFields extends Component {
           <Fragment key={i}>
             <li className={cx('flexRow', { mLeft30: isSubData })}>
               <div
-                className={cx('flex flexRow alignItemsCenter', { 'ThemeHoverColor3 pointer': item.type === 52 })}
+                className={cx('flex flexRow alignItemsCenter', { 'hoverColorPrimary pointer': item.type === 52 })}
                 onClick={() => {
                   if (item.type === 52) {
                     this.setState({
@@ -377,7 +377,7 @@ export default class WriteFields extends Component {
                 {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (
                   <Tooltip title={_l('设置子表操作和列权限')} placement="bottomRight">
                     <div
-                      className="mLeft5 textSecondary ThemeHoverColor3 pointer pointerEventsAuto"
+                      className="mLeft5 textSecondary hoverColorPrimary pointer pointerEventsAuto"
                       style={{ display: 'inline-flex' }}
                       onClick={() =>
                         this.setState({

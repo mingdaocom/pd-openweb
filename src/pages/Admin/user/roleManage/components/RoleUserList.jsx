@@ -8,6 +8,7 @@ import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
 import OrganizeAjax from 'src/api/organize';
 import EmptyStatus from './EmptyStatus';
+import { pathCompletion } from 'src/utils/common';
 
 const Departments = styled.div`
   width: fit-content;
@@ -210,7 +211,7 @@ class RoleUserList extends Component {
                 projectId={this.props.projectId}
               />
               <a
-                href={'/user_' + item.accountId}
+                href={pathCompletion('/user_' + item.accountId)}
                 className="textPrimary overflow_ellipsis mLeft10 LineHeight32 name"
                 title={item.fullname}
               >

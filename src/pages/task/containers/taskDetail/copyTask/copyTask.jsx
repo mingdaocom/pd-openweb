@@ -32,7 +32,7 @@ export default class CopyTask extends Component {
     $('.copyTask').on('click', '#chargeUserBtn', function () {
       dialogSelectUser({
         sourceId: that.props.taskId,
-        title: '选择负责人',
+        title: _l('选择负责人'),
         showMoreInvite: false,
         fromType: 2,
         SelectUserSettings: {
@@ -93,7 +93,7 @@ export default class CopyTask extends Component {
         <div className="copyDesc">{_l('通过复制任务，您可以将日常的任务计划快速复用')}</div>
         <div className="copyTitleBox">
           <div className="copyTitle">{_l('任务标题')}</div>
-          <input type="text" id="copyTaskName" defaultValue={this.props.name} className="ThemeBorderColor3" />
+          <input type="text" id="copyTaskName" defaultValue={this.props.name} className="borderColorPrimary" />
         </div>
         <div id="copyOperation">
           <div className="copyTitle">{_l('同步复制')}</div>
@@ -103,25 +103,25 @@ export default class CopyTask extends Component {
                 className={this.props.folderID ? 'checked checkOperation' : 'noClick checkOperation'}
                 id="copyFolderID"
               >
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('所属项目')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyChecklist">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('清单')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyTaskDesc">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('描述')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyChargeUser">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('负责人')}
               </div>
               <div className="chargeUserBox">
@@ -131,25 +131,25 @@ export default class CopyTask extends Component {
             </li>
             <li>
               <div className="checked checkOperation" id="copyTaskAtts">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('附件')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyMembers">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('任务参与者')}
               </div>
             </li>
             <li>
               <div className="checked checkOperation" id="copyCategory">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('标签')}
               </div>
             </li>
             <li>
               <div className="checkOperation" id="copyDeadline">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('计划起止时间')}
               </div>
             </li>
@@ -160,7 +160,7 @@ export default class CopyTask extends Component {
           <ul>
             <li>
               <div className="checked checkOperation" id="copySubTask">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('子任务')}
                 <Tooltip title={_l('子任务将包含以上所选的复制内容')}>
                   <span className="mLeft5 copyTip">
@@ -171,7 +171,7 @@ export default class CopyTask extends Component {
             </li>
             <li>
               <div className="checkOperation" id="hasSubTasksChargeUser">
-                <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('子任务负责人')}
               </div>
             </li>

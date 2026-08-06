@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import mingoAjax from 'src/api/mingo';
+import agentApi from 'src/api/agent';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
+import { genBotSessionId } from 'src/utils/agentSession';
 
 const Con = styled.div`
   display: flex;
@@ -58,24 +59,60 @@ const RecommendItem = styled.div`
   }
 `;
 
-export default function CreateWorksheetRecommend({ appId, onSelect = () => {} }) {
+export default function CreateWorksheetRecommend({ appName, appDescription, worksheets = [], onSelect = () => {} }) {
   const [isLoading, setIsLoading] = useState(false);
   const [recommendWorkSheets, setRecommendWorkSheets] = useState([]);
+  const existingWorksheets = useMemo(
+    () =>
+      JSON.stringify(
+        worksheets.map(item => ({
+          name: item.workSheetName,
+          description: item.remark,
+        })),
+      ),
+    [worksheets],
+  );
 
   useEffect(() => {
+    const abortController = new AbortController();
+    let isActive = true;
+
     setIsLoading(true);
-    mingoAjax
-      .getRecommendedSheets({
-        appId,
+
+    agentApi
+      .agentExecute(
+        {
+          agentName: 'app-worksheet-suggester',
+          sessionId: genBotSessionId(),
+          message: _l('开始'),
+          context: {
+            appName,
+            appDescription,
+            userLanguage: window.getCurrentLang() || 'zh-Hans',
+            existingWorksheets,
+          },
+        },
+        {
+          abortController,
+        },
+      )
+      .then(res => {
+        if (!isActive) return;
+
+        setRecommendWorkSheets(res?.data?.suggestWorksheet || []);
       })
-      .then(data => {
-        setRecommendWorkSheets(data.suggestWorksheet || []);
-        setIsLoading(false);
-      })
+      .catch(() => {})
       .finally(() => {
+        if (!isActive) return;
+
         setIsLoading(false);
       });
-  }, []);
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
+  }, [appName, appDescription, existingWorksheets]);
 
   return (
     <Con>

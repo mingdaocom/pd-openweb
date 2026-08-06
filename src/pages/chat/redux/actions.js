@@ -38,6 +38,7 @@ export const updateSessionList = result => (dispatch, getState) => {
   const newSessionList = _.cloneDeep(sessionList);
   const { id } = result;
   const adjust = [];
+  let hasClearCount = false;
 
   newSessionList.forEach(item => {
     if (item.value === id) {
@@ -73,6 +74,7 @@ export const updateSessionList = result => (dispatch, getState) => {
       if ('clearCount' in result) {
         item.count = 0;
         item.messageCount = result.clearCount;
+        hasClearCount = true;
         if ('weak_count' in item) {
           item.weak_count = 0;
         }
@@ -153,6 +155,11 @@ export const updateSessionList = result => (dispatch, getState) => {
       }
     }
   });
+
+  if (hasClearCount) {
+    utils.removeFlashTitle('', newSessionList);
+  }
+
   // 新的计数会话排到第一个位置
   if (adjust.length) {
     const { value } = adjust[0];
@@ -396,8 +403,9 @@ export const operate = status => (dispatch, getState) => {
   const { sessionList } = getState().chat;
   const { contact, isclose, isopen } = status;
   const session = sessionList.filter(item => item.value === contact.id)[0];
+  const contactType = Number(contact.type);
 
-  if ('showBadge' in contact) {
+  if (session && 'showBadge' in contact) {
     session.showBadge = contact.showBadge;
   }
 
@@ -409,14 +417,14 @@ export const operate = status => (dispatch, getState) => {
     if (session) {
       dispatch(setNewCurrentSession(session));
     } else {
-      if (contact.type === 1) {
+      if (contactType === Constant.SESSIONTYPE_USER) {
         dispatch(
           addUserSession(contact.id, {
             msg: { con: '' },
             sysType: 1,
           }),
         );
-      } else if (contact.type === 2) {
+      } else if (contactType === Constant.SESSIONTYPE_GROUP) {
         dispatch(addGroupSession(contact.id));
       } else {
         const { id } = contact;
@@ -516,14 +524,12 @@ export const sessionRemoved = message => (dispatch, getState) => {
  * 清除会话未读消息计数
  * @param {*} message
  */
-export const clearUnread = message => (dispatch, getState) => {
-  const { sessionList } = getState().chat;
+export const clearUnread = message => dispatch => {
   const { id } = message;
   dispatch(updateSessionList({ id, atlist: [] }));
   dispatch(updateSessionList({ id, reflist: [] }));
   dispatch(updateSessionList({ id, refer: null }));
   dispatch(updateSessionList({ id, clearCount: 0 }));
-  utils.removeFlashTitle(id, sessionList);
 };
 
 /**
@@ -562,7 +568,7 @@ export const clearAllUnread = () => (dispatch, getState) => {
  * @param {*} message
  */
 export const clearNotification = message => (dispatch, getState) => {
-  const { sessionList, currentSession } = getState().chat;
+  const { currentSession } = getState().chat;
   const { type } = message;
   dispatch(updateSessionList({ id: type, clearCount: 0 }));
   if (currentSession.id === type && currentSession.count) {
@@ -571,8 +577,6 @@ export const clearNotification = message => (dispatch, getState) => {
       result: Object.assign(currentSession, { count: 0 }),
     });
   }
-
-  utils.removeFlashTitle(type, sessionList);
 };
 
 /**
@@ -645,7 +649,7 @@ export const setCurrentSessionId =
  */
 export const addCurrentSession = result => (dispatch, getState) => {
   const { currentSessionList, sessionList } = getState().chat;
-  result.isGroup = 'isPost' in result;
+  result.isGroup = !!result.groupId;
   result.id = result.isGroup ? result.groupId : result.accountId;
   if (currentSessionList.length >= 2) {
     const { id } = currentSessionList[0];
@@ -653,8 +657,8 @@ export const addCurrentSession = result => (dispatch, getState) => {
     dispatch(removeMessages(id));
   }
 
-  const session = _.filter(sessionList, { value: result.id })[0];
-  const isTop = session.top_info ? session.top_info.isTop : false;
+  const session = _.filter(sessionList, { value: result.id })[0] || {};
+  const isTop = _.get(session, 'top_info.isTop', false);
   result.isTop = isTop;
   if ('isSession' in session) {
     result.isSession = session.isSession;

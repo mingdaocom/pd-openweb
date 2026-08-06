@@ -14,6 +14,7 @@ import TableEmpty from 'src/pages/Admin/common/TableEmpty';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Search from 'src/pages/workflow/components/Search';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import PaginationWrap from '../../components/PaginationWrap';
@@ -218,7 +219,7 @@ export default class AggregationTable extends Component {
                   <span>{_l('升级版本后可在应用中创建聚合表')}</span>
                   <a
                     href="javascript:void(0);"
-                    className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
+                    className="colorPrimary hoverColorPrimaryDark mLeft8 NoUnderline"
                     onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
                   >
                     {_l('升级版本')}
@@ -234,8 +235,9 @@ export default class AggregationTable extends Component {
                   <span className="bold">
                     {_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}
                   </span>
+
                   <PurchaseExpandPack
-                    className="ThemeHoverColor2 mLeft5"
+                    className="hoverColorPrimaryDark mLeft5"
                     text={_l('扩充')}
                     type="aggregationtable"
                     routePath="expansionserviceAggregationtable"
@@ -245,6 +247,7 @@ export default class AggregationTable extends Component {
               )}
             </div>
           )}
+
           <div className="flexRow">
             <Select
               className="w180 mdAntSelect"
@@ -306,7 +309,7 @@ export default class AggregationTable extends Component {
             <div className="columnWidth status">{_l('状态')}</div>
             <div className="columnWidth flexRow">
               <div
-                className="pointer ThemeHoverColor3 pRight12"
+                className="pointer hoverColorPrimary pRight12"
                 onClick={() =>
                   this.setState(
                     { isAsc: sortId === 'createDate' ? !isAsc : false, sortId: 'createDate', pageIndex: 1 },
@@ -325,8 +328,8 @@ export default class AggregationTable extends Component {
                   )
                 }
               >
-                <Icon icon="arrow-up" className={cx({ ThemeColor3: isAsc && sortId === 'createDate' })} />
-                <Icon icon="arrow-down" className={cx({ ThemeColor3: !isAsc && sortId === 'createDate' })} />
+                <Icon icon="arrow-up" className={cx({ colorPrimary: isAsc && sortId === 'createDate' })} />
+                <Icon icon="arrow-down" className={cx({ colorPrimary: !isAsc && sortId === 'createDate' })} />
               </div>
             </div>
             <div className="w140">{_l('创建人')}</div>
@@ -359,14 +362,14 @@ export default class AggregationTable extends Component {
                     <div className="flexRow alignItemsCenter listContent">
                       <div
                         className={cx('flex flexRow pLeft10 ', {
-                          'Hand ThemeHoverColor3': aggTableTaskStatus !== 0 && !!worksheetId,
+                          'Hand hoverColorPrimary': aggTableTaskStatus !== 0 && !!worksheetId,
                         })}
                         onClick={() => {
                           if (aggTableTaskStatus === 0) {
                             return;
                           }
 
-                          window.open(`/aggregation/${worksheetId || ''}`);
+                          window.open(pathCompletion(`/aggregation/${worksheetId || ''}`));
                         }}
                       >
                         <div

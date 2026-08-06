@@ -1,7 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import { Popover } from 'antd';
 import cx from 'classnames';
-import { saveAs } from 'file-saver';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
 import _ from 'lodash';
@@ -12,18 +11,16 @@ import { Tooltip } from 'ming-ui/antd-components';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import appManagementApi from 'src/api/appManagement';
 import customApi from 'statistics/api/custom';
-import { chartNav } from 'statistics/common';
+import { getReportTypeIcon } from 'statistics/Charts/reportTypeIcons';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { deleteSheet } from 'worksheet/redux/actions/sheetList';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { canEditData } from 'worksheet/redux/actions/util';
-import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
-import { createFontLink, exportImage } from 'src/pages/customPage/util';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { isLightColor, replaceColor } from 'src/pages/customPage/util';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
-import Share from 'src/pages/worksheet/components/Share';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
@@ -31,6 +28,14 @@ import { getTranslateInfo } from 'src/utils/app';
 import { getCurrentProject } from 'src/utils/project';
 import OperateMenu from './OperateMenu';
 import 'rc-trigger/assets/index.css';
+
+const ConfigSideWrap = lazy(() => import('src/pages/customPage/components/ConfigSideWrap'));
+const EditExternalLink = lazy(() =>
+  import('src/pages/worksheet/common/WorkSheetLeft/ExternalLink').then(module => ({
+    default: module.EditExternalLink,
+  })),
+);
+const Share = lazy(() => import('src/pages/worksheet/components/Share'));
 
 export default function CustomPageHeader(props) {
   const {
@@ -83,26 +88,33 @@ export default function CustomPageHeader(props) {
   }, [pageId]);
 
   const saveImage = () => {
-    const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
+    const imageName = `${showAppName ? `${showAppName}_` : ''}${showName}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     const isUserWatermark =
       md.global.Account.accountId &&
       (getCurrentProject(projectId, true).enabledWatermark ||
         (md.global.Account.watermark == 1 && md.global.Account.isPortal));
     setExportLoading(true);
     window.customPageWindowResize && window.customPageWindowResize();
-    createFontLink()
-      .then(
-        exportImage.bind(this, {
-          pageBgColor: pageConfig.pageBgColor,
-          isUserWatermark,
-          currentProject:
-            md.global.Account.accountId && projectId !== 'external' ? getCurrentProject(projectId, true) : {},
-        }),
-      )
-      .then(blob => {
-        setExportLoading(false);
-        saveAs(blob, imageName);
-      });
+    Promise.all([import('file-saver'), import('src/pages/customPage/exportImage')])
+      .then(([{ saveAs }, { createFontLink, exportImage }]) => {
+        return createFontLink()
+          .then(
+            exportImage.bind(this, {
+              pageBgColor: pageConfig.pageBgColor,
+              isUserWatermark,
+              currentProject:
+                md.global.Account.accountId && projectId !== 'external' ? getCurrentProject(projectId, true) : {},
+            }),
+          )
+          .then(blob => {
+            if (!blob) return;
+            saveAs(blob, imageName);
+          });
+      })
+      .catch(error => {
+        console.log(error);
+      })
+      .finally(() => setExportLoading(false));
   };
 
   const handleUpdatePage = obj => {
@@ -265,10 +277,7 @@ export default function CustomPageHeader(props) {
               {res.map(item => (
                 <div className="linkageFilter mTop10" key={item.reportId}>
                   <div className="flexRow alignItemsCenter mBottom2">
-                    <Icon
-                      className="Font16 mRight5 colorPrimary"
-                      icon={_.find(chartNav, { type: item.reportType }).icon}
-                    />
+                    <Icon className="Font16 mRight5 colorPrimary" icon={getReportTypeIcon(item.reportType)} />
                     <div className="flex ellipsis bold">{item.reportName}</div>
                     <Icon
                       className="Font17 textTertiary pointer"
@@ -403,7 +412,10 @@ export default function CustomPageHeader(props) {
               overlayClassName="sheetDescPopoverOverlay"
               content={
                 <div className="popoverContent" style={{ maxHeight: document.body.clientHeight / 2 }}>
-                  <RichText data={getTranslateInfo(appId, null, pageId).description || desc || ''} disabled={true} />
+                  <RichText
+                    data={desc ? getTranslateInfo(appId, null, pageId).description || desc || '' : ''}
+                    disabled={true}
+                  />
                 </div>
               }
             >
@@ -440,6 +452,9 @@ export default function CustomPageHeader(props) {
         </div>
         {!urlTemplate && (
           <Fragment>
+            {isPublicShare && (
+              <PublicAppLangDropdown className="iconWrap valignWrapper mLeft20" appId={appId} projectId={projectId} />
+            )}
             {pageConfig.autoLinkage && (
               <Popover
                 visible={undefined}
@@ -500,6 +515,11 @@ export default function CustomPageHeader(props) {
               ))}
           </Fragment>
         )}
+        {isPublicShare && !window.platformENV.isOverseas && !window.platformENV.isLocal && (
+          <div className="valignWrapper textSecondary createSource mLeft20">
+            <CreateByMingDaoYun />
+          </div>
+        )}
         {!isPublicShare && pageConfig.fullScreenVisible && (
           <Tooltip title={_l('全屏展示')} placement="bottom">
             <div data-event="fullScreen" className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
@@ -513,7 +533,7 @@ export default function CustomPageHeader(props) {
         permissionType={appPkg.permissionType}
         cacheKey="pageIntroDescription"
         visible={editIntroVisible}
-        desc={descIsEditing ? desc || '' : getTranslateInfo(appId, null, pageId).description || desc || ''}
+        desc={descIsEditing ? desc || '' : desc ? getTranslateInfo(appId, null, pageId).description || desc : ''}
         isEditing={descIsEditing}
         setDescIsEditing={setDescIsEditing}
         onClose={() => {
@@ -529,49 +549,55 @@ export default function CustomPageHeader(props) {
         }}
       />
       {shareDialogVisible && (
-        <Share
-          title={_l('分享页面: %0', name)}
-          from="customPage"
-          isCharge={isCharge}
-          params={{
-            appId,
-            sourceId: pageId,
-            worksheetId: pageId,
-            title: name,
-          }}
-          getCopyContent={(type, url) =>
-            type === 'private' ? url : `${url} ${apk.appName}-${currentSheet.workSheetName}`
-          }
-          onClose={() => setShareDialogVisible(false)}
-        />
+        <Suspense fallback={null}>
+          <Share
+            title={_l('分享页面: %0', showName)}
+            from="customPage"
+            isCharge={isCharge}
+            params={{
+              appId,
+              sourceId: pageId,
+              worksheetId: pageId,
+              title: showName,
+            }}
+            getCopyContent={(type, url) =>
+              type === 'private' ? url : `${url} ${apk.appName}-${currentSheet.workSheetName}`
+            }
+            onClose={() => setShareDialogVisible(false)}
+          />
+        </Suspense>
       )}
       {externalLinkIsEditing && (
-        <EditExternalLink
-          appId={appId}
-          groupId={rest.groupId}
-          appItem={currentSheet}
-          updateSheetListAppItem={rest.updateSheetListAppItem}
-          onCancel={() => setExternalLinkIsEditing(false)}
-        />
+        <Suspense fallback={null}>
+          <EditExternalLink
+            appId={appId}
+            groupId={rest.groupId}
+            appItem={currentSheet}
+            updateSheetListAppItem={rest.updateSheetListAppItem}
+            onCancel={() => setExternalLinkIsEditing(false)}
+          />
+        </Suspense>
       )}
       {configVisible && (
-        <ConfigSideWrap
-          {...props}
-          className="sideAbsolute"
-          onClose={() => {
-            setConfigVisible(false);
-            const { id, adjustScreen, config, urlParams } = props;
-            customApi.updatePage({
-              appId: id,
-              adjustScreen,
-              config: {
-                ...config,
-                webNewCols: config.orightWebCols,
-              },
-              urlParams,
-            });
-          }}
-        />
+        <Suspense fallback={null}>
+          <ConfigSideWrap
+            {...props}
+            className="sideAbsolute"
+            onClose={() => {
+              setConfigVisible(false);
+              const { id, adjustScreen, config, urlParams } = props;
+              customApi.updatePage({
+                appId: id,
+                adjustScreen,
+                config: {
+                  ...config,
+                  webNewCols: config.orightWebCols,
+                },
+                urlParams,
+              });
+            }}
+          />
+        </Suspense>
       )}
     </Fragment>
   );

@@ -23,15 +23,20 @@ export const Wrap = styled.div`
       bottom: 0;
     }
   }
-  .btnUseOldAccount {
-    font-size: 14px;
-    color: var(--color-primary);
-    display: block;
-    margin: 20px auto 0;
-    text-align: center;
-
+  .portalBackLink {
+    display: inline-flex;
+    align-items: center;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--color-text-secondary);
+    &::before {
+      content: '\\2190';
+      margin-right: 6px;
+      font-size: 20px;
+      line-height: 1;
+    }
     &:hover {
-      color: var(--color-link-hover);
+      color: var(--color-primary-light);
     }
   }
 `;
@@ -138,20 +143,25 @@ export const WrapCon = styled.div`
   .loginBtn {
     background: var(--color-primary);
     height: 48px;
-    border-radius: 4px;
+    border-radius: 6px;
     line-height: 48px;
-    color: var(--color-white);
+    color: var(--color-text-inverse);
     font-weight: bold;
     font-size: 16px;
     &:hover {
-      background: var(--color-link-hover);
+      background: var(--color-primary-dark);
+    }
+    &:active {
+      background: var(--color-primary-dark);
     }
     &.sending {
-      background: var(--color-background-secondary);
+      background: var(--color-background-disabled);
+      color: var(--color-text-disabled);
     }
     &.disable {
       cursor: default;
-      background: var(--color-text-disabled) !important;
+      background: var(--color-background-disabled) !important;
+      color: var(--color-text-disabled) !important;
     }
   }
   &.isR {

@@ -43,8 +43,8 @@ export default option => {
       url: md.global.FileStoreConfig.uploadHost,
       multipart_params: { token: '' },
       max_retries: 3,
-      swf_url: '/src/library/plupload/Moxie.swf',
-      xap_url: '/src/library/plupload/Moxie.xap',
+      swf_url: '/staticfiles/plupload/Moxie.swf',
+      xap_url: '/staticfiles/plupload/Moxie.xap',
       dragdrop: true,
       chunk_size: '4mb',
       max_file_size: md.global.SysSettings.fileUploadLimitSize + 'mb',
@@ -167,6 +167,10 @@ export default option => {
       (option.getToken || getToken)(tokenFiles, option.type, option.getTokenParam).then(res => {
         const exceedFiles = [];
         files.forEach((item, i) => {
+          if (!res[i]) {
+            up.removeFile(item);
+            return;
+          }
           if (res[i].size && item.size > res[i].size * 1024 * 1024) {
             exceedFiles.push(item);
             up.removeFile(item);
@@ -514,15 +518,21 @@ export default option => {
           return;
         }
 
-        const fileKey = file.key || tokenInfo.key;
         const serverFileName = file.fileName || tokenInfo.fileName || '';
+        const fileKey = file.key || tokenInfo.key;
+        const oldKeyDir = fileKey.replace(serverFileName, '');
+        const newKey = response.key || fileKey;
+        const newKeyDir = newKey.replace(serverFileName, '');
+        const url = file.url || tokenInfo.url || '';
 
         response.fileExt = fileExt;
         response.fileName = RegExpValidator.getNameOfFileName(serverFileName || file.name);
-        response.filePath = serverFileName ? fileKey.replace(serverFileName, '') : '';
+        response.filePath = newKeyDir;
         response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
         response.serverName = file.serverName;
-        file.url = tokenInfo.url;
+
+        file.key = response.key;
+        file.url = url.replace(oldKeyDir, newKeyDir) || response.url;
 
         if (initFunc.FileUploaded) {
           initFunc.FileUploaded(up, file, { response });

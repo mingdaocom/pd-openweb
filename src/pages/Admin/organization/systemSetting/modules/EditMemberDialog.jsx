@@ -23,9 +23,11 @@ export default class EditMemberDialog extends Component {
     this.getUserList();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.workSiteId !== this.props.workSiteId) {
-      this.getUserList();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.workSiteId !== prevProps.workSiteId) {
+        this.getUserList();
+      }
     }
   }
 
@@ -90,7 +92,7 @@ export default class EditMemberDialog extends Component {
                       <span>{user.job}</span>
                     </div>
                     <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
-                      <span className="ThemeHoverColor3 icon-trash deleteMember textTertiary Hand Font18"></span>
+                      <span className="hoverColorPrimary icon-trash deleteMember textTertiary Hand Font18"></span>
                     </div>
                   </div>
                 );
@@ -194,7 +196,10 @@ export default class EditMemberDialog extends Component {
             {this.renderUserList()}
           </div>
           <div className="pTop20 pBottom15">
-            <span className="Hand addMember ThemeColor3 ThemeHoverColor2 Font14" onClick={this.handleAdd.bind(this)}>
+            <span
+              className="Hand addMember colorPrimary hoverColorPrimaryDark Font14"
+              onClick={this.handleAdd.bind(this)}
+            >
               <span className="icon-add_circle Font30 mRight20 TxtMiddle"></span>
               <span className="TxtMiddle">{_l('添加成员')}</span>
             </span>

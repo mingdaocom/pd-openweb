@@ -10,8 +10,6 @@ import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withDragSelect from 'ming-ui/decorators/withDragSelect';
 import { navigateTo } from 'src/router/navigateTo';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
 import Detail from '../../components/Detail';
@@ -28,6 +26,7 @@ import {
   PICK_TYPE,
   ROOT_PERMISSION_TYPE,
 } from '../../constant/enum';
+import DragSelect from '../../decorators/withDragSelect';
 import * as kcActions from '../../redux/actions/kcAction';
 import * as selectActions from '../../redux/actions/selectAction';
 import { getRootNameAndLink } from '../../utils';
@@ -40,8 +39,6 @@ import {
   registerNodeItemEvent,
 } from '../../utils/kcevent';
 import './KcMain.less';
-
-const DragSelect = createDecoratedComponent(withDragSelect);
 
 class KcMain extends Component {
   static propTypes = {
@@ -125,11 +122,13 @@ class KcMain extends Component {
     this.handleRegisterNodeItemEvent();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { path, query, changeFolder } = this.props;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { path, query, changeFolder } = prevProps;
 
-    if (nextProps.path !== path || nextProps.query.q !== query.q) {
-      changeFolder(nextProps.path);
+      if (this.props.path !== path || this.props.query.q !== query.q) {
+        changeFolder(this.props.path);
+      }
     }
   }
 
@@ -484,7 +483,7 @@ class KcMain extends Component {
                   {_l('文件名')}
                   <i
                     className={cx(
-                      'ThemeColor3',
+                      'colorPrimary',
                       { hide: sortBy !== NODE_SORT_BY.NAME || currentRoot === PICK_TYPE.RECENT },
                       sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
                     )}
@@ -500,7 +499,7 @@ class KcMain extends Component {
                       {_l('修改时间')}
                       <i
                         className={cx(
-                          'ThemeColor3',
+                          'colorPrimary',
                           { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME || currentRoot === PICK_TYPE.RECENT },
                           sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
                         )}
@@ -508,13 +507,13 @@ class KcMain extends Component {
                     </span>
                   ) : (
                     <span
-                      className="deleteTime ellipsis ThemeColor3"
+                      className="deleteTime ellipsis colorPrimary"
                       onClick={() => changeSortBy(NODE_SORT_BY.UPDATE_TIME)}
                     >
-                      删除时间
+                      {_l('删除时间')}
                       <i
                         className={cx(
-                          'ThemeColor3',
+                          'colorPrimary',
                           { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME },
                           sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
                         )}
@@ -528,13 +527,13 @@ class KcMain extends Component {
                 {_l('已选中') + selectedCount + _l('项')}
                 <Tooltip title={_l('批量下载')}>
                   <span className={cx({ hide: isRecycle })}>
-                    <i className="icon-kc-hover-download ThemeColor3 pointer" onClick={batchDownload} />
+                    <i className="icon-kc-hover-download colorPrimary pointer" onClick={batchDownload} />
                   </span>
                 </Tooltip>
                 <Tooltip title={_l('批量移动')}>
                   <span className={cx({ hide: isRecycle || isReadOnly })}>
                     <i
-                      className="icon-task-replace ThemeColor3 pointer"
+                      className="icon-task-replace colorPrimary pointer"
                       onClick={() =>
                         moveOrCopyClick(
                           NODE_OPERATOR_TYPE.MOVE,
@@ -551,24 +550,24 @@ class KcMain extends Component {
                 <Tooltip title={_l('批量复制')}>
                   <span className={cx({ hide: isRecycle })}>
                     <i
-                      className="icon-knowledge-more-folder ThemeColor3 pointer"
+                      className="icon-knowledge-more-folder colorPrimary pointer"
                       onClick={() => moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
                     />
                   </span>
                 </Tooltip>
                 <Tooltip title={_l('批量删除')}>
                   <span className={cx({ hide: isRecycle || isReadOnly })}>
-                    <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.RECYCLED)} />
+                    <i className="icon-trash colorPrimary pointer" onClick={() => removeNode(NODE_STATUS.RECYCLED)} />
                   </span>
                 </Tooltip>
                 <Tooltip title={_l('批量彻底删除')}>
                   <span className={cx({ hide: !isRecycle })}>
-                    <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.DELETED)} />
+                    <i className="icon-trash colorPrimary pointer" onClick={() => removeNode(NODE_STATUS.DELETED)} />
                   </span>
                 </Tooltip>
                 <Tooltip title={_l('批量还原')}>
                   <span className={cx({ hide: !isRecycle })}>
-                    <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />
+                    <i className="icon-rotate colorPrimary pointer" onClick={restoreNode} />
                   </span>
                 </Tooltip>
               </span>

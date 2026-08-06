@@ -6,7 +6,7 @@ import recentEmptyPng from 'staticfiles/images/time.png';
 import styled from 'styled-components';
 import { Icon, MdLink, SortableList, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { navigateTo } from 'src/router/navigateTo';
 import { addBehaviorLog } from 'src/utils/project';
 import AppStatusComp from '../AppCenter/components/AppStatus';
@@ -131,6 +131,17 @@ const getToUrl = ({ item, projectId }) => {
     : getAppNavigateUrl(appId, item.pcNaviStyle, item.selectAppItmeType);
 };
 
+const renderListSkeleton = () => {
+  return Array.from({ length: 6 }).map((_, index) => {
+    return (
+      <ListItemSkeleton key={index}>
+        <div className="iconSkeleton"></div>
+        <div className="textSkeleton"></div>
+      </ListItemSkeleton>
+    );
+  });
+};
+
 const RecentOrCollectAppList = forwardRef(props => {
   const {
     apps = [],
@@ -163,17 +174,6 @@ const RecentOrCollectAppList = forwardRef(props => {
       setIsOverflow && setIsOverflow(listRef.current && listRef.current.scrollHeight > 116);
     }, 100);
   }, [apps, listRef.current, width]);
-
-  const renderListSkeleton = () => {
-    return Array.from({ length: 6 }).map((_, index) => {
-      return (
-        <ListItemSkeleton key={index}>
-          <div className="iconSkeleton"></div>
-          <div className="textSkeleton"></div>
-        </ListItemSkeleton>
-      );
-    });
-  };
 
   const renderEmpty = () => {
     return (

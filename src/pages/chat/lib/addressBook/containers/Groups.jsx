@@ -64,8 +64,10 @@ export default class ProjectGroups extends React.Component {
     this.updateGroupModel = this.updateGroupModel.bind(this);
   }
 
-  componentWillReceiveProps() {
-    this.setState(defaultState, this.fetch.bind(this));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState(defaultState, this.fetch.bind(this));
+    }
   }
 
   componentWillUnmount() {

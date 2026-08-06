@@ -20,7 +20,11 @@ import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -123,7 +127,7 @@ function Hierarchy(props) {
   }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
   // 获取按钮 ID
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
 
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);

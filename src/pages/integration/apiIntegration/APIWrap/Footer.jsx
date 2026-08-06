@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Switch from 'src/pages/workflow/components/Switch';
+import { pathCompletion } from 'src/utils/common';
 import { BtnWrap } from '../style';
 
 const FooterCon = styled.div`
@@ -52,7 +53,7 @@ function Footer({ data, apkInfo, isConnectOwner, pending, onCancel, switchStatus
             className="InlineBlock close Hand"
             onClick={() => {
               if (location.href.indexOf('/integrationApi') >= 0) {
-                location.href = '/integration';
+                location.href = pathCompletion('/integration');
               } else {
                 onCancel && onCancel();
               }

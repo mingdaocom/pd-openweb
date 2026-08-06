@@ -4,9 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Textarea from 'ming-ui/components/Textarea';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import config, { OPEN_TYPE } from '../../../config/config';
@@ -20,7 +19,7 @@ import {
 import { checkIsProject, formatTaskTime, taskStatusDialog } from '../../../utils/utils';
 import './subTask.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const ClickAwayable = ClickAway;
 const statusTip = [
   _l('任务已锁定，无法操作'),
   _l('标记为未完成'),
@@ -56,7 +55,7 @@ class SingleItem extends Component {
 
     return (
       <span
-        className="textTertiary ThemeHoverColor3 pointer w100 oaButton updateSubTaskCharge"
+        className="textTertiary hoverColorPrimary pointer w100 oaButton updateSubTaskCharge"
         onClick={() => this.props.clickOp(projectID, taskID, charge.accountID)}
       >
         {_l('更改负责人')}
@@ -165,20 +164,28 @@ class Subtask extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.addSubTask) {
-      this.setState({ addSubTask: nextProps.addSubTask });
-      this.props.closeAddSubTask();
-    }
+  /**
+   * 更改任务状态
+   */
 
-    if (nextProps.taskId !== this.props.taskId) {
-      const isMe = nextProps.taskDetails[nextProps.taskId].data.charge.accountID === md.global.Account.accountId;
-      this.setState({
-        accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
-        avatar: isMe
-          ? md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
-          : md.global.Account.avatar,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.addSubTask) {
+        this.setState({
+          addSubTask: this.props.addSubTask,
+        });
+        prevProps.closeAddSubTask();
+      }
+
+      if (this.props.taskId !== prevProps.taskId) {
+        const isMe = this.props.taskDetails[this.props.taskId].data.charge.accountID === md.global.Account.accountId;
+        this.setState({
+          accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
+          avatar: isMe
+            ? md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+            : md.global.Account.avatar,
+        });
+      }
     }
   }
 
@@ -233,7 +240,7 @@ class Subtask extends Component {
     return (
       <ClickAwayable
         component="li"
-        className="flexRow ThemeBGColor5 addSubTask"
+        className="flexRow bgColorPrimaryTransparent addSubTask"
         onClickAwayExceptions={['.selectUserBox', '#dialogBoxSelectUser_container']}
         onClickAway={this.addTask}
       >
@@ -437,7 +444,7 @@ class Subtask extends Component {
             <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
               <span className="Right">
                 <i
-                  className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                  className={cx('pointer colorPrimary', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
                   onClick={this.updateTaskFoldStatus}
                 />
               </span>
@@ -460,7 +467,7 @@ class Subtask extends Component {
                 {addSubTask && this.renderAddTask()}
               </ul>
               {!addSubTask && this.getOperatorAuth() && (
-                <span className="addSubTaskBtn pointer ThemeColor3" onClick={this.showAddSubTaskModule}>
+                <span className="addSubTaskBtn pointer colorPrimary" onClick={this.showAddSubTaskModule}>
                   <i className="icon-plus" />
                   {_l('添加子任务')}
                 </span>

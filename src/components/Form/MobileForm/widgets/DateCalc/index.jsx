@@ -4,7 +4,7 @@ import { includes } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { getShowFormat } from 'src/utils/controlCommon';
 import { formatFormulaDate, formatStrZero } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { UNIT_TO_TEXT } from '../../../core/enum';

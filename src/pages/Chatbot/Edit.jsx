@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Icon, Input, QiniuUpload, Switch, Textarea } from 'ming-ui';
 import processApi from 'src/pages/workflow/api/process';
 import { AGENT_TOOLS } from 'src/pages/workflow/WorkflowSettings/enum';
+import { pathCompletion } from 'src/utils/common';
 import defaultProfile from './assets/profile.png';
 
 const Wrap = styled.div`
@@ -79,17 +80,18 @@ const Wrap = styled.div`
   }
 `;
 
+const DEFAULT_TOOLS_NAMES = {
+  1: _l('新增记录'),
+  2: _l('更新记录'),
+  3: _l('查询记录'),
+  4: _l('汇总'),
+};
+
 const Edit = props => {
   const { chatbotConfig, onChatbotConfig } = props;
   const { data, onClose } = props;
   const previewIconUrl = chatbotConfig.previewIconUrl || chatbotConfig.iconUrl;
   const [originalChatbotConfig, setOriginalChatbotConfig] = useState({});
-  const DEFAULT_TOOLS_NAMES = {
-    1: _l('新增记录'),
-    2: _l('更新记录'),
-    3: _l('查询记录'),
-    4: _l('汇总'),
-  };
   const uploadPermission = _.get(chatbotConfig, 'uploadPermission') || '00';
   const allowUploadImage = uploadPermission.split('')[0] === '1';
   const allowUploadOffice = uploadPermission.split('')[1] === '1';
@@ -305,7 +307,7 @@ const Edit = props => {
       <div
         className="settingFlow flexRow alignItemsCenter pointer bold"
         onClick={() => {
-          window.open(`/workflowedit/${data.chatbotId}`);
+          window.open(pathCompletion(`/workflowedit/${data.chatbotId}`));
         }}
       >
         {_l('配置流程')}

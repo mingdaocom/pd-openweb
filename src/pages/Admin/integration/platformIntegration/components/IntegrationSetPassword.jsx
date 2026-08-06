@@ -53,13 +53,21 @@ export default class IntegrationSetPassword extends Component {
     };
   }
 
-  componentWillReceiveProps(nextPorops) {
-    if (!_.isEqual(this.props.isSetPassword, nextPorops.isSetPassword)) {
-      this.setState({ isSetPassword: nextPorops.isSetPassword });
-    }
+  // 改变初始密码值
 
-    if (!_.isEqual(this.props.password, nextPorops.password)) {
-      this.setState({ password: nextPorops.password });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.isSetPassword, this.props.isSetPassword)) {
+        this.setState({
+          isSetPassword: this.props.isSetPassword,
+        });
+      }
+
+      if (!_.isEqual(prevProps.password, this.props.password)) {
+        this.setState({
+          password: this.props.password,
+        });
+      }
     }
   }
 

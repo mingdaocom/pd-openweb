@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
 import MembersName from '../../../EditFlow/components/MembersName';
 import { DATE_TYPE, EXEC_TIME_TYPE, NODE_TYPE, RELATION_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
+import CustomTextarea from '../CustomTextarea';
 import Deadline from '../Deadline';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
@@ -58,6 +59,7 @@ export default ({
   relationType,
   relationId,
   updateSource,
+  formulaMap,
 }) => {
   const [data, changeData] = useState(schedule);
   const [isShowDialog, showDialog] = useState(false);
@@ -270,7 +272,7 @@ export default ({
     <Fragment>
       {schedule.type && (
         <Box>
-          <Icon icon="edit" className="textSecondary ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
+          <Icon icon="edit" className="textSecondary hoverColorPrimary pointer" onClick={() => showDialog(true)} />
           <div className="bold">{_l('截止：到达此节点后的%0', getHeaderText())}</div>
           {(schedule.actions || []).filter(o => o.type === 1).map(renderRemindContent)}
           {(schedule.actions || []).filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
@@ -351,7 +353,7 @@ export default ({
                     <div className="flex bold textSecondary">{_l('提醒%0', index + 1)}</div>
                     <Icon
                       type="trash"
-                      className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
+                      className="Font16 textSecondary hoverColorPrimary mLeft10 pointer"
                       onClick={() => {
                         const actions = [].concat(data.actions || []);
 
@@ -432,21 +434,22 @@ export default ({
                     </RepeatBox>
                   )}
 
-                  <div className="mTop10 flexRow alignItemsCenter">
-                    <div>{_l('提醒内容')}</div>
-                    <input
-                      type="text"
-                      className="mLeft10 flex ThemeBorderColor3 actionControlBox pLeft10 pRight10"
-                      value={item.message}
-                      onChange={evt => changeAction(item.id, { message: evt.target.value })}
-                      onBlur={evt => {
-                        if (!evt.target.value.trim()) {
-                          evt.target.value = _l('请您尽快处理！');
-                        }
-
-                        changeAction(item.id, { message: evt.target.value.trim() });
-                      }}
-                    />
+                  <div className="flexRow alignItemsCenter">
+                    <div className="mTop10">{_l('提醒内容')}</div>
+                    <div className="flex mLeft10">
+                      <CustomTextarea
+                        className="minH100"
+                        projectId={companyId}
+                        processId={processId}
+                        relationId={relationId}
+                        selectNodeId={selectNodeId}
+                        type={2}
+                        content={item.message}
+                        formulaMap={formulaMap}
+                        onChange={(err, value) => changeAction(item.id, { message: value })}
+                        updateSource={updateSource}
+                      />
+                    </div>
                   </div>
 
                   <div className="flexRow">
@@ -459,7 +462,7 @@ export default ({
                         updateSource={accounts => changeAction(item.id, accounts)}
                       />
                       <div
-                        className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
+                        className="flexRow colorPrimary workflowDetailAddBtn mTop15"
                         onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}
                       >
                         <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -485,7 +488,7 @@ export default ({
 
           <div className="mTop15">
             <Button
-              className="ThemeColor3 ThemeHoverColor2 ThemeBorderColor3 ThemeHoverBorderColor2"
+              className="colorPrimary hoverColorPrimaryDark borderColorPrimary hoverBorderColorPrimaryDark"
               onClick={() =>
                 changeData(
                   Object.assign({}, data, {

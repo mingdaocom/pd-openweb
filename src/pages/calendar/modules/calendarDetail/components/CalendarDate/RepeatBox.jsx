@@ -116,7 +116,7 @@ export default class RepeatBox extends Component {
           {_l('每')}
           <input
             type="text"
-            className="intervalBox ThemeBorderColor3"
+            className="intervalBox borderColorPrimary"
             value={interval}
             onChange={this.changeInterval.bind(this)}
           />
@@ -139,7 +139,7 @@ export default class RepeatBox extends Component {
           const isSelected = weekDayArray.indexOf('' + index) !== -1;
           return (
             <span
-              className={cx('weekday', { ThemeBGColor3: isSelected })}
+              className={cx('weekday', { bgColorPrimary: isSelected })}
               onClick={this.changeWeekDay.bind(this)}
               value={index}
               key={index}
@@ -186,17 +186,17 @@ export default class RepeatBox extends Component {
           {_l('发生')}
           <input
             type="text"
-            className="recurCountBox ThemeBorderColor3"
+            className="recurCountBox borderColorPrimary"
             value={recurCount}
             onChange={this.changeRecurCount.bind(this)}
           />
-          次后
+          {_l('次后')}
         </span>
       );
     } else {
       return (
         <span
-          className="mLeft10 Relative untilDateBox ThemeBorderColor3"
+          className="mLeft10 Relative untilDateBox borderColorPrimary"
           ref={el => {
             this.untilDateBox = el;
           }}

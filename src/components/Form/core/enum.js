@@ -110,6 +110,12 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   REMARK: 10010,
 };
 
+export const enumWidgetType = Object.keys(WIDGETS_TO_API_TYPE_ENUM).reduce((result, key) => {
+  result[key] = WIDGETS_TO_API_TYPE_ENUM[key];
+  result[WIDGETS_TO_API_TYPE_ENUM[key]] = key;
+  return result;
+}, {});
+
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论

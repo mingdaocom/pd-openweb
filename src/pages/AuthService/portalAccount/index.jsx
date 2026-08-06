@@ -35,7 +35,7 @@ function ContainerCon(props) {
     currentAppId: '',
     fixInfo: {},
     state: '', //微信跳转回到登录需要带的信息
-    documentTitle,
+    documentTitle: '',
     customLink: '',
     isTpauth: false, //是否进入微信登录流程 weixin回跳的地址
     isWXauth: false, //是否手机微信扫码进入外部门户登录页面
@@ -261,7 +261,7 @@ function ContainerCon(props) {
     return (
       <WrapWx className="flexColumn">
         <DocumentTitle title={documentTitle} />
-        {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} /> : ''}
+        {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={baseSetInfo.logoHeight || 40} /> : ''}
         <p className="Font26 textPrimary mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
           {baseSetInfo.pageTitle}
         </p>

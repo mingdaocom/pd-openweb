@@ -75,7 +75,7 @@ export default class Welink extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.Secret || !this.state.CorpId) {
-      alert('请输入相关信息', 2);
+      alert(_l('请输入相关信息'), 2);
       return;
     }
 
@@ -412,19 +412,19 @@ export default class Welink extends React.Component {
             _.map(this.state.data, item => {
               switch (item.type) {
                 case 4:
-                  return <p>{`新增${item.items.length}个用户`}</p>;
+                  return <p>{_l('新增%0个用户', item.items.length)}</p>;
                 case 5:
-                  return <p>{`删除${item.items.length}个用户`}</p>;
+                  return <p>{_l('删除%0个用户', item.items.length)}</p>;
                 case 6:
-                  return <p>{`同步${item.items.length}个用户信息`}</p>;
+                  return <p>{_l('同步%0个用户信息', item.items.length)}</p>;
                 case 7:
-                  return <p>{`${item.items.length}个用户信息，由于用户数量已达上限，暂不能同步到通讯录`}</p>;
+                  return <p>{_l('%0个用户信息，由于用户数量已达上限，暂不能同步到通讯录', item.items.length)}</p>;
                 case 8:
-                  return <p>{`新增${item.items.length}个部门`}</p>;
+                  return <p>{_l('新增%0个部门', item.items.length)}</p>;
                 case 9:
-                  return <p>{`删除${item.items.length}个部门`}</p>;
+                  return <p>{_l('删除%0个部门', item.items.length)}</p>;
                 case 10:
-                  return <p>{`同步${item.items.length}个部门信息`}</p>;
+                  return <p>{_l('同步%0个部门信息', item.items.length)}</p>;
                 default:
                   break;
               }
@@ -463,7 +463,7 @@ export default class Welink extends React.Component {
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && CorpId && Secret) && (
-              <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
+              <i className="icon-backspace Font22 hoverColorPrimary pointer mRight10" onClick={this.props.onClose} />
             )}
             <div className="Font17 bold">Welink{_l('集成')}</div>
           </div>

@@ -50,6 +50,19 @@ const FormItem = styled.div`
   }
 `;
 
+const compareVersion = (newVersion, oldVersion) => {
+  const newParts = newVersion.split('.').map(part => parseInt(part) || 0);
+  const oldParts = oldVersion.split('.').map(part => parseInt(part) || 0);
+
+  for (let i = 0; i < 3; i++) {
+    if (newParts[i] !== oldParts[i]) {
+      return newParts[i] > oldParts[i];
+    }
+  }
+
+  return false; // 版本号相同
+};
+
 export default function PublishVersion(props) {
   const {
     onClose,
@@ -114,18 +127,6 @@ export default function PublishVersion(props) {
   };
 
   // 比较版本号
-  const compareVersion = (newVersion, oldVersion) => {
-    const newParts = newVersion.split('.').map(part => parseInt(part) || 0);
-    const oldParts = oldVersion.split('.').map(part => parseInt(part) || 0);
-
-    for (let i = 0; i < 3; i++) {
-      if (newParts[i] !== oldParts[i]) {
-        return newParts[i] > oldParts[i];
-      }
-    }
-
-    return false; // 版本号相同
-  };
 
   const onValidate = () => {
     if (!isWorkflowPlugin && !formData.commitId) {

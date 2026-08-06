@@ -292,10 +292,12 @@ const SuccessInfo = styled.div`
 
 // 导入部门模版
 const dptTemplatePaths = {
-  0: '/staticfiles/template/部门导入模板.xlsx',
-  1: '/staticfiles/template/Department Import Template.xlsx',
-  2: '/staticfiles/template/部門インポートテンプレート.xlsx',
-  3: '/staticfiles/template/部門導入模板.xlsx',
+  0: '/staticfiles/template/departmentImportTemplate/部门导入模板.xlsx',
+  1: '/staticfiles/template/departmentImportTemplate/Department Import Template.xlsx',
+  2: '/staticfiles/template/departmentImportTemplate/部門インポートテンプレート.xlsx',
+  3: '/staticfiles/template/departmentImportTemplate/部門導入模板.xlsx',
+  4: '/staticfiles/template/departmentImportTemplate/แม่แบบนำเข้าแผนก.xlsx',
+  5: '/staticfiles/template/departmentImportTemplate/Templat Import Jabatan.xlsx',
 };
 
 class ImportDepAndPosition extends Component {
@@ -310,14 +312,21 @@ class ImportDepAndPosition extends Component {
       dataSource: [],
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.importExportResult, nextProps.importExportResult)) {
-      let { actionResult } = nextProps.importExportResult;
 
-      if (actionResult === 1) {
-        this.setState({ actionResultStatus: 1 });
-      } else {
-        this.setState({ actionResultStatus: 2 });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.importExportResult, this.props.importExportResult)) {
+        let { actionResult } = this.props.importExportResult;
+
+        if (actionResult === 1) {
+          this.setState({
+            actionResultStatus: 1,
+          });
+        } else {
+          this.setState({
+            actionResultStatus: 2,
+          });
+        }
       }
     }
   }

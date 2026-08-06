@@ -5,7 +5,7 @@ import { addLinkFile } from 'ming-ui/functions';
 import kcService from '../api/service';
 import createShare from 'src/components/createShare/createShare';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { downloadFile } from 'src/utils/common';
+import { downloadFile, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import {
   EXECUTE_ERROR_MESSAGE,
@@ -83,7 +83,7 @@ export function handleOpenUploadAssistant(args) {
   }
 
   if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
-    let url = '/apps/kcupload';
+    let url = pathCompletion('/apps/kcupload');
 
     if (window.isMDClient || window.isEdge) {
       url = url + '?uploadLocation=' + encodeURIComponent(JSON.stringify(uploadLocation));
@@ -333,7 +333,7 @@ export function handleRemoveNode(args) {
     const isCreateUser = item.owner.accountId === md.global.Account.accountId;
 
     if (!permission && !isCreateUser) {
-      alert('没有操作权限', 3);
+      alert(_l('没有操作权限'), 3);
       return false;
     }
   }
@@ -397,7 +397,7 @@ export function handleRemoveNode(args) {
 
         /* 操作提示*/
         if (ids.length === noRightIds.length) {
-          alert('无权操作');
+          alert(_l('无权操作'));
         } else {
           alert(returnOperationTips(result, message).text);
         }
@@ -410,7 +410,7 @@ export function handleRemoveNode(args) {
         /* 清空选中*/
         clearSelect();
       })
-      .catch(() => alert('操作失败，请稍后重试'), 3);
+      .catch(() => alert(_l('操作失败，请稍后重试')), 3);
   });
 }
 
@@ -559,17 +559,17 @@ export function handleMoveOrCopy(options) {
         alert(_l('操作成功（部分文件您无权操作）'), 3);
       } else if (operationTips.type === EXECUTE_RESULT.SUCCESS || operationTips.type === EXECUTE_RESULT.NO_RIGHT) {
         createShare({
-          linkURL:
-            md.global.Config.WebUrl +
-            baseUrl.replace(/^\//, '') +
-            '/' +
-            (result.type === 1
-              ? 'my'
-              : result.type === 2
-                ? result.node.id
-                : result.node.rootId
-                  ? result.node.position.slice(1)
-                  : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+          linkURL: pathCompletion(
+            baseUrl +
+              '/' +
+              (result.type === 1
+                ? 'my'
+                : result.type === 2
+                  ? result.node.id
+                  : result.node.rootId
+                    ? result.node.position.slice(1)
+                    : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+          ),
           content: operationTips.text,
         });
       } else {

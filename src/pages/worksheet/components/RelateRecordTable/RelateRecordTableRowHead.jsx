@@ -122,6 +122,7 @@ export default function RowHead(props) {
     projectId,
     appId,
     viewId,
+    view,
     worksheetId,
     sheetSwitchPermit,
     relateRecordControlPermission,
@@ -144,14 +145,15 @@ export default function RowHead(props) {
     openRecord = () => {},
   } = props;
   const isShareState = !!_.get(window, 'shareState.shareId');
+  const useRecordOperate = row.rowid && !isShareState;
   const operateContent =
     row.rowid &&
     !(!showQuickFromSetting && !allowDelete && !allowRemoveRelation) &&
     relateRecordControlPermission.editable &&
     allowEdit &&
-    (recordId && !isShareState ? (
+    (useRecordOperate ? (
       <RecordOperate
-        {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId }}
+        {...{ appId, viewId, view, worksheetId, recordId: row.rowid, projectId }}
         relateRecordControlId={relateRecordControlId}
         allowCopy={allowAdd}
         allowAdd={allowAdd}
@@ -256,7 +258,7 @@ export default function RowHead(props) {
         style={style}
         hideOperate={!recordId && !allowRemoveRelation}
       >
-        {layoutChangeVisible && rowIndex === -1 && (
+        {layoutChangeVisible && rowIndex === -1 && !isBatchEditing && (
           <ChangeSheetLayout
             description={_l('保存表格当前的列宽配置，并应用给所有用户')}
             onSave={saveSheetLayout}
@@ -290,7 +292,7 @@ export default function RowHead(props) {
             {operateContent}
             {row.rowid && allowOpenRecord && tableType === 'classic' && (
               <OpenRecordBtn className="openRecord allowOutClick" onClick={() => openRecord(row.rowid)}>
-                <i className="icon icon-worksheet_enlarge allowOutClick Hand ThemeHoverColor3" />
+                <i className="icon icon-worksheet_enlarge allowOutClick Hand hoverColorPrimary" />
               </OpenRecordBtn>
             )}
           </Fragment>

@@ -161,7 +161,7 @@ export default props => {
 
             <Icon
               icon="add"
-              className="Font20 mLeft10 textSecondary ThemeHoverColor3 mTop8 pointer"
+              className="Font20 mLeft10 textSecondary hoverColorPrimary mTop8 pointer"
               onClick={() => addParameters(item)}
             />
           </div>

@@ -72,6 +72,8 @@ const FormItem = styled.div`
   }
 `;
 
+const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+
 function ExportPlugin(props) {
   const { onClose, pluginId, releaseId, source, onExportSuccess, pluginType } = props;
   const [checkSecretKey, setCheckSecretKey] = useState(false);
@@ -79,8 +81,7 @@ function ExportPlugin(props) {
   const [isPwdError, setIsPwdError] = useState(false);
   const [pwdEditing, setPwdEditing] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang];
+  const locale = locales[md.global.Account.lang] || localeEn;
 
   const pluginApi = pluginApiConfig[pluginType];
 
@@ -153,7 +154,7 @@ function ExportPlugin(props) {
                 <div className="pwdOperate">
                   {!pwdEditing && data.password ? (
                     <span
-                      className="pointer textTertiary ThemeHoverColor3 mLeft16"
+                      className="pointer textTertiary hoverColorPrimary mLeft16"
                       onClick={() => {
                         copy(data.password);
                         alert(_l('复制成功'));
@@ -165,7 +166,7 @@ function ExportPlugin(props) {
                     </span>
                   ) : (
                     <span
-                      className="colorPrimary ThemeHoverColor2 pointer mLeft10 mRight20 nowrap"
+                      className="colorPrimary hoverColorPrimaryDark pointer mLeft10 mRight20 nowrap"
                       onMouseDown={() => {
                         setData({ password: generateRandomPassword(8) });
                         setPwdEditing(false);

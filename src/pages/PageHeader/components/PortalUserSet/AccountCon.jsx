@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import intlTelInput from 'ming-ui/components/intlTelInput';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
@@ -24,6 +24,7 @@ const AccountWrap = styled.div`
       display: block;
     }
     .telBox,
+    .telInputWrap,
     .telInput {
       flex: initial;
       width: 100%;
@@ -33,6 +34,7 @@ const AccountWrap = styled.div`
     }
   }
   .hidInput {
+    .telInputWrap,
     .iti,
     .telInput {
       display: none;
@@ -49,6 +51,7 @@ const AccountWrap = styled.div`
     }
     .txtLoginCode,
     .telBox,
+    .telInputWrap,
     .telInput {
       flex: 1;
       height: 36px;
@@ -60,6 +63,21 @@ const AccountWrap = styled.div`
       line-height: 36px;
       &.telBox {
         background: var(--color-background-secondary);
+      }
+      &.telInputWrap {
+        position: relative;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        line-height: normal;
+        .telInput {
+          width: 100%;
+          height: 36px;
+        }
+        .mdIntlTelDialCodeTrigger {
+          left: 0;
+          height: 36px;
+        }
       }
       &.hid {
         width: 0;
@@ -112,23 +130,30 @@ class TelCon extends React.Component {
     };
   }
   componentDidMount() {
-    if (this.props.inputType === 'phone') {
+    if (this.props.inputType === 'phone' && !this.props.account) {
       this.itiFn();
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.type !== this.props.type) {
-      sendVerifyCodeTimer && clearInterval(sendVerifyCodeTimer);
-      sendVerifyCodeTimer = null;
-      this.setState({
-        verifyCodeLoading: false,
-        verifyCodeText: '',
-      });
-      if (nextProps.type === 3) {
-        setTimeout(() => {
-          this.mobile.focus();
-        }, 500);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.type !== prevProps.type) {
+        sendVerifyCodeTimer && clearInterval(sendVerifyCodeTimer);
+        sendVerifyCodeTimer = null;
+        this.setState({
+          verifyCodeLoading: false,
+          verifyCodeText: '',
+        });
+
+        if (this.props.type === 3) {
+          if (this.props.inputType === 'phone' && !this.iti) {
+            this.itiFn();
+          }
+
+          setTimeout(() => {
+            this.mobile.focus();
+          }, 500);
+        }
       }
     }
   }
@@ -140,8 +165,10 @@ class TelCon extends React.Component {
   itiFn = () => {
     if (this.mobile) {
       this.iti && this.iti.destroy();
-      this.iti = intlTelInput(this.mobile, {
+      this.iti = createIntlTelInput(this.mobile, {
         separateDialCode: false,
+        // 外部门户个人中心修改手机号时需要显示区号入口，号码提交仍由 getNumber 拼完整区号。
+        showDialCodeInput: true,
       });
       $(this.mobile).on('onBlur', e => this.onChangeAccount(e));
     }
@@ -304,6 +331,15 @@ class TelCon extends React.Component {
   render() {
     const { account, setCode, inputType, hidTel } = this.props;
     const { verifyCodeLoading, verifyCodeText } = this.state;
+    const accountInput = (
+      <input
+        type="text"
+        className={cx('telInput')}
+        ref={mobile => (this.mobile = mobile)}
+        onBlur={this.onChangeAccount}
+      />
+    );
+
     return (
       <AccountWrap>
         <div className={cx('mesDiv', { hidInput: !!account, isMobile: browserIsMobile() })}>
@@ -317,12 +353,7 @@ class TelCon extends React.Component {
                 : _l('新邮箱')}
           </span>
           <span className={cx('telBox', { hid: !account || hidTel })}>{account}</span>
-          <input
-            type="text"
-            className={cx('telInput')}
-            ref={mobile => (this.mobile = mobile)}
-            onBlur={this.onChangeAccount}
-          />
+          {inputType === 'phone' ? <span className="telInputWrap">{accountInput}</span> : accountInput}
         </div>
         <div
           className={cx('mesDiv', {

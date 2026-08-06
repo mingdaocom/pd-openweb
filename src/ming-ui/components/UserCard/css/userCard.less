@@ -1,65 +1,5 @@
-.cardContentScore {
-  border-radius: 0 0 4px 4px;
-  padding: 0 16px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-}
-
-.cardContentScore a {
-  display: block;
-  padding: 0;
-  width: 85px;
-  height: 17px;
-  background: url('../images/socre-logo-small.png') no-repeat;
-  background-size: contain;
-}
-
-.cardContentDesc .contentTagItemCon {
-  width: 100%;
-  color: var(--color-text-secondary);
-  margin-top: 4px;
-  display: flex;
-}
-
-.cardContentDesc .contentTagItemCon .contentItemLeft {
-  max-width: 100%;
-}
-
-.cardContentDesc .contentTagItem {
-  display: block;
-  flex-shrink: 0;
-  min-width: 36px;
-  padding: 0 4px;
-  height: 19px;
-  line-height: 19px;
-  text-align: center;
-  background: var(--color-background-disabled);
-  margin-left: 8px;
-  border-radius: 4px;
-  color: var(--color-text-secondary);
-}
-
 .cardContentBox {
   position: relative;
-}
-
-.inviterName {
-  margin-left: 59px;
-  font-size: 12px;
-  margin-top: -21px;
-  color: var(--color-text-tertiary);
-}
-
-.inviterName .overflow_ellipsis {
-  vertical-align: top;
-  text-decoration: none;
-  max-width: 130px;
-}
-
-.inviterName .overflow_ellipsis:not(:hover) {
-  color: var(--color-text-tertiary) !important;
 }
 
 .userCardSite {
@@ -89,25 +29,6 @@
     text-align: center;
     width: 50%;
   }
-
-  .removeFormAuth.oaButton {
-    width: 100%;
-  }
-
-  .replaceManage,
-  .replaceTask,
-  .replaceRead {
-    border-right: 1px solid var(--color-border-tertiary);
-    box-sizing: border-box;
-  }
-
-  .cancelAnAdministrator {
-    width: 118px;
-    display: inline-block;
-    border-right: 1px solid var(--color-border-tertiary);
-    text-align: center;
-    cursor: pointer;
-  }
 }
 
 .userCardSite.rc-trigger-popup-placement-topLeft,
@@ -135,4 +56,8 @@
   .arrowBoxUserCard {
     right: 2px !important;
   }
+}
+
+.enlargeImageDialog {
+  z-index: 10005 !important;
 }

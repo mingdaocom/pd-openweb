@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { SETTING_MODE_DISPLAY } from '../config/setting';
 import { DEFAULT_CONFIG } from '../config/widget';
 import { enumWidgetType, supportWidgetIntroOptions } from '../util';
@@ -135,7 +135,7 @@ function WidgetSetting(props) {
 
   const getContent = () => {
     if (!_.isEmpty(batchActive)) {
-      return <WidgetBatchOption batchActive={batchActive} {...allProps} />;
+      return <WidgetBatchOption batchActive={batchActive} {...allProps} queryConfigs={queryConfigs} />;
     }
 
     if (styleInfo.activeStatus && !isRecycle)
@@ -217,4 +217,4 @@ function WidgetSetting(props) {
   );
 }
 
-export default errorBoundary(WidgetSetting);
+export default ErrorBoundary.wrap(WidgetSetting);

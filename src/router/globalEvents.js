@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
-import { emitter, setBodyThemeMode } from 'src/utils/common';
+import { emitter, getDefaultThemeMode, setBodyThemeMode } from 'src/utils/common';
 import { navigateTo } from './navigateTo';
 
 export default () => {
@@ -96,7 +96,7 @@ export default () => {
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       // 弹窗内存在正在编辑单元格时不触发esc关闭弹窗
-      if (e.target.classList.contains('stopPropagation')) {
+      if (e.target?.classList?.contains('stopPropagation')) {
         return;
       }
 
@@ -146,7 +146,7 @@ export const initThemeMode = () => {
 
   const onChangeThemeMode = e => {
     if (!localStorage.getItem('themeMode')) {
-      localStorage.setItem('themeMode', 'light');
+      localStorage.setItem('themeMode', getDefaultThemeMode());
     }
 
     if (['dark', 'light'].includes(localStorage.getItem('themeMode'))) {

@@ -164,7 +164,7 @@ export default function (props) {
             <div className="textTertiary Font13 mBottom8">
               {_l('启用水印配置后，将在外部门户门户所有页面显示水印。可自定义水印文字')}
             </div>
-            <span className="Hand ThemeColor3 Font13 Bold" onClick={() => setShowWaterMarkSetting(true)}>
+            <span className="Hand colorPrimary Font13 Bold" onClick={() => setShowWaterMarkSetting(true)}>
               {_l('设置')}
             </span>
           </div>

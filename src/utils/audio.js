@@ -126,6 +126,7 @@
       this.speaking = false;
       return;
     }
+
     if (this.speaking || this.queue.length === 0) return;
 
     // 合并队列中的内容来减少停顿
@@ -135,10 +136,12 @@
     const options = batch[0]?.options || {};
 
     const utterance = this._createUtterance(mergedText, options);
+
     if (!utterance) {
       this.speaking = false;
       return;
     }
+
     this.speaking = true;
     this.synth.speak(utterance);
   }
@@ -150,15 +153,18 @@
       this.speaking = false;
       return;
     }
+
     if (this.speaking || this.queue.length === 0) return;
     const mergedText = this.queue.map(item => item.text).join('');
     const options = this.queue[0]?.options || {};
     this.queue = [];
     const utterance = this._createUtterance(mergedText, options);
+
     if (!utterance) {
       this.speaking = false;
       return;
     }
+
     this.speaking = true;
     this.synth.speak(utterance);
   }

@@ -256,6 +256,8 @@ export default class LoginLog extends Component {
         placeholder: _l('最近30天'),
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
+        timeMode: 'minute',
+        timePicker: true,
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {

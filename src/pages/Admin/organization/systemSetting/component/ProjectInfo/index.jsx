@@ -8,20 +8,21 @@ import WorkPlace from '../WorkPlace';
 export default class ProjectInfo extends Component {
   constructor() {
     super();
-    this.state = { level: 1 };
-  }
-  componentWillMount() {
+    let level = 1;
+
     if (window.location.search === '?destroy') {
-      this.setState({ level: 4 });
+      level = 4;
     }
 
     if (window.location.search === '?level3') {
-      this.setState({ level: 3 });
+      level = 3;
     }
 
     if (window.location.search === '?level5') {
-      this.setState({ level: 5 });
+      level = 5;
     }
+
+    this.state = { level };
   }
 
   setLevel = level => {

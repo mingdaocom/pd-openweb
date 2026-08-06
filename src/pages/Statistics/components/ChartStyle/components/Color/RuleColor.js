@@ -5,7 +5,8 @@ import _ from 'lodash';
 import { SortableList } from 'ming-ui';
 import { ColorPicker, Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
-import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
+import { isNumberControl } from 'statistics/common/controlUtils';
+import { getGradientColors, textNormTypes } from 'statistics/common/reportConfigUtils';
 import { formatNumberFromInput } from 'src/utils/control';
 import './RuleColor.less';
 
@@ -494,10 +495,15 @@ export default class RuleColor extends Component {
       model: 1,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      const { model = 1 } = nextProps.colorRule || {};
-      this.setState({ model });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible) {
+        const { model = 1 } = this.props.colorRule || {};
+        this.setState({
+          model,
+        });
+      }
     }
   }
   handleChangeType = event => {

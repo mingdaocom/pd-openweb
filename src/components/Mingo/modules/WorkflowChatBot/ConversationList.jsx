@@ -140,6 +140,13 @@ function ConversationList({
       {!isMobile && (
         <NewConversationButton
           onClick={() => {
+            setNewCreatedConversationId(undefined);
+            // 已处于空会话 URL（如发送报错未生成 conversationId）时，navigate 到同一地址不会变更路由，
+            // 对话区的重置副作用不会触发，需主动广播事件让对话区清空重置。
+            if (!currentConversationId) {
+              emitter.emit('CHATBOT_NEW_CONVERSATION', { chatbotId });
+            }
+
             onSelect(undefined);
           }}
         >

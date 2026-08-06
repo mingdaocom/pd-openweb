@@ -60,7 +60,7 @@ const Wrap = styled.div`
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v6.js' + '?' + moment().format('YYYYMMDD');
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v7.js' + '?' + moment().format('YYYYMMDD');
   const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({
@@ -215,7 +215,7 @@ function APIList(props) {
             <React.Fragment>
               <span className="Font14 Bold textPrimary">{_l('注意：当前API正在被组织内引用')}</span>
               <span
-                className="ThemeColor3 Font14 mLeft3 Hand"
+                className="colorPrimary Font14 mLeft3 Hand"
                 onClick={() => {
                   setState({ show: true, listId: item.id, showType: 1 });
                   $('.Dialog-footer-btns .Button--link').click();

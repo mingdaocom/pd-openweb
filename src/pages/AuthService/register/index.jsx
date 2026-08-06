@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import accountApi from 'src/api/account';
 import registerApi from 'src/api/register';
+import ChangeLang from 'src/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
@@ -300,8 +301,9 @@ export default function () {
     <WrapCom>
       <DocumentTitle title={state.title} />
       <WrapBg homeImage={state.homeImage} />
-      <div className="loginBox">
-        <div className="loginContainer">
+      <div className={`loginBox ${state.step === 'create' ? 'createOrgLoginBox' : ''}`}>
+        <div className={`loginContainer ${state.step === 'create' ? 'createOrgContainer' : ''}`}>
+          <ChangeLang className="authServiceLang" />
           <Header
             lineLoading={state.lineLoading}
             logo={

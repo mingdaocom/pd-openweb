@@ -40,6 +40,7 @@ export default {
           return;
         }
       }
+
       compatibleMDJS('takeOverNavigation', {
         sessionId,
       });

@@ -6,6 +6,7 @@ import { CARD_TYE_LIST } from 'src/pages/integration/config';
 import ConnectAvator from '../../components/ConnectAvator';
 import Card from './Card';
 import Item from './Item';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   padding: 0 24px 24px;
@@ -84,7 +85,7 @@ export default function Set(props) {
               {props.connectInfo.type === 2 && _.get(props, ['connectInfo', 'info', 'docUrl']) && (
                 // 安装的API 顶部显示所属API连接的卡片信息（有文档链接icon
                 <Icon
-                  className="Hand InlineBlock ThemeColor3 mLeft5"
+                  className="Hand InlineBlock colorPrimary mLeft5"
                   icon="task-new-detail"
                   onClick={() => {
                     window.open(_.get(props, ['connectInfo', 'info', 'docUrl']));
@@ -107,7 +108,7 @@ export default function Set(props) {
 
             {/* 超级管理员和拥有者才能查看连接 */}
             {props.isConnectOwner && (
-              <a className="mLeft15 toConnect" href={`/integrationConnect/${props.connectInfo.id}`} target="_blank">
+              <a className="mLeft15 toConnect" href={pathCompletion(`/integrationConnect/${props.connectInfo.id}`)} target="_blank">
                 {_l('查看')}
               </a>
             )}

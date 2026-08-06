@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -7,7 +7,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   display: flex;
@@ -25,13 +25,11 @@ const Wrap = styled.div`
     background-color: var(--color-background-card);
   }
 `;
-
 const EmptyView = styled.div`
   width: 100%;
   height: 100%;
   justify-content: center;
 `;
-
 const ViewWrap = styled.div`
   width: 100%;
   height: 100%;
@@ -129,8 +127,12 @@ const ViewWrap = styled.div`
     }
   }
 `;
-
 const isMobile = browserIsMobile();
+
+const createLoadableSingleView = loader => lazy(loader);
+
+const LoadableMobileSingleView = createLoadableSingleView(() => import('mobile/components/SingleView'));
+const LoadableSingleView = createLoadableSingleView(() => import('worksheet/common/SingleView'));
 
 const navigateToView = (workSheetId, viewId) => {
   homeAppApi
@@ -141,7 +143,7 @@ const navigateToView = (workSheetId, viewId) => {
       const { appId, appSectionId } = data;
 
       if (window.isMingDaoApp) {
-        window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
+        window.location.href = pathCompletion(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
       } else if (isMobile) {
         window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
       } else {
@@ -156,22 +158,8 @@ export function View(props) {
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
   const translateInfo = getTranslateInfo(appId, null, id);
-  const [Component, setComponent] = useState(null);
+  const Component = isMobileLayout ? LoadableMobileSingleView : LoadableSingleView;
   const showTitle = config.showTitle ?? true;
-
-  useEffect(() => {
-    if (isMobileLayout) {
-      import('mobile/components/SingleView').then(component => {
-        setComponent(component.default);
-      });
-    } else {
-      import('worksheet/common/SingleView').then(component => {
-        setComponent(component.default);
-      });
-    }
-  }, []);
-
-  if (!Component) return null;
 
   if (_.isEmpty(viewId)) {
     return (
@@ -192,37 +180,42 @@ export function View(props) {
         hideSearchRecord: !config.searchRecord,
       })}
     >
-      <Component
-        showHeader={showTitle}
-        ref={singleViewRef}
-        appId={apkId || appId}
-        worksheetId={value}
-        viewId={viewId}
-        maxCount={config.maxCount}
-        pageSize={config.pageCount}
-        authRefreshTime={config.refresh}
-        filtersGroup={filtersGroup}
-        config={config}
-        headerLeft={
-          <div className="SingleViewName flexRow alignItemsCenter flex">
-            <span
-              className={cx('Font15 bold ellipsis name', { pointer: config.openView })}
-              onClick={() => {
-                if (config.openView) {
-                  navigateToView(value, viewId);
-                }
-              }}
-            >
-              {translateInfo.name || config.name}
-            </span>
-            {config.desc && (
-              <Tooltip title={config.desc} placement="bottom">
-                <Icon icon="info" className="Font18 pointer textTertiary mLeft7" />
-              </Tooltip>
-            )}
-          </div>
-        }
-      />
+      <Suspense fallback={<LoadDiv className="mTop10" />}>
+        <Component
+          showHeader={showTitle}
+          ref={singleViewRef}
+          appId={apkId || appId}
+          singleAppId={appId}
+          worksheetId={value}
+          viewId={viewId}
+          maxCount={config.maxCount}
+          pageSize={config.pageCount}
+          authRefreshTime={config.refresh}
+          filtersGroup={filtersGroup}
+          config={config}
+          headerLeft={
+            <div className="SingleViewName flexRow alignItemsCenter flex">
+              <span
+                className={cx('Font15 bold ellipsis name', {
+                  pointer: config.openView,
+                })}
+                onClick={() => {
+                  if (config.openView) {
+                    navigateToView(value, viewId);
+                  }
+                }}
+              >
+                {translateInfo.name || config.name}
+              </span>
+              {config.desc && (
+                <Tooltip title={config.desc} placement="bottom">
+                  <Icon icon="info" className="Font18 pointer textTertiary mLeft7" />
+                </Tooltip>
+              )}
+            </div>
+          }
+        />
+      </Suspense>
     </ViewWrap>
   );
 }
@@ -230,12 +223,11 @@ export function View(props) {
 export default function Preview(props) {
   const { loading, ids = {}, setting } = props;
   const { appId } = ids;
-
   return (
     <Wrap>
       {loading ? (
         <EmptyView className="SingleViewWrap valignWrapper emptyView">
-          <LoadDiv />
+          <LoadDiv className="mTop10" />
         </EmptyView>
       ) : (
         <View className="disableSingleView" appId={appId} setting={setting} />

@@ -99,6 +99,14 @@ const StepContentWrap = styled.div`
 
 let timer = null;
 
+const privateFields = [
+  { label: _l('百望账号'), key: 'account' },
+  { label: _l('百望密码'), key: 'password' },
+  { label: _l('AppKey'), key: 'appKey' },
+  { label: _l('AppSecret'), key: 'appSecret' },
+  { label: _l('用户盐值'), key: 'salt' },
+];
+
 export default function CreateTaxNumber(props) {
   const { projectId, curTaxNo, curTaxInfo } = props;
   const [step, setStep] = useState(curTaxNo ? 2 : 0);
@@ -420,14 +428,6 @@ export default function CreateTaxNumber(props) {
     { title: _l('增值税简易计税类型'), dataIndex: 'discountPolicyType' },
   ];
 
-  const privateFields = [
-    { label: _l('百望账号'), key: 'account' },
-    { label: _l('百望密码'), key: 'password' },
-    { label: _l('AppKey'), key: 'appKey' },
-    { label: _l('AppSecret'), key: 'appSecret' },
-    { label: _l('用户盐值'), key: 'salt' },
-  ];
-
   return (
     <div className="flexRow flex">
       <StepsWrap direction="vertical" current={step} onChange={current => setStep(current)}>
@@ -461,7 +461,7 @@ export default function CreateTaxNumber(props) {
                 <div>
                   <span>{_l('2、电子发票由知名数电开票合作服务商')}</span>
                   <span
-                    className="ThemeColor3 ThemeHoverColor2 pointer mLeft3 mRight3"
+                    className="colorPrimary hoverColorPrimaryDark pointer mLeft3 mRight3"
                     onClick={() => window.open('https://www.baiwang.com/')}
                   >
                     {_l('百望')}
@@ -484,7 +484,7 @@ export default function CreateTaxNumber(props) {
                 <div>
                   <span>{_l('1、电子发票由合作服务商')}</span>
                   <span
-                    className="ThemeColor3 ThemeHoverColor2 pointer mLeft3 mRight3"
+                    className="colorPrimary hoverColorPrimaryDark pointer mLeft3 mRight3"
                     onClick={() => window.open('https://www.baiwang.com/')}
                   >
                     {_l('百望')}
@@ -528,7 +528,7 @@ export default function CreateTaxNumber(props) {
                 <div className="bold mTop12">
                   <span>{_l('请前往')}</span>
                   <span
-                    className="mLeft5 mRight5 colorPrimary ThemeHoverColor2 pointer"
+                    className="mLeft5 mRight5 colorPrimary hoverColorPrimaryDark pointer"
                     onClick={() => window.open('https://work.baiwang.com')}
                   >
                     {_l('百望发票-开放平台')}
@@ -773,7 +773,7 @@ export default function CreateTaxNumber(props) {
             <div className="Font15 bold mTop24">
               <span>{_l('请前往')}</span>
               <span
-                className="mLeft5 mRight5 colorPrimary ThemeHoverColor2 pointer"
+                className="mLeft5 mRight5 colorPrimary hoverColorPrimaryDark pointer"
                 onClick={() => window.open('https://work.baiwang.com')}
               >
                 {_l('百望开票平台')}
@@ -831,7 +831,7 @@ export default function CreateTaxNumber(props) {
             <div className="Font12 textSecondary mTop16 mBottom20">
               <span>{_l('请先前往')}</span>
               <span
-                className="colorPrimary ThemeHoverColor2 pointer mLeft5 mRight5"
+                className="colorPrimary hoverColorPrimaryDark pointer mLeft5 mRight5"
                 onClick={() => window.open('https://tpass.chinatax.gov.cn:8443/#/login?client_type=itsLogin')}
               >
                 {_l('电子税局')}

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Table } from 'antd';
@@ -6,9 +6,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import CellControl from 'worksheet/components/CellControls';
+import MobileCardCellControl from 'src/components/MobileCardCellControls/MobileCardCellControl';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
-import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
+import { getControlStyles } from 'src/utils/control';
 import { controlState, isRelateRecordTableControl } from 'src/utils/control';
 import { updateRulesData } from '../../../core/formUtils/updateRulesData';
 import { addWidthToColumns } from './utils';
@@ -26,6 +26,10 @@ const TableWrap = styled(Table)`
     ${({ h5height }) => h5height === '1' && 'font-size: 0.9em !important;'};
     ${({ h5height }) => (h5height === '2' || h5height === '3') && 'font-size: 1em !important;'};
     color: var(--color-text-title) !important;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    ${({ noData }) => (noData ? 'border-bottom:none' : '')}
   }
   .ant-table-thead
     > tr
@@ -40,16 +44,16 @@ const TableWrap = styled(Table)`
   }
 
   .ant-table-tbody > tr > td {
-    padding: 0 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .ant-table-thead > tr > th {
-    padding: 0px 12px;
-    height: 40px;
-    line-height: 36px;
+    padding: 12px;
     color: var(--color-text-title);
-    background: var(--color-background-secondary);
+    background: var(--color-background-tertiary);
     font-size: 13px;
+    font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -63,11 +67,18 @@ const TableWrap = styled(Table)`
     display: none !important;
   }
   .compactness {
-    height: 28px !important;
-    line-height: 28px !important;
+    height: 44px !important;
 
     .customFormNull {
       margin: 0 !important;
+    }
+    .cell,
+    .cell .ellipsis,
+    .mobileRelateRecordWrap {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: top;
     }
   }
   .mobileRelateRecordWrap {
@@ -117,10 +128,12 @@ const TableWrap = styled(Table)`
       padding: 8px 12px !important;
     }
     .cell,
-    .cell .ellipsis {
+    .cell .ellipsis,
+    .mobileRelateRecordWrap {
       display: -webkit-box !important;
       -webkit-box-orient: vertical;
       white-space: pre-wrap;
+      -webkit-line-clamp: unset !important;
     }
     .mobileRelateRecordWrap {
       white-space: pre-line;
@@ -171,10 +184,31 @@ const Pagination = styled.div`
     background: var(--color-primary);
     border-radius: 3px;
     &.disabled {
+      color: var(--color-text-disabled);
       background: var(--color-background-secondary);
     }
   }
 `;
+
+const INITIAL_EXPAND_RENDER_COUNT = 50;
+const EXPAND_RENDER_STEP = 50;
+
+const getWidthDataSource = (dataSource, showExpand) => {
+  if (!showExpand || dataSource.length <= INITIAL_EXPAND_RENDER_COUNT) return dataSource;
+
+  const step = Math.ceil(dataSource.length / INITIAL_EXPAND_RENDER_COUNT);
+  return dataSource.filter((item, index) => index % step === 0).slice(0, INITIAL_EXPAND_RENDER_COUNT);
+};
+
+const lineHeightInfo = { 0: 'compactness', 1: 'mediumTable', 2: 'heightTable', 3: 'adaptive' }; // h5height: 0=>紧凑 1=>中等 2=>高 3=>自适应
+const getCurrentViewportSize = () => {
+  const viewport = window.visualViewport;
+
+  return {
+    width: (viewport && viewport.width) || window.innerWidth || document.documentElement.clientWidth,
+    height: (viewport && viewport.height) || window.innerHeight || document.documentElement.clientHeight,
+  };
+};
 
 function TableComponent(props) {
   const {
@@ -192,11 +226,12 @@ function TableComponent(props) {
     h5height,
     allowcancel,
     useUserPermission,
-    showExpand,
     rules,
     appId,
     control,
+    showExpand,
     pagination = {},
+    cellErrors = {},
     onSave = () => {},
     submitChildTableCheckData = () => {},
     updatePagination = () => {},
@@ -205,23 +240,92 @@ function TableComponent(props) {
   } = props;
   const { pageIndex, count, pageSize } = pagination;
   const totalPage = Math.ceil(count / pageSize);
-  const dataSource = rows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
-  const showDeleteCol =
-    _.findIndex(
-      rows,
-      row => /^temp/.test(row.rowid) || (allowcancel && (useUserPermission && !!recordId ? row.allowdelete : true)),
-    ) > -1;
-  let columns = showControls
-    .map(item => _.find(controls, c => c.controlId === item))
-    .filter(_.identity)
-    .filter(c => c.type !== 34 && controlState(c).visible && !isRelateRecordTableControl(c));
-  columns =
-    !disabled && isEdit && !_.isEmpty(rows) && showDeleteCol
-      ? [{ controlId: 'delete', controlName: '', className: 'deleteAction', width: 30 }].concat(columns)
-      : columns;
-  columns = addWidthToColumns(columns, dataSource);
-  const lineHeightInfo = { 0: 'compactness', 1: 'mediumTable', 2: 'heightTable', 3: 'adaptive' }; // h5height: 0=>紧凑 1=>中等 2=>高 3=>自适应
-  let timer = null;
+  const dataSource = useMemo(
+    () => rows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize),
+    [pageIndex, pageSize, rows],
+  );
+  const renderKey = `${showExpand ? 1 : 0}-${pageIndex}-${pageSize}-${dataSource.length}`;
+  const getInitialRenderCount = () =>
+    showExpand ? Math.min(INITIAL_EXPAND_RENDER_COUNT, dataSource.length) : dataSource.length;
+  const [renderState, setRenderState] = useState(() => ({ key: renderKey, count: getInitialRenderCount() }));
+  const renderCount = renderState.key === renderKey ? renderState.count : getInitialRenderCount();
+  const renderDataSource = useMemo(() => dataSource.slice(0, renderCount), [dataSource, renderCount]);
+  const widthDataSource = useMemo(() => getWidthDataSource(dataSource, showExpand), [dataSource, showExpand]);
+  const columns = useMemo(() => {
+    const showDeleteCol =
+      _.findIndex(
+        rows,
+        row => /^temp/.test(row.rowid) || (allowcancel && (useUserPermission && !!recordId ? row.allowdelete : true)),
+      ) > -1;
+    let visibleColumns = showControls
+      .map(item => _.find(controls, c => c.controlId === item))
+      .filter(_.identity)
+      .filter(c => c.type !== 34 && controlState(c).visible && !isRelateRecordTableControl(c));
+    visibleColumns =
+      !disabled && isEdit && !_.isEmpty(rows) && showDeleteCol
+        ? [{ controlId: 'delete', controlName: '', className: 'deleteAction', width: 30 }].concat(visibleColumns)
+        : visibleColumns;
+
+    return addWidthToColumns(visibleColumns, widthDataSource);
+  }, [allowcancel, controls, disabled, isEdit, recordId, rows, showControls, useUserPermission, widthDataSource]);
+  const tableScrollX = _.sumBy(columns, item => item.width || 180);
+  const timerRef = useRef(null);
+  const tableRef = useRef(null);
+  const touchRef = useRef(null);
+  const rowRuleDataMap = useMemo(() => {
+    const map = new Map();
+
+    renderDataSource.forEach(record => {
+      map.set(
+        record.rowid,
+        updateRulesData({
+          rules,
+          recordId: record.rowid,
+          data: controls.map(v => ({ ...v, value: record[v.controlId] })),
+        }),
+      );
+    });
+
+    return map;
+  }, [controls, renderDataSource, rules]);
+
+  useEffect(() => {
+    const total = dataSource.length;
+
+    if (!showExpand || total <= INITIAL_EXPAND_RENDER_COUNT) {
+      setRenderState({ key: renderKey, count: total });
+      return;
+    }
+
+    const useAnimationFrame = typeof window.requestAnimationFrame === 'function';
+    let nextCount = INITIAL_EXPAND_RENDER_COUNT;
+    let frame;
+
+    setRenderState({ key: renderKey, count: nextCount });
+
+    const renderNext = () => {
+      const update = () => {
+        nextCount = Math.min(nextCount + EXPAND_RENDER_STEP, total);
+        setRenderState({ key: renderKey, count: nextCount });
+
+        if (nextCount < total) {
+          renderNext();
+        }
+      };
+
+      frame = useAnimationFrame ? window.requestAnimationFrame(update) : window.setTimeout(update, 16);
+    };
+
+    renderNext();
+
+    return () => {
+      if (useAnimationFrame) {
+        window.cancelAnimationFrame(frame);
+      } else {
+        window.clearTimeout(frame);
+      }
+    };
+  }, [dataSource.length, renderKey, showExpand]);
 
   const changePage = type => {
     if ((type === 'prev' && pageIndex === 1) || (type === 'next' && pageIndex >= totalPage)) {
@@ -231,17 +335,87 @@ function TableComponent(props) {
     updatePagination({ pageIndex: type === 'prev' ? pageIndex - 1 : pageIndex + 1 });
   };
 
+  const handleTouchStart = event => {
+    const touch = event.touches[0];
+    const scroller = tableRef.current?.querySelector('.ant-table-body, .ant-table-content');
+    const canScrollX = scroller && scroller.scrollWidth > scroller.clientWidth;
+    const canScrollY = scroller && scroller.scrollHeight > scroller.clientHeight;
+
+    touchRef.current =
+      touch && scroller && (canScrollX || canScrollY)
+        ? { x: touch.clientX, y: touch.clientY, left: scroller.scrollLeft, top: scroller.scrollTop, scroller }
+        : null;
+  };
+
+  const handleTouchMove = event => {
+    const touch = event.touches[0];
+    const touchInfo = touchRef.current;
+
+    if (!touch || !touchInfo) return;
+
+    const { scroller } = touchInfo;
+    const maxLeft = scroller.scrollWidth - scroller.clientWidth;
+    const maxTop = scroller.scrollHeight - scroller.clientHeight;
+    const offsetX = touch.clientX - touchInfo.x;
+    const offsetY = touch.clientY - touchInfo.y;
+    const absX = Math.abs(offsetX);
+    const absY = Math.abs(offsetY);
+    const viewportSize = getCurrentViewportSize();
+    const isRotateHorizontal = viewportSize.width <= viewportSize.height;
+
+    if (Math.max(absX, absY) < 4 || (!isRotateHorizontal && absY > absX)) return;
+
+    // The rotated popup swaps the visible axes, so map the dominant swipe back to the table scroller.
+    if (isRotateHorizontal && absX > absY) {
+      const nextTop = Math.max(0, Math.min(maxTop, touchInfo.top + offsetX));
+
+      if (nextTop === scroller.scrollTop) return;
+
+      scroller.scrollTop = nextTop;
+    } else {
+      const offset = isRotateHorizontal && absY > absX ? offsetY : offsetX;
+      const nextLeft = Math.max(0, Math.min(maxLeft, touchInfo.left - offset));
+
+      if (nextLeft === scroller.scrollLeft) return;
+
+      scroller.scrollLeft = nextLeft;
+    }
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+
+    event.stopPropagation();
+  };
+
+  const clearTouch = () => {
+    touchRef.current = null;
+  };
+
   return (
     <Fragment>
-      <div className="flex overflowHidden" style={{ marginRight: showExpand ? -20 : 0 }}>
+      <div
+        ref={tableRef}
+        className="flex overflowHidden"
+        style={{ minHeight: 0 }}
+        onTouchStartCapture={showExpand ? handleTouchStart : undefined}
+        onTouchMoveCapture={showExpand ? handleTouchMove : undefined}
+        onTouchEndCapture={showExpand ? clearTouch : undefined}
+        onTouchCancelCapture={showExpand ? clearTouch : undefined}
+      >
         <TableWrap
           controlStyles={getControlStyles(columns)}
           tableLayout="fixed"
-          rowClassName={lineHeightInfo[h5height]}
+          rowClassName={record =>
+            cx(lineHeightInfo[h5height], {
+              errorRow: _.some(controls, v => cellErrors[record.rowid + '-' + v.controlId]),
+            })
+          }
           h5height={h5height}
+          noData={_.isEmpty(dataSource)}
           pagination={false}
-          dataSource={dataSource}
-          scroll={{ x: '100%', y: true }}
+          dataSource={renderDataSource}
+          scroll={{ x: tableScrollX, y: 'calc(100% - 40px)' }}
           rowKey="rowid"
           columns={columns.map(item => ({
             dataIndex: item.controlId,
@@ -280,38 +454,24 @@ function TableComponent(props) {
                 ) : null;
               }
 
-              const tableFormData = updateRulesData({
-                rules,
-                recordId: record.rowid,
-                data: controls.map(v => ({ ...v, value: record[v.controlId] })),
-              });
-
+              const tableFormData = rowRuleDataMap.get(record.rowid) || [];
               const currentCell = _.find(tableFormData, v => v.controlId === item.controlId);
-              item = { ...item, fieldPermission: currentCell.fieldPermission };
-
-              if (!record[item.controlId]) {
-                return <div className="customFormNull"></div>;
-              }
+              const cellControl = {
+                ...item,
+                fieldPermission: currentCell ? currentCell.fieldPermission : item.fieldPermission,
+              };
 
               return (
-                <CellControl
-                  isMobileTable
-                  className={cx('cell flex', {
-                    ellipsis: item.type !== 29,
-                    relateMultiple: item.type === 29 && item.enumDefault === 2,
-                  })}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  cell={{
-                    ...item,
-                    value: record[item.controlId],
-                    advancedSetting:
-                      item.type === 36 ? { ...getAdvanceSetting(item), showtype: '0' } : item.advancedSetting,
-                  }}
+                <MobileCardCellControl
+                  control={cellControl}
                   row={record}
-                  from={item.type == 29 && item.enumDefault === 2 ? 3 : 4}
+                  showControlName={false}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  worksheetId={worksheetId}
+                  projectId={projectId}
                   appId={appId}
                   style={
-                    _.includes([29, 51], item.type)
+                    _.includes([29, 51], cellControl.type)
                       ? {
                           width: 180,
                           height:
@@ -321,26 +481,23 @@ function TableComponent(props) {
                                 ? 64
                                 : h5height === '2'
                                   ? 88
-                                  : item.type == 29
+                                  : cellControl.type == 29
                                     ? ''
                                     : 'auto',
                         }
                       : {}
                   }
-                  mode="mobileSub"
                   masterData={masterData}
                   rowFormData={() => controls.map(c => Object.assign({}, c, { value: record[c.controlId] }))}
-                  projectId={projectId}
-                  worksheetId={worksheetId}
-                  canedit={item.type === 36 && controlPermission.editable && !control.mobileCheckRuleLocked}
+                  canedit={cellControl.type === 36 && controlPermission.editable && !control.mobileCheckRuleLocked}
                   updateCell={({ value }) => {
-                    if (item.type !== 36) return;
+                    if (cellControl.type !== 36) return;
 
-                    onSave({ ...record, [item.controlId]: value }, [item.controlId]);
+                    onSave({ ...record, [cellControl.controlId]: value }, [cellControl.controlId]);
 
                     if (isEdit) return;
-                    clearTimeout(timer);
-                    timer = setTimeout(() => {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = setTimeout(() => {
                       submitChildTableCheckData({ isQuickUpdateCheck: true });
                     }, 500);
                   }}
@@ -381,12 +538,13 @@ TableComponent.propTypes = {
   rows: PropTypes.array, // 子表记录
   isEdit: PropTypes.bool, // 是否可编辑
   sheetSwitchPermit: PropTypes.array, // 权限
-  masterData: PropTypes.array, //主记录数据
+  masterData: PropTypes.object, //主记录数据
   worksheetId: PropTypes.string,
   projectId: PropTypes.string,
   controlPermission: PropTypes.object, // 字段权限
   showControls: PropTypes.array, // 展示字段
-  h5height: PropTypes.number, // 行高
+  showExpand: PropTypes.bool,
+  h5height: PropTypes.oneOf(['0', '1', '2', '3']), // 行高
   onSave: PropTypes.func, // 保存
   submitChildTableCheckData: PropTypes.func, // 更新检查项字段
   updatePagination: PropTypes.func,

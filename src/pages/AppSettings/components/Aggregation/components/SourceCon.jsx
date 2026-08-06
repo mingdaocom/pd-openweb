@@ -74,8 +74,8 @@ export default function SourceCon(props) {
           <Tooltip title={_l('筛选')}>
             <div
               className={cx(
-                'ming Icon icon icon-filter mLeft8 Hand Font16 ThemeHoverColor3',
-                filters.length > 0 ? 'ThemeColor3' : 'textTertiary',
+                'ming Icon icon icon-filter mLeft8 Hand Font16 hoverColorPrimary',
+                filters.length > 0 ? 'colorPrimary' : 'textTertiary',
               )}
               onClick={e => {
                 e.stopPropagation();
@@ -97,7 +97,7 @@ export default function SourceCon(props) {
           {canChange && (
             <Tooltip title={_l('更改数据源')}>
               <div
-                className="ming Icon icon icon-swap_horiz mLeft8 textTertiary Font16 Hand ThemeHoverColor3 mRight8"
+                className="ming Icon icon icon-swap_horiz mLeft8 textTertiary Font16 Hand hoverColorPrimary mRight8"
                 onClick={() => setState({ isChange: true })}
               />
             </Tooltip>
@@ -106,7 +106,7 @@ export default function SourceCon(props) {
             <Tooltip title={_l('删除')}>
               <Icon
                 icon="clear"
-                className="mLeft8 Font16 Hand textTertiary del ThemeHoverColor3 mRight8"
+                className="mLeft8 Font16 Hand textTertiary del hoverColorPrimary mRight8"
                 onClick={e => {
                   e.stopPropagation();
                   const sourceTables = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).filter(
@@ -235,7 +235,7 @@ export default function SourceCon(props) {
             <WrapWorksheet className="hoverBoxShadow">
               <div className="Dropdown--input Dropdown--border">
                 <div className="textTertiary">{_l('请选择工作表')}</div>
-                <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary Font16 Hand mRight12 ThemeHoverColor3" />
+                <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary Font16 Hand mRight12 hoverColorPrimary" />
               </div>
             </WrapWorksheet>
           </React.Fragment>
@@ -251,7 +251,7 @@ export default function SourceCon(props) {
                 <div
                   className={cx(
                     'alignItemsCenter Bold flexRowCon',
-                    !canAdd || props.updateLoading ? 'textDisabled' : 'textSecondary ThemeHoverColor3 Hand',
+                    !canAdd || props.updateLoading ? 'textDisabled' : 'textSecondary hoverColorPrimary Hand',
                   )}
                   onClick={e => {
                     if (!canAdd) {

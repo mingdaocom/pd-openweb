@@ -6,6 +6,7 @@ import { LoadDiv } from 'ming-ui';
 import payAjax from 'src/api/pay';
 import { canPurchase } from 'src/components/checkPermission';
 import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
+import { pathCompletion } from 'src/utils/common';
 import PayHeader from '../payHeader';
 
 const WecharPayWrap = styled.div`
@@ -139,7 +140,7 @@ export default class WechatPay extends Component {
       if (res.tradeStatus === 'SUCCESS') {
         // 支付成功
         clearInterval(this.timeInterval);
-        window.open(`/pay/success?orderId=${orderId}&payType=1`, '_self');
+        window.open(pathCompletion(`/pay/success?orderId=${orderId}&payType=1`), '_self');
       }
     });
   };

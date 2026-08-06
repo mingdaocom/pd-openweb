@@ -6,8 +6,6 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import Amap from 'ming-ui/components/amap/Amap';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
-import MapHandler from 'ming-ui/components/amap/MapHandler';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import {
   bindDing,
@@ -17,7 +15,9 @@ import {
   bindWxWork,
   handleTriggerEvent,
 } from '../../../core/authentication';
+import { getCurrentPos } from '../../../core/mapUtils';
 import { getMapConfig, toFixed, wgs84togcj02 } from '../../tools/utils';
+import StaticMap from './StaticMap';
 
 const LocationWrap = styled.div`
   .locationTitle {
@@ -55,18 +55,33 @@ export default class Widgets extends Component {
 
   state = {
     visible: false,
+    staticMapFallbackValue: null,
   };
-
-  _mapHandler = null;
-
-  componentWillUnmount() {
-    this._mapHandler?.destroyMap();
-    this._mapHandler = null;
-  }
 
   locationFailed = () => {
     alert(_l('定位获取失败，请重试'), 2);
   };
+
+  handleStaticMapError = () => {
+    this.setState({ staticMapFallbackValue: this.props.value });
+  };
+
+  renderAmapPreview = location => (
+    <Fragment>
+      <div
+        className="Absolute"
+        style={{ top: 0, right: 0, bottom: 0, left: 0, background: 'transparent', zIndex: 1 }}
+      />
+      <Amap
+        mapSearch={false}
+        mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
+        defaultAddress={{
+          lng: location.x,
+          lat: location.y,
+        }}
+      />
+    </Fragment>
+  );
 
   handleAuthentication = () => {
     const { strDefault, projectId } = this.props;
@@ -344,34 +359,27 @@ export default class Widgets extends Component {
       return;
     }
 
-    new MapLoader().loadJs().then(() => {
-      if (!this._mapHandler) {
-        this._mapHandler = new MapHandler();
-      }
-
-      this._mapHandler.getCurrentPos(
-        (status, res) => {
-          if (status === 'complete') {
-            onChange(
-              JSON.stringify({
-                x: res.position.lng,
-                y: res.position.lat,
-                address: res.formattedAddress || '',
-                title: (res.addressComponent || {}).building || '',
-              }),
-            );
-            Toast.clear();
-          }
-        },
-        false,
-        { locationFailedAlert: true },
-      );
-    });
+    getCurrentPos()
+      .then(res => {
+        onChange(
+          JSON.stringify({
+            x: res.position.lng,
+            y: res.position.lat,
+            address: res.formattedAddress || '',
+            title: (res.addressComponent || {}).building || '',
+          }),
+        );
+        Toast.clear();
+      })
+      .catch(() => {
+        Toast.clear();
+        this.locationFailed();
+      });
   };
 
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, strDefault } = this.props;
-    const { visible } = this.state;
+    const { visible, staticMapFallbackValue } = this.state;
     const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
     let location = null;
 
@@ -385,7 +393,8 @@ export default class Widgets extends Component {
       }
     }
 
-    let locationForShow = location || {};
+    const locationForShow = { ...(location || {}) };
+    const shouldRenderAmap = staticMapFallbackValue === value;
 
     if (
       (locationForShow.coordinate || '').toLowerCase() === 'wgs84' &&
@@ -476,33 +485,24 @@ export default class Widgets extends Component {
               </div>
 
               {!!enumDefault && (
-                <Fragment>
+                <div className="mapWrap relative">
                   {isGoogle ? (
-                    <div className="mapWrap relative">
-                      <Gmap
-                        lat={locationForShow.y}
-                        lng={locationForShow.x}
-                        disabled={true}
-                        mapContainerStyle={{ width: '100%', minHeight: '110px' }}
-                      />
-                    </div>
+                    <Gmap
+                      lat={locationForShow.y}
+                      lng={locationForShow.x}
+                      disabled={true}
+                      mapContainerStyle={{ width: '100%', minHeight: '110px' }}
+                    />
+                  ) : shouldRenderAmap ? (
+                    this.renderAmapPreview(locationForShow)
                   ) : (
-                    <div className="mapWrap relative">
-                      <div
-                        className="Absolute"
-                        style={{ top: 0, right: 0, bottom: 0, left: 0, background: 'transparent', zIndex: 1 }}
-                      />
-                      <Amap
-                        mapSearch={false}
-                        mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
-                        defaultAddress={{
-                          lng: locationForShow.x,
-                          lat: locationForShow.y,
-                        }}
-                      />
-                    </div>
+                    <StaticMap
+                      location={locationForShow}
+                      mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
+                      onError={this.handleStaticMapError}
+                    />
                   )}
-                </Fragment>
+                </div>
               )}
             </div>
           </LocationWrap>

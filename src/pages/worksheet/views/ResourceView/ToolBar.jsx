@@ -47,7 +47,7 @@ export default function ToolBar(props) {
           types[_.get(view, 'advancedSetting.calendarType') || 0];
         return (
           <div
-            className={cx('Hand ThemeHoverColor3 Bold H40', type === o.key ? 'ThemeColor3' : 'textSecondary', {
+            className={cx('Hand hoverColorPrimary Bold H40', type === o.key ? 'colorPrimary' : 'textSecondary', {
               pRight20: !isM && i >= resourceTypes.length - 1,
               pLeft10: isM,
               pRight10: isM,

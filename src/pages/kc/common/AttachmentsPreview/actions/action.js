@@ -13,7 +13,7 @@ import { defaultWpsPreview, isWpsPreview } from '../../../utils';
 import * as ajax from '../ajax';
 import ACTION_TYPES from '../constant/actionTypes';
 import { EXT_TYPE_DIC, LOADED_STATUS, PREVIEW_TYPE } from '../constant/enum';
-import { splitFileName } from '../constant/util';
+import { canPreviewHtml, getHtmlPreviewUrl, isHtmlPreviewExt, splitFileName } from '../constant/util';
 
 function addViewCount(attachment) {
   if (
@@ -98,7 +98,7 @@ function loadAttachment(attachment, options = {}) {
       attachmentPromise = ajax.getKcNodeDetail(refId, options.worksheetId).then(data => {
         if (!data || data.visibleType === NODE_VISIBLE_TYPE.CLOSE) {
           throw new AttachmentError({
-            text: '文件已删除或您没有权限查看此文件',
+            text: _l('文件已删除或您没有权限查看此文件'),
             status: LOADED_STATUS.DELETED,
           });
         }
@@ -139,14 +139,14 @@ function loadAttachment(attachment, options = {}) {
       attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
         if (!data) {
           throw new AttachmentError({
-            text: '文件不存在',
+            text: _l('文件不存在'),
             status: LOADED_STATUS.DELETED,
           });
         }
 
         if (options.disableNoPeimission && data.refId && !data.privateDownloadUrl) {
           throw new AttachmentError({
-            text: '您权限不足，无法分享，请联系管理员或文件上传者',
+            text: _l('您权限不足，无法分享，请联系管理员或文件上传者'),
             status: LOADED_STATUS.DELETED,
           });
         }
@@ -163,6 +163,14 @@ function loadAttachment(attachment, options = {}) {
 
     Promise.all([attachmentPromise])
       .then(([newAttachment]) => {
+        const htmlPreviewUrl =
+          canPreviewHtml() && isHtmlPreviewExt(newAttachment.ext) ? getHtmlPreviewUrl(newAttachment) : '';
+
+        if (htmlPreviewUrl) {
+          newAttachment.previewType = PREVIEW_TYPE.IFRAME;
+          newAttachment.viewUrl = htmlPreviewUrl;
+        }
+
         previewType = newAttachment.previewType;
         if (previewAttachmentType === 'COMMON') {
           if (attachment.sourceNode.viewUrl) {
@@ -172,7 +180,9 @@ function loadAttachment(attachment, options = {}) {
             resolve(newAttachment);
           }
         } else if (previewAttachmentType === 'QINIU') {
-          if (previewType === PREVIEW_TYPE.IFRAME) {
+          if (htmlPreviewUrl) {
+            resolve(newAttachment);
+          } else if (previewType === PREVIEW_TYPE.IFRAME) {
             ajax
               .fetchViewUrl(attachment)
               .then(fetchedAttachment => {
@@ -305,6 +315,11 @@ function formatAttachment(attachments, callfrom) {
       size = attachment.size;
     }
 
+    const htmlPreviewUrl =
+      canPreviewHtml() && isHtmlPreviewExt(ext)
+        ? getHtmlPreviewUrl({ previewAttachmentType, viewUrl: attachment.viewUrl, sourceNode: attachment })
+        : '';
+
     if (previewType === PREVIEW_TYPE.PICTURE) {
       viewUrl =
         previewAttachmentType === 'COMMON'
@@ -312,6 +327,9 @@ function formatAttachment(attachments, callfrom) {
           : previewAttachmentType === 'KC'
             ? attachment.viewUrl
             : attachment.path;
+    } else if (htmlPreviewUrl) {
+      previewType = PREVIEW_TYPE.IFRAME;
+      viewUrl = htmlPreviewUrl;
     } else if (previewType === PREVIEW_TYPE.CODE || previewType === PREVIEW_TYPE.MARKDOWN) {
       if (size >= 5 * 1024 * 1024) {
         // 大于 5M 的文件不预览
@@ -448,7 +466,7 @@ function loadMoreAttachments(state, dispatch, isPre) {
         // }
       })
       .catch(() => {
-        alert('加载更多失败', 2);
+        alert(_l('加载更多失败'), 2);
       });
   }
 }
@@ -476,11 +494,11 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   }
 
   if (index < 0) {
-    alert('已经是第一个了', 3);
+    alert(_l('已经是第一个了'), 3);
     nothing();
     return;
   } else if (index >= state.attachments.length) {
-    alert('已经是最后一个了', 3);
+    alert(_l('已经是最后一个了'), 3);
     nothing();
     return;
   }
@@ -559,7 +577,7 @@ export function renameFile(value) {
         .then(() => {
           currentAttachment.sourceNode.name = value;
           currentAttachment.name = value;
-          alert('修改成功');
+          alert(_l('修改成功'));
           // 修改文件名回掉
           if (state.extra && typeof state.extra.performUpdateItem === 'function') {
             state.extra.performUpdateItem(currentAttachment.sourceNode);
@@ -572,7 +590,7 @@ export function renameFile(value) {
           });
         })
         .catch(() => {
-          alert('修改失败', 2);
+          alert(_l('修改失败'), 2);
         });
     } else if (previewAttachmentType === 'COMMON') {
       const { docVersionID, fileID, ext, sourceID } = currentAttachment.sourceNode;
@@ -581,7 +599,7 @@ export function renameFile(value) {
         .then(() => {
           currentAttachment.sourceNode.originalFilename = value;
           currentAttachment.name = value;
-          alert('修改成功');
+          alert(_l('修改成功'));
           // extra 文件重命名回调
           if (state.extra && typeof state.extra.renameCallback === 'function') {
             state.extra.renameCallback(currentAttachment.sourceNode, state.originAttachments);
@@ -594,7 +612,7 @@ export function renameFile(value) {
           });
         })
         .catch(() => {
-          alert('修改失败', 2);
+          alert(_l('修改失败'), 2);
         });
     }
   };
@@ -612,10 +630,10 @@ export function updateAllowDownload() {
       .then(() => {
         if (allowDown) {
           delete currentAttachment.sourceNode.allowDown;
-          alert('已设置为不可以下载');
+          alert(_l('已设置为不可以下载'));
         } else {
           currentAttachment.sourceNode.allowDown = 'ok';
-          alert('已设置为可以下载');
+          alert(_l('已设置为可以下载'));
         }
 
         dispatch({
@@ -625,7 +643,7 @@ export function updateAllowDownload() {
         });
       })
       .catch(() => {
-        alert('设置失败', 3);
+        alert(_l('设置失败'), 3);
       });
   };
 }

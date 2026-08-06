@@ -61,8 +61,8 @@ const moreErrorDialog = (startTime, updateTypes, callback) => {
                 updateType = $(e.target).closest('.tanttRadio').data('type');
               }}
             >
-              <span className={`tanttRadioIcon ThemeBorderColor3 ${i === 0 ? 'tanttRadioChcked' : ''}`}>
-                <i className="ThemeBGColor3"></i>
+              <span className={`tanttRadioIcon borderColorPrimary ${i === 0 ? 'tanttRadioChcked' : ''}`}>
+                <i className="bgColorPrimary"></i>
               </span>
               {message[item]}
             </span>

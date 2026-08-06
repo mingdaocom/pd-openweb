@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { bool, func, string } from 'prop-types';
 import { Icon, ScrollView } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import instance from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
 import appManagementApi from 'src/api/appManagement';
@@ -145,7 +145,7 @@ export default class ExecDialog extends Component {
             const { flowNode, explain, explainMap } = work;
             return {
               ...work,
-              explain: explainMap ? explainMap[md.global.Account.lang] || explain : explain,
+              explain: explainMap && explain ? explainMap[md.global.Account.lang] || explain : explain,
               flowNode: {
                 ...flowNode,
                 name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
@@ -280,7 +280,7 @@ export default class ExecDialog extends Component {
               <Icon type="info" style={{ color: 'var(--color-warning)' }} className="Font48" />
               <div className="Font17 Bold mTop15 textPrimary">{_l('当前记录无权限，无法查看')}</div>
               {!!data.operationTypeList[0].length && (
-                <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
+                <div className="mTop15 colorPrimary hoverColorPrimaryDark pointer Font14" onClick={this.ownerHandle}>
                   {_l('转交给流程拥有者处理')}
                 </div>
               )}

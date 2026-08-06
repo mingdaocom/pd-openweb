@@ -21,14 +21,7 @@ const TodayWrapper = styled.div`
     right: 5px;
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['gunterView', 'base']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class Today extends Component {
+let Today = class Today extends Component {
   constructor(props) {
     super(props);
     const { onlyWorkDay, dayOff } = props.gunterView.viewConfig;
@@ -39,20 +32,27 @@ export default class Today extends Component {
     };
     this.debounceScroll = _.debounce(this.handleScroll, 500);
   }
+
   componentDidMount() {
     const { chartScroll } = this.props.gunterView;
     chartScroll.on('scroll', this.debounceScroll);
   }
+
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;
     chartScroll.off('scroll', this.debounceScroll);
   }
-  componentWillReceiveProps({ gunterView }) {
-    const { onlyWorkDay, dayOff } = gunterView.viewConfig;
-    this.setState({
-      disable: onlyWorkDay ? dayOff.includes(moment().days()) : false,
-    });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { gunterView } = this.props;
+      const { onlyWorkDay, dayOff } = gunterView.viewConfig;
+      this.setState({
+        disable: onlyWorkDay ? dayOff.includes(moment().days()) : false,
+      });
+    }
   }
+
   handleScroll = () => {
     const { base, gunterView } = this.props;
     const { chartScroll, periodList } = gunterView;
@@ -66,9 +66,14 @@ export default class Today extends Component {
       const isRight = scrollLeft <= Math.abs(chartScroll.wrapperWidth - offsetLeft);
 
       if (isLeft || isRight) {
-        this.setState({ todayVisible: true, direction: isLeft ? 'left' : 'right' });
+        this.setState({
+          todayVisible: true,
+          direction: isLeft ? 'left' : 'right',
+        });
       } else {
-        this.setState({ todayVisible: false });
+        this.setState({
+          todayVisible: false,
+        });
       }
     } else {
       const today = moment().format('YYYY-MM-DD');
@@ -76,24 +81,33 @@ export default class Today extends Component {
       const end = periodList[periodList.length - 1];
 
       if (end && moment(today).isBefore(end.time)) {
-        this.setState({ direction: 'left' });
+        this.setState({
+          direction: 'left',
+        });
       }
 
       if (start && moment(today).isAfter(start.time)) {
-        this.setState({ direction: 'right' });
+        this.setState({
+          direction: 'right',
+        });
       }
 
-      this.setState({ todayVisible: true });
+      this.setState({
+        todayVisible: true,
+      });
     }
   };
   handleGoToday = () => {
     const { todayVisible } = this.state;
 
     if (todayVisible) {
-      this.setState({ todayVisible: false });
+      this.setState({
+        todayVisible: false,
+      });
       this.props.refreshGunterView();
     }
   };
+
   render() {
     const { todayVisible, disable, direction } = this.state;
     return (
@@ -105,4 +119,9 @@ export default class Today extends Component {
       )
     );
   }
-}
+};
+Today = connect(
+  state => ({ ..._.pick(state.sheet, ['gunterView', 'base']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(Today);
+export default Today;

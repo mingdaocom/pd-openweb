@@ -4,8 +4,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import registerAjax from 'src/api/register';
+import ChangeLang from 'src/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
+import Header from 'src/pages/AuthService/components/Header.jsx';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { encrypt } from 'src/utils/common';
@@ -20,18 +22,18 @@ const WrapBtn = styled.div`
   height: 40px;
   line-height: 40px;
   display: block;
-  background: #2296f3;
-  border-radius: 4px;
+  background: var(--color-primary);
+  border-radius: 6px;
   font-size: 14px;
-  color: var(--color-white);
+  color: var(--color-text-inverse);
   margin-top: 32px;
   text-align: center;
 
   &:hover {
-    background: var(--color-link-hover);
+    background: var(--color-primary-dark);
   }
   &:active {
-    background: var(--color-primary-focus);
+    background: var(--color-primary-dark);
   }
 `;
 
@@ -184,10 +186,8 @@ export default class ResetPassword extends React.Component {
         </span>
         <div className="titleHeader">
           <div className={cx('title mTop20')}>{_l('修改密码')}</div>
-          <div className="mTop8">
-            <span style={{ color: 'var(--color-text-secondary)' }}>
-              {type == 2 ? _l('旧密码已过期，请重新设置密码') : _l('首次登录需设置密码')}
-            </span>
+          <div className="mTop8 textSecondary Font15">
+            {type == 2 ? _l('旧密码已过期，请重新设置密码') : _l('首次登录需设置密码')}
           </div>
         </div>
         <div className="messageBox mTop20">
@@ -233,7 +233,7 @@ export default class ResetPassword extends React.Component {
             </div>
             {renderWarn('passwordCopy')}
           </div>
-          <div className="tipWar mTop10 textTertiary">{this.state.passwordRegexTip}</div>
+          <div className="tipWar mTop10 textSecondary">{this.state.passwordRegexTip}</div>
           <WrapBtn
             className="Hand mTop80"
             onClick={() => {
@@ -249,18 +249,14 @@ export default class ResetPassword extends React.Component {
 
   render() {
     const { loading } = this.state;
-    const { SysSettings } = md.global;
     return (
       <WrapCom className="flexColumn">
         <DocumentTitle title={_l('修改密码')} />
         {!loading && (
           <div className="loginBox flex">
             <div className="loginContainer">
-              {!SysSettings.hideBrandLogo && (
-                <div className="titleHeader">
-                  <img src={SysSettings.brandLogoUrl} height={SysSettings.brandLogoHeight || 40} />
-                </div>
-              )}
+              <ChangeLang className="authServiceLang" />
+              <Header />
               {this.renderCon()}
             </div>
           </div>

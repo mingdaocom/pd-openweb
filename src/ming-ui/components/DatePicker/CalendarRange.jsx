@@ -94,12 +94,14 @@ class CalendarRange extends Component {
     this.halfData = this.props.halfData;
   }
 
-  componentWillReceiveProps(nextProps) {
-    const newState = {};
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const newState = {};
 
-    if ('selectedValue' in nextProps) {
-      newState.selectedValue = nextProps.selectedValue;
-      this.setState(newState);
+      if ('selectedValue' in this.props) {
+        newState.selectedValue = this.props.selectedValue;
+        this.setState(newState);
+      }
     }
   }
 
@@ -136,7 +138,7 @@ class CalendarRange extends Component {
     const selectedValue = this.state.selectedValue;
 
     if (selectedValue[0] && selectedValue[1] && selectedValue[0].isAfter(selectedValue[1], 'second')) {
-      alert('结束时间不能早于开始时间');
+      alert(_l('结束时间不能早于开始时间'));
       this.setState({ waingAble: true });
       return;
     }

@@ -14,7 +14,7 @@ export default function ContactItem(props) {
     searchDepartmentUsers,
     departments = [],
   } = props;
-  const cls = cx('list-item Hand Font13', { ThemeBGColor6: isSelected });
+  const cls = cx('list-item Hand Font13', { bgColorPrimaryTransparent: isSelected });
   let departmentName = (!_.isEmpty(departments) && departments[departments.length - 1]) || '';
   return (
     <div

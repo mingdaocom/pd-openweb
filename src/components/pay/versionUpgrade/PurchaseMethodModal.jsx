@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { pathCompletion } from 'src/utils/common';
 
 const DialogWrap = styled(Dialog)`
   .promptTitle {
@@ -78,9 +79,9 @@ export default function PurchaseMethodModal(props) {
 
   const handleClick = it => {
     if (it.type === 'payOnline') {
-      location.assign(`/upgrade/choose?projectId=${projectId}${select ? '&select=' + select : ''}`);
+      location.assign(pathCompletion(`/upgrade/choose?projectId=${projectId}${select ? '&select=' + select : ''}`));
     } else if (it.type === 'partner') {
-      window.open(`${md.global.Config.WebUrl}partnerlist`);
+      window.open(pathCompletion('/partnerlist'));
     } else {
       window.open('https://www.mingdao.com/form/fdff452c554747f3aa64484fdfe7a0d4?source=content2821432');
     }

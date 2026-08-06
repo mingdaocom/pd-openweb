@@ -1,12 +1,14 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
-import { get, isArray, omit } from 'lodash';
+import { get, isArray } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import sseAjax from 'src/api/sse';
+import agentApi from 'src/api/agent';
+import mingoWordmark from 'src/pages/mingo/common/images/mingo-logo.png';
 import useChat from 'src/pages/worksheet/hooks/useChat';
+import { genBotSessionId } from 'src/utils/agentSession';
 import { SpeechSynthesizer } from 'src/utils/audio';
 import { emitter } from 'src/utils/common';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
@@ -14,7 +16,7 @@ import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip, MINGO_TASK_TYPE } from '../../ChatBot/enum';
-import { title } from './config';
+import { buildFormFieldsControls, cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import RecordControlDataSelector from './RecordControlDataSelector';
 
 const MingoContentWrap = styled.div`
@@ -23,6 +25,15 @@ const MingoContentWrap = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  .brandWordmark {
+    margin-left: 8px;
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    /* 文字 logo 视觉重心偏上，几何居中后略下沉 2px 才视觉居中 */
+    margin-top: 2px;
+  }
   .sectionName {
     font-weight: bold;
     margin: 26px 0 6px;
@@ -130,6 +141,7 @@ function MingoContent(props, ref) {
   const { appId, worksheetId, projectId, worksheetInfo } = base || {};
   const cache = useRef({
     isSmartFill: true,
+    sessionId: genBotSessionId(),
   });
   const [isChatting, setIsChatting] = useState(defaultIsChatting);
   const [error, setError] = useState();
@@ -140,24 +152,29 @@ function MingoContent(props, ref) {
     useChat({
       sendImageUrlsWithImage: true,
       defaultMessages: getDefaultValueOfMessagesOfMingoCreateRecord(worksheetId),
-      aiCompletionApi: async (messages, { abortController }) => {
-        return sseAjax.generateRecordByAI(
+      aiCompletionApi: async (messages, { abortController, agentParams }) => {
+        const agentName = cache.current.isSmartFill ? 'record-smart-filler' : 'record-precise-filler';
+        const formFieldsControls = buildFormFieldsControls(worksheetInfo, { from: 'generate-record' });
+        const currentAccount = get(md, 'global.Account', {});
+        const systemInfo = JSON.stringify({
+          id: currentAccount.accountId,
+          name: currentAccount.fullname,
+          avatar: currentAccount.avatar,
+        });
+        return await agentApi.agentExecuteStream(
           {
-            appId,
+            agentName: agentName,
+            ...agentParams,
+            sessionId: cache.current.sessionId,
             projectId: window.appInfo?.projectId,
-            worksheetId,
-            isSmartFill: cache.current.isSmartFill,
-            messageList: messages.map(message => ({
-              ...omit(message, ['media']),
-              content: isArray(message.content)
-                ? message.content.filter(item => item.type !== 'tool_calls')
-                : message.content,
-            })),
+            forceReroute: false,
+            context: {
+              formFields: JSON.stringify(formFieldsControls),
+              ...(cache.current.isSmartFill ? { systemInfo } : {}),
+              userLanguage: window.getCurrentLang() || 'zh-Hans',
+            },
           },
-          {
-            abortController,
-            isReadableStream: true,
-          },
+          { abortController },
         );
       },
       onMessagePipe: messageContent => {
@@ -175,24 +192,26 @@ function MingoContent(props, ref) {
         );
       },
       onError: (error, eventData) => {
-        setError({
-          errorMsg: _l('模型调用失败'),
-          sourceData: eventData,
-        });
+        setError(resolveStreamError(error, eventData));
       },
     });
   const handleScrollToBottom = useCallback(({ timeout = 0 } = {}) => {
     if (messageListRef.current) {
       messageListRef.current.scrollToBottom();
       setTimeout(() => {
-        messageListRef.current.scrollToBottom();
+        if (messageListRef.current) {
+          messageListRef.current.scrollToBottom();
+        }
       }, timeout);
     }
   }, []);
 
-  const handleSend = (newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat } = {}) => {
+  const handleSend = (
+    newMessage,
+    { fromMessageId, images, fileIds, media, useFileContentFormat, attachments } = {},
+  ) => {
     setIsChatting(true);
-    sendMessage(newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat });
+    sendMessage(newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat, attachments });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
@@ -201,6 +220,7 @@ function MingoContent(props, ref) {
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
+      cancelStream(cache.current.sessionId);
       clearMessages();
       // 终止正在进行的 load 请求
       if (cache.current.loadAbortController) {
@@ -252,7 +272,7 @@ function MingoContent(props, ref) {
       <div className="header">
         <div className="chattingTitle t-flex t-flex-row t-items-center">
           <BgIconButton icon="backspace" onClick={onBack} />
-          <div className="chattingTitleText">{title}</div>
+          <img className="brandWordmark" src={mingoWordmark} alt="Mingo" />
         </div>
         <BgIconButton.Group gap={6}>
           <BgIconButton
@@ -265,6 +285,7 @@ function MingoContent(props, ref) {
         </BgIconButton.Group>
       </div>
       <MessageList
+        showAssistantAvatar={false}
         activeMessageId={activeMessageId}
         taskType={taskType}
         allowEdit={allowEdit}
@@ -351,7 +372,10 @@ function MingoContent(props, ref) {
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}
-            abortRequest={abortRequest}
+            abortRequest={() => {
+              abortRequest();
+              cancelStream(cache.current.sessionId);
+            }}
             setAutoPlay={value => {
               cache.current.autoPlay = value;
             }}
@@ -363,6 +387,8 @@ function MingoContent(props, ref) {
                 fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
                 media: ocrFiles.map(f => f.commonAttachment),
                 useFileContentFormat: true,
+                // 图片与文档都需透传给后端，useChat 会按 mime 映射为 image/doc
+                attachments: files,
               });
             }}
           />

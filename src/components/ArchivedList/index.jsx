@@ -51,20 +51,15 @@ export default ({
         action={['click']}
         popup={() => {
           return (
-            <Menu style={{ left: 'initial', right: 0, width: 480 }}>
+            <Menu style={{ left: 'initial', right: 0, width: 200 }}>
               {list.map((item, index) => (
                 <MenuItem
                   key={index}
                   disabled={item.id === selectItem.id}
                   onClick={() => onSelect(item)}
-                  style={{ lineHeight: 'normal', height: 54 }}
+                  style={{ lineHeight: 'normal', height: 36 }}
                 >
-                  <div className="flexColumn">
-                    <div className="pTop8 Font14">
-                      {item.start} {_l('至')} {item.end}
-                    </div>
-                    <div className="textSecondary subText overflow_ellipsis pBottom8">{item.text}</div>
-                  </div>
+                  <div className="pTop8 pBottom8 Font14">{item.text}</div>
                 </MenuItem>
               ))}
             </Menu>
@@ -85,8 +80,8 @@ export default ({
               className={cx(
                 `Font20 pointer ${iconClassName}`,
                 _.isEmpty(selectItem)
-                  ? `${iconClassName ? iconClassName : 'textSecondary'} ThemeHoverColor3`
-                  : 'ThemeColor3 ThemeHoverColor2 ',
+                  ? `${iconClassName ? iconClassName : 'textSecondary'} hoverColorPrimary`
+                  : 'colorPrimary hoverColorPrimaryDark ',
               )}
             />
           </Tooltip>
@@ -129,13 +124,11 @@ export default ({
     return (
       <Box className="flexRow alignItemsCenter">
         <div className="bold">{_l('查看已归档数据：')}</div>
-        <div className="mLeft5 flex">
-          {selectItem.start} {_l('至')} {selectItem.end}
-        </div>
+        <div className="mLeft5 flex">{selectItem.text}</div>
         {renderTrigger()}
         <Icon
           icon="cancel"
-          className="Font20 mLeft10 textTertiary ThemeHoverColor3 pointer"
+          className="Font20 mLeft10 textTertiary hoverColorPrimary pointer"
           onClick={() => onSelect()}
         />
       </Box>

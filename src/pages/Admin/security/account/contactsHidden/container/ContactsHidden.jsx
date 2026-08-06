@@ -247,7 +247,7 @@ class ContactsHidden extends React.Component {
           <div className="con flexColumn">
             <div className="headerCon orgManagementHeader">
               <div>
-                <i className="icon-backspace Font22 ThemeHoverColor3 Hand" onClick={this.props.onClose} />
+                <i className="icon-backspace Font22 hoverColorPrimary Hand" onClick={this.props.onClose} />
                 <h5 className="Font17 bold mLeft10">{_l('通讯录可见范围')}</h5>
               </div>
               <Support className="forHelp" type={2} href="https://help.mingdao.com/org/security" text={_l('帮助')} />

@@ -98,9 +98,13 @@ class RuleItems extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (_.get(nextProps, 'ruleData.name') !== this.state.name) {
-      this.setState({ name: _.get(nextProps, 'ruleData.name') });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.get(this.props, 'ruleData.name') !== this.state.name) {
+        this.setState({
+          name: _.get(this.props, 'ruleData.name'),
+        });
+      }
     }
   }
 
@@ -270,7 +274,7 @@ class RuleItems extends React.Component {
             <Tooltip placement="bottom" title={_l('复制')}>
               <Icon
                 icon="copy"
-                className="Font16 Hand textTertiary hoverTextPrimaryLight"
+                className="Font16 Hand textTertiary hoverColorPrimaryLight"
                 onClick={() => copyControlRules(ruleData)}
               />
             </Tooltip>

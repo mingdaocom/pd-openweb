@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import projectAjax from 'src/api/project';
+import { pathCompletion } from 'src/utils/common';
 
 const TYPE_CONFIG = {
   desktop: {
@@ -88,10 +89,11 @@ const InstallDialog = styled.div`
 
 export default ({ projectId, type, onClose }) => {
   const { title, explain, text } = TYPE_CONFIG[type] || {};
-  const { AjaxApiUrl, WebUrl } = _.get(md, ['global', 'Config']);
+  const { AjaxApiUrl } = _.get(md, ['global', 'Config']);
   const isDesktop = type === 'desktop';
   const $ref = useRef(null);
   const $copy = useRef(null);
+  const downloadUrl = pathCompletion('/download');
 
   const handleSelectUser = () => {
     dialogSelectUser({
@@ -148,7 +150,7 @@ export default ({ projectId, type, onClose }) => {
             </div>
           </Fragment>
         ) : (
-          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${WebUrl}download`} />
+          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(downloadUrl)}`} />
         )}
       </div>
       <div className="text">{text}</div>
@@ -156,9 +158,8 @@ export default ({ projectId, type, onClose }) => {
         <Button
           ref={$copy}
           className="copyBtn"
-          style={{ width: '260px' }}
           onClick={() => {
-            copy(`${WebUrl}download`);
+            copy(downloadUrl);
             alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
           }}
         >

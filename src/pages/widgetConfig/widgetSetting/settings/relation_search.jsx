@@ -12,6 +12,7 @@ import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/Fil
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { pathCompletion } from 'src/utils/common';
 import { getSortData } from 'src/utils/control';
 import { SUPPORT_RELATE_SEARCH } from '../../config';
 import { WHOLE_SIZE } from '../../config/Drag';
@@ -115,6 +116,7 @@ export default function RelationSearch(props) {
     allowexport,
     querytype,
     showtitleid,
+    openstatistics,
   } = getAdvanceSetting(data);
   const resultFilters = getAdvanceSetting(data, 'resultfilters');
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
@@ -245,6 +247,7 @@ export default function RelationSearch(props) {
           resultfilters: JSON.stringify(resultFilters),
           querytype: queryType || '0',
           sorts: sheetId !== dataSource ? '[{"controlId":"ctime","isAsc":true}]' : JSON.stringify(sorts),
+          ...(openstatistics === '1' ? { openstatistics: '0', statisticsseting: '' } : {}),
         }),
         dataSource: sheetId,
         controlName: sheetName,
@@ -275,11 +278,11 @@ export default function RelationSearch(props) {
                     <Icon className="Font20 mRight5" icon="aggregate_table" style={{ color: 'var(--color-success)' }} />
                   )}
                   <span
-                    className="ThemeColor3 ThemeHoverColor2 Hand Bold"
+                    className="colorPrimary hoverColorPrimaryDark Hand Bold"
                     onClick={e => {
                       e.stopPropagation();
                       if (querytype === '1') {
-                        window.open(`/app/${worksheetInfo.appId}/settings/aggregations`);
+                        window.open(pathCompletion(`/app/${worksheetInfo.appId}/settings/aggregations`));
                         return;
                       }
 

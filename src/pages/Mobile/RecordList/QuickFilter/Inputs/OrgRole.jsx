@@ -64,7 +64,7 @@ export default function OrgRole(props) {
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <OrgRoleCon>
         {values.map(item => (
-          <OrgRoleItem>
+          <OrgRoleItem key={item.organizeId}>
             <span className="userName">{item.organizeName}</span>
             <Icon icon="close" onClick={() => deleteCurrentRoles(item)} />
           </OrgRoleItem>

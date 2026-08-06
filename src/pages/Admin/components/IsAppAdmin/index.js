@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   .iconWrap {
@@ -47,7 +48,7 @@ export default function IsAppAdmin(props) {
             window.open(transferExternalLinkUrl(urlTemplate, projectId, appId));
           } else {
             if (passCheckManager) {
-              window.open(`/app/${appId}`);
+              window.open(pathCompletion(`/app/${appId}`));
               return;
             }
 
@@ -55,7 +56,7 @@ export default function IsAppAdmin(props) {
               appId,
               appName: appName,
               callback: () => {
-                ckeckSuccessCb ? ckeckSuccessCb() : window.open(`/app/${appId}`);
+                ckeckSuccessCb ? ckeckSuccessCb() : window.open(pathCompletion(`/app/${appId}`));
               },
             });
           }

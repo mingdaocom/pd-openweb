@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
@@ -14,6 +14,7 @@ import { ACTION_TYPES } from 'src/pages/workflow/components/ExecDialog/config';
 import { addBehaviorLog } from 'src/utils/project';
 import Footer from './Footer';
 
+const LoadableRecordInfo = lazy(() => import('mobile/components/RecordInfo/RecordInfo'));
 export default class ProcessRecordInfo extends Component {
   constructor(props) {
     super(props);
@@ -24,16 +25,15 @@ export default class ProcessRecordInfo extends Component {
       workItem: {},
       instance: {},
       appInfo: {},
-      RecordInfo: null,
     };
   }
+
   processFooter = React.createRef();
+
   componentDidMount() {
     this.getWorkItem();
-    import('mobile/components/RecordInfo/RecordInfo').then(component => {
-      this.setState({ RecordInfo: component.default });
-    });
   }
+
   getWorkItem = async () => {
     const { instanceId, workId, isModal } = this.props;
     Promise.all([
@@ -48,6 +48,7 @@ export default class ProcessRecordInfo extends Component {
     ])
       .then(async data => {
         const [workItem, instance] = data;
+
         const appId = _.get(instance, 'app.id');
 
         if (!window[`langData-${appId}`]) {
@@ -64,16 +65,17 @@ export default class ProcessRecordInfo extends Component {
             window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
           }
-        }
+        } // 落地页，调用 app 接口获取状态
 
-        // 落地页，调用 app 接口获取状态
         if (!isModal && appId) {
           homeAppApi
             .getApp({
               appId,
             })
             .then(data => {
-              addBehaviorLog('worksheetRecord', workItem.worksheetId, { rowId: workItem.rowId });
+              addBehaviorLog('worksheetRecord', workItem.worksheetId, {
+                rowId: workItem.rowId,
+              });
               this.setState({
                 loading: false,
                 appInfo: data,
@@ -104,22 +106,32 @@ export default class ProcessRecordInfo extends Component {
     const { instanceId, workId, onClose } = this.props;
     const { currentWorkItem } = this.state.instance;
     const { type } = currentWorkItem;
-
     instanceApi[type === 4 ? 'forward' : 'transfer']({
       id: instanceId,
       workId,
       forwardAccountId: 'user-workflow',
     }).then(() => {
-      onClose({ id: instanceId, workId });
+      onClose({
+        id: instanceId,
+        workId,
+      });
     });
   };
+
   renderHeader() {
     const { instance } = this.state;
     const { name, type, appType } = instance.flowNode;
+
     const isStash = _.includes(instance.operationTypeList[0], 13);
+
     const action = ACTION_TYPES[type];
     return (
-      <div className="flexRow flex alignItemsCenter" style={{ justifyContent: 'space-between' }}>
+      <div
+        className="flexRow flex alignItemsCenter"
+        style={{
+          justifyContent: 'space-between',
+        }}
+      >
         <div
           className={cx(
             'sheetName ellipsis Font13',
@@ -134,6 +146,7 @@ export default class ProcessRecordInfo extends Component {
       </div>
     );
   }
+
   renderWorkflow = ({ formData, hideStep }) => {
     const { workItem, instance } = this.state;
     return (
@@ -147,12 +160,12 @@ export default class ProcessRecordInfo extends Component {
       />
     );
   };
+
   render() {
-    const { RecordInfo } = this.state;
     const { className, workId, instanceId, onClose, onSave } = this.props;
     const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 
-    if (loading || !RecordInfo) {
+    if (loading) {
       return <Loading />;
     }
 
@@ -165,49 +178,54 @@ export default class ProcessRecordInfo extends Component {
     }
 
     return (
-      <RecordInfo
-        isModal={true}
-        className={className}
-        from={_.get(instance, 'flowNode.type') === 5 ? 6 : 4}
-        appId={instance.app.id}
-        worksheetId={workItem.worksheetId}
-        viewId={workItem.viewId}
-        recordId={workItem.rowId}
-        workId={workId}
-        instanceId={instanceId}
-        onClose={onClose}
-        header={this.renderHeader()}
-        recordTitle={instance.recordTitle ? instance.title.replace(/(<([^>]+)>)/gi, '') : ''}
-        renderAbnormal={() => {
-          return (
-            <Abnormal
-              errorMsg={
-                <div className="flexColumn alignItemsCenter">
-                  <div className="Font17 Bold textPrimary">{_l('当前记录无权限，无法查看')}</div>
-                  {!!instance.operationTypeList[0].length && (
-                    <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
-                      {_l('转交给流程拥有者处理')}
-                    </div>
-                  )}
-                </div>
-              }
+      <Suspense fallback={<Loading />}>
+        <LoadableRecordInfo
+          isModal={true}
+          className={className}
+          from={_.get(instance, 'flowNode.type') === 5 ? 6 : 4}
+          appId={instance.app.id}
+          worksheetId={workItem.worksheetId}
+          viewId={workItem.viewId}
+          recordId={workItem.rowId}
+          workId={workId}
+          instanceId={instanceId}
+          onClose={onClose}
+          header={this.renderHeader()}
+          recordTitle={instance.recordTitle ? instance.title.replace(/(<([^>]+)>)/gi, '') : ''}
+          renderAbnormal={() => {
+            return (
+              <Abnormal
+                errorMsg={
+                  <div className="flexColumn alignItemsCenter">
+                    <div className="Font17 Bold textPrimary">{_l('当前记录无权限，无法查看')}</div>
+                    {!!instance.operationTypeList[0].length && (
+                      <div
+                        className="mTop15 colorPrimary hoverColorPrimaryDark pointer Font14"
+                        onClick={this.ownerHandle}
+                      >
+                        {_l('转交给流程拥有者处理')}
+                      </div>
+                    )}
+                  </div>
+                }
+                onClose={onClose}
+              />
+            );
+          }}
+          footer={
+            <Footer
+              ref={this.processFooter}
+              workId={workId}
+              instanceId={instanceId}
+              workItem={workItem}
+              instance={instance}
               onClose={onClose}
+              onSave={onSave}
             />
-          );
-        }}
-        footer={
-          <Footer
-            ref={this.processFooter}
-            workId={workId}
-            instanceId={instanceId}
-            workItem={workItem}
-            instance={instance}
-            onClose={onClose}
-            onSave={onSave}
-          />
-        }
-        workflow={this.renderWorkflow}
-      />
+          }
+          workflow={this.renderWorkflow}
+        />
+      </Suspense>
     );
   }
 }

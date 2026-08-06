@@ -6,7 +6,7 @@ import appManagementAjax from 'src/api/appManagement';
 
 const PAGE_SIZE = 50;
 
-export default function SearchApp({ projectId, className, onChange = () => {} }) {
+export default function SearchApp({ projectId, className, mode, onChange = () => {} }) {
   const [state, setState] = useSetState({
     appList: [],
     pageIndex: 1,
@@ -17,6 +17,7 @@ export default function SearchApp({ projectId, className, onChange = () => {} })
   });
   const { appList, pageIndex, keyword, isMoreApp, loadingApp, appId } = state;
   const appPromiseRef = useRef(null);
+  let extra = {};
 
   const getAppList = useCallback(
     (params = {}) => {
@@ -75,6 +76,13 @@ export default function SearchApp({ projectId, className, onChange = () => {} })
     [getAppList],
   );
 
+  if (mode === 'multiple') {
+    extra = {
+      mode: 'multiple',
+      maxTagCount: 'responsive',
+    };
+  }
+
   return (
     <Fragment>
       <Select
@@ -85,6 +93,7 @@ export default function SearchApp({ projectId, className, onChange = () => {} })
         showArrow={false}
         value={appId}
         options={appList}
+        {...extra}
         filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
         notFoundContent={<span className="textSecondary">{_l('无搜索结果')}</span>}
         onFocus={() => !appList.length && getAppList()}

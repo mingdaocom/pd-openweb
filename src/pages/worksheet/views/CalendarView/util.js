@@ -77,6 +77,20 @@ const renderTimeValue = (controlData, value, currentView) => {
   );
 };
 
+const getCalendarTimeAdvancedSetting = controlData => {
+  const advancedSetting = { ...controlData.advancedSetting, showformat: '0' };
+
+  if (!isTimeStyle(controlData)) {
+    return advancedSetting;
+  }
+
+  return {
+    ...advancedSetting,
+    hour12: '0',
+    ...(String(advancedSetting.showtype) === '2' ? { showtype: '1' } : {}),
+  };
+};
+
 const getAllDay = (data, o, currentView = {}) => {
   if (!data[o.begin]) {
     return false;
@@ -97,7 +111,10 @@ const getAllDay = (data, o, currentView = {}) => {
 };
 
 const getStart = (data, o, currentView = {}) => {
-  const startData = { ...o.startData, advancedSetting: { ...o.startData.advancedSetting, showformat: '0' } };
+  const startData = {
+    ...o.startData,
+    advancedSetting: getCalendarTimeAdvancedSetting(o.startData),
+  };
   return renderTimeValue(startData, data[o.begin], currentView);
 };
 
@@ -106,7 +123,10 @@ const getEnd = (data, o, currentView = {}) => {
     return '';
   }
 
-  const endData = { ...o.endData, advancedSetting: { ...o.endData.advancedSetting, showformat: '0' } };
+  const endData = {
+    ...o.endData,
+    advancedSetting: getCalendarTimeAdvancedSetting(o.endData),
+  };
   const endValue = renderTimeValue(endData, data[o.end], currentView);
   return moment(!getAllDay(data, o, currentView) ? endValue : moment(endValue).add(1, 'day')).format(o.endFormat);
 };

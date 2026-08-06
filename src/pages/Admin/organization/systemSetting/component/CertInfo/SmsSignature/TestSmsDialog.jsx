@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, intlTelInput } from 'ming-ui';
+import { Dialog, FunctionWrap } from 'ming-ui';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import certificationApi from 'src/api/certification';
 import userApi from 'src/api/user';
@@ -28,7 +29,7 @@ function TestSms(props) {
   useEffect(() => {
     if (mobileRef && mobileRef.current) {
       itiRef.current && itiRef.current.destroy();
-      itiRef.current = intlTelInput(mobileRef.current, {
+      itiRef.current = createIntlTelInput(mobileRef.current, {
         customPlaceholder: '',
         separateDialCode: true,
         showSelectedDialCode: true,

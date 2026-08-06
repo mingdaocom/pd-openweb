@@ -7,7 +7,6 @@ import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 import { captcha } from 'ming-ui/functions';
 import appManagementController from 'src/api/appManagement';
-import ChangeLang from 'src/components/ChangeLang';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { InviteFromType } from 'src/pages/AuthService/config.js';
 import { registerAction } from 'src/pages/AuthService/register/util.js';
@@ -161,6 +160,10 @@ export default function (props) {
   const warn = _.find(warnList, it => it.tipDom === 'canSendCodeByTel');
   const warnPrivate = _.find(warnList, it => it.tipDom === 'privacyText');
   const { unionId, state, tpType } = getRequest();
+  const isPrivateDeployment = window.platformENV.isOverseas || window.platformENV.isLocal;
+  const termsUrl = isPrivateDeployment ? `${md.global.Config.PlatformUrl}legalportal/terms` : '/terms';
+  const privacyUrl = isPrivateDeployment ? `${md.global.Config.PlatformUrl}legalportal/privacy` : '/privacy';
+
   if (loading) return <LoadDiv />;
   return (
     <React.Fragment>
@@ -169,7 +172,7 @@ export default function (props) {
           <div className="title mTop40 Bold TxtMiddle">
             {unionId && state && tpType && (
               <div
-                className="Font22 Hand back textSecondary ThemeHoverColor3 InlineBlock"
+                className="Font22 Hand back textSecondary hoverColorPrimary InlineBlock"
                 onClick={() => {
                   navigateTo('/login');
                 }}
@@ -186,7 +189,7 @@ export default function (props) {
             {inviteInfo.fromType === InviteFromType.project && createUserName ? (
               <React.Fragment>
                 <div className="Font20 Bold">{loadProjectName ? '' : projectNameLang || htmlDecodeReg(titleStr)}</div>
-                <div className="textTertiary Font14 Bold">{_l('%0邀请您加入组织', createUserName)}</div>
+                <div className="textSecondary Font14 Bold">{_l('%0邀请您加入组织', createUserName)}</div>
               </React.Fragment>
             ) : (
               <React.Fragment>
@@ -197,6 +200,40 @@ export default function (props) {
           </div>
         )}
       </div>
+      {!inviteInfo.account && (
+        <div className="authSwitchEntry">
+          {isLink ? (
+            loginForAdd ? (
+              <span className="authSwitchLink Hand" onClick={() => toLoginContain()}>
+                {_l('注册并加入')}
+              </span>
+            ) : (
+              <React.Fragment>
+                <span className="textSecondary">{_l('已有账号')} , </span>
+                <span className="authSwitchLink Hand" onClick={() => toLoginContain()}>
+                  {_l('登录')}
+                </span>
+              </React.Fragment>
+            )
+          ) : (
+            <React.Fragment>
+              <span className="textSecondary">{_l('已有账号')}?</span>
+              <span
+                className="authSwitchLink Hand mLeft8"
+                onClick={() => {
+                  if (unionId && state && tpType) {
+                    navigateTo(`/login?state=${state}&tpType=${tpType}&unionId=${unionId}`);
+                  } else {
+                    toLoginContain();
+                  }
+                }}
+              >
+                {_l('登录')}
+              </span>
+            </React.Fragment>
+          )}
+        </div>
+      )}
       {unionId && state && tpType && <AccountInfo />}
       <div className="mBottom20">
         <Form {...props} type={type} keys={keys} />
@@ -256,7 +293,11 @@ export default function (props) {
                 onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
-                  location.href = '/legalportal/terms';
+                  if (window.isMingDaoApp) {
+                    location.href = termsUrl;
+                  } else {
+                    window.open(termsUrl);
+                  }
                 }}
               >
                 {_l('《使用条款》%14000')}
@@ -267,7 +308,11 @@ export default function (props) {
                 onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
-                  location.href = '/legalportal/privacy';
+                  if (window.isMingDaoApp) {
+                    location.href = privacyUrl;
+                  } else {
+                    window.open(privacyUrl);
+                  }
                 }}
               >
                 {_l('《隐私条款》')}
@@ -291,52 +336,6 @@ export default function (props) {
           {createAccountLoading && '...'}
         </span>
       </React.Fragment>
-      {/* 已有账号只能登录并加入 */}
-      {!inviteInfo.account ? (
-        <React.Fragment>
-          <span className={cx('line', { mTopH: loginForAdd })}></span>
-          <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
-            <span className="changeBtn Hand TxtRight">
-              {isLink ? (
-                loginForAdd ? (
-                  <span className="Hand textB" onClick={() => toLoginContain()}>
-                    {_l('注册并加入')}
-                  </span>
-                ) : (
-                  <React.Fragment>
-                    <span className="textG">{_l('已有账号')} , </span>
-                    <span className="textB Hand" onClick={() => toLoginContain()}>
-                      {_l('登录')}
-                    </span>
-                  </React.Fragment>
-                )
-              ) : (
-                <span
-                  className="Hand textB"
-                  onClick={() => {
-                    if (unionId && state && tpType) {
-                      navigateTo(`/login?state=${state}&tpType=${tpType}&unionId=${unionId}`);
-                    } else {
-                      toLoginContain();
-                    }
-                  }}
-                >
-                  {_l('登录已有账号')}
-                </span>
-              )}
-            </span>
-            <span className="lineCenter mLeft24"></span>
-            <div className="mLeft16 TxtLeft">
-              <ChangeLang className="justifyContentLeft" />
-            </div>
-          </div>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <span className={cx('line', { mTopH: loginForAdd })}></span>
-          <ChangeLang className="mTop20" />
-        </React.Fragment>
-      )}
     </React.Fragment>
   );
 }

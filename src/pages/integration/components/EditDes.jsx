@@ -109,7 +109,7 @@ export default class EditDes extends Component {
           <div className="caption">{title || _l('应用说明')}</div>
           <div className="flex" />
           <div
-            className="mdEditorCancel ThemeColor3"
+            className="mdEditorCancel colorPrimary"
             onClick={() => {
               this.setState({
                 isEditing: false,
@@ -118,7 +118,7 @@ export default class EditDes extends Component {
           >
             {_l('取消')}
           </div>
-          <div className="mdEditorSave ThemeBGColor3 ThemeHoverBGColor2" onClick={this.onSave}>
+          <div className="mdEditorSave bgColorPrimary hoverBgColorPrimaryDark" onClick={this.onSave}>
             {_l('保存')}
           </div>
         </div>

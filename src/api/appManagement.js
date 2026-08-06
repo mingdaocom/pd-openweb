@@ -1,5 +1,17 @@
 export default {
   /**
+   * 获取应用可用的 AI 开发商和模型列表。
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id
+   * @param {string} args.projectId 组织 ID。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAppAllowDeveloperWithModes: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetAppAllowDeveloperWithModes', args, options);
+  },
+  /**
    * 添加角色
    * @param {Object} args 请求参数
    * @param {string} args.appId 应用id
@@ -588,6 +600,29 @@ export default {
    **/
   getAppItems: function (args, options = {}) {
     return mdyAPI('AppManagement', 'GetAppItems', args, options);
+  },
+  /**
+   * 获取应用结构信息
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id
+   * @param {} args.langType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAppStructureInfo: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetAppStructureInfo', args, options);
+  },
+  /**
+   * 获取示例数据Mock来源数据
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getExampleDataMockSourceData: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetExampleDataMockSourceData', args, options);
   },
   /**
    * 获取应用信息（批量）
@@ -1515,7 +1550,7 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
-   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1542,7 +1577,7 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
-   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
    * @param {string} args.archivedId 归档id
    * @param {Object} options 配置参数

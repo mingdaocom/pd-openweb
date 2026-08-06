@@ -10,6 +10,7 @@ import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import Empty from '../../../common/TableEmpty';
 import { PAY_CHANNEL_TXT, REFUND_STATUS } from '../../config';
@@ -181,7 +182,7 @@ export default class RefundOrder extends Component {
               className="Hand hoverColorPrimary"
               onClick={() =>
                 record.processId
-                  ? window.open(`/workflowedit/${record.processId}`)
+                  ? window.open(pathCompletion(`/workflowedit/${record.processId}`))
                   : navigateTo(`/worksheet/${worksheetId}`)
               }
             >

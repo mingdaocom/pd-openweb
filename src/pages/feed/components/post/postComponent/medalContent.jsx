@@ -18,7 +18,7 @@ function MedalContent(props) {
               <img src={medalPath} placeholder="/staticfiles/images/blank.gif" />
             </td>
             <td>
-              <p className="ThemeColor3 mTop20" style={{ fontSize: '12px', lineHeight: '20px' }}>
+              <p className="colorPrimary mTop20" style={{ fontSize: '12px', lineHeight: '20px' }}>
                 {medalName}
               </p>
               <p

@@ -1,5 +1,7 @@
 .printTem {
   .headerBox {
+    display: flex;
+    align-items: center;
     position: relative;
     top: 0;
     left: 0;
@@ -38,7 +40,6 @@
       cursor: pointer;
       color: var(--color-text-tertiary);
       vertical-align: top;
-      padding-top: 16px;
       display: inline-block;
       &:hover {
         color: var(--color-text-title);
@@ -144,6 +145,62 @@
       transform: translate(-50%, -50%);
       color: var(--color-text-primary);
       font-size: 16px;
+    }
+    .headerTitleRow {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+    }
+    .headerActions {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    &.mobileHeader {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      min-height: 56px;
+      height: auto;
+      line-height: normal;
+      padding: 10px 12px 12px;
+      gap: 8px 0;
+      .headerTitleRow {
+        width: 100%;
+        min-height: 28px;
+      }
+      .headerActions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .pageIndicator {
+        position: static;
+        transform: none;
+        margin-left: 8px;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+      }
+      .saveButton,
+      .printButton,
+      .btn {
+        height: 32px;
+        line-height: 32px;
+        padding: 0 12px;
+        margin-left: 0 !important;
+      }
+      .exportForWord,
+      .saveForDocx {
+        margin-left: 0 !important;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 10px;
+        border: 1px solid var(--color-border-primary);
+        border-radius: 4px;
+        background: var(--color-background-primary);
+      }
     }
   }
   @media print {

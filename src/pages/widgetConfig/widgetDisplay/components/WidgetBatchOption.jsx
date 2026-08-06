@@ -8,6 +8,7 @@ import AutoIcon from '../../components/Icon';
 import { UN_REQUIRED_WIDGET } from '../../config';
 import { DropdownOverlay, SettingItem } from '../../styled';
 import { isSheetDisplay, notInsetSectionTab, putControlByOrder } from '../../util';
+import { createTemplateDialog } from '../../util/createTemplate';
 import { batchCopyWidgets, batchResetWidgets, handleMoveWidgets } from '../../util/data';
 import { batchRemoveItems } from '../../util/drag';
 import { updateConfig } from '../../util/setting';
@@ -136,6 +137,9 @@ function WidgetBatch(props) {
               </Tooltip>
             </Dropdown>
           )}
+          <Tooltip placement="bottom" title={_l('创建字段模板')}>
+            <Icon className="titleBtn" icon="borg" onClick={() => handleOperate('template')} />
+          </Tooltip>
           <Tooltip placement="bottom" title={_l('复制')}>
             <Icon className="titleBtn" icon="copy" onClick={() => handleOperate('copy')} />
           </Tooltip>
@@ -211,6 +215,12 @@ export default function WidgetBatchOption(props) {
         orderWidgets,
         { ...props, activeWidget: find(allControls, a => a.controlId === id), widgets: deleteMoveItems },
       );
+      setBatchActive([]);
+      return;
+    }
+
+    if (mode === 'template') {
+      createTemplateDialog({ ...props, templateControls: selectWidgets });
       setBatchActive([]);
       return;
     }

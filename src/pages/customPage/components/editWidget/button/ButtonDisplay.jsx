@@ -35,7 +35,7 @@ const BtnWrap = styled.div`
   &.isFullWidth {
     flex-grow: 1;
   }
-  .Button {
+  .ming.Button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -121,10 +121,10 @@ export default function ButtonDisplay({
       <div className="flexColumn" style={{ alignItems: newTitleStyles.textAlign === 'left' ? 'start' : undefined }}>
         {title && (
           <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>
-            {title}
+            {translateInfo.title || title}
           </div>
         )}
-        {explain && <div className="explain">{translateInfo.description || explain}</div>}
+        {explain && <div className="explain">{explain ? translateInfo.description || explain : ''}</div>}
       </div>
       <ButtonListWrap>
         {newList.map((list, index) => {

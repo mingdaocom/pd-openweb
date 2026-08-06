@@ -49,7 +49,7 @@ Comm.inviteCalendar = {
     Dialog.confirm({
       dialogClasses: 'inviteDirectMessages',
       width: 488,
-      title: <span className="resuserTitle ThemeColor3">{_l('请回复您不能参加的原因')}</span>,
+      title: <span className="resuserTitle colorPrimary">{_l('请回复您不能参加的原因')}</span>,
       children: <div dangerouslySetInnerHTML={{ __html: Comm.doT.template(inviteSingleTpl)({}) }}></div>,
       okText: _l('不能参加'),
       removeCancelBtn: true,
@@ -59,7 +59,7 @@ Comm.inviteCalendar = {
         var reason = $selectRadio.attr('id') == 'radOther' ? $('#txtrefuseReason').val().trim() : $selectRadio.val();
 
         if (reason === '' || reason == _l('输入您拒绝邀请的理由')) {
-          alert('请输入不能参加的理由', 3);
+          alert(_l('请输入不能参加的理由'), 3);
           $('#txtrefuseReason').focus();
           return false;
         }
@@ -93,7 +93,7 @@ Comm.confirmOrUnconfirmInviteMe = function (calendarId, status, remark, recurTim
     })
     .then(function (source) {
       if (source.code == 1) {
-        alert(status == 2 ? '您已发送不能参加的原因' : _l('您已确认参加该日程'));
+        alert(status == 2 ? _l('您已发送不能参加的原因') : _l('您已确认参加该日程'));
 
         var page = location.href.substr(location.href.lastIndexOf('/'));
         if (page.indexOf('detail') > 0) {
@@ -117,7 +117,7 @@ Comm.confirmOrUnconfirmInviteMe = function (calendarId, status, remark, recurTim
           });
         }
       } else if (source.code === 3) {
-        alert('日程已被删除', 3);
+        alert(_l('日程已被删除'), 3);
       } else {
         alert(_l('修改失败'), 3);
       }

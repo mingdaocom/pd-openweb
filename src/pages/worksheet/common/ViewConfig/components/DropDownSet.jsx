@@ -72,6 +72,7 @@ export default class DropDownSet extends React.Component {
       addName,
       worksheetId,
       updateWorksheetControls,
+      invalidValueText = _l('该字段已删除'),
     } = this.props;
     const { visible } = this.state;
     const setDataId = this.props.setDataId || _.get(view, ['advancedSetting', key]);
@@ -127,7 +128,7 @@ export default class DropDownSet extends React.Component {
                 </Select.Option>
               )}
             </Select>
-            {isDelete && <span className="Red">{_l('该字段已删除')}</span>}
+            {isDelete && <span className="Red">{invalidValueText}</span>}
           </DropDownSetChoose>
         </div>
         {visible && (

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { getFeatureStatus } from 'src/utils/project';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
 import { PERMISSION_ENUM } from '../../enum';
@@ -188,7 +189,7 @@ export default function orgQuota(props) {
                             ].includes(key)
                           ) {
                             localStorage.setItem('currentProjectId', projectId);
-                            return location.assign('/integration/task');
+                            return location.assign(pathCompletion('/integration/task'));
                           }
 
                           link && navigateTo(`/admin/${link}/${projectId}`);

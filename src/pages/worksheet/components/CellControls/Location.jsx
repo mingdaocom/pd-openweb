@@ -7,7 +7,7 @@ import { isKeyBoardInputChar } from 'src/utils/common';
 import EditableCellCon from '../EditableCellCon';
 
 function Location(props, ref) {
-  const { className, style, cell, editable, updateCell, onClick, updateEditingStatus } = props;
+  const { className, style, cell, editable, updateCell, onClick, updateEditingStatus, onValidate } = props;
   const { enumDefault2, advancedSetting, strDefault } = cell;
   const onlyCanAppUse = (strDefault || '00')[0] === '1';
   const isediting = props.isediting && !onlyCanAppUse;
@@ -67,9 +67,16 @@ function Location(props, ref) {
             distance={enumDefault2 ? parseInt(advancedSetting.distance, 10) : 0}
             defaultAddress={locationData || null}
             onAddressChange={({ lng, lat, address, name }) => {
+              const newValue = JSON.stringify({ x: lng, y: lat, address, title: name });
               updateCell({
-                value: JSON.stringify({ x: lng, y: lat, address, title: name }),
+                value: newValue,
               });
+              // 定位通过地图浮层即时提交，不走输入/失焦校验流程；必填报错后重新定位需主动重新校验，
+              // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+              if (typeof onValidate === 'function') {
+                onValidate(newValue);
+              }
+
               updateEditingStatus(false);
             }}
             onClose={() => {
@@ -91,6 +98,7 @@ Location.propTypes = {
   updateCell: PropTypes.func,
   onClick: PropTypes.func,
   updateEditingStatus: PropTypes.func,
+  onValidate: PropTypes.func,
 };
 
 export default forwardRef(Location);

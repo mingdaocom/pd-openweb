@@ -47,7 +47,7 @@ class RelateWorksheet extends Component {
     if (cell.enumDefault === 1 && cell.type !== 34) {
       content = relateWorksheetData.slice(0, 6).map((record, index) => (
         <span
-          className="cellRelateWorksheetRecord ThemeHoverColor3 ellipsis"
+          className="cellRelateWorksheetRecord hoverColorPrimary ellipsis"
           key={index}
           onClick={evt => {
             if (isMobile) {

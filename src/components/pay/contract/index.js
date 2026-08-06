@@ -239,7 +239,11 @@ class ContractCom extends Component {
                 <span>{_l('户名：上海万企明道软件有限公司')}</span>
               </span>
               <br />
-              <span>{_l('支付宝账户：payment@mingdao.com')}</span>
+              <span>
+                {window.platformENV.isOverseas
+                  ? _l('支付宝账户：payment@xxx.com')
+                  : _l('支付宝账户：payment@mingdao.com')}
+              </span>
             </span>
             <br />
             <br />

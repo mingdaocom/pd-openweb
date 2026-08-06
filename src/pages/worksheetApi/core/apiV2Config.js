@@ -432,7 +432,7 @@ export const MENU_LIST_APPROLE = [
         example: [
           {
             pageId: '自定义页面 id',
-            name: '页面名称',
+            name: _l('页面名称'),
             checked: false, //查看权限
             navigateHide: false, //是否隐藏导航
             sortIndex: 1, //排序
@@ -2072,7 +2072,7 @@ export const OPTIONS_FUNCTION_LIST = [
         name: 'appKey',
         required: _l('是'),
         type: 'string',
-        desc: '应用key',
+        desc: _l('应用key'),
       },
       {
         name: 'sign',

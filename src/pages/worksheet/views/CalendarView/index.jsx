@@ -10,7 +10,7 @@ import _ from 'lodash';
 import LunarCalendar from 'lunar-calendar';
 import moment from 'moment';
 import { Icon, LoadDiv } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import worksheetAjax from 'src/api/worksheet';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import { permitList } from 'src/pages/FormSet/config';
@@ -22,7 +22,11 @@ import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import SelectField from '../components/SelectField';
 import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
 import { eventDidMount } from './CalendarEvent';
@@ -46,8 +50,7 @@ import './index.less';
 let time;
 let clickData = null;
 
-@autoSize
-class RecordCalendar extends Component {
+class RecordCalendarBase extends Component {
   constructor(props) {
     super(props);
     this.calendarComponentRef = React.createRef();
@@ -81,64 +84,71 @@ class RecordCalendar extends Component {
     this.getEventsFn();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { base, calendarview = {}, height, sheetSwitchPermit } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { base, calendarview = {}, height, sheetSwitchPermit } = this.props;
 
-    if (
-      !_.isEqual(sheetSwitchPermit, this.props.sheetSwitchPermit) ||
-      _.get(nextProps, 'worksheetInfo.allowAdd') !== _.get(this.props, 'worksheetInfo.allowAdd')
-    ) {
-      this.setState({
-        canNew: getCanCreateRecord(nextProps),
-      });
+      if (
+        !_.isEqual(sheetSwitchPermit, prevProps.sheetSwitchPermit) ||
+        _.get(this.props, 'worksheetInfo.allowAdd') !== _.get(prevProps, 'worksheetInfo.allowAdd')
+      ) {
+        this.setState({
+          canNew: getCanCreateRecord(this.props),
+        });
+      }
+
+      const { calendarData = {}, calendarFormatData } = calendarview;
+      const { viewId } = base;
+      const currentView = getCurrentView(this.props);
+      const preView = getCurrentView(prevProps);
+      const { initialView } = calendarData;
+
+      if (this.props.height !== prevProps.height) {
+        $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
+        this.setState({
+          height,
+        });
+      }
+
+      if (!_.isEqual(calendarFormatData, (prevProps.calendarview || {}).calendarFormatData)) {
+        this.getFormatData(this.props);
+      }
+
+      if (viewId !== prevProps.base.viewId || !_.isEqual(currentView, preView)) {
+        this.props.getCalendarData();
+        this.calendarComponentRef.current && this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
+
+        this.props.fetchExternal();
+        this.getEventsFn();
+        this.setState({
+          fullCalendarKey: JSON.stringify(Math.random()),
+        });
+      }
+
+      if (
+        viewId !== prevProps.base.viewId ||
+        getAdvanceSetting(currentView).begindate !== getAdvanceSetting(preView).begindate ||
+        getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid ||
+        getAdvanceSetting(currentView).colortype !== getAdvanceSetting(preView).colortype ||
+        getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids ||
+        getAdvanceSetting(currentView).viewtitle !== getAdvanceSetting(preView).viewtitle
+      ) {
+        // 切换视图，或更改开始时间字段 重新更新排期数据
+        this.props.refreshEventList();
+        this.props.fetchExternal();
+        this.setState({
+          isSearch: false,
+        });
+      }
+
+      if (
+        !_.isEqual(initialView, prevProps.calendarview.calendarData.initialView) &&
+        this.calendarComponentRef.current
+      ) {
+        this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
+      }
     }
 
-    const { calendarData = {}, calendarFormatData } = calendarview;
-    const { viewId } = base;
-    const currentView = getCurrentView(nextProps);
-    const preView = getCurrentView(this.props);
-    const { initialView } = calendarData;
-
-    if (nextProps.height !== this.props.height) {
-      $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
-      this.setState({ height });
-    }
-
-    if (!_.isEqual(calendarFormatData, (this.props.calendarview || {}).calendarFormatData)) {
-      this.getFormatData(nextProps);
-    }
-
-    if (viewId !== this.props.base.viewId || !_.isEqual(currentView, preView)) {
-      nextProps.getCalendarData();
-      this.calendarComponentRef.current && this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
-      nextProps.fetchExternal();
-      this.getEventsFn();
-      this.setState({ fullCalendarKey: JSON.stringify(Math.random()) });
-    }
-
-    if (
-      viewId !== this.props.base.viewId ||
-      getAdvanceSetting(currentView).begindate !== getAdvanceSetting(preView).begindate ||
-      getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid ||
-      getAdvanceSetting(currentView).colortype !== getAdvanceSetting(preView).colortype ||
-      getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids ||
-      getAdvanceSetting(currentView).viewtitle !== getAdvanceSetting(preView).viewtitle
-    ) {
-      // 切换视图，或更改开始时间字段 重新更新排期数据
-      nextProps.refreshEventList();
-      nextProps.fetchExternal();
-      this.setState({ isSearch: false });
-    }
-
-    if (
-      !_.isEqual(initialView, this.props.calendarview.calendarData.initialView) &&
-      this.calendarComponentRef.current
-    ) {
-      this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
-    }
-  }
-
-  componentDidUpdate() {
     if (this.calendarComponentRef.current) {
       const { base } = this.props;
       const { viewId, worksheetId } = base;
@@ -357,7 +367,7 @@ class RecordCalendar extends Component {
       }
 
       let date = moment(data).format('YYYY-MM-DD');
-      $(`span[data-date=${date}-${random}]`)[0].click();
+      $(`span[data-date=${date}-${random}]`)[0]?.click();
     }, 500);
   };
 
@@ -930,6 +940,8 @@ class RecordCalendar extends Component {
   }
 }
 
+const RecordCalendar = autoSize(RecordCalendarBase);
+
 // 包装组件，用于在日历视图中获取记录卡片按钮状态
 const RecordCalendarWrapper = props => {
   const { base = {}, views = [], calendarview = {}, sheetButtons, printList, sheetSwitchPermit } = props;
@@ -951,7 +963,7 @@ const RecordCalendarWrapper = props => {
   }, [currentView, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
   // 获取按钮 ID
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
 
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);

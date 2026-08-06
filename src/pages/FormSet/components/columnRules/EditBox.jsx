@@ -41,13 +41,21 @@ class EditBox extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectRules.name !== this.state.name) {
-      this.setState({ name: nextProps.selectRules.name });
-    }
+  // 筛选条件 // 筛选条件
 
-    if (_.get(nextProps.selectRules, 'ruleItems[0].message') !== this.state.message) {
-      this.setState({ message: _.get(nextProps.selectRules, 'ruleItems[0].message') });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectRules.name !== this.state.name) {
+        this.setState({
+          name: this.props.selectRules.name,
+        });
+      }
+
+      if (_.get(this.props.selectRules, 'ruleItems[0].message') !== this.state.message) {
+        this.setState({
+          message: _.get(this.props.selectRules, 'ruleItems[0].message'),
+        });
+      }
     }
   }
 
@@ -541,7 +549,7 @@ class EditBox extends React.Component {
     const message =
       originalMessage ||
       JSON.stringify({
-        titlecolor: 'var(--color-text-title)',
+        titlecolor: 'var(--color-text-primary)',
         titlesize: '0',
         titlestyle: '0000',
         valuecolor: 'var(--color-text-title)',

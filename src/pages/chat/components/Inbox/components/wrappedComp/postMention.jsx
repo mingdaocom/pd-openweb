@@ -3,6 +3,7 @@ import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { MSGTYPES } from '../../constants';
 import { formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
+import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态提到我的
@@ -148,7 +149,7 @@ export default class PostMention extends React.Component {
               <img className="lazy" src={medalPath} />
             </div>
             <div>
-              <p className="ThemeColor3 mTop20" style={{ 'font-size': '12px', 'line-height': '20px' }}>
+              <p className="colorPrimary mTop20" style={{ 'font-size': '12px', 'line-height': '20px' }}>
                 {medalName}
               </p>
               <p className={{ color: 'var(--color-text-secondary)', 'font-size': '12px', 'line-height': '20px' }}>
@@ -185,7 +186,7 @@ export default class PostMention extends React.Component {
               {post.message.substring(0, 25) + (post.message.length > 25 ? '...' : '')}
             </div>
             <div class="viewDetail">
-              <a target="_blank" href={fromLink} class="detailBtn boderRadAll_3">
+              <a target="_blank" href={pathCompletion(fromLink)} class="detailBtn boderRadAll_3">
                 {_l('查看详情')}
               </a>
             </div>

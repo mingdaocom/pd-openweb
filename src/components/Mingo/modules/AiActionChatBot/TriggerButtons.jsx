@@ -9,6 +9,8 @@ const Con = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
   .triggerButton {
     max-width: 100%;
     height: 36px;
@@ -46,6 +48,38 @@ const Con = styled.div`
       border-color: var(--color-border-secondary);
     }
   }
+  .emptyAction {
+    flex: 1;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 120px;
+    text-align: center;
+    .emptyIcon {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-background-primary);
+      box-shadow: 0 0 0 1px var(--color-border-secondary);
+      color: var(--color-text-tertiary);
+      font-size: 40px;
+      margin-bottom: 36px;
+    }
+    .emptyDesc {
+      max-width: 320px;
+      line-height: 26px;
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
+  }
 `;
 
 export default function TriggerButtons({
@@ -56,6 +90,15 @@ export default function TriggerButtons({
   onReloadButtons = () => {},
 }) {
   const [createAIActionDialogVisible, setCreateAIActionDialogVisible] = useState(false);
+
+  const handleCreateAction = () => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+
+    setCreateAIActionDialogVisible(true);
+  };
 
   const handleSave = params => {
     if (!trim(params.name)) {
@@ -85,7 +128,7 @@ export default function TriggerButtons({
     }
 
     try {
-      const sortOrder = JSON.parse(actionsort);
+      const sortOrder = safeParse(actionsort);
 
       if (!Array.isArray(sortOrder) || sortOrder.length === 0) {
         return buttons;
@@ -109,39 +152,42 @@ export default function TriggerButtons({
     }
   }, [buttons, worksheetInfo?.advancedSetting?.actionsort]);
 
+  const renderCreateActionButton = () => (
+    <div className="addActionButton" onClick={handleCreateAction}>
+      {_l('+ AI 动作')}
+    </div>
+  );
+
   return (
     <Con>
-      {sortedButtons.map((item, index) => (
-        <div className="mTop10">
-          <Tooltip title={item.desc || item.name}>
-            <div className="triggerButton" key={index} onClick={() => onChat(item)}>
-              <div className="ellipsis">{item.name}</div>
-              <i className="icon icon-arrow_forward"></i>
-            </div>
-          </Tooltip>
-        </div>
-      ))}
-      {isCharge && (
-        <div className="mTop10">
-          <div
-            className="addActionButton"
-            onClick={() => {
-              if (window.isPublicApp) {
-                alert(_l('预览模式下，不能操作'), 3);
-                return;
-              }
-
-              setCreateAIActionDialogVisible(true);
-            }}
-          >
-            {_l('+ AI 动作')}
+      {isCharge && !sortedButtons.length ? (
+        <div className="emptyAction">
+          <div className="emptyIcon">
+            <i className="icon icon-auto_awesome"></i>
           </div>
+          <div className="emptyDesc">
+            {_l('根据当前记录内容，自动执行数据查询、字段更新、邮件发送等一系列复杂任务。')}
+            <br />
+            {_l('一键配置，即刻自动化。')}
+          </div>
+          {renderCreateActionButton()}
         </div>
+      ) : (
+        sortedButtons.map((item, index) => (
+          <div className="mTop10" key={item.btnId || index}>
+            <Tooltip title={item.desc || item.name}>
+              <div className="triggerButton" onClick={() => onChat(item)}>
+                <div className="ellipsis">{item.name}</div>
+                <i className="icon icon-arrow_forward"></i>
+              </div>
+            </Tooltip>
+          </div>
+        ))
       )}
+      {isCharge && !!sortedButtons.length && <div className="mTop10">{renderCreateActionButton()}</div>}
       {createAIActionDialogVisible && (
         <CreateAIActionDialog
-          appId={worksheetInfo.appId}
-          worksheetId={worksheetInfo.worksheetId}
+          worksheetInfo={worksheetInfo}
           onCancel={() => setCreateAIActionDialogVisible(false)}
           onSuccess={data => {
             handleSave({ ...data, desc: data.description, advancedSetting: { prompt: data.prompt || '' } }, true);

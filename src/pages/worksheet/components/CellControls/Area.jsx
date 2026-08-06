@@ -40,14 +40,22 @@ export default class Date extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      const value = _.isObject(nextProps.cell.value) ? nextProps.cell.value.text : nextProps.cell.value;
-      this.setState({
-        value,
-        ...(value === '{"code":"","name":""}' ? { tempValue: undefined } : { tempValue: value }),
-      });
-      this.tempValue = value === '{"code":"","name":""}' ? undefined : value;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        const value = _.isObject(this.props.cell.value) ? this.props.cell.value.text : this.props.cell.value;
+        this.setState({
+          value,
+          ...(value === '{"code":"","name":""}'
+            ? {
+                tempValue: undefined,
+              }
+            : {
+                tempValue: value,
+              }),
+        });
+        this.tempValue = value === '{"code":"","name":""}' ? undefined : value;
+      }
     }
   }
 
@@ -96,7 +104,7 @@ export default class Date extends React.Component {
   };
 
   handleChange = (array, panelIndex, autoClose = true) => {
-    const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
+    const { tableFromModule, cell, updateCell, updateEditingStatus, onValidate } = this.props;
     const last = _.last(array);
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
     const index = last.path.split('/').length;
@@ -116,29 +124,41 @@ export default class Date extends React.Component {
       return;
     }
 
+    const valueToUpdate = tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? newValue : last.id;
     updateCell({
-      value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? newValue : last.id,
+      value: valueToUpdate,
     });
     this.setState({
       value: newValue,
       tempValue: newValue,
     });
     this.tempValue = newValue;
+    // 地区通过浮层选择即时提交，不走输入/失焦校验流程；必填报错后重新选择需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (_.isFunction(onValidate)) {
+      onValidate(valueToUpdate);
+    }
+
     autoClose && updateEditingStatus(false);
   };
 
   handleExit = () => {
-    const { tableFromModule, updateCell, updateEditingStatus } = this.props;
+    const { tableFromModule, updateCell, updateEditingStatus, onValidate } = this.props;
     const { value } = this.state;
     const tempValue = this.tempValue;
 
     if (value !== tempValue) {
+      const valueToUpdate =
+        tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? tempValue : safeParse(tempValue).code;
       updateCell({
-        value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? tempValue : safeParse(tempValue).code,
+        value: valueToUpdate,
       });
       this.setState({
         value: tempValue,
       });
+      if (_.isFunction(onValidate)) {
+        onValidate(valueToUpdate);
+      }
     }
 
     this.setState({

@@ -1,50 +1,33 @@
+.todoEntrustDialog {
+  .mui-dialog-header {
+    display: none;
+  }
+  .mui-dialog-body {
+    padding-bottom: 0px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+}
+
 .todoEntrustWrapper {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  box-sizing: border-box;
-  width: 460px;
-  background-color: var(--color-background-secondary);
-  box-shadow:
-    0 10px 23px 2px rgba(0, 0, 0, 0.2),
-    0 3px 6px rgba(0, 0, 0, 0.15);
-  z-index: 20;
-  overflow: auto;
-
-  .todoEntrustHeaderWrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 60px;
-    width: 100%;
-    padding: 0 20px;
-    background: var(--color-background-primary);
-
-    span {
-      color: var(--color-text-title);
-      font-size: 17px;
-    }
+  --app-primary-color: var(--color-primary) !important;
+  height: 100%;
+  .listWrapper,
+  .contentWrapper {
+    height: 100%;
   }
   .listWrapper {
-    margin-top: 16px;
-    padding: 0 20px;
+    width: 360px;
+    padding: 20px;
+    border-right: 1px solid var(--color-border-secondary);
   }
-  .trusteeAvatarWrapper {
-    border-radius: 24px;
-    background-color: var(--color-background-secondary);
-    overflow: hidden;
+  .contentWrapper .scroll-viewport {
+    padding: 20px !important;
   }
-
-  &.mobileCarListWrapper {
-    position: unset;
-    width: 100%;
-    box-shadow: unset;
+  .liftIcon {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
     background-color: var(--color-background-secondary);
-    padding-bottom: 20px;
-    box-sizing: border-box;
-    .listWrapper {
-      padding: 0 10px;
-    }
   }
 }

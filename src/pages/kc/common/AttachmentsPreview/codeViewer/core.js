@@ -40,6 +40,19 @@ export function renderMarkdown(src, cb = () => {}) {
           },
         });
 
+        // mermaid 围栏：不做代码高亮，输出占位 div（内含原始源码），由预览层注入 DOM 后异步渲染成图
+        const defaultFence = md.renderer.rules.fence;
+
+        md.renderer.rules.fence = function (tokens, idx, options, env, instance) {
+          const lang = (tokens[idx].params || '').trim().split(/\s+/)[0];
+
+          if (lang === 'mermaid') {
+            return `<div class="md-mermaid">${escapeHtml(tokens[idx].content)}</div>`;
+          }
+
+          return defaultFence.call(this, tokens, idx, options, env, instance);
+        };
+
         md.renderer.rules.link_open = function (tokens, idx /* , options, env */) {
           const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
           return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';

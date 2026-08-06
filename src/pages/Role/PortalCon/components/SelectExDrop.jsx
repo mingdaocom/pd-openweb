@@ -88,7 +88,7 @@ export default function CheckboxSelect(props) {
             </span>
             <Icon
               icon="close"
-              className="Font14 inlineFlexRow Hand textSecondary ThemeHoverColor3"
+              className="Font14 inlineFlexRow Hand textSecondary hoverColorPrimary"
               onClick={props.onClose}
             />
           </StyledTag>

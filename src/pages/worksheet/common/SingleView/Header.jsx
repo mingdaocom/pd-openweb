@@ -12,6 +12,7 @@ import SearchInput from 'worksheet/components/SearchInput';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
 import { isPublicLink } from 'src/components/Form/core/utils';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { browserIsMobile } from 'src/utils/common';
@@ -138,6 +139,9 @@ export default function Header(props) {
             }}
           />
         )}
+        {window.shareState.isPublicView && (
+          <PublicAppLangDropdown className="mRight6" appId={worksheetInfo.appId} projectId={worksheetInfo.projectId} />
+        )}
         {headerRight}
       </Con>
     );
@@ -167,6 +171,11 @@ export default function Header(props) {
       {headerLeft}
 
       <Flex />
+
+      {window.shareState.isPublicView && (
+        <PublicAppLangDropdown className="mRight10" appId={worksheetInfo.appId} projectId={worksheetInfo.projectId} />
+      )}
+
       {/** 其他头部操作走SheetHeader，搜索保存不变 */}
       {searchRecord &&
         ([VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter, VIEW_DISPLAY_TYPE.map].includes(viewType) &&
@@ -183,7 +192,7 @@ export default function Header(props) {
             }}
           >
             <Tooltip placement="bottom" title={_l('查找')}>
-              <Icon icon="search" className="textTertiary Font22 pointer ThemeHoverColor3 mTop2" />
+              <Icon icon="search" className="textTertiary Font22 pointer hoverColorPrimary mTop2" />
             </Tooltip>
           </SearchRecord>
         ) : (

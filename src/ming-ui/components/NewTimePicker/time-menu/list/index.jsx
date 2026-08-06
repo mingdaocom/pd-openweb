@@ -42,7 +42,7 @@ class List extends Component {
 
       if (item.current) {
         classList.push('current');
-        classList.push('ThemeBGColor3');
+        classList.push('bgColorPrimary');
       }
 
       const classNames = classList.join(' ');

@@ -11,6 +11,7 @@ import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { INVOICE_STATUS, INVOICE_STATUS_OPTIONS } from 'src/pages/invoice/constant';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { INVOICE_TYPE } from '../config';
 
 const DetailDrawer = styled(Drawer)`
@@ -316,7 +317,7 @@ export default function InvoiceDetail(props) {
                 className={cx({ 'Hand hoverColorPrimary': !!worksheetId })}
                 onClick={() => {
                   if (record.processId) {
-                    window.open(`/workflowedit/${record.processId}`);
+                    window.open(pathCompletion(`/workflowedit/${record.processId}`));
                     return;
                   }
 
@@ -334,16 +335,18 @@ export default function InvoiceDetail(props) {
           render: (value, record) => (
             //record.orderId === record.invoiceId 测试票
             <span
-              className={cx({ 'colorPrimary ThemeHoverColor2 pointer': record.orderId !== record.invoiceId && value })}
+              className={cx({
+                'colorPrimary hoverColorPrimaryDark pointer': record.orderId !== record.invoiceId && value,
+              })}
               onClick={() => {
                 if (record.processId) {
-                  window.open(`/workflowedit/${record.processId}`);
+                  window.open(pathCompletion(`/workflowedit/${record.processId}`));
                   return;
                 }
 
                 record.orderId !== record.invoiceId &&
                   value &&
-                  window.open(`/admin/transaction/${projectId}?orderId=${value}`);
+                  window.open(pathCompletion(`/admin/transaction/${projectId}?orderId=${value}`));
               }}
             >
               {record.processId ? record.processId : record.orderId === record.invoiceId ? '-' : value}

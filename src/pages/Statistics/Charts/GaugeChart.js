@@ -4,6 +4,7 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { formatNumberValue, formatrChartValue, getChartColors, getStyleColor } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const initRegisterShape = G2 => {
   const { Util, registerShape } = G2;
@@ -110,10 +111,9 @@ export const replaceColor = (gaugeColor, themeColor) => {
   return gaugeColor;
 };
 
-function findNthValueInRange(minValue, maxValue, n) {
-  const interval = (maxValue - minValue) / 99;
-  const nthValue = minValue + (n - 1) * interval;
-  return Math.ceil(nthValue);
+function getValueByPercent(minValue, maxValue, percent) {
+  const value = minValue + (maxValue - minValue) * percent;
+  return Number(value.toFixed(12));
 }
 
 export default class extends Component {
@@ -125,22 +125,31 @@ export default class extends Component {
       match: null,
     };
     this.GaugeChart = null;
-    this.g2plotComponent = {};
+    this.g2plotComponent = null;
+    this.isUnmounted = false;
+    this.renderTimer = null;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.g2plotComponent = data;
       this.renderGaugeChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.GaugeChart && this.GaugeChart.destroy();
+    this.isUnmounted = true;
+    clearTimeout(this.renderTimer);
+    this.destroyGaugeChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType || this.props.direction !== prevProps.direction;
+    const shouldUpdate =
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
@@ -148,23 +157,43 @@ export default class extends Component {
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       !_.isEqual(style, oldStyle) ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor
-    ) {
-      const GaugeChartConfig = this.getComponentConfig(nextProps);
-      this.GaugeChart && this.GaugeChart.update(GaugeChartConfig);
+      this.props.themeColor !== prevProps.themeColor;
+
+    if (!this.g2plotComponent) {
+      return;
     }
 
-    if (displaySetup.showChartType !== oldDisplaySetup.showChartType || nextProps.direction !== this.props.direction) {
-      this.GaugeChart && this.GaugeChart.destroy();
-      setTimeout(() => {
-        this.renderGaugeChart(nextProps);
-      }, 0);
+    if (shouldRecreate) {
+      this.scheduleRenderGaugeChart(this.props);
+      return;
+    }
+
+    if (shouldUpdate && this.GaugeChart) {
+      const GaugeChartConfig = this.getComponentConfig(this.props);
+      this.GaugeChart.update(GaugeChartConfig);
     }
   }
+  destroyGaugeChart = () => {
+    if (this.GaugeChart) {
+      this.GaugeChart.destroy();
+      this.GaugeChart = null;
+    }
+  };
+  scheduleRenderGaugeChart = props => {
+    this.destroyGaugeChart();
+    clearTimeout(this.renderTimer);
+    this.renderTimer = setTimeout(() => {
+      this.renderGaugeChart(props);
+    }, 0);
+  };
   renderGaugeChart(props) {
+    if (!this.chartEl || !this.g2plotComponent || this.isUnmounted) {
+      return;
+    }
+
     const GaugeChartConfig = this.getComponentConfig(props);
     const { Gauge, G2 } = this.g2plotComponent;
 
@@ -173,10 +202,9 @@ export default class extends Component {
       initRegisterShape(G2);
     }
 
-    if (this.chartEl) {
-      this.GaugeChart = new Gauge(this.chartEl, GaugeChartConfig);
-      this.GaugeChart.render();
-    }
+    this.destroyGaugeChart();
+    this.GaugeChart = new Gauge(this.chartEl, GaugeChartConfig);
+    this.GaugeChart.render();
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
@@ -301,7 +329,7 @@ export default class extends Component {
         return formatrChartValue(data.max, false, yaxisList, null, false);
       }
 
-      const rangeValue = findNthValueInRange(data.min, data.max, value * 100);
+      const rangeValue = getValueByPercent(data.min, data.max, value);
       return formatrChartValue(rangeValue, false, yaxisList, null, false);
     };
 

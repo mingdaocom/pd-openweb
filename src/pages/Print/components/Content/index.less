@@ -200,7 +200,7 @@
     }
     .trFlex {
       display: flex;
-      width: 728px !important;
+      width: var(--print-content-width, 728px) !important;
       .ck-content {
         background: #fff !important;
       }
@@ -303,6 +303,13 @@
     }
     p {
       page-break-inside: avoid !important;
+    }
+    .trFlex.printEmbedRow {
+      page-break-inside: avoid !important;
+      .embedContainer,
+      .statisticsCard {
+        page-break-inside: avoid !important;
+      }
     }
   }
   .recordAttachments {
@@ -445,6 +452,29 @@
     }
     * {
       overflow: visible !important;
+    }
+  }
+}
+
+.mobilePrintPage {
+  .printContent {
+    table {
+      width: 100% !important;
+      table-layout: auto;
+    }
+
+    .trFlex {
+      width: 100% !important;
+    }
+
+    td,
+    th {
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .relationsTable {
+      overflow: visible;
     }
   }
 }

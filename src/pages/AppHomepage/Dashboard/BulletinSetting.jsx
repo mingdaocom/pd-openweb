@@ -378,7 +378,7 @@ export default function BulletinSetting(props) {
               </React.Fragment>
             }
           >
-            <span className="ThemeColor3 mLeft4 pointer bold">{_l('设计建议')}</span>
+            <span className="colorPrimary mLeft4 pointer bold">{_l('设计建议')}</span>
           </Popover>
         </div>
         <div

@@ -6,6 +6,7 @@ import api from 'src/api/appManagement';
 import marketplaceApi from 'src/api/marketplace';
 import { checkCertification } from 'src/components/checkCertification';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
+import { pathCompletion } from 'src/utils/common';
 import overduePic from './overdue.png';
 import turnoffPic from './turnoff.png';
 import unauthorizedPic from './unauthorized.png';
@@ -53,7 +54,7 @@ export default class UnusualContent extends Component {
       .then(data => {
         if (data) {
           alert(_l('安装成功'));
-          location.href = '/dashboard';
+          location.href = pathCompletion('/dashboard');
         }
       })
       .finally(() => this.setState({ reinstallLoading: false }));
@@ -175,7 +176,7 @@ export default class UnusualContent extends Component {
           <Dialog
             className="applyJoinAppDialog"
             visible
-            title={'申请加入应用'}
+            title={_l('申请加入应用')}
             onOk={() => this.applyJoinApp()}
             onCancel={() => this.setState({ applyJoinAppVisible: false })}
             okText={_l('申请加入')}

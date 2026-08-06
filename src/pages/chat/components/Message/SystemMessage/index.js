@@ -65,8 +65,8 @@ export default class SystemMessage extends Component {
             dangerouslySetInnerHTML={{
               __html: _l(
                 `对方不是您的联系人，可以%0或%1成为组织成员`,
-                `<span class="ThemeColor3 Font13 pointer addFriend">${_l('添加好友')}</span>`,
-                `<span class="ThemeColor3 Font13 pointer invite">${_l('邀请')}</span>`,
+                `<span class="colorPrimary Font13 pointer addFriend">${_l('添加好友')}</span>`,
+                `<span class="colorPrimary Font13 pointer invite">${_l('邀请')}</span>`,
               ),
             }}
           />

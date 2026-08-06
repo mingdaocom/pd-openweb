@@ -5,7 +5,7 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Button, Dialog, LoadDiv } from 'ming-ui';
 import Ajax from 'src/api/project';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import Config from '../../../config';
 import WeChatServiceAccountList from './WeChatServiceAccountList';
 import './index.less';
@@ -56,16 +56,16 @@ export default class WeiXin extends Component {
       currentAppId: '',
     };
   }
+
   componentDidMount() {
-    Config.setPageTitle(_l('微信服务号'));
     const { state, auth_code } = getRequest();
 
     if (window.platformENV.isPlatform && auth_code) {
       this.setState({ loading: true });
-      projectAjax.callBackWeiXinBinding({ state, authCode: auth_code, projectId: Config.projectId }).then(res => {
+      Ajax.callBackWeiXinBinding({ state, authCode: auth_code, projectId: Config.projectId }).then(res => {
         this.setState({ loading: false });
         if (res.flag) {
-          location.href = `/admin/weixin/${Config.projectId}`;
+          location.href = pathCompletion(`/admin/weixin/${Config.projectId}`);
         } else {
           alert(res.msg, 3);
         }
@@ -94,7 +94,7 @@ export default class WeiXin extends Component {
         title: (
           <span>
             {_l('已授权权限列表')}
-            <span className="Hand ThemeColor3 adminHoverColor Block Font13 mTop10" onClick={this.handleReset}>
+            <span className="Hand colorPrimary adminHoverColor Block Font13 mTop10" onClick={this.handleReset}>
               {_l('重新授权')}
             </span>
           </span>
@@ -130,7 +130,7 @@ export default class WeiXin extends Component {
           '取消绑定后，本组织内与服务号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
         ),
         onOk: () => {
-          projectAjax.cancelBindingWeiXin({ appId: data.appId, projectId: Config.projectId }).then(result => {
+          Ajax.cancelBindingWeiXin({ appId: data.appId, projectId: Config.projectId }).then(result => {
             if (result) {
               alert(_l('成功取消绑定'));
               this.setState({ weiXinInfo: weiXinInfo.filter(item => item.appId !== data.appId), currentAppId: '' });
@@ -195,7 +195,7 @@ export default class WeiXin extends Component {
                     {i.key === 'nickName' && <span className="weixin-info-tag">{_l('已认证')}</span>}
                     {i.clickKey === 'copy' ? (
                       <span
-                        className="ThemeColor3 adminHoverColor Hand"
+                        className="colorPrimary adminHoverColor Hand"
                         onClick={() => {
                           copy(item[i.key]);
                           alert(_l('复制成功'));
@@ -205,8 +205,8 @@ export default class WeiXin extends Component {
                       </span>
                     ) : (
                       <span
-                        className="ThemeColor3 adminHoverColor Hand"
-                        onClick={() => this.handlePlatformClick(i.clickKey, item)}
+                        className="colorPrimary adminHoverColor Hand"
+                        onClick={() => this.handleClick(i.clickKey, item)}
                       >
                         {i.clickText}
                       </span>
@@ -238,7 +238,7 @@ export default class WeiXin extends Component {
         <div className="orgManagementHeader">
           <span className="Font17 Bold">
             <i
-              className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10"
+              className="icon-backspace Font22 hoverColorPrimary pointer mRight10"
               onClick={() => {
                 if (currentAppId) {
                   this.setState({ currentAppId: '' });

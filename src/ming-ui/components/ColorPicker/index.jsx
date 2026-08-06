@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown } from 'ming-ui';
-import { getColorValue } from 'src/utils/control';
+import { getColorValue } from 'src/utils/controlCommon';
 import '../less/ColorPicker.less';
 
 const TYPES = ['HEX', 'RGB'];
@@ -155,12 +155,14 @@ class ColorPicker extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { value } = nextProps;
-    const { color } = this.state;
+  componentDidUpdate(prevProps) {
+    if (prevProps.value !== this.props.value) {
+      const { value } = this.props;
+      const { color } = this.state;
 
-    if (!isSameColor(value, color) && isColorString(value)) {
-      this.setState(this.initValue(value));
+      if (!isSameColor(value, color) && isColorString(value)) {
+        this.setState(this.initValue(value));
+      }
     }
   }
 
@@ -195,15 +197,10 @@ class ColorPicker extends Component {
   };
 
   setColor = (value, themeValue) => {
-    this.setState(
-      {
-        ...value,
-      },
-      () => {
-        const stringColor = this.state.color.toHex8String();
-        this.props.onChange(themeValue || stringColor);
-      },
-    );
+    const stringColor = value.color.toHex8String();
+
+    this.setState({ ...value });
+    this.props.onChange(themeValue || stringColor);
   };
 
   setDynamicColor = value => {

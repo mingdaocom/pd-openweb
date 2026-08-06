@@ -115,7 +115,7 @@ export default function LingualList(props) {
         description={_l('设置用户在访问应用时可以使用的语言')}
         extraElement={
           <Tooltip title={_l('将引用的跨应用语言资源(如选项集、关联表)同步至本应用')}>
-            <div className="textSecondary ThemeHoverColor3 pointer flexRow alignItemsCenter" onClick={asyncLangs}>
+            <div className="textSecondary hoverColorPrimary pointer flexRow alignItemsCenter" onClick={asyncLangs}>
               <Icon icon="synchronization" className="Font18 mRight5" />
               <span>{_l('同步引用语言')}</span>
             </div>

@@ -63,7 +63,7 @@ export const wsexcelSocketInit = () => {
           description: wsServiceErrorCount > 0 ? _l('导入完成，部分数据未导入。请查看错误报告后重试') : title(),
           btnText: isErrorMsg ? _l('查看错误报告') : '',
           onBtnClick: () => {
-            new ErrorDialog({ fileKey: id });
+            ErrorDialog({ fileKey: id });
             antNotification.close('wsServiceErrorCountDialog');
           },
         });

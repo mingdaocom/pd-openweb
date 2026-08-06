@@ -1,19 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { DatePicker } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Input } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
+import { isTimeControl } from 'statistics/common/controlUtils';
 import {
   dropdownDayData,
   dropdownScopeData,
   isPastAndFuture,
-  isTimeControl,
   timeDataParticle,
   timeGatherParticle,
-} from 'statistics/common';
+} from 'statistics/common/timeUtils';
+import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
 
@@ -85,20 +85,7 @@ function ChartFilter(props) {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [startVisible, setStartVisible] = useState(false);
-    const [endVisible, setEndVisible] = useState(null);
-
-    const labelRenderer = (type, data) => {
-      switch (type) {
-        case 'year':
-          return data + '年';
-        case 'month':
-          return data + '月';
-        case 'day':
-          return data + '日';
-        default:
-          return data;
-      }
-    };
+    const [endVisible, setEndVisible] = useState(false);
 
     useEffect(() => {
       const start = moment(startDate || startDateValue).format('YYYY/MM/DD');
@@ -109,18 +96,23 @@ function ChartFilter(props) {
     return (
       <div className="flexRow mBottom16">
         <div className="flex">
-          <DatePicker
-            min={startDateValue}
-            max={endDateValue}
-            title={_l('开始时间')}
-            value={startDate || startDateValue}
-            onConfirm={date => {
-              setStartDate(date);
-            }}
-            visible={startVisible}
-            onClose={() => setStartVisible(false)}
-            renderLabel={labelRenderer}
-          />
+          {startVisible && (
+            <MobileDatePicker
+              customHeader={_l('开始时间')}
+              showType="date"
+              precision="date"
+              isOpen={startVisible}
+              value={startDate || startDateValue}
+              min={startDateValue}
+              max={endDateValue}
+              onClose={() => setStartVisible(false)}
+              onCancel={() => setStartVisible(false)}
+              onSelect={date => {
+                setStartDate(date);
+                setStartVisible(false);
+              }}
+            />
+          )}
           <InputCon
             readOnly
             className="centerAlign"
@@ -131,18 +123,23 @@ function ChartFilter(props) {
         </div>
         <div className="flexRow valignWrapper mLeft7 mRight7">-</div>
         <div className="flex">
-          <DatePicker
-            min={startDateValue}
-            max={endDateValue}
-            title={_l('结束时间')}
-            value={endDate || endDateValue}
-            onConfirm={date => {
-              setEndDate(date);
-            }}
-            visible={endVisible}
-            onClose={() => setEndVisible(false)}
-            renderLabel={labelRenderer}
-          />
+          {endVisible && (
+            <MobileDatePicker
+              customHeader={_l('结束时间')}
+              showType="date"
+              precision="date"
+              isOpen={endVisible}
+              value={endDate || endDateValue}
+              min={startDateValue}
+              max={endDateValue}
+              onClose={() => setEndVisible(false)}
+              onCancel={() => setEndVisible(false)}
+              onSelect={date => {
+                setEndDate(date);
+                setEndVisible(false);
+              }}
+            />
+          )}
           <InputCon
             readOnly
             className="centerAlign"

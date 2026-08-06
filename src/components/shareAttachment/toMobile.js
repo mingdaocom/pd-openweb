@@ -4,6 +4,7 @@ import _ from 'lodash';
 import qs from 'query-string';
 import Dialog from 'ming-ui/components/Dialog';
 import attachmentController from 'src/api/attachment';
+import { pathCompletion } from 'src/utils/common';
 import { ATTACHMENT_TYPE } from './enum';
 import mobileDialogHtml from './tpl/mobileDialog.htm';
 import './style.less';
@@ -136,7 +137,7 @@ ToMobileDialog.prototype = {
           });
           attachmentController
             .getShortUrl({
-              url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
+              url: escape(pathCompletion('/apps/kc/shareLocalAttachment.aspx?' + urlParams)),
             })
             .then(function (result) {
               resolve(result.shortUrl || result);

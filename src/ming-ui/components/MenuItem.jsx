@@ -15,10 +15,18 @@ class MenuItem extends Component {
     className: PropTypes.string,
     children: PropTypes.any,
     disabled: PropTypes.bool, // 是否禁用
+    setRef: PropTypes.func,
   };
 
   state = {
     showSubMenu: false,
+  };
+
+  setItemRef = node => {
+    this.menuItemNode = node;
+    if (this.props.setRef) {
+      this.props.setRef(node);
+    }
   };
 
   handleMouseEnter(...args) {
@@ -40,7 +48,8 @@ class MenuItem extends Component {
     if (subMenu) {
       subMenu = cloneElement(subMenu, {
         isSubMenu: true,
-        parentMenuItem: this,
+        subMenuVisible: this.state.showSubMenu,
+        getParentMenuItemNode: () => this.menuItemNode,
         className: cx({ hide: !this.state.showSubMenu }, subMenu.props.className),
       });
     }
@@ -53,6 +62,7 @@ class MenuItem extends Component {
         onMouseEnter={() => this.handleMouseEnter()}
         onMouseLeave={() => this.handleMouseLeave()}
         disabled={this.props.disabled}
+        setRef={this.setItemRef}
       >
         {this.props.children}
       </Item>

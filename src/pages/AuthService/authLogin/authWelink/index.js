@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import {
   ajax,
@@ -17,7 +18,7 @@ if (checkLogin()) {
   if (checkOriginUrl(url)) {
     location.replace(decodeURIComponent(url));
   } else {
-    location.replace(isMobile ? `/mobile` : `/app`);
+    location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
   }
 } else {
   const hosts = location.host.split('.');
@@ -41,7 +42,7 @@ if (checkLogin()) {
                 if (checkOriginUrl(url)) {
                   location.replace(decodeURIComponent(url));
                 } else {
-                  location.replace(isMobile ? `/mobile` : `/app`);
+                  location.replace(pathCompletion(isMobile ? `/mobile` : `/app`));
                 }
               });
             }

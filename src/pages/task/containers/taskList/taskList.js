@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createTask from 'src/components/createTask/load';
 import config from '../../config/config';
 import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
 import { updateTaskCharge } from '../../redux/actions';
@@ -77,16 +78,18 @@ class TaskList extends Component {
     this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar.bind(this));
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      !nextProps.taskConfig.folderId &&
-      (!_.isEqual(nextProps.taskConfig, this.props.taskConfig) || config.isGetData)
-    ) {
-      // 解决props未更新问题
-      setTimeout(() => {
-        taskListSettings.taskListPost.abort();
-        this.init();
-      }, 0);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !this.props.taskConfig.folderId &&
+        (!_.isEqual(this.props.taskConfig, prevProps.taskConfig) || config.isGetData)
+      ) {
+        // 解决props未更新问题
+        setTimeout(() => {
+          taskListSettings.taskListPost.abort();
+          this.init();
+        }, 0);
+      }
     }
   }
 
@@ -161,7 +164,7 @@ class TaskList extends Component {
           operation={
             auth === config.auth.Charger ? (
               <span
-                className="updateChargeBtn ThemeColor3"
+                className="updateChargeBtn colorPrimary"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: folderId,
@@ -225,9 +228,9 @@ class TaskList extends Component {
         config.$prevNode = _this;
 
         // 项目中分多个table
-        $('#taskList table tr').removeClass('selectTask ThemeBGColor6');
+        $('#taskList table tr').removeClass('selectTask bgColorPrimaryTransparent');
         // 点击td
-        _this.addClass('selectTask ThemeBGColor6');
+        _this.addClass('selectTask bgColorPrimaryTransparent');
         const taskId = _this.data('taskid');
 
         that.setState({
@@ -278,8 +281,8 @@ class TaskList extends Component {
         },
         hover(event) {
           const isAdd = event.type == 'mouseenter';
-          $(this).find('.listFolderNameTextList').toggleClass('ThemeColor3', isAdd);
-          $(this).find('.arrow-down').toggleClass('ThemeBorderColor3', isAdd);
+          $(this).find('.listFolderNameTextList').toggleClass('colorPrimary', isAdd);
+          $(this).find('.arrow-down').toggleClass('borderColorPrimary', isAdd);
         },
       },
       '.taskListFolderName',
@@ -340,8 +343,8 @@ class TaskList extends Component {
       }
 
       $list.removeClass('Hidden').data('type', type);
-      $list.find('li').removeClass('ThemeColor3');
-      $list.find('[data-type=' + type + ']').addClass('ThemeColor3');
+      $list.find('li').removeClass('colorPrimary');
+      $list.find('[data-type=' + type + ']').addClass('colorPrimary');
       $(this).children().removeClass('Hidden');
       // 判断在下方是否放的下， 否则放在上面
       if (offset.top + $list.height() + $('#topBarContent').height() > winHeight) {
@@ -376,7 +379,7 @@ class TaskList extends Component {
 
     // 绑定创建新任务
     $taskList.on('click', '.creatNewContent', () => {
-      $.CreateTask();
+      createTask();
     });
 
     // document事件
@@ -1048,7 +1051,7 @@ class TaskList extends Component {
           .prepend(allTasks);
       } else {
         const $html = $(
-          '<div class="taskListFolderName" data-folderid="null"> <i class="arrow-down"></i> <span class="listFolderNameTextList ThemeColor9" title="' +
+          '<div class="taskListFolderName" data-folderid="null"> <i class="arrow-down"></i> <span class="listFolderNameTextList textSecondary" title="' +
             _l('未关联项目') +
             '">' +
             _l('未关联项目') +
@@ -1142,15 +1145,15 @@ class TaskList extends Component {
     return (
       <Fragment>
         <ul className="myTaskSettingList borderRadAll_3 Hidden">
-          <li data-type="1" className="myTaskChoice ThemeBGColor3">
+          <li data-type="1" className="myTaskChoice bgColorPrimary">
             <i className="icon-task-today" />
             {_l('今天要做')}
           </li>
-          <li data-type="2" className="myTaskChoice ThemeBGColor3">
+          <li data-type="2" className="myTaskChoice bgColorPrimary">
             <i className="icon-task-soon" />
             {_l('最近要做')}
           </li>
-          <li data-type="3" className="myTaskChoice ThemeBGColor3">
+          <li data-type="3" className="myTaskChoice bgColorPrimary">
             <i className="icon-task-later" />
             {_l('以后考虑')}
           </li>

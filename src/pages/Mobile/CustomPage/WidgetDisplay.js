@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel/Carousel';
 import Image from 'src/pages/customPage/components/editWidget/Image';
 import { EditRichText as RichText } from 'src/pages/customPage/components/editWidget/richText';
+import Subsection from 'src/pages/customPage/components/editWidget/subsection';
 import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
 import { getTranslateInfo } from 'src/utils/app';
 import { StateChartContent } from './ChartContent';
@@ -24,7 +25,8 @@ const WidgetContent = styled.div`
   &.mobileView,
   &.mobileFilter,
   &.mobileCarousel,
-  &.mobileRichText {
+  &.mobileRichText,
+  &.mobileSubsection {
     padding: 0 !important;
   }
   &.mobileFilter {
@@ -81,7 +83,7 @@ function WidgetDisplay(props) {
 
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
-      return <RichText editable={false} widget={widget} value={translateInfo.description || value || ''} />;
+      return <RichText editable={false} widget={widget} value={value ? translateInfo.description || value : ''} />;
     }
 
     if (componentType === 'button')
@@ -150,6 +152,10 @@ function WidgetDisplay(props) {
 
     if (componentType === 'image') {
       return <Image themeColor={apk.iconColor} widget={widget} editable={false} customPageConfig={pageConfig} />;
+    }
+
+    if (componentType === 'subsection') {
+      return <Subsection widget={widget} />;
     }
   };
 

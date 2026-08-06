@@ -8,8 +8,6 @@ import attachmentApi from 'src/api/attachment';
 import worksheetApi from 'src/api/worksheet';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils';
-import MapHandler from 'src/ming-ui/components/amap/MapHandler';
-import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import { getRowGetType } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
@@ -17,6 +15,7 @@ import { compatibleMDJS } from 'src/utils/project';
 import Files from '../../../components/Files';
 import { permitList } from '../../../core/enum';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
+import { getCurrentPos } from '../../../core/mapUtils';
 import { isOpenPermit } from '../../tools/utils';
 import './index.less';
 
@@ -65,35 +64,44 @@ export default class Widgets extends Component {
       temporaryAttachments: [],
     };
     this.mobileFileRef = {};
-    this._mapHandler = null;
+    this._isUnmounted = false;
   }
 
   componentDidMount() {
     if (this.state.loading) {
       this.loadAttachments();
     }
-
-    this.laodMap();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.flag !== nextProps.flag) {
-      const initMobileFiles = { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [], knowledgeAtts: [] };
-      this.setState({ value: nextProps.value, ...initMobileFiles });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.flag !== this.props.flag) {
+        const initMobileFiles = {
+          mobileFiles: [],
+          mobileCamcorderFiles: [],
+          mobileCameraFiles: [],
+          knowledgeAtts: [],
+        };
+        this.setState({
+          value: this.props.value,
+          ...initMobileFiles,
+        });
+      }
 
-    if (nextProps.value !== this.props.value) {
-      if (this.checkFileNeedLoad(nextProps.value)) {
-        this.loadAttachments(nextProps);
-      } else {
-        this.setState({ value: nextProps.value });
+      if (this.props.value !== prevProps.value) {
+        if (this.checkFileNeedLoad(this.props.value)) {
+          this.loadAttachments(this.props);
+        } else {
+          this.setState({
+            value: this.props.value,
+          });
+        }
       }
     }
   }
 
   componentWillUnmount() {
-    this._mapHandler?.destroyMap();
-    this._mapHandler = null;
+    this._isUnmounted = true;
   }
 
   checkFileNeedLoad(value) {
@@ -394,29 +402,6 @@ export default class Widgets extends Component {
     }
   };
 
-  // 加载地图
-  laodMap(callback = () => {}) {
-    const { advancedSetting = {} } = this.props;
-    const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
-    const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
-    const needLocation = _.findIndex(watermark, v => v === 'xy' || v === 'address') > -1;
-
-    // 只有在需要水印且包含位置信息&还未加载地图时才加载地图
-    if (!needLocation) {
-      return;
-    }
-
-    new MapLoader()
-      .loadJs()
-      .then(() => {
-        callback();
-      })
-      .catch(err => {
-        console.log('地图API预加载失败:', err);
-        alert(_l('定位获取失败，请重试'), 2);
-      });
-  }
-
   // 获取定位
   getLocation = e => {
     // 阻止事件冒泡，避免触发父级的拍照事件
@@ -432,41 +417,25 @@ export default class Widgets extends Component {
       return;
     }
 
-    // 处理获取精确位置触发拍照
-    const handleGetPosition = () => {
-      // 开始获取定位
-      this.setState({ gettingLocation: true });
+    this.setState({ gettingLocation: true });
 
-      if (!this._mapHandler) {
-        this._mapHandler = new MapHandler();
-      }
+    getCurrentPos()
+      .then(currentLocation => {
+        if (this._isUnmounted) {
+          return;
+        }
 
-      this._mapHandler.getCurrentPos(
-        (status, result) => {
-          const { formattedAddress, position } = result;
+        this.setState({ currentLocation, gettingLocation: false });
+      })
+      .catch(err => {
+        if (this._isUnmounted) {
+          return;
+        }
 
-          if (status === 'complete' && formattedAddress) {
-            this.setState({ currentLocation: { formattedAddress, position }, gettingLocation: false });
-          } else {
-            alert(_l('定位获取失败，请重试'), 2);
-            this.setState({ gettingLocation: false });
-          }
-        },
-        err => {
-          console.log(err);
-          alert(_l('定位获取失败，请重试'), 2);
-          this.setState({ gettingLocation: false });
-        },
-      );
-    };
-
-    // 地图已加载即调用定位
-    if (window.AMap && window.AMap.Map) {
-      handleGetPosition();
-    } else {
-      // 再次加载地图
-      this.laodMap(handleGetPosition);
-    }
+        console.log(err);
+        alert(_l('定位获取失败，请重试'), 2);
+        this.setState({ gettingLocation: false });
+      });
   };
 
   renderMobileUploadTrigger = ({
@@ -489,14 +458,14 @@ export default class Widgets extends Component {
         <Icon className={cx('textTertiary TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
         <span className="textPrimary Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
         {!!mingdaoAppUploading && (
-          <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">
+          <span className="mLeft5 colorPrimary fileUpdateLoading Font13">
             {_l('%0个附件正在上传', mingdaoAppUploading)}
           </span>
         )}
         {!!mingdaoAppError && (
           <span className="mLeft5 Red fileUpdateLoading Font13">{_l('%0个附件上传失败', mingdaoAppError)}</span>
         )}
-        {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
+        {isComplete === false && uploadStart && <span className="mLeft5 colorPrimary fileUpdateLoading"></span>}
       </Fragment>
     );
 
@@ -581,6 +550,10 @@ export default class Widgets extends Component {
               this.mobileFileRef[type].setState({
                 files: [],
               });
+
+              if (type === 'camera' && watermarkNeedLocation) {
+                this.setState({ currentLocation: null });
+              }
             }
           }}
           ref={mobileFileRef => {

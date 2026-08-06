@@ -301,7 +301,7 @@ export default class AddEditRulesDialog extends Component {
         footer={
           <div className="flexRow alignItemsCenter">
             {encryptWay === 1000 && (
-              <div className="ThemeColor3 ThemeHoverColor2 Hand" onClick={this.handleTest}>
+              <div className="colorPrimary hoverColorPrimaryDark Hand" onClick={this.handleTest}>
                 {_l('连接测试')}
               </div>
             )}

@@ -7,29 +7,10 @@ import { Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { EditWidgetContent, Header } from '../../../styled';
-import SideWrap from '../../SideWrap';
 import { defaultFilterData } from './enum';
 import Preview from './Preview';
 import Setting from './Setting';
 import './index.less';
-
-const DefaultItem = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
-  background-color: var(--color-background-primary);
-  margin-top: 15px;
-  border-radius: 6px;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  &:hover {
-    box-shadow: var(--shadow-lg);
-  }
-  .btnWrap {
-    margin: 8px 10px;
-  }
-`;
 
 const Wrap = styled.div`
   height: 100%;
@@ -112,10 +93,12 @@ export default function Filter(props) {
         })
         .then(data => {
           const filtersGroup = data[0];
+
           if (!filtersGroup || !filtersGroup.filters) {
             setLoading(false);
             return;
           }
+
           setFilter({
             ...filtersGroup,
             filters: filtersGroup.filters.map(f => {
@@ -134,18 +117,7 @@ export default function Filter(props) {
     }
   }, [value]);
 
-  // eslint-disable-next-line no-constant-condition
-  return false ? (
-    <SideWrap headerText={_l('选择筛选方式')} onClose={onClose}>
-      <div className="flexRow valignWrapper mTop20">
-        <span className="Font17 mRight10">{_l('筛选器')}</span>
-        <span className="Font14 textTertiary">{_l('对本页进行搜索')}</span>
-      </div>
-      <DefaultItem className="pTop10 pBottom10" onClick={() => {}}>
-        {_l('筛选器')}
-      </DefaultItem>
-    </SideWrap>
-  ) : (
+  return (
     <Modal
       maskStyle={{ zIndex: 999 }}
       wrapClassName="customPageFilterWrap"

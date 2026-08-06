@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useEffect, useRef, useState } from 'react';
+import React, { Component, Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,20 +9,19 @@ import PropTypes from 'prop-types';
 import qs from 'query-string';
 import styled from 'styled-components';
 import { LoadDiv, WaterMark } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import homeAppApi from 'src/api/homeApp';
 import DragMask from 'worksheet/common/DragMask';
 import UnNormal from 'worksheet/views/components/UnNormal';
-import CreateRecordSideMask from 'src/components/Mingo/modules/CreateRecordBot/CreateRecordSideMask';
-import Chatbot from 'src/pages/Chatbot';
-import CustomPageContent from 'src/pages/customPage/pageContent';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import { navigateTo } from 'src/router/navigateTo';
 import { emitter } from 'src/utils/common';
 import { browserIsMobile, updateGlobalStoreForMingo } from 'src/utils/common';
 import { findSheet, getSheetListFirstId, moveSheetCache } from 'src/utils/worksheet';
-import { WorksheetEmpty, WorkSheetLeft, WorkSheetPortal } from './common';
 import Sheet from './common/Sheet';
+import WorksheetEmpty from './common/WorksheetEmpty';
+import WorkSheetLeft from './common/WorkSheetLeft';
+import WorkSheetPortal from './common/WorkSheetPortal';
 import { updateBase, updateWorksheetLoading } from './redux/actions';
 import './worksheet.less';
 
@@ -42,6 +41,12 @@ const Drag = styled.div(
 
 let request = null;
 
+const LoadableCreateRecordSideMask = lazy(
+  () => import('src/components/Mingo/modules/CreateRecordBot/CreateRecordSideMask'),
+);
+const LoadableChatbot = lazy(() => import('src/pages/Chatbot'));
+const LoadableCustomPageContent = lazy(() => import('src/pages/customPage/pageContent'));
+
 const WorkSheetContainer = props => {
   const { appId, id, currentSheet, params, sheetListLoading, isCharge, sheetList, appPkg } = props;
   const { type } = currentSheet;
@@ -49,6 +54,7 @@ const WorkSheetContainer = props => {
   const cache = useRef({});
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
+  const routeKey = `${params.groupId || ''}_${id || ''}`;
 
   useEffect(() => {
     setLoading(true);
@@ -63,6 +69,7 @@ const WorkSheetContainer = props => {
           id,
           sectionId: params.groupId,
         });
+
         request.then(data => {
           const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
 
@@ -79,20 +86,15 @@ const WorkSheetContainer = props => {
             return;
           }
 
-          setData(data);
+          setData({ ...data, routeKey });
           setLoading(false);
         });
       }
     } else {
-      setTimeout(
-        () => {
-          setData({ wsType: type, resultCode: 1 });
-          setLoading(false);
-        },
-        window.isWindows && window.isFirefox ? 500 : 200,
-      );
+      setData({ wsType: type, resultCode: 1, routeKey });
+      setLoading(false);
     }
-  }, [id, params.groupId]);
+  }, [routeKey, params.groupId]);
 
   useEffect(() => {
     if (!id && !sheetListLoading) {
@@ -108,7 +110,7 @@ const WorkSheetContainer = props => {
     }
   }, [id, sheetListLoading, sheetList]);
 
-  if (id ? loading : sheetListLoading) {
+  if (id ? !(data.routeKey === routeKey) || loading : sheetListLoading) {
     return <LoadDiv size="big" className="mTop32" />;
   }
 
@@ -153,6 +155,7 @@ const WorkSheetContainer = props => {
   if (data.wsType === 0) {
     return (
       <Sheet
+        activeWorksheetId={id}
         flag={qs.parse((location.search || '').slice(1)).flag}
         setLoadRequest={loadRequest => (cache.current.loadRequest = loadRequest)}
         abortPrevWorksheetInfoRequest={() => {
@@ -173,18 +176,24 @@ const WorkSheetContainer = props => {
             workSheetName: data.name,
           }
         : undefined;
-    return <CustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} />;
+    return (
+      <Suspense fallback={<LoadDiv className="mTop10" />}>
+        <LoadableCustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} />
+      </Suspense>
+    );
   }
 
   if (data.wsType === 3) {
     const name = currentSheet.workSheetName || data.name;
     return (
-      <Chatbot
-        data={{ ...currentSheet, name, appId, chatbotId: id, conversationId: params.viewId, groupId: params.groupId }}
-        navigateToConversation={(conversationId, isReplace = false) => {
-          navigateTo(`/app/${appId}/${params.groupId}/${id}/${conversationId || ''}`, isReplace);
-        }}
-      />
+      <Suspense fallback={<LoadDiv className="mTop10" />}>
+        <LoadableChatbot
+          data={{ ...currentSheet, name, appId, chatbotId: id, conversationId: params.viewId, groupId: params.groupId }}
+          navigateToConversation={(conversationId, isReplace = false) => {
+            navigateTo(`/app/${appId}/${params.groupId}/${id}/${conversationId || ''}`, isReplace);
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -240,71 +249,73 @@ class WorkSheet extends Component {
     emitter.on('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
     window.isWorksheet = true;
   }
-  componentWillReceiveProps(nextProps) {
-    const { updateBase, worksheetId, updateWorksheetLoading, views } = nextProps;
 
-    if (/\/app\/[\w-]+$/.test(location.pathname)) {
-      return;
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { updateBase, worksheetId, updateWorksheetLoading, views } = this.props;
 
-    const id = this.getValidedWorksheetId(nextProps);
-    let { appId, groupId, viewId } = nextProps.match.params;
-
-    if (
-      appId !== this.props.match.params.appId ||
-      groupId !== this.props.match.params.groupId ||
-      nextProps.match.params.worksheetId !== this.props.match.params.worksheetId
-    ) {
-      updateWorksheetLoading(true);
-    }
-
-    if (
-      appId !== this.props.match.params.appId ||
-      viewId !== this.props.match.params.viewId ||
-      groupId !== this.props.match.params.groupId ||
-      id !== worksheetId
-    ) {
-      if (md.global.Account.isPortal) {
-        appId = md.global.Account.appId;
+      if (/\/app\/[\w-]+$/.test(location.pathname)) {
+        return;
       }
 
-      let defaultViewId = undefined;
+      const id = this.getValidedWorksheetId(this.props);
+      let { appId, groupId, viewId } = this.props.match.params;
 
       if (
-        !viewId &&
-        this.props.match.params.viewId === worksheetId &&
-        worksheetId === nextProps.match.params.worksheetId
+        appId !== prevProps.match.params.appId ||
+        groupId !== prevProps.match.params.groupId ||
+        this.props.match.params.worksheetId !== prevProps.match.params.worksheetId
       ) {
-        const showViews = views.filter(view => {
-          const showhide = _.get(view, 'advancedSetting.showhide') || '';
-
-          if (browserIsMobile()) {
-            return !showhide.includes('spc&happ') && !showhide.includes('hide');
-          }
-
-          return !showhide.includes('hpc') && !showhide.includes('hide');
-        });
-
-        defaultViewId = _.get((showViews.length ? showViews : views)[0], 'viewId');
+        updateWorksheetLoading(true);
       }
 
-      updateBase({
-        appId,
-        viewId: defaultViewId || viewId,
-        groupId,
-        worksheetId: id,
-      });
-      updateGlobalStoreForMingo({
-        activeModule: 'worksheet',
-      });
-    }
+      if (
+        appId !== prevProps.match.params.appId ||
+        viewId !== prevProps.match.params.viewId ||
+        groupId !== prevProps.match.params.groupId ||
+        id !== worksheetId
+      ) {
+        if (md.global.Account.isPortal) {
+          appId = md.global.Account.appId;
+        }
 
-    this.setCache(nextProps.match.params);
-    if (
-      _.get(this.props, 'appPkg.iconColor') !== _.get(nextProps, 'appPkg.iconColor') ||
-      (!this.appThemeColorStyle && _.get(nextProps, 'appPkg.iconColor'))
-    ) {
-      this.changeAppThemeColor(_.get(nextProps, 'appPkg.iconColor'));
+        let defaultViewId = undefined;
+
+        if (
+          !viewId &&
+          prevProps.match.params.viewId === worksheetId &&
+          worksheetId === this.props.match.params.worksheetId
+        ) {
+          const showViews = views.filter(view => {
+            const showhide = _.get(view, 'advancedSetting.showhide') || '';
+
+            if (browserIsMobile()) {
+              return !showhide.includes('spc&happ') && !showhide.includes('hide');
+            }
+
+            return !showhide.includes('hpc') && !showhide.includes('hide');
+          });
+          defaultViewId = _.get((showViews.length ? showViews : views)[0], 'viewId');
+        }
+
+        updateBase({
+          appId,
+          viewId: defaultViewId || viewId,
+          groupId,
+          worksheetId: id,
+        });
+        updateGlobalStoreForMingo({
+          activeModule: 'worksheet',
+        });
+      }
+
+      this.setCache(this.props.match.params);
+      if (
+        _.get(prevProps, 'appPkg.iconColor') !== _.get(this.props, 'appPkg.iconColor') ||
+        (!this.appThemeColorStyle && _.get(this.props, 'appPkg.iconColor'))
+      ) {
+        this.changeAppThemeColor(_.get(this.props, 'appPkg.iconColor'));
+      }
     }
   }
   shouldComponentUpdate(nextProps) {
@@ -405,16 +416,18 @@ class WorkSheet extends Component {
     return id;
   }
   render() {
-    let { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
+    const { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
     const { projectId, currentPcNaviStyle } = appPkg;
     const { navWidth, dragMaskVisible, createRecordSideMaskVisible, createRecordSideMaskBase } = this.state;
-    let { appId, groupId, worksheetId } = match.params;
+    const worksheetId = this.props.worksheetId || this.getValidedWorksheetId();
+    let { appId, groupId } = match.params;
 
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
 
     const currentSheet = findSheet(worksheetId, sheetList) || {};
+
     return (
       <WaterMark projectId={projectId}>
         <UseKey
@@ -505,15 +518,17 @@ class WorkSheet extends Component {
           )}
         </div>
         {createRecordSideMaskVisible && (
-          <CreateRecordSideMask
-            appId={createRecordSideMaskBase.appId}
-            worksheetId={createRecordSideMaskBase.worksheetId}
-            viewId={createRecordSideMaskBase.viewId}
-            defaultFormData={createRecordSideMaskBase.defaultFormData}
-            defaultFormDataEditable={createRecordSideMaskBase.defaultFormDataEditable}
-            onAdd={createRecordSideMaskBase.onAdd}
-            onClose={() => this.setState({ createRecordSideMaskVisible: false })}
-          />
+          <Suspense fallback={null}>
+            <LoadableCreateRecordSideMask
+              appId={createRecordSideMaskBase.appId}
+              worksheetId={createRecordSideMaskBase.worksheetId}
+              viewId={createRecordSideMaskBase.viewId}
+              defaultFormData={createRecordSideMaskBase.defaultFormData}
+              defaultFormDataEditable={createRecordSideMaskBase.defaultFormDataEditable}
+              onAdd={createRecordSideMaskBase.onAdd}
+              onClose={() => this.setState({ createRecordSideMaskVisible: false })}
+            />
+          </Suspense>
         )}
       </WaterMark>
     );
@@ -542,5 +557,5 @@ export default withRouter(
         },
         dispatch,
       ),
-  )(errorBoundary(WorkSheet)),
+  )(ErrorBoundary.wrap(WorkSheet)),
 );

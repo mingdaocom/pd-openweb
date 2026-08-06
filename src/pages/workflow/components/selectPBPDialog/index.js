@@ -8,6 +8,7 @@ import process from '../../api/process';
 import processVersion from '../../api/processVersion';
 import ajaxRequest from 'src/api/appManagement';
 import appManagement from 'src/api/appManagement';
+import { pathCompletion } from 'src/utils/common';
 import { RELATION_TYPE } from '../../WorkflowSettings/enum';
 
 const DialogWrapper = styled(Dialog)`
@@ -206,7 +207,7 @@ class SelectPBPDialog extends Component {
       })
       .then(res => {
         appManagement.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
-        window.open(`/workflowedit/${res.id}`);
+        window.open(pathCompletion(`/workflowedit/${res.id}`));
         onClose();
       });
   };
@@ -249,7 +250,7 @@ class SelectPBPDialog extends Component {
                   ))}
                 </ul>
               </ScrollView>
-              <div className="createBtn ThemeHoverColor3 ThemeHoverBorderColor3" onClick={this.createNewPBPFlow}>
+              <div className="createBtn hoverColorPrimary hoverBorderColorPrimary" onClick={this.createNewPBPFlow}>
                 {_l('新建封装业务流程')}
               </div>
             </NavBox>
@@ -294,8 +295,8 @@ class SelectPBPDialog extends Component {
                         <div className="Font13 textTertiary ellipsis">{o.desc}</div>
                       </div>
                       <i
-                        className="Font14 icon-task-new-detail ThemeColor3 ThemeHoverColor2 pointer mLeft15"
-                        onClick={() => window.open(`/workflowedit/${o.id}`)}
+                        className="Font14 icon-task-new-detail colorPrimary hoverColorPrimaryDark pointer mLeft15"
+                        onClick={() => window.open(pathCompletion(`/workflowedit/${o.id}`))}
                       />
                     </div>
                   ))}

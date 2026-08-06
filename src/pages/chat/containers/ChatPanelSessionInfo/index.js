@@ -22,52 +22,55 @@ class ChatPanelSessionInfo extends Component {
     };
     this.first = this.props.infoVisible;
   }
-  componentWillReceiveProps(nextProps) {
-    // 展开和收起
-    if (nextProps.infoVisible) {
-      this.first = true;
-    } else {
-      const { panelVisible } = this.state;
 
-      if (panelVisible) {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      // 展开和收起
+      if (this.props.infoVisible) {
+        this.first = true;
+      } else {
+        const { panelVisible } = this.state;
+
+        if (panelVisible) {
+          this.setState({
+            panelType: '',
+            panelVisible: false,
+          });
+        }
+      } // 搜索聊天&文件&成员
+
+      // 搜索聊天&文件&成员
+      if (this.props.searchText) {
         this.setState({
-          panelType: '',
-          panelVisible: false,
+          panelVisible: true,
+          panelType: 'search',
         });
-      }
-    }
+      } else {
+        const { panelType } = this.state;
 
-    // 搜索聊天&文件&成员
-    if (nextProps.searchText) {
-      this.setState({
-        panelVisible: true,
-        panelType: 'search',
-      });
-    } else {
-      const { panelType } = this.state;
+        if (panelType === 'search') {
+          this.setState({
+            panelVisible: false,
+            panelType: '',
+          });
+        }
+      } // 打开文件
 
-      if (panelType === 'search') {
+      // 打开文件
+      if (this.props.isOpenFile) {
         this.setState({
-          panelVisible: false,
-          panelType: '',
+          panelVisible: true,
+          panelType: 'files',
         });
-      }
-    }
+      } else {
+        const { panelType } = this.state;
 
-    // 打开文件
-    if (nextProps.isOpenFile) {
-      this.setState({
-        panelVisible: true,
-        panelType: 'files',
-      });
-    } else {
-      const { panelType } = this.state;
-
-      if (panelType === 'files' && nextProps.searchText == '') {
-        this.setState({
-          panelVisible: false,
-          panelType: '',
-        });
+        if (panelType === 'files' && this.props.searchText == '') {
+          this.setState({
+            panelVisible: false,
+            panelType: '',
+          });
+        }
       }
     }
   }
@@ -104,10 +107,12 @@ class ChatPanelSessionInfo extends Component {
   render() {
     const { session, infoVisible, searchText } = this.props;
     const { panelType, panelVisible } = this.state;
+    const shouldRenderSessionInfo = infoVisible || this.first;
+
     return (
       <div className={cx('ChatPanel-sessionInfo', { hidden: !infoVisible })}>
         <ScrollView className="flex">
-          {session.isPost && this.first && (
+          {session.isPost && shouldRenderSessionInfo && (
             <Announcement
               session={session}
               updateGroupAbout={value => {
@@ -116,15 +121,15 @@ class ChatPanelSessionInfo extends Component {
             />
           )}
 
-          {session.isGroup && this.first && (
+          {session.isGroup && shouldRenderSessionInfo && (
             <Members session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'members')} />
           )}
 
-          {session.isPost && this.first && (
+          {session.isPost && shouldRenderSessionInfo && (
             <Feeds session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} />
           )}
 
-          {!session.isPost && this.first && (
+          {!session.isPost && shouldRenderSessionInfo && (
             <DiscussionAnnouncement
               session={session}
               onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')}

@@ -12,7 +12,7 @@ import attachmentAjax from 'src/api/attachment';
 import kcService from 'src/pages/kc/api/service';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import { downloadFile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import { downloadFile, formatFileSize, getClassNameByExt, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { formatTime, getFileExtends, isDocument } from './utils';
 
@@ -95,7 +95,7 @@ export default class FileComponent extends Component {
       this.setState({
         menuVisible: false,
       });
-      window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
+      window.open(pathCompletion(`/login?ReturnUrl=${location.href}`));
       return;
     }
 
@@ -160,7 +160,7 @@ export default class FileComponent extends Component {
       this.setState({
         menuVisible: false,
       });
-      window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
+      window.open(pathCompletion(`/login?ReturnUrl=${location.href}`));
       return;
     }
 
@@ -367,7 +367,7 @@ export default class FileComponent extends Component {
     );
     let fileSize = formatFileSize(fileResponse.fileSize);
     let textClass = cx('UploadFiles-panelTextName', {
-      ThemeColor3: !isPicture,
+      colorPrimary: !isPicture,
     });
 
     let handleOpen = (event, isEdit) => {
@@ -466,7 +466,7 @@ export default class FileComponent extends Component {
                   }}
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 >
-                  <i className="ThemeHoverColor3 icon-rename_input" />
+                  <i className="hoverColorPrimary icon-rename_input" />
                 </div>
               </Tooltip>
             </div>
@@ -534,7 +534,7 @@ export default class FileComponent extends Component {
     );
     let fileSize = formatFileSize(fileResponse.fileSize);
     let textClass = cx('UploadFiles-panelTextName', {
-      ThemeColor3: !isPicture,
+      colorPrimary: !isPicture,
     });
 
     let handleOpen = (event, isEdit) => {
@@ -630,7 +630,7 @@ export default class FileComponent extends Component {
                   }}
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 >
-                  <i className="ThemeHoverColor3 icon-rename_input" />
+                  <i className="hoverColorPrimary icon-rename_input" />
                 </div>
               </Tooltip>
             </div>
@@ -747,7 +747,7 @@ export default class FileComponent extends Component {
       isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
     );
     let textClass = cx('UploadFiles-panelTextName', {
-      ThemeColor3: !isPicture,
+      colorPrimary: !isPicture,
     });
 
     return (
@@ -819,7 +819,7 @@ export default class FileComponent extends Component {
                     }}
                     className="UploadFiles-panelBtn"
                   >
-                    <i className="ThemeHoverColor3 icon-download" />
+                    <i className="hoverColorPrimary icon-download" />
                   </div>
                 </Tooltip>
               )}
@@ -834,7 +834,7 @@ export default class FileComponent extends Component {
                       this.handleOpenMenu(event);
                     }}
                   >
-                    <i className={cx('icon-more_horiz', { ThemeColor3: !!moreVisible })} />
+                    <i className={cx('icon-more_horiz', { colorPrimary: !!moreVisible })} />
                     <Tooltip title={_l('更多')}>
                       <div
                         className="UploadFiles-panelBtnMask"
@@ -951,7 +951,7 @@ export default class FileComponent extends Component {
                     this.props.removeUploadingFile(base.id);
                   }}
                 >
-                  <i className="ThemeHoverColor3 icon-close" />
+                  <i className="hoverColorPrimary icon-close" />
                 </div>
               </Tooltip>
             </div>

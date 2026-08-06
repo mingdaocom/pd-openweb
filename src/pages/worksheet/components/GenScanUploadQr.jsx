@@ -255,7 +255,7 @@ function QrPopup({
           </div>
         ) : (
           <Qr
-            content={`${md.global.Config.WebUrl}recordfileupload/${scanId}?lang=${window.getCurrentLang()}`}
+            content={`${md.global.Config.WebUrl}recordfileupload/${scanId}?sys_lang=${window.getCurrentLang()}`}
             width={200}
             height={200}
             style={{ height: 200 }}

@@ -8,7 +8,7 @@ import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import Tel from 'src/pages/Role/PortalCon/components/Tel';
-import { encrypt } from 'src/utils/common';
+import { encrypt, pathCompletion } from 'src/utils/common';
 import { DETAIL_MODE, FROM_TYPE } from './enum';
 import inviteFailedDialog from './InviteFailedDialog';
 
@@ -126,7 +126,7 @@ export default class MobileOrEmailInvite extends Component {
         }
       })
       .catch(() => {
-        alert('邀请失败', 2);
+        alert(_l('邀请失败'), 2);
         this.setState({ loading: false });
       });
   };
@@ -209,7 +209,7 @@ export default class MobileOrEmailInvite extends Component {
       <div className="row">
         {content}
         <Icon
-          className={cx('Font16  del ThemeColor3 Hand', { op0: index === 0, Hand: index !== 0 })}
+          className={cx('Font16  del colorPrimary Hand', { op0: index === 0, Hand: index !== 0 })}
           icon="close"
           onClick={() => {
             if (index !== 0) {
@@ -336,7 +336,7 @@ export default class MobileOrEmailInvite extends Component {
           )}
         <div className="resultContent" style={{ minHeight: 230, overflow: 'unset' }}>
           {list.map((item, index) => this.renderItem(item, index))}
-          <div className="addBox ThemeColor3">
+          <div className="addBox colorPrimary">
             <span onClick={this.handleAdd}>
               <Icon icon="add1" />
               {_l('添加')}
@@ -356,7 +356,7 @@ export default class MobileOrEmailInvite extends Component {
             )}
             {fromType !== FROM_TYPE.GROUPS && (
               <div className="addBox textTertiary">
-                <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/importusers`)}>
+                <span onClick={() => window.open(pathCompletion(`/admin/structure/${projectId}/importusers`))}>
                   <Icon icon="add_software" />
                   {_l('批量导入')}
                 </span>

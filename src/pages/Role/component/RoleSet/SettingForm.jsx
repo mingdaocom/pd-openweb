@@ -9,6 +9,7 @@ import { actionList, PERMISSION_WAYS, roleDetailPropType, TEXTS } from 'src/page
 import { WrapFooter } from 'src/pages/Role/style.jsx';
 import Search from 'src/pages/workflow/components/Search/index.jsx';
 import BatchDialog from './batch';
+import RecordLoggingSettingDialog, { getRecordLoggingRangeText, LOGGING_RANGE } from './RecordLoggingSettingDialog';
 import SheetTable, { changeSheetModel } from './SheetTable';
 
 const WrapCon = styled.div`
@@ -16,6 +17,12 @@ const WrapCon = styled.div`
   .optionTxt {
     font-size: 12px;
     color: var(--color-text-tertiary);
+  }
+  .recordLoggingRangeText {
+    color: var(--color-text-secondary);
+  }
+  .recordLoggingSettingIcon:hover {
+    color: var(--color-primary) !important;
   }
   .toUser {
     color: var(--color-text-title);
@@ -86,12 +93,11 @@ export default class extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      actionList: actionList.filter(o =>
-        props.isForPortal ? !['gneralShare', 'generalLogging'].includes(o.key) : true,
-      ),
+      actionList: actionList.filter(o => (props.isForPortal ? !['gneralShare'].includes(o.key) : true)),
       keyWord: '',
       select: [],
       showBatchDialog: false,
+      showGeneralLoggingDialog: false,
     };
   }
 
@@ -113,7 +119,8 @@ export default class extends PureComponent {
   };
 
   changePermissionWay = (permissionWay, clearExtendAttrs = false) => {
-    const { onChange, roleDetail: { description, permissionWay: oldPermissionWay } = {} } = this.props;
+    const { onChange, roleDetail = {} } = this.props;
+    const { description, permissionWay: oldPermissionWay } = roleDetail;
 
     if (oldPermissionWay !== permissionWay) {
       let payload = {
@@ -138,9 +145,19 @@ export default class extends PureComponent {
       ) {
         //对所有记录只有查看权限 之外的选项 操作都初始化勾选
         this.state.actionList.map(o => {
-          payload[o.key] = {
-            enable: true,
-          };
+          const prev = roleDetail[o.key] || {};
+          payload[o.key] =
+            o.key === 'generalLogging'
+              ? {
+                  ...prev,
+                  enable: true,
+                  Range: prev.Range || LOGGING_RANGE.ALL,
+                  AllowExport: _.isBoolean(prev.AllowExport) ? prev.AllowExport : false,
+                }
+              : {
+                  ...prev,
+                  enable: true,
+                };
         });
         payload = {
           ...payload,
@@ -291,38 +308,63 @@ export default class extends PureComponent {
                 <div className="mTop30">
                   <span className="Bold">{_l('操作权限')}</span>
                   <span
-                    className="mLeft5 Hand ThemeHoverColor3 optionTxt"
+                    className="mLeft5 Hand hoverColorPrimary optionTxt"
                     onClick={() => {
                       let data = {};
+                      const turnOn = actionListClone.filter(it => !(roleDetail[it.key] || {}).enable).length > 0;
                       actionListClone.map(o => {
-                        data[o.key] = {
-                          enable: actionListClone.filter(o => !roleDetail[o.key].enable).length > 0,
-                        };
+                        const prev = roleDetail[o.key] || {};
+                        const nextEnable = turnOn;
+                        data[o.key] =
+                          o.key === 'generalLogging' && nextEnable
+                            ? {
+                                ...prev,
+                                enable: true,
+                                Range: prev.Range || LOGGING_RANGE.ALL,
+                                AllowExport: _.isBoolean(prev.AllowExport) ? prev.AllowExport : false,
+                              }
+                            : {
+                                ...prev,
+                                enable: nextEnable,
+                              };
                       });
                       onChange(data);
                     }}
                   >
-                    {actionListClone.filter(o => !roleDetail[o.key].enable).length > 0 ? _l('全选') : _l('取消全选')}
+                    {actionListClone.filter(it => !(roleDetail[it.key] || {}).enable).length > 0
+                      ? _l('全选')
+                      : _l('取消全选')}
                   </span>
                 </div>
                 <div className="actionListCon">
                   {this.state.actionList.map(o => {
                     return (
-                      <div className="mRight30 mTop20 InlineBlock flexRow alignItemsCenter">
+                      <div className="mRight30 mTop20 InlineFlex flexRow alignItemsCenter">
                         <Checkbox
                           className={'subCheckbox TxtMiddle'}
                           disabled={o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay} //对所有记录只有查看权限 同时 操作权限 不可新增
                           checked={
                             o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay
                               ? false
-                              : roleDetail[o.key].enable
+                              : !!(roleDetail[o.key] || {}).enable
                           }
                           size="small"
                           onClick={() => {
+                            const prev = roleDetail[o.key] || {};
+                            const nextEnable = !prev.enable;
                             onChange({
-                              [o.key]: {
-                                enable: !roleDetail[o.key].enable,
-                              },
+                              [o.key]:
+                                o.key === 'generalLogging' && nextEnable
+                                  ? {
+                                      ...prev,
+                                      enable: true,
+                                      Range: prev.Range || LOGGING_RANGE.ALL,
+                                      AllowExport: _.isBoolean(prev.AllowExport) ? prev.AllowExport : false,
+                                    }
+                                  : {
+                                      ...prev,
+                                      enable: nextEnable,
+                                    },
                             });
                           }}
                         >
@@ -341,6 +383,21 @@ export default class extends PureComponent {
                             </Tooltip>
                           )}
                         </Checkbox>
+                        {o.key === 'generalLogging' && !!(roleDetail[o.key] || {}).enable && (
+                          <Fragment>
+                            <span className="recordLoggingRangeText mLeft5">
+                              {getRecordLoggingRangeText(roleDetail[o.key])}
+                            </span>
+                            <Icon
+                              icon="settings"
+                              className="recordLoggingSettingIcon Font16 Hand textTertiary mLeft8 TxtMiddle InlineBlock"
+                              onClick={e => {
+                                e.stopPropagation();
+                                this.setState({ showGeneralLoggingDialog: true });
+                              }}
+                            />
+                          </Fragment>
+                        )}
                       </div>
                     );
                   })}
@@ -351,6 +408,12 @@ export default class extends PureComponent {
         ) : (
           this.renderAuthTable()
         )}
+        <RecordLoggingSettingDialog
+          visible={this.state.showGeneralLoggingDialog}
+          value={roleDetail.generalLogging}
+          onChange={next => this.props.onChange({ generalLogging: next })}
+          onClose={() => this.setState({ showGeneralLoggingDialog: false })}
+        />
       </React.Fragment>
     );
   }
@@ -449,7 +512,7 @@ export default class extends PureComponent {
               <Tooltip title={_l('批量编辑')}>
                 <i
                   className={cx('icon-align_setting Font20 textSecondary mLeft8 mRight8 TxtMiddle', {
-                    'Hand ThemeHoverColor3': sheets.length > 0,
+                    'Hand hoverColorPrimary': sheets.length > 0,
                   })}
                   onClick={() => {
                     if (sheets.length <= 0) return;

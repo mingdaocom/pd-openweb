@@ -20,30 +20,33 @@ export default function widthProvider(GridOutComponent) {
       window.customPageWindowResize = this.onWindowResize;
       this.onWindowResize();
     }
-    componentWillReceiveProps(nextProps) {
-      if (nextProps.sheetListVisible !== this.props.sheetListVisible) {
-        // 增减左侧列表展开收起之间的宽度差值
-        const width = nextProps.sheetListVisible ? -176 : 176;
-        const countryLayerChart = document.querySelector('.countryLayerChart');
 
-        if (countryLayerChart) {
-          setTimeout(() => this.onWindowResize(width), 0);
-        } else {
-          this.onWindowResize(width);
+    componentDidUpdate(prevProps) {
+      if (prevProps !== this.props) {
+        if (this.props.sheetListVisible !== prevProps.sheetListVisible) {
+          // 增减左侧列表展开收起之间的宽度差值
+          const width = this.props.sheetListVisible ? -176 : 176;
+          const countryLayerChart = document.querySelector('.countryLayerChart');
+
+          if (countryLayerChart) {
+            setTimeout(() => this.onWindowResize(width), 0);
+          } else {
+            this.onWindowResize(width);
+          }
         }
-      }
 
-      if (this.props.isFullscreen !== nextProps.isFullscreen && !nextProps.isFullscreen) {
-        setTimeout(() => {
-          this.onWindowResize();
-        }, 100);
+        if (prevProps.isFullscreen !== this.props.isFullscreen && !this.props.isFullscreen) {
+          setTimeout(() => {
+            this.onWindowResize();
+          }, 100);
+        }
       }
     }
 
     componentWillUnmount() {
       this.mounted = false;
       delete window.customPageWindowResize;
-      this.resizeObserver && this.resizeObserver.unobserve(this.wrapEl);
+      this.resizeObserver && this.resizeObserver.disconnect();
     }
 
     onWindowResize = width => {
@@ -55,7 +58,11 @@ export default function widthProvider(GridOutComponent) {
           : document.querySelector('#componentsWrap .componentsWrap>.layout');
 
       if (node instanceof HTMLElement) {
-        this.setState({ width: typeof width === 'number' ? node.offsetWidth + width : node.offsetWidth });
+        const nextWidth = typeof width === 'number' ? node.offsetWidth + width : node.offsetWidth;
+
+        if (nextWidth !== this.state.width) {
+          this.setState({ width: nextWidth });
+        }
       }
     };
     render() {

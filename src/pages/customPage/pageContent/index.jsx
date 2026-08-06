@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
@@ -10,15 +10,14 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
 import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import CustomPage from 'src/pages/customPage';
-import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
+import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap/defaultConfig';
 import {
   deleteLinkageFiltersGroup,
   updateEditPageVisible,
   updateLoading,
   updatePageInfo,
 } from 'src/pages/customPage/redux/action';
-import { enumWidgetType, updateLayout } from 'src/pages/customPage/util';
+import { CUSTOM_PAGE_IFRAME_ALLOW, enumWidgetType, updateLayout } from 'src/pages/customPage/util';
 import WebLayout from 'src/pages/customPage/webLayout';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -31,6 +30,8 @@ import { findSheet } from 'src/utils/worksheet';
 import { insertPortal, syncThemeConfig } from '../util';
 import CustomPageHeader from './CustomPageHeader';
 import 'rc-trigger/assets/index.css';
+
+const CustomPageEditor = lazy(() => import('src/pages/customPage'));
 
 const CustomPageContentWrap = styled.div`
   flex: 1;
@@ -68,6 +69,9 @@ const CustomPageContentWrap = styled.div`
       color: var(--icon-color);
       &:hover {
         color: var(--icon-hover-color);
+      }
+      .icon-language {
+        color: inherit !important;
       }
     }
     .svgWrap {
@@ -109,6 +113,9 @@ const CustomPageContentWrap = styled.div`
     &.isFullscreen {
       padding-top: 0;
     }
+    &.adjustScreen {
+      overflow: hidden;
+    }
   }
   .selectIconWrap {
     top: 40px;
@@ -136,6 +143,7 @@ function CustomPageContent(props) {
   const appName = getTranslateInfo(appPkg.id, null, appPkg.id).name || props.appName || apk.appName || '';
   const ref = useRef(document.body);
   const configRef = useRef(config);
+  const pageRequestRef = useRef(null);
   const [show, toggle] = useToggle(false);
 
   const showFullscreen = () => {
@@ -194,16 +202,29 @@ function CustomPageContent(props) {
     }
 
     return () => {
+      if (_.isFunction(_.get(pageRequestRef, 'current.abort'))) {
+        pageRequestRef.current.abort();
+        pageRequestRef.current = null;
+      }
+
       updateLoading(true);
     };
-  }, []);
+  }, [pageId]);
 
   const getPage = () => {
-    customApi
-      .getPage({
-        appId: pageId,
-      })
+    if (_.isFunction(_.get(pageRequestRef, 'current.abort'))) {
+      pageRequestRef.current.abort();
+    }
+
+    const request = customApi.getPage({
+      appId: pageId,
+    });
+
+    pageRequestRef.current = request;
+    request
       .then(({ components, desc, apk, adjustScreen, urlParams, name, config, version }) => {
+        if (pageRequestRef.current !== request) return;
+
         const componentsData = isMobile
           ? components.filter(item => item.mobile.visible)
           : updateLayout(components, config);
@@ -226,7 +247,11 @@ function CustomPageContent(props) {
           document.body.classList.add('bodyScroll');
         }
       })
-      .finally(() => updateLoading(false));
+      .finally(() => {
+        if (pageRequestRef.current !== request) return;
+        pageRequestRef.current = null;
+        updateLoading(false);
+      });
   };
 
   const resetPage = () => {
@@ -258,7 +283,13 @@ function CustomPageContent(props) {
       const url = urlList.join('');
       return (
         <div className="customPageContent h100 pAll0">
-          <iframe className="w100 h100" style={{ border: 'none' }} src={insertPortal(url)} />
+          <iframe
+            className="w100 h100"
+            style={{ border: 'none' }}
+            allow={CUSTOM_PAGE_IFRAME_ALLOW}
+            allowFullScreen
+            src={insertPortal(url)}
+          />
         </div>
       );
     }
@@ -300,7 +331,11 @@ function CustomPageContent(props) {
         )}
         <div className="content">{renderContent()}</div>
       </CustomPageContentWrap>
-      {visible && !urlTemplate && <CustomPage name={pageName} ids={ids} currentSheet={currentSheet} />}
+      {visible && !urlTemplate && (
+        <Suspense fallback={<LoadDiv style={{ marginTop: '60px' }} />}>
+          <CustomPageEditor name={pageName} ids={ids} currentSheet={currentSheet} />
+        </Suspense>
+      )}
     </Fragment>
   );
 }

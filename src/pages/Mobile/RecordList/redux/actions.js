@@ -27,7 +27,12 @@ import {
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
 } from 'src/utils/translate';
-import { getGroupControlId } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getGroupControlId,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import { getFlatSheetRows } from '../util';
 
 const dealBoardViewRecordCount = data => {
@@ -65,7 +70,7 @@ function fireWhenViewLoaded(view = {}, { controls = [] } = {}) {
     const fastFiltersHasDefaultValue = some(newFastFilters, validate);
 
     if (fastFiltersHasDefaultValue) {
-      if (get(view, 'advancedSetting.enablebtn') !== '1') {
+      if (get(view, 'advancedSetting.clicksearch') !== '1') {
         dispatch(
           updateQuickFilter(
             newFastFilters.filter(validate).map(condition => ({
@@ -127,6 +132,7 @@ export const updateBase = base => (dispatch, getState) => {
 
 export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
   const { base, appDetail, filterControls = [] } = getState().mobile;
+  const appId = base.type === 'single' ? base.singleAppId : base.appId;
   const { filters } = getState().sheet;
   const { appSection } = appDetail;
   const { appNaviStyle } = appDetail.detail || {};
@@ -165,7 +171,6 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 
   sheetAjax
     .getWorksheetInfo({
-      appId: base.appId,
       worksheetId: base.worksheetId,
       getTemplate: true,
       getViews: true,
@@ -178,13 +183,13 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
         : {};
 
-      if (addBehaviorLogInfo.entityId === base.appId || addBehaviorLogInfo.entityId === base.worksheetId) {
+      if (addBehaviorLogInfo.entityId === appId || addBehaviorLogInfo.entityId === base.worksheetId) {
         sessionStorage.removeItem('addBehaviorLogInfo');
       } else if (addBehaviorLogInfo.type === 'group') {
         addBehaviorLog('worksheet', base.worksheetId, {}, true);
       } else {
         addBehaviorLog('worksheet', base.worksheetId, {}, true);
-        addBehaviorLog('app', base.appId, {}, true);
+        addBehaviorLog('app', appId, {}, true);
       }
 
       if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
@@ -209,20 +214,20 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         });
       }
 
-      const sheetTranslateInfo = getTranslateInfo(base.appId, null, base.worksheetId);
+      const sheetTranslateInfo = getTranslateInfo(appId, null, base.worksheetId);
       const { advancedSetting = {}, template = {}, switches = [] } = workSheetInfo;
       workSheetInfo.name = sheetTranslateInfo.name || workSheetInfo.name;
       workSheetInfo.entityName = sheetTranslateInfo.recordName || workSheetInfo.entityName;
       workSheetInfo.advancedSetting = {
         ...advancedSetting,
-        title: sheetTranslateInfo.formTitle || advancedSetting.title,
-        sub: sheetTranslateInfo.formSub || advancedSetting.sub,
-        continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
+        title: advancedSetting.title ? sheetTranslateInfo.formTitle || advancedSetting.title : '',
+        sub: advancedSetting.sub ? sheetTranslateInfo.formSub || advancedSetting.sub : '',
+        continue: advancedSetting.continue ? sheetTranslateInfo.formContinue || advancedSetting.continue : '',
       };
       workSheetInfo.views = (workSheetInfo.views || []).map(view => {
         return {
           ...view,
-          name: getTranslateInfo(base.appId, base.worksheetId, view.viewId).name || view.name,
+          name: getTranslateInfo(appId, base.worksheetId, view.viewId).name || view.name,
         };
       });
       let view =
@@ -248,7 +253,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 
       if (workSheetInfo.template) {
         workSheetInfo.template.controls = replaceControlsTranslateInfo(
-          base.appId,
+          appId,
           workSheetInfo.worksheetId,
           template.controls || [],
         );
@@ -256,14 +261,14 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 
       if (workSheetInfo.advancedSetting) {
         workSheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
-          base.appId,
+          appId,
           workSheetInfo.worksheetId,
           workSheetInfo.advancedSetting || {},
         );
       }
 
       if (workSheetInfo.rules && workSheetInfo.rules.length) {
-        workSheetInfo.rules = replaceRulesTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.rules);
+        workSheetInfo.rules = replaceRulesTranslateInfo(appId, workSheetInfo.worksheetId, workSheetInfo.rules);
       }
 
       dispatch(loadSavedFilters(workSheetInfo.worksheetId));
@@ -296,7 +301,8 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 
   homeAppAjax
     .getApp({
-      appId: base.appId,
+      appId,
+      getLang: true,
     })
     .then(data => {
       dispatch({
@@ -306,7 +312,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
           appName: data.name,
           detail: {
             ...appDetail.detail,
-            webMobileDisplay: data.webMobileDisplay,
+            ...data,
           },
         },
       });
@@ -466,92 +472,105 @@ export const fetchSheetRows =
       delete params.pageIndex;
     }
 
-    promiseRequests[requestId] = sheetAjax.getFilterRows(params);
-    promiseRequests[requestId].then(sheetRowsAndTem => {
-      const newData = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
-      let listData = getGroupData({
-        data: pageIndex === 1 ? newData : currentSheetRows.concat(newData),
-        view,
-        controls: template.controls,
-      });
+    const currentRequest = sheetAjax.getFilterRows(params);
+    promiseRequests[requestId] = currentRequest;
+    currentRequest
+      .then(sheetRowsAndTem => {
+        if (promiseRequests[requestId] !== currentRequest) {
+          return;
+        }
 
-      if (groupControlId) {
-        const groupopen = _.get(view, 'advancedSetting.groupopen') || '2';
-        dispatch({
-          type: 'UPDATE_GROUP_DATA_INFO',
-          data: {
-            groupData: listData,
-            unfoldedKeys: !['3', '2'].includes(groupopen)
-              ? [_.get(listData, '[0].key')]
-              : groupopen === '2'
-                ? listData.map(o => o.key)
-                : [],
-          },
+        const newData = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
+        let listData = getGroupData({
+          data: pageIndex === 1 ? newData : currentSheetRows.concat(newData),
+          view,
+          controls: template.controls,
         });
-      }
 
-      const isMore = listData.length < sheetRowsAndTem.count;
-      listData = groupControlId
-        ? _.reduce(_.cloneDeep(listData), (result, item) => result.concat(item.rows ? item.rows : []), []).map(v =>
-            JSON.parse(v),
-          )
-        : listData;
-      if (batchOptVisible) {
-        if (batchCheckAll) {
-          dispatch(changeBatchOptData(listData.map(item => item.rowid)));
+        if (groupControlId) {
+          const groupopen = _.get(view, 'advancedSetting.groupopen') || '2';
+          dispatch({
+            type: 'UPDATE_GROUP_DATA_INFO',
+            data: {
+              groupData: listData,
+              unfoldedKeys: !['3', '2'].includes(groupopen)
+                ? [_.get(listData, '[0].key')]
+                : groupopen === '2'
+                  ? listData.map(o => o.key)
+                  : [],
+            },
+          });
         }
 
-        if (batchOptCheckedData.length === sheetRowsAndTem.count) {
-          dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: true });
+        const isMore = listData.length < sheetRowsAndTem.count;
+        listData = groupControlId
+          ? _.reduce(_.cloneDeep(listData), (result, item) => result.concat(item.rows ? item.rows : []), []).map(v =>
+              JSON.parse(v),
+            )
+          : listData;
+        if (batchOptVisible) {
+          if (batchCheckAll) {
+            dispatch(changeBatchOptData(listData.map(item => item.rowid)));
+          }
+
+          if (batchOptCheckedData.length === sheetRowsAndTem.count) {
+            dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: true });
+          }
         }
-      }
 
-      dispatch({
-        type: 'MOBILE_CHANGE_SHEET_ROWS',
-        data: listData,
-      });
-      dispatch({
-        type: 'CHANGE_GALLERY_VIEW_DATA',
-        list: listData,
-      });
-      // 看板逻辑
-      if (isKanban) {
-        const formatData = sortDataByCustomItems(sheetRowsAndTem.data, view, template.controls);
-        dispatch(changeBoardViewData(formatData));
-        dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(formatData)));
-        dispatch(
-          changeBoardViewState({
-            kanbanIndex: params.kanbanIndex,
-            hasMoreData: !(sheetRowsAndTem.data < params.kanbanSize),
-          }),
-        );
-      }
-
-      if (isCalendar) {
         dispatch({
-          type: 'MOBILE_CHANGE_CALENDAR_LIST',
+          type: 'MOBILE_CHANGE_SHEET_ROWS',
           data: listData,
         });
-        dispatch(updateFormatData(listData));
-        dispatch({ type: 'MOBILE_CHANGE_CALENDAR_LOADING', data: false });
-      }
+        dispatch({
+          type: 'CHANGE_GALLERY_VIEW_DATA',
+          list: listData,
+        });
+        // 看板逻辑
+        if (isKanban) {
+          const formatData = sortDataByCustomItems(sheetRowsAndTem.data, view, template.controls);
+          dispatch(changeBoardViewData(formatData));
+          dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(formatData)));
+          dispatch(
+            changeBoardViewState({
+              kanbanIndex: params.kanbanIndex,
+              hasMoreData: !(sheetRowsAndTem.data < params.kanbanSize),
+            }),
+          );
+        }
 
-      dispatch(changeSheetControls());
-      dispatch({
-        type: 'MOBILE_UPDATE_VIEW_CODE',
-        value: sheetRowsAndTem.resultCode,
+        if (isCalendar) {
+          dispatch({
+            type: 'MOBILE_CHANGE_CALENDAR_LIST',
+            data: listData,
+          });
+          dispatch(updateFormatData(listData));
+          dispatch({ type: 'MOBILE_CHANGE_CALENDAR_LOADING', data: false });
+        }
+
+        dispatch(changeSheetControls());
+        dispatch({
+          type: 'MOBILE_UPDATE_VIEW_CODE',
+          value: sheetRowsAndTem.resultCode,
+        });
+        dispatch({
+          type: 'MOBILE_UPDATE_SHEET_VIEW',
+          sheetView: {
+            isMore,
+            count: sheetRowsAndTem.count,
+          },
+        });
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (promiseRequests[requestId] !== currentRequest) {
+          return;
+        }
+
+        dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
+        dispatch(updateIsPullRefreshing(false));
+        promiseRequests[requestId] = undefined;
       });
-      dispatch({
-        type: 'MOBILE_UPDATE_SHEET_VIEW',
-        sheetView: {
-          isMore,
-          count: sheetRowsAndTem.count,
-        },
-      });
-      dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
-      dispatch(updateIsPullRefreshing(false));
-      promiseRequests[worksheetId] = undefined;
-    });
   };
 
 export const loadGroupMore = groupKey => (dispatch, getState) => {
@@ -566,6 +585,9 @@ export const loadGroupMore = groupKey => (dispatch, getState) => {
     groupDataInfo,
     filterControls = [],
     worksheetInfo = {},
+    sheetButtons = [],
+    printList = [],
+    sheetSwitchPermit,
   } = getState().mobile;
   const { appId, worksheetId, viewId } = base;
   let { views = [], template = {} } = worksheetInfo;
@@ -594,7 +616,7 @@ export const loadGroupMore = groupKey => (dispatch, getState) => {
   });
 
   sheetAjax.getFilterRows(params).then(({ data = [] }) => {
-    const { rows } = _.find(data, v => v.key === groupKey) || {};
+    const { rows = [] } = _.find(data, v => v.key === groupKey) || {};
 
     dispatch({
       type: 'UPDATE_GROUP_DATA_INFO',
@@ -610,6 +632,29 @@ export const loadGroupMore = groupKey => (dispatch, getState) => {
         }),
       },
     });
+
+    let operatesButtons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
+    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, sheetSwitchPermit, view.viewId);
+    const rowIds = rows.map(row => (_.isString(row) ? safeParse(row) : row).rowid).filter(Boolean);
+    const btnIds = getSheetOperateButtonIds(operatesButtons);
+
+    if (!_.isEmpty(rowIds) && !_.isEmpty(btnIds)) {
+      sheetAjax.checkWorksheetRowsBtn({ worksheetId, rowIds, btnIds }).then(result => {
+        const currentBase = getState().mobile.base;
+
+        if (currentBase.worksheetId !== worksheetId || currentBase.viewId !== viewId) {
+          return;
+        }
+
+        const buttonsCheckStatus = {};
+        result.forEach(item => {
+          item.rowIds.forEach(rowId => {
+            buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
+          });
+        });
+        dispatch(updateButtonsCheckStatus(buttonsCheckStatus, { rowIds, btnIds }));
+      });
+    }
   });
 };
 
@@ -703,10 +748,13 @@ export const updateFiltersGroup = (filter, view) => dispatch => {
     type: 'MOBILE_UPDATE_SHEET_VIEW',
     sheetView: { pageIndex: 1 },
   });
-  dispatch(fetchSheetRows());
   if (view?.viewType === 4) {
+    // 日历视图需要按当前可视区间带 beginTime/endTime 请求，避免普通列表请求覆盖区间数据。
     dispatch(getNotScheduledEventList({ onlyGetCount: true }));
+    return;
   }
+
+  dispatch(fetchSheetRows());
 };
 
 export const resetSheetView = () => dispatch => {
@@ -722,7 +770,7 @@ export const resetSheetView = () => dispatch => {
 };
 
 export const emptySheetRows = () => dispatch => {
-  changeMobileSheetRows([]);
+  dispatch(changeMobileSheetRows([]));
   dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: {} });
 };
 
@@ -1023,12 +1071,6 @@ export function delBoardViewRecord(data) {
   };
 }
 
-export const updateViewCard = data => {
-  return dispatch => {
-    dispatch({ type: 'MOBILE_UPDATE_VIEW_CARD', data });
-  };
-};
-
 export const initCalendarViewData = searchArgs => {
   return dispatch => {
     if (searchArgs.beginTime) {
@@ -1295,6 +1337,10 @@ export function loadCustomButtons({ appId, worksheetId }, cb = () => {}) {
           type: 'MOBILE_WORKSHEET_UPDATE_SHEET_BUTTONS',
           buttons,
         });
+        dispatch({
+          type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
+          buttons,
+        });
         cb();
       });
   };
@@ -1305,7 +1351,8 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
     const actionColumn = flatten(
       worksheetInfo.views.map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
     );
-    const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
+    const needLoadCustomButtons =
+      !get(window, 'shareState.shareId') && find(actionColumn, c => ['btn', 'group'].includes(c.type));
     const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');
 
     const { appId, worksheetId } = worksheetInfo;
@@ -1323,6 +1370,10 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
       sheetAjax.getPrintList({ worksheetId }).then(data => {
         dispatch({
           type: 'MOBILE_WORKSHEET_UPDATE_PRINT_LIST',
+          printList: data,
+        });
+        dispatch({
+          type: 'WORKSHEET_UPDATE_PRINT_LIST',
           printList: data,
         });
       });
@@ -1345,8 +1396,8 @@ export function addMobileNewRecord({ view }) {
   };
 }
 
-export function updateButtonsCheckStatus(buttonsCheckStatus) {
+export function updateButtonsCheckStatus(buttonsCheckStatus, { rowIds = [], btnIds = [] } = {}) {
   return dispatch => {
-    dispatch({ type: 'MOBILE_UPDATE_BUTTONS_CHECK_STATUS', buttonsCheckStatus });
+    dispatch({ type: 'MOBILE_UPDATE_BUTTONS_CHECK_STATUS', buttonsCheckStatus, rowIds, btnIds });
   };
 }

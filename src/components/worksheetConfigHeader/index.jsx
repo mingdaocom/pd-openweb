@@ -52,9 +52,8 @@ class WorksheetConfigHeaderComponent extends Component {
 
   handleRedirect(modulename) {
     const { worksheetId, onBack } = this.props;
-    const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
-      ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
-      : {};
+    const sheetConfigNavInfoStr = localStorage.getItem('sheetConfigNavInfo');
+    const sheetConfigNavInfo = sheetConfigNavInfoStr ? safeParse(sheetConfigNavInfoStr) || {} : {};
     const { extensionNav, settingNav } = sheetConfigNavInfo[worksheetId] || {};
     const urlSet = {
       form: `/worksheet/form/edit/${worksheetId}${extensionNav ? '/' + extensionNav : ''}`,

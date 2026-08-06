@@ -90,7 +90,7 @@ function PortalBar(props) {
                 {inputValue && <ClearIcon className="icon-cancel" onClick={handleClear} />}
               </div>
               <i
-                className={'icon icon-lookup Font20 Hand InlineBlock actIcon searchTels ThemeHoverColor3'}
+                className={'icon icon-lookup Font20 Hand InlineBlock actIcon searchTels hoverColorPrimary'}
                 onClick={() => {
                   setShowTels(true);
                 }}

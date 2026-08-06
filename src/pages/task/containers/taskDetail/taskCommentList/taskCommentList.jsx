@@ -81,7 +81,7 @@ class TaskCommentList extends Component {
             className={cx('isOnlyLook', { checked: onlyLookMe })}
             onClick={() => this.setState({ onlyLookMe: !onlyLookMe })}
           >
-            <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+            <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
             {_l('只显示与我有关')}
           </span>
         </div>

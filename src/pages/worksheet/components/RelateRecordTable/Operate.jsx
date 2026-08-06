@@ -217,8 +217,8 @@ export function SearchInput(props) {
         }}
       >
         <Tooltip title={_l('搜索')} placement="top">
-          <span className="Relative" style={{ height: 28, marginRight: 6 }}>
-            <IconBtn className={cx('searchIcon Hand ThemeHoverColor3', { active: props.keywords })}>
+          <span className="Relative" style={{ height: 24, marginRight: 5 }}>
+            <IconBtn className={cx('searchIcon Hand hoverColorPrimary', { active: props.keywords })}>
               <i className="icon icon-search"></i>
             </IconBtn>
           </span>
@@ -246,6 +246,7 @@ function Operate(props) {
     className,
     base = {},
     tableState = {},
+    rowsSummary = { types: {}, values: {} },
     recordTitle,
     formData,
     changes = {},
@@ -270,6 +271,7 @@ function Operate(props) {
     isDraft,
     controls,
     formItemId,
+    syncRelateRecordSummaryFromCache,
   } = props;
   const { addedRecords } = changes;
   const {
@@ -541,7 +543,7 @@ function Operate(props) {
           {defaultDirection === '1' && (
             <Tooltip title={_l('行列转置')} placement="bottom">
               <IconBtn
-                className="Hand ThemeHoverColor3 mRight6"
+                className="Hand hoverColorPrimary mRight6"
                 onClick={() => {
                   updateBase({
                     direction: direction === 'horizontal' ? 'vertical' : 'horizontal',
@@ -625,7 +627,7 @@ function Operate(props) {
                     refresh();
                   }}
                 >
-                  <IconBtn className="Hand ThemeHoverColor3">
+                  <IconBtn className="Hand hoverColorPrimary">
                     <i className="icon icon-task-later" />
                   </IconBtn>
                 </span>
@@ -635,7 +637,13 @@ function Operate(props) {
             <Tooltip title={_l('全屏')} placement="bottom">
               <span
                 style={{ height: 28, marginRight: 6 }}
-                onClick={() =>
+                onClick={() => {
+                  // 全屏会新建一个 store，运行时已选的统计方式（仅在内联 store 的 rowsSummary.types 里）会丢失。
+                  // 这里按 key 暂存到 window，全屏新 store 在 generateStore 里读取一次后清除（见 redux/store.js）。
+                  window.relateRecordSummaryTypesCache = {
+                    ...(window.relateRecordSummaryTypesCache || {}),
+                    [`${recordId}_${control.controlId}`]: rowsSummary.types,
+                  };
                   openRelateRelateRecordTable({
                     appId,
                     viewId,
@@ -646,14 +654,16 @@ function Operate(props) {
                     allowEdit,
                     formdata: formData,
                     reloadTable: base.isTab ? refresh : () => {},
+                    // 全屏关闭后读回全屏改过的统计方式，更新内联表格，保持两边一致
+                    onClosed: () => syncRelateRecordSummaryFromCache(),
                     updateWorksheetControls: updatedControls => {
                       updateBase({ control: updatedControls[0] });
                       updateWorksheetControls(updatedControls);
                     },
-                  })
-                }
+                  });
+                }}
               >
-                <IconBtn className="Hand ThemeHoverColor3">
+                <IconBtn className="Hand hoverColorPrimary">
                   <i className="icon icon-worksheet_enlarge" />
                 </IconBtn>
               </span>
@@ -731,5 +741,6 @@ export default connect(
     updateTableState: bindActionCreators(actions.updateTableState, dispatch),
     deleteOriginalRecords: bindActionCreators(actions.deleteOriginalRecords, dispatch),
     updateRowsWithChanges: bindActionCreators(actions.updateRowsWithChanges, dispatch),
+    syncRelateRecordSummaryFromCache: bindActionCreators(actions.syncRelateRecordSummaryFromCache, dispatch),
   }),
 )(Operate);

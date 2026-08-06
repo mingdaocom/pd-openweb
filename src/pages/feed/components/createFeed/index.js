@@ -10,6 +10,7 @@ import createShare from 'src/components/createShare/createShare';
 import Emotion from 'src/components/emotion/emotion';
 import MentionsInput from 'src/components/MentionsInput';
 import UploadFiles from 'src/components/UploadFiles';
+import { pathCompletion } from 'src/utils/common';
 import LinkView from '../linkView/linkView';
 import VoteUpdater from '../voteUpdater/voteUpdater';
 import tpl from './s.html';
@@ -53,7 +54,7 @@ export default function (options) {
     handleOpen() {
       let $Attachment_updater = $('[targetdiv="#MDUpdater_Attachment_updater"]');
 
-      if (!$Attachment_updater.hasClass('ThemeColor3')) {
+      if (!$Attachment_updater.hasClass('colorPrimary')) {
         $Attachment_updater.click();
         MDUpdater.options.filesRender = true;
       }
@@ -142,10 +143,10 @@ export default function (options) {
       }
 
       $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
-        .removeClass('ThemeColor3')
+        .removeClass('colorPrimary')
         .addClass('textPlaceholder');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Link_updater']").removeClass('ThemeColor3').addClass('textPlaceholder');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Vote_updater']").removeClass('ThemeColor3').addClass('textPlaceholder');
+      $("div.MDUpdater a[targetdiv='#MDUpdater_Link_updater']").removeClass('colorPrimary').addClass('textPlaceholder');
+      $("div.MDUpdater a[targetdiv='#MDUpdater_Vote_updater']").removeClass('colorPrimary').addClass('textPlaceholder');
       $('#MDUpdater_Attachment_updater,#MDUpdater_Link_updater,#MDUpdater_Vote_updater').hide();
 
       // 附件
@@ -290,7 +291,7 @@ export default function (options) {
               }
 
               createShare({
-                linkURL: md.global.Config.WebUrl + 'feeddetail?itemID=' + result.post.postID,
+                linkURL: pathCompletion('/feeddetail?itemID=' + result.post.postID),
                 content: _l('动态创建成功'),
               });
             }
@@ -349,7 +350,9 @@ export default function (options) {
     bindEvent: function () {
       MDUpdater.bindUploadEvent();
 
-      setTimeout('$("#MDUpdater_textarea_Updater")[0].focus();', 10);
+      setTimeout(function () {
+        $('#MDUpdater_textarea_Updater')[0].focus();
+      }, 10);
 
       // 分享范围
       MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
@@ -445,10 +448,10 @@ export default function (options) {
 
       $('#isToFeed').on('change', function () {
         if ($(this).prop('checked')) {
-          $('#divIsToFeedToggle').removeClass('textPlaceholder').addClass('ThemeColor3');
+          $('#divIsToFeedToggle').removeClass('textPlaceholder').addClass('colorPrimary');
           $('.Updater_Textpanel').find('.groupSelect').show();
         } else {
-          $('#divIsToFeedToggle').removeClass('ThemeColor3').addClass('textPlaceholder');
+          $('#divIsToFeedToggle').removeClass('colorPrimary').addClass('textPlaceholder');
           $('.Updater_Textpanel').find('.groupSelect').hide();
         }
       });
@@ -501,7 +504,7 @@ export default function (options) {
           $('#MDUpdater_Attachment_updater').show(0, function () {
             // MDUpdater.options.uploadObj.getPluploadObj().refresh();
           });
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.attachment);
           if (
             $('#MDUpdater_textarea_Updater') &&
@@ -515,7 +518,7 @@ export default function (options) {
         } else if (targetDivID == '#MDUpdater_Link_updater') {
           $('#MDUpdater_Link_updater').show();
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.link);
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           if (
             $('#MDUpdater_textarea_Updater') &&
             ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
@@ -533,7 +536,7 @@ export default function (options) {
         } else if (targetDivID == '#MDUpdater_Vote_updater') {
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.vote);
 
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           if (
             $('#MDUpdater_textarea_Updater') &&
             ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
@@ -595,7 +598,7 @@ export default function (options) {
           viewUrl: linkUrl,
           callback: function (data) {
             if (data.errorCode != '1') {
-              alert('链接提取失败', 3);
+              alert(_l('链接提取失败'), 3);
               data = null;
             }
 
@@ -621,7 +624,7 @@ export default function (options) {
         $('#MDUpdater_hidden_UpdaterType').val(9);
         $('#MDUpdater_Attachment_updater').show();
         $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
-          .addClass('ThemeColor3')
+          .addClass('colorPrimary')
           .removeClass('textPlaceholder');
       }
     },
@@ -668,7 +671,7 @@ export default function (options) {
       var dialogWidth = 660;
       var dialogTop = (window.screen.height - dialogHeight) / 2 - 50;
       var dialogLeft = (window.screen.width - dialogWidth) / 2 - 7;
-      var url = '/apps/videos/uploadpage/fileupload';
+      var url = pathCompletion('/apps/videos/uploadpage/fileupload');
       var features =
         'top=' +
         dialogTop +

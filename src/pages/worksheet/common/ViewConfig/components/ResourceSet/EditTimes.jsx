@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 
 const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-const locale = locales[md.global.Account.lang];
+const locale = locales[md.global.Account.lang] || localeEn;
 
 const Wrap = styled.div`
   .add {

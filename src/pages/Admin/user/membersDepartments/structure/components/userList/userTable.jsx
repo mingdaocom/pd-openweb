@@ -26,6 +26,27 @@ import SortTopUp from '../SortTopUp';
 import UserItem from './userItem';
 import './userItem.less';
 
+const COLUMN_INFO_STORAGE_KEY = 'columnsInfoData';
+const CHECKBOX_COLUMN_WIDTH = 44;
+const NAME_COLUMN_WIDTH = 200;
+const ACTION_COLUMN_WIDTH = 80;
+const ACTION_COLUMN_WIDTH_WITH_SCROLLBAR = 90;
+const ROW_HEIGHT = 48;
+
+const isCurrentTypeColumn = (column, typeCursor) =>
+  _.isUndefined(column.typeCursor) || column.typeCursor === typeCursor;
+
+const getDefaultCheckedLength = typeCursor => {
+  if (typeCursor === 3) return 10;
+  if (typeCursor === 0) return 9;
+  return 8;
+};
+
+const getSavedColumnsInfo = columnsInfo => {
+  const savedColumnsInfo = safeParse(localStorage.getItem(COLUMN_INFO_STORAGE_KEY), 'array');
+  return _.isEmpty(savedColumnsInfo) ? columnsInfo : savedColumnsInfo;
+};
+
 const clearActiveDialog = props => {
   const { dispatch } = props;
   dispatch(updateUserOpList(null));
@@ -54,7 +75,6 @@ const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) =
 
 class UserTable extends React.Component {
   state = {
-    isMinSc: false, //document.body.clientWidth <= 1380
     columnsInfo: [
       { value: 'name', label: _l('姓名'), checked: true, width: 200 },
       { value: 'department', label: _l('部门'), checked: true, width: 160 },
@@ -64,49 +84,44 @@ class UserTable extends React.Component {
       { value: 'email', label: _l('邮箱'), checked: true, width: 180 },
       { value: 'jobNum', label: _l('工号'), checked: true, width: 120 },
       { value: 'adress', label: _l('工作地点'), checked: true, width: 120 },
-      { value: 'joinDate', label: _l('加入时间'), checked: true, typeCursor: 0, width: 120 },
+      { value: 'joinDate', label: _l('加入时间'), checked: true, typeCursor: 0, width: 160 },
       { value: 'applyDate', label: _l('申请时间'), checked: true, typeCursor: 3, width: 160 },
       { value: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160 },
     ],
     savedScrollLeft: 0, // 暂存移动位置
+    scrollbarWidth: 0,
   };
 
   get columns() {
     const {
-      isThisPageCheck,
       isSelectAll,
       dispatch,
       selectCount,
+      selectedAccountIds = [],
       typeCursor,
       usersCurrentPage = [],
       searchId = [],
       isSearch,
-      searchAccountIds,
+      searchAccountIds = [],
       applyDateOrderBy,
       projectId,
       isLoading,
     } = this.props;
-    let { columnsInfo, dropDownVisible } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let isCheck = isThisPageCheck || isSelectAll;
-    let checkedLength = temp.filter(
-      item => (!item['typeCursor'] || item.typeCursor === this.props.typeCursor) && item.checked,
-    ).length;
-    let isSetShowColumn = typeCursor === 3 ? checkedLength !== 11 : checkedLength !== 9;
-    let totalColWidth = 0;
-    temp.forEach(item => {
-      if (this.isHideCurrentColumn(item.value)) {
-        totalColWidth += item.width;
-      }
-    });
-    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
-    let actWidth =
-      $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length || window.isFirefox ? 80 : 90;
+    let { dropDownVisible } = this.state;
+    const currentTypeColumnsInfo = this.getCurrentTypeColumnsInfo();
+    const checkedLength = currentTypeColumnsInfo.filter(item => item.checked).length;
+    const isSetShowColumn = checkedLength !== getDefaultCheckedLength(typeCursor);
+    const actWidth = this.getActionColumnWidth(usersCurrentPage, searchId);
+    const hasHorizontalScroll = this.hasHorizontalScroll(currentTypeColumnsInfo, actWidth);
     const selectDatas =
       isSearch && !!searchId[0] && searchAccountIds.length > 0
         ? searchAccountIds.filter(user => user.accountId === searchId[0])
         : usersCurrentPage;
+    const selectedCurrentPageCount = isSelectAll
+      ? selectDatas.length
+      : selectDatas.filter(user => _.includes(selectedAccountIds, user.accountId)).length;
+    const isCheck = !!selectDatas.length && selectedCurrentPageCount === selectDatas.length;
+    const isCurrentPagePartialChecked = selectedCurrentPageCount > 0 && selectedCurrentPageCount < selectDatas.length;
 
     const cols = [
       {
@@ -115,15 +130,14 @@ class UserTable extends React.Component {
         checked: true,
         width: 44,
         className: cx('checkBox', {
-          showCheckBox: isCheck || selectCount > 0,
+          showCheckBox: isCheck || isCurrentPagePartialChecked,
           hasSelectCount: selectCount > 0,
         }),
         renderHeader: () => {
           return (
             <Checkbox
-              ref="example"
               className="TxtMiddle InlineBlock mRight0 checked_selected"
-              clearselected={selectCount > 0 && selectCount !== selectDatas.length && !isThisPageCheck}
+              clearselected={isCurrentPagePartialChecked}
               checked={isCheck}
               disabled={isLoading}
               onClick={() => {
@@ -144,9 +158,9 @@ class UserTable extends React.Component {
         dataIndex: 'name',
         label: _l('姓名'),
         checked: true,
-        width: 200,
-        className: cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 }),
-        style: { width: setWidth ? 200 : 'unset' },
+        width: NAME_COLUMN_WIDTH,
+        className: 'nameTh',
+        style: { width: hasHorizontalScroll ? NAME_COLUMN_WIDTH : 'unset' },
       },
       { dataIndex: 'department', label: _l('部门'), checked: true, width: 160, className: 'departmentTh' },
       { dataIndex: 'role', label: _l('角色'), checked: true, width: 160, className: 'roleTh' },
@@ -160,7 +174,7 @@ class UserTable extends React.Component {
         label: _l('加入时间'),
         checked: true,
         typeCursor: 0,
-        width: 120,
+        width: 160,
         className: 'joinDateTh',
       },
       {
@@ -228,6 +242,55 @@ class UserTable extends React.Component {
     return cols;
   }
 
+  getColumnsInfo = () => {
+    return getSavedColumnsInfo(this.state.columnsInfo);
+  };
+
+  getCurrentTypeColumnsInfo = (columnsInfo = this.getColumnsInfo()) => {
+    return columnsInfo.filter(item => isCurrentTypeColumn(item, this.props.typeCursor));
+  };
+
+  getActionColumnWidth = (
+    usersCurrentPage = this.props.usersCurrentPage || [],
+    searchId = this.props.searchId || [],
+  ) => {
+    const $listInfo = $('.listInfo');
+    const listInfoHeight = $listInfo && $listInfo.length ? $listInfo.height() : 0;
+
+    return listInfoHeight > ROW_HEIGHT * usersCurrentPage.length || searchId.length || window.isFirefox
+      ? ACTION_COLUMN_WIDTH
+      : ACTION_COLUMN_WIDTH_WITH_SCROLLBAR;
+  };
+
+  getTableClientWidth = () => {
+    if (this.tbodyContainer) {
+      return this.tbodyContainer.clientWidth;
+    }
+
+    if (this.headContainer) {
+      return this.headContainer.clientWidth;
+    }
+
+    const $listInfo = $('.listInfo');
+    return $listInfo && $listInfo.length ? $listInfo.width() : 0;
+  };
+
+  hasHorizontalScroll = (currentTypeColumnsInfo, actionWidth = this.getActionColumnWidth()) => {
+    const tableClientWidth = this.getTableClientWidth();
+
+    if (!tableClientWidth) return false;
+
+    const visibleColumnsWidth = currentTypeColumnsInfo
+      .filter(item => item.checked)
+      .reduce((sum, item) => sum + item.width, 0);
+
+    return visibleColumnsWidth + CHECKBOX_COLUMN_WIDTH + actionWidth > tableClientWidth;
+  };
+
+  componentDidMount() {
+    this.updateScrollbarWidth();
+  }
+
   componentWillUnmount() {
     clearActiveDialog(this.props);
   }
@@ -236,44 +299,73 @@ class UserTable extends React.Component {
     const { isLoading, typeCursor } = this.props;
     const { savedScrollLeft } = this.state;
 
+    if (prevProps.isLoading !== isLoading) {
+      this.updateScrollbarWidth();
+    }
+
     if (typeCursor !== 3) {
       return;
     }
 
     if (isLoading && savedScrollLeft) {
-      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
-        this.tbodyContainer.scrollLeft = savedScrollLeft;
-      }
-
-      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
-        this.headContainer.scrollLeft = savedScrollLeft;
-      }
+      this.syncTableScrollLeft(savedScrollLeft);
     }
 
     if (prevProps.isLoading && !isLoading && savedScrollLeft) {
       requestAnimationFrame(() => {
-        if (this.tbodyContainer) {
-          this.tbodyContainer.scrollLeft = savedScrollLeft;
-        }
-
-        if (this.headContainer) {
-          this.headContainer.scrollLeft = savedScrollLeft;
-        }
+        this.syncTableScrollLeft(savedScrollLeft);
 
         requestAnimationFrame(() => {
-          if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
-            this.tbodyContainer.scrollLeft = savedScrollLeft;
-          }
-
-          if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
-            this.headContainer.scrollLeft = savedScrollLeft;
-          }
+          this.syncTableScrollLeft(savedScrollLeft);
 
           this.setState({ savedScrollLeft: 0 });
         });
       });
     }
   }
+
+  updateScrollbarWidth = () => {
+    if (!this.tbodyContainer) return;
+
+    const scrollbarWidth = this.tbodyContainer.offsetWidth - this.tbodyContainer.clientWidth;
+
+    if (scrollbarWidth !== this.state.scrollbarWidth) {
+      this.setState({ scrollbarWidth });
+    }
+  };
+
+  syncTableScrollLeft = scrollLeft => {
+    if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== scrollLeft) {
+      this.tbodyContainer.scrollLeft = scrollLeft;
+    }
+
+    if (this.headContainer && this.headContainer.scrollLeft !== scrollLeft) {
+      this.headContainer.scrollLeft = scrollLeft;
+    }
+  };
+
+  keepSavedScrollLeft = () => {
+    const { savedScrollLeft } = this.state;
+    const { isLoading } = this.props;
+
+    if (isLoading && savedScrollLeft) {
+      this.syncTableScrollLeft(savedScrollLeft);
+      return true;
+    }
+
+    return false;
+  };
+
+  updateFixedColumnState = (scrollContainer, scrollLeft) => {
+    const $tableContent = this.tableContent ? $(this.tableContent) : null;
+
+    if (!$tableContent || !scrollContainer) return;
+
+    $tableContent.find('.nameTh').toggleClass('fixedLeft', scrollLeft > 0);
+    $tableContent
+      .find('.actTh')
+      .toggleClass('fixedRight', scrollContainer.scrollWidth - scrollLeft !== scrollContainer.clientWidth);
+  };
 
   renderNullState() {
     const { typeCursor } = this.props;
@@ -304,7 +396,7 @@ class UserTable extends React.Component {
     );
   }
   handleClickStastics = checked => {
-    let { columnsInfo } = this.state;
+    const columnsInfo = this.getColumnsInfo();
     let copyColumnsInfo = [];
 
     if (checked) {
@@ -319,30 +411,23 @@ class UserTable extends React.Component {
       copyColumnsInfo = columnsInfo.map(item => ({ ...item, checked: true }));
     }
 
-    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem(COLUMN_INFO_STORAGE_KEY, JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   handleSingleColumn = (checked, value) => {
-    let { columnsInfo } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let copyColumnsInfo = temp.map(item => {
+    const columnsInfo = this.getColumnsInfo();
+    let copyColumnsInfo = columnsInfo.map(item => {
       if (item.value === value) {
         return { ...item, checked: !checked };
       }
 
       return item;
     });
-    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem(COLUMN_INFO_STORAGE_KEY, JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   renderShowColumns = () => {
-    const { typeCursor } = this.props;
-    let { columnsInfo } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = ((!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo || []).filter(
-      item => _.isUndefined(item.typeCursor) || item.typeCursor === typeCursor,
-    );
+    let temp = this.getCurrentTypeColumnsInfo();
     let checkedLength = temp.filter(it => it.checked).length;
     let colLength = temp.length;
 
@@ -358,36 +443,24 @@ class UserTable extends React.Component {
           </Checkbox>
         </div>
         <ul>
-          {temp.map(item => {
-            if (
-              (item['typeCursor'] && item.typeCursor !== this.props.typeCursor) ||
-              (item.typeCursor === 0 && this.props.typeCursor !== 0)
-            ) {
-              return null;
-            } else {
-              return (
-                <li key={item.value}>
-                  <Checkbox
-                    checked={item.checked}
-                    onClick={checked => this.handleSingleColumn(checked, item.value)}
-                    disabled={item.value === 'name'}
-                  >
-                    <span className="verticalAlign">{item.label}</span>
-                  </Checkbox>
-                </li>
-              );
-            }
-          })}
+          {temp.map(item => (
+            <li key={item.value}>
+              <Checkbox
+                checked={item.checked}
+                onClick={checked => this.handleSingleColumn(checked, item.value)}
+                disabled={item.value === 'name'}
+              >
+                <span className="verticalAlign">{item.label}</span>
+              </Checkbox>
+            </li>
+          ))}
         </ul>
       </div>
     );
   };
 
-  isHideCurrentColumn = fields => {
-    let { columnsInfo } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let obj = temp.filter(item => item.value === fields)[0] || {};
+  isHideCurrentColumn = (fields, columnsInfo = this.getColumnsInfo()) => {
+    let obj = _.find(columnsInfo, item => item.value === fields) || {};
     return obj.checked;
   };
   handleVisibleChange = flag => {
@@ -396,12 +469,18 @@ class UserTable extends React.Component {
 
   renderThead = () => {
     const { typeCursor } = this.props;
+    const { scrollbarWidth } = this.state;
+    const columnsInfo = this.getColumnsInfo();
+    const currentTypeColumnsInfo = this.getCurrentTypeColumnsInfo(columnsInfo);
+    const showScrollbarPlaceholder =
+      scrollbarWidth > 0 && this.hasHorizontalScroll(currentTypeColumnsInfo, this.getActionColumnWidth());
 
     return (
       <thead>
         <tr>
           {this.columns.map(({ dataIndex, className, label, width, style, renderHeader }) => {
-            if (!this.isHideCurrentColumn(dataIndex) && !_.includes(['checkBox', 'action'], dataIndex)) return;
+            if (!this.isHideCurrentColumn(dataIndex, columnsInfo) && !_.includes(['checkBox', 'action'], dataIndex))
+              return;
 
             if (typeCursor !== 0 && dataIndex === 'joinDate') return;
 
@@ -413,6 +492,12 @@ class UserTable extends React.Component {
               </th>
             );
           })}
+          {showScrollbarPlaceholder && (
+            <th
+              key="scrollbarPlaceholder"
+              style={{ width: scrollbarWidth, minWidth: scrollbarWidth, padding: 0, border: 'none' }}
+            />
+          )}
         </tr>
       </thead>
     );
@@ -427,10 +512,8 @@ class UserTable extends React.Component {
   };
 
   renderUsers = props => {
-    let { columnsInfo } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let { usersCurrentPage = [], projectId, searchAccountIds, searchId = [], isSearch, authority = [] } = props;
+    let columnsInfo = this.getColumnsInfo();
+    let { usersCurrentPage = [], projectId, searchAccountIds = [], searchId = [], isSearch, authority = [] } = props;
 
     if (isSearch && !!searchId[0] && searchAccountIds.length > 0) {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
@@ -438,17 +521,23 @@ class UserTable extends React.Component {
 
     if (_.isEmpty(usersCurrentPage)) return '';
 
+    const currentTypeColumnsInfo = this.getCurrentTypeColumnsInfo(columnsInfo);
+    const hasHorizontalScroll = this.hasHorizontalScroll(
+      currentTypeColumnsInfo,
+      this.getActionColumnWidth(usersCurrentPage, searchId),
+    );
+    const nameColumnStyle = { width: hasHorizontalScroll ? NAME_COLUMN_WIDTH : 'unset' };
+
     return usersCurrentPage.map((user, index) => {
       return (
         <UserItem
           authority={authority}
-          isSearch={props.isSearch}
           user={user}
           projectId={projectId}
           key={user.accountId || index}
           isHideCurrentColumn={this.isHideCurrentColumn}
-          columnsInfo={temp}
-          dateNow={Date.now()}
+          columnsInfo={columnsInfo}
+          nameColumnStyle={nameColumnStyle}
           editCurrentUser={this.state.editCurrentUser}
           isLastTopUp={_.findLastIndex(usersCurrentPage, user => user.displayOrder > 0) === index}
           clickRow={() => {
@@ -456,7 +545,7 @@ class UserTable extends React.Component {
               openChangeUserInfoDrawer: true,
               editCurrentUser: {
                 ...user,
-                departmentInfos: (user.departmentInfos || user.departments).map(v => ({
+                departmentInfos: (user.departmentInfos || user.departments || []).map(v => ({
                   departmentId: v.departmentId || v.id,
                   departmentName: v.departmentName || v.name,
                 })),
@@ -471,74 +560,26 @@ class UserTable extends React.Component {
   };
 
   bodyScroll = () => {
-    const { savedScrollLeft } = this.state;
-    const { isLoading } = this.props;
+    if (this.keepSavedScrollLeft()) return;
 
-    // 如果正在加载且有保存的滚动位置，保持滚动位置不变
-    if (isLoading && savedScrollLeft !== null && savedScrollLeft !== 0) {
-      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
-        this.tbodyContainer.scrollLeft = savedScrollLeft;
-      }
-
-      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
-        this.headContainer.scrollLeft = savedScrollLeft;
-      }
-
-      return;
-    }
-
-    let bodyScrollLeft = this.tbodyContainer && this.tbodyContainer.scrollLeft;
+    let bodyScrollLeft = this.tbodyContainer ? this.tbodyContainer.scrollLeft : 0;
 
     if (this.headContainer) {
       this.headContainer.scrollLeft = bodyScrollLeft;
     }
 
-    if (bodyScrollLeft > 0) {
-      $('.nameTh').addClass('fixedLeft');
-    } else if (bodyScrollLeft === 0) {
-      $('.nameTh').removeClass('fixedLeft');
-    }
-
-    if (this.tbodyContainer.scrollWidth - this.tbodyContainer.scrollLeft === this.tbodyContainer.clientWidth) {
-      $('.actTh').removeClass('fixedRight');
-    } else if (this.tbodyContainer.scrollWidth - this.tbodyContainer.scrollLeft !== this.tbodyContainer.clientWidth) {
-      $('.actTh').addClass('fixedRight');
-    }
+    this.updateFixedColumnState(this.tbodyContainer, bodyScrollLeft);
   };
   headScroll = () => {
-    const { savedScrollLeft } = this.state;
-    const { isLoading } = this.props;
+    if (this.keepSavedScrollLeft()) return;
 
-    // 如果正在加载且有保存的滚动位置，保持滚动位置不变
-    if (isLoading && savedScrollLeft !== null && savedScrollLeft !== 0) {
-      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
-        this.tbodyContainer.scrollLeft = savedScrollLeft;
-      }
+    let headScrollLeft = this.headContainer ? this.headContainer.scrollLeft : 0;
 
-      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
-        this.headContainer.scrollLeft = savedScrollLeft;
-      }
-
-      return;
-    }
-
-    let headScrollLeft = this.headContainer && this.headContainer.scrollLeft;
-
-    if (this.headContainer) {
+    if (this.tbodyContainer) {
       this.tbodyContainer.scrollLeft = headScrollLeft;
     }
 
-    if (headScrollLeft > 0) {
-      $('.nameTh').addClass('fixedLeft');
-    } else if (headScrollLeft === 0) {
-      $('.nameTh').removeClass('fixedLeft');
-    }
-
-    if (this.headContainer.scrollWidth - this.headContainer.scrollLeft === this.headContainer.clientWidth) {
-      $('.actTh').removeClass('fixedRight');
-    } else if (this.headContainer.scrollWidth - this.headContainer.scrollLeft !== this.headContainer.clientWidth) {
-      $('.actTh').addClass('fixedRight');
-    }
+    this.updateFixedColumnState(this.headContainer, headScrollLeft);
   };
   render() {
     const {
@@ -554,7 +595,7 @@ class UserTable extends React.Component {
     const { openChangeUserInfoDrawer, editCurrentUser = {}, openSortTopUpDialog } = this.state;
 
     return (
-      <div className="tableContent">
+      <div className="tableContent" ref={node => (this.tableContent = node)}>
         <div className="theadContainer" ref={node => (this.headContainer = node)} onScroll={this.headScroll}>
           <table className="usersTable overflowTable" cellSpacing="0">
             {this.renderThead()}
@@ -617,33 +658,23 @@ const mapStateToProp = state => {
   const {
     pagination: { userList = {} },
     entities: { users, departments, searchUsers, applyDateOrderBy },
-    current: { selectedAccountIds = [], activeAccountId, typeCursor, isSelectAll, departmentId },
-    search: { showSeachResult = false },
+    current: { selectedAccountIds = [], typeCursor, isSelectAll, departmentId },
   } = state;
   const usersPagination = userList && userList.ids ? userList : { ids: [] };
 
-  const { ids = [], searchId = [], pageIndex } = userList;
-  let isThisPageCheck = selectedAccountIds.length > 0 ? true : false;
-  ids.map(it => {
-    if (!_.includes(selectedAccountIds, it)) {
-      isThisPageCheck = false;
-    }
-  });
+  const { searchId = [], pageIndex } = userList;
   let departmentInfos = departments[departmentId];
 
   return {
     ...usersPagination,
-    activeAccountId,
-    // isChecked,
     isSelectAll,
+    selectedAccountIds,
     usersCurrentPage: users,
     typeCursor,
-    isThisPageCheck,
     selectCount: selectedAccountIds.length,
     searchAccountIds: searchUsers,
     isSearch: userList?.isSearchResult,
     searchId,
-    showSeachResult,
     departmentId,
     pageIndex,
     departmentName: departmentInfos ? departmentInfos.departmentName : '',

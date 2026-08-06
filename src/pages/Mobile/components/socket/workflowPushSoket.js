@@ -2,7 +2,7 @@ import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
-import { equalToLocalPushUniqueId } from 'src/utils/common';
+import { equalToLocalPushUniqueId, pathCompletion } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import modalMessage from './modalMessage';
 
@@ -53,8 +53,6 @@ export default () => {
 
         if (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.DETAIL, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], pushType)) {
           getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
-            const subPath = window.subPath || '';
-
             if (!(pushType === PUSH_TYPE.CREATE && code === 20037)) {
               const currentUrl = location.origin + location.pathname;
               history.replaceState({}, '', currentUrl);
@@ -66,15 +64,19 @@ export default () => {
                 return;
               }
 
-              location.href = rowId
-                ? `${subPath}/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}/21`
-                : `${subPath}/mobile/addRecord/${appId}/${worksheetId}/${viewId ? viewId : ''}`;
+              location.href = pathCompletion(
+                rowId
+                  ? `/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}/21`
+                  : `/mobile/addRecord/${appId}/${worksheetId}/${viewId ? viewId : ''}`,
+              );
             } else if (pushType === PUSH_TYPE.DETAIL) {
-              location.href = `${subPath}/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}`;
+              location.href = pathCompletion(
+                `/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}`,
+              );
             } else if (pushType === PUSH_TYPE.VIEW) {
-              location.href = `${subPath}/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+              location.href = pathCompletion(`/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`);
             } else if (pushType === PUSH_TYPE.PAGE) {
-              location.href = `${subPath}/mobile/customPage/${appId}/${appSectionId}/${worksheetId}`;
+              location.href = pathCompletion(`/mobile/customPage/${appId}/${appSectionId}/${worksheetId}`);
             }
           });
         }

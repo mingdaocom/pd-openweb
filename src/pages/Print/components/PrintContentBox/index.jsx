@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import { getPrintLayoutConfig } from '../../core/layout';
 import { isRelationControl } from '../../core/util';
 import ContentEnhancer from './ContentEnhancer';
 import { findLastVisibleByBinary, getAllRelationRows } from './utils';
@@ -19,11 +20,13 @@ const PrintContentBox = props => {
     signature,
     ...rest
   } = props;
-  const advanceMap = _.keyBy(printData.advanceSettings, 'key');
+  const { advanceMap, layout } = getPrintLayoutConfig(printData.advanceSettings);
   const enableEmptyPlaceholder = !!Number(advanceMap.enableEmptyPlaceholder?.value);
   const emptyPlaceholderMode = advanceMap.emptyPlaceholderMode?.value;
 
   const scrollViewRef = useRef(null);
+  const viewportRef = useRef(null);
+  const printItemsRef = useRef(null);
   const lastPageRef = useRef(0);
   const rowsValuesMapRef = useRef({});
   const relationRowsValuesMapRef = useRef({});
@@ -174,7 +177,7 @@ const PrintContentBox = props => {
           return {
             ...control,
             checked: checkedInfo.checked,
-            relationControls: control.relationControls.map(rc => ({
+            relationControls: (control.relationControls || []).map(rc => ({
               ...rc,
               checked: checkedInfo.relationControlsCheckedMap?.[rc.controlId],
             })),
@@ -190,33 +193,46 @@ const PrintContentBox = props => {
     return <LoadDiv className="mTop50" size="big" />;
   }
 
+  const printItems = rowValues.map((rowValue, index) => (
+    <Fragment key={`enhancer-${rowValue.rowId}`}>
+      <ContentEnhancer
+        {...rest}
+        rowValue={rowValue}
+        rowIndex={index}
+        shareUrl={shareShortUrls[rowValue.rowId]}
+        printData={{
+          ...printData,
+          layout,
+          enableEmptyPlaceholder,
+          emptyPlaceholderMode,
+          allControls: allControlsMapRef.current[rowValue.rowId],
+        }}
+        receiveControls={controlProcessedMap[rowValue.rowId]}
+        relationRowsValues={relationRowsValuesMapRef.current[rowValue.rowId]}
+        controls={controls}
+        flagUpdate={flagUpdate}
+        updateFlagType={updateFlagType}
+        signature={signatureProcessedMap[rowValue.rowId]}
+      />
+      {index < rowValues.length - 1 && <div className="printItemSeparator" />}
+    </Fragment>
+  ));
+
   return (
-    <div className="flex">
+    <div className="flex printContentBox" ref={viewportRef}>
       <ScrollView ref={scrollViewRef} onScroll={rowValues.length ? handleScroll : undefined}>
-        <div className="printItemsBox" id="printItemsBox">
-          {rowValues.map((rowValue, index) => (
-            <Fragment key={`enhancer-${rowValue.rowId}`}>
-              <ContentEnhancer
-                rowValue={rowValue}
-                rowIndex={index}
-                shareUrl={shareShortUrls[rowValue.rowId]}
-                printData={{
-                  ...printData,
-                  enableEmptyPlaceholder,
-                  emptyPlaceholderMode,
-                  allControls: allControlsMapRef.current[rowValue.rowId],
-                }}
-                receiveControls={controlProcessedMap[rowValue.rowId]}
-                relationRowsValues={relationRowsValuesMapRef.current[rowValue.rowId]}
-                controls={controls}
-                flagUpdate={flagUpdate}
-                updateFlagType={updateFlagType}
-                signature={signatureProcessedMap[rowValue.rowId]}
-                {...rest}
-              />
-              {index < rowValues.length - 1 && <div className="printItemSeparator" />}
-            </Fragment>
-          ))}
+        <div className="printItemsViewport">
+          <div
+            className="printItemsBox"
+            id="printItemsBox"
+            ref={printItemsRef}
+            style={{
+              '--print-page-width': `${layout.previewPageWidth}px`,
+              '--print-content-width': `${layout.previewContentWidth}px`,
+            }}
+          >
+            {printItems}
+          </div>
         </div>
       </ScrollView>
     </div>

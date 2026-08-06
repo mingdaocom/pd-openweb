@@ -6,6 +6,7 @@ import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
 
 export default class ItemCon extends React.Component {
   render() {
@@ -84,7 +85,7 @@ export default class ItemCon extends React.Component {
         >
           {roleId !== data.roleId && data.isMyRole && <span className="isMyRole mRight3 InlineBlock TxtMiddle" />}
           {ICON_ROLE_TYPE[data.roleType] && <Icon icon={ICON_ROLE_TYPE[data.roleType]} className="Font16 mRight6" />}
-          {data.name}
+          {getTranslateInfo(appId, null, data.roleId).name || data.name}
         </span>
 
         {optList.length > 0 ? (
@@ -125,7 +126,7 @@ export default class ItemCon extends React.Component {
           data.totalCount > 0 && <span className="num">{data.totalCount}</span>
         )}
         {!!data.description && (
-          <Tooltip title={data.description}>
+          <Tooltip title={getTranslateInfo(appId, null, data.roleId).description || data.description}>
             <i className="icon-info_outline Font16 textTertiary mLeft7" />
           </Tooltip>
         )}

@@ -79,7 +79,7 @@ export default class AddressBookInvite extends Component {
             };
             return <Result {...props} key={user.accountId} />;
           })}
-          <div className="addBox ThemeColor3" onClick={this.handleInviteMember}>
+          <div className="addBox colorPrimary" onClick={this.handleInviteMember}>
             <span>
               <Icon icon="add1" />
               {_l('选择')}

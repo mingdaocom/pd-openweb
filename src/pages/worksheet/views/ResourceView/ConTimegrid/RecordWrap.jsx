@@ -86,7 +86,7 @@ export default function RecordWrap(props) {
               <div className="pLeft10" style={{ height: lineBottomHeight }}>
                 {o.totalNum > o.rows.length && o.totalNum > 20 && hasStartAndEnd && (
                   <div
-                    className="Hand textTertiary ThemeHoverColor3 Font13 LineHeight20 lineBottomHeightMore Left0 Relative"
+                    className="Hand textTertiary hoverColorPrimary Font13 LineHeight20 lineBottomHeightMore Left0 Relative"
                     onClick={() => {
                       fetchRowsByGroupId(o.key, Math.ceil(o.rows.length / pageSize) + 1);
                     }}

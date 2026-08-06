@@ -4,6 +4,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import certificationApi from 'src/api/certification';
 import Config from 'src/pages/Admin/config';
 import CertificationDisplay from 'src/pages/certification/components/CertificationDisplay';
+import { pathCompletion } from 'src/utils/common';
 import SmsSignature from './SmsSignature';
 
 const Wrapper = styled.div`
@@ -57,7 +58,9 @@ export default function CertInfo() {
                 className="addBtn"
                 onClick={() => {
                   window.open(
-                    `/certification/project/${Config.projectId}?type=add&returnUrl=${encodeURIComponent(location.href)}`,
+                    pathCompletion(
+                      `/certification/project/${Config.projectId}?type=add&returnUrl=${encodeURIComponent(location.href)}`,
+                    ),
                   );
                 }}
               >

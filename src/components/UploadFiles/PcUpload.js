@@ -4,12 +4,19 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Button, Modal } from 'ming-ui';
+import Tooltip from 'ming-ui/antd-components/Tooltip';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 
 const PcUploadModalWrap = styled(Modal)`
   .bgCloseIcon {
     font-size: 24px;
     color: #fff !important;
+  }
+  .closeIcon {
+    font-size: 24px;
+    margin-right: 10px;
+    margin-top: 10px;
+    display: inline-block;
   }
 
   .pcUploadDialogContent {
@@ -73,24 +80,38 @@ const PcUploadModalWrap = styled(Modal)`
     }
 
     .cameraFooter {
-      flex: 1;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
       position: absolute;
       bottom: 0;
       left: 0;
-      height: 100px;
+      height: 90px;
       right: 0;
       padding: 0 25px;
+      box-sizing: border-box;
       .cameraButton {
+        grid-column: 2;
+        justify-self: center;
         display: flex;
         align-items: center;
+        justify-content: center;
         box-sizing: border-box;
-        margin-left: calc(50% - 132px);
+        width: 56px;
+        height: 56px;
+        border: 1px solid var(--color-primary);
+        border-radius: 50%;
+        color: var(--color-primary);
+        background: transparent;
+        cursor: pointer;
         i {
-          font-size: 24px;
-          margin-right: 8px;
+          font-size: 28px;
         }
+      }
+      .uploadButton {
+        grid-column: 3;
+        justify-self: end;
+        min-width: 114px;
       }
     }
 
@@ -291,6 +312,10 @@ function PcUpload(props) {
   const handleDelete = () => {
     const newPhotoList = photoList.filter((i, index) => index !== previewIndex);
     setPhotoList(newPhotoList);
+
+    if (_.isEmpty(newPhotoList)) {
+      setCameraStatus(CAMERA_STATUS.CAMERA_OPENED);
+    }
   };
 
   const renderContent = () => {
@@ -310,26 +335,29 @@ function PcUpload(props) {
           <video ref={videoRef} autoPlay playsInline />
           <canvas ref={canvasRef} style={{ display: 'none' }} />
           <div className="cameraFooter">
-            <div
-              className="photoList"
-              onClick={() => {
-                if (photoList.length > 0) {
+            {photoList.length > 0 && (
+              <div
+                className="photoList"
+                onClick={() => {
                   canvasContextRef.current = null;
                   setCameraStatus(CAMERA_STATUS.CAMERA_PREVIEW);
                   setPreviewIndex(0);
-                }
-              }}
-            >
-              {photoList.length > 0 && (
+                }}
+              >
                 <Fragment>
                   <img src={URL.createObjectURL(_.last(photoList))} alt="photo" width="100%" height="100%" />
                   <div className="photoCount">{photoList.length}</div>
                 </Fragment>
-              )}
-            </div>
-            <Button className="cameraButton" onClick={handleTakePhoto} icon="switch_camera" size="large">
-              {_l('拍照')}
-            </Button>
+              </div>
+            )}
+            <button type="button" className="cameraButton" onClick={handleTakePhoto}>
+              <i className="icon icon-camera_alt" />
+            </button>
+            {photoList.length > 0 && (
+              <Button className="primary uploadButton" onClick={handleComplete} size="large">
+                {_l('上传')}
+              </Button>
+            )}
           </div>
         </Fragment>
       );
@@ -374,7 +402,7 @@ function PcUpload(props) {
               {_l('继续拍照')}
             </Button>
             <Button className="primary" onClick={handleComplete}>
-              {_l('完成')}
+              {_l('上传')}
             </Button>
           </div>
         </Fragment>
@@ -397,9 +425,13 @@ function PcUpload(props) {
         props.onClose && props.onClose();
       }}
       closeIcon={
-        cameraStatus === CAMERA_STATUS.CAMERA_OPENED ? (
-          <i className="bgCloseIcon icon-delete_out" data-tip={_l('退出')} />
-        ) : undefined
+        <Tooltip title={_l('关闭Esc')} placement="bottom">
+          {cameraStatus === CAMERA_STATUS.CAMERA_OPENED ? (
+            <i className="bgCloseIcon icon-delete_out" />
+          ) : (
+            <i className="closeIcon icon-close" />
+          )}
+        </Tooltip>
       }
     >
       <div className="pcUploadDialogContent">{renderContent()}</div>

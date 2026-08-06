@@ -14,8 +14,7 @@ import { getIds } from '../../pages/PageHeader/util';
 import genRouteComponent from '../genRouteComponent';
 import { PORTAL_ROUTE_CONFIG, ROUTE_CONFIG } from './config';
 
-@connect(state => ({ appPkg: state.appPkg }), dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) }))
-export default class Application extends Component {
+let Application = class Application extends Component {
   constructor(props) {
     super(props);
     this.genRouteComponent = genRouteComponent();
@@ -33,26 +32,31 @@ export default class Application extends Component {
 
     if (appId) {
       this.checkApp(appId);
-    }
+    } // 老路由 先补齐参数
 
-    // 老路由 先补齐参数
     if (worksheetId) {
       this.compatibleWorksheetRoute(worksheetId);
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.match.params.appId !== this.props.match.params.appId ||
-      (window.redirected && location.href.indexOf('from=system') > -1)
-    ) {
-      this.checkApp(nextProps.match.params.appId);
     }
   }
 
   /**
    * 检测应用有效性
    */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.match.params.appId !== prevProps.match.params.appId ||
+        (window.redirected && location.href.indexOf('from=system') > -1)
+      ) {
+        this.checkApp(this.props.match.params.appId);
+      }
+    }
+  }
+  /**
+   * 检测应用有效性
+   */
+
   checkApp(appId) {
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -63,37 +67,56 @@ export default class Application extends Component {
       .then(() => ajaxRequest.checkApp({ appId }, { silent: true }))
       .then(status => {
         localStorage.removeItem('accessPolicyStatus');
+
         if ([4].includes(status) && ['/role', '/workflow'].some(path => this.props.location.pathname.includes(path))) {
           navigateTo(`/app/${appId}`);
         }
 
-        this.setState({ status });
+        this.setState({
+          status,
+        });
         this.props.setAppStatus(status);
       })
       .catch(err => {
-        this.setState({ status: err.errorCode === 300016 ? err.errorCode : 3 });
-        this.props.setAppStatus({ status: err.errorCode === 300016 ? err.errorCode : 3 });
+        this.setState({
+          status: err.errorCode === 300016 ? err.errorCode : 3,
+        });
+        this.props.setAppStatus({
+          status: err.errorCode === 300016 ? err.errorCode : 3,
+        });
+
         if (err.errorCode === 300016) {
           localStorage.setItem('accessPolicyStatus', err.errorCode);
         }
       });
   }
-
   /**
    * 兼容老路由补齐参数
    */
+
   compatibleWorksheetRoute(worksheetId) {
     ajaxRequest
-      .getAppSimpleInfo({ workSheetId: worksheetId }, { silent: true })
+      .getAppSimpleInfo(
+        {
+          workSheetId: worksheetId,
+        },
+        {
+          silent: true,
+        },
+      )
       .then(result => {
         const { appId, appSectionId } = result;
 
         if (!appId || !appSectionId) {
-          this.setState({ status: 3 });
+          this.setState({
+            status: 3,
+          });
         }
       })
       .catch(() => {
-        this.setState({ status: 6 });
+        this.setState({
+          status: 6,
+        });
       });
   }
 
@@ -134,4 +157,13 @@ export default class Application extends Component {
 
     return <UnusualContent appPkg={appPkg} status={status} appId={appId} />;
   }
-}
+};
+Application = connect(
+  state => ({
+    appPkg: state.appPkg,
+  }),
+  dispatch => ({
+    setAppStatus: status => dispatch(setAppStatus(status)),
+  }),
+)(Application);
+export default Application;

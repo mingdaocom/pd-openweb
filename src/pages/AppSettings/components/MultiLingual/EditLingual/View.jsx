@@ -2,35 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
-
-const Wrap = styled.div`
-  .viewsNav {
-    width: 180px;
-    .view {
-      height: 36px;
-      border-radius: 4px;
-      padding: 0 10px;
-      margin-right: 12px;
-      &:hover {
-        background-color: var(--color-background-hover);
-      }
-    }
-  }
-  .viewWrap {
-    .viewName {
-      padding: 3px;
-    }
-    .nodeItem {
-      padding: 0 3px;
-    }
-  }
-`;
 
 export default function View(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -60,10 +36,10 @@ export default function View(props) {
     );
   }
 
-  const handlePositionView = item => {
-    const el = document.querySelector(`.view-${item.viewId}`);
+  const handlePositionItem = item => {
+    const el = document.querySelector(`.navItem-${item.viewId}`);
     const className = 'highlight';
-    const highlightEl = el.querySelector('.viewName');
+    const highlightEl = el.querySelector('.itemName');
     $(highlightEl)
       .addClass(className)
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
@@ -76,26 +52,30 @@ export default function View(props) {
 
   const { views = [] } = sheetInfo;
 
-  const renderViewNav = view => {
-    const data = _.find(translateData, { correlationId: view.viewId }) || {};
+  const renderNav = item => {
+    const data = _.find(translateData, { correlationId: item.viewId }) || {};
     const translateInfo = data.data || {};
     return (
-      <div className="view flexRow alignItemsCenter pointer" key={view.viewId} onClick={() => handlePositionView(view)}>
-        <span className="mLeft5 Font13 ellipsis">{translateInfo.name || view.name}</span>
+      <div
+        className="navItem flexRow alignItemsCenter pointer"
+        key={item.viewId}
+        onClick={() => handlePositionItem(item)}
+      >
+        <span className="mLeft5 Font13 ellipsis">{translateInfo.name || item.name}</span>
       </div>
     );
   };
 
-  const renderViewContent = view => {
-    const data = _.find(translateData, { correlationId: view.viewId }) || {};
+  const renderContent = item => {
+    const data = _.find(translateData, { correlationId: item.viewId }) || {};
     const translateInfo = data.data || {};
-    const comparisonLangInfo = getTranslateInfo(app.id, null, view.viewId, comparisonLangData);
+    const comparisonLangInfo = getTranslateInfo(app.id, null, item.viewId, comparisonLangData);
 
     const handleSave = info => {
       onEditAppLang({
         id: data.id,
         parentId: selectNode.workSheetId,
-        correlationId: view.viewId,
+        correlationId: item.viewId,
         type: LANG_DATA_TYPE.wrokSheetView,
         data: {
           ...translateInfo,
@@ -105,15 +85,15 @@ export default function View(props) {
     };
 
     return (
-      <div className={cx('flexColumn mBottom30 viewWrap', `view-${view.viewId}`)} key={view.viewId}>
-        <div className="flexRow alignItemsCenter mBottom15 viewName">
-          <span className="flex Font14 bold ellipsis">{translateInfo.name || view.name}</span>
+      <div className={cx('flexColumn mBottom30', `navItem-${item.viewId}`)} key={item.viewId}>
+        <div className="flexRow alignItemsCenter mBottom15 itemName">
+          <span className="flex Font14 bold ellipsis">{translateInfo.name || item.name}</span>
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('视图名称')}</div>
           <Input
             className="flex mRight20"
-            value={comparisonLangId ? comparisonLangInfo.name : view.name}
+            value={comparisonLangId ? comparisonLangInfo.name : item.name}
             disabled={true}
           />
           <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
@@ -123,8 +103,8 @@ export default function View(props) {
   };
 
   return (
-    <Wrap className="flexRow pAll10 h100">
-      <div className="viewsNav flexColumn">
+    <div className="flexRow pAll10 h100">
+      <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
@@ -140,12 +120,12 @@ export default function View(props) {
           )}
         </div>
         <ScrollView className="h100">
-          {views.filter(view => view.name.includes(searchValue)).map(view => renderViewNav(view))}
+          {views.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="h100" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">{views.map(view => renderViewContent(view))}</div>
+        <div className="pLeft20 pRight20">{views.map(item => renderContent(item))}</div>
       </ScrollView>
-    </Wrap>
+    </div>
   );
 }

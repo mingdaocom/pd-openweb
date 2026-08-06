@@ -89,7 +89,7 @@ export class FileItem extends Component {
           {isPicture ? <img src={previewUrl} /> : <i className={item.iconClass} />}
         </div>
         <div className="info">
-          <div className="name ThemeColor3" title={item.name}>
+          <div className="name colorPrimary" title={item.name}>
             {item.name}
           </div>
           <div className="time" title={item.$date}>
@@ -99,7 +99,7 @@ export class FileItem extends Component {
             {createAccount.fullname}
           </div>
         </div>
-        {/* <a href={$downUrl} className="download icon-download ThemeColor3" target="_blank" title={_l('下载')} /> */}
+        {/* <a href={$downUrl} className="download icon-download colorPrimary" target="_blank" title={_l('下载')} /> */}
       </div>
     );
   }
@@ -171,7 +171,7 @@ export default class Files extends Component {
           {files.length ? (
             <span
               onClick={this.props.onSetPanelVisible.bind(this, true)}
-              className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
+              className="ChatPanel-sessionInfo-hander-entry colorPrimary"
             >
               {_l('所有文件')}
               <i className="icon-arrow-right-border" />

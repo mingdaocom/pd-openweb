@@ -1,7 +1,6 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 @prefixClass: Calendar;
 @input-box-height: 35px;
-@datepicker-border: 1px solid @grayLighter;
+@datepicker-border: 1px solid var(--color-border-secondary);
 
 .@{prefixClass}-picker-input-separator {
   display: inline-block;
@@ -11,11 +10,11 @@
 .@{prefixClass}-range.@{prefixClass}-waingAble {
   .@{prefixClass}-error-end-day.@{prefixClass}-selected-day {
     .@{prefixClass}-date {
-      background-color: @dangerColor;
+      background-color: var(--color-error);
     }
   }
   .@{prefixClass}-timepicker-btn.warning .TimePicker-input {
-    border-color: @dangerColor;
+    border-color: var(--color-error);
   }
 }
 
@@ -24,7 +23,7 @@
 
   .@{prefixClass}-selected-day .@{prefixClass}-date {
     color: var(--color-white) !important;
-    background-color: @themeColor3;
+    background-color: var(--color-primary);
   }
 
   .@{prefixClass}-cell {
@@ -71,7 +70,7 @@
       width: 1px;
       left: 246px;
       margin-left: -1px;
-      background-color: @grayLighter;
+      background-color: var(--color-border-secondary);
       position: absolute;
     }
     &-timepicker {

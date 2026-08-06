@@ -84,7 +84,7 @@ export default class RelationControl extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getSources();
   }
 
@@ -261,7 +261,7 @@ export default class RelationControl extends Component {
       <li
         key={i}
         className={cx('relative', {
-          ThemeBGColor3: this.state.item && this.state.item.sid === item.sid && this.state.item.sidext === item.sidext,
+          bgColorPrimary: this.state.item && this.state.item.sid === item.sid && this.state.item.sidext === item.sidext,
         })}
         onClick={() => this.setState({ item })}
       >
@@ -365,7 +365,7 @@ export default class RelationControl extends Component {
 
           <div className="flex relative flexColumn">
             <i
-              className="icon-delete relationControlClose ThemeColor3"
+              className="icon-delete relationControlClose colorPrimary"
               onClick={() => {
                 this.onCancel();
               }}
@@ -426,7 +426,7 @@ export default class RelationControl extends Component {
               {this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.repeatMore ? (
                 <div>
                   <span
-                    className="listMore ThemeColor3"
+                    className="listMore colorPrimary"
                     onClick={() => this.getRelationSources(6, this.state.repeatPage + 1)}
                   >
                     {_l('查看更多')}
@@ -438,7 +438,7 @@ export default class RelationControl extends Component {
               {this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.listMore ? (
                 <div>
                   <span
-                    className="listMore ThemeColor3"
+                    className="listMore colorPrimary"
                     onClick={() => this.getRelationSources(3, this.state.listPage + 1)}
                   >
                     {_l('查看更多')}
@@ -448,7 +448,7 @@ export default class RelationControl extends Component {
             </ul>
             <div className="relationControlFooter">
               <span
-                className="relationControlCancel ThemeColor3"
+                className="relationControlCancel colorPrimary"
                 onClick={() => {
                   this.onCancel();
                 }}
@@ -456,7 +456,7 @@ export default class RelationControl extends Component {
                 {_l('取消')}
               </span>
               <span
-                className={cx('relationControlSave ThemeBGColor3', { relationDisable: this.state.item === null })}
+                className={cx('relationControlSave bgColorPrimary', { relationDisable: this.state.item === null })}
                 onClick={() => this.save()}
               >
                 {_l('确定')}
@@ -469,7 +469,7 @@ export default class RelationControl extends Component {
           <DialogBase {...repeatDialogOpts}>
             <div className="flexColumn relationControlBox relative">
               <i
-                className="icon-delete relationControlClose ThemeColor3"
+                className="icon-delete relationControlClose colorPrimary"
                 onClick={() => this.setState({ repeatVisible: false, treeLeft: '', item: null })}
               />
               <div className="relationControlTypeName overflow_ellipsis mRight25 mLeft15">
@@ -477,7 +477,7 @@ export default class RelationControl extends Component {
               </div>
               <div className="listDate">
                 <DatePicker.RangePicker
-                  className="ThemeHoverColor3"
+                  className="hoverColorPrimary"
                   onOk={this.selectTime}
                   allowClear={false}
                   selectedValue={[moment(treeLeftArr[1]), moment(treeLeftArr[2])]}
@@ -502,13 +502,13 @@ export default class RelationControl extends Component {
               </ul>
               <div className="relationControlFooter">
                 <span
-                  className="relationControlCancel ThemeColor3"
+                  className="relationControlCancel colorPrimary"
                   onClick={() => this.setState({ repeatVisible: false, treeLeft: '', item: null })}
                 >
                   {_l('取消')}
                 </span>
                 <span
-                  className={cx('relationControlSave ThemeBGColor3', { relationDisable: this.state.item === null })}
+                  className={cx('relationControlSave bgColorPrimary', { relationDisable: this.state.item === null })}
                   onClick={() => this.save()}
                 >
                   {_l('确定')}

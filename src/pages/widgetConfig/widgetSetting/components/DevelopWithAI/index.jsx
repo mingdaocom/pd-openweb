@@ -226,7 +226,7 @@ export default function DevelopWithAI(props) {
     <Modal visible fullScreen bodyStyle={{ padding: 0 }} closeIcon={<span />}>
       <Con>
         <Header>
-          <i className="icon-backspace Font16 mRight12 textSecondary ThemeHoverColor3 pointer" onClick={handleExit} />
+          <i className="icon-backspace Font16 mRight12 textSecondary hoverColorPrimary pointer" onClick={handleExit} />
           <EditableText
             value={control.controlName}
             onChange={(newName = '') => {
@@ -416,7 +416,7 @@ export default function DevelopWithAI(props) {
                     : _l('AI服务未配置，AI对话生成代码暂不可用')}
                   {md.global.Account.superAdmin && (
                     <span
-                      className="ThemeColor3 ThemeHoverColor3 Hand mLeft8"
+                      className="colorPrimary hoverColorPrimary Hand mLeft8"
                       onClick={() => {
                         location.href = md.global.Config.PlatformUrl + 'sysconfig/hub/ai';
                       }}

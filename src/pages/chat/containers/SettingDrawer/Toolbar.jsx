@@ -71,7 +71,7 @@ export default props => {
             <img src={aiBrandLogoUrl || mingoLogo} className="w100" />
           </Mingo>
           <span className="mLeft5 mRight10 flex minWidth0">
-            <div className="ellipsis">{aiBrandName || 'AI助手'}</div>
+            <div className="ellipsis">{aiBrandName || _l('AI助手')}</div>
           </span>
           <Icon icon="ai-l" className="Font18" style={{ color: aiBrandThemeColor || 'var(--color-mingo)' }} />
         </div>

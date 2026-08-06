@@ -6,27 +6,27 @@ import './index.less';
 
 const SORT_TYPE = [
   {
-    label: '默认',
+    label: _l('默认'),
     key: 0,
     icon: 'score-down',
   },
   {
-    label: '更新时间',
+    label: _l('更新时间'),
     key: 1,
     icon: 'score-down',
   },
   {
-    label: '更新时间',
+    label: _l('更新时间'),
     key: 2,
     icon: 'score-up',
   },
   {
-    label: '创建时间',
+    label: _l('创建时间'),
     key: 3,
     icon: 'score-down',
   },
   {
-    label: '创建时间',
+    label: _l('创建时间'),
     key: 4,
     icon: 'score-up',
   },

@@ -1,0 +1,41 @@
+.mobileModal {
+  &.full .adm-popup-body-position-bottom {
+    height: 100%;
+  }
+  &.minFull .adm-popup-body-position-bottom {
+    height: 95%;
+  }
+  &.midFull .adm-popup-body-position-bottom {
+    height: 85%;
+  }
+  &.topRadius .adm-popup-body-position-bottom {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    overflow: hidden;
+  }
+  .adm-popup-body-position-bottom {
+    padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px') !important;
+    padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;
+    background-color: var(--color-background-card);
+  }
+  .header {
+    justify-content: space-between;
+    padding: 15px 15px 20px;
+    color: var(--color-text-tertiary);
+    .closeIcon {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: var(--color-border-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  &.RecordInfoModal,
+  &.processRecordInfoModal {
+    .adm-popup-body-position-bottom {
+      background-color: var(--color-background-primary) !important;
+    }
+  }
+}

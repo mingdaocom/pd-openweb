@@ -1,63 +1,58 @@
-import { identity } from 'lodash';
+import { get, identity } from 'lodash';
+import agentApi from 'src/api/agent';
 import sseAjax from 'src/api/sse';
 import buildCreateWorksheetInfoMessages from './buildCreateWorksheetInfoMessages';
 
-export async function createWorksheetSuggestionSSE({ appId, messages, abortController }) {
-  const response = await sseAjax.buildSheetRequirements(
+export async function createWorksheetSuggestionSSE({ message, agentParams, context, sessionId, abortController }) {
+  const response = await agentApi.agentExecuteStream(
     {
-      appId,
-      messageList: [
-        // {
-        //   role: 'user',
-        //   content: buildCurrentAppDataMessage(currentAppData),
-        // },
-        ...messages,
-      ],
+      agentName: 'worksheet-requirement-agent',
+      ...agentParams,
+      sessionId,
+      message,
+      context,
     },
-    {
-      abortController,
-      isReadableStream: true,
-    },
+    { abortController },
   );
-  // const response = await sseAjax.buildWorkSheet(
-  //   {
-  //     appId,
-  //     messageList: [
-  //       {
-  //         role: 'system',
-  //         content: createWorksheetSystemPrompt,
-  //       },
-  //       {
-  //         role: 'user',
-  //         content: buildCurrentAppDataMessage(currentAppData),
-  //       },
-  //       ...messages,
-  //     ],
-  //     // params: {},
-  //   },
-  //   {
-  //     abortController,
-  //     isReadableStream: true,
-  //   },
-  // );
   return response;
 }
 
-export async function generateWorksheetWidgetsSSE({ appId, messages, abortController }) {
-  const response = await sseAjax.buildWorkSheet(
+export async function generateWorksheetWidgetsSSE({ agentParams, context, sessionId, abortController }) {
+  const response = await agentApi.agentExecuteStream(
     {
-      appId,
-      messageList: [
-        // ...buildGenerateWorksheetWidgetsMessages(),
-        ...messages,
-      ],
+      agentName: 'worksheet-generator-agent',
+      forceReroute: false,
+      context,
+      sessionId,
+      ...agentParams,
     },
-    {
-      abortController,
-      isReadableStream: true,
-    },
+    { abortController },
   );
   return response;
+}
+
+/** worksheet-name-icon-recommender：POST /api/agent/execute（非流式） */
+export async function fetchWorksheetNameIconRecommend({ message, context, projectId, sessionId, abortController }) {
+  try {
+    const result = await agentApi.agentExecute(
+      {
+        agentName: 'worksheet-name-icon-recommender',
+        message,
+        sessionId,
+        context,
+        ...(projectId ? { projectId: String(projectId) } : {}),
+      },
+      { abortController, silent: true },
+    );
+
+    return {
+      worksheetName: get(result, 'data.worksheetName', ''),
+      icons: get(result, 'data.icons', []),
+    };
+  } catch (err) {
+    identity(err);
+    return { worksheetName: '', icons: [] };
+  }
 }
 
 export async function getWorksheetNameAndIcon(appId, createPrompt, abortController) {

@@ -104,7 +104,7 @@ const RelationList = props => {
         </div>
 
         <a
-          className="ThemeHoverColor3"
+          className="hoverColorPrimary"
           onClick={e => {
             if (window.shareState.shareId) return;
             handleLinkClick(item, e);

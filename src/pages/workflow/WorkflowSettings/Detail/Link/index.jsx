@@ -32,18 +32,26 @@ export default class Link extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -56,6 +64,10 @@ export default class Link extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({ data: result });
         result.selectNodeObj.appId && this.getWorksheetInfo(result.selectNodeObj.appId);
       });
@@ -118,7 +130,7 @@ export default class Link extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -158,7 +170,7 @@ export default class Link extends Component {
     const views = this.state.views.map(o => ({
       text: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'ThemeColor3' : '',
+      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 
@@ -278,7 +290,7 @@ export default class Link extends Component {
             <div className="flexRow mTop10">
               <input
                 type="text"
-                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                 defaultValue={data.password}
                 maxLength={8}
                 onChange={evt => {
@@ -505,7 +517,11 @@ export default class Link extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={!!data.appId || !!data.selectNodeId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={(!!data.appId || !!data.selectNodeId) && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

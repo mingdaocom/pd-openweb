@@ -50,15 +50,20 @@ class SearchMember extends Component {
   componentDidMount() {
     this.handleFocus();
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.sessionListVisible && !this.props.sessionListVisible) {
-      this.handleFocus();
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.sessionListVisible && !prevProps.sessionListVisible) {
+        this.handleFocus();
+      }
     }
   }
   handleFocus = () => {
     if (this.inputRef.current && !location.href.includes('windowChat')) {
       setTimeout(() => {
-        this.inputRef.current.focus();
+        if (this.inputRef.current) {
+          this.inputRef.current.focus();
+        }
       }, 300);
     }
   };
@@ -77,7 +82,7 @@ class SearchMember extends Component {
   };
   adjustViewport(direction) {
     const { flattenResult, currentIndex } = this.state;
-    const { viewport } = this.scrollView && this.scrollView.getScrollInfo();
+    const { viewport } = (this.scrollView && this.scrollView.getScrollInfo()) || {};
     const $scrollViewEl = $(viewport);
     const current = flattenResult[currentIndex] || {};
     const id = current.accountId ? (current.user ? current.user.userId : current.accountId) : current.groupId;

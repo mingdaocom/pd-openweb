@@ -4,15 +4,13 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { APP_TYPE, NODE_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import { getIcons } from '../../../utils';
 import selectToolsFields from './selectToolsFields';
 import './index.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 export default class ActionFields extends Component {
   static propTypes = {
     className: PropTypes.string,
@@ -65,9 +63,17 @@ export default class ActionFields extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.condition.length !== this.props.condition.length) {
-      this.setState({ activeIndex: nextProps.condition.length > 1 ? -1 : 0 });
+  /**
+   * 点击切换
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.condition.length !== prevProps.condition.length) {
+        this.setState({
+          activeIndex: this.props.condition.length > 1 ? -1 : 0,
+        });
+      }
     }
   }
 
@@ -146,8 +152,8 @@ export default class ActionFields extends Component {
               {condition.map((item, index) => (
                 <div key={index} className="conditionBox">
                   <div
-                    className={cx('conditionDetail flexRow ThemeHoverColor3', {
-                      ThemeColor3: index === activeIndex && !keywords,
+                    className={cx('conditionDetail flexRow hoverColorPrimary', {
+                      colorPrimary: index === activeIndex && !keywords,
                     })}
                     onClick={() => !keywords && this.handleClick(index)}
                   >
@@ -206,7 +212,7 @@ export default class ActionFields extends Component {
                       )}
                       {item.items.map((obj, index) => (
                         <li
-                          className="flexRow ThemeHoverBGColor3"
+                          className="flexRow hoverBgColorPrimaryDark"
                           key={index}
                           onClick={evt => {
                             evt.stopPropagation();
@@ -243,7 +249,7 @@ export default class ActionFields extends Component {
                         <Fragment>
                           <div className="divider"></div>
                           <li
-                            className="flexRow ThemeHoverBGColor3 agentField"
+                            className="flexRow hoverBgColorPrimaryDark agentField"
                             onClick={() => {
                               selectToolsFields({
                                 subFlowNodeApps: item.subFlowNodeApps,

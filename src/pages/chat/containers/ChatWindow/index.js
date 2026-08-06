@@ -13,19 +13,17 @@ import ChatPanelSession from '../ChatPanelSession';
 import '../ChatPanel/index.less';
 
 let hasMounted = false;
-
-@preall
-class ChatWindow extends Component {
+let ChatWindow = class ChatWindow extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
     };
   }
+
   componentDidMount() {
     const { session } = this.props;
     const { id, type } = session;
-
     if (hasMounted) return;
     hasMounted = true;
     ajax
@@ -44,7 +42,9 @@ class ChatWindow extends Component {
             from: result.accountId,
             logo: result.avatar,
             sysType: 1,
-            msg: { con: '' },
+            msg: {
+              con: '',
+            },
           };
         } else if (type == Constant.SESSIONTYPE_GROUP) {
           data = {
@@ -55,38 +55,39 @@ class ChatWindow extends Component {
             from: result.from,
             avatar: result.avatar,
             sysType: 1,
-            msg: { con: '' },
+            msg: {
+              con: '',
+            },
           };
         }
 
         this.props.dispatch(actions.setIsWindow(true));
         this.props.dispatch(actions.addSession(data));
-
         this.props.dispatch(
           actions.setNewCurrentSession({
             value: id,
           }),
         );
         this.props.dispatch(actions.addCurrentSession(result));
-        this.setState({ loading: false });
-      });
+        this.setState({
+          loading: false,
+        });
+      }); // socket 连接
 
-    // socket 连接
-    socketInit();
-    // 注册事件
+    socketInit(); // 注册事件
+
     type == Constant.SESSIONTYPE_USER ? socketEvent.userInit.call(this) : socketEvent.groupInit.call(this);
-
     socket.Contact.setCurrentChat({
       value: id,
       type: Number(type),
     });
-
     utils.chatWindow.set(id);
     window.addEventListener('beforeunload', () => {
       utils.chatWindow.remove(id);
       socket.Contact.setCurrentChat({});
     });
   }
+
   render() {
     const { loading } = this.state;
     const { currentSessionList } = this.props;
@@ -102,8 +103,8 @@ class ChatWindow extends Component {
       </div>
     );
   }
-}
-
+};
+ChatWindow = preall(ChatWindow);
 const ConnectChatWindow = connect(state => {
   const { currentSessionList, isWindow } = state.chat;
   return {
@@ -111,5 +112,4 @@ const ConnectChatWindow = connect(state => {
     isWindow,
   };
 })(ChatWindow);
-
 export default ConnectChatWindow;

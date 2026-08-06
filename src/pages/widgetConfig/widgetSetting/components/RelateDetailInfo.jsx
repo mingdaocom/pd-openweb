@@ -17,7 +17,7 @@ export default function RelateDetailInfo(props) {
       </div>
       <i className={cx('Font16 textTertiary mRight6', !sourceControlId ? 'icon-right' : 'icon-sync1')} />
       <span
-        className={cx('ThemeColor3 Bold flexWidth', { pointer: !fromPortal })}
+        className={cx('colorPrimary Bold flexWidth', { pointer: !fromPortal })}
         title={sheetInfo.name}
         onClick={() => {
           if (fromPortal) return;
@@ -30,9 +30,9 @@ export default function RelateDetailInfo(props) {
           props.relateToNewPage(toPage);
         }}
       >
-        {sheetInfo.name}
+        {sheetInfo.resultCode === 4 ? <span className="Red">{_l('已删除')}</span> : sheetInfo.name}
       </span>
-      {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && (
+      {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && sheetInfo.resultCode !== 4 && (
         <span className="mLeft6 flexWidth" title={sheetInfo.appName}>
           ({sheetInfo.appName})
         </span>

@@ -59,8 +59,10 @@ class RadioGroup extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.refreshId(nextProps.checkedValue, nextProps.data);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.refreshId(this.props.checkedValue, this.props.data);
+    }
   }
 
   handleClick(value) {

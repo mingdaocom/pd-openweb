@@ -21,7 +21,7 @@ export const CustomFormItemControlWrap = styled.div`
     ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
   ${props => (_.includes([25, 31, 32, 33, 37, 38, 53], props.type) ? props.valueStyle : '')}
   & > span:first-child {
-      ${props => (_.includes([2, 3, 4, 5, 6, 7, 8, 15, 16], props.type) ? props.valueStyle : '')}
+      ${props => (_.includes([2, 4, 5, 6, 7, 8, 15, 16], props.type) ? props.valueStyle : '')}
     }
     &.customFormControlTelPhone {
       ${props => props.valueStyle}
@@ -32,6 +32,10 @@ export const CustomFormItemControlWrap = styled.div`
     }
     &:not(.ant-picker-focused) .ant-picker-input > input {
       ${props => (_.includes([15, 16, 46], props.type) ? props.valueStyle : '')}
+    }
+    .PhoneNumberInput {
+      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+      ${props => props.valueStyle || ''}
     }
   }
 

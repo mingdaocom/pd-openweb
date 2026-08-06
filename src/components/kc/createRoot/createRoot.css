@@ -311,7 +311,7 @@
   color: var(--color-white);
 }
 
-#updatePermission .itemLi:not(.ThemeBGColor3) .itemText {
+#updatePermission .itemLi:not(.bgColorPrimary) .itemText {
   color: var(--color-text-title);
 }
 
@@ -327,7 +327,7 @@
   padding-bottom: 5px;
   color: var(--color-white);
 }
-#updatePermission .itemLi:not(.ThemeBGColor3) .describe {
+#updatePermission .itemLi:not(.bgColorPrimary) .describe {
   padding-bottom: 5px;
   color: rgba(0, 0, 0, 0.5);
 }

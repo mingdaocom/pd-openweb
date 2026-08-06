@@ -29,13 +29,13 @@ export default class UploadProgress extends React.Component {
         icon = <Icon className="uploadPercentageText fgError" icon="delete" />;
         break;
       case UPLOAD_STATUS.UPLOADING:
-        colorClass = 'ThemeBGColor3';
+        colorClass = 'bgColorPrimary';
         text = percentage === '100%' ? _l('即将完成') : _l('上传中');
         icon = <span className="uploadPercentageText">{percentage}</span>;
         break;
       case UPLOAD_STATUS.QUEUE:
       default:
-        colorClass = 'ThemeBGColor3';
+        colorClass = 'bgColorPrimary';
         text = _l('排队中');
         icon = <span className="uploadPercentageText">{percentage}</span>;
         break;

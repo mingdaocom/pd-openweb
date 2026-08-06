@@ -43,6 +43,9 @@ export default {
   * @param {string} args.foreignControlId 主记录子表控件id
 子表的清况
   * @param {} args.editType
+  * @param {string} args.btnId 自定义按钮ID
+  * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
+  * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {string} args.fileUrl 打印工作表记录类型时传递此参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

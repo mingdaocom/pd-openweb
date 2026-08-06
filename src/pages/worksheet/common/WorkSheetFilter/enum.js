@@ -54,13 +54,41 @@ export const FILTER_CONDITION_TYPE = {
   NE_FOR_SINGLE: 52, // 不是（单选专用）
 };
 
-// 日期字段「早于 / 晚于 / 早于等于 / 晚于等于」：只支持指定日期，不允许选择动态日期类型
+// 日期字段「早于 / 晚于 / 早于等于 / 晚于等于」支持指定日期与部分方向明确的动态时间点
 export const DATE_COMPARE_FILTER_TYPES = [
   FILTER_CONDITION_TYPE.DATE_LT,
   FILTER_CONDITION_TYPE.DATE_GT,
   FILTER_CONDITION_TYPE.DATE_LTE,
   FILTER_CONDITION_TYPE.DATE_GTE,
 ];
+
+// 比较规则下不使用“过去/将来一段范围”的语义，只复用这些 dateRange 值表达相对时间点。
+export const DATE_COMPARE_PAST_RANGE_VALUES = [1, 2, 101, 21, 22, 23];
+export const DATE_COMPARE_FUTURE_RANGE_VALUES = [1, 3, 102, 31, 32, 33];
+
+// 比较规则内将原有“过去7天/将来7天”文案转成“7天前/7天后”，避免被理解成范围筛选。
+export const DATE_COMPARE_RANGE_LABELS = {
+  21: _l('7天前'),
+  22: _l('14天前'),
+  23: _l('30天前'),
+  31: _l('7天后'),
+  32: _l('14天后'),
+  33: _l('30天后'),
+  101: _l('...前'),
+  102: _l('...后'),
+};
+
+export function getDateCompareRangeValues(type) {
+  if (_.includes([FILTER_CONDITION_TYPE.DATE_LT, FILTER_CONDITION_TYPE.DATE_LTE], type)) {
+    return DATE_COMPARE_PAST_RANGE_VALUES;
+  }
+
+  if (_.includes([FILTER_CONDITION_TYPE.DATE_GT, FILTER_CONDITION_TYPE.DATE_GTE], type)) {
+    return DATE_COMPARE_FUTURE_RANGE_VALUES;
+  }
+
+  return [];
+}
 
 export const CONTROL_FILTER_WHITELIST = {
   TEXT: {

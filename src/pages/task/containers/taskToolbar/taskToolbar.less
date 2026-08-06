@@ -47,7 +47,7 @@
         vertical-align: top;
         margin-top: 9px;
       }
-      &:hover:not(.ThemeColor3) {
+      &:hover:not(.colorPrimary) {
         color: var(--color-text-title);
       }
     }
@@ -168,7 +168,7 @@
         vertical-align: top;
         cursor: pointer;
         white-space: nowrap;
-        &:not(.ThemeColor3) {
+        &:not(.colorPrimary) {
           i {
             color: var(--color-text-tertiary);
           }
@@ -180,10 +180,10 @@
           }
         }
         &:not(:hover),
-        &.ThemeColor3 {
+        &.colorPrimary {
           background: var(--color-background-card) !important;
         }
-        &:hover:not(.ThemeColor3) {
+        &:hover:not(.colorPrimary) {
           color: var(--color-white);
           i {
             color: var(--color-white);
@@ -302,7 +302,7 @@
         cursor: pointer;
         margin-top: 15px;
         text-align: center;
-        &.ThemeBGColor3 {
+        &.bgColorPrimary {
           color: var(--color-white);
         }
       }
@@ -326,7 +326,7 @@
             border-color: var(--color-primary-transparent);
             background: var(--color-primary-transparent);
           }
-          &.ThemeBGColor3 {
+          &.bgColorPrimary {
             color: var(--color-white);
           }
         }
@@ -386,10 +386,10 @@
         margin-bottom: 10px;
         display: inline-block;
         cursor: pointer;
-        &:not(.ThemeBGColor3) {
+        &:not(.bgColorPrimary) {
           background: var(--color-background-secondary);
         }
-        &.ThemeBGColor3 {
+        &.bgColorPrimary {
           color: var(--color-white);
         }
       }

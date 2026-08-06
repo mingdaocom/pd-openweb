@@ -248,7 +248,7 @@ export default class CreateEditDeptDialog extends Component {
                     })}
                   </span>
                   <span
-                    className="TxtCenter textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer chargerUser"
+                    className="TxtCenter textSecondary hoverBorderColorPrimary hoverColorPrimary pointer chargerUser"
                     onClick={this.selectCharger}
                   >
                     <i className="icon-plus" />

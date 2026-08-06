@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { lazy, Suspense, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -6,10 +6,11 @@ import { Button, Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import store from 'src/redux/configureStore';
 import { FlexCenter } from './util';
+
+const ConfigSideWrap = lazy(() => import('src/pages/customPage/components/ConfigSideWrap'));
 
 const DisplayType = [
   { type: 'web', icon: 'desktop', text: _l('桌面配置') },
@@ -232,7 +233,11 @@ export default props => {
       <Button onClick={save} loading={saveLoading}>
         {_l('保存')}
       </Button>
-      {configVisible && <ConfigSideWrap {...props} onClose={() => setConfigVisible(false)} />}
+      {configVisible && (
+        <Suspense fallback={null}>
+          <ConfigSideWrap {...props} onClose={() => setConfigVisible(false)} />
+        </Suspense>
+      )}
     </ConfigHeader>
   );
 };

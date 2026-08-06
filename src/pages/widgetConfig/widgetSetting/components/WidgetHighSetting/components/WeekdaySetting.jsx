@@ -134,7 +134,7 @@ export default function WeekdaySetting({ data, onChange }) {
           />
           {!!weekday && (
             <div className="Relative">
-              <span className="Hand ThemeColor3 ThemeHoverColor2 mLeft8" onClick={() => setVisible(true)}>
+              <span className="Hand colorPrimary hoverColorPrimaryDark mLeft8" onClick={() => setVisible(true)}>
                 {formatWeekdayToText()}
               </span>
               {visible && renderPanel()}

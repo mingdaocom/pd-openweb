@@ -92,7 +92,7 @@ export default function DelDialog(props) {
           list.map(o => {
             return (
               <div className="mBottom6">
-                <span className="ThemeColor3">{o.name}</span>
+                <span className="colorPrimary">{o.name}</span>
                 {(o.flowNodes || []).length > 0 && (
                   <span className="">{` (  ${(o.flowNodes || []).map(item => item.name).join(',')} ) `}</span>
                 )}

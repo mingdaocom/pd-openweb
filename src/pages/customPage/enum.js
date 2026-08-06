@@ -31,6 +31,10 @@ export const widgets = {
     icon: 'url',
     name: _l('嵌入url'),
   },
+  subsection: {
+    icon: 'divider',
+    name: _l('分段'),
+  },
 };
 
 export const containerWidgets = {

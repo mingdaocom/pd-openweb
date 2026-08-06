@@ -10,6 +10,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { canAdjustWidth } from 'src/pages/widgetConfig/util/setting';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
 import { canSetAsTitle, isCustomWidget } from '../../util';
+import { supportCreateTemplate } from '../../util/createTemplate';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import { adjustWidthList } from '../../util/setting';
 import { openDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
@@ -43,6 +44,7 @@ const OperationWrap = styled.div`
       .customIcon,
       .setAsTitle,
       .copyControl,
+      .templateControl,
       .delWidget {
         visibility: hidden;
       }
@@ -112,7 +114,7 @@ export default function WidgetOperation(props) {
     globalSheetInfo = {},
     rest,
   } = props;
-  const { type, controlId, attribute, dataSource, sourceControl, size } = data;
+  const { type, controlId, attribute, dataSource, sourceControl, size, advancedSetting = {} } = data;
   const { widgets } = rest || {};
   const availableWidth = adjustWidthList(widgets, data);
 
@@ -334,6 +336,20 @@ export default function WidgetOperation(props) {
             <i className="icon-copy" />
           </div>
         </Tooltip>
+
+        {supportCreateTemplate(data) && (
+          <Tooltip placement="bottom" trigger={['hover']} title={_l('创建字段模板')}>
+            <div
+              className="templateControl operationIconWrap"
+              onClick={e => {
+                e.stopPropagation();
+                handleOperate('template');
+              }}
+            >
+              <i className="icon-borg" />
+            </div>
+          </Tooltip>
+        )}
 
         {type !== 52 && (
           <Tooltip placement="bottom" trigger={['hover']} title={_l('批量选择')}>

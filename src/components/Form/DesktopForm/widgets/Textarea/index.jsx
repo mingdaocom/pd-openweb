@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Linkify, Textarea } from 'ming-ui';
@@ -21,7 +20,7 @@ const TextareaWrap = styled.div`
         ? 'padding: 6px 0px !important;'
         : props.showMaskValue || props.hint
           ? ''
-          : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;pointer-events: none; padding: 6px 12px !important;'}
+          : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;z-index: 1;pointer-events: none; padding: 6px 12px !important;'}
     span a {
       pointer-events: all;
     }
@@ -31,6 +30,8 @@ const TextareaWrap = styled.div`
     ${props => (props.isEditing ? '' : 'border-color: transparent !important;color: transparent;')}
   }
 `;
+
+const LINKIFY_PROPERTIES = { target: '_blank' };
 
 const Text = props => {
   const {
@@ -86,16 +87,13 @@ const Text = props => {
   }, [enumDefault, value]);
 
   // 穿透pointer-events：none;禁用滚动事件
-  const syncScroll = useCallback(
-    event => {
-      const coverLayer = document.querySelector(`#textareaPointEvents-${controlId} .customFormTextareaBox`);
+  const syncScroll = useCallback(event => {
+    const coverLayer = boxRef.current;
 
-      if (coverLayer) {
-        coverLayer.scrollTop = event.target.scrollTop;
-      }
-    },
-    [controlId],
-  );
+    if (coverLayer) {
+      coverLayer.scrollTop = event.target.scrollTop;
+    }
+  }, []);
 
   useEffect(() => {
     if (enumDefault !== 2 && textRef.current) {
@@ -141,7 +139,7 @@ const Text = props => {
 
     setOriginValue(e.target.value.trim());
     setIsEditing(true);
-    if (_.isFunction(triggerCustomEvent)) {
+    if (typeof triggerCustomEvent === 'function') {
       triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
     }
   };
@@ -168,7 +166,7 @@ const Text = props => {
       return isUnLink ? (
         currentValue
       ) : (
-        <Linkify properties={{ target: '_blank' }} unLimit={true}>
+        <Linkify properties={LINKIFY_PROPERTIES} unLimit={true}>
           {currentValue}
         </Linkify>
       );
@@ -288,8 +286,11 @@ Text.propTypes = {
 };
 
 export default memo(TextWidget, (prevProps, nextProps) => {
-  return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'controlId', 'showMaskValue', 'isMaskReadonly']),
-    _.pick(nextProps, ['value', 'disabled', 'controlId', 'showMaskValue', 'isMaskReadonly']),
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.disabled === nextProps.disabled &&
+    prevProps.controlId === nextProps.controlId &&
+    prevProps.showMaskValue === nextProps.showMaskValue &&
+    prevProps.isMaskReadonly === nextProps.isMaskReadonly
   );
 });

@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import AppWarehouse from 'src/pages/AppHomepage/AppLib';
-import TabBar from '../components/TabBar';
 import './index.less';
 
-@withRouter
-export default class AddBox extends Component {
+let AddBox = class AddBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,11 +19,18 @@ export default class AddBox extends Component {
           {window.platformENV.isOverseas || window.platformENV.isLocal ? (
             <AppWarehouse />
           ) : (
-            <iframe src={`${md.global.Config.MarketUrl}/apps`} className="w100 h100" style={{ border: 'none' }} />
+            <iframe
+              src={`${md.global.Config.MarketUrl}/apps`}
+              className="w100 h100"
+              style={{
+                border: 'none',
+              }}
+            />
           )}
         </div>
-        <TabBar action="appBox" />
       </div>
     );
   }
-}
+};
+AddBox = withRouter(AddBox);
+export default AddBox;

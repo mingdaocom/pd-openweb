@@ -210,7 +210,7 @@ export default function RecordCoverCard(props) {
               {title}
               {titleMasked && !forceShowFullValue && (
                 <i
-                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
+                  className="icon icon-eye_off hoverColorPrimary Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
                   style={{ verticalAlign: 'middle' }}
                   onClick={e => {
                     e.stopPropagation();

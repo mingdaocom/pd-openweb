@@ -183,7 +183,7 @@ const Widgets = props => {
                     <Tooltip title={_l('编辑定位')} placement="bottom">
                       <Icon
                         icon="Reposition-01"
-                        className="textTertiary ThemeHoverColor3 pointer Font30"
+                        className="textTertiary hoverColorPrimary pointer Font30"
                         onClick={evt => {
                           evt.stopPropagation();
                           setVisible(true);

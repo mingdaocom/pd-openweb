@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Radio } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { isLightColor } from 'src/utils/control';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 import { getCheckAndOther } from '../../../core/utils';

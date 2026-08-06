@@ -15,12 +15,12 @@ import { getCardColNum, LoadingButton } from 'worksheet/components/RelateRecordC
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
 import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
+import { useWidgetEvent } from 'src/components/Form/core/useFormEventManager';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { useWidgetEvent } from 'src/components/Form/core/useFormEventManager';
 
 const PAGE_SIZE = 50;
 
@@ -199,7 +199,7 @@ function Cards(props) {
               </LoadingButton>
             )}
             <LoadingButton
-              className="ThemeColor3 Hand mBottom10 InlineBlock"
+              className="colorPrimary Hand mBottom10 InlineBlock"
               onClick={() => setState(old => ({ ...old, showAll: !showAll }))}
             >
               {showAll ? _l('收起') : _l('展开更多')}
@@ -233,7 +233,7 @@ function Texts(props) {
             inlineStyle={valueStyle.valueStyle}
             style={style}
             key={i}
-            className={cx({ 'ThemeColor3 Hand': allowOpenRecord, isSingle: records.length === 1 })}
+            className={cx({ 'colorPrimary Hand': allowOpenRecord, isSingle: records.length === 1 })}
             onClick={() => {
               if (!allowOpenRecord) {
                 return;
@@ -353,6 +353,7 @@ function RelationSearch(props) {
       pageSize: control.enumDefault === 1 ? 1 : PAGE_SIZE,
       getWorksheet: pageIndex === 1,
       getRules: pageIndex === 1,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       instanceId,
       workId,
     };

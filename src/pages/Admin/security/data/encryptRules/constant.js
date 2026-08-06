@@ -4,7 +4,7 @@ export const encryptList = [
   { value: 2, label: 'AES192' },
   { value: 3, label: 'AES256' },
   { value: 50, label: 'SM4' },
-  { value: 1000, label: '自定义加密规则' },
+  { value: 1000, label: _l('自定义加密规则') },
 ];
 export const statusList = [
   { value: '', label: _l('全部状态') },

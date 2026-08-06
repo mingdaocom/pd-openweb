@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import account from 'src/api/account';
+import { pathCompletion } from 'src/utils/common';
 
 export default class InvitationList extends Component {
   renderOption(item) {
@@ -20,13 +21,13 @@ export default class InvitationList extends Component {
         return (
           <Fragment>
             <li
-              className="Left LineHeight25 TxtLeft ThemeColor3 btnForAuthListAdd Hand mLeft20"
+              className="Left LineHeight25 TxtLeft colorPrimary btnForAuthListAdd Hand mLeft20"
               onClick={() => this.handleAdd(item)}
             >
               {_l('加入')}
             </li>
             <li
-              className="Left LineHeight25 TxtLeft ThemeColor3 btnForAuthListRefused Hand mLeft20"
+              className="Left LineHeight25 TxtLeft colorPrimary btnForAuthListRefused Hand mLeft20"
               onClick={() => this.handleCancel(item)}
             >
               {_l('拒绝')}
@@ -42,7 +43,9 @@ export default class InvitationList extends Component {
     account.checkJoinProjectByTokenWithCard({ projectId, token }).then(data => {
       switch (data.joinProjectResult) {
         case 1: //验证通过
-          location.href = '/enterpriseRegister?type=editInfo&projectId=' + projectId + '&token=' + token;
+          location.href = pathCompletion(
+            '/enterpriseRegister?type=editInfo&projectId=' + projectId + '&token=' + token,
+          );
           break;
         case 3: //已存在
           this.props.existUserNotice(data.userCard.user.status);

@@ -110,7 +110,7 @@ export default function GunterSet(props) {
         controlList={worksheetControls.filter(item => _.includes([36], item.type))}
         key="milepost"
         className="mTop32"
-        addName={'里程碑'}
+        addName={_l('里程碑')}
         title={_l('里程碑')}
         txt={_l('选择一个检查项字段标记记录属性为里程碑')}
       />

@@ -9,7 +9,16 @@ import { statusList } from '../util';
 import LoginContainer from './LoginContainer';
 
 export default function Container(props) {
-  const { logoImageUrl, pageMode = 3, pageTitle = '', status, isErrUrl, noticeScope = {}, fixInfo = {} } = props;
+  const {
+    logoImageUrl,
+    logoHeight,
+    pageMode = 3,
+    pageTitle = '',
+    status,
+    isErrUrl,
+    noticeScope = {},
+    fixInfo = {},
+  } = props;
 
   const getWaring = status => {
     switch (status) {
@@ -54,7 +63,7 @@ export default function Container(props) {
         <div className={'lang'}>
           <ChangeLang />
         </div>
-        {logoImageUrl ? <img src={logoImageUrl} height={40} /> : ''}
+        {logoImageUrl ? <img src={logoImageUrl} height={logoHeight || 40} /> : ''}
         <p className="Font26 textPrimary mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
           {pageTitle}
         </p>

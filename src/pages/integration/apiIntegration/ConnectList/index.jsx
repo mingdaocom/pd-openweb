@@ -6,7 +6,7 @@ import Trigger from 'rc-trigger';
 import bg from 'staticfiles/images/query.png';
 import styled from 'styled-components';
 import { Dropdown, Icon, Menu, ScrollView, Support } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -479,9 +479,10 @@ function Con(props) {
   );
 }
 
+const AutoSizeConnectList = autoSize(Con);
+
 function ConnectList(props) {
-  const AutoSizeLib = autoSize(Con);
-  return <AutoSizeLib {...props} />;
+  return <AutoSizeConnectList {...props} />;
 }
 
 export default ConnectList;

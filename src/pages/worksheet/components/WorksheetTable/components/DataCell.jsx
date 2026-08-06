@@ -32,6 +32,7 @@ export default function MDCell(props) {
     masterData,
     columnStyle,
     isSubList,
+    disableValidate,
     rowHeight,
     rowHeightEnum,
     updateCell = () => {},
@@ -85,6 +86,7 @@ export default function MDCell(props) {
       tableFromModule={fromModule}
       clickEnterEditing={clickEnterEditing}
       isSubList={isSubList}
+      disableValidate={disableValidate}
       isediting={isediting}
       isCharge={isCharge}
       error={error}

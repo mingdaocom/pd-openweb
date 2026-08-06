@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import chartEmptyImg from 'staticfiles/images/chart.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SortableList } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import favoriteApi from 'src/api/favorite';
-import Chart from 'src/pages/Statistics/Card';
 import { CardItem } from './utils';
 import './style.less';
 
@@ -45,26 +44,35 @@ const ChartListWrapper = styled.div`
     }
   }
 `;
+const LoadableChart = lazy(() => import('src/pages/Statistics/Card'));
 
 export default function CollectionCharts(props) {
   const { projectId, reportAutoRefreshTimer, flag, currentTheme } = props;
   const [chartList, setChartList] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     setLoading(true);
-    favoriteApi.getAllFavorites({ projectId, type: 2, isRefresh: 1 }).then(res => {
-      if (res) {
-        setChartList(res);
-        setLoading(false);
-      }
-    });
+    favoriteApi
+      .getAllFavorites({
+        projectId,
+        type: 2,
+        isRefresh: 1,
+      })
+      .then(res => {
+        if (res) {
+          setChartList(res);
+          setLoading(false);
+        }
+      });
   }, [projectId, flag]);
 
   const onSort = newItems => {
     setChartList(newItems);
     const newSortIds = newItems.map(item => item.favoriteId);
-    favoriteApi.updateReportSort({ projectId, reportIds: newSortIds });
+    favoriteApi.updateReportSort({
+      projectId,
+      reportIds: newSortIds,
+    });
   };
 
   const renderItem = ({ item, DragHandle }) => {
@@ -77,19 +85,25 @@ export default function CollectionCharts(props) {
             </span>
           </Tooltip>
         </DragHandle>
-        <Chart
-          report={{ id: item.reportId }}
-          pageId={item.pageId}
-          projectId={projectId}
-          appId={item.appId}
-          viewId={item.viewId}
-          sourceType={3}
-          customPageConfig={{ refresh: reportAutoRefreshTimer }}
-          onCancelFavorite={() => {
-            const newChartList = chartList.filter(chart => chart.favoriteId !== item.favoriteId);
-            setChartList(newChartList);
-          }}
-        />
+        <Suspense fallback={<LoadDiv className="mTop10" />}>
+          <LoadableChart
+            report={{
+              id: item.reportId,
+            }}
+            pageId={item.pageId}
+            projectId={projectId}
+            appId={item.appId}
+            viewId={item.viewId}
+            sourceType={3}
+            customPageConfig={{
+              refresh: reportAutoRefreshTimer,
+            }}
+            onCancelFavorite={() => {
+              const newChartList = chartList.filter(chart => chart.favoriteId !== item.favoriteId);
+              setChartList(newChartList);
+            }}
+          />
+        </Suspense>
       </React.Fragment>
     );
   };

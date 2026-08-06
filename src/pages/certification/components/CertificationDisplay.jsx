@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
 import certificationApi from '../../../api/certification';
 import ListContainer from 'src/pages/Admin/organization/systemSetting/component/CertInfo/components/ListContainer';
+import { pathCompletion } from 'src/utils/common';
 import CertificationDetail from './CertificationDetail';
 import SelectCertification from './SelectCertification';
 
@@ -83,13 +84,17 @@ export default function CertificationDisplay(props) {
         } else {
           isUpgrade
             ? window.open(
-                `/certification/project/${projectId}?type=upgrade&returnUrl=${encodeURIComponent(location.href)}`,
+                pathCompletion(
+                  `/certification/project/${projectId}?type=upgrade&returnUrl=${encodeURIComponent(location.href)}`,
+                ),
               )
-            : window.open(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`);
+            : window.open(
+                pathCompletion(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`),
+              );
         }
       });
     } else {
-      window.open(`/certification/personal?returnUrl=${encodeURIComponent(location.href)}`);
+      window.open(pathCompletion(`/certification/personal?returnUrl=${encodeURIComponent(location.href)}`));
     }
   };
 
@@ -138,7 +143,7 @@ export default function CertificationDisplay(props) {
                   </div>
                 </div>
                 <div
-                  className="ThemeColor3 adminHoverColor pointer bold"
+                  className="colorPrimary adminHoverColor pointer bold"
                   onClick={() => setDetail({ visible: true, id: item.id })}
                 >
                   {_l('详情')}

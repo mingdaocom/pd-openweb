@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { Checkbox, Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -7,7 +7,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ArchivedList from 'src/components/ArchivedList';
 import verifyPassword from 'src/components/verifyPassword';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
+import { pathCompletion } from 'src/utils/common';
 import Card from './Card';
 import { getStateParam, TABS } from './config';
 import { getTodoCount } from './Entry';
@@ -22,25 +22,40 @@ const SECOND_TABS = {
   [TABS.COMPLETE]: [
     {
       name: _l('已处理'),
-      value: { type: -1, status: '', resultType: '' },
+      value: {
+        type: -1,
+        status: '',
+        resultType: '',
+      },
     },
     {
       name: _l('已查看'),
-      value: { type: 5, status: '', operationType: '', resultType: '' },
+      value: {
+        type: 5,
+        status: '',
+        operationType: '',
+        resultType: '',
+      },
     },
     {
       name: _l('我发起的'),
-      value: { type: 0, operationType: '', createAccountId: '', resultType: '' },
+      value: {
+        type: 0,
+        operationType: '',
+        createAccountId: '',
+        resultType: '',
+      },
     },
   ],
 };
-
+const LoadableExecDialog = lazy(() => import('src/pages/workflow/components/ExecDialog'));
 export default class MyProcess extends Component {
   static defaultProps = {
     countData: {},
     updateCountData: () => {},
     onCancel: () => {},
   };
+
   constructor(props) {
     super(props);
     let stateTab = props.activeTab || TABS.WAITING_APPROVE;
@@ -97,6 +112,7 @@ export default class MyProcess extends Component {
       allReadLoading: false,
     };
   }
+
   componentDidMount() {
     this.getTodoList();
     getTodoCount().then(countData => {
@@ -104,22 +120,25 @@ export default class MyProcess extends Component {
     });
     this.removeEscEvent = this.bindEscEvent();
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.visible !== this.state.visible) {
       const key = 'myProcessFilterOpen';
       this.state.visible ? localStorage.setItem(key, 'true') : localStorage.removeItem(key);
     }
   }
+
   componentWillUnmount() {
     this.removeEscEvent();
   }
+
   updateCountData(countData) {
     const { visible, stateTab } = this.state;
     const { updateCountData } = this.props;
-
-    this.setState({ countData });
+    this.setState({
+      countData,
+    });
     updateCountData(countData);
-
     const tabCountMap = {
       [TABS.WAITING_APPROVE]: countData.waitingApproval,
       [TABS.WAITING_FILL]: countData.waitingWrite,
@@ -139,6 +158,7 @@ export default class MyProcess extends Component {
       this.filterEl.getTodoListFilter();
     }
   }
+
   bindEscEvent = () => {
     document.body.addEventListener('keydown', this.closeGlobalSearch);
     return () => document.body.removeEventListener('keydown', this.closeGlobalSearch);
@@ -171,8 +191,9 @@ export default class MyProcess extends Component {
       ...getStateParam(stateTab),
       ...filter,
     };
-
-    this.setState({ param });
+    this.setState({
+      param,
+    });
 
     if (archivedItem && archivedItem.id) {
       param.archivedId = archivedItem.id;
@@ -181,10 +202,7 @@ export default class MyProcess extends Component {
     if (filter && filter.resultType) {
       const resultType = param.resultType;
       delete param.resultType;
-      this.request = instanceVersion.getTodoList({
-        ...param,
-        type: resultType,
-      });
+      this.request = instanceVersion.getTodoList({ ...param, type: resultType });
     } else {
       delete param.resultType;
       this.request = instanceVersion.getTodoList(param);
@@ -215,7 +233,10 @@ export default class MyProcess extends Component {
           ? isSame
             ? filter
             : null
-          : { startDate: filter.startDate, endDate: filter.endDate },
+          : {
+              startDate: filter.startDate,
+              endDate: filter.endDate,
+            },
       },
       this.getTodoList,
     );
@@ -243,14 +264,18 @@ export default class MyProcess extends Component {
   };
   handleAllRead = () => {
     const { filter, allReadLoading } = this.state;
-    const param = { type: 5 };
+    const param = {
+      type: 5,
+    };
 
     if (filter) {
       Object.assign(param, filter);
     }
 
     if (allReadLoading) return;
-    this.setState({ allReadLoading: true });
+    this.setState({
+      allReadLoading: true,
+    });
     instanceVersion.batch(param).then(result => {
       if (result) {
         alert(_l('操作成功'));
@@ -276,11 +301,7 @@ export default class MyProcess extends Component {
       list: newList,
       visible: newList.length ? visible : false,
     });
-    this.updateCountData({
-      ...countData,
-      waitingExamine: waitingExamine - 1,
-      myProcessCount: myProcessCount - 1,
-    });
+    this.updateCountData({ ...countData, waitingExamine: waitingExamine - 1, myProcessCount: myProcessCount - 1 });
   };
   hanndleApprove = (approveType, batchType) => {
     const { approveCards } = this.state;
@@ -291,11 +312,15 @@ export default class MyProcess extends Component {
 
     if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {
-        this.setState({ approveType: approveType });
+        this.setState({
+          approveType: approveType,
+        });
       }
 
       if (encryptCard.length) {
-        this.setState({ encryptType: approveType });
+        this.setState({
+          encryptType: approveType,
+        });
       }
     } else {
       this.handleBatchApprove(null, approveType);
@@ -307,24 +332,30 @@ export default class MyProcess extends Component {
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
-      const data = { id, workId, opinion: '', opinionType: 3 };
+      const data = {
+        id,
+        workId,
+        opinion: '',
+        opinionType: 3,
+      };
 
       if ((_.get(flowNode, batchType) || []).includes(1)) {
-        return {
-          ...data,
-          signature,
-        };
+        return { ...data, signature };
       } else {
         return data;
       }
     });
 
     if (approveType === 4) {
-      this.setState({ approveLoading: true });
+      this.setState({
+        approveLoading: true,
+      });
     }
 
     if (approveType === 5) {
-      this.setState({ rejectLoading: true });
+      this.setState({
+        rejectLoading: true,
+      });
     }
 
     instanceVersion
@@ -366,7 +397,13 @@ export default class MyProcess extends Component {
             <div>
               {success.length && !fail.length ? (
                 <div className="flexColumn alignItemsCenter justifyContentCenter mTop20">
-                  <Icon icon="check_circle1" className="Font64" style={{ color: 'var(--color-success)' }} />
+                  <Icon
+                    icon="check_circle1"
+                    className="Font64"
+                    style={{
+                      color: 'var(--color-success)',
+                    }}
+                  />
                   <div className="textPrimary Font18 mTop20 mBottom50">
                     {_l('成功')}
                     {': '}
@@ -391,7 +428,9 @@ export default class MyProcess extends Component {
                         <Icon
                           icon="check_circle1"
                           className="Font24 mRight5"
-                          style={{ color: 'var(--color-success)' }}
+                          style={{
+                            color: 'var(--color-success)',
+                          }}
                         />
                         <div className="textPrimary Font18">
                           {_l('成功')}
@@ -409,7 +448,13 @@ export default class MyProcess extends Component {
                     )}
                     {!!fail.length && (
                       <div className="flexRow mTop10">
-                        <Icon icon="report" className="Font24 mRight5" style={{ color: 'var(--color-error)' }} />
+                        <Icon
+                          icon="report"
+                          className="Font24 mRight5"
+                          style={{
+                            color: 'var(--color-error)',
+                          }}
+                        />
                         <div className="w100">
                           <div className="textPrimary Font18 mBottom5">
                             {_l('异常')}
@@ -420,10 +465,20 @@ export default class MyProcess extends Component {
                               }}
                             />
                           </div>
-                          <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                          <div
+                            style={{
+                              maxHeight: 360,
+                              overflowY: 'auto',
+                            }}
+                          >
                             {fail.map(key => {
                               const [id, workId] = key.split(',');
-                              const card = _.find(cards, { id, workId });
+
+                              const card = _.find(cards, {
+                                id,
+                                workId,
+                              });
+
                               return card ? (
                                 <div className="textPrimary Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
                               ) : null;
@@ -447,11 +502,9 @@ export default class MyProcess extends Component {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingWrite, waitingApproval, waitingDispose, myProcessCount } = countData;
     const newList = list.filter(n => n.workId !== item.workId);
-
     this.setState({
       list: newList,
     });
-
     let param = null;
 
     if (item.flowNodeType === 3) {
@@ -477,7 +530,6 @@ export default class MyProcess extends Component {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
     const { stateTab, filter, archivedItem } = this.state;
-
     return (
       <div className="myProcessheader card">
         <div className="valignWrapper flex title">
@@ -486,9 +538,13 @@ export default class MyProcess extends Component {
         </div>
         <div className="statesTab">
           <div
-            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_APPROVE })}
+            className={cx('item bold ellipsis', {
+              active: stateTab === TABS.WAITING_APPROVE,
+            })}
             onClick={() => {
-              this.setState({ approveCards: [] });
+              this.setState({
+                approveCards: [],
+              });
               this.handleChangeTab(TABS.WAITING_APPROVE);
             }}
           >
@@ -496,7 +552,9 @@ export default class MyProcess extends Component {
             {waitingApproval > 0 ? <span className="processCount darkRed">{waitingApproval}</span> : null}
           </div>
           <div
-            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_FILL })}
+            className={cx('item bold ellipsis', {
+              active: stateTab === TABS.WAITING_FILL,
+            })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_FILL);
             }}
@@ -505,7 +563,9 @@ export default class MyProcess extends Component {
             {waitingWrite > 0 ? <span className="processCount darkRed">{waitingWrite}</span> : null}
           </div>
           <div
-            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_EXAMINE })}
+            className={cx('item bold ellipsis', {
+              active: stateTab === TABS.WAITING_EXAMINE,
+            })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_EXAMINE);
             }}
@@ -514,7 +574,9 @@ export default class MyProcess extends Component {
             {waitingExamine > 0 ? <span className="processCount red">{waitingExamine}</span> : null}
           </div>
           <div
-            className={cx('item bold ellipsis', { active: stateTab === TABS.MY_SPONSOR })}
+            className={cx('item bold ellipsis', {
+              active: stateTab === TABS.MY_SPONSOR,
+            })}
             onClick={() => {
               this.handleChangeTab(TABS.MY_SPONSOR);
             }}
@@ -524,7 +586,9 @@ export default class MyProcess extends Component {
           </div>
           <div className="cuttingLine" />
           <div
-            className={cx('item bold ellipsis', { active: stateTab === TABS.COMPLETE })}
+            className={cx('item bold ellipsis', {
+              active: stateTab === TABS.COMPLETE,
+            })}
             onClick={() => {
               this.handleChangeTab(TABS.COMPLETE);
             }}
@@ -544,11 +608,7 @@ export default class MyProcess extends Component {
                   isMore: true,
                   pageIndex: 1,
                   list: [],
-                  filter: {
-                    ...filter,
-                    startDate: archivedItem.start,
-                    endDate: archivedItem.end,
-                  },
+                  filter: { ...filter, startDate: archivedItem.start, endDate: archivedItem.end },
                 },
                 this.getTodoList,
               );
@@ -561,10 +621,10 @@ export default class MyProcess extends Component {
             customRender={() => {
               return (
                 <Tooltip title={_l('查看历史待办消息')} placement="bottom">
-                  <div className="mRight26">
+                  <div className="mRight15">
                     <div
                       className={cx(
-                        'flexRow valignWrapper mBottom3 pointer hoverColorPrimary',
+                        'flexRow valignWrapper pointer hoverColorPrimary',
                         _.isEmpty(archivedItem) ? 'textSecondary' : 'colorPrimary',
                       )}
                     >
@@ -580,22 +640,21 @@ export default class MyProcess extends Component {
           {location.href.indexOf('myprocess') === -1 ? (
             <Fragment>
               <Tooltip title={_l('新页面打开')} placement="bottom">
-                <span className="mRight15">
+                <span className="mRight10">
                   <Icon
                     icon="launch"
-                    className="pointer Font22 textSecondary ThemeHoverColor3"
+                    className="pointer Font22 textSecondary hoverColorPrimary"
                     onClick={() => {
                       if (_.includes([TABS.COMPLETE], stateTab) && filter) {
                         let secondType;
-
                         SECOND_TABS[stateTab].forEach((item, index) => {
                           if (item.value.type === filter.type) {
                             secondType = index + 1;
                           }
                         });
-                        window.open(`/myprocess/${stateTab}/${secondType}`);
+                        window.open(pathCompletion(`/myprocess/${stateTab}/${secondType}`));
                       } else {
-                        window.open(`/myprocess/${stateTab}`);
+                        window.open(pathCompletion(`/myprocess/${stateTab}`));
                       }
                     }}
                   />
@@ -605,7 +664,7 @@ export default class MyProcess extends Component {
                 <span>
                   <Icon
                     icon="close"
-                    className="pointer Font26 textSecondary ThemeHoverColor3"
+                    className="pointer Font26 textSecondary hoverColorPrimary"
                     onClick={this.props.onCancel}
                   />
                 </span>
@@ -616,6 +675,7 @@ export default class MyProcess extends Component {
       </div>
     );
   };
+
   renderWithoutData() {
     return (
       <div className="withoutData">
@@ -632,6 +692,7 @@ export default class MyProcess extends Component {
       </div>
     );
   }
+
   renderFilter() {
     const { stateTab, visible, filter, approveCards, list } = this.state;
     const { approveLoading, rejectLoading } = this.state;
@@ -643,9 +704,15 @@ export default class MyProcess extends Component {
         <FilterTrigger
           visible={visible}
           filter={filter}
-          handleOpen={() => this.setState({ visible: true })}
+          handleOpen={() =>
+            this.setState({
+              visible: true,
+            })
+          }
           handleClear={() => {
-            this.setState({ isResetFilter: true });
+            this.setState({
+              isResetFilter: true,
+            });
           }}
         />
       );
@@ -662,10 +729,7 @@ export default class MyProcess extends Component {
                 isMore: true,
                 loading: false,
                 list: [],
-                filter: {
-                  ...filter,
-                  isAsc: value,
-                },
+                filter: { ...filter, isAsc: value },
               },
               this.getTodoList,
             );
@@ -680,7 +744,11 @@ export default class MyProcess extends Component {
       const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
       const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
       return (
-        <div className={cx('filterWrapper', { hide: !list.length })}>
+        <div
+          className={cx('filterWrapper', {
+            hide: !list.length,
+          })}
+        >
           <div className="valignWrapper flex">
             {renderFilterTrigger()}
             {renderSort()}
@@ -697,12 +765,16 @@ export default class MyProcess extends Component {
                     if (checked) {
                       if (allowApproveList.length) {
                         alert(_l('全选%0条可批量审批的记录', allowApproveList.length));
-                        this.setState({ approveCards: allowApproveList });
+                        this.setState({
+                          approveCards: allowApproveList,
+                        });
                       } else {
                         alert(_l('没有允许批量审批的记录，请打开记录逐条审批'), 3);
                       }
                     } else {
-                      this.setState({ approveCards: [] });
+                      this.setState({
+                        approveCards: [],
+                      });
                     }
                   }}
                 />
@@ -715,8 +787,13 @@ export default class MyProcess extends Component {
               </div>
               <Popover
                 overlayClassName="myProcessApproveOverlay"
-                overlayStyle={{ width: 320, maxWidth: 320 }}
-                align={{ offset: [40, -5] }}
+                overlayStyle={{
+                  width: 320,
+                  maxWidth: 320,
+                }}
+                align={{
+                  offset: [40, -5],
+                }}
                 placement="bottomRight"
                 arrowPointAtCenter={true}
                 trigger={['click']}
@@ -724,7 +801,12 @@ export default class MyProcess extends Component {
                 content={
                   <div className="pAll10 flexColumn">
                     <span className="textPrimary Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
-                    <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
+                    <div
+                      className="flexRow mTop10"
+                      style={{
+                        justifyContent: 'flex-end',
+                      }}
+                    >
                       <Button
                         type="link"
                         size="small"
@@ -755,14 +837,22 @@ export default class MyProcess extends Component {
                 visible={passVisible}
                 onVisibleChange={passVisible => {
                   if (approveLoading || rejectLoading) return;
+
                   if (_.isEmpty(approveCards)) {
                     alert(_l('请先勾选需要处理的审批'), 2);
                   } else {
-                    this.setState({ passVisible });
+                    this.setState({
+                      passVisible,
+                    });
                   }
                 }}
               >
-                <div className={cx('passApprove bold pointer', { active: passVisible, all: approveCards.length })}>
+                <div
+                  className={cx('passApprove bold pointer', {
+                    active: passVisible,
+                    all: approveCards.length,
+                  })}
+                >
                   {approveLoading ? _l('处理中...') : _l('同意')}
                 </div>
               </Popover>
@@ -774,12 +864,15 @@ export default class MyProcess extends Component {
                 })}
                 onClick={() => {
                   if (approveLoading || rejectLoading) return;
+
                   if (_.isEmpty(approveCards)) {
                     alert(_l('请先勾选需要处理的审批'), 2);
                   } else if (_.isEmpty(rejectList)) {
                     alert(_l('没有可拒绝的审批事项'), 2);
                   } else {
-                    this.setState({ rejectVisible: true });
+                    this.setState({
+                      rejectVisible: true,
+                    });
                   }
                 }}
               >
@@ -797,7 +890,11 @@ export default class MyProcess extends Component {
     if (stateTab === TABS.WAITING_EXAMINE) {
       const { allReadLoading } = this.state;
       return (
-        <div className={cx('filterWrapper', { hide: !list.length })}>
+        <div
+          className={cx('filterWrapper', {
+            hide: !list.length,
+          })}
+        >
           <div className="valignWrapper w100">
             <div className="valignWrapper flex">
               {renderFilterTrigger()}
@@ -814,7 +911,11 @@ export default class MyProcess extends Component {
 
     if (stateTab === TABS.MY_SPONSOR) {
       return (
-        <div className={cx('filterWrapper', { hide: !list.length })}>
+        <div
+          className={cx('filterWrapper', {
+            hide: !list.length,
+          })}
+        >
           {renderFilterTrigger()}
           {renderSort()}
         </div>
@@ -838,10 +939,7 @@ export default class MyProcess extends Component {
                     isMore: true,
                     loading: false,
                     list: [],
-                    filter: {
-                      ...filter,
-                      ...value,
-                    },
+                    filter: { ...filter, ...value },
                   },
                   this.getTodoList,
                 );
@@ -853,6 +951,7 @@ export default class MyProcess extends Component {
       );
     }
   }
+
   renderSignatureDialog() {
     const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
@@ -876,11 +975,17 @@ export default class MyProcess extends Component {
             if (signatureApproveCards.length) {
               this.signature.saveSignature(signature => {
                 this.handleBatchApprove(signature, this.state.approveType);
-                this.setState({ approveType: null, encryptType: null });
+                this.setState({
+                  approveType: null,
+                  encryptType: null,
+                });
               });
             } else {
               this.handleBatchApprove(null, this.state.encryptType);
-              this.setState({ approveType: null, encryptType: null });
+              this.setState({
+                approveType: null,
+                encryptType: null,
+              });
             }
           };
 
@@ -900,7 +1005,10 @@ export default class MyProcess extends Component {
           }
         }}
         onCancel={() => {
-          this.setState({ approveType: null, encryptType: null });
+          this.setState({
+            approveType: null,
+            encryptType: null,
+          });
           this.password = undefined;
         }}
       >
@@ -937,6 +1045,7 @@ export default class MyProcess extends Component {
       </Dialog>
     );
   }
+
   renderRejectDialog() {
     const { approveCards, filter, stateTab } = this.state;
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
@@ -948,11 +1057,17 @@ export default class MyProcess extends Component {
         title={_l('有%0个可拒绝的审批事项', rejectCards.length)}
         onOk={() => {
           this.hanndleApprove(5, 'auth.overruleTypeList');
-          this.setState({ rejectVisible: false });
+          this.setState({
+            rejectVisible: false,
+          });
         }}
         okText={_l('拒绝')}
         buttonType="danger"
-        onCancel={() => this.setState({ rejectVisible: false })}
+        onCancel={() =>
+          this.setState({
+            rejectVisible: false,
+          })
+        }
       >
         <div className="mTop10" />
         {rejectCards.map(item => (
@@ -993,6 +1108,7 @@ export default class MyProcess extends Component {
       </Dialog>
     );
   }
+
   renderContent() {
     const { list, stateTab, loading, filter, approveCards } = this.state;
 
@@ -1009,7 +1125,13 @@ export default class MyProcess extends Component {
               item={item}
               type={filter ? filter.type : null}
               stateTab={stateTab}
-              approveChecked={!_.isEmpty(_.find(approveCards, { workId: item.workId }))}
+              approveChecked={
+                !_.isEmpty(
+                  _.find(approveCards, {
+                    workId: item.workId,
+                  }),
+                )
+              }
               onAlreadyRead={this.handleAlreadyRead}
               onClick={() => {
                 this.setState({
@@ -1039,6 +1161,7 @@ export default class MyProcess extends Component {
       </ScrollView>
     );
   }
+
   render() {
     const {
       stateTab,
@@ -1053,7 +1176,6 @@ export default class MyProcess extends Component {
       rejectVisible,
       archivedItem,
     } = this.state;
-
     return (
       <div className="myProcessWrapper">
         {this.renderHeader()}
@@ -1070,20 +1192,17 @@ export default class MyProcess extends Component {
                   pageIndex: 1,
                   isMore: true,
                   list: [],
-                  archivedItem: {
-                    ...archivedItem,
-                    start: data.startDate,
-                    end: data.endDate,
-                  },
-                  filter: {
-                    ...filter,
-                    ...data,
-                  },
+                  archivedItem: { ...archivedItem, start: data.startDate, end: data.endDate },
+                  filter: { ...filter, ...data },
                 },
                 this.getTodoList,
               );
             }}
-            handleChangeVisible={() => this.setState({ visible: false })}
+            handleChangeVisible={() =>
+              this.setState({
+                visible: false,
+              })
+            }
             onChange={data => {
               const isSampleFilter = [TABS.MY_SPONSOR, TABS.WAITING_EXAMINE].includes(stateTab);
               this.setState(
@@ -1094,12 +1213,7 @@ export default class MyProcess extends Component {
                   isResetFilter: false,
                   list: [],
                   approveCards: [],
-                  filter: isSampleFilter
-                    ? data
-                    : {
-                        ...filter,
-                        ...data,
-                      },
+                  filter: isSampleFilter ? data : { ...filter, ...data },
                 },
                 this.getTodoList,
               );
@@ -1126,11 +1240,7 @@ export default class MyProcess extends Component {
                           isMore: true,
                           pageIndex: 1,
                           list: [],
-                          filter: {
-                            ...filter,
-                            startDate: archivedItem.start,
-                            endDate: archivedItem.end,
-                          },
+                          filter: { ...filter, startDate: archivedItem.start, endDate: archivedItem.end },
                         },
                         this.getTodoList,
                       );
@@ -1148,47 +1258,51 @@ export default class MyProcess extends Component {
           )}
         </div>
         {selectCard ? (
-          <ExecDialog
-            id={selectCard.id}
-            workId={selectCard.workId}
-            onClose={() => {
-              this.setState({ selectCard: null });
-            }}
-            onRead={() => {
-              if (stateTab === TABS.WAITING_EXAMINE) {
-                this.handleRead(this.state.selectCard);
-              }
-            }}
-            onSave={() => {
-              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
-                alert(_l('操作成功'));
-                this.handleSave(this.state.selectCard);
-              }
-            }}
-            onError={() => {
-              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
-                this.handleSave(this.state.selectCard);
-              }
-
-              if (stateTab === TABS.MY_SPONSOR || stateTab === TABS.COMPLETE) {
-                const { list } = this.state;
-                const newList = list.filter(n => n.workId !== selectCard.workId);
+          <Suspense fallback={null}>
+            <LoadableExecDialog
+              id={selectCard.id}
+              workId={selectCard.workId}
+              onClose={() => {
                 this.setState({
-                  list: newList,
+                  selectCard: null,
                 });
-                if (stateTab === TABS.MY_SPONSOR) {
-                  const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
-                  const { mySponsor } = countData;
-                  this.updateCountData({
-                    ...countData,
-                    mySponsor: mySponsor - 1,
-                  });
+              }}
+              onRead={() => {
+                if (stateTab === TABS.WAITING_EXAMINE) {
+                  this.handleRead(this.state.selectCard);
                 }
-              }
+              }}
+              onSave={() => {
+                if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
+                  alert(_l('操作成功'));
+                  this.handleSave(this.state.selectCard);
+                }
+              }}
+              onError={() => {
+                if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
+                  this.handleSave(this.state.selectCard);
+                }
 
-              this.setState({ selectCard: null });
-            }}
-          />
+                if (stateTab === TABS.MY_SPONSOR || stateTab === TABS.COMPLETE) {
+                  const { list } = this.state;
+                  const newList = list.filter(n => n.workId !== selectCard.workId);
+                  this.setState({
+                    list: newList,
+                  });
+
+                  if (stateTab === TABS.MY_SPONSOR) {
+                    const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
+                    const { mySponsor } = countData;
+                    this.updateCountData({ ...countData, mySponsor: mySponsor - 1 });
+                  }
+                }
+
+                this.setState({
+                  selectCard: null,
+                });
+              }}
+            />
+          </Suspense>
         ) : null}
         {(approveType || encryptType) && this.renderSignatureDialog()}
         {rejectVisible && this.renderRejectDialog()}

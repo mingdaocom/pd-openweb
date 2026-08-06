@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { pathCompletion } from 'src/utils/common';
 import { CreateNode, NodeOperate } from '../components';
 
 export default class Api extends Component {
@@ -41,7 +42,10 @@ export default class Api extends Component {
           <span className="textSecondary">{_l('调用API')}：</span>
           {item.appName}
         </div>
-        <i className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2" onMouseDown={this.openApi} />
+        <i
+          className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark"
+          onMouseDown={this.openApi}
+        />
         <div className="flex" />
       </div>
     );
@@ -51,7 +55,7 @@ export default class Api extends Component {
     const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/integrationApi/${item.appId}`);
+    window.open(pathCompletion(`/integrationApi/${item.appId}`));
   };
 
   render() {

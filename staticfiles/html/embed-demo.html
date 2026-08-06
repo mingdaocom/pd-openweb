@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>官网免登录生成应用 · 嵌入模拟</title>
+        <!--
+      纯测试页：模拟「数字化企业伴侣」官网静态站通过 HAP JS widget 嵌入输入框。
+      用法：HAP dev server 启动后访问 /staticfiles/html/embed-demo.html
+            指向部署环境：?webUrl=https://your-hap-host&apiServer=https://your-hap-host/api/
+      还原设计稿（stowpaste-17811626）：渐变底 + 顶部导航 + 居中标题 + embed 区(JS widget)。
+    -->
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+                color: #1a1a2e;
+            }
+            body {
+                min-height: 100vh;
+                /* 设计稿渐变：左上粉 → 右上薰衣草紫 → 底白 */
+                background:
+                    radial-gradient(1200px 600px at 12% -10%, #fbe3ee 0%, rgba(251, 227, 238, 0) 55%),
+                    radial-gradient(1200px 700px at 90% -5%, #e9e6ff 0%, rgba(233, 230, 255, 0) 55%),
+                    linear-gradient(180deg, #f4eefb 0%, #f7f3fd 35%, #ffffff 100%);
+            }
+
+            /* 顶部导航 */
+            .nav {
+                height: 64px;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .brand {
+                font-size: 19px;
+                font-weight: 800;
+                letter-spacing: 0.5px;
+                background: linear-gradient(90deg, #6e00ff 0%, #c822eb 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+            .nav-links {
+                display: flex;
+                gap: 34px;
+                margin-left: 48px;
+                flex: 1;
+            }
+            .nav-links a {
+                color: #3a3a4a;
+                text-decoration: none;
+                font-size: 15px;
+                cursor: pointer;
+            }
+            .nav-links a:hover {
+                color: #6e00ff;
+            }
+            .nav-actions {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+            .btn-login {
+                color: #3a3a4a;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            .btn-reg {
+                background: #2196f3;
+                color: #fff;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                padding: 9px 18px;
+                cursor: pointer;
+            }
+
+            /* 主视觉 */
+            .hero {
+                max-width: 920px;
+                margin: 0 auto;
+                padding: 96px 20px 60px;
+                text-align: center;
+            }
+            .hero h1 {
+                font-size: 46px;
+                line-height: 1.25;
+                font-weight: 800;
+                margin: 0 0 8px;
+                color: #14141f;
+            }
+            .hero .sub {
+                font-size: 16px;
+                color: #6b6b7b;
+                margin-bottom: 36px;
+            }
+
+            /* embed 区：HAP JS widget 落点（设计稿输入框 880 宽，居中） */
+            .embed-slot {
+                width: 880px;
+                max-width: 92vw;
+                margin: 0 auto;
+            }
+            .embed-slot .mingo-widget-container {
+                width: 100%;
+                min-height: 320px;
+                background: transparent;
+            }
+            .embed-status {
+                min-height: 44px;
+                padding: 12px 14px;
+                border: 1px dashed rgba(110, 0, 255, 0.35);
+                border-radius: 10px;
+                color: #6b6b7b;
+                background: rgba(255, 255, 255, 0.68);
+                font-size: 13px;
+                text-align: left;
+            }
+
+            /* dev 控制条（仅测试用，可改 widget 参数） */
+            .devbar {
+                position: fixed;
+                right: 12px;
+                bottom: 12px;
+                display: grid;
+                grid-template-columns: 78px minmax(240px, 420px) auto;
+                gap: 8px 10px;
+                align-items: center;
+                background: rgba(20, 20, 31, 0.86);
+                color: #fff;
+                padding: 10px;
+                border-radius: 10px;
+                font-size: 12px;
+                z-index: 9;
+            }
+            .devbar input {
+                width: 100%;
+                border: none;
+                border-radius: 6px;
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            .devbar button {
+                border: none;
+                border-radius: 6px;
+                background: #6e00ff;
+                color: #fff;
+                padding: 6px 10px;
+                cursor: pointer;
+            }
+            .devbar .tag {
+                opacity: 0.7;
+            }
+            .devbar .wide {
+                grid-column: 2 / 4;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="nav">
+            <div style="display: flex; align-items: center">
+                <div class="brand">数字化企业伴侣</div>
+                <div class="nav-links">
+                    <a>市场</a>
+                    <a>产品</a>
+                    <a>资源</a>
+                    <a>伙伴</a>
+                    <a>服务</a>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <span class="btn-login">登录</span>
+                <button class="btn-reg">注册</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <h1>搭建可投入生产的企业应用</h1>
+            <div class="sub">用一句话描述需求，Mingo 帮你免登录生成应用搭建方案</div>
+
+            <!-- HAP JS widget 嵌入：输入框 + 示例 chips + 换一批，提交后新标签页打开生成 plan 页 -->
+            <div class="embed-slot">
+                <div id="mingoWidget" class="mingo-widget-container">
+                    <div class="embed-status" id="embedStatus">等待加载 MingoEntry widget...</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="devbar">
+            <span class="tag">scriptUrl</span>
+            <input id="scriptInput" />
+            <button id="reloadBtn">加载</button>
+            <span class="tag">webUrl</span>
+            <input id="webUrlInput" />
+            <span></span>
+            <span class="tag">apiServer</span>
+            <input id="apiServerInput" />
+            <span></span>
+            <span class="tag">agentUrl</span>
+            <input id="agentUrlInput" />
+            <span></span>
+            <span class="tag">说明</span>
+            <span class="wide"
+                >默认本地：script=/dist/mingo-entry-widget/mingo-entry-widget.js，API/Agent 走当前 HAP dev server
+                代理。</span
+            >
+        </div>
+
+        <script>
+            // JS widget 目标：默认加载同源 HAP 构建产物；参数可通过 query 或 devbar 覆盖。
+            var DEFAULT_SCRIPT = '/dist/mingo-entry-widget/mingo-entry-widget.js';
+            var DEFAULT_WEB_URL = location.origin;
+            var DEFAULT_API_SERVER = location.origin + '/api/';
+            var DEFAULT_AGENT_URL = location.origin;
+            var qs = new URLSearchParams(location.search);
+            var container = document.getElementById('mingoWidget');
+            var statusEl = document.getElementById('embedStatus');
+            var scriptInput = document.getElementById('scriptInput');
+            var webUrlInput = document.getElementById('webUrlInput');
+            var apiServerInput = document.getElementById('apiServerInput');
+            var agentUrlInput = document.getElementById('agentUrlInput');
+            var widgetInstance = null;
+            var currentScript = null;
+
+            function setStatus(text, isError) {
+                if (!statusEl) return;
+                statusEl.textContent = text;
+                statusEl.style.color = isError ? '#d93025' : '#6b6b7b';
+                statusEl.style.borderColor = isError ? 'rgba(217,48,37,.45)' : 'rgba(110,0,255,.35)';
+            }
+
+            function setInputs(config) {
+                scriptInput.value = config.scriptUrl;
+                webUrlInput.value = config.webUrl;
+                apiServerInput.value = config.apiServer;
+                agentUrlInput.value = config.agentUrl;
+            }
+
+            function getConfigFromInputs() {
+                return {
+                    scriptUrl: scriptInput.value.trim() || DEFAULT_SCRIPT,
+                    webUrl: webUrlInput.value.trim() || DEFAULT_WEB_URL,
+                    apiServer: apiServerInput.value.trim() || DEFAULT_API_SERVER,
+                    agentUrl: agentUrlInput.value.trim() || DEFAULT_AGENT_URL,
+                };
+            }
+
+            function removeCurrentScript() {
+                if (currentScript && currentScript.parentNode) {
+                    currentScript.parentNode.removeChild(currentScript);
+                }
+                currentScript = null;
+            }
+
+            function resetContainer() {
+                if (widgetInstance && widgetInstance.unmount) {
+                    widgetInstance.unmount();
+                }
+                widgetInstance = null;
+                container.innerHTML = '<div class="embed-status" id="embedStatus">等待加载 MingoEntry widget...</div>';
+                statusEl = document.getElementById('embedStatus');
+            }
+
+            function mountWidget(config) {
+                if (!window.MingoEntry || !window.MingoEntry.mount) {
+                    setStatus('脚本已加载，但 window.MingoEntry.mount 不存在', true);
+                    return;
+                }
+
+                resetContainer();
+                widgetInstance = window.MingoEntry.mount(container, {
+                    webUrl: config.webUrl,
+                    apiServer: config.apiServer,
+                    agentUrl: config.agentUrl,
+                });
+            }
+
+            function loadWidget(config) {
+                setInputs(config);
+                resetContainer();
+                setStatus('正在加载：' + config.scriptUrl);
+
+                if (
+                    window.MingoEntry &&
+                    currentScript &&
+                    currentScript.src === new URL(config.scriptUrl, location.href).href
+                ) {
+                    mountWidget(config);
+                    return;
+                }
+
+                delete window.MingoEntry;
+                removeCurrentScript();
+
+                var script = document.createElement('script');
+                script.src = config.scriptUrl;
+                script.async = true;
+                script.setAttribute('data-mingo-entry-demo', '');
+                script.onload = function () {
+                    mountWidget(config);
+                };
+                script.onerror = function () {
+                    setStatus('脚本加载失败：' + config.scriptUrl, true);
+                };
+                currentScript = script;
+                document.head.appendChild(script);
+            }
+
+            var initialConfig = {
+                scriptUrl: qs.get('scriptUrl') || DEFAULT_SCRIPT,
+                webUrl: qs.get('webUrl') || DEFAULT_WEB_URL,
+                apiServer: qs.get('apiServer') || DEFAULT_API_SERVER,
+                agentUrl: qs.get('agentUrl') || DEFAULT_AGENT_URL,
+            };
+
+            loadWidget(initialConfig);
+
+            document.getElementById('reloadBtn').addEventListener('click', function () {
+                loadWidget(getConfigFromInputs());
+            });
+
+            [scriptInput, webUrlInput, apiServerInput, agentUrlInput].forEach(function (input) {
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') loadWidget(getConfigFromInputs());
+                });
+            });
+        </script>
+    </body>
+</html>

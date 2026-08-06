@@ -115,7 +115,7 @@ export default class CreateFlow extends Component {
 
   handleInputFocus = (focus = true) => {
     const $ele = this.inputRef.current;
-    focus ? $ele.classList.add('ThemeBorderColor3') : $ele.classList.remove('ThemeBorderColor3');
+    focus ? $ele.classList.add('borderColorPrimary') : $ele.classList.remove('borderColorPrimary');
   };
 
   render() {
@@ -125,7 +125,7 @@ export default class CreateFlow extends Component {
         <header className="createWorkflowHeader flexRow">
           <div className="backEdit flexRow">
             <div className="backToWorkflowIndex mRight12" onClick={this.props.onBack}>
-              <Icon icon="backspace" className="Font24 textSecondary ThemeHoverColor3 pointer" />
+              <Icon icon="backspace" className="Font24 textSecondary hoverColorPrimary pointer" />
             </div>
             <input
               ref={this.inputRef}

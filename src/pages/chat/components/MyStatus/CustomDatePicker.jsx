@@ -69,6 +69,7 @@ export default function CustomDatePicker(props) {
     endDate: endTime ? moment(endTime) : null,
   });
   const lang = getCurrentLangCode();
+  const datePickerLocale = { 0: zh_CN, 1: en_US, 2: ja_JP, 3: zh_TW }[lang] || en_US;
   const $ref = useRef(null);
 
   const onOk = date => {
@@ -120,7 +121,7 @@ export default function CustomDatePicker(props) {
         popup={
           <PopupWrap ref={$ref}>
             <StyledRangePicker
-              locale={lang === 1 ? en_US : lang === 2 ? ja_JP : lang === 3 ? zh_TW : zh_CN}
+              locale={datePickerLocale}
               disabledDate={date => moment().isAfter(date, 'day')}
               disabledTime={(date, type) => {
                 if (!date) return {};

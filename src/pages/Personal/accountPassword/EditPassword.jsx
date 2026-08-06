@@ -3,7 +3,7 @@ import { Input } from 'antd';
 import _ from 'lodash';
 import userPassword from 'src/api/account';
 import { navigateToLogout } from 'src/router/navigateTo';
-import { encrypt } from 'src/utils/common';
+import { encrypt, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import './index.less';
 
@@ -133,7 +133,11 @@ export default class EditPassword extends Component {
               onChange={e => this.setState({ originPassword: e.target.value })}
             />
             <div className="clearfix Block">
-              <a class="NoUnderline Right ThemeColor3 hoverTextPrimaryLight" target="_blank" href="/findPassword">
+              <a
+                class="NoUnderline Right colorPrimary hoverColorPrimaryLight"
+                target="_blank"
+                href={pathCompletion('/findPassword')}
+              >
                 {_l('忘记密码？')}
               </a>
             </div>
@@ -166,7 +170,7 @@ export default class EditPassword extends Component {
 
         <div className="mTop40 Right mBottom24">
           <span
-            className="Font14 textTertiary mRight32 hoverTextPrimaryLight Hand"
+            className="Font14 textTertiary mRight32 hoverColorPrimaryLight Hand"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

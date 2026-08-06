@@ -1,14 +1,12 @@
 import React, { Fragment } from 'react';
 import { Progress } from 'antd';
 import cx from 'classnames';
-import { Checkbox, Support, SvgIcon } from 'ming-ui';
+import { Checkbox, Icon, Support, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import Config from '../../../config';
-import importActivePng from '../img/import_active.png';
-import importDisabledPng from '../img/import_disabled.png';
 import './index.less';
 
 const ERRORMSG = {
@@ -194,7 +192,7 @@ export default class ImportApp extends React.Component {
             className={cx('importAppContent importAppContentCenter', file.name ? 'solidBorder' : 'dashBorder')}
             id="importExcel"
           >
-            <img className="uploadImg" src={file.name ? importActivePng : importDisabledPng}></img>
+            <Icon className="uploadIcon" icon="mdy" />
             {this.renderFileInfo()}
             <button
               type="button"
@@ -216,7 +214,7 @@ export default class ImportApp extends React.Component {
                   percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                 />
                 <span
-                  className="icon-cancel textTertiary Font16 hoverTextPrimaryLight mLeft12 LineHeight22"
+                  className="icon-cancel textTertiary Font16 hoverColorPrimaryLight mLeft12 LineHeight22"
                   onClick={() => {
                     this.uploader.stop();
                     this.uploader.removeFile(file);
@@ -231,7 +229,7 @@ export default class ImportApp extends React.Component {
             {file.name && file.loaded === file.size && !errTip && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
-                  <i className="icon-loading_button Font20 ThemeColor3"></i>
+                  <i className="icon-loading_button Font20 colorPrimary"></i>
                 </div>
                 <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
               </div>
@@ -310,7 +308,7 @@ export default class ImportApp extends React.Component {
             </div>
             <button
               type="button"
-              className="ming Button Button--primary hoverTextPrimaryLight importBtn Bold"
+              className="ming Button Button--primary hoverColorPrimaryLight importBtn Bold"
               onClick={() => this.importApp()}
             >
               {_l('立即导入')}

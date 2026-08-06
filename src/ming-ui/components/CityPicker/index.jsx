@@ -77,6 +77,28 @@ const CascaderSearchSelectWrap = styled.ul`
   }
 `;
 
+const activeItemScrollView = () => {
+  setTimeout(() => {
+    const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
+
+    if (items.length > 0) {
+      const lastActiveItem = items[items.length - 1];
+      lastActiveItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 500);
+};
+const activeItemsScrollView = () => {
+  setTimeout(() => {
+    const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
+
+    if (items.length > 0) {
+      items.forEach(item => {
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  }, 0);
+};
+
 export default function CityPicker(props) {
   const {
     id = 'CityPicker',
@@ -208,6 +230,11 @@ export default function CityPicker(props) {
       .then(res => {
         setLoadingId(false);
 
+        if (_.isEmpty(res)) {
+          getCitys({ parentId: chooserange || '' });
+          return;
+        }
+
         function transformArray(arr, selectData = [], result = [], index = 0) {
           (arr || []).forEach(item => {
             const { childs, ...rest } = item;
@@ -316,29 +343,6 @@ export default function CityPicker(props) {
     nextItem.last = nextLevel === 2 && particularlyCity.includes(nextItem.id) ? true : nextItem.last;
     handleClick(nextItem, nextLevel, false);
     activeItemScrollView();
-  };
-
-  const activeItemScrollView = () => {
-    setTimeout(() => {
-      const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
-
-      if (items.length > 0) {
-        const lastActiveItem = items[items.length - 1];
-        lastActiveItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 500);
-  };
-
-  const activeItemsScrollView = () => {
-    setTimeout(() => {
-      const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
-
-      if (items.length > 0) {
-        items.forEach(item => {
-          item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      }
-    }, 0);
   };
 
   const handleClick = (item, key, autoClose = true) => {
@@ -486,6 +490,7 @@ export default function CityPicker(props) {
         select={select}
         level={level}
         disabled={disabled}
+        mustLast={mustLast}
         callback={callback}
         onClear={handleClear}
         showConfirmBtn={showConfirmBtn}

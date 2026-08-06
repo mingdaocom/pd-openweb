@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _, { get } from 'lodash';
@@ -9,7 +9,7 @@ import CustomFields from 'src/components/Form';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { isRelateRecordTableControl } from 'src/utils/control';
-import useWorksheetRowProvider from '../WorksheetRecordProvider';
+import withWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
 
 const LoadMask = styled.div`
@@ -24,8 +24,7 @@ const LoadMask = styled.div`
   background: rgba(255, 255, 255, 0.8);
   z-index: 2;
 `;
-@useWorksheetRowProvider
-class FillRecordControls extends React.Component {
+let FillRecordControls = class FillRecordControls extends React.Component {
   static propTypes = {
     isBatchOperate: PropTypes.bool,
     visible: PropTypes.bool,
@@ -54,10 +53,14 @@ class FillRecordControls extends React.Component {
           let hasDefaultControls = [];
           const formDataForDataFormat = formData.map(c => {
             const newControl = { ...c };
+
             const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
+
             newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '', defaultfunc: '' };
+
             if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
               newControl.value = '';
+
               if (_.includes([9, 10, 11], newControl.type)) {
                 newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
               } else {
@@ -75,6 +78,7 @@ class FillRecordControls extends React.Component {
 
           function controlIsReadOnly(c) {
             const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
+
             return writeControl && writeControl.type === 1;
           }
 
@@ -99,7 +103,9 @@ class FillRecordControls extends React.Component {
                 from: 2,
                 projectId,
                 onAsyncChange: ({ controlId, value }) => {
-                  const updatedControl = _.find(formData, { controlId });
+                  const updatedControl = _.find(formData, {
+                    controlId,
+                  });
 
                   if (
                     updatedControl &&
@@ -136,23 +142,16 @@ class FillRecordControls extends React.Component {
 
               if (_.isUndefined(c.dataSource)) {
                 return undefined;
-              }
+              } // 自定义动作异化：标签页不能配置，所以默认都显示
 
-              // 自定义动作异化：标签页不能配置，所以默认都显示
               if (c.type === 52 && !c.fromMaster) return { ...c, controlPermissions: '111', fieldPermission: '111' };
+
               if (!writeControl || c.fromMaster) {
-                return {
-                  ...c,
-                  controlPermissions: '000',
-                };
+                return { ...c, controlPermissions: '000' };
               }
 
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '2') {
-                return {
-                  ...c,
-                  value: '',
-                  controlPermissions: '000',
-                };
+                return { ...c, value: '', controlPermissions: '000' };
               }
 
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
@@ -163,7 +162,9 @@ class FillRecordControls extends React.Component {
                 c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
+
               const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+
               const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
 
               if (defaultFormControl && !needClear) {
@@ -206,12 +207,27 @@ class FillRecordControls extends React.Component {
                         });
                         item.store.dispatch({
                           type: 'UPDATE_TABLE_STATE',
-                          value: { count: 0 },
+                          value: {
+                            count: 0,
+                          },
                         });
                       }
                     });
                   });
                 } else {
+                  // 关联记录查询时服务端会按源记录默认剔除「已关联的记录」，清空前先留住原关联的 rowid，
+                  // 作为关联下拉的放行名单（_system_excluderowids）传给服务端，
+                  // 否则字段被清空后，这些原本已选的记录在下拉可选列表里反而找不到
+                  if (c.type === 29) {
+                    const keepRowIds = safeParse(c.value, 'array')
+                      .map(r => r.sid)
+                      .filter(Boolean);
+
+                    if (keepRowIds.length) {
+                      c.keepShowRowIds = keepRowIds;
+                    }
+                  }
+
                   c.value = '';
                 }
 
@@ -250,11 +266,14 @@ class FillRecordControls extends React.Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
+
   async onSave(error, { data, updateControlIds, handleRuleError, handleServiceError }) {
     const { continueFill } = this.props;
 
     if (error) {
-      this.setState({ submitLoading: false });
+      this.setState({
+        submitLoading: false,
+      });
       return;
     }
 
@@ -285,7 +304,10 @@ class FillRecordControls extends React.Component {
     }
 
     if (!continueFill) {
-      this.setState({ isSubmitting: true, submitLoading: false });
+      this.setState({
+        isSubmitting: true,
+        submitLoading: false,
+      });
     }
 
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
@@ -298,17 +320,20 @@ class FillRecordControls extends React.Component {
             hasDefaultRelateRecordTableControls: this.hasDefaultRelateRecordTableControls,
           }),
         ),
-      {
-        ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
-      },
+      { ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']) },
       this.customwidget.current,
       (err, res) => {
         if (err) {
-          this.setState({ isSubmitting: false, submitLoading: false });
+          this.setState({
+            isSubmitting: false,
+            submitLoading: false,
+          });
         }
 
         if (res && res.resultCode === 22) {
-          this.customwidget.current.dataFormat.callStore('setUniqueError', { badData: res.badData });
+          this.customwidget.current.dataFormat.callStore('setUniqueError', {
+            badData: res.badData,
+          });
         }
 
         if (res && res.resultCode === 31) {
@@ -341,11 +366,9 @@ class FillRecordControls extends React.Component {
       customButton,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
-
     return (
       <Modal
-        allowScale
-        // type="fixed"
+        allowScale // type="fixed"
         className={cx('fillRecordControls', className)}
         width={900}
         onCancel={() => {
@@ -362,7 +385,15 @@ class FillRecordControls extends React.Component {
           </div>
         )}
         {submitLoading && (
-          <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
+          <LoadMask
+            style={
+              continueFill
+                ? {
+                    zIndex: 10,
+                  }
+                : {}
+            }
+          >
             <LoadDiv />
           </LoadMask>
         )}
@@ -390,7 +421,12 @@ class FillRecordControls extends React.Component {
             sheetSwitchPermit={sheetSwitchPermit}
             showError={showError}
             isDraft={isDraft}
-            registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+            registerCell={({ item, cell }) =>
+              (this.cellObjs[item.controlId] = {
+                item,
+                cell,
+              })
+            }
             disabledFunctions={['controlRefresh']}
             onChange={data => {
               this.setState({
@@ -412,6 +448,6 @@ class FillRecordControls extends React.Component {
       </Modal>
     );
   }
-}
-
+};
+FillRecordControls = withWorksheetRowProvider(FillRecordControls);
 export default FillRecordControls;

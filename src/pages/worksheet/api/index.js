@@ -4,6 +4,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { ensureAppLangData } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
 
@@ -49,10 +50,15 @@ export function getRowDetail(params, controls, options = {}) {
         })
       : worksheetAjax.getRowDetail(params, options)
     )
-      .then(data => {
+      .then(async data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
         window[`timeZone_${data.appId}`] = data.appTimeZone;
+        // 跨应用打开记录（如关联记录）时，被关联应用的语言包未预加载，需按 data.appId 按需补齐后再翻译控件
+        if (!controls) {
+          await ensureAppLangData(data.appId);
+        }
+
         data.advancedSetting = replaceAdvancedSettingTranslateInfo(
           data.appId,
           params.worksheetId,

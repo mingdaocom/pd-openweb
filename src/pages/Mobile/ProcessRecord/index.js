@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { Popup } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import Back from 'mobile/components/Back';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { compatibleMDJS } from 'src/utils/project';
@@ -20,12 +21,17 @@ export default props => {
 
     const { instanceId, workId } = props;
     return (
-      <Popup className={cx('processRecordInfoModal mobileModal full', className)} onClose={onClose} visible={visible}>
+      <MobilePopup
+        className={cx('processRecordInfoModal mobileModal full', className)}
+        onClose={onClose}
+        visible={visible}
+        layerId={`processRecord-${instanceId}`}
+      >
         {instanceId && (
           <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} onSave={onSave} />
         )}
         <Back icon="back" className="Fixed" style={{ bottom: 120 }} onClick={onClose} />
-      </Popup>
+      </MobilePopup>
     );
   } else {
     const { instanceId, workId } = match.params;
@@ -38,6 +44,15 @@ export default props => {
         onClose={() => {
           if (window.isMingDaoApp && location.pathname.includes('mobile/processRecord')) {
             compatibleMDJS('back', { closeAll: true });
+            return;
+          }
+
+          if (window.isDingTalk && _.get(window, 'dd.biz.navigation')) {
+            window.dd.biz.navigation.close({
+              onFail: function () {
+                window.mobileNavigateTo('/mobile/processMatters');
+              },
+            });
             return;
           }
 

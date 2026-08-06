@@ -1,28 +1,9 @@
 import _ from 'lodash';
 import { formatNumberThousand, toFixed } from 'src/utils/control';
 import { getProjectColor } from 'src/utils/project';
+import { reportTypes } from './reportTypes';
 
-/**
- * 图表类型
- */
-export const reportTypes = {
-  BarChart: 1,
-  LineChart: 2,
-  PieChart: 3,
-  NumberChart: 10,
-  RadarChart: 5,
-  FunnelChart: 6,
-  DualAxes: 7,
-  PivotTable: 8,
-  CountryLayer: 9,
-  BidirectionalBarChart: 11,
-  ScatterChart: 12,
-  WordCloudChart: 13,
-  GaugeChart: 14,
-  ProgressChart: 15,
-  TopChart: 16,
-  WorldMap: 17,
-};
+export { reportTypes };
 
 /**
  * 图表颜色集合 (旧的颜色配置)
@@ -700,7 +681,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
       const result = Number(toFixed(format(value), Number(ydot)));
       return magnitude === 1 ? result : fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else {
-      return format(value);
+      return format(value, Number(ydot));
     }
   }
 };
@@ -709,7 +690,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
  * 将 `控件名-控件id` 字符格式转成 { name, id }
  */
 export const formatControlInfo = value => {
-  if (_.isNumber(value) || _.isEmpty(value)) return value;
+  if (_.isNumber(value) || _.isEmpty(value)) return { name: value, id: null };
   let result = value.split(/-md-\w+-chart-/g);
   let name = null;
   let id = null;

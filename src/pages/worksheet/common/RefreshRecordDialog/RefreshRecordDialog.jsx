@@ -11,7 +11,19 @@ import { FlexCenter } from 'src/pages/worksheet/components/Basics';
 import { refreshRecord } from './dal';
 
 const NewDialog = styled(Dialog)`
+  .titleTag {
+    height: 26px;
+    line-height: 26px;
+    padding: 0 8px;
+    border-radius: 4px;
+    color: var(--color-primary);
+    background: var(--color-primary-transparent);
+    font-size: 13px;
+    font-weight: 400;
+    margin-left: 12px;
+  }
   .secTitle {
+    cursor: pointer;
     margin: 18px 0;
     &:nth-child(1) {
       margin-top: 0;
@@ -99,15 +111,42 @@ function getOtherTableControls(controls) {
   const group = _.groupBy(list, l => l.dataSource);
   const data = [];
   _.forEach(group, (value, key) => {
-    const control = controls.find(l => l.controlId === key.slice(1, key.length - 1));
+    const sourceControlId = key.slice(1, key.length - 1);
+    const control = controls.find(l => l.controlId === sourceControlId);
     data.push({
-      ..._.pick(control, ['controlId', 'controlName', 'type']),
+      ...(control
+        ? _.pick(control, ['controlId', 'controlName', 'type'])
+        : { controlId: sourceControlId, controlName: _l('已删除'), isDeletedControl: true }),
       children: value,
     });
   });
 
   return data;
 }
+
+const getWarningText = time => {
+  const warningText =
+    time < 60
+      ? _l('单个工作表 %0 分钟内不可重复提交，建议勾选本次受影响的所有记录和字段。', time)
+      : time % 60
+        ? _l(
+            '单个工作表 %0小时%1分钟 内不可重复提交，建议勾选本次受影响的所有记录和字段。',
+            parseInt(time / 60),
+            parseInt(time % 60),
+          )
+        : _l('单个工作表 %0 小时内不可重复提交，建议勾选本次受影响的所有记录和字段。', time / 60);
+
+  return warningText;
+};
+
+const renderControlLabel = control => (
+  <span>
+    {!_.isUndefined(control.type) && (
+      <i className={`icon-${getIconByType(control.type)} textTertiary Font16 mRight8`}></i>
+    )}
+    <span className={control.isDeletedControl ? 'Red' : undefined}>{control.controlName}</span>
+  </span>
+);
 
 export default function RefreshRecordDialog(props) {
   const {
@@ -132,9 +171,52 @@ export default function RefreshRecordDialog(props) {
   const refreshSortControls = getRefreshSortControls(visibleControls);
   const encryptControls = visibleControls.filter(c => c.encryId);
   const otherTableControls = getOtherTableControls(visibleControls);
-  const refreshVisible = !!refreshControls.concat(refreshSortControls, encryptControls, otherTableControls).length;
+  const relationControls = visibleControls.filter(c =>
+    _.includes([WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, WIDGETS_TO_API_TYPE_ENUM.SUB_LIST], c.type),
+  );
+  const refreshVisible = !!refreshControls.concat(
+    refreshSortControls,
+    encryptControls,
+    otherTableControls,
+    relationControls,
+  ).length;
   const [calibrateConfig, setCalibrateConfig] = useState({});
   const [time, setTime] = useState(0);
+  const [expandKeys, setExpandKeys] = useState([]);
+
+  const dataList = [
+    {
+      key: 'calculate',
+      title: _l('更新计算结果'),
+      desc: _l('当原始数据变化后，可重新计算公式、文本组合等字段的结果'),
+      controls: refreshControls,
+    },
+    {
+      key: 'option',
+      title: _l('更新选项相关结果'),
+      desc: _l('当选项排序、分值或配置变化后，可刷新对应字段的显示结果'),
+      controls: refreshSortControls,
+    },
+    {
+      key: 'encrypt',
+      title: _l('更新字段加密值'),
+      desc: _l('当字段的加密规则修改后，可刷新字段值按照新规则加密'),
+      controls: encryptControls,
+    },
+    {
+      key: 'otherTable',
+      title: _l('更新他表字段与汇总结果'),
+      desc: _l('当关联记录数据变化后，可重新获取他表字段、计算汇总字段'),
+      controls: otherTableControls,
+      hasChildren: true,
+    },
+    {
+      key: 'relation',
+      title: _l('更新记录之间的关联关系'),
+      desc: _l('当关联的记录删除后，可取消记录之间的关联关系'),
+      controls: relationControls,
+    },
+  ];
 
   useEffect(() => {
     worksheetAjax.getRefreshRowsMinute().then(res => res && setTime(Number(res)));
@@ -181,18 +263,8 @@ export default function RefreshRecordDialog(props) {
           reloadWorksheet();
           getWorksheetSheetViewSummary();
         } else {
-          alert(
-            data.successCount < 60
-              ? _l('单表的刷新数据最小间隔为%0分钟，请稍后再试。', data.successCount)
-              : data.successCount % 60 > 0
-                ? _l(
-                    '单表的刷新数据最小间隔为%0小时%1分钟，请稍后再试',
-                    parseInt(data.successCount / 60),
-                    parseInt(data.successCount % 60),
-                  )
-                : _l('单表的刷新数据最小间隔为%0小时，请稍后再试。', data.successCount / 60),
-            3,
-          );
+          const alertText = getWarningText(data.successCount) + _l('请稍后再试。');
+          alert(alertText, 3);
         }
       },
     });
@@ -210,12 +282,7 @@ export default function RefreshRecordDialog(props) {
     return list.map((c, i) => (
       <Checkbox
         key={i}
-        text={
-          <span>
-            <i className={`icon-${getIconByType(c.type)} textTertiary Font16 mRight8`}></i>
-            {c.controlName}
-          </span>
-        }
+        text={renderControlLabel(c)}
         checked={calibrateConfig[c.controlId]}
         onClick={() => {
           setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
@@ -227,31 +294,26 @@ export default function RefreshRecordDialog(props) {
   return (
     <NewDialog
       visible
-      title={_l('校准数据')}
+      title={
+        <div className="flexRow alignItemsCenter">
+          <span>{_l('校准数据')}</span>
+          <div className="titleTag">{_l('管理员工具')}</div>
+        </div>
+      }
       description={
         <Fragment>
           <div>
-            {_l('仅限管理员操作，一次最多校准10万行数据，校准完成后将推送系统消息通知。')}
+            {_l('选择需要重新计算的字段值。单次最多处理10万行数据，完成后通过系统消息通知结果。')}
             <Support
-              className="moreHelp"
+              className="mBottom2"
               type={3}
               href="https://help.mingdao.com/worksheet/batch-refresh"
-              text={_l('使用帮助')}
+              text={_l('帮助')}
             />
           </div>
           <Info className="valignWrapper">
             <Icon icon="info" className="" />
-            <span>
-              {time < 60
-                ? _l('单个工作表数据校准时间间隔为%0分钟，请确保已选择所有需要校准的记录和字段。', time)
-                : time % 60
-                  ? _l(
-                      '单个工作表数据校准时间间隔为%0小时%1分钟，请确保已选择所有需要校准的记录和字段。',
-                      parseInt(time / 60),
-                      parseInt(time % 60),
-                    )
-                  : _l('单个工作表数据校准时间间隔为%0小时，请确保已选择所有需要校准的记录和字段。', time / 60)}
-            </span>
+            <span>{getWarningText(time)}</span>
           </Info>
         </Fragment>
       }
@@ -271,50 +333,48 @@ export default function RefreshRecordDialog(props) {
             <span className="textTertiary Font13 mTop20">{_l('当前工作表没有可以校准的字段。')}</span>
           </Empty>
         )}
-        {[
-          { title: _l('刷新计算结果'), controls: refreshControls },
-          { title: _l('刷新选项排序和分值'), controls: refreshSortControls },
-          { title: _l('刷新字段加密值'), controls: encryptControls },
-          { title: _l('刷新他表字段和汇总结果'), controls: otherTableControls, hasChildren: true },
-        ]
+        {dataList
           .filter(item => item.controls.length)
           .map(item => {
-            const notAllChecked = !item.hasChildren && _.some(item.controls, l => !calibrateConfig[l.controlId]);
+            const isExpand = expandKeys.includes(item.key);
 
             return (
-              <Fragment>
-                <div className="secTitle Bold">
-                  {item.title}
-                  {!item.hasChildren && (
-                    <span
-                      className="mLeft14 textSecondary Normal Hand"
-                      onClick={() => handleAllChecked(item.controls, notAllChecked)}
-                    >
-                      {notAllChecked ? _l('全选') : _l('取消全选')}
-                    </span>
-                  )}
+              <Fragment key={item.key}>
+                <div
+                  className="secTitle"
+                  onClick={() => {
+                    const newKeys = isExpand ? expandKeys.filter(k => k !== item.key) : expandKeys.concat(item.key);
+                    setExpandKeys(newKeys);
+                  }}
+                >
+                  <div className="flexRow alignItemsCenter">
+                    <Icon icon={isExpand ? 'arrow-down' : 'arrow-right-tip'} className="textSecondary" />
+                    <div className="Bold mLeft4">{item.title}</div>
+                  </div>
+                  <div className="textSecondary mTop6 mLeft17">{item.desc}</div>
                 </div>
-                {item.hasChildren
-                  ? item.controls.map(l => {
-                      const notAllChecked = _.some(l.children, l => !calibrateConfig[l.controlId]);
+                {isExpand && (
+                  <div className="mLeft17">
+                    {item.hasChildren
+                      ? item.controls.map(l => {
+                          const notAllChecked = _.some(l.children, l => !calibrateConfig[l.controlId]);
 
-                      return (
-                        <Fragment key={`relation-${l.controlId}`}>
-                          <div className="mBottom14">
-                            <i className={`icon-${getIconByType(l.type)} textTertiary Font16 mRight8`}></i>
-                            {l.controlName}
-                            <span
-                              className="mLeft14 textSecondary Normal Hand"
-                              onClick={() => handleAllChecked(l.children, notAllChecked)}
-                            >
-                              {notAllChecked ? _l('全选') : _l('取消全选')}
-                            </span>
-                          </div>
-                          <div className="relationControls">{renderCheckbox(l.children)}</div>
-                        </Fragment>
-                      );
-                    })
-                  : renderCheckbox(item.controls)}
+                          return (
+                            <Fragment key={`relation-${l.controlId}`}>
+                              <div className="mBottom14">
+                                <Checkbox
+                                  text={renderControlLabel(l)}
+                                  checked={!notAllChecked}
+                                  onClick={() => handleAllChecked(l.children, notAllChecked)}
+                                />
+                              </div>
+                              <div className="relationControls">{renderCheckbox(l.children)}</div>
+                            </Fragment>
+                          );
+                        })
+                      : renderCheckbox(item.controls)}
+                  </div>
+                )}
               </Fragment>
             );
           })}

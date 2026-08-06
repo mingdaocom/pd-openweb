@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 import { PAY_CHANNEL } from '../../config';
 import jxqfImg from '../../images/jxqf.png';
 import CreateJxqfMerchant from './CreateJxqfMerchant';
@@ -89,10 +90,10 @@ export default class CreateMerchant extends Component {
           <Header className="bold Font17">
             <Icon
               icon="backspace"
-              className="Font22 ThemeHoverColor3 pointer mRight10"
+              className="Font22 hoverColorPrimary pointer mRight10"
               onClick={() => {
                 this.props.changeCreateMerchant(false);
-                window.history.replaceState({}, '', `${location.origin}/admin/merchant/${projectId}`);
+                window.history.replaceState({}, '', pathCompletion(`/admin/merchant/${projectId}`));
               }}
             />
             {_l('创建商户')}

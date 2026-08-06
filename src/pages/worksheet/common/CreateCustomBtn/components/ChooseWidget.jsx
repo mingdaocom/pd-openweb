@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import {
@@ -101,9 +101,7 @@ const ChooseWidgetWrap = styled.div`
     }
   }
 `;
-
-@withClickAway
-export default class ChooseWidget extends React.Component {
+let ChooseWidget = class ChooseWidget extends React.Component {
   constructor(props) {
     super(props);
     const { writeControls = [] } = props;
@@ -116,6 +114,7 @@ export default class ChooseWidget extends React.Component {
     };
     this.chooseDia = null;
   }
+
   componentDidMount() {
     const { writeControls = [] } = this.props;
     this.setState({
@@ -127,20 +126,23 @@ export default class ChooseWidget extends React.Component {
     this.setPoint();
     $('.cursorText').focus();
   }
-  componentWillReceiveProps(nextProps) {
-    const { writeControls = [], writeObject, relationControls, widgetList } = nextProps;
 
-    if (
-      this.props.writeControls !== writeControls ||
-      this.props.relationControls !== relationControls ||
-      this.props.widgetList !== widgetList ||
-      writeObject !== this.props.writeObject
-    ) {
-      const data = this.getData(nextProps).filter(it => it.controlName.indexOf(this.state.keyWords) >= 0);
-      this.setState({
-        data,
-        writeControls,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { writeControls = [], writeObject, relationControls, widgetList } = this.props;
+
+      if (
+        prevProps.writeControls !== writeControls ||
+        prevProps.relationControls !== relationControls ||
+        prevProps.widgetList !== widgetList ||
+        writeObject !== prevProps.writeObject
+      ) {
+        const data = this.getData(this.props).filter(it => it.controlName.indexOf(this.state.keyWords) >= 0);
+        this.setState({
+          data,
+          writeControls,
+        });
+      }
     }
   }
 
@@ -158,12 +160,10 @@ export default class ChooseWidget extends React.Component {
       left: ol,
     });
   };
-
   getData = props => {
     const { writeObject, relationControls = [], widgetList = [] } = props;
     return (writeObject !== 1 ? relationControls : widgetList).filter(o => !canNotForCustomWrite(o));
   };
-
   handSet = (item, isAdd) => {
     const controls = this.getData(this.props);
     const writeControlsIds = this.state.writeControls.map(it => it.controlId);
@@ -181,7 +181,6 @@ export default class ChooseWidget extends React.Component {
         : this.state.writeControls.filter(o => !othersDel.map(it => it.controlId).includes(o.controlId)),
     );
   };
-
   selectOrClearAll = isSelect => {
     if (!isSelect) {
       this.setState({
@@ -206,7 +205,6 @@ export default class ChooseWidget extends React.Component {
       this.props.onChange(writeControls);
     }
   };
-
   renderCon = item => {
     const { closeList = [], writeControls = [] } = this.state;
 
@@ -246,7 +244,7 @@ export default class ChooseWidget extends React.Component {
           {child.length > 0 && (
             <Icon
               icon={closeList.includes(item.controlId) ? 'expand_less' : 'expand_more'}
-              className={cx('Font18 Hand ThemeHoverColor3 textTertiary widgetIcon')}
+              className={cx('Font18 Hand hoverColorPrimary textTertiary widgetIcon')}
               onClick={e => {
                 e.stopPropagation();
                 this.setState({
@@ -276,7 +274,14 @@ export default class ChooseWidget extends React.Component {
     return (
       <div
         className="ChooseWidgetDialogWrap"
-        style={{ position: 'fixed', top: 0, left: 0, bottom: 0, right: 0, zIndex: 1000 }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          zIndex: 1000,
+        }}
         onClick={onClose}
       >
         <ChooseWidgetWrap
@@ -329,13 +334,13 @@ export default class ChooseWidget extends React.Component {
           {!keyWords && (
             <div className="con flexRow mTop15">
               <span
-                className="selectAll Hand textSecondary ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft16"
+                className="selectAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft16"
                 onClick={() => this.selectOrClearAll(true)}
               >
                 {_l('全选')}
               </span>
               <span
-                className="clearAll Hand textSecondary ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft10"
+                className="clearAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft10"
                 onClick={() => this.selectOrClearAll()}
               >
                 {_l('清空')}
@@ -357,4 +362,6 @@ export default class ChooseWidget extends React.Component {
       </div>
     );
   }
-}
+};
+ChooseWidget = ClickAway.wrap(ChooseWidget);
+export default ChooseWidget;

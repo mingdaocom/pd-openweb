@@ -26,16 +26,18 @@ export default class AppIntro extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      isEditing: nextProps.isEditing,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps.isEditing !== this.props.isEditing) {
+      this.setState({
+        isEditing: this.props.isEditing,
+      });
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     const props = this.props || {};
     const state = this.state || {};
-    return compareProps(props, nextProps, ['description']) || nextState.isEditing !== state.isEditing;
+    return compareProps(props, nextProps, ['description', 'isEditing']) || nextState.isEditing !== state.isEditing;
   }
 
   handleSave = val => {

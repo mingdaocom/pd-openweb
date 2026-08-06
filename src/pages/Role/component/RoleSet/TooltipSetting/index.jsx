@@ -119,7 +119,7 @@ export default class Con extends PureComponent {
               </div>
               <Icon
                 icon="close"
-                className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
+                className="Right LineHeight25 textTertiary Hand Font22 hoverColorPrimary"
                 onClick={onClose}
               />
             </div>

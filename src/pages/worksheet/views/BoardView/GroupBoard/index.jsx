@@ -67,8 +67,15 @@ const GroupBoard = props => {
     return buttons;
   }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
 
-  // 获取按钮 ID
-  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+  // 获取按钮 ID：分组在 operateButtons 里是 group_ref，btnId 是合成的 group:xxx，
+  // 需展开成员真实 btnId 去查执行状态，否则组内按钮（含满足条件的）拿不到 status 会被全部置灰。
+  const btnIds = useMemo(
+    () =>
+      _.flatMap(operateButtons, b =>
+        b.type === 'group_ref' && _.isArray(b.buttons) ? b.buttons.map(member => member.btnId) : [b.btnId],
+      ).filter(Boolean),
+    [operateButtons],
+  );
 
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);

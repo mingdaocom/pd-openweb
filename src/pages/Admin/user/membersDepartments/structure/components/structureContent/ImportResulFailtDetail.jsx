@@ -82,10 +82,12 @@ const ImportError = styled.div`
 `;
 
 const userTemplatePaths = {
-  0: '/staticfiles/template/导入用户.xlsx',
-  1: '/staticfiles/template/import user.xlsx',
-  2: '/staticfiles/template/ユーザーをインポートする.xlsx',
-  3: '/staticfiles/template/導入用戶.xlsx',
+  0: '/staticfiles/template/importUserTemplate/导入用户.xlsx',
+  1: '/staticfiles/template/importUserTemplate/import user.xlsx',
+  2: '/staticfiles/template/importUserTemplate/ユーザーをインポートする.xlsx',
+  3: '/staticfiles/template/importUserTemplate/導入用戶.xlsx',
+  4: '/staticfiles/template/importUserTemplate/แม่แบบการนำเข้าผู้ใช้งาน.xlsx',
+  5: '/staticfiles/template/importUserTemplate/Templat Import Pengguna.xlsx',
 };
 export default class ImportResulFailtDetail extends Component {
   constructor(props) {
@@ -231,7 +233,7 @@ export default class ImportResulFailtDetail extends Component {
             <div className="errorDes">
               {_l('请')}
               <a
-                className="Font16 ThemeColor3 hoverTextPrimaryLight"
+                className="Font16 colorPrimary hoverColorPrimaryLight"
                 href={userTemplatePaths[getCurrentLangCode()]}
                 target="_blank"
               >

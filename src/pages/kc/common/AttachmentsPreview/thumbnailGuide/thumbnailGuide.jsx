@@ -59,11 +59,13 @@ class ThumbnailGuide extends React.Component {
     this.calPosition();
   }
 
-  componentWillReceiveProps() {
-    this.setState({ fitited: false });
-  }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        fitited: false,
+      });
+    }
 
-  componentDidUpdate() {
     this.calPosition();
   }
 

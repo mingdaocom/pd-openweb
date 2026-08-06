@@ -9,6 +9,7 @@ import smsApi from 'src/api/sms';
 import SmsSignSet from 'src/components/SmsSignSet';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
+import { pathCompletion } from 'src/utils/common';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -144,7 +145,7 @@ export default function TextMessage(props) {
                         <span className="textTertiary">{_l('未配置国际短信服务,无法送达港澳台/国际地区，请前往')}</span>
                         <span
                           className="colorPrimary pointer"
-                          onClick={() => (location.href = `/admin/weixin/${projectId}`)}
+                          onClick={() => (location.href = pathCompletion(`/admin/weixin/${projectId}`))}
                         >
                           {_l('组织后台')}
                         </span>

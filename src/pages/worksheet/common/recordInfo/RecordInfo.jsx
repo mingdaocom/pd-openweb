@@ -65,10 +65,10 @@ function getSideVisible(from) {
     return false;
   } else if (from === RECORD_INFO_FROM.WORKFLOW) {
     const data = localStorage.getItem('recordInfoOfWorkflowSideVisible');
-    return _.isNull(data) ? true : Boolean(localStorage.getItem('recordInfoOfWorkflowSideVisible'));
+    return _.isNull(data) ? true : Boolean(data);
   } else {
     const data = localStorage.getItem('recordInfoSideVisible');
-    return _.isNull(data) ? true : Boolean(localStorage.getItem('recordInfoSideVisible'));
+    return _.isNull(data) ? true : Boolean(data);
   }
 }
 
@@ -171,36 +171,41 @@ export default class RecordInfo extends Component {
     this.getPayConfig(this.state.recordId);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if ((nextProps.recordId !== this.props.recordId || nextProps.flag !== this.props.flag) && nextProps.recordId) {
-      this.setState({
-        loading: true,
-        recordId: nextProps.recordId,
-        abnormal: false,
-        currentIndex: _.findIndex(this.props.currentSheetRows, item => {
-          return _.get(item, 'rowid') === nextProps.recordId;
-        }),
-      });
-      this.loadRecord({ recordId: nextProps.recordId, props: nextProps });
-      this.getPayConfig(nextProps.recordId);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if ((this.props.recordId !== prevProps.recordId || this.props.flag !== prevProps.flag) && this.props.recordId) {
+        this.setState({
+          loading: true,
+          recordId: this.props.recordId,
+          abnormal: false,
+          currentIndex: _.findIndex(prevProps.currentSheetRows, item => {
+            return _.get(item, 'rowid') === this.props.recordId;
+          }),
+        });
+        this.loadRecord({
+          recordId: this.props.recordId,
+          props: this.props,
+        });
+        this.getPayConfig(this.props.recordId);
+      }
 
-    const changes = {};
+      const changes = {};
 
-    if (nextProps.worksheetId !== this.state.worksheetId) {
-      changes.worksheetId = nextProps.worksheetId;
-    }
+      if (this.props.worksheetId !== this.state.worksheetId) {
+        changes.worksheetId = this.props.worksheetId;
+      }
 
-    if (nextProps.viewId !== this.state.viewId) {
-      changes.viewId = nextProps.viewId;
-    }
+      if (this.props.viewId !== this.state.viewId) {
+        changes.viewId = this.props.viewId;
+      }
 
-    if (nextProps.appId !== this.state.appId) {
-      changes.appId = nextProps.appId;
-    }
+      if (this.props.appId !== this.state.appId) {
+        changes.appId = this.props.appId;
+      }
 
-    if (!_.isEmpty(changes)) {
-      this.setState(changes);
+      if (!_.isEmpty(changes)) {
+        this.setState(changes);
+      }
     }
   }
 
@@ -290,7 +295,7 @@ export default class RecordInfo extends Component {
             },
             () => {
               setTimeout(() => {
-                if (this.recordform.current) {
+                if (this.recordform.current && this.recordform.current.dataFormat) {
                   this.recordform.current.dataFormat.controlIds = tempFormData
                     .filter(c => value[c.controlId] && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34))
                     .map(c => c.controlId);
@@ -454,7 +459,8 @@ export default class RecordInfo extends Component {
       }
 
       portalConfigSet.allowExAccountDiscuss = portalConfigSet.allowExAccountDiscuss && portalConfigSet.isEnable;
-      data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
+      // 关联记录可能属于其他应用，工作表名翻译需以记录实际所在应用 data.appId 为准
+      data.worksheetName = getTranslateInfo(data.appId || appId, null, worksheetId).name || data.worksheetName;
       // 设置隐藏字段的 hidden 属性
       data.formData = data.formData.map(c => {
         const newControl = {
@@ -1208,7 +1214,6 @@ export default class RecordInfo extends Component {
       renderAbnormal,
       controls = [],
       workflow,
-      view,
       instanceId,
       workId,
       notDialog,
@@ -1273,6 +1278,10 @@ export default class RecordInfo extends Component {
     if (_.isUndefined(isCharge) && appId) {
       isCharge = window[`app_${appId}_is_charge`];
     }
+
+    // 关联表格等入口 openRecordInfo 只传 viewId、不传 view 对象，props.view 为空会丢失分组等视图配置；
+    // 回退到 getRowDetail 响应里的 view（后端按 viewId 返回，含 navGroup 等分组信息）。
+    const view = _.isEmpty(this.props.view) ? recordinfo.view || {} : this.props.view;
 
     const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData, recordId);
     let { width } = this.props;
@@ -1343,6 +1352,7 @@ export default class RecordInfo extends Component {
         <RecordInfoContext.Provider
           value={{
             api: this.getRecordApi,
+            iseditting,
             enterEditingMode: () => {
               this.setState({
                 iseditting: true,
@@ -1654,11 +1664,13 @@ export default class RecordInfo extends Component {
                               },
                               tempFormData: newFormData,
                             });
-                            this.recordform.current.dataFormat.updateDataSource({
-                              controlId: c.controlId,
-                              value: controlValue,
-                            });
-                            this.recordform.current.updateRenderData();
+                            if (this.recordform && this.recordform.current) {
+                              this.recordform.current.dataFormat.updateDataSource({
+                                controlId: c.controlId,
+                                value: controlValue,
+                              });
+                              this.recordform.current.updateRenderData();
+                            }
                           }
                         });
                     });
@@ -1768,6 +1780,7 @@ export default class RecordInfo extends Component {
                   sheetSwitchPermit={sheetSwitchPermit}
                   projectId={this.props.projectId || recordinfo.projectId}
                   controls={controls}
+                  worksheetOperationLogPermission={worksheetInfo?.worksheetOperationLogPermission}
                   formFlag={formFlag}
                   instanceId={instanceId}
                   workId={workId}

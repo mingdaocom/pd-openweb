@@ -233,6 +233,8 @@ const NoDataWrapper = styled.div`
 let ajaxPromise;
 let sortFlag = 0;
 
+const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
+
 export default function SourceList(props) {
   const { flag } = props;
   const [fetchState, setFetchState] = useSetState({
@@ -254,7 +256,6 @@ export default function SourceList(props) {
     { title: _l('来源'), data: FROM_TYPE_TAB_LIST, key: 'fromType', hasExpand: false },
     { title: _l('源类型'), data: dsTabList, key: 'dsType', hasExpand: false },
   ];
-  const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
   const getTypes = () => {
     //获取数据源类型列表
@@ -466,7 +467,7 @@ export default function SourceList(props) {
         return (
           <div className="pRight8">
             <span>{item.creatorName}</span>
-            <span className="textTertiary">{` 创建于 ${formatDate(item.createTime)}`}</span>
+            <span className="textTertiary">{_l(' 创建于 %0', formatDate(item.createTime))}</span>
           </div>
         );
       },

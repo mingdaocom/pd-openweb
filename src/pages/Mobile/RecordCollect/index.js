@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import favoriteAjax from 'src/api/favorite';
 import { RecordInfoModal } from 'mobile/Record';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import Back from '../components/Back';
 import SearchResultEmpty from '../components/SearchResultEmpty';
 import SearchWrap from './SearchWrap';
@@ -57,16 +57,7 @@ export default class RecordCollect extends Component {
 
   componentDidMount() {
     this.getData();
-    window.addEventListener('popstate', this.onQueryChange);
   }
-
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.onQueryChange);
-  }
-
-  onQueryChange = () => {
-    handleReplaceState('page', 'collectRecord', () => this.setState({ collectRecord: {} }));
-  };
 
   getData = () => {
     const { projectId } = _.get(this.props, 'match.params') || {};
@@ -136,7 +127,6 @@ export default class RecordCollect extends Component {
                   key={favoriteId}
                   className="recordItem flexRow pRight0"
                   onClick={() => {
-                    handlePushState('page', 'collectRecord');
                     addBehaviorLog('worksheetRecord', worksheetId, { rowId });
                     this.setState({ collectRecord: item });
                   }}

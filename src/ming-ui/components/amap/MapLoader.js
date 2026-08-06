@@ -27,8 +27,7 @@ export const getMapKey = keyName => {
   return mapInfo;
 };
 
-const isPluginsReady = () =>
-  window.AMap && window.AMap.Map && window.AMap.Geocoder && window.AMap.Geolocation;
+const isPluginsReady = () => window.AMap && window.AMap.Map && window.AMap.Geocoder && window.AMap.Geolocation;
 
 export default class MapLoader {
   loadJs() {
@@ -41,30 +40,13 @@ export default class MapLoader {
       const { key } = getMapKey('amap') || {};
       const AMAP_URL = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.Geocoder,AMap.Geolocation,AMap.ToolBar,AMap.Scale,AMap.CitySearch`;
 
-      fetch(AMAP_URL)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          return response.text();
-        })
-        .then(scriptCode => {
-          // 检查是否已经存在高德地图的script标签;
-          const existingScript = document.querySelector('script[data-amap-script]');
-
-          if (existingScript) {
-            return;
-          }
-
-          const script = document.createElement('script');
-          script.setAttribute('data-amap-script', 'true');
-          script.textContent = scriptCode;
-          document.head.appendChild(script);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      const existingScript = document.querySelector('script[data-amap-script]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.setAttribute('data-amap-script', 'true');
+        script.src = AMAP_URL;
+        document.head.appendChild(script);
+      }
 
       const aMapTimer = setInterval(() => {
         if (isPluginsReady()) {

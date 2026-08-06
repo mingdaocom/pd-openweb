@@ -1,23 +1,19 @@
 ﻿import React from 'react';
-import ReactDom from 'react-dom';
 import cx from 'classnames';
 import Immutable from 'immutable';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import Icon from 'ming-ui/components/Icon';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withHoverState from 'ming-ui/decorators/withHoverState';
 import { mdNotification } from 'ming-ui/functions';
 import service from '../../api/service';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import createUploader from 'src/library/plupload/createUploader';
 import { getClassNameByExt } from 'src/utils/common';
 import { MAX_FILE_COUNT, PICK_TYPE, UPLOAD_ERROR, UPLOAD_STATUS } from '../../constant/enum';
+import HoverState from '../../decorators/withHoverState';
 import { getUrlByBucketName, humanFileSize } from '../../utils';
 import './uploadAssistant.css';
-
-const HoverState = createDecoratedComponent(withHoverState);
 
 class UploadProgress extends React.Component {
   static propTypes = {
@@ -43,13 +39,13 @@ class UploadProgress extends React.Component {
         icon = <Icon className="uploadPercentageText fgError" icon="delete" />;
         break;
       case UPLOAD_STATUS.UPLOADING:
-        colorClass = 'ThemeBGColor3';
+        colorClass = 'bgColorPrimary';
         text = percentage === '100%' ? _l('即将完成') : _l('上传中');
         icon = <span className="uploadPercentageText">{percentage}</span>;
         break;
       case UPLOAD_STATUS.QUEUE:
       default:
-        colorClass = 'ThemeBGColor3';
+        colorClass = 'bgColorPrimary';
         text = _l('排队中');
         icon = <span className="uploadPercentageText">{percentage}</span>;
         break;
@@ -90,7 +86,7 @@ class UploadAction extends React.Component {
       case UPLOAD_STATUS.QUEUE:
       case UPLOAD_STATUS.UPLOADING:
         icon = <span className="textIcon">×</span>;
-        title = '取消';
+        title = _l('取消');
         action = this.props.cancelUpload;
         break;
       case UPLOAD_STATUS.COMPLETE:
@@ -156,7 +152,7 @@ class UploadAssistant extends React.Component {
             return;
           }
 
-          $(ReactDom.findDOMNode(comp)).on('change', '#selectDirectoryTrigger', evt => {
+          $(comp.root).on('change', '#selectDirectoryTrigger', evt => {
             if (evt.target.files.length > MAX_FILE_COUNT) {
               alert(_l('支持每次选择%0个文件，超过的请您分批次选择', MAX_FILE_COUNT));
               evt.target.value = null;
@@ -461,16 +457,17 @@ class UploadAssistant extends React.Component {
     return (
       <div
         id="uploadAssistant"
+        ref={root => (this.root = root)}
         className="uploadAssistant flexColumn"
         onDragOver={() => this.setState({ dragOver: true })}
         onDragLeave={() => this.setState({ dragOver: false })}
         onDrop={() => this.setState({ dragOver: false })}
       >
         <div className="optionContent">
-          <div
-            className={cx('dropContainer ThemeBorderColor4', this.state.dragOver ? 'ThemeBGColor5' : 'ThemeBGColor6')}
-          >
-            <div className={cx('uploadIcon icon-cloud_upload', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')} />
+          <div className="dropContainer borderColorPrimary bgColorPrimaryTransparent">
+            <div
+              className={cx('uploadIcon icon-cloud_upload', this.state.dragOver ? 'colorPrimary' : 'colorPrimaryLight')}
+            />
             <div className="dropDesc">{this.state.dragOver ? _l('松开鼠标开始上传') : _l('拖拽文件到这里上传')}</div>
           </div>
           <div className="chooseBtnContainer">
@@ -478,7 +475,7 @@ class UploadAssistant extends React.Component {
               id="selectFileTrigger"
               thisArg={this}
               hoverStateName="hoverChooseBtn"
-              className="chooseBtn ThemeHoverBGColor2 ThemeBGColor3"
+              className="chooseBtn hoverBgColorPrimaryDark bgColorPrimary"
             >
               <span className="chooseBtnText">{_l('选择文件')}</span>
             </HoverState>
@@ -488,7 +485,7 @@ class UploadAssistant extends React.Component {
                 thisArg={this}
                 onClick={this.selectDirectory}
                 hoverStateName="hoverChooseBtn"
-                className="chooseBtn ThemeHoverBGColor2 ThemeBGColor3 mLeft20"
+                className="chooseBtn hoverBgColorPrimaryDark bgColorPrimary mLeft20"
               >
                 <span className="chooseBtnText">{_l('选择文件夹')}</span>
               </HoverState>
@@ -520,7 +517,7 @@ class UploadAssistant extends React.Component {
 
               return null;
             })}
-            <span className="changeUploadPath ThemeColor3 Hand" onClick={this.changeUploadPath}>
+            <span className="changeUploadPath colorPrimary Hand" onClick={this.changeUploadPath}>
               {_l('更改')}
             </span>
           </div>

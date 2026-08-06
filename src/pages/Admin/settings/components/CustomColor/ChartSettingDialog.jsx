@@ -211,6 +211,8 @@ const CustomColorsWrap = styled.div`
 
 const DEFAULT_COLOR = '#1677ff';
 
+const isWhite = color => new TinyColor(color).toHexString() === '#ffffff';
+
 export default function ChartSettingDialog(props) {
   const { onOk, visible, onCancel, data = null, editable = false, customColors = [], id, customChar = [] } = props;
 
@@ -237,8 +239,6 @@ export default function ChartSettingDialog(props) {
     });
     setOtherThemeColors(_data);
   }, [id]);
-
-  const isWhite = color => new TinyColor(color).toHexString() === '#ffffff';
 
   const renderColorSelectWrap = (color, index) => {
     return (

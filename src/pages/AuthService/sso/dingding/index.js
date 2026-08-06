@@ -1,3 +1,4 @@
+import { pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import { ajax, browserIsMobile, checkLogin, getGlobalMeta, getRequest, login, replenishRet } from 'src/utils/sso';
 
@@ -7,12 +8,12 @@ const isMobile = browserIsMobile();
 
 if (checkLogin()) {
   if (ret) {
-    location.replace(`/${replenishRet(ret, pc_slide)}`);
+    location.replace(pathCompletion(`/${replenishRet(ret, pc_slide)}`));
   } else {
     if (i) {
-      location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+      location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
     } else {
-      location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
+      location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`));
     }
   }
 } else {
@@ -31,21 +32,20 @@ if (checkLogin()) {
         getGlobalMeta().then(() => {
           setPssId(sessionId);
           if (ret) {
-            location.replace(`/${replenishRet(ret, pc_slide)}`);
+            location.replace(pathCompletion(`/${replenishRet(ret, pc_slide)}`));
           } else {
             if (i) {
-              location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+              location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
             } else {
               if (i) {
-                location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
+                location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`));
               } else {
-                location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
+                location.replace(pathCompletion(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`));
               }
             }
           }
         });
       } else {
-        alert('登录失败');
         login();
       }
     },

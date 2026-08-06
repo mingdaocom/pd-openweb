@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
 
@@ -94,7 +94,7 @@ function ConnectDesDia(props) {
   //编辑详细资料
   const handleUploadImg = () => {
     Dialog.confirm({
-      width: 460,
+      width: 980,
       title: 'Logo',
       showFooter: false,
       dialogClasses: 'uploadAvatorDialogId_container',
@@ -148,7 +148,9 @@ function ConnectDesDia(props) {
           }}
           placeholder={_l('例如：订单查询、物流查询')}
         />
-        <span className="num">{(name || '').length}/{CONNECT_NAME_MAX_LENGTH}</span>
+        <span className="num">
+          {(name || '').length}/{CONNECT_NAME_MAX_LENGTH}
+        </span>
       </div>
       <p className="title">{_l('说明')}</p>
       <div className="Relative">
@@ -166,7 +168,9 @@ function ConnectDesDia(props) {
             setState({ explain: str });
           }}
         />
-        <span className="num">{(explain || '').length}/{CONNECT_EXPLAIN_MAX_LENGTH}</span>
+        <span className="num">
+          {(explain || '').length}/{CONNECT_EXPLAIN_MAX_LENGTH}
+        </span>
       </div>
       <div
         className="btn Bold Right"
@@ -174,7 +178,7 @@ function ConnectDesDia(props) {
           e.stopPropagation();
           props.onOk({
             iconName,
-            name: !name.trim() ? '未命名连接' : name,
+            name: !name.trim() ? _l('未命名连接') : name,
             explain,
           });
         }}
@@ -185,4 +189,4 @@ function ConnectDesDia(props) {
   );
 }
 
-export default withClickAway(ConnectDesDia);
+export default ClickAway.wrap(ConnectDesDia);

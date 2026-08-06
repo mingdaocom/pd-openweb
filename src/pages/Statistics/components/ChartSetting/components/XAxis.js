@@ -4,23 +4,23 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
+import { isAreaControl, isOptionControl, isTimeControl } from 'statistics/common/controlUtils';
 import {
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
   displayModes,
   filterAreaParticleSizeDropdownData,
+  isXAxisControl,
+} from 'statistics/common/reportConfigUtils';
+import {
   filterTimeData,
   filterTimeGatherParticle,
   formatTimeFormats,
-  isAreaControl,
-  isOptionControl,
-  isTimeControl,
-  isXAxisControl,
   timeDataParticle,
   timeFormats,
   timeGatherParticle,
   timeParticleSizeDropdownData,
-} from 'statistics/common';
+} from 'statistics/common/timeUtils';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import RenameModal from './RenameModal';
 import WithoutFidldItem from './WithoutFidldItem';

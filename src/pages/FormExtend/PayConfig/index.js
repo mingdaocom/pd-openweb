@@ -183,7 +183,7 @@ export default class PayConfig extends Component {
           'isAtOncePayment',
           'isAllowedAddOption',
         ]),
-        mchid: settings.mchid ? settings.mchid.split(',') : [],
+        mchId: settings.mchId ? settings.mchId.split(',') : [],
         fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
         internalUser: {
           isEnable: _.isUndefined(internalUser.isEnable) ? true : internalUser.isEnable,
@@ -222,27 +222,27 @@ export default class PayConfig extends Component {
   };
 
   changeScenes = (checked, key) => {
-    const { scenes = {}, merchantList = [], mchid = [], initSettings = {}, isPaySuccessAddRecord } = this.state;
+    const { scenes = {}, merchantList = [], mchId = [], initSettings = {}, isPaySuccessAddRecord } = this.state;
     const selectedMerchants = merchantList.filter(v => !v.disabled);
 
     this.setState({
       scenes: { ...scenes, [key]: !checked },
-      mchid: _.isEqual({ ...scenes, [key]: !checked }, initSettings.scenes)
-        ? initSettings.mchid
-        : !_.isEmpty(mchid)
-          ? mchid
+      mchId: _.isEqual({ ...scenes, [key]: !checked }, initSettings.scenes)
+        ? initSettings.mchId
+        : !_.isEmpty(mchId)
+          ? mchId
           : !checked && !_.isEmpty(selectedMerchants)
             ? [selectedMerchants[0].value]
-            : initSettings.mchid,
+            : initSettings.mchId,
       isPaySuccessAddRecord: key === 'publicWorkSheet' && checked ? false : isPaySuccessAddRecord,
     });
   };
 
   // 变更商户
   changeMerchant = () => {
-    const { mchid } = this.state;
+    const { mchId } = this.state;
 
-    if ((_.isArray(mchid) && mchid.length) || (!isArray(mchid) && !mchid)) {
+    if ((_.isArray(mchId) && mchId.length) || (!isArray(mchId) && !mchId)) {
       Dialog.confirm({
         title: _l('你确认变更收款商户？'),
         description: _l('变更后已有的待支付订单统一变更为已取消'),
@@ -257,7 +257,7 @@ export default class PayConfig extends Component {
     const { worksheetInfo = {} } = this.props;
     const { projectId, appId, worksheetId } = worksheetInfo;
     const {
-      mchid,
+      mchId,
       scenes,
       payContentControlId,
       payAmountControlId,
@@ -277,14 +277,14 @@ export default class PayConfig extends Component {
       isChangeMerchant,
     } = this.state;
 
-    if (_.isEmpty(mchid) || !_.find(merchantList, v => _.includes(mchid, v.value))) {
+    if (_.isEmpty(mchId) || !_.find(merchantList, v => _.includes(mchId, v.value))) {
       alert(_l('请选择商户'), 3);
       return;
     }
 
     if (
       _.every(
-        merchantList.filter(v => _.includes(mchid, v.value)),
+        merchantList.filter(v => _.includes(mchId, v.value)),
         v => v.disabled,
       )
     ) {
@@ -292,8 +292,8 @@ export default class PayConfig extends Component {
       return;
     }
 
-    const copyInitMchId = getFilterDeletedMchId(initSettings.mchid, merchantList);
-    const currentMchId = getFilterDeletedMchId(mchid, merchantList);
+    const copyInitMchId = getFilterDeletedMchId(initSettings.mchId, merchantList);
+    const currentMchId = getFilterDeletedMchId(mchId, merchantList);
 
     if (
       !_.isEmpty(copyInitMchId) &&
@@ -320,7 +320,7 @@ export default class PayConfig extends Component {
         projectId,
         worksheetId,
         appId,
-        mchid: mchid.join(','),
+        mchId: mchId.join(','),
         scenes,
         payContentControlId,
         payAmountControlId,
@@ -354,7 +354,7 @@ export default class PayConfig extends Component {
             initExpireTime: expireTime,
             initSettings: {
               ...initSettings,
-              mchid,
+              mchId,
               scenes,
               payContentControlId,
               payAmountControlId,
@@ -381,7 +381,7 @@ export default class PayConfig extends Component {
       initSettings = {},
       projectId,
       worksheetId,
-      mchid,
+      mchId,
       scenes,
       payContentControlId,
       payAmountControlId,
@@ -405,7 +405,7 @@ export default class PayConfig extends Component {
         : {
             projectId,
             worksheetId,
-            mchid,
+            mchId,
             scenes,
             payContentControlId,
             payAmountControlId,
@@ -511,7 +511,9 @@ export default class PayConfig extends Component {
                         />
                       ) : (
                         <div
-                          className={cx('Hand textSecondary ThemeHoverColor2', { mBottom30: key === 'internalUser' })}
+                          className={cx('Hand textSecondary hoverColorPrimaryDark', {
+                            mBottom30: key === 'internalUser',
+                          })}
                           onClick={() => this.setState({ showFilterDialog: true, filterType: key })}
                         >
                           <i className="icon icon-plus" />
@@ -550,7 +552,7 @@ export default class PayConfig extends Component {
     const { worksheetInfo = {} } = this.props;
     const { projectId } = worksheetInfo;
     const {
-      mchid,
+      mchId,
       scenes = {},
       payAmountControlId,
       payContentControlId,
@@ -575,7 +577,7 @@ export default class PayConfig extends Component {
 
     const isMultipleMerchant =
       (!_.isEmpty(merchantList) && _.uniq(merchantList.map(item => item.merchantPaymentChannel)).length > 1) ||
-      (mchid && _.isArray(mchid) && mchid.length > 1);
+      (mchId && _.isArray(mchId) && mchId.length > 1);
     const fieldMapIds = Object.values(fieldMaps);
 
     if (loading) {
@@ -594,7 +596,7 @@ export default class PayConfig extends Component {
         ? options.concat([{ label: _l('%0分钟', expireTime), value: expireTime }])
         : options;
 
-    const selectedMerchants = _.filter(merchantList, v => _.includes(mchid, v.value));
+    const selectedMerchants = _.filter(merchantList, v => _.includes(mchId, v.value));
     // const amountControlType =( _.find(controls,v=>v.controlId === payAmountControlId)||{}).type
 
     return (
@@ -663,11 +665,11 @@ export default class PayConfig extends Component {
                     dropdownClassName="merchantDropDown"
                     mode={isMultipleMerchant ? 'multiple' : undefined}
                     showArrow={true}
-                    value={mchid}
+                    value={mchId}
                     optionLabelProp="label"
                     optionFilterProp="label"
                     suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
-                    onChange={value => this.setState({ mchid: _.isArray(value) ? value : [value] })}
+                    onChange={value => this.setState({ mchId: _.isArray(value) ? value : [value] })}
                     tagRender={props => {
                       const { value, onClose, disabled } = props;
                       const name = _.find(merchantList, item => item.value === value) ? props.label : undefined;

@@ -7,7 +7,7 @@ import shareajax from 'src/api/share';
 import weixinAjax from 'src/api/weixin';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
-import { downloadFile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import { downloadFile, formatFileSize, getClassNameByExt, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import mobileShareHtml from './tpl/mobileShare.htm';
 import './css/mobileShare.less';
@@ -53,7 +53,7 @@ const MobileSharePreview = function (options) {
       } else {
         if (data.actionResult === 2) {
           window.nativeAlert(_l('请先登录'));
-          location.href = md.global.Config.WebUrl + 'login?ReturnUrl=' + location.href;
+          location.href = pathCompletion('/login?ReturnUrl=' + location.href);
         } else {
           window.nativeAlert(_l('当前文件不存在或您没有查看权限'));
         }
@@ -221,7 +221,9 @@ MobileSharePreview.prototype = {
       if (!md.global.Account || !md.global.Account.accountId) {
         MSP.alert(_l('请先登录'));
         setTimeout(function () {
-          window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
+          window.location = pathCompletion(
+            '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', '')),
+          );
         }, 1000);
       } else if (!MSP.file.canDownload) {
         MSP.alert(_l('您权限不足，无法保存。请联系文件夹管理员或文件上传者'));
@@ -446,22 +448,15 @@ MobileSharePreview.prototype = {
             signature: data.data.signature,
             jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline'],
           });
-          let imgUrl =
-            md.global.Config.WebUrl +
-            'src/components/images/fileIcons/' +
-            getClassNameByExt('.' + MSP.file.ext).slice(9) +
-            '.png';
           wx.onMenuShareAppMessage({
             title: MSP.file.name,
             link: location.href,
             desc: location.href,
-            imgUrl: imgUrl,
             success: function () {},
           });
           wx.onMenuShareTimeline({
             title: MSP.file.name,
             link: location.href,
-            imgUrl: imgUrl,
             success: function () {},
           });
         }

@@ -394,7 +394,6 @@ if (cookieMatch) {
   switch (navigator.language) {
     case 'zh-CN':
     case 'zh_cn':
-    case 'zh-CN':
     case 'zh-SG':
     case 'zh_sg':
       lang = 'zh-Hans';
@@ -419,7 +418,8 @@ var transformFunc = function (elements) {
 
     // 替换文本内容中的 [[[]]] 部分
     var content = element.getAttribute('content') || element.innerHTML;
-    element.innerHTML = staticLanguages[content] ? staticLanguages[content][lang] : content;
+    var langMap = staticLanguages[content];
+    element.innerHTML = langMap ? langMap[lang] || langMap.en || content : content;
   }
 };
 

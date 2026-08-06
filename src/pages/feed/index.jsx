@@ -1,22 +1,24 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 import Feed from './components/app/feed';
 import postEnum from './constants/postEnum';
 import { changeListType, changeTitle } from './redux/postActions';
 
-@connect()
-export default class CalendarEntrypoint extends Component {
+let CalendarEntrypoint = class CalendarEntrypoint extends Component {
   componentDidMount() {
     $('html').addClass('AppFeed');
     this.handleUpdate();
   }
+
   componentDidUpdate() {
     this.handleUpdate();
   }
+
   componentWillUnmount() {
     $('html').removeClass('AppFeed');
   }
+
   handleUpdate() {
     const data = qs.parse(this.props.location.search.slice(1));
     const options = Object.assign({}, data, {
@@ -42,7 +44,10 @@ export default class CalendarEntrypoint extends Component {
     this.props.dispatch(changeListType(options));
     this.props.dispatch(changeTitle(null));
   }
+
   render() {
     return <Feed />;
   }
-}
+};
+CalendarEntrypoint = connect()(CalendarEntrypoint);
+export default CalendarEntrypoint;

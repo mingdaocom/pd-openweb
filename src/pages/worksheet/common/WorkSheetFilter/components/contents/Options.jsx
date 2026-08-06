@@ -39,9 +39,13 @@ export default class Options extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.fullValues, this.props.fullValues)) {
-      this.setState({ selectedOptions: this.getDefaultSelectedOptions(nextProps.fullValues, nextProps.control) });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.fullValues, prevProps.fullValues)) {
+        this.setState({
+          selectedOptions: this.getDefaultSelectedOptions(this.props.fullValues, this.props.control),
+        });
+      }
     }
   }
 
@@ -316,7 +320,7 @@ export default class Options extends Component {
           {shortOptions.map((option, i) => (
             <div
               className={cx('optionCheckbox ellipsis', {
-                'ThemeBGColor3 ThemeBorderColor3 checked': _.find(selectedOptions, o => o.id === option.id),
+                'bgColorPrimary borderColorPrimary checked': _.find(selectedOptions, o => o.id === option.id),
                 multiple: !selectSingle,
               })}
               key={i}
@@ -343,7 +347,7 @@ export default class Options extends Component {
           ))}
           {options.length > 5 && (
             <span
-              className="showMore ThemeColor3 Hand"
+              className="showMore colorPrimary Hand"
               onClick={() => {
                 onChange({ folded: !folded });
               }}

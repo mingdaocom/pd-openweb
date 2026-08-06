@@ -59,6 +59,7 @@ export const VersionProductType = {
   globalBehaviorLog: 32, // 全局行为日志
   globalVariable: 33, // 全局变量
   waterMark: 34, // 附件水印
+  multiLanguage: 35, // 应用多语言
   dataBase: 36, // 数据库
   assistant: 37, // AI助手
   aggregation: 38, // 聚合表
@@ -79,6 +80,8 @@ export const VersionProductType = {
   entra: 53, // Microsoft Entra
   workflowLog: 54, // 工作流日志
   vectorKnowledgeBase: 55, // 向量知识库
+  aIModelAppLicenseManagement: 56, // AI模型应用授权管理
+  cloudService: 57, // 云服务(统一云服务—AI 模型服务)
 };
 
 export const VersionProductHelpLink = {
@@ -111,7 +114,23 @@ export const VersionProductHelpLink = {
   40: 'https://help.mingdao.com/org/payment',
 };
 
-export const FAST_GPT_CONFIG = {};
+const getFastGptConfig = () => {
+  if (typeof ENABLE_FASTGPT === 'undefined' || !ENABLE_FASTGPT) {
+    return {};
+  }
+
+  if (typeof FAST_GPT_CONFIG_BASE64 === 'undefined' || !FAST_GPT_CONFIG_BASE64) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(atob(FAST_GPT_CONFIG_BASE64));
+  } catch (error) {
+    return {};
+  }
+};
+
+export const FAST_GPT_CONFIG = getFastGptConfig();
 
 export const AI_FEATURE_TYPE = {
   CREATE_SHEET: 1, // 创建工作表

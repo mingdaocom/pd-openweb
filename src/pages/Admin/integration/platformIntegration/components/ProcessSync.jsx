@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Input, LoadDiv, Switch } from 'ming-ui';
 import workWeiXinAjax from 'src/api/workWeiXin';
+import { pathCompletion } from 'src/utils/common';
 
 // 流程待办同步
 export default function ProcessSync(props) {
-  const { projectId, isLark, updateState = () => {}, getFeishuProjectSettingInfo = () => {} } = props;
+  const { projectId, isLark, updateState = () => { }, getFeishuProjectSettingInfo = () => { } } = props;
   const [isSync, setIsSync] = useState(props.enableTodo);
   const [approveName, setApproveName] = useState(props.approveName);
   const [originApproveName, setOriginApproveName] = useState(props.approveName);
@@ -76,7 +77,7 @@ export default function ProcessSync(props) {
         </span>
       </div>
       <a
-        href={`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}&position=processSync`}
+        href={pathCompletion(`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}&position=processSync`)}
         target="_blank"
         className="helpEntry"
       >

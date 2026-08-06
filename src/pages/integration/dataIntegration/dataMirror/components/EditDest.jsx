@@ -2,7 +2,7 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 
 const Wrap = styled.div`

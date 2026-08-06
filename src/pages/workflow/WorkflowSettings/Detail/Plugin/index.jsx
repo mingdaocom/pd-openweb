@@ -17,18 +17,26 @@ export default class Plugin extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -41,6 +49,10 @@ export default class Plugin extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         result.fields = result.controls.map(item => {
           const staticValue = (JSON.parse(_.get(item, 'advancedSetting.defsource') || '[]')[0] || {}).staticValue || '';
 
@@ -78,10 +90,6 @@ export default class Plugin extends Component {
     const { name, fields, controls } = data;
     let hasError = false;
 
-    if (saveRequest) {
-      return;
-    }
-
     controls.forEach(item => {
       if (item.required) {
         data.fields.forEach(o => {
@@ -94,6 +102,10 @@ export default class Plugin extends Component {
 
     if (hasError > 0) {
       alert(_l('有必填字段未填写'), 2);
+      return;
+    }
+
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -138,7 +150,7 @@ export default class Plugin extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect onSave={this.onSave} />
+        <DetailFooter {...this.props} isCorrect={!_.isEqual(data, this.cacheResult)} onSave={this.onSave} />
       </Fragment>
     );
   }

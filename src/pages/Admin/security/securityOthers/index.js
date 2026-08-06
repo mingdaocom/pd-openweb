@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import aiModelAuthAjax from 'src/api/dataLimit.js';
 import projectSettingController from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import { VersionProductType } from 'src/utils/enum';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
+import AIModelRule from './AIModelRule';
 import limitFeatureDialogFunc from './LimitFeatureDialog';
 import PwdFreeVerifyDialog from './PwdFreeVerify';
 
@@ -13,12 +16,17 @@ export default class SecurityOthers extends Component {
     this.state = {
       noneVerificationEnabled: false,
       onlyManagerCreateApp: false,
+      aiModelRuleList: [],
+      aiModelRuleListLoaded: false,
+      aiModelRuleListLoading: false,
+      showAIModelRule: false,
     };
   }
 
   componentDidMount() {
     this.getEnabledNoneVerification();
     this.getOnlyManagerSettings();
+    this.getAIModelAuthRuleList();
   }
 
   getEnabledNoneVerification = () => {
@@ -53,6 +61,47 @@ export default class SecurityOthers extends Component {
       );
   }
 
+  getAIModelAuthRuleList = ({ force = false } = {}) => {
+    if (this.aiModelRuleListRequest) {
+      return this.aiModelRuleListRequest;
+    }
+
+    if (!force && this.state.aiModelRuleListLoaded) {
+      return Promise.resolve(this.state.aiModelRuleList);
+    }
+
+    this.setState({ aiModelRuleListLoading: true });
+    this.aiModelRuleListRequest = aiModelAuthAjax
+      .getAIModelAuthRuleList({ projectId: Config.projectId }, { silent: true })
+      .then(res => {
+        const aiModelRuleList = res || [];
+
+        this.setState({
+          aiModelRuleList,
+          aiModelRuleListLoaded: true,
+          aiModelRuleListLoading: false,
+        });
+
+        return aiModelRuleList;
+      })
+      .catch(() => {
+        this.setState({ aiModelRuleListLoading: false });
+        return this.state.aiModelRuleList;
+      })
+      .finally(() => {
+        this.aiModelRuleListRequest = null;
+      });
+
+    return this.aiModelRuleListRequest;
+  };
+
+  updateAIModelRuleList = aiModelRuleList => {
+    this.setState({
+      aiModelRuleList: aiModelRuleList || [],
+      aiModelRuleListLoaded: true,
+    });
+  };
+
   render() {
     const projectId = Config.projectId;
     const {
@@ -63,7 +112,25 @@ export default class SecurityOthers extends Component {
       pluginsOnlyManager,
       onlyManagerDeleteApp,
       superSearchOnlyManager,
+      aiModelRuleList,
+      aiModelRuleListLoaded,
+      aiModelRuleListLoading,
+      showAIModelRule,
     } = this.state;
+
+    if (showAIModelRule) {
+      return (
+        <AIModelRule
+          projectId={projectId}
+          onClose={() => this.setState({ showAIModelRule: false })}
+          aiModelRuleList={aiModelRuleList}
+          aiModelRuleListLoaded={aiModelRuleListLoaded}
+          aiModelRuleListLoading={aiModelRuleListLoading}
+          loadAIModelRuleList={this.getAIModelAuthRuleList}
+          updateAIModelRuleList={this.updateAIModelRuleList}
+        />
+      );
+    }
 
     const limitInfo = {
       onlyManagerCreateApp: _l('创建应用'),
@@ -81,6 +148,8 @@ export default class SecurityOthers extends Component {
         this.state[v],
     );
     const settingsTxt = settings.map(item => limitInfo[item]).join('、');
+    const isCustomRule = (aiModelRuleList || []).some(r => r.isEnable);
+    const globalStatus = isCustomRule ? _l('按自定义规则控制') : _l('全部应用可用全部模型');
 
     return (
       <div className="orgManagementWrap">
@@ -134,6 +203,20 @@ export default class SecurityOthers extends Component {
                   enabled: noneVerificationEnabled,
                   updateEnabled: enabled => this.setState({ noneVerificationEnabled: enabled }),
                 }),
+            },
+            {
+              key: 'aiModelRule',
+              title: _l('AI 模型授权规则'),
+              description: _l('控制组织内应用可使用的 AI 模型范围，支持按应用配置可用模型'),
+              showSlideIcon: true,
+              featureId: VersionProductType.aIModelAppLicenseManagement,
+              customContent: (
+                <div>
+                  <span>{_l('当前状态：')}</span>
+                  <span className="bold">{globalStatus}</span>
+                </div>
+              ),
+              onClick: () => this.setState({ showAIModelRule: true }),
             },
           ]}
         />

@@ -51,8 +51,8 @@ const MobilePersonalInfo = props => {
     if (isExternalPortal) {
       const { mobilePhone, email, portalValues = [] } = data;
       const baseList = [
-        { id: 'mobilePhone', text: '手机', value: mobilePhone },
-        { id: 'email', text: '邮箱', value: email },
+        { id: 'mobilePhone', text: _l('手机'), value: mobilePhone },
+        { id: 'email', text: _l('邮箱'), value: email },
       ];
       const extendedList = portalValues.map(({ key, value }, index) => ({
         id: `custom-${index}`,

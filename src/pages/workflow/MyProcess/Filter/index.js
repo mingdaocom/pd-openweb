@@ -79,47 +79,51 @@ export default class Filter extends Component {
       companyId: '',
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isResetFilter) {
-      this.handleReset();
-      if (nextProps.stateTab === TABS.WAITING_EXAMINE) {
-        this.getTodoListFilter(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.isResetFilter) {
+        this.handleReset();
+
+        if (this.props.stateTab === TABS.WAITING_EXAMINE) {
+          this.getTodoListFilter(this.props);
+        }
       }
-    }
 
-    if (
-      nextProps.stateTab == TABS.COMPLETE &&
-      (this.state.type == null || nextProps.param.type !== this.props.param.type)
-    ) {
-      this.setState({
-        type: nextProps.param.type,
-        operationType: {},
-        createAccount: {},
-        companyId: '',
-        status: {},
-        searchValue: '',
-      });
-    }
-
-    if (nextProps.stateTab !== TABS.COMPLETE) {
       if (
-        (nextProps.visible !== this.props.visible && nextProps.visible) ||
-        (nextProps.visible && nextProps.param.type !== this.props.param.type)
+        this.props.stateTab == TABS.COMPLETE &&
+        (this.state.type == null || this.props.param.type !== prevProps.param.type)
       ) {
-        this.setState(
-          {
-            createAccount: {},
-            searchValue: '',
-            processId: '',
-            apkId: '',
-            companyId: '',
-            startDate: '',
-            endDate: '',
-          },
-          () => {
-            this.getTodoListFilter(nextProps);
-          },
-        );
+        this.setState({
+          type: this.props.param.type,
+          operationType: {},
+          createAccount: {},
+          companyId: '',
+          status: {},
+          searchValue: '',
+        });
+      }
+
+      if (this.props.stateTab !== TABS.COMPLETE) {
+        if (
+          (this.props.visible !== prevProps.visible && this.props.visible) ||
+          (this.props.visible && this.props.param.type !== prevProps.param.type)
+        ) {
+          this.setState(
+            {
+              createAccount: {},
+              searchValue: '',
+              processId: '',
+              apkId: '',
+              companyId: '',
+              startDate: '',
+              endDate: '',
+            },
+            () => {
+              this.getTodoListFilter(this.props);
+            },
+          );
+        }
       }
     }
   }
@@ -315,7 +319,7 @@ export default class Filter extends Component {
           <div className="personPostBox" ref={owner => (this.owner = owner)}>
             <Icon
               icon="task_add-02"
-              className="textSecondary Font24 hoverTextPrimaryLight Hand"
+              className="textSecondary Font24 hoverColorPrimaryLight Hand"
               onClick={this.changeUser}
             />
           </div>
@@ -326,7 +330,7 @@ export default class Filter extends Component {
               <span className="mLeft8">{createAccount.fullname}</span>
             </div>
             <div
-              className="ThemeColor3 hoverTextPrimaryLight Hand right"
+              className="colorPrimary hoverColorPrimaryLight Hand right"
               onClick={() => {
                 this.setState(
                   {
@@ -396,7 +400,8 @@ export default class Filter extends Component {
   renderDateScope() {
     const { archivedItem } = this.props;
     const { startDate, endDate } = this.state;
-    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+    const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+    const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
 
     return (
       <div className="mBottom16">
@@ -405,11 +410,11 @@ export default class Filter extends Component {
           <RangePicker
             className="dateInput w100"
             suffixIcon={null}
-            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+            locale={datePickerLocale}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
-                const end = moment(moment().format('YYYY-MM-DD'));
+                const end = moment(moment().format('YYYY-MM-DD')).add(1, 'day');
                 return current > end;
               } else {
                 return false;
@@ -421,6 +426,7 @@ export default class Filter extends Component {
                 this.setState({ startDate: '', endDate: '' }, this.handleChange);
                 return;
               }
+
               const [start, end] = date;
               this.setState(
                 {
@@ -435,12 +441,12 @@ export default class Filter extends Component {
           <RangePicker
             className="dateInput w100"
             suffixIcon={null}
-            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+            locale={datePickerLocale}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
                 const start = moment(archivedItem.start);
-                const end = moment(archivedItem.end);
+                const end = moment(archivedItem.end).add(1, 'day');
                 return current < start || current > end;
               } else {
                 return false;

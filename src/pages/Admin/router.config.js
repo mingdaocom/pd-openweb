@@ -374,7 +374,18 @@ export const menuList = [
         ],
       },
       {
-        name: _l('第三方应用'),
+        name: _l('云服务'),
+        key: 'cloudservice',
+        featureId: VersionProductType.cloudService,
+        routes: [
+          {
+            path: '/admin/cloudservice/:projectId',
+            component: () => import('./integration/cloudService'),
+          },
+        ],
+      },
+      {
+        name: _l('OAuth 应用'),
         key: 'thirdapp',
         routes: [
           {

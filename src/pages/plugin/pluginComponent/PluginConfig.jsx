@@ -5,12 +5,13 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Icon, Input, LoadDiv, ScrollView, SvgIcon, TagTextarea } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import Search from 'src/pages/workflow/components/Search';
+import { pathCompletion } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, viewDetailTabList } from '../config';
 import { getPluginOperateText } from '../util';
 import DebugEnv from './DebugEnv';
@@ -361,7 +362,7 @@ function PluginConfig(props) {
       )
       .then(res => {
         if (res) {
-          alert('插件创建成功');
+          alert(_l('插件创建成功'));
           onClose();
           const { worksheetId, viewId } = res.debugEnvironments[0] || {};
           navigateToView(worksheetId, viewId);
@@ -384,7 +385,7 @@ function PluginConfig(props) {
 
   const onFooterClick = () => {
     if (pluginType === PLUGIN_TYPE.WORKFLOW) {
-      window.open(`/workflowplugin/${pluginId}`);
+      window.open(pathCompletion(`/workflowplugin/${pluginId}`));
     } else {
       if (configType === pluginConfigType.create) {
         onCreate();
@@ -763,4 +764,4 @@ function PluginConfig(props) {
   );
 }
 
-export default withClickAway(PluginConfig);
+export default ClickAway.wrap(PluginConfig);

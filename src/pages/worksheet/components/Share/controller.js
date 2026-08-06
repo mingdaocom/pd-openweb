@@ -2,6 +2,7 @@ import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
+import { pathCompletion } from 'src/utils/common';
 import { getNewRecordPageUrl, getRecordLandUrl } from 'src/utils/record';
 
 /**
@@ -38,13 +39,13 @@ export async function getUrl(args) {
       url = getNewRecordPageUrl(_.pick(args, ['appId', 'worksheetId', 'viewId']));
       break;
     case 'view':
-      url = `${location.origin}/embed/view/${args.appId}/${args.worksheetId}/${args.viewId}`;
+      url = pathCompletion(`/embed/view/${args.appId}/${args.worksheetId}/${args.viewId}`);
       break;
     case 'customPage':
-      url = `${location.origin}/embed/page/${args.appId}/${args.sourceId}`;
+      url = pathCompletion(`/embed/page/${args.appId}/${args.sourceId}`);
       break;
     case 'report':
-      url = `${location.origin}/embed/chart/${args.appId}/${args.sourceId}?pageId=${args.pageId || ''}`;
+      url = pathCompletion(`/embed/chart/${args.appId}/${args.sourceId}?pageId=${args.pageId || ''}`);
       break;
   }
 

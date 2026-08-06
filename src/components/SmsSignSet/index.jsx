@@ -3,6 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, LoadDiv, Radio, Support } from 'ming-ui';
 import certificationApi from 'src/api/certification';
+import { pathCompletion } from 'src/utils/common';
 
 const ListWrapper = styled.div`
   min-height: 200px;
@@ -69,7 +70,7 @@ export default function SmsSignSet(props) {
       ) : (
         <div>
           {sign && <span className="mRight12">{sign}</span>}
-          <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => setVisible(true)}>
+          <span className="colorPrimary hoverColorPrimaryDark pointer" onClick={() => setVisible(true)}>
             {sign ? _l('修改') : _l('设置')}
           </span>
         </div>
@@ -87,8 +88,8 @@ export default function SmsSignSet(props) {
               !!signList.length &&
               !(window.platformENV.isOverseas && window.platformENV.isPlatform) ? (
               <div
-                className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36"
-                onClick={() => window.open(`/admin/certinfo/${projectId}`)}
+                className="colorPrimary hoverColorPrimaryDark pointer LineHeight36"
+                onClick={() => window.open(pathCompletion(`/admin/certinfo/${projectId}`))}
               >
                 {_l('添加短信签名')}
               </div>
@@ -127,8 +128,8 @@ export default function SmsSignSet(props) {
                     <div className="textSecondary">
                       <span>{_l('暂无短信签名,请先前往')}</span>
                       <span
-                        className="ThemeColor3 ThemeHoverColor2 pointer"
-                        onClick={() => window.open(`/admin/certinfo/${projectId}`)}
+                        className="colorPrimary hoverColorPrimaryDark pointer"
+                        onClick={() => window.open(pathCompletion(`/admin/certinfo/${projectId}`))}
                       >
                         {_l('组织后台')}
                       </span>
@@ -148,6 +149,15 @@ export default function SmsSignSet(props) {
                           checked={signature === item.signName}
                           onClick={() => setSignature(item.signName)}
                         />
+                        {!window.platformENV.isOverseas &&
+                          !window.platformENV.isLocal &&
+                          item.id === 1 &&
+                          signature === item.signName && (
+                            <div className="mTop10 mLeft30 textSecondary">
+                              {_l('短信内容包含平台链接时，短信签名会更换为【上海万企明道】')}
+                            </div>
+                          )}
+
                         {suffix &&
                           !window.platformENV.isOverseas &&
                           !window.platformENV.isLocal &&

@@ -2,16 +2,14 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
 import CheckBox from 'ming-ui/components/Checkbox';
+import ClickAway from 'ming-ui/components/ClickAway';
 import DatePicker from 'ming-ui/components/DatePicker';
 import Icon from 'ming-ui/components/Icon';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { formatRecur, formatShowTime } from '../../common';
 import RepeatBox from './RepeatBox';
 
 const RangePicker = DatePicker.RangePicker;
-
-@withClickAway
-class EditBlock extends Component {
+let EditBlock = class EditBlock extends Component {
   constructor() {
     super();
     this.state = {
@@ -82,7 +80,9 @@ class EditBlock extends Component {
         this.handleDateChange(selectValue);
       },
       onClear: () => {
-        this.setState({ unSelected: true });
+        this.setState({
+          unSelected: true,
+        });
       },
       autoFillEndTime: 1,
     };
@@ -103,7 +103,9 @@ class EditBlock extends Component {
             <CheckBox
               checked={allDay}
               onClick={checked => {
-                change({ allDay: !checked });
+                change({
+                  allDay: !checked,
+                });
               }}
               className="TxtMiddle"
             />
@@ -113,8 +115,8 @@ class EditBlock extends Component {
       </div>
     );
   }
-}
-
+};
+EditBlock = ClickAway.wrap(EditBlock);
 export default class CalendarDate extends Component {
   constructor(props) {
     super(props);
@@ -123,17 +125,19 @@ export default class CalendarDate extends Component {
     };
   }
 
-  componentWillUpdate() {
-    if (!this.elem) return;
-    this.origHeight = $(this.elem).height();
+  getSnapshotBeforeUpdate() {
+    if (!this.elem) return null;
+    return $(this.elem).height();
   }
 
-  componentDidUpdate() {
-    if (!this.elem) return;
+  componentDidUpdate(prevProps, prevState, prevHeight) {
+    if (!this.elem || prevHeight === null) return;
     var $elem = $(this.elem);
-    var height = this.origHeight;
+    var height = prevHeight;
     this.elem.style.height = 'auto';
+
     var _newHeight = $elem.height();
+
     if (_newHeight !== height) {
       $elem.height(height);
       $elem.width();
@@ -179,8 +183,11 @@ export default class CalendarDate extends Component {
     return (
       <EditBlock
         {...this.props}
-        onClickAway={() => this.setState({ isEditing: false })}
-        ignoreOnHide={false}
+        onClickAway={() =>
+          this.setState({
+            isEditing: false,
+          })
+        }
         specialFilter={target => {
           const $el = $(target);
           return $el.closest('.warpDatePicker').length || $el.closest('.ui-timepicker-list').length;
@@ -193,7 +200,9 @@ export default class CalendarDate extends Component {
     const { isEditing } = this.state;
     return (
       <div
-        className={cx('calendarDate calRow', { isEditing })}
+        className={cx('calendarDate calRow', {
+          isEditing,
+        })}
         ref={elem => {
           this.elem = elem;
         }}

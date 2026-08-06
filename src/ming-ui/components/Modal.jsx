@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes, { string } from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton, Button } from 'ming-ui';
-import ErrorWrapper from './ErrorWrapper';
+import ErrorBoundary from './ErrorBoundary';
 import './less/Modal.less';
 
 const ModalButtonCon = styled(BgIconButton.Group)`
@@ -19,6 +19,10 @@ const ConfirmCon = styled.div`
   margin-top: 20px;
   text-align: right;
 `;
+
+const defaultProps = {
+  footer: null,
+};
 
 export default function MdModal(props) {
   const {
@@ -46,9 +50,6 @@ export default function MdModal(props) {
     width = window.innerWidth > 1600 ? 1600 : window.innerWidth - 32 * 2;
   }
 
-  const defaultProps = {
-    footer: null,
-  };
   const modalProps = {
     ...defaultProps,
     ...{
@@ -196,14 +197,14 @@ export default function MdModal(props) {
         )}
       </ModalButtonCon>
       {needRenderRight ? (
-        <ErrorWrapper>
+        <ErrorBoundary>
           <div className="flexRow h100">
             {props.children}
             {renderModalRightComp ? renderModalRightComp() : null}
           </div>
-        </ErrorWrapper>
+        </ErrorBoundary>
       ) : (
-        <ErrorWrapper>{props.children}</ErrorWrapper>
+        <ErrorBoundary>{props.children}</ErrorBoundary>
       )}
     </Modal>
   );

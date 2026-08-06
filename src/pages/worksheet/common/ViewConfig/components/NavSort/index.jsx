@@ -96,7 +96,7 @@ export default function (props) {
           ))}
         {canCustom && (
           <span
-            className={cx('custom ThemeHoverColor3 TxtCenter Hand', {
+            className={cx('custom hoverColorPrimary TxtCenter Hand', {
               has: getAdvanceSetting(view, customitemsKey).length > 0,
             })}
             onClick={() => {

@@ -113,26 +113,26 @@ export const SWITCH_TYPES = [
 export const DATE_SHOW_TYPES = [
   {
     value: '0',
-    format: _l('YYYY-MM-DD'),
+    format: 'YYYY-MM-DD',
   },
   {
     value: '4',
-    format: _l('YYYY/MM/DD'),
+    format: 'YYYY/MM/DD',
   },
   {
     value: '1',
     text: _l('中国'),
-    format: _l('YYYY年M月D日'),
+    format: 'YYYY年M月D日',
   },
   {
     value: '2',
     text: 'US',
-    format: _l('M/D/YYYY'),
+    format: 'M/D/YYYY',
   },
   {
     value: '3',
     text: 'EU',
-    format: _l('D/M/YYYY'),
+    format: 'D/M/YYYY',
   },
 ];
 

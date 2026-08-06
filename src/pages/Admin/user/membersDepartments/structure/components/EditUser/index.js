@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, intlTelInput, LoadDiv } from 'ming-ui';
+import { Icon, Input, LoadDiv } from 'ming-ui';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import fixedDataAjax from 'src/api/fixedData.js';
 import userController from 'src/api/user';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
@@ -52,19 +53,28 @@ export default class EditUser extends Component {
       this.itiFn();
     }, 500);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.typeCursor !== 0 && !_.isEqual(this.props.editCurrentUser, nextProps.editCurrentUser)) {
-      const { fullname, mobilePhone, email, jobNumber, contactPhone } = nextProps;
-      this.setState({ userName: fullname, mobile: mobilePhone, email, jobNumber, contactPhone, mobilePhone });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.typeCursor !== 0 && !_.isEqual(prevProps.editCurrentUser, this.props.editCurrentUser)) {
+        const { fullname, mobilePhone, email, jobNumber, contactPhone } = this.props;
+        this.setState({
+          userName: fullname,
+          mobile: mobilePhone,
+          email,
+          jobNumber,
+          contactPhone,
+          mobilePhone,
+        });
+      }
     }
-  }
-  componentDidUpdate() {
+
     !this.iti && this.itiFn();
   }
   itiFn = () => {
     if (this.mobilePhone) {
       this.iti && this.iti.destroy();
-      this.iti = intlTelInput(this.mobilePhone, {
+      this.iti = createIntlTelInput(this.mobilePhone, {
         customPlaceholder: '',
         separateDialCode: true,
         showSelectedDialCode: true,

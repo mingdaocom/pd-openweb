@@ -2,17 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import ClickAway from 'ming-ui/components/ClickAway';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Inbox } from '../../components/Inbox';
 import * as actions from '../../redux/actions';
 import * as ajax from '../../utils/ajax';
 import ChatPanelSession from '../ChatPanelSession';
 import './index.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const exceptions = [
   '.ChatList-wrapper',
   '.dialogScroll',
@@ -73,35 +71,38 @@ class ChatPanel extends Component {
 
     return true;
   }
-  componentWillReceiveProps(nextProps) {
-    const { currentSession: newCurrentSession } = nextProps;
-    const { currentSession, currentSessionList, currentInboxList } = this.props;
-    const sessionSuperfluous = currentSessionList.filter(
-      item => (item.groupId || item.accountId) === newCurrentSession.value,
-    );
-    const inboxSuperfluous = currentInboxList.filter(item => item.id === newCurrentSession.value);
-    const isExist = sessionSuperfluous.length || inboxSuperfluous.length;
 
-    if (
-      isExist &&
-      'isContact' in newCurrentSession &&
-      !newCurrentSession.isContact &&
-      newCurrentSession.value !== currentSession.value
-    ) {
-      this.props.dispatch(actions.removeCurrentSession(newCurrentSession.value));
-      this.props.dispatch(actions.removeMessages(newCurrentSession.value));
-      this.chatSessionItem(newCurrentSession);
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { currentSession: newCurrentSession } = this.props;
+      const { currentSession, currentSessionList, currentInboxList } = prevProps;
+      const sessionSuperfluous = currentSessionList.filter(
+        item => (item.groupId || item.accountId) === newCurrentSession.value,
+      );
+      const inboxSuperfluous = currentInboxList.filter(item => item.id === newCurrentSession.value);
+      const isExist = sessionSuperfluous.length || inboxSuperfluous.length;
 
-    if (isExist || _.isEmpty(newCurrentSession)) {
-      return;
-    }
-
-    if (newCurrentSession.value !== currentSession.value) {
-      if (newCurrentSession.iconType) {
-        this.inboxSessionItem(newCurrentSession);
-      } else {
+      if (
+        isExist &&
+        'isContact' in newCurrentSession &&
+        !newCurrentSession.isContact &&
+        newCurrentSession.value !== currentSession.value
+      ) {
+        prevProps.dispatch(actions.removeCurrentSession(newCurrentSession.value));
+        prevProps.dispatch(actions.removeMessages(newCurrentSession.value));
         this.chatSessionItem(newCurrentSession);
+      }
+
+      if (isExist || _.isEmpty(newCurrentSession)) {
+        return;
+      }
+
+      if (newCurrentSession.value !== currentSession.value) {
+        if (newCurrentSession.iconType) {
+          this.inboxSessionItem(newCurrentSession);
+        } else {
+          this.chatSessionItem(newCurrentSession);
+        }
       }
     }
   }
@@ -116,6 +117,7 @@ class ChatPanel extends Component {
       this.setState({ loading: false });
       return;
     }
+
     this.ajax
       .then(result => {
         this.setState({ loading: false });
@@ -199,7 +201,7 @@ class ChatPanel extends Component {
         className={cx('ChatPanel ChatPanel-inbox', { 'ChatPanel-active': currentSession.value === item.id })}
         key={item.id}
       >
-        <i onClick={this.handleClosePanel.bind(this)} className="ChatPanel-inbox-close icon-close ThemeColor3" />
+        <i onClick={this.handleClosePanel.bind(this)} className="ChatPanel-inbox-close icon-close colorPrimary" />
         <Inbox
           inboxType={item.id}
           count={currentSession.value === item.id ? currentSession.count : 0}
@@ -214,7 +216,6 @@ class ChatPanel extends Component {
     const { currentSession, currentSessionList = [], currentInboxList = [], embed = false } = this.props;
     return (
       <ClickAwayable
-        component="div"
         onClickAwayExceptions={exceptions}
         onClickAway={embed ? _.noop : this.handleClickAway.bind(this)}
         style={{ right: this.getRightValue() }}
@@ -233,7 +234,7 @@ class ChatPanel extends Component {
         {loading && (
           <div className="ChatPanel ChatPanel-loading">
             {isError ? (
-              <div className="ChatPanel-error ThemeColor3" onClick={error ? undefined : this.handleReset.bind(this)}>
+              <div className="ChatPanel-error colorPrimary" onClick={error ? undefined : this.handleReset.bind(this)}>
                 {error ? error : _l('加载失败，点击重新加载。')}
               </div>
             ) : (

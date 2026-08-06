@@ -50,14 +50,14 @@ const Wrapper = styled.div`
   }
 `;
 
+const tabs = [
+  { key: 'app', text: _l('应用') },
+  { key: 'item', text: _l('应用项') },
+];
+
 export default function RecentApps(props) {
   const { projectId, onMarkApp, recentApps, appLang, recentAppItems, dashboardColor, loading, currentTheme } = props;
   const [currentTab, setCurrentTab] = useState('app');
-
-  const tabs = [
-    { key: 'app', text: _l('应用') },
-    { key: 'item', text: _l('应用项') },
-  ];
 
   return (
     <Wrapper themeColor={dashboardColor.themeColor}>

@@ -36,7 +36,7 @@ const BtnWrap = styled.div`
   &.isFullWidth {
     flex-grow: 1;
   }
-  .Button {
+  .ming.Button {
     display: flex;
     align-items: center;
     justify-content: center;

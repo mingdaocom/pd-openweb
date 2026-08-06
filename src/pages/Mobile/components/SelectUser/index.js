@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, MobilePersonalInfo, PopupWrapper, ScrollView, Switch } from 'ming-ui';
+import { Icon, LoadDiv, MobilePersonalInfo, MobileSearch, PopupWrapper, ScrollView, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -402,7 +402,7 @@ export default class SelectUser extends Component {
     this.props.onClose();
     this.props.onSave([]);
   };
-  handleSearch = () => {
+  handleSearch = (searchValue = this.state.searchValue) => {
     const { type } = this.props;
 
     if (type === 'department') {
@@ -414,6 +414,7 @@ export default class SelectUser extends Component {
 
     this.setState(
       {
+        searchValue,
         users: [],
         pageIndex: 1,
         isMore: true,
@@ -422,46 +423,11 @@ export default class SelectUser extends Component {
     );
   };
 
-  realTimeSearch = _.debounce(() => this.handleSearch(), 500);
-
   renderSearch() {
-    const { searchValue } = this.state;
     const { type } = this.props;
+
     return (
-      <div className="searchWrapper">
-        <Icon icon="h5_search" />
-        <form
-          action="#"
-          className="flex"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-        >
-          <input
-            type="search"
-            placeholder={type === 'user' ? _l('搜索人员') : _l('搜索部门')}
-            className="Font14"
-            value={searchValue}
-            onChange={e => {
-              this.setState({ searchValue: e.target.value }, this.realTimeSearch);
-            }}
-          />
-        </form>
-        {searchValue ? (
-          <Icon
-            icon="workflow_cancel"
-            onMouseDown={event => event.preventDefault()}
-            onClick={() => {
-              this.setState(
-                {
-                  searchValue: '',
-                },
-                this.handleSearch,
-              );
-            }}
-          />
-        ) : null}
-      </div>
+      <MobileSearch placeholder={type === 'user' ? _l('搜索人员') : _l('搜索部门')} onSearch={this.handleSearch} />
     );
   }
 

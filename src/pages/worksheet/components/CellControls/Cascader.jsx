@@ -28,9 +28,13 @@ export default class Cascader extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: this.props.cell.value,
+        });
+      }
     }
   }
 
@@ -75,6 +79,7 @@ export default class Cascader extends React.Component {
       isediting,
       updateEditingStatus,
       updateCell,
+      onValidate,
       onClick,
       worksheetId,
       recordId,
@@ -104,6 +109,11 @@ export default class Cascader extends React.Component {
                 updateCell({
                   value: this.value,
                 });
+                // 级联通过浮层选择即时提交，不走输入/失焦校验流程；必填报错后重新选择需主动重新校验，
+                // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+                if (_.isFunction(onValidate)) {
+                  onValidate(this.value);
+                }
               }
 
               updateEditingStatus(false);

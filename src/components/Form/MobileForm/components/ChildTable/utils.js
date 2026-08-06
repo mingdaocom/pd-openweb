@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import DataFormat from 'src/components/Form/core/DataFormat';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { checkCellIsEmpty, controlState } from 'src/utils/control';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { checkRulesErrorOfRow } from 'src/utils/rule';
@@ -172,3 +173,89 @@ export const addWidthToColumns = (columns, dataSource) => {
 
   return newColumns;
 };
+
+// 关联类型字段的 dataType 列表，其 values 可能包含对象格式，需转换为纯 ID
+const RELATION_FILTER_TYPES = [
+  WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
+  WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
+  WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
+  WIDGETS_TO_API_TYPE_ENUM.CASCADER,
+  WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE,
+  WIDGETS_TO_API_TYPE_ENUM.AREA_CITY,
+  WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY,
+  WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
+];
+
+function normalizeSDKFilterValueItem(v) {
+  if (typeof v === 'object' && v !== null) {
+    return v.accountId || v.id || v.departmentId || v.organizeId || v.rowid;
+  }
+
+  if (typeof v === 'string' && v.startsWith('{')) {
+    const parsed = safeParse(v);
+
+    if (parsed && typeof parsed === 'object') {
+      return parsed.id || parsed.accountId;
+    }
+  }
+
+  return v;
+}
+
+// 将单条 SDK 筛选条件规范化为与 PC 端 formatConditionForSave 输出一致的格式
+function normalizeSDKCondition(fc) {
+  const result = {
+    controlId: fc.controlId,
+    dataType: fc.dataType,
+    spliceType: fc.spliceType || 1,
+    filterType: fc.filterType,
+    dateRange: fc.dateRange,
+    dateRangeType: fc.dateRangeType,
+    maxValue: fc.maxValue,
+    minValue: fc.minValue,
+    isDynamicsource: fc.isDynamicsource,
+    dynamicSource: fc.dynamicSource || [],
+    value: fc.value,
+    values: fc.values || [],
+  };
+
+  Object.keys(result).forEach(k => result[k] === undefined && delete result[k]);
+
+  // SDK 会传空字符串，PC 端不传此字段时直接省略
+  if (result.maxValue === '') delete result.maxValue;
+  if (result.minValue === '') delete result.minValue;
+
+  // 日期/日期时间字段（type 15/16）指定日期时间（dateRange=18）场景：
+  // SDK 使用 filterType=17（DATEENUM）+ dateRangeType=3（DAY），
+  // PC 使用 filterType=37（DATE_EQ）+ dateRangeType=1（MINUTE），需对齐
+  if (_.includes([15, 16], result.dataType) && result.filterType === 17 && result.dateRange === 18) {
+    result.filterType = 37;
+    result.dateRangeType = 1;
+  }
+
+  if (_.includes(RELATION_FILTER_TYPES, result.dataType) && result.values && result.values.length) {
+    result.values = result.values.map(normalizeSDKFilterValueItem).filter(Boolean);
+  }
+
+  return result;
+}
+
+// SDK 返回扁平条件数组，API 要求分组格式 [{isGroup: true, groupFilters: [...]}]，此函数完成转换并规范化字段
+export function normalizeSDKFilterControls(filterControls) {
+  if (!filterControls || !filterControls.length) return filterControls;
+
+  if (filterControls.some(fc => fc.isGroup && fc.groupFilters)) {
+    return filterControls.map(fc => {
+      if (fc.isGroup && fc.groupFilters) {
+        return { ...fc, groupFilters: fc.groupFilters.map(normalizeSDKCondition) };
+      }
+
+      return normalizeSDKCondition(fc);
+    });
+  }
+
+  const normalizedConditions = filterControls.map(normalizeSDKCondition);
+  const spliceType = (normalizedConditions[0] && normalizedConditions[0].spliceType) || 1;
+
+  return [{ isGroup: true, spliceType, groupFilters: normalizedConditions }];
+}

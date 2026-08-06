@@ -51,11 +51,13 @@ class Panel extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { value, format } = nextProps;
-    this.setState({
-      inputValue: format(value),
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { value, format } = this.props;
+      this.setState({
+        inputValue: format(value),
+      });
+    }
   }
 
   handleSelect = (type, option) => {

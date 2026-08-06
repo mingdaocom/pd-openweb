@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import worksheetApi from 'src/api/worksheet';
 import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
@@ -50,6 +50,7 @@ function FiltersGroupPreview(props) {
   const translateInfo = getTranslateInfo(appId, null, id);
   const isDark = _.get(config, 'pageStyleType') === 'dark';
   const requiredcids = _.get(filtersGroup.advancedSetting, 'requiredcids') || emptyArray;
+  const clicksearch = _.get(filtersGroup.advancedSetting, 'clicksearch');
 
   useEffect(() => {
     if (value) {
@@ -102,6 +103,7 @@ function FiltersGroupPreview(props) {
           });
         })
         .catch(() => {
+          setLoading(false);
           const customPage = store.getState().customPage;
           const { loadFilterComponentCount } = customPage;
           updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
@@ -139,7 +141,7 @@ function FiltersGroupPreview(props) {
           isDark={isDark}
           projectId={projectId}
           appId={appId}
-          defaultTriggerUpdate={filter.enableBtn ? false : true}
+          defaultTriggerUpdate={clicksearch !== '1'}
           advancedSetting={{
             requiredcids,
             fastrequired: requiredcids.length ? '1' : '0',
@@ -177,7 +179,7 @@ function FiltersGroupPreview(props) {
   );
 }
 
-export default errorBoundary(
+export default ErrorBoundary.wrap(
   connect(
     state => ({
       filterComponents: state.customPage.filterComponents,

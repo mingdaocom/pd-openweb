@@ -45,9 +45,13 @@ export default class Switch extends Component {
     disabled: false,
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.pending && this.props.pending) {
-      this.setState({ disabled: false });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!this.props.pending && prevProps.pending) {
+        this.setState({
+          disabled: false,
+        });
+      }
     }
   }
 

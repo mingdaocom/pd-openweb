@@ -89,7 +89,7 @@ export class FlowChart extends Component {
     execLineComplete: false,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     const { processId, instanceId } = this.props;
 
     flowNode.get({ processId, instanceId }).then(result => {
@@ -285,6 +285,13 @@ export class FlowChart extends Component {
     const { appId } = this.props;
     return getSameLevelIds(data, firstId, excludeFirstId).map(id => {
       const item = data[id];
+
+      if (
+        !item ||
+        !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL, NODE_TYPE.WRITE, NODE_TYPE.CC], item.typeId)
+      )
+        return null;
+
       const props = {
         key: id,
         processId,
@@ -297,13 +304,7 @@ export class FlowChart extends Component {
         renderNode: this.renderNode,
       };
 
-      if (
-        !data[id] ||
-        !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL, NODE_TYPE.WRITE, NODE_TYPE.CC], data[id].typeId)
-      )
-        return null;
-
-      const NodeComponent = nodeModules[data[id].typeId];
+      const NodeComponent = nodeModules[item.typeId];
 
       return <NodeComponent {...props} />;
     });
@@ -364,7 +365,7 @@ export class FlowChart extends Component {
           <Tooltip title={isMobile ? '' : _l('缩小')}>
             <span>
               <i
-                className={cx('icon-minus', { ThemeHoverColor3: !isMobile }, { disabled: scale === 50 })}
+                className={cx('icon-minus', { hoverColorPrimary: !isMobile }, { disabled: scale === 50 })}
                 onClick={() => scale > 50 && this.setState({ scale: scale - 10 })}
               />
             </span>
@@ -375,7 +376,7 @@ export class FlowChart extends Component {
           <Tooltip title={isMobile ? '' : _l('放大')}>
             <span>
               <i
-                className={cx('icon-add', { ThemeHoverColor3: !isMobile }, { disabled: scale === 100 })}
+                className={cx('icon-add', { hoverColorPrimary: !isMobile }, { disabled: scale === 100 })}
                 onClick={() => scale < 100 && this.setState({ scale: scale + 10 })}
               />
             </span>
@@ -383,7 +384,10 @@ export class FlowChart extends Component {
 
           <Tooltip title={isMobile ? '' : _l('适应高度')}>
             <span>
-              <i className={cx('icon-settings_overscan', { ThemeHoverColor3: !isMobile })} onClick={this.fullDisplay} />
+              <i
+                className={cx('icon-settings_overscan', { hoverColorPrimary: !isMobile })}
+                onClick={this.fullDisplay}
+              />
             </span>
           </Tooltip>
 

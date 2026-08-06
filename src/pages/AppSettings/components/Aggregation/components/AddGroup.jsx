@@ -137,7 +137,7 @@ export default function (props) {
     >
       <div
         className={cx(
-          'mTop16 textSecondary ThemeHoverColor3 qw alignItemsCenter flexRow',
+          'mTop16 textSecondary hoverColorPrimary qw alignItemsCenter flexRow',
           (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 ? '' : 'Hand',
         )}
       >

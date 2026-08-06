@@ -12,7 +12,7 @@ import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import * as boardActions from 'worksheet/redux/actions/boardView';
 import { emitter } from 'src/utils/common';
-import { addBehaviorLog, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import EditableCard from '../../../components/EditableCard';
 import EditingRecordItem from '../../../components/EditingRecordItem';
@@ -248,18 +248,6 @@ function SortableRecordItem(props) {
     setState({ isEditTitle: false });
   };
 
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
-  };
-
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
   return (
     <div
       ref={drag}
@@ -353,6 +341,9 @@ function SortableRecordItem(props) {
       )}
       {recordInfoVisible && (
         <RecordInfoWrapper
+          // 看板打开记录详情漏传 view，导致详情拿不到 view.advancedSetting.detailgroup（自定义动作分组配置），
+          // 与 SheetView/GalleryView 对齐补传当前视图，详情按钮区才能按分组渲染
+          view={currentView}
           enablePayment={worksheetInfo.enablePayment}
           showPrevNext
           allowAdd={worksheetInfo.allowAdd}

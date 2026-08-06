@@ -59,7 +59,7 @@ export default function RoleHeader(props) {
   const backToApp = () => {
     window.disabledSideButton = true;
 
-    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+    const storage = safeParse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
 
     if (storage) {
       const { lastGroupId, lastWorksheetId, lastViewId } = storage;
@@ -75,18 +75,19 @@ export default function RoleHeader(props) {
 
   return (
     <TopBar className={cx('', { mBottom0: editType === 1 })}>
-      <div className="flexRow pointer textDisabled mLeft16" onClick={() => backToApp()}>
+      <div className="flexRow alignItemsCenter mLeft16">
+        <i
+          className="icon-backspace simpleHeaderBackIcon Font20 textTertiary hoverColorPrimary"
+          onClick={() => backToApp()}
+        />
         <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
-          <div className="flexRow alignItemsCenter">
-            <i className="icon-navigate_before Font20" />
-            <IconWrap style={{ backgroundColor: iconColor }}>
-              <SvgIcon url={iconUrl} fill="#fff" size={18} />
-            </IconWrap>
-          </div>
+          <IconWrap style={{ backgroundColor: iconColor }}>
+            <SvgIcon url={iconUrl} fill="#fff" size={18} />
+          </IconWrap>
         </Tooltip>
       </div>
       <div
-        className={cx('nativeTitle Font17 bold mLeft16 overflow_ellipsis', {
+        className={cx('nativeTitle Font17 bold mLeft10 overflow_ellipsis', {
           flex: !canEnterPortal || (canEnterPortal && !isOpenPortal && featureType),
         })}
         style={{

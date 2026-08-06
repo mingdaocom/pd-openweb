@@ -108,7 +108,11 @@ function UploadImage(
         bucket={4}
         onUploaded={(up, file) => {
           setStatus('uploaded');
-          onUploaded(file.url);
+          onUploaded({
+            url: file.url,
+            name: file.name,
+            size: file.size,
+          });
         }}
         onAdd={(up, files) => {
           setStatus('uploading');
@@ -131,13 +135,13 @@ function UploadImage(
               <span className="hint">{_l('上传图片，不超过3MB')}</span>
             </Fragment>
           )}
-          {status === 'uploading' && (
+          {status === 'uploading' && file && (
             <Fragment>
               <i className="icon icon-loading_button loading"></i>
               <span className="hint">{_l('正在上传 %0', `${file.name} (${humanFileSize(file.size)})`)}</span>
             </Fragment>
           )}
-          {status === 'uploaded' && (
+          {status === 'uploaded' && file && (
             <Fragment>
               {imagePreviewUrl && (
                 <ImagePreview className="imagePreview">

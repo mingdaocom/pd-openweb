@@ -127,7 +127,7 @@ export default function SelectAvatarTrigger(props) {
         </QiniuUpload>
         <Icon
           icon="close"
-          className="Font20 pointer textTertiary ThemeHoverColor3 closeIcon"
+          className="Font20 pointer textTertiary hoverColorPrimary closeIcon"
           onClick={() => setState({ visible: false })}
         />
       </PopupWrap>

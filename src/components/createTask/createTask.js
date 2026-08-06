@@ -16,7 +16,7 @@ import UploadFiles from 'src/components/UploadFiles';
 import { addTask } from 'src/pages/task/redux/actions';
 import { formatTaskTime } from 'src/pages/task/utils/utils';
 import Store from 'src/redux/configureStore';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import taskHtml from './tpl/createTask.html';
 import './css/createTask.css';
 
@@ -211,7 +211,7 @@ $.extend(CreateTask.prototype, {
           return false;
         }
 
-        $(this).toggleClass('ThemeBGColor2 ThemeBGColor3');
+        $(this).toggleClass('bgColorPrimaryDark bgColorPrimary');
       },
       mouseout: function () {
         // 禁用
@@ -219,7 +219,7 @@ $.extend(CreateTask.prototype, {
           return false;
         }
 
-        $(this).toggleClass('ThemeBGColor2 ThemeBGColor3');
+        $(this).toggleClass('bgColorPrimaryDark bgColorPrimary');
       },
       click: function () {
         if ($(this).attr('disabled')) {
@@ -777,7 +777,7 @@ CreateTask.Motheds = {
           if (source.data) {
             $.each(source.data, function (index, item) {
               folderList +=
-                '<li class="item overflow_ellipsis ThemeBGColor3" data-folderid="' +
+                '<li class="item overflow_ellipsis bgColorPrimary" data-folderid="' +
                 item.folderID +
                 '">' +
                 '<img class="chargeUser circle" src="' +
@@ -786,7 +786,7 @@ CreateTask.Motheds = {
                 '<span class="folderListName">' +
                 htmlEncodeReg(item.folderName) +
                 '</span>' +
-                '<span class="ThemeColor8 ' +
+                '<span class="textTertiary ' +
                 (item.visibility === 0 ? 'icon-folder-private' : 'icon-folder-public') +
                 '"></span>' +
                 '<span class="folderMemberCount">' +
@@ -938,7 +938,7 @@ CreateTask.Motheds = {
         .then(source => {
           if (source.code === 1) {
             createShare({
-              linkURL: md.global.Config.WebUrl + 'apps/task/task_' + source.data.taskId,
+              linkURL: pathCompletion('/apps/task/task_' + source.data.taskId),
               content: _l('已转为任务'),
             });
           }
@@ -996,7 +996,7 @@ CreateTask.Motheds = {
           // 转化任务成功
           if (settings.itemId) {
             createShare({
-              linkURL: md.global.Config.WebUrl + 'apps/task/task_' + source.data.taskID,
+              linkURL: pathCompletion('/apps/task/task_' + source.data.taskID),
               content: _l('已转为任务'),
             });
 
@@ -1019,8 +1019,8 @@ CreateTask.Motheds = {
               }
 
               createShare({
-                linkURL: md.global.Config.WebUrl + 'apps/task/task_' + source.data.taskID,
-                content: '任务创建成功',
+                linkURL: pathCompletion('/apps/task/task_' + source.data.taskID),
+                content: _l('任务创建成功'),
               });
             }
           } else if (settings.shareCallback && _.isFunction(settings.shareCallback)) {
@@ -1031,7 +1031,7 @@ CreateTask.Motheds = {
             }
 
             createShare({
-              linkURL: md.global.Config.WebUrl + 'apps/task/task_' + source.data.taskID,
+              linkURL: pathCompletion('/apps/task/task_' + source.data.taskID),
               content: _l('任务创建成功'),
             });
           }
@@ -1062,14 +1062,3 @@ CreateTask.Motheds = {
 export default function (opts) {
   return new CreateTask(opts);
 }
-
-// 加载时 执行 绑定 jquery
-(function ($) {
-  // 是否绑定过
-  if (!$.CreateTask) {
-    // 全局函数
-    $.CreateTask = function (opts) {
-      return new CreateTask(opts);
-    };
-  }
-})(jQuery);

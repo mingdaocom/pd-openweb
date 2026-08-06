@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { Dialog } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
+import pathCompletion from 'src/utils/common';
 import './less/printTask.less';
 
 export default class PrintTask extends Component {
@@ -59,9 +60,9 @@ export default class PrintTask extends Component {
 
     ajaxRequest.saveData({ str: source }).then(data => {
       if (printWindow) {
-        printWindow.location.href = '/apps/task/print/' + data;
+        printWindow.location.href = pathCompletion('/apps/task/print/' + data);
       } else {
-        location.href = '/apps/task/print/' + data;
+        location.href = pathCompletion('/apps/task/print/' + data);
       }
     });
   }
@@ -89,7 +90,7 @@ export default class PrintTask extends Component {
                     )}
                     name={item.key}
                   >
-                    <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                    <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                     {item.name}
                     {item.key === 'qrCode' ? (
                       <Tooltip title={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}>
@@ -114,7 +115,7 @@ export default class PrintTask extends Component {
             return (
               <li key={i}>
                 <div className="checked checkOperation" name={item.key}>
-                  <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
+                  <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                   <span className="overflow_ellipsis">{item.name}</span>
                 </div>
               </li>

@@ -318,7 +318,7 @@ export default function (props) {
           <span
             className={cx(
               'add InlineBlock mTop6 Bold TxtCenter',
-              setting.filter(o => o !== 'add').length >= maxCount ? 'disable textTertiary' : 'Hand ThemeColor3',
+              setting.filter(o => o !== 'add').length >= maxCount ? 'disable textTertiary' : 'Hand colorPrimary',
             )}
             onClick={e => {
               if (setting.filter(o => o !== 'add').length >= maxCount) {

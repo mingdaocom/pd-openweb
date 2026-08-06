@@ -163,12 +163,14 @@ export default class SortConditions extends React.Component {
     this.state = this.getNewState(props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      !_.isEqual(this.props.sortConditions, nextProps.sortConditions) ||
-      !_.isEqual(this.props.columns, nextProps.columns)
-    ) {
-      this.setState(this.getNewState(nextProps));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(prevProps.sortConditions, this.props.sortConditions) ||
+        !_.isEqual(prevProps.columns, this.props.columns)
+      ) {
+        this.setState(this.getNewState(this.props));
+      }
     }
   }
 

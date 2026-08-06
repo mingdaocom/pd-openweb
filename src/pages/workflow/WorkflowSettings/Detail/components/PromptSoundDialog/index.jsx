@@ -85,7 +85,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           <span>
             <Icon
               type="edit"
-              className="textSecondary ThemeHoverColor3 Font14 pointer"
+              className="textSecondary hoverColorPrimary Font14 pointer"
               onClick={() => {
                 setCacheData({
                   promptSound:
@@ -111,7 +111,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           width={580}
           onOk={() => {
             if (cacheData.promptSound.type === 2 && !cacheData.promptSound.content) {
-              alert('内容不允许为空', 2);
+              alert(_l('内容不允许为空'), 2);
               return;
             }
 

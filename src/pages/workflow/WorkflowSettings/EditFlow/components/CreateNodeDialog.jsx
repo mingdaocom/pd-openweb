@@ -11,6 +11,7 @@ import { checkPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import CodeSnippet from '../../../components/CodeSnippet';
@@ -569,7 +570,7 @@ export default class CreateNodeDialog extends Component {
                   type: 12,
                   name: _l('延时到指定日期'),
                   actionId: '300',
-                  describe: _l('获取流程中单条记录对象的对外分享或填写链接'),
+                  describe: _l('在上一个节点完成后，延时到指定的日期后再继续执行流程'),
                 },
                 {
                   type: 12,
@@ -1219,51 +1220,59 @@ export default class CreateNodeDialog extends Component {
   // 缓存滚动条位置
   cacheScrollTop = 0;
 
-  componentWillReceiveProps(nextProps) {
-    const featureType = getFeatureStatus(nextProps.flowInfo.companyId, VersionProductType.flowPlugin);
-
-    if (nextProps.nodeId && nextProps.nodeId !== this.props.nodeId) {
-      this.setState({
-        selectItem: null,
-        selectSecond: false,
-        branchDialogModel: 0,
-        showProcessDialog: false,
-        keywords: '',
-      });
-    }
-
-    // 审批流程过滤节点
-    if ((nextProps.selectProcessId && nextProps.flowInfo.id !== nextProps.selectProcessId) || nextProps.isApproval) {
-      this.state.list.forEach(o => {
-        _.remove(o.items, item => _.includes([NODE_TYPE.APPROVAL_PROCESS, NODE_TYPE.PUSH], item.type));
-      });
-    }
-
-    if (!nextProps.selectProcessId) {
-      this.setState({ list: _.cloneDeep(this.cacheList) });
-    }
-
-    if (
-      !!nextProps.nodeId &&
-      !nextProps.isPlugin &&
-      featureType &&
-      !(
-        nextProps.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
-        nextProps.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
-      ) &&
-      !md.global.SysSettings.hidePlugin
-    ) {
-      this.getPluginList();
-    }
-  }
-
   componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const featureType = getFeatureStatus(this.props.flowInfo.companyId, VersionProductType.flowPlugin);
+
+      if (this.props.nodeId && this.props.nodeId !== prevProps.nodeId) {
+        this.setState({
+          selectItem: null,
+          selectSecond: false,
+          branchDialogModel: 0,
+          showProcessDialog: false,
+          keywords: '',
+        });
+      } // 审批流程过滤节点
+
+      // 审批流程过滤节点
+      if (
+        (this.props.selectProcessId && this.props.flowInfo.id !== this.props.selectProcessId) ||
+        this.props.isApproval
+      ) {
+        this.state.list.forEach(o => {
+          _.remove(o.items, item => _.includes([NODE_TYPE.APPROVAL_PROCESS, NODE_TYPE.PUSH], item.type));
+        });
+      }
+
+      if (!this.props.selectProcessId) {
+        this.setState({
+          list: _.cloneDeep(this.cacheList),
+        });
+      }
+
+      if (
+        !!this.props.nodeId &&
+        !this.props.isPlugin &&
+        featureType &&
+        !(
+          this.props.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
+          this.props.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
+        ) &&
+        !md.global.SysSettings.hidePlugin
+      ) {
+        this.getPluginList();
+      }
+    }
+
     if (!prevProps.nodeId && this.props.nodeId) {
       setTimeout(() => {
         this.keywordsInput && this.keywordsInput.focus();
       }, 300);
     }
   }
+  /**
+   * 获取插件列表
+   */
 
   /**
    * 获取插件列表
@@ -1490,14 +1499,14 @@ export default class CreateNodeDialog extends Component {
         <div className="flex overflowHidden">
           <ScrollView>
             <div className="pTop20 pBottom15 pLeft20 pRight20">
-              {selectItem.typeText && <div className="bold pLeft12 Font14">{selectItem.typeText}</div>}
+              {selectItem.typeText && <div className="bold pLeft12 Font14 ellipsis">{selectItem.typeText}</div>}
               {selectItem.type === NODE_TYPE.CODE && !md.global.SysSettings.hideHelpTip && (
                 <div className="textSecondary mTop6 pLeft12 InlineFlex">
                   {_l('查看当前代码脚本的')}
                   <Support
                     type={3}
                     text={_l('运行版本')}
-                    className="ThemeColor3 ThemeHoverColor2"
+                    className="colorPrimary hoverColorPrimaryDark"
                     href="https://help.mingdao.com/workflow/node-code-block#runtime-environment"
                   />
                 </div>
@@ -1506,7 +1515,7 @@ export default class CreateNodeDialog extends Component {
               {selectItem.isGroupList ? (
                 (selectItem.secondList || []).map((item, i) => (
                   <Fragment key={i}>
-                    <div className="bold pLeft12 Font14">{item.typeText}</div>
+                    <div className="bold pLeft12 Font14 ellipsis">{item.typeText}</div>
                     {item.describe && <div className="textSecondary pLeft12 mTop5">{item.describe}</div>}
                     <ul className="secondNodeList mBottom25">
                       {(item.source || []).map((o, j) => {
@@ -1656,7 +1665,7 @@ export default class CreateNodeDialog extends Component {
                   <li
                     key={o.key}
                     data-type={o.key}
-                    className={cx('flexRow alignItemsCenter Font14 bold', { active: index === tab - 1 })}
+                    className={cx('flexRow alignItemsCenter Font14 bold ellipsis', { active: index === tab - 1 })}
                     onClick={o.events}
                   >
                     {o.text}
@@ -1667,8 +1676,8 @@ export default class CreateNodeDialog extends Component {
                       {(tab === 1 ? source : list).map((o, index) => (
                         <li
                           key={o.id}
-                          className={cx('ThemeHoverColor3 pointer', {
-                            'ThemeColor3 bold': currentSectionIndex === index && tab === 1,
+                          className={cx('hoverColorPrimary pointer ellipsis', {
+                            'colorPrimary bold': currentSectionIndex === index && tab === 1,
                           })}
                           onClick={() => {
                             this.setState({ tab: 1, keywords: tab === 2 ? '' : keywords }, () => {
@@ -1689,7 +1698,10 @@ export default class CreateNodeDialog extends Component {
           </ScrollView>
 
           {tab === 2 && (
-            <div className="createNodeFooterBtn ThemeHoverColor3 pointer" onClick={() => window.open('/plugin/node')}>
+            <div
+              className="createNodeFooterBtn hoverColorPrimary pointer"
+              onClick={() => window.open(pathCompletion('/plugin/node'))}
+            >
               <i className="icon-task-new-detail Font12" />
               <span className="mLeft5 Font14 bold">{_l('添加插件')}</span>
             </div>
@@ -1701,7 +1713,7 @@ export default class CreateNodeDialog extends Component {
             (flowNodeMap[flowInfo.startNodeId] || {}).nextId === '99' ||
             tab === 2
           ) && (
-            <div className="createNodeFooterBtn ThemeHoverColor3 pointer" onClick={() => selectCopy(flowInfo.id)}>
+            <div className="createNodeFooterBtn hoverColorPrimary pointer" onClick={() => selectCopy(flowInfo.id)}>
               <i className="icon-copy Font14" />
               <span className="mLeft5 Font14 bold">{_l('复制节点')}</span>
             </div>
@@ -1721,7 +1733,7 @@ export default class CreateNodeDialog extends Component {
               {keywords.trim() && (
                 <Icon
                   icon="cancel"
-                  className="Font24 textTertiary ThemeHoverColor3"
+                  className="Font24 textTertiary hoverColorPrimary"
                   onClick={() => this.setState({ keywords: '' })}
                 />
               )}
@@ -1745,7 +1757,7 @@ export default class CreateNodeDialog extends Component {
             <div className="createNodeSearchLine mLeft20 mRight20" />
 
             <i
-              className="icon-delete Font18 textTertiary ThemeHoverColor3 pointer"
+              className="icon-delete Font18 textTertiary hoverColorPrimary pointer"
               onClick={() => selectAddNodeId('')}
             />
           </div>
@@ -1757,7 +1769,7 @@ export default class CreateNodeDialog extends Component {
             {source.map(data => {
               return (
                 <Fragment key={data.id}>
-                  <div className="mBottom5 Font15 mLeft32 bold workflowSectionName">{data.name}</div>
+                  <div className="mBottom5 Font15 mLeft32 mRight20 bold workflowSectionName ellipsis">{data.name}</div>
                   <ul className="clearfix nodeList">
                     {data.items.map((item, i) => {
                       return (
@@ -1773,9 +1785,9 @@ export default class CreateNodeDialog extends Component {
                             )}
                           </span>
 
-                          <div className="flex flexColumn justifyContentCenter">
-                            <div className="flexRow alignItemsCenter">
-                              <div className="Font14 bold">{item.name}</div>
+                          <div className="flex flexColumn justifyContentCenter overflowHidden">
+                            <div className="flexRow alignItemsCenter overflowHidden">
+                              <div className="Font14 bold flex ellipsis">{item.name}</div>
                               {item.type === NODE_TYPE.APPROVAL && (
                                 <Tooltip
                                   placement="bottom"

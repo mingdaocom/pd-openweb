@@ -93,18 +93,26 @@ export default class Approval extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -118,6 +126,10 @@ export default class Approval extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (sId) {
           result = Object.assign({}, data, {
             selectNodeId: result.selectNodeId,
@@ -200,11 +212,18 @@ export default class Approval extends Component {
       passMessage,
       overruleSendMessage,
       overruleMessage,
+      passSendMsg,
+      passMsg,
+      overruleSendMsg,
+      overruleMsg,
       callBackNodeType,
       callBackNodeIds,
       encrypt,
       operationUserRange,
       returnBtnName,
+      passBtnDesc,
+      overruleBtnDesc,
+      returnBtnDesc,
       opinionTemplate,
       flowNodeMap,
       userTaskNullMap,
@@ -229,7 +248,7 @@ export default class Approval extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -254,6 +273,9 @@ export default class Approval extends Component {
         passBtnName: passBtnName.trim(),
         overruleBtnName: overruleBtnName.trim(),
         returnBtnName: returnBtnName.trim(),
+        passBtnDesc: (passBtnDesc || '').trim(),
+        overruleBtnDesc: (overruleBtnDesc || '').trim(),
+        returnBtnDesc: (returnBtnDesc || '').trim(),
         auth,
         batchApprove,
         fastApprove,
@@ -263,6 +285,10 @@ export default class Approval extends Component {
         passMessage,
         overruleSendMessage,
         overruleMessage,
+        passSendMsg,
+        passMsg,
+        overruleSendMsg,
+        overruleMsg,
         callBackNodeType,
         callBackNodeIds,
         encrypt,
@@ -383,7 +409,7 @@ export default class Approval extends Component {
         />
 
         <div
-          className="flexRow mTop12 ThemeColor3 workflowDetailAddBtn"
+          className="flexRow mTop12 colorPrimary workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
         >
           <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -777,7 +803,7 @@ export default class Approval extends Component {
                 </div>
                 <Icon
                   type="edit"
-                  className="textSecondary ThemeHoverColor3 Font14 pointer"
+                  className="textSecondary hoverColorPrimary Font14 pointer"
                   onClick={() => this.setState({ showCallbackDialog: true })}
                 />
               </div>
@@ -994,33 +1020,50 @@ export default class Approval extends Component {
   renderMessage() {
     const { data } = this.state;
     const MESSAGE_TYPE = [
-      { text: _l('通过时通知'), key: 'passSendMessage', msgKey: 'passMessage' },
-      { text: _l('否决时通知'), key: 'overruleSendMessage', msgKey: 'overruleMessage' },
+      {
+        title: _l('发起人'),
+        source: [
+          { text: _l('通过时通知'), key: 'passSendMessage', msgKey: 'passMessage' },
+          { text: _l('否决时通知'), key: 'overruleSendMessage', msgKey: 'overruleMessage' },
+        ],
+      },
+      {
+        title: _l('审批人'),
+        source: [
+          { text: _l('通过时通知其他审批人'), key: 'passSendMsg', msgKey: 'passMsg' },
+          { text: _l('否决时通知其他审批人'), key: 'overruleSendMsg', msgKey: 'overruleMsg' },
+        ],
+      },
     ];
 
     return (
       <Fragment>
-        {MESSAGE_TYPE.map(item => {
+        {MESSAGE_TYPE.map(o => {
           return (
-            <div className="flexRow mTop10 alignItemsCenter" key={item.key}>
-              <Checkbox
-                text={item.text}
-                checked={data[item.key]}
-                onClick={checked => this.updateSource({ [item.key]: !checked })}
-              />
-              {data[item.key] && (
-                <CustomMessageBox className="flex mLeft10 flexRow">
-                  <div className="flex mRight20 ellipsis Font12">
-                    {data[item.msgKey] ? _l('自定义') : _l('默认消息内容')}
-                  </div>
-                  <Icon
-                    type="edit"
-                    className="textSecondary ThemeHoverColor3 Font14 pointer"
-                    onClick={() => this.setState({ selectMsgKey: item.msgKey })}
+            <Fragment key={o.title}>
+              <div className="Font13 mTop15 textSecondary">{o.title}</div>
+              {o.source.map(item => (
+                <div className="flexRow mTop10 alignItemsCenter" key={item.key}>
+                  <Checkbox
+                    text={item.text}
+                    checked={data[item.key]}
+                    onClick={checked => this.updateSource({ [item.key]: !checked })}
                   />
-                </CustomMessageBox>
-              )}
-            </div>
+                  {data[item.key] && (
+                    <CustomMessageBox className="flex mLeft10 flexRow">
+                      <div className="flex mRight20 ellipsis Font12">
+                        {data[item.msgKey] ? _l('自定义') : _l('默认消息内容')}
+                      </div>
+                      <Icon
+                        type="edit"
+                        className="textSecondary hoverColorPrimary Font14 pointer"
+                        onClick={() => this.setState({ selectMsgKey: item.msgKey })}
+                      />
+                    </CustomMessageBox>
+                  )}
+                </div>
+              ))}
+            </Fragment>
           );
         })}
       </Fragment>
@@ -1047,7 +1090,7 @@ export default class Approval extends Component {
       {
         key: 'fastApprove',
         text: _l('允许快速审批'),
-        tips: _l('允许审批人在记录详情页、邮件及钉钉内快速处理审批任务。在快速处理审批时将忽略表单中的必填字段。'),
+        tips: _l('允许审批人在记录详情页、邮件内快速处理审批任务。在快速处理审批时将忽略表单中的必填字段。'),
       },
     ];
 
@@ -1090,7 +1133,12 @@ export default class Approval extends Component {
                 this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
               }
             />
-            <Schedule {...this.props} schedule={data.schedule} updateSource={this.updateSource} />
+            <Schedule
+              {...this.props}
+              schedule={data.schedule}
+              formulaMap={data.formulaMap}
+              updateSource={this.updateSource}
+            />
           </Fragment>
         )}
 
@@ -1190,10 +1238,10 @@ export default class Approval extends Component {
                   {this.renderApprovalSettings()}
 
                   <div className="Font13 bold mTop25">
-                    {_l('节点结果通知发起人')}
+                    {_l('节点结果通知')}
                     <Tooltip
                       title={_l(
-                        '当发起节点启用邮件通知功能后，这边同步开启相应设置，审批结果将通过邮件的形式及时发送给发起人。',
+                        '当发起节点启用邮件通知功能后，这边同步开启相应设置，审批结果将通过邮件的形式及时发送给发起人和审批人。',
                       )}
                     >
                       <Icon className="Font16 textTertiary mLeft5" icon="info" />
@@ -1238,7 +1286,7 @@ export default class Approval extends Component {
                       {!(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length &&
                       !(data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length ? (
                         <span
-                          className="ThemeColor3 pointer ThemeHoverColor2"
+                          className="colorPrimary pointer hoverColorPrimaryDark"
                           onClick={() => this.setState({ showApprovalTemplate: true })}
                         >
                           {_l('未设置')}
@@ -1268,7 +1316,7 @@ export default class Approval extends Component {
 
                         <Icon
                           type="edit"
-                          className="textSecondary ThemeHoverColor3 Font14 pointer mLeft20"
+                          className="textSecondary hoverColorPrimary Font14 pointer mLeft20"
                           onClick={() => this.setState({ showApprovalTemplate: true })}
                         />
                       </Fragment>
@@ -1359,9 +1407,27 @@ export default class Approval extends Component {
 
                   <ButtonName
                     buttons={[
-                      { key: 'passBtnName', title: _l('同意按钮'), placeholder: _l('同意') },
-                      { key: 'overruleBtnName', title: _l('拒绝按钮'), placeholder: _l('拒绝') },
-                      { key: 'returnBtnName', title: _l('退回按钮'), placeholder: _l('退回') },
+                      {
+                        nameKey: 'passBtnName',
+                        descKey: 'passBtnDesc',
+                        title: _l('同意按钮'),
+                        namePlaceholder: _l('同意'),
+                        descPlaceholder: _l('请输入同意按钮说明'),
+                      },
+                      {
+                        nameKey: 'overruleBtnName',
+                        descKey: 'overruleBtnDesc',
+                        title: _l('拒绝按钮'),
+                        namePlaceholder: _l('拒绝'),
+                        descPlaceholder: _l('请输入拒绝按钮说明'),
+                      },
+                      {
+                        nameKey: 'returnBtnName',
+                        descKey: 'returnBtnDesc',
+                        title: _l('退回按钮'),
+                        namePlaceholder: _l('退回'),
+                        descPlaceholder: _l('请输入退回按钮说明'),
+                      },
                     ]}
                     data={data}
                     updateSource={this.updateSource}
@@ -1388,7 +1454,7 @@ export default class Approval extends Component {
                     <Support
                       type={3}
                       text={_l('帮助')}
-                      className="ThemeColor3 ThemeHoverColor2"
+                      className="colorPrimary hoverColorPrimaryDark"
                       href="https://help.mingdao.com/workflow/node-approve#field"
                     />
                   </div>
@@ -1450,7 +1516,8 @@ export default class Approval extends Component {
           {...this.props}
           isCorrect={
             data.selectNodeId &&
-            ((!!data.accounts.length && _.includes([0, 11], data.multipleLevelType)) || data.multipleLevelType !== 0)
+            ((!!data.accounts.length && _.includes([0, 11], data.multipleLevelType)) || data.multipleLevelType !== 0) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

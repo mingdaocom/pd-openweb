@@ -1,14 +1,13 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Popup } from 'antd-mobile';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import GalleryView from '../View/GalleryView';
 import MobileMapView from '../View/MapView';
 import SheetView from '../View/SheetView';
@@ -68,10 +67,6 @@ const GroupFilter = props => {
     isGroupFilter: true,
   });
 
-  const handleOpenDrawer = () => {
-    setDrawerVisible(!drawerVisible);
-  };
-
   const getDefaultValueInCreate = () => {
     if (_.isEmpty(mobileNavGroupFilters)) return;
     let data = mobileNavGroupFilters[0];
@@ -102,34 +97,24 @@ const GroupFilter = props => {
     }
   };
 
-  const onQueryChange = () => {
-    handleReplaceState('page', 'groupFilter', () => setDrawerVisible(false));
-  };
-
-  useEffect(() => {
-    if (appnavtype !== '1') return;
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
   return (
     <Fragment>
       <GroupFilterList
         {...props}
         handleClickItem={item => {
-          if (appnavtype === '1') {
-            handlePushState('page', 'groupFilter');
-          }
-
           setDrawerVisible(true);
           setCurrentGroup(item);
         }}
       />
 
       {drawerVisible && (
-        <Popup className={cx('groupFilterDrawer')} position="right" visible={drawerVisible} onClose={handleOpenDrawer}>
+        <MobilePopup
+          className={cx('groupFilterDrawer')}
+          position="right"
+          layerId={appnavtype === '1' ? `groupFilter-${currentGroup.value}` : ''}
+          visible={drawerVisible}
+          onClose={() => setDrawerVisible(false)}
+        >
           <div className="groupDetailBox">
             {!batchOptVisible && (
               <div
@@ -156,6 +141,7 @@ const GroupFilter = props => {
                 activeSavedFilter={activeSavedFilter}
                 updateActiveSavedFilter={updateActiveSavedFilter}
                 base={base}
+                canFilter={props.canFilter}
               />
             )}
             <div className="groupDetailCon flexColumn overflowHidden">
@@ -212,7 +198,7 @@ const GroupFilter = props => {
               </div>
             </div>
           </div>
-        </Popup>
+        </MobilePopup>
       )}
     </Fragment>
   );

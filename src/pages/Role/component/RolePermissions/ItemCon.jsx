@@ -4,10 +4,11 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import { getTranslateInfo } from 'src/utils/app';
 
 export default class Con extends React.Component {
   render() {
-    const { item, dataList, onAction, roleId, onChoose, isForPortal, DragHandle } = this.props;
+    const { appId, item, dataList, onAction, roleId, onChoose, isForPortal, DragHandle } = this.props;
     return (
       <li
         className={cx('flexRow alignItemsCenter navLiRole', { cur: roleId === item.roleId })}
@@ -25,7 +26,7 @@ export default class Con extends React.Component {
             {ICON_ROLE_TYPE[item.roleType] && (
               <Icon icon={ICON_ROLE_TYPE[item.roleType]} className="Font16 mRight6 roleIcon" />
             )}
-            {item.name}
+            {getTranslateInfo(appId, null, item.roleId).name || item.name}
           </span>
           {item.hideAppForMembers && !isForPortal && (
             <Tooltip placement="top" title={_l('隐藏应用')}>

@@ -4,6 +4,11 @@ import { DatePicker } from 'ming-ui';
 import './index.less';
 
 const TODAY = new Date();
+const CUSTOM_TIME_FORMAT = {
+  hour: 'YYYY-MM-DD HH',
+  minute: 'YYYY-MM-DD HH:mm',
+  second: 'YYYY-MM-DD HH:mm:ss',
+};
 
 const DEFAULT_OPTIONS = [
   {
@@ -60,8 +65,14 @@ const DEFAULT_OPTIONS = [
   },
 ];
 
+function getCustomRangeLabel(value, timeMode) {
+  const format = CUSTOM_TIME_FORMAT[timeMode] || CUSTOM_TIME_FORMAT.minute;
+
+  return value.map(time => moment(time).format(format)).join(' ~ ');
+}
+
 export default function DatePickSelect(props) {
-  const { options = DEFAULT_OPTIONS, onChange } = props;
+  const { options = DEFAULT_OPTIONS, onChange, selectedValue, timePicker = false, timeMode = 'minute' } = props;
   const ref = useRef(null);
 
   return (
@@ -76,8 +87,17 @@ export default function DatePickSelect(props) {
             <DatePicker.RangePicker
               offset={{ left: -533, top: 0 }}
               popupParentNode={() => ref.current}
-              onOk={([start, end]) => {
-                onChange({ ...item, value: [moment(start).format(), moment(end).format()] });
+              selectedValue={selectedValue}
+              timePicker={timePicker}
+              timeMode={timeMode}
+              onOk={value => {
+                const rangeValue = value.map(time => moment(time).format());
+
+                onChange({
+                  ...item,
+                  label: timePicker ? getCustomRangeLabel(value, timeMode) : item.label,
+                  value: rangeValue,
+                });
               }}
               onClear={() => onChange({ ...item, value: undefined })}
               onSelect={() => {}}

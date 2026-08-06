@@ -7,6 +7,7 @@ import SideWrap from 'src/pages/customPage/components/SideWrap';
 import store from 'src/redux/configureStore';
 import BgConfig from './BgConfig';
 import ChartColorConfig from './ChartColorConfig';
+import { defaultConfig } from './defaultConfig';
 import PageConfig from './PageConfig';
 import UrlparamsConfig from './UrlparamsConfig';
 
@@ -229,27 +230,7 @@ const Wrap = styled.div`
   }
 `;
 
-export const defaultConfig = {
-  pageStyleType: 'light',
-  pageBgColor: '#f5f6f7',
-  chartColor: {
-    colorGroupId: 'adaptThemeColor',
-    colorType: 1,
-  },
-  chartColorIndex: 1,
-  numberChartColor: '',
-  numberChartColorIndex: 1,
-  pivoTableColor: '',
-  refresh: 0,
-  headerVisible: true,
-  shareVisible: true,
-  chartShare: true,
-  chartExportExcel: true,
-  downloadVisible: true,
-  fullScreenVisible: true,
-  customColors: [],
-  webNewCols: 48,
-};
+export { defaultConfig };
 
 export default props => {
   const { adjustScreen, className, urlParams = [] } = props;

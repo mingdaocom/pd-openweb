@@ -24,7 +24,7 @@ const MobileSubListWrap = styled.div`
 
 const DISPLAY_OPTIONS = [
   {
-    text: _l('摘要'),
+    text: _l('列表'),
     img: 'list',
     size: 'Font32',
     value: '1',
@@ -146,7 +146,12 @@ export default function MobileSubList({ data, onChange }) {
             </Fragment>
           )}
           <SettingItem>
-            <div className="settingItemTitle">{_l('摘要字段（最多3个）')}</div>
+            <div className="settingItemTitle">{_l('摘要字段')}</div>
+            {!['2', '3'].includes(h5showtype) && (
+              <div className="textSecondary mBottom8 ">
+                {_l('最多可设置 3 个字段，排在第 1 位的字段会优先展示，并显示更多内容。')}
+              </div>
+            )}
             <SortColumns
               sortAutoChange
               isShowColumns

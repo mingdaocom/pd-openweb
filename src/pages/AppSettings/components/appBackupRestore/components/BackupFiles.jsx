@@ -19,6 +19,7 @@ import { dateConvertToUserZone, getCurrentProject, getFeatureStatus } from 'src/
 import EmptyStatus from '../../EmptyStatus';
 import EditInput from './EditInput.jsx';
 import RestoreAppDialog from './RestoreAppDialog';
+import { pathCompletion } from 'src/utils/common';
 
 const ListWrap = styled.div`
   flex: 1;
@@ -38,22 +39,45 @@ const ListWrap = styled.div`
   .backupType,
   .operator,
   .status {
-    width: 90px;
+    flex: 0 0 108px;
   }
-  .size,
+  .size {
+    flex: 0 0 146px;
+  }
   .action {
-    width: 130px;
+    flex: 0 0 180px;
   }
   .backupTime {
-    width: 160px;
+    flex: 0 0 168px;
   }
   .header,
   .row {
     border-bottom: 1px solid var(--color-border-primary);
+    > div {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+    > .name,
+    > .backupFileName {
+      flex: 1 1 0;
+    }
+    > .backupType,
+    > .backupTime,
+    > .operator,
+    > .size,
+    > .status {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    > .action {
+      white-space: nowrap;
+    }
     .icon-edit {
       display: none !important;
     }
     .order {
+      flex: 0 0 auto;
       transform: scale(0.8);
       margin-left: 4px;
       .icon-arrow-down {
@@ -88,7 +112,7 @@ export default function BackupFiles(props) {
     validLimit,
     permissionType,
     backupInfo = {},
-    getList = () => {},
+    getList = () => { },
     data,
   } = props;
   const { sourceType } = data;
@@ -101,7 +125,6 @@ export default function BackupFiles(props) {
       orderType,
       actCurrentFileInfo,
       restoreAppVisible,
-      appDetail,
       token,
       DBInstancesDialog,
       dataDBInstances,
@@ -114,13 +137,12 @@ export default function BackupFiles(props) {
     pageIndex: 1,
     total: 0,
     orderType: 0,
-    actCurrentFileInfo,
-    restoreAppVisible,
-    appDetail,
-    token,
-    DBInstancesDialog,
-    dataDBInstances,
-    restoreItem,
+    actCurrentFileInfo: backupInfo.actCurrentFileInfo,
+    restoreAppVisible: backupInfo.restoreAppVisible || false,
+    token: backupInfo.token,
+    DBInstancesDialog: backupInfo.DBInstancesDialog || false,
+    dataDBInstances: backupInfo.dataDBInstances || [],
+    restoreItem: backupInfo.restoreItem,
     dbInstanceId: undefined,
   });
 
@@ -306,8 +328,8 @@ export default function BackupFiles(props) {
                   getList({ pageIndex: 1, orderType: orderType === 0 ? 1 : 0 });
                 }}
               >
-                <Icon icon="arrow-up" className={cx({ ThemeColor3: orderType === 1 })} />
-                <Icon icon="arrow-down" className={cx({ ThemeColor3: orderType === 0 })} />
+                <Icon icon="arrow-up" className={cx({ colorPrimary: orderType === 1 })} />
+                <Icon icon="arrow-down" className={cx({ colorPrimary: orderType === 0 })} />
               </div>
             </div>
             <div className="size flexRow alignItemsCenter">
@@ -319,8 +341,8 @@ export default function BackupFiles(props) {
                   getList({ pageIndex: 1, orderType: orderType === 2 ? 3 : 2 });
                 }}
               >
-                <Icon icon="arrow-up" className={cx({ ThemeColor3: orderType === 3 })} />
-                <Icon icon="arrow-down" className={cx({ ThemeColor3: orderType === 2 })} />
+                <Icon icon="arrow-up" className={cx({ colorPrimary: orderType === 3 })} />
+                <Icon icon="arrow-down" className={cx({ colorPrimary: orderType === 2 })} />
               </div>
             </div>
             <div className="operator">{_l('操作人')}</div>
@@ -343,8 +365,8 @@ export default function BackupFiles(props) {
                 const expired =
                   (window.platformENV.isOverseas || window.platformENV.isLocal
                     ? moment(item.operationDateTime)
-                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
-                        .format('YYYYMMDDHHmmss')
+                      .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                      .format('YYYYMMDDHHmmss')
                     : validLimit === -1
                       ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
                       : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
@@ -353,9 +375,9 @@ export default function BackupFiles(props) {
                 const expiredSoon =
                   (window.platformENV.isOverseas || window.platformENV.isLocal
                     ? moment(item.operationDateTime)
-                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
-                        .subtract(10, 'days')
-                        .format('YYYYMMDDHHmmss')
+                      .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                      .subtract(10, 'days')
+                      .format('YYYYMMDDHHmmss')
                     : validLimit === -1
                       ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
                       : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
@@ -405,7 +427,7 @@ export default function BackupFiles(props) {
                                 <Support
                                   text={_l('了解更多')}
                                   type={3}
-                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
+                                  href={pathCompletion(`/upgrade/choose?projectId=${projectId}&select=3`)}
                                 />
                               </span>
                             ) : (
@@ -414,7 +436,7 @@ export default function BackupFiles(props) {
                                 <Support
                                   text={_l('了解更多')}
                                   type={3}
-                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
+                                  href={pathCompletion(`/upgrade/choose?projectId=${projectId}&select=3`)}
                                 />
                               </span>
                             )

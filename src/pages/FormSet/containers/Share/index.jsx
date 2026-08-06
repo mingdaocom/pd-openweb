@@ -201,8 +201,8 @@ const SharingSettings = props => {
           <RecordSharing>
             <p className="textPrimary Bold">
               {activeTab === 'view'
-                ? _l('允许将视图对外公开分享，获得链接的所有人都可以查看视图和视图下的全部记录')
-                : _l('允许将记录对外公开分享，获得链接的所有人都可以查看记录')}
+                ? _l('允许将视图公开分享，获得链接的所有人都可以查看视图和视图下的全部记录')
+                : _l('允许将记录公开分享，获得链接的所有人都可以查看记录')}
             </p>
             <SettingItem className="flexRow alignItemsCenter mTop20">
               <Switch
@@ -345,7 +345,7 @@ const SharingSettings = props => {
           {TYPES.map(o => {
             return (
               <Tab
-                className={cx('Bold Font14 hoverText', activeTab === o.key ? 'ThemeColor3 curTab' : 'textSecondary')}
+                className={cx('Bold Font14 hoverText', activeTab === o.key ? 'colorPrimary curTab' : 'textSecondary')}
                 onClick={() => setActiveTab(o.key)}
               >
                 {o.lab}

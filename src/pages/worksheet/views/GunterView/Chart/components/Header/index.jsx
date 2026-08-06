@@ -6,13 +6,11 @@ import MajorAxisLabel from '../MajorAxisLabel';
 import MinorAxisLabel from '../MinorAxisLabel';
 import Today from '../Today';
 
-@connect(state => ({
-  ..._.pick(state.sheet, ['gunterView', 'base']),
-}))
-export default class GunterChartHeader extends Component {
+let GunterChartHeader = class GunterChartHeader extends Component {
   constructor(props) {
     super(props);
   }
+
   renderContent() {
     const { periodType, periodList, periodParentList } = this.props.gunterView;
     return (
@@ -30,26 +28,36 @@ export default class GunterChartHeader extends Component {
       </Fragment>
     );
   }
+
   renderLoading() {
     return (
       <Skeleton
-        style={{ flex: 1 }}
+        style={{
+          flex: 1,
+        }}
         direction="column"
         widths={['100%', '100%']}
         active
-        itemStyle={{ marginBottom: '5px' }}
+        itemStyle={{
+          marginBottom: '5px',
+        }}
       />
     );
   }
+
   render() {
     const { gunterView } = this.props;
     const { loading, periodList, chartScroll } = gunterView;
     const wrapperWidth = periodList.length ? periodList.map(item => item.width).reduce((a, b) => a + b) : 0;
-
     return (
       <div className="gunterChartHeader">
         <div className="headerWrapper">
-          <div className="headerScroll" style={{ width: loading ? '100%' : wrapperWidth }}>
+          <div
+            className="headerScroll"
+            style={{
+              width: loading ? '100%' : wrapperWidth,
+            }}
+          >
             {loading || _.isEmpty(chartScroll) ? this.renderLoading() : this.renderContent()}
           </div>
         </div>
@@ -57,4 +65,6 @@ export default class GunterChartHeader extends Component {
       </div>
     );
   }
-}
+};
+GunterChartHeader = connect(state => ({ ..._.pick(state.sheet, ['gunterView', 'base']) }))(GunterChartHeader);
+export default GunterChartHeader;

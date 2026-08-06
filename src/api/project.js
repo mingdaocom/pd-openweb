@@ -406,7 +406,7 @@ export default {
     return mdyAPI('Project', 'AddTpAuthorizerInfo', args, options);
   },
   /**
-   * 获取网络基本信息
+   * 获取组织基本信息
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
@@ -415,6 +415,17 @@ export default {
    **/
   getProjectInfo: function (args, options = {}) {
     return mdyAPI('Project', 'GetProjectInfo', args, options);
+  },
+  /**
+   * 获取组织资源限制信息（当前仅返回工作表限额及已用数量）
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getProjectLimitationInfo: function (args, options = {}) {
+    return mdyAPI('Project', 'GetProjectLimitationInfo', args, options);
   },
   /**
   * 获取组织与授权相关信息，只返回授权/登录账户是否管理员/是否开启水印
@@ -465,14 +476,66 @@ export default {
     return mdyAPI('Project', 'GetInvitedUsersJoinProjectLog', args, options);
   },
   /**
-  * 获取网络集成类型
-0 代表尚未集成，1代表钉钉自建应用集成，2代表企业微信（第三方），3代表企业微信自建应用，4代表Welink自建应用集成
-  * @param {Object} args 请求参数
+   * 获取Stripe版本订阅支付地址
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {} args.productType
+   * @param {} args.productCategory
+   * @param {integer} args.userExpandCount 外部用户数必填以及版本授权人数扩展
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getUpgradeLicenseUrl: function (args, options = {}) {
+    return mdyAPI('Project', 'GetUpgradeLicenseUrl', args, options);
+  },
+  /**
+   * 更新stripe授权
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {} args.productType
+   * @param {} args.productCategory
+   * @param {integer} args.userExpandCount 外部用户数必填以及版本授权人数扩展
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateStripeLicense: function (args, options = {}) {
+    return mdyAPI('Project', 'UpdateStripeLicense', args, options);
+  },
+  /**
+   * 获取外部门户是否首次订阅
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getExternalIsFirstSubscription: function (args, options = {}) {
+    return mdyAPI('Project', 'GetExternalIsFirstSubscription', args, options);
+  },
+  /**
+   * 获取是否线下订单 true 线下
+   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getCurrentLicense: function (args, options = {}) {
+    return mdyAPI('Project', 'GetCurrentLicense', args, options);
+  },
+  /**
+   * 获取Stripe版本订阅管理地址
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getManageSubscriptionUrl: function (args, options = {}) {
+    return mdyAPI('Project', 'GetManageSubscriptionUrl', args, options);
+  },
   getProjectSource: function (args, options = {}) {
     return mdyAPI('Project', 'GetProjectSource', args, options);
   },

@@ -30,19 +30,14 @@ import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { getFilledRequestParams } from 'src/utils/common';
 import { getTitleTextFromControls } from 'src/utils/control';
 import { getAdvanceSetting } from 'src/utils/control';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import './index.less';
-
-let ajaxRequest = null;
-let getNavGroupRequest = null;
-let apiRequest = null;
-let preWorksheetIds = [];
 
 const GroupFilterList = props => {
   const {
     className,
     views = [],
     base = {},
+    appDetail,
     controls = [],
     navGroupCounts,
     sheetSwitchPermit,
@@ -59,7 +54,8 @@ const GroupFilterList = props => {
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const { navshow, showallitem, allitemname, shownullitem, nullitemname, appnavtype } = getAdvanceSetting(view) || {};
   const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
-  let [keywords, setKeywords] = useState();
+  const [searchValue, setSearchValue] = useState('');
+  const [keywords, setKeywords] = useState('');
   const [navGroupData, setGroupFilterData] = useState([]); //当前的列表数据
   const [rowIdForFilter, setRowIdForFilter] = useState(''); //当前选中的项
   const [navName, setNavName] = useState(''); //创建新纪录时，需要根据当前选中的项带到的默认值
@@ -77,29 +73,33 @@ const GroupFilterList = props => {
 
   let isOption = [9, 10, 11].includes(source.type) || [9, 10, 11].includes(source.sourceControlType); //是否选项
   const breadNavBar = useRef();
-
-  const onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => setPreviewRecordId(undefined));
-  };
+  const ajaxRequestRef = useRef();
+  const apiRequestRef = useRef();
+  const debouncedSetKeywords = useRef(_.debounce(value => setKeywords(value), 300));
 
   useEffect(() => {
-    ajaxRequest = null;
-    getNavGroupRequest = null;
-    preWorksheetIds = [];
+    ajaxRequestRef.current = null;
+    apiRequestRef.current = null;
   }, [viewFlag]);
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
-    window.addEventListener('popstate', onQueryChange);
 
     return () => {
-      window.removeEventListener('popstate', onQueryChange);
+      const ajaxRequest = ajaxRequestRef.current;
+      const apiRequest = apiRequestRef.current;
+      ajaxRequestRef.current = null;
+      apiRequestRef.current = null;
+      debouncedSetKeywords.current.cancel();
+      ajaxRequest?.abort?.();
+      apiRequest?.abort?.();
     };
   }, []);
 
   useEffect(() => {
     if (props.navGroupFilters && _.isEmpty(props.navGroupFilters)) {
       setRowIdForFilter('');
+      setCurrentGroup(appnavtype === '3' && showallitem !== '1' ? { txt: _l('全部'), value: '', isLeaf: true } : {});
     }
   }, [props.navGroupFilters]);
 
@@ -109,18 +109,25 @@ const GroupFilterList = props => {
 
   useEffect(() => {
     fetch();
+    if (appnavtype === '1' && keywords) {
+      getSearchRecordResult(keywords);
+    } else {
+      setSearchRecordList([]);
+    }
   }, [keywords]);
 
   useEffect(() => {
-    if (source.controlId) {
-      setCurrentNodeId();
-      setKeywords();
-      fetch();
-      setRowIdForFilter('');
-      setNavName('');
-      props.getNavGroupCount();
-    }
-  }, [navGroup.controlId, viewId, filters]);
+    if (!source.controlId || source.controlId !== navGroup.controlId) return;
+
+    setCurrentNodeId();
+    debouncedSetKeywords.current.cancel();
+    setSearchValue('');
+    setKeywords('');
+    fetch();
+    setRowIdForFilter('');
+    setNavName('');
+    props.getNavGroupCount();
+  }, [navGroup.controlId, viewId, filters, source.controlId]);
 
   useEffect(() => {
     if ([26, 27, 48, 29].includes(source.type) && navshow === '1') {
@@ -255,31 +262,26 @@ const GroupFilterList = props => {
 
   const fetchData = ({ worksheetId, viewId, rowId, cb, isNext }) => {
     const requestParams = prepareRequestParams({ worksheetId, viewId, rowId, appId }, view, source, controls, keywords);
-    handleRequestCancellation();
-    if (apiRequest && apiRequest.abort) {
-      apiRequest.abort();
-    }
+    apiRequestRef.current?.abort?.();
 
-    apiRequest = makeApiRequest({ worksheetId, viewId, rowId, params: requestParams });
-    apiRequest.then(result => {
-      cleanupRequest();
-      processApiResponse({ result, worksheetId, viewId, rowId, cb, isNext });
-    });
-  };
-
-  //处理请求取消逻辑
-  const handleRequestCancellation = () => {
-    // 如果已有请求且当前工作表在预处理列表中，则取消上一个请求
-    if (
-      getNavGroupRequest &&
-      getNavGroupRequest.abort &&
-      preWorksheetIds.includes(`${base.worksheetId}-${base.viewId}`)
-    ) {
-      getNavGroupRequest.abort();
-    }
-
-    // 将当前工作表添加到预处理列表
-    preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
+    const request = makeApiRequest({ worksheetId, viewId, rowId, params: requestParams });
+    apiRequestRef.current = request;
+    request
+      .then(result => {
+        if (apiRequestRef.current !== request) return;
+        processApiResponse({ result, worksheetId, viewId, rowId, cb, isNext });
+      })
+      .catch(() => {
+        if (apiRequestRef.current === request) {
+          setGroupFilterData([]);
+        }
+      })
+      .finally(() => {
+        if (apiRequestRef.current === request) {
+          apiRequestRef.current = null;
+          setLoading(false);
+        }
+      });
   };
 
   //发起API请求
@@ -407,12 +409,6 @@ const GroupFilterList = props => {
       rowId,
       cb,
     });
-  };
-
-  // 清理请求状态
-  const cleanupRequest = () => {
-    getNavGroupRequest = null;
-    preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${base.worksheetId}-${base.viewId}`); // 从预处理列表中移除当前工作表
   };
 
   const loadData = obj => fetchData(obj);
@@ -733,13 +729,7 @@ const GroupFilterList = props => {
             {(searchRecordList || []).map(item => {
               let txt = getTitleTextFromControls(controls, item);
               return (
-                <div
-                  className="recordItem"
-                  onClick={() => {
-                    handlePushState('page', 'recordDetail');
-                    setPreviewRecordId(item.rowid);
-                  }}
-                >
+                <div key={item.rowid} className="recordItem" onClick={() => setPreviewRecordId(item.rowid)}>
                   {txt}
                 </div>
               );
@@ -762,11 +752,9 @@ const GroupFilterList = props => {
             searchType: 1,
           };
 
-    if (ajaxRequest && ajaxRequest.abort) {
-      ajaxRequest.abort();
-    }
+    ajaxRequestRef.current?.abort?.();
 
-    ajaxRequest = sheetAjax.getFilterRows({
+    const request = sheetAjax.getFilterRows({
       worksheetId: base.worksheetId,
       viewId: view.viewId,
       keywords,
@@ -776,10 +764,23 @@ const GroupFilterList = props => {
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       ...param,
     });
-    ajaxRequest.then(res => {
-      const { data = [] } = res;
-      setSearchRecordList(data);
-    });
+    ajaxRequestRef.current = request;
+    request
+      .then(res => {
+        if (ajaxRequestRef.current !== request) return;
+        const { data = [] } = res;
+        setSearchRecordList(data);
+      })
+      .catch(() => {
+        if (ajaxRequestRef.current === request) {
+          setSearchRecordList([]);
+        }
+      })
+      .finally(() => {
+        if (ajaxRequestRef.current === request) {
+          ajaxRequestRef.current = null;
+        }
+      });
   };
 
   return (
@@ -788,18 +789,16 @@ const GroupFilterList = props => {
         <div className="searchBar flexRow">
           <i className="icon icon-search Font17"></i>
           <Input
-            value={keywords || ''}
+            value={searchValue}
             placeholder={_l('搜索')}
             className="flex"
             onChange={value => {
               let keyWords = value.trim();
-              setKeywords(keyWords);
+              setSearchValue(value);
+              debouncedSetKeywords.current(keyWords);
               setCurrentNodeId();
               setGroupFilterData([]);
               setNextData([]);
-              if (appnavtype === '1') {
-                _.debounce(() => getSearchRecordResult(keyWords), 500);
-              }
             }}
           />
         </div>
@@ -813,6 +812,7 @@ const GroupFilterList = props => {
         enablePayment={worksheetInfo.enablePayment}
         worksheetInfo={worksheetInfo}
         appId={base.appId}
+        appDetail={appDetail?.detail}
         worksheetId={base.worksheetId}
         viewId={base.viewId}
         rowId={previewRecordId}
@@ -845,6 +845,7 @@ export default connect(
       'quickFilterWithDefault',
       'savedFilters',
       'activeSavedFilter',
+      'appDetail',
     ]),
   }),
   dispatch =>

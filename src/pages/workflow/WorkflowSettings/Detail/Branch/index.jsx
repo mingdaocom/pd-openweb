@@ -132,7 +132,7 @@ export default class Branch extends Component {
         />
         {!data.length && (
           <div
-            className="Font13 addConditionBtn ThemeColor3 ThemeHoverColor2 mTop15"
+            className="Font13 addConditionBtn colorPrimary hoverColorPrimaryDark mTop15"
             onClick={() => this.setState({ data: [[{}]] })}
           >
             {_l('添加筛选条件')}

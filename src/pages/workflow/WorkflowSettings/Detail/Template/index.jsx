@@ -4,6 +4,7 @@ import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
+import { pathCompletion } from 'src/utils/common';
 import { RELATION_TYPE } from '../../enum';
 import {
   CustomTextarea,
@@ -29,18 +30,26 @@ export default class Template extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取节点详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -53,6 +62,10 @@ export default class Template extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         this.setState({
           data: appId
             ? Object.assign({}, this.state.data, {
@@ -94,7 +107,7 @@ export default class Template extends Component {
       return;
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -145,7 +158,11 @@ export default class Template extends Component {
           unbindContent={
             <div className="textSecondary workflowDetailDesc mTop10">
               {_l('当前应用外部门户未开通微信登录，请前往')}
-              <a href={`/app/${relationId}/role/external`} className="ThemeColor3 ThemeHoverColor2" target="_self">
+              <a
+                href={pathCompletion(`/app/${relationId}/role/external`)}
+                className="colorPrimary hoverColorPrimaryDark"
+                target="_self"
+              >
                 {_l('门户设置')}
               </a>
             </div>
@@ -182,7 +199,7 @@ export default class Template extends Component {
           updateSource={this.updateSource}
         />
         <div
-          className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+          className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
         >
           <i className="Font28 icon-task-add-member-circle mRight10" />
@@ -214,7 +231,7 @@ export default class Template extends Component {
       return {
         text: item.name,
         value: item.id,
-        className: item.id === data.appId ? 'ThemeColor3' : '',
+        className: item.id === data.appId ? 'colorPrimary' : '',
       };
     });
     const selectAppItem = _.find(appList, item => item.value === data.appId);
@@ -393,7 +410,11 @@ export default class Template extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={data.accounts.length && data.appId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={data.accounts.length && data.appId && !_.isEqual(data, this.cacheResult)}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

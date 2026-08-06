@@ -16,7 +16,7 @@ class TaskDetailEntrypoint extends Component {
   render() {
     const { taskDetails, match } = this.props;
     const { id } = match.params;
-    let title = '任务详情-任务';
+    let title = _l('任务详情-任务');
 
     if (taskDetails[id] && !_.get(taskDetails, [id, 'status'])) {
       title = _l('任务已删除');

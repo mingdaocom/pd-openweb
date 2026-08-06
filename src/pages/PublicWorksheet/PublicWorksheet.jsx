@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Button, Dialog, RichText, ScrollView, Skeleton } from 'ming-ui';
 import { Absolute, FormTopImgCon } from 'worksheet/components/Basics';
 import { VerificationPass } from 'worksheet/components/ShareState';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
@@ -216,7 +217,7 @@ export default class PublicWorksheet extends React.Component {
   render() {
     const { isPreview } = this.props;
     const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey, submitRes } = this.state;
-    const { worksheetId, writeScope } = publicWorksheetInfo;
+    const { worksheetId, writeScope, appId, projectId } = publicWorksheetInfo;
 
     const request = getRequest();
     const { bg, cover } = request;
@@ -235,6 +236,14 @@ export default class PublicWorksheet extends React.Component {
       return (
         <React.Fragment>
           <div className={cx('formContent flexColumn', { mTop10: bgShowTop })}>
+            {!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) && (
+              <PublicAppLangDropdown
+                className="publicWorksheetLang publicWorksheetLangInForm"
+                appId={appId}
+                projectId={projectId}
+                placement="bottomRight"
+              />
+            )}
             {bgShowTop && coverPic && cover !== 'no' && (
               <FormTopImgCon>
                 <img src={coverPic} />

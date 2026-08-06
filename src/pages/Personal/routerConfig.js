@@ -36,6 +36,12 @@ export const routerConfigs = [
     component: () => import('./privatekey'),
   },
   {
+    title: _l('个人访问令牌'),
+    icon: 'icon-api',
+    typetag: ['pat'],
+    component: () => import('./personalAccessToken'),
+  },
+  {
     title: _l('已授权应用'),
     icon: 'icon-device_hub',
     typetag: ['authorizedApp'],

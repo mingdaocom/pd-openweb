@@ -2,11 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import './popup.less';
-
-const ClickAway = createDecoratedComponent(withClickAway);
 
 class Popup extends React.Component {
   static propTypes = {

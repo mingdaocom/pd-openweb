@@ -266,7 +266,7 @@ function AuthorizeToApp(props) {
         return (
           <div className="optionCon">
             <span
-              className="ThemeColor3 Hand"
+              className="colorPrimary Hand"
               onClick={() => {
                 if (optionLoading) {
                   return;
@@ -413,7 +413,7 @@ function AuthorizeToApp(props) {
             companyId={projectId}
           />
           <div
-            className="TxtCenter Relative textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"
+            className="TxtCenter Relative textSecondary hoverBorderColorPrimary hoverColorPrimary pointer addBtn mTop12 Block"
             onClick={e => {
               addMembers(e);
             }}

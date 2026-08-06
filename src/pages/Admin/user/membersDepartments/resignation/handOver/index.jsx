@@ -9,6 +9,7 @@ import PaginationWrap from '../../../../components/PaginationWrap';
 import SearchInput from '../SearchInput';
 import Detail from './detail';
 import './style.less';
+import { pathCompletion } from 'src/utils/common';
 
 export default class HandOver extends React.Component {
   static propTypes = {
@@ -40,14 +41,16 @@ export default class HandOver extends React.Component {
     this.fetchList();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeTab !== this.props.activeTab || nextProps.level !== this.props.level) {
-      this.setState(
-        {
-          pageIndex: 1,
-        },
-        this.fetchList.bind(this),
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.activeTab !== prevProps.activeTab || this.props.level !== prevProps.level) {
+        this.setState(
+          {
+            pageIndex: 1,
+          },
+          this.fetchList.bind(this),
+        );
+      }
     }
   }
 
@@ -107,7 +110,7 @@ export default class HandOver extends React.Component {
         {user.accountId ? (
           <span className="flexColumn TxtLeft personBox ellipsis pRight10">
             <UserCard sourceId={user.accountId}>
-              <a className="Bold overflow_ellipsis" href={`/user_${user.accountId}`} title={user.fullname}>
+              <a className="Bold overflow_ellipsis" href={pathCompletion(`/user_${user.accountId}`)} title={user.fullname}>
                 {user.fullname}
               </a>
             </UserCard>
@@ -173,7 +176,7 @@ export default class HandOver extends React.Component {
             ) : (
               <div className="tableOptions">
                 <span
-                  className="ThemeColor3 Hand adminHoverColor"
+                  className="colorPrimary Hand adminHoverColor"
                   onClick={() => {
                     this.setState({
                       selectAccount: item.originalChargeUser,
@@ -237,7 +240,7 @@ export default class HandOver extends React.Component {
 
   render() {
     const { selectAccount } = this.state;
-    const { visible, onCancel = () => {} } = this.props;
+    const { visible, onCancel = () => { } } = this.props;
 
     return (
       <Dialog title="" width={1000} className="handoverDialog" visible={visible} showFooter={false} onCancel={onCancel}>

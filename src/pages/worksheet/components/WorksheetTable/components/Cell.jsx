@@ -3,7 +3,6 @@ import cx from 'classnames';
 import { every, find, findIndex, get, includes, isEmpty, isEqual, isFunction, isUndefined } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
@@ -11,7 +10,6 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/utils/control';
 import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
 import { getRecordColor } from 'src/utils/record';
-import { getSheetCellRuleFieldStyleVars } from '../util';
 import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
 
@@ -265,6 +263,7 @@ function Cell(props) {
     allowAdd,
     allowlink,
     isSubList,
+    disableValidate,
     isRelateRecordList,
     fromModule,
     projectId,
@@ -288,7 +287,6 @@ function Cell(props) {
     cellErrors,
     rowHeightEnum,
     rulePermissions,
-    showControlStyle,
     masterData,
     sheetSwitchPermit,
     sheetViewHighlightRows,
@@ -593,6 +591,7 @@ function Cell(props) {
       allowlink={allowlink}
       leftFixedCount={leftFixedCount}
       isSubList={isSubList}
+      disableValidate={disableValidate}
       fromModule={fromModule}
       projectId={projectId}
       cache={cache}
@@ -681,7 +680,7 @@ function Cell(props) {
             <Tooltip
               mouseEnterDelay={0.8}
               title={showShortcutTip ? _l('展开所有下级') : ''}
-              shortcut={showShortcutTip ? (window.isMacOs ? '⇧单击' : 'shift + 单击') : ''}
+              shortcut={showShortcutTip ? (window.isMacOs ? _l('⇧单击') : _l('shift + 单击')) : ''}
               placement="bottom"
             >
               <TreeExpandIcon
@@ -715,7 +714,7 @@ function Cell(props) {
         {addSubRecordVisible && (
           <Tooltip mouseEnterDelay={0.6} title={_l('添加子记录')} placement="bottom">
             <AddChildBtn
-              className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
+              className={cx('addChildBtn hoverShow hoverColorPrimary', tableType)}
               style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
               onClick={() => {
                 if (_.isFunction(actions.handleAddNewRecord)) {
@@ -725,7 +724,21 @@ function Cell(props) {
                     addRecord.default({
                       worksheetId,
                       isDraft,
-                      masterRecord,
+                      // 关联记录表格（本表关联树形）会传入 masterRecord（外层主记录）。此时层级控件为列表(LIST)展示，
+                      // defaultRelatedSheet 会被 getFormDataForNewRecord 的 showtype 过滤掉，父级未写入，记录被错误挂到主记录。
+                      // 这里直接把层级控件默认值设为当前节点行（与 ChildTable 一致），并清除指向主记录的 masterRecord，
+                      // 确保新建子记录关联到当前行而非主记录。主表树视图（无 masterRecord）维持原逻辑不变。
+                      ...(masterRecord
+                        ? {
+                            masterRecord: undefined,
+                            defaultFormData: {
+                              [addParentControl.controlId]: JSON.stringify([
+                                { sid: row.rowid, sourcevalue: JSON.stringify(row), type: 8 },
+                              ]),
+                            },
+                            defaultFormDataEditable: true,
+                          }
+                        : { masterRecord }),
                       defaultRelatedSheet: {
                         worksheetId,
                         relateSheetControlId: addParentControl.sourceControlId,

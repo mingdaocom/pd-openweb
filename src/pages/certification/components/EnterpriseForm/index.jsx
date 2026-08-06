@@ -92,30 +92,30 @@ const initialValues = {
   contactMobile: '',
 };
 
+const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+const formatValidDate = (period = '', splitKey = '-', format = 'YYYY-MM-DD') => {
+  const dateArr = period.split(splitKey);
+  const startDate = moment(dateArr[0], format).isValid() ? moment(dateArr[0], format) : '';
+  const endDate =
+    dateArr[1] === '长期'
+      ? moment('2099-12-31')
+      : moment(dateArr[1], format).isValid()
+        ? moment(dateArr[1], format)
+        : '';
+  return [startDate, endDate];
+};
+
 export default function EnterpriseForm(props) {
   const { form, formData, setFormData, type = 'cert' } = props;
   const { enterpriseType, businessLicense } = formData;
 
-  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang];
+  const locale = locales[md.global.Account.lang] || localeEn;
 
   const isSign = type === 'sign';
 
   useEffect(() => {
     setFormData({ ...initialValues, enterpriseType: enterpriseType || 1 });
   }, [enterpriseType]);
-
-  const formatValidDate = (period = '', splitKey = '-', format = 'YYYY-MM-DD') => {
-    const dateArr = period.split(splitKey);
-    const startDate = moment(dateArr[0], format).isValid() ? moment(dateArr[0], format) : '';
-    const endDate =
-      dateArr[1] === '长期'
-        ? moment('2099-12-31')
-        : moment(dateArr[1], format).isValid()
-          ? moment(dateArr[1], format)
-          : '';
-    return [startDate, endDate];
-  };
 
   // 验证执照或证书
   const onValidateBizLicenseOCR = (first, value) => {

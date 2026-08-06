@@ -25,10 +25,10 @@ import { importDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFr
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { selectRecords } from 'src/components/SelectRecords';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
-import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
+import { browserIsMobile, getDefaultThemeMode, getFilledRequestParams } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { renderText } from 'src/utils/control';
-import { addBehaviorLog, compatibleMDJS, handlePushState, mdAppResponse } from 'src/utils/project';
+import { addBehaviorLog, compatibleMDJS, mdAppResponse } from 'src/utils/project';
 import selectLocation from './selectLocation';
 
 export const api = {
@@ -142,10 +142,6 @@ export const utils = {
           return { action: 'update', value: safeParse(res.value)[0] };
         }
       });
-    }
-
-    if (isMobile) {
-      handlePushState('page', 'recordDetail');
     }
 
     return new Promise(resolve => {
@@ -449,7 +445,7 @@ export const utils = {
     return Promise.resolve({});
   },
   getThemeMode: () => {
-    return localStorage.getItem('themeMode') || 'light';
+    return localStorage.getItem('themeMode') || getDefaultThemeMode();
   },
   importDataFromExcel: async (options = {}) => {
     const isDisabled = location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal;

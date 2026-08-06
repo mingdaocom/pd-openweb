@@ -17,6 +17,12 @@ const loadWeiXinScript = () => {
   });
 };
 
+const isDesktopMacWeChat = () => {
+  const ua = window.navigator.userAgent.toLowerCase();
+
+  return window.isMacOs && !/iphone|ipad|ipod|mobile|wechatdevtools/.test(ua);
+};
+
 // 微信分享卡片配置
 const initShareConfig = async props => {
   const { title = '', desc = '', projectId, controls = [], worksheetId, type } = props;
@@ -79,7 +85,7 @@ const initShareConfig = async props => {
 
 export default async function (props) {
   const { worksheetId } = props;
-  if (!window.isWeiXin || window.isMacOs || !worksheetId) return;
+  if (!window.isWeiXin || isDesktopMacWeChat() || !worksheetId) return;
 
   const run = async () => {
     try {

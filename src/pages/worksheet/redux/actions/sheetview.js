@@ -20,7 +20,7 @@ import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
 import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
 import {
-  SYSTEM_CONTROL,
+  SYSTEM_CONTROL_WITH_UAID,
   WIDGETS_TO_API_TYPE_ENUM,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
@@ -39,6 +39,13 @@ import { updateNavGroup } from './navFilter.js';
 import { sortDataByGroupItems } from './util.js';
 
 const DEFAULT_PAGESIZE = 50;
+const DEFAULT_GROUP_PAGESIZE = 20;
+
+function getGroupPageSize(maxCount) {
+  const pageSize = parseInt(maxCount, 10);
+
+  return pageSize > 0 ? pageSize : DEFAULT_GROUP_PAGESIZE;
+}
 
 function checkIsTreeTableView(state = {}) {
   const { base, views } = state.sheet;
@@ -199,7 +206,7 @@ export const fetchRows = ({
     let pageSize = isTreeTableView ? 1000 : savedPageSize || DEFAULT_PAGESIZE;
 
     if (isGroupedView && !chartId) {
-      pageSize = 20;
+      pageSize = getGroupPageSize(maxCount);
     }
 
     const args = {
@@ -273,7 +280,7 @@ export const fetchRows = ({
             c =>
               c.controlId.length === 24 ||
               _.includes(
-                SYSTEM_CONTROL.concat(WORKFLOW_SYSTEM_CONTROL).map(c => c.controlId),
+                SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL).map(c => c.controlId),
                 c.controlId,
               ),
           );
@@ -362,18 +369,24 @@ export const fetchRows = ({
 export const loadGroupMore = groupKey => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId } = base;
+    const { appId, viewId, worksheetId, maxCount } = base;
     const abortController = sheetview.abortController;
     let { sortControls } = sheetview.sheetFetchParams;
-    const rows = get(sheetview, 'sheetViewData.rows', []).filter(
-      r => !(r.groupKey === groupKey && r.rowid === 'loadGroupMore'),
-    );
+    const currentRows = get(sheetview, 'sheetViewData.rows', []);
+    const loadMoreRow = find(currentRows, r => r.groupKey === groupKey && r.rowid === 'loadGroupMore');
+    const rows = currentRows.filter(r => !(r.groupKey === groupKey && r.rowid === 'loadGroupMore'));
     const groupFetchParams = sheetview.groupFetchParams;
     const prevPageIndex = get(groupFetchParams, `${groupKey}.pageIndex`, 1);
+    const nextPageIndex = prevPageIndex + 1;
+
+    if (loadMoreRow?.isLoading) {
+      return;
+    }
+
     const args = {
       worksheetId,
-      pageSize: 20,
-      pageIndex: prevPageIndex + 1,
+      pageSize: getGroupPageSize(maxCount),
+      pageIndex: nextPageIndex,
       status: 1,
       appId,
       viewId,
@@ -384,59 +397,61 @@ export const loadGroupMore = groupKey => {
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters,
     };
-    const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args, filters.requestParams), {
-      abortController,
-    });
     dispatch({
-      type: 'WORKSHEET_SHEETVIEW_CHANGE_GROUP_FETCH_PARAMS',
-      groupKey,
-      changes: {
-        isLoading: true,
-      },
+      type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+      rows: currentRows.map(row =>
+        row.groupKey === groupKey && row.rowid === 'loadGroupMore' ? { ...row, isLoading: true } : row,
+      ),
     });
-    fetchRowsAjax.then(res => {
-      let lastRowIndex;
-      lastRowIndex = _.findLastIndex(rows, r => r.groupKey === groupKey);
-      const newRowsOfGroup = get(find(res.data, { key: groupKey }), 'rows', []).map(rowStr => ({
-        ...safeParse(rowStr),
-        groupKey,
-      }));
 
-      if (isEmpty(newRowsOfGroup)) {
-        return;
-      }
+    worksheetAjax
+      .getFilterRows(getFilledRequestParams(args, filters.requestParams), {
+        abortController,
+      })
+      .then(res => {
+        let lastRowIndex = _.findLastIndex(rows, r => r.groupKey === groupKey);
+        const newRowsOfGroup = get(find(res.data, { key: groupKey }), 'rows', []).map(rowStr => ({
+          ...safeParse(rowStr),
+          groupKey,
+        }));
+        let newRows = rows;
 
-      let newRows = [...rows.slice(0, lastRowIndex + 1), ...newRowsOfGroup, ...rows.slice(lastRowIndex + 1)];
-      const rowsOfGroup = newRows.filter(r => r.groupKey === groupKey);
-      const group = find(newRows, r => r.rowid === 'groupTitle' && r.key === groupKey);
+        if (!isEmpty(newRowsOfGroup)) {
+          newRows = [...rows.slice(0, lastRowIndex + 1), ...newRowsOfGroup, ...rows.slice(lastRowIndex + 1)];
+          const rowsOfGroup = newRows.filter(r => r.groupKey === groupKey);
+          const group = find(newRows, r => r.rowid === 'groupTitle' && r.key === groupKey);
 
-      if (rowsOfGroup.length < group.count) {
-        lastRowIndex = _.findLastIndex(newRows, r => r.groupKey === groupKey);
-        newRows = [
-          ...newRows.slice(0, lastRowIndex + 1),
-          {
-            rowid: 'loadGroupMore',
-            groupKey: group.key,
-          },
-          ...newRows.slice(lastRowIndex + 1),
-        ];
-      }
+          if (group && rowsOfGroup.length < group.count) {
+            lastRowIndex = _.findLastIndex(newRows, r => r.groupKey === groupKey);
+            newRows = [
+              ...newRows.slice(0, lastRowIndex + 1),
+              {
+                rowid: 'loadGroupMore',
+                groupKey: group.key,
+              },
+              ...newRows.slice(lastRowIndex + 1),
+            ];
+          }
+        }
 
-      dispatch({
-        type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
-        rows: newRows,
-      });
-      setTimeout(() => {
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+          rows: newRows,
+        });
         dispatch({
           type: 'WORKSHEET_SHEETVIEW_CHANGE_GROUP_FETCH_PARAMS',
           groupKey,
           changes: {
-            pageIndex: prevPageIndex + 1,
-            isLoading: false,
+            pageIndex: nextPageIndex,
           },
         });
-      }, 10);
-    });
+      })
+      .catch(() => {
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+          rows: currentRows,
+        });
+      });
   };
 };
 
@@ -577,7 +592,7 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
           const errorResult = getRuleErrorInfo(rules, res.badData);
 
           if (_.get(errorResult, '0.errorInfo.0')) {
-            alert('编辑失败，' + _.get(errorResult, '0.errorInfo.0.errorMessage'), 2);
+            alert(_l('编辑失败，%0', _.get(errorResult, '0.errorInfo.0.errorMessage')), 2);
           }
         } else {
           handleRecordError(res.resultCode);
@@ -723,6 +738,8 @@ export function refresh({
       dispatch(changePageIndex(1));
     }
 
+    // clicksearch 仅拦截“无任何快速筛选条件”的初始态；
+    // 若默认值已写入 quickFilter，则应按条件自动查询。
     if ((needClickToSearch && _.isEmpty(quickFilter)) || (navGroupToSearch && _.isEmpty(navGroupFilters))) {
       dispatch(setRowsEmpty());
     } else {

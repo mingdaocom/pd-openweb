@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+﻿import React, { Fragment } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
@@ -156,7 +156,7 @@ export default class PersonalInfo extends React.Component {
           <span className="itemLabel" />
           <button
             type="button"
-            className="ming Button Button--link ThemeColor3 hoverTextPrimaryLight"
+            className="ming Button Button--link colorPrimary hoverColorPrimaryLight"
             onClick={this.handleEditDetail.bind(this)}
           >
             {_l('更多')}
@@ -198,7 +198,7 @@ export default class PersonalInfo extends React.Component {
           <span className="itemLabel" />
           <button
             type="button"
-            className="ming Button Button--link ThemeColor3 hoverTextPrimaryLight"
+            className="ming Button Button--link colorPrimary hoverColorPrimaryLight"
             onClick={this.handleEditInfo.bind(this)}
           >
             {_l('更多')}
@@ -262,14 +262,14 @@ export default class PersonalInfo extends React.Component {
           <div className="textTertiary itemDate">{_l('%0 至 %1', item.startDate, endTime)}</div>
           <div className="itemOption">
             <span
-              className="ThemeColor3 hoverTextPrimaryLight mRight24"
+              className="colorPrimary hoverColorPrimaryLight mRight24"
               onClick={() => this.handleAddOrEditItem(type, item)}
             >
               <span className="mLeft6 icon-edit_17" />
               <span>{_l('编辑')}</span>
             </span>
             <span
-              className="ThemeColor3 hoverTextPrimaryLight mRight24"
+              className="colorPrimary hoverColorPrimaryLight mRight24"
               onClick={() => this.handleDeleteItem(type, item.autoId)}
             >
               <span className="mLeft6 icon-delete_12" />
@@ -337,6 +337,7 @@ export default class PersonalInfo extends React.Component {
   //上传头像
   handleUploadImg() {
     Dialog.confirm({
+      width: 980,
       title: _l('上传头像'),
       dialogClasses: 'uploadAvatorDialog',
       noFooter: true,
@@ -427,7 +428,7 @@ export default class PersonalInfo extends React.Component {
                     {md.global.SysSettings.enableEditAccountInfo && (
                       <Tooltip placement="top" title={_l('编辑姓名')}>
                         <span
-                          className="Font15 Hand hoverTextPrimaryLight textDisabled mLeft10 icon-create"
+                          className="Font15 Hand hoverColorPrimaryLight textDisabled mLeft10 icon-create"
                           onClick={() =>
                             this.setState({ editFullName: true }, () => {
                               $('.editfullNameInput').focus();
@@ -442,7 +443,7 @@ export default class PersonalInfo extends React.Component {
               <div className="mTop10 textPrimary">
                 <label>
                   {_l('使用：')}
-                  <span className="mLeft5 ThemeColor3">{_l('%0 天', accountInfo.loginDays)}</span>
+                  <span className="mLeft5 colorPrimary">{_l('%0 天', accountInfo.loginDays)}</span>
                 </label>
                 <span className="textTertiary hoverColorPrimary mLeft48 Hand" onClick={this.onCopyID}>
                   {_l('用户ID')}
@@ -467,7 +468,7 @@ export default class PersonalInfo extends React.Component {
           <div className="Font15 Bold textPrimary mBottom16">{_l('教育经历')}</div>
           {this.renderEdu()}
           <span
-            className="Hand ThemeColor3 hoverTextPrimaryLight"
+            className="Hand colorPrimary hoverColorPrimaryLight"
             onClick={() => this.handleAddOrEditItem(2, educationList)}
           >
             {_l('添加')}
@@ -478,7 +479,7 @@ export default class PersonalInfo extends React.Component {
           <div className="Font15 Bold textPrimary mBottom16">{_l('工作履历')}</div>
           {this.renderWork()}
           <span
-            className="Hand ThemeColor3 hoverTextPrimaryLight"
+            className="Hand colorPrimary hoverColorPrimaryLight"
             onClick={() => this.handleAddOrEditItem(1, workList)}
           >
             {_l('添加')}

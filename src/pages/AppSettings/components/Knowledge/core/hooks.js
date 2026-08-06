@@ -112,7 +112,7 @@ export const useKnowledgeUsage = projectId => {
         setAttachmentEnhancedTip(
           doclingExtText
             ? _l(
-                '开启后，对 %0 格式的附件使用视觉模型解析，提升复杂文档的结构还原准确率。',
+                '开启后，对 %0 格式的附件进行增强解析，提升复杂文档的内容提取效果；暂不识别文档内图片内容。',
                 doclingExtText.split(',').join('、'),
               )
             : '',

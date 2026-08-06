@@ -66,7 +66,7 @@ export default function Departments(props) {
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <DepartmentsCon>
         {values.map(item => (
-          <DepartmentsItem>
+          <DepartmentsItem key={item.departmentId}>
             <span className="userName">{item.departmentName}</span>
             <Icon icon="close" onClick={() => deleteCurrentDepartment(item)} />
           </DepartmentsItem>

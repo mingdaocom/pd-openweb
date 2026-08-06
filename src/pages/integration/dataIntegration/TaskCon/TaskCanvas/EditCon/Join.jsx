@@ -243,7 +243,7 @@ export default function Join(props) {
                   }}
                 >
                   <DropWrap className={cx('joinDrop flexColumn alignItemsCenter Hand', { visible })}>
-                    <div className="ThemeColor3 Bold">{typeData.txt}</div>
+                    <div className="colorPrimary Bold">{typeData.txt}</div>
                     <div className={cx(`iconImg InlineBlock ${typeData.img}`)} style={{ width: 24, height: 24 }}></div>
                     <i className="icon icon-arrow-down-border textDisabled" />
                   </DropWrap>

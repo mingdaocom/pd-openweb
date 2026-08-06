@@ -33,24 +33,18 @@ class CheckboxGroup extends Component {
 
   constructor(props) {
     super(props);
+    const checkedValues = props.checkedValues || props.defaultCheckedValues || [];
     this.state = {
-      data: this.props.data || [],
+      data: this.getCheckedData(props.data || [], checkedValues),
     };
     this.data = _.cloneDeep(this.state.data);
   }
 
-  state = {
-    data: this.props.data,
-  };
-
-  componentWillMount() {
-    const checkedValues = this.props.checkedValues || this.props.defaultCheckedValues || [];
-    this.checkedArraytoData(checkedValues);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.checkedValues) {
-      this.checkedArraytoData(nextProps.checkedValues);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.checkedValues) {
+        this.checkedArraytoData(this.props.checkedValues);
+      }
     }
   }
 
@@ -62,9 +56,10 @@ class CheckboxGroup extends Component {
     }
   }
 
-  checkedArraytoData(checkedArray) {
-    if (!checkedArray) return;
-    this.data = this.data.map(item => {
+  getCheckedData(data, checkedArray) {
+    const nextData = _.cloneDeep(data || []);
+    if (!checkedArray) return nextData;
+    return nextData.map(item => {
       if (checkedArray.indexOf(item.value) >= 0) {
         item.checked = true;
       } else {
@@ -73,6 +68,11 @@ class CheckboxGroup extends Component {
 
       return item;
     });
+  }
+
+  checkedArraytoData(checkedArray) {
+    if (!checkedArray) return;
+    this.data = this.getCheckedData(this.data, checkedArray);
     this.setState({
       data: this.data,
     });

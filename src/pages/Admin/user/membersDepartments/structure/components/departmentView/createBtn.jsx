@@ -7,6 +7,8 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Icon, Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import projectSettingAjax from 'src/api/projectSetting';
+import { CLEAR_CACHE_PROCESS_TYPE } from 'src/pages/Admin/enum';
 import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import { downloadFile } from '../../../../../util';
@@ -48,6 +50,10 @@ class CreateBtn extends Component {
     }
   }
 
+  componentWillUnmount() {
+    emitter.removeListener('handleClick', this.handleClick);
+  }
+
   handleClick(e) {
     if (e) {
       e.stopPropagation();
@@ -83,6 +89,20 @@ class CreateBtn extends Component {
     });
   };
 
+  clearDepartmentCache = () => {
+    const { projectId } = this.props;
+    this.setState({ popupVisible: false });
+    projectSettingAjax
+      .clearItemCache({ projectId, itemId: '', processType: CLEAR_CACHE_PROCESS_TYPE.ALL_DEPARTMENT })
+      .then(data => {
+        if (data) {
+          alert(_l('刷新中，请稍后查看'));
+        } else {
+          alert(_l('刷新失败'), 2);
+        }
+      });
+  };
+
   render() {
     const {
       showDisabledDepartment,
@@ -108,24 +128,26 @@ class CreateBtn extends Component {
         >
           <Icon className="Font16 textDisabled Hand mLeft4" icon="info_outline" />
         </Tooltip>
+        <div className="flex"></div>
         {hasDepartmentAuth && (
-          <Fragment>
-            <div className="flex"></div>
-            <span className="Hand colorPrimary mRight12" onClick={this.handleClick}>
-              <i className="mRight3 icon-add Font18 TxtMiddle" />
-              {_l('添加')}
-            </span>
-            <Trigger
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 0],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popupVisible={popupVisible}
-              onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
-              popup={
-                <MenuWrap>
+          <span className="Hand colorPrimary mRight12" onClick={this.handleClick}>
+            <i className="mRight3 icon-add Font18 TxtMiddle" />
+            {_l('添加')}
+          </span>
+        )}
+        <Trigger
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+            offset: [0, 0],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+          popupVisible={popupVisible}
+          onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+          popup={
+            <MenuWrap>
+              {hasDepartmentAuth && (
+                <Fragment>
                   <MenuItem onClick={() => handleShowDisabledDepartment(!showDisabledDepartment)}>
                     <Checkbox text={_l('显示停用部门')} checked={showDisabledDepartment} />
                   </MenuItem>
@@ -141,13 +163,16 @@ class CreateBtn extends Component {
                   <MenuItem key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
                     {_l('导出部门')}
                   </MenuItem>
-                </MenuWrap>
-              }
-            >
-              <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
-            </Trigger>
-          </Fragment>
-        )}
+                </Fragment>
+              )}
+              <MenuItem key="2" onClick={this.clearDepartmentCache}>
+                {_l('刷新部门列表')}
+              </MenuItem>
+            </MenuWrap>
+          }
+        >
+          <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
+        </Trigger>
       </Wrap>
     );
   }

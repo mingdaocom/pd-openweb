@@ -4,7 +4,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
 
 export const ERROR_STATUS = {
   NO_PERMISSION: -1,
@@ -18,9 +18,12 @@ export const ERROR_MESSAGE = {
   [ERROR_STATUS.OVER_LENGTH]: _l('筛选文本过长'),
 };
 
-// 公开表单下接口异化
-const worksheetAjax =
-  window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord') ? publicWorksheetAjax : sheetAjax;
+// 公开表单标识在页面入口初始化，SelectRecords 可能先被模块加载，接口选择必须运行时判断。
+function getWorksheetAjax() {
+  return window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
+    ? publicWorksheetAjax
+    : sheetAjax;
+}
 
 function getSearchConfig(control) {
   try {
@@ -367,11 +370,12 @@ export default function useRecords(props) {
 }
 
 export function getWorksheetInfo(worksheetId, parentWorksheetId) {
-  return worksheetAjax
+  return getWorksheetAjax()
     .getWorksheetInfo({
       worksheetId,
       getTemplate: true,
       relationWorksheetId: parentWorksheetId,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     })
     .then(data => {
       window.worksheetControlsCache = {};
@@ -380,9 +384,13 @@ export function getWorksheetInfo(worksheetId, parentWorksheetId) {
           window.worksheetControlsCache[c.dataSource] = c.relationControls;
         }
       });
-      const appId = _.get(window, 'appInfo.id');
+      const appId = _.get(window, 'appInfo.id') || data.appId;
       const translateInfo = getTranslateInfo(appId, null, data.worksheetId);
       data.entityName = translateInfo.recordName || data.entityName;
+      if (data.advancedSetting) {
+        data.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, data.worksheetId, data.advancedSetting);
+      }
+
       if (get(data, 'template.controls')) {
         data.template.controls = replaceControlsTranslateInfo(appId, data.worksheetId, data.template.controls);
       }

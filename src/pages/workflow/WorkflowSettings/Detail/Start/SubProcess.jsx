@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 import { APP_TYPE, APP_TYPE_TEXT, FIELD_TYPE_LIST } from '../../enum';
 
 const List = styled.div`
@@ -96,7 +97,9 @@ export default ({ data, updateSource }) => {
                     <div className="mLeft10 w30 flexRow mTop8 Font16 alignItemsCenter">
                       <Icon
                         icon={item.attribute === 1 ? 'ic_title' : 'title'}
-                        className={cx('textSecondary ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
+                        className={cx('textSecondary hoverColorPrimary pointer', {
+                          colorPrimary: item.attribute === 1,
+                        })}
                         onClick={() => {
                           updateSource({
                             controls: data.controls.map(o => {
@@ -124,8 +127,8 @@ export default ({ data, updateSource }) => {
             <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
               <div className="Font13">
                 <span
-                  className="ThemeColor3 ThemeHoverColor2 pointerEventsAuto"
-                  onClick={() => window.open(`/workflowedit/${item.processId}`)}
+                  className="colorPrimary hoverColorPrimaryDark pointerEventsAuto"
+                  onClick={() => window.open(pathCompletion(`/workflowedit/${item.processId}`))}
                 >
                   {item.processName}
                 </span>

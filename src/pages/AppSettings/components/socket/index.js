@@ -3,6 +3,7 @@ import _ from 'lodash';
 import filterXSS from 'xss';
 import { antNotification, Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 
 const getAction = status => {
   switch (status) {
@@ -21,7 +22,7 @@ const getCommon = ({ id, title, msg, status }) => {
   return {
     key: id,
     className: 'customNotification',
-    closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
+    closeIcon: <Icon icon="close" className="Font20 textTertiary hoverColorPrimary" />,
     duration: 5,
     message: title,
     description: <div dangerouslySetInnerHTML={{ __html: filterXSS(msg) }} />,
@@ -66,10 +67,10 @@ export default () => {
     let title = status === 1 ? _l('应用正在导入升级中...') : status === 2 ? _l('导入升级完成') : _l('导入升级失败');
     let msg =
       status === 1
-        ? _l(`应用“${appName}”正在导入升级，完成后会通知您`)
+        ? _l('应用”%0”正在导入升级，完成后会通知您', appName)
         : status === 2
-          ? _l(`应用“${appName}”导入升级完成`)
-          : _l(`应用“${appName}”导入升级失败`);
+          ? _l('应用”%0”导入升级完成', appName)
+          : _l('应用”%0”导入升级失败', appName);
     let action = getAction(status);
 
     antNotification[action]({
@@ -82,7 +83,7 @@ export default () => {
     if (status === 2 && location.href.includes(`app/${appId}`)) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        location.href = `/app/${appId}`;
+        location.href = pathCompletion(`/app/${appId}`);
       }, 500);
     }
   });

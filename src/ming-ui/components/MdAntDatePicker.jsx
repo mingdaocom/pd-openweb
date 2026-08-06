@@ -6,7 +6,8 @@ import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import styled from 'styled-components';
 
-const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
 
 const Comp = styled(DatePicker)`
   width: 100%;
@@ -19,13 +20,7 @@ const Comp = styled(DatePicker)`
 `;
 
 const MdAntDatePicker = (props, ref) => {
-  return (
-    <Comp
-      ref={ref}
-      locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
-      {...props}
-    />
-  );
+  return <Comp ref={ref} locale={datePickerLocale} {...props} />;
 };
 
 export default forwardRef(MdAntDatePicker);

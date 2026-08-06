@@ -11,70 +11,20 @@ class Calender extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      /**
-       * 周表头
-       * [
-       *   '周一',
-       *   '周二',
-       * ]
-       */
-      weekList: [],
-      /**
-       * 日列表
-       * [
-       *   [{
-       *     time: new Date(2017, 8, 25), // 代表时间（2017-09-25）
-       *     value: 25,
-       *     label: '25',                 // 显示文本
-       *     other: true,                 // 是否属于其他月份
-       *     disabled: false,             // 是否禁用
-       *     current: false,              // 是否为当前选中的日期
-       *     inRange: false,              // 是否为当前选中的范围
-       *     start: false,                // 是否为当前选中范围的开始
-       *     end: false,                  // 是否为当前选中范围的结束
-       *     left: false,                 // 是否为当前选中范围每行的开始
-       *     right: false,                // 是否为当前选中范围每行的结束
-       *     now: false,                  // 是否为当日
-       *   }],
-       * ]
-       */
-      dateList: [],
-      /**
-       * 月列表
-       * [{
-       *   time: new Date(2017, 0),
-       *   value: 1,
-       *   label: '1',
-       *   disabled: false,
-       *   current: false, // 是否为当前选中的月份
-       *   inRange: false, // 是否为当前选中的范围
-       *   now: false,     // 是否为当月
-       * }]
-       */
-      monthList: [],
-      /**
-       * 年列表
-       * [{
-       *   time: new Date(2001),
-       *   value: 2001,
-       *   label: '2001',
-       *   disabled: false,
-       *   current: false, // 是否为当前选中的年份
-       *   inRange: false, // 是否为当前选中的范围
-       *   now: false,     // 是否为当年
-       * }]
-       */
-      yearList: [],
-    };
+    this.state = this.getListData(props);
   }
 
-  componentWillMount() {
-    this.generateList(this.props);
-  }
+  /**
+   * 生成周数据
+   */
+  /**
+   * 生成周数据
+   */
 
-  componentWillReceiveProps(nextProps) {
-    this.generateList(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.generateList(this.props);
+    }
   }
 
   /**
@@ -429,16 +379,18 @@ class Calender extends Component {
   /**
    * 生成数据列表
    */
-  generateList = props => {
-    // BUG: too much update
-    const data = {
+  getListData = props => {
+    return {
       weekList: this.generateWeekList(props),
       dateList: this.generateDateList(props),
       monthList: this.generateMonthList(props),
       yearList: this.generateYearList(props),
     };
+  };
 
-    this.setState(data);
+  generateList = props => {
+    // BUG: too much update
+    this.setState(this.getListData(props));
   };
 
   /**

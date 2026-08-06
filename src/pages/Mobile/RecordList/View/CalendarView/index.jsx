@@ -12,9 +12,9 @@ import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
+import { pathCompletion } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import DailySchedule from './components/DailySchedule';
 import EventContent from './components/EventContent';
 import IconDimension from './components/IconDimension';
@@ -44,6 +44,7 @@ const Calendar = memo(
       initCalendarViewData = () => {},
       getCalendarData = () => {},
       base,
+      appDetail,
       worksheetInfo,
       view,
       viewId,
@@ -239,13 +240,12 @@ const Calendar = memo(
       }
 
       if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-        window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-          item.rowid
-        }`;
+        window.location.href = pathCompletion(
+          `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`,
+        );
         return;
       }
 
-      handlePushState('page', 'recordDetail');
       updatePreviewRecordId(item.rowid);
     };
 
@@ -259,10 +259,6 @@ const Calendar = memo(
       openRecord(item);
     };
 
-    const onQueryChange = () => {
-      handleReplaceState('page', 'recordDetail', () => updatePreviewRecordId(''));
-    };
-
     const changeCalendarDimension = () => {
       setState({ dimension: dimension === 'month' ? 'week' : 'month', showTodayBtn: false });
     };
@@ -272,7 +268,6 @@ const Calendar = memo(
     };
 
     useLayoutEffect(() => {
-      window.addEventListener('popstate', onQueryChange);
       lastRangeRef.current = '';
       setState({
         ...initData,
@@ -280,7 +275,6 @@ const Calendar = memo(
       getCalendarData();
       getNotScheduledEventList({ onlyGetCount: true });
       return () => {
-        window.removeEventListener('popstate', onQueryChange);
         if (clickTimerRef.current) {
           clearTimeout(clickTimerRef.current);
         }
@@ -461,6 +455,7 @@ const Calendar = memo(
           enablePayment={worksheetInfo.enablePayment}
           worksheetInfo={worksheetInfo}
           appId={base.appId}
+          appDetail={appDetail?.detail}
           worksheetId={base.worksheetId}
           viewId={base.viewId || view.viewId}
           rowId={previewRecordId}
@@ -484,6 +479,7 @@ export default connect(
       'calendarView',
       'previewRecordId',
       'isCharge',
+      'appDetail',
       'calenderNotScheduled',
     ]),
   }),

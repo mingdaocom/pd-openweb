@@ -23,7 +23,7 @@ export default function NoSearch(props) {
   const { columnHeadHeight = 34 } = props;
   return (
     <Con style={{ top: columnHeadHeight }}>
-      <div className="ThemeColor3">
+      <div className="colorPrimary">
         {_l('没有搜索到"')}
         <span class="keyWords green ellipsis">{props.keyWords}</span>
         {_l('"相关的记录')}

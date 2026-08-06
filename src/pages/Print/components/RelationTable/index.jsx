@@ -4,15 +4,17 @@ import { v4 as uuidv4 } from 'uuid';
 import DragMask from 'worksheet/common/DragMask';
 import { emitter } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import { DEFAULT_FONT_SIZE } from '../../core/config';
+import { BASE_PRINT_CONTENT_WIDTH, DEFAULT_FONT_SIZE } from '../../core/config';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 import getPrintContent from '../../core/getPrintContent';
 import { getFormData } from '../../core/util';
 import TableCommon from './TableCommon';
 import TableRToC from './TableRToC';
+import { getRelationCellPrintData } from './utils';
 
-let minPictureW = 169;
-let minW = 33;
+const BASE_MIN_PICTURE_WIDTH = 169;
+const BASE_MIN_WIDTH = 33;
+const BASE_ORDER_NUMBER_WIDTH = 50;
 
 export default class RelationTable extends React.Component {
   constructor(props) {
@@ -32,25 +34,25 @@ export default class RelationTable extends React.Component {
     emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + this.mdTabledId, this.showColumnWidthChangeMask);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        !_.isEqual(this.props.controls, prevProps.controls) ||
+        this.props.showData !== prevProps.showData ||
+        !_.isEqual(this.props.orderNumberCheck, prevProps.orderNumberCheck) ||
+        !_.isEqual(this.props.fileStyle, prevProps.fileStyle) ||
+        !_.isEqual(this.props.user_info, prevProps.user_info) ||
+        !_.isEqual(this.props.printData, prevProps.printData)
+      ) {
+        this.setData(this.props);
+      }
+    }
+
     const { printData } = this.props;
     $('.ant-table').css({
       fontSize: printData.font || DEFAULT_FONT_SIZE,
     });
   }
-
-  componentWillReceiveProps = function (nextProps) {
-    if (
-      !_.isEqual(nextProps.controls, this.props.controls) ||
-      nextProps.showData !== this.props.showData ||
-      !_.isEqual(nextProps.orderNumberCheck, this.props.orderNumberCheck) ||
-      !_.isEqual(nextProps.fileStyle, this.props.fileStyle) ||
-      !_.isEqual(nextProps.user_info, this.props.user_info) ||
-      !_.isEqual(nextProps.printData, this.props.printData)
-    ) {
-      this.setData(nextProps);
-    }
-  };
 
   componentWillUnmount() {
     emitter.removeListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + this.mdTabledId, this.showColumnWidthChangeMask);
@@ -61,6 +63,7 @@ export default class RelationTable extends React.Component {
       dataSource,
       controls,
       allControls,
+      contentWidth = BASE_PRINT_CONTENT_WIDTH,
       orderNumberCheck,
       id,
       isShowFn,
@@ -78,6 +81,10 @@ export default class RelationTable extends React.Component {
       emptyPlaceholderMode,
     };
     let list = [];
+    const scale = contentWidth / BASE_PRINT_CONTENT_WIDTH;
+    const minPictureW = Math.round(BASE_MIN_PICTURE_WIDTH * scale);
+    const minW = Math.round(BASE_MIN_WIDTH * scale);
+    const orderNumberWidth = Math.round(BASE_ORDER_NUMBER_WIDTH * scale);
 
     if (orderNumberCheck) {
       list = [
@@ -85,14 +92,14 @@ export default class RelationTable extends React.Component {
           title: _l('序号'),
           dataIndex: 'number',
           className: 'orderNumber',
-          width: 50,
+          width: orderNumberWidth,
           render: (text, record, index) => index + 1,
         },
       ];
     }
 
     let controlsList = [];
-    let sumWidth = 50;
+    let sumWidth = orderNumberCheck ? orderNumberWidth : 0;
 
     controls.map(it => {
       let da = false;
@@ -134,7 +141,7 @@ export default class RelationTable extends React.Component {
     controlsList.forEach(it => {
       if (it.type !== 22) {
         let isIn = this.isIn(it.controlId);
-        let w = this.setDefaultWidth(controlsList, orderNumberCheck);
+        let w = this.setDefaultWidth(controlsList, orderNumberCheck, contentWidth);
         let isPicture = this.isAttachments(it);
         let width = isIn
           ? isPicture
@@ -142,7 +149,7 @@ export default class RelationTable extends React.Component {
             : this.curStylesW(it.controlId)
           : isPicture
             ? controlsList.length === 1
-              ? 678
+              ? contentWidth - orderNumberWidth
               : minPictureW
             : w;
         //不显示分割线
@@ -168,19 +175,9 @@ export default class RelationTable extends React.Component {
 
             return getPrintContent({
               ...it,
-              ...dataInfo,
-              isRelateMultipleSheet: true,
-              value: record[it.controlId],
+              ...getRelationCellPrintData({ control: it, dataInfo, tableList, record }),
               fileStyle,
               user_info,
-              ...(it.type === 47
-                ? {
-                    worksheetId: tableList.dataSource,
-                    dataSource: tableList.dataSource,
-                    recordId: record.rowid,
-                    viewIdForPermit: '',
-                  }
-                : { dataSource: id }),
               controls: getFormData(controls, record),
               allControls: getFormData(allControls, record),
               ...contentShowParams,
@@ -194,7 +191,7 @@ export default class RelationTable extends React.Component {
       if (index === 0) return;
       let isPicture = this.isAttachments(l.control);
 
-      l.width = Math.max(Math.floor((l.width * 728) / sumWidth), isPicture ? minPictureW : minW);
+      l.width = Math.max(Math.floor((l.width * contentWidth) / sumWidth), isPicture ? minPictureW : minW);
     });
 
     this.setState({
@@ -223,6 +220,7 @@ export default class RelationTable extends React.Component {
   };
 
   isAttachments = it => {
+    if (!it) return false;
     return [14, 42].includes(it.type) || (it.type === 30 && it.sourceControlType === 14);
   };
 
@@ -323,7 +321,10 @@ export default class RelationTable extends React.Component {
     return o.width;
   };
 
-  setDefaultWidth = (controls, orderNumberCheck) => {
+  setDefaultWidth = (controls, orderNumberCheck, contentWidth = BASE_PRINT_CONTENT_WIDTH) => {
+    const scale = contentWidth / BASE_PRINT_CONTENT_WIDTH;
+    const minPictureW = Math.round(BASE_MIN_PICTURE_WIDTH * scale);
+    const orderNumberWidth = Math.round(BASE_ORDER_NUMBER_WIDTH * scale);
     let widthN = 0;
     let num = 0;
     controls.map(it => {
@@ -343,11 +344,10 @@ export default class RelationTable extends React.Component {
         }
       }
     });
-    // 728总宽度 50序号宽度
-    let width = Math.floor((728 - widthN) / (controls.length - num));
+    let width = Math.floor((contentWidth - widthN) / (controls.length - num));
 
     if (orderNumberCheck) {
-      width = Math.floor((728 - 50 - widthN) / (controls.length - num));
+      width = Math.floor((contentWidth - orderNumberWidth - widthN) / (controls.length - num));
     }
 
     return width;
@@ -355,8 +355,12 @@ export default class RelationTable extends React.Component {
 
   showColumnWidthChangeMask = ({ columnIndex, columnWidth, defaultLeft, maskMinLeft, callback }) => {
     const { list } = this.state;
+    const { contentWidth = BASE_PRINT_CONTENT_WIDTH } = this.props;
+    const scale = contentWidth / BASE_PRINT_CONTENT_WIDTH;
+    const minPictureW = Math.round(BASE_MIN_PICTURE_WIDTH * scale);
+    const minW = Math.round(BASE_MIN_WIDTH * scale);
 
-    if (columnIndex === list.length - 1) {
+    if (columnIndex >= list.length - 1) {
       return;
     }
 
@@ -378,7 +382,7 @@ export default class RelationTable extends React.Component {
   };
 
   render() {
-    const { dataSource, orderNumberCheck, id, style = {}, relationStyleNum, printData } = this.props;
+    const { dataSource, orderNumberCheck, id, style = {}, relationStyleNum, printData, contentWidth } = this.props;
     const { realShowData, enableEmptyPlaceholder, emptyPlaceholderMode } = printData;
     const placeholderMode =
       realShowData && !!Number(enableEmptyPlaceholder) && emptyPlaceholderMode ? emptyPlaceholderMode : '';
@@ -406,6 +410,7 @@ export default class RelationTable extends React.Component {
         )}
         <TableComponent
           list={list}
+          contentWidth={contentWidth}
           dataSource={dataSource}
           id={id}
           tableProps={tableProps}

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import API, { editAgreeFriend, editRefuseFriend } from '../api';
+import { pathCompletion } from 'src/utils/common';
 
 export default class NewFriendsList extends React.Component {
   constructor() {
@@ -17,17 +18,19 @@ export default class NewFriendsList extends React.Component {
     this.fetch = this.fetch.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isLoaded !== this.props.isLoaded && nextProps.isLoaded === false) {
-      this.setState(
-        {
-          isLoading: false,
-          pageIndex: 1,
-          hasMore: true,
-          listData: null,
-        },
-        this.fetch,
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.isLoaded !== prevProps.isLoaded && this.props.isLoaded === false) {
+        this.setState(
+          {
+            isLoading: false,
+            pageIndex: 1,
+            hasMore: true,
+            listData: null,
+          },
+          this.fetch,
+        );
+      }
     }
   }
 
@@ -124,14 +127,14 @@ export default class NewFriendsList extends React.Component {
                   <tr key={item.createAccount.accountId}>
                     <td className="pRight24 userItem">
                       <a
-                        href={'/user_' + item.createAccount.accountId}
+                        href={pathCompletion('/user_' + item.createAccount.accountId)}
                         className="Hand NoUnderline TxtMiddle"
                         target="_blank"
                       >
                         <img className="circle avatar" src={item.createAccount.avatar} />
                       </a>
                       <a
-                        href={'/user_' + item.createAccount.accountId}
+                        href={pathCompletion('/user_' + item.createAccount.accountId)}
                         className="Bold Hand overflow_ellipsis textPrimary mLeft8"
                         title={item.createAccount.fullname}
                       >

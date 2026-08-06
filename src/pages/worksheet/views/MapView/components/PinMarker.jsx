@@ -8,7 +8,9 @@ import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { sortControlByIds } from 'src/utils/control';
+import { getCardTitleFieldForView } from 'src/pages/worksheet/views/util.js';
+import { pathCompletion } from 'src/utils/common';
+import { renderText as renderCellText, sortControlByIds } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
@@ -175,7 +177,7 @@ export default function MarkerCard(props) {
     updateNavGroup,
     buttonsCheckStatus,
   } = props;
-  const { position, title, cover, record } = marker;
+  const { position, cover, record } = marker;
   const { titleId, tagType, tagcolorid, showtitle } = mapViewConfig;
   const [active, setActive] = useState(false);
   const recordColorConfig = getRecordColorConfig(view);
@@ -193,6 +195,18 @@ export default function MarkerCard(props) {
     if (mobileCloseCard === 0 || !isMobile || !active) return;
     setActive(false);
   }, [mobileCloseCard]);
+
+  useEffect(() => {
+    if (active) return;
+
+    document.dispatchEvent(
+      new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+  }, [active]);
 
   const color = getTagColor(
     tagType,
@@ -212,6 +226,12 @@ export default function MarkerCard(props) {
     }),
     view.controlsSorts || [],
   );
+  // 地图标记标题不走 BaseCard，这里单独兼容 $单个字段ID$ 的呈现。
+  // 仅在包裹态覆盖，其余仍用 parseRecord 计算出的 marker.title，保持原逻辑不变。
+  const titleField = getCardTitleFieldForView(marker.record, controls, view);
+  const title = titleField?.isWrappedViewTitle
+    ? renderCellText(titleField, { noMask: _.get(titleField, 'advancedSetting.datamask') !== '1' }) || _l('未命名')
+    : marker.title;
   let coverUrl;
 
   try {
@@ -226,6 +246,8 @@ export default function MarkerCard(props) {
       worksheetId: worksheetInfo.worksheetId,
       recordId: marker.record.rowid,
       viewId,
+      // 详情按钮区需要 view.advancedSetting.detailgroup 才能渲染自定义动作分组，补传当前视图
+      view,
       appSectionId: groupId,
       isOpenNewAddedRecord: true,
       onClose: () => {
@@ -295,7 +317,9 @@ export default function MarkerCard(props) {
               e.stopPropagation();
               handleRecordClick(view, marker.record, () => {
                 if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
-                  window.location.href = `/mobile/record/${appId}/${worksheetInfo.worksheetId}/${viewId}/${record.rowid}`;
+                  window.location.href = pathCompletion(
+                    `/mobile/record/${appId}/${worksheetInfo.worksheetId}/${viewId}/${record.rowid}`,
+                  );
                   return;
                 }
 
@@ -304,55 +328,59 @@ export default function MarkerCard(props) {
               });
             }}
           >
-            <SheetContext.Provider
-              value={{
-                isCharge,
-                projectId: worksheetInfo.projectId,
-                appId,
-                groupId,
-                worksheetId: worksheetInfo.worksheetId,
-                config: { props },
-                isRequestingRelationControls: worksheetInfo.isRequestingRelationControls,
-                controls,
-                view,
-                sheetButtons,
-                printList,
-                sheetSwitchPermit,
-              }}
-            >
-              <EditableCard
-                type="board"
-                showNull={true}
-                data={{
-                  allAttachments: safeParse(marker.cover, 'array'),
-                  allowDelete: record.allowdelete,
-                  allowEdit: false,
-                  coverData: coverControl,
-                  coverImage: coverUrl
-                    ? coverUrl.indexOf('imageView2') > -1
-                      ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
-                      : `${coverUrl}&imageView2/0/h/200`
-                    : '',
-                  fields: formData.filter(l => _.includes((view.displayControls || []).concat([titleId]), l.controlId)),
-                  rawRow: JSON.stringify(marker.record),
-                  rowId: marker.record.rowid,
-                  formData: formData,
-                  recordColorConfig,
+            {active && (
+              <SheetContext.Provider
+                value={{
+                  isCharge,
+                  projectId: worksheetInfo.projectId,
+                  appId,
+                  groupId,
+                  worksheetId: worksheetInfo.worksheetId,
+                  config: { props },
+                  isRequestingRelationControls: worksheetInfo.isRequestingRelationControls,
+                  controls,
+                  view,
+                  sheetButtons,
+                  printList,
+                  sheetSwitchPermit,
                 }}
-                hoverShowAll
-                canDrag={false}
-                isCharge={isCharge}
-                currentView={{ ...view, appId, projectId: worksheetInfo.projectId }}
-                allowCopy={worksheetInfo.allowAdd}
-                allowRecreate={worksheetInfo.allowAdd}
-                sheetSwitchPermit={sheetSwitchPermit}
-                onUpdate={() => {}}
-                onDelete={handleRefresh}
-                onCopySuccess={handleRefresh}
-                updateTitleData={updateTitleControlData}
-                buttonsCheckStatus={buttonsCheckStatus}
-              />
-            </SheetContext.Provider>
+              >
+                <EditableCard
+                  type="board"
+                  showNull={true}
+                  data={{
+                    allAttachments: safeParse(marker.cover, 'array'),
+                    allowDelete: record.allowdelete,
+                    allowEdit: false,
+                    coverData: coverControl,
+                    coverImage: coverUrl
+                      ? coverUrl.indexOf('imageView2') > -1
+                        ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
+                        : `${coverUrl}&imageView2/0/h/200`
+                      : '',
+                    fields: formData.filter(l =>
+                      _.includes((view.displayControls || []).concat([titleId]), l.controlId),
+                    ),
+                    rawRow: JSON.stringify(marker.record),
+                    rowId: marker.record.rowid,
+                    formData: formData,
+                    recordColorConfig,
+                  }}
+                  hoverShowAll
+                  canDrag={false}
+                  isCharge={isCharge}
+                  currentView={{ ...view, appId, projectId: worksheetInfo.projectId }}
+                  allowCopy={worksheetInfo.allowAdd}
+                  allowRecreate={worksheetInfo.allowAdd}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  onUpdate={() => {}}
+                  onDelete={handleRefresh}
+                  onCopySuccess={handleRefresh}
+                  updateTitleData={updateTitleControlData}
+                  buttonsCheckStatus={buttonsCheckStatus}
+                />
+              </SheetContext.Provider>
+            )}
           </PinCardCon>
         </div>
       </div>

@@ -159,6 +159,7 @@ export const APP_TYPE = {
 
 export const APP_TYPE_TEXT = {
   7: _l('发送 API 请求'),
+  10: _l('审批流'),
   12: _l('代码块'),
   17: _l('业务流程数组'),
   18: _l('JSON 解析'),
@@ -710,6 +711,12 @@ export const AGENT_TOOLS = {
     range: true,
     autoRange: _l('获取本应用工作表汇总数据'),
     specificRange: _l('指定以下工作表汇总数据'),
+  },
+  10: {
+    icon: 'icon-discussion',
+    name: 'get_record_discussions',
+    displayName: _l('获取记录讨论'),
+    desc: _l('获取记录讨论数据'),
   },
   5: {
     icon: 'icon-api',

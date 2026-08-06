@@ -191,6 +191,8 @@ export default function CustomButtonConfirm(props) {
   return (
     <Dialog
       visible
+      // 二次确认需盖过分组动作子菜单（Trigger zIndex=1001）：autoZIndex 取页面最后一个弹层 zIndex+100，自动置顶
+      autoZIndex
       className="customButtonConfirm customButtonConfirmDialog"
       title={<b>{title}</b>}
       okText={okText}

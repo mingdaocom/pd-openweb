@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dropdown, Icon, Input, RadioGroup, Textarea } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { OPTION_COLORS_LIST } from 'src/pages/widgetConfig/config/index.js';
 import { ALL_WIDGETS_TYPE, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
@@ -343,7 +343,7 @@ function Edit(params) {
                     >
                       <Icon icon={ALL_WIDGETS_TYPE[item.value].icon} className="Font18 Relative" />
                       <span className="mLeft10 flex textPrimary">{item.text}</span>
-                      {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
+                      {isCur && <Icon icon="done" className="Relative colorPrimary Font18" />}
                     </div>
                   );
                 }}
@@ -476,7 +476,7 @@ function Edit(params) {
               ).paramName
             }
           </span>
-          <Icon icon={'close'} className="Font20 Hand textTertiary ThemeHoverColor3" onClick={() => onClose()} />
+          <Icon icon={'close'} className="Font20 Hand textTertiary hoverColorPrimary" onClick={() => onClose()} />
         </div>
         <div className="flex editCon">
           {keys.map(o => {
@@ -488,4 +488,4 @@ function Edit(params) {
   );
 }
 
-export default withClickAway(Edit);
+export default ClickAway.wrap(Edit);

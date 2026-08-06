@@ -192,6 +192,11 @@ const GridOne = styled.div`
   }
 `;
 
+const goTodayLine = () => {
+  let lineLeft = $('.todayLine').attr('leftData');
+  $('.conForCanvasTime').scrollLeft(lineLeft - 100);
+};
+
 export default function Timegrid(props) {
   const [{ todayVisible }, setState] = useSetState({
     todayVisible: false,
@@ -221,11 +226,6 @@ export default function Timegrid(props) {
         todayVisible: false,
       });
     }
-  };
-
-  const goTodayLine = () => {
-    let lineLeft = $('.todayLine').attr('leftData');
-    $('.conForCanvasTime').scrollLeft(lineLeft - 100);
   };
 
   const scrollDiv = useRef(null);
@@ -320,7 +320,7 @@ export default function Timegrid(props) {
                   );
                 }}
               >
-                <Icon icon="arrow-left-border" className="textTertiary ThemeHoverColor3" />
+                <Icon icon="arrow-left-border" className="textTertiary hoverColorPrimary" />
               </div>
             </Tooltip>
             <Tooltip
@@ -353,7 +353,7 @@ export default function Timegrid(props) {
                   );
                 }}
               >
-                <Icon icon="arrow-right-border" className="textTertiary ThemeHoverColor3" />
+                <Icon icon="arrow-right-border" className="textTertiary hoverColorPrimary" />
               </div>
             </Tooltip>
           </div>

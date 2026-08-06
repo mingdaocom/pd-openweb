@@ -61,7 +61,7 @@ function MingoContent(props, ref) {
           messageList: [
             {
               role: 'system',
-              content: '你是一个智能助手，请根据用户的问题给出回答。',
+              content: _l('你是一个智能助手，请根据用户的问题给出回答。'),
             },
             ...messages,
           ],
@@ -114,6 +114,7 @@ function MingoContent(props, ref) {
   return (
     <MingoContentWrap className={className}>
       <MessageList
+        showAssistantAvatar={false}
         activeMessageId={activeMessageId}
         taskType={taskType}
         allowEdit={allowEdit}

@@ -8,6 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import process from '../../api/process';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import SelectWorkflow from '../../components/SelectWorkflow';
@@ -44,7 +45,7 @@ class ProcessConfig extends Component {
   /**
    * 更新data数据
    */
-  updateSource = (obj, callback = () => {}) => {
+  updateSource = (obj, callback = () => { }) => {
     this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
   };
 
@@ -218,7 +219,7 @@ class ProcessConfig extends Component {
           <div className="flexRow alignItemsCenter">
             <Member companyId={flowInfo.companyId} leastOne accounts={data.agents} />
             <div
-              className={cx('ThemeColor3 AddUserBtn mTop12', { mLeft12: data.agents.length })}
+              className={cx('colorPrimary AddUserBtn mTop12', { mLeft12: data.agents.length })}
               onClick={this.selectProcessCharge}
             >
               <i className={cx('Font28', data.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle')} />
@@ -238,7 +239,7 @@ class ProcessConfig extends Component {
           />
 
           <div className="mTop15 relative">
-            <div className="ThemeColor3 AddUserBtn" onClick={() => this.setState({ showSelectUserDialog: true })}>
+            <div className="colorPrimary AddUserBtn" onClick={() => this.setState({ showSelectUserDialog: true })}>
               <i className="Font28 icon-task-add-member-circle" />
             </div>
 
@@ -334,6 +335,18 @@ class ProcessConfig extends Component {
             />
           </div>
         ))}
+
+        <div className="mTop15 bold">{_l('文本格式化')}</div>
+        <div className="mTop5 textSecondary">
+          {_l('日期、时间、数值、金额字段做为文本时，按字段格式显示，如：3,141.592.6')}
+        </div>
+        <div className="mTop10">
+          <Switch
+            checked={data.textShowType === 1}
+            text={data.textShowType === 1 ? _l('开启') : _l('关闭%03087')}
+            onClick={checked => this.updateSource({ textShowType: checked ? 0 : 1 })}
+          />
+        </div>
 
         {featureType && (
           <Fragment>
@@ -433,7 +446,7 @@ class ProcessConfig extends Component {
                     <span
                       className="ellipsis InlineBlock"
                       style={{ maxWidth: 210 }}
-                      onClick={() => window.open(`/workflowedit/${item.id}`)}
+                      onClick={() => window.open(pathCompletion(`/workflowedit/${item.id}`))}
                     >
                       {flowInfo.relationId === item.relationId ? '' : `（${item.apkName}）`}
                       {item.name}
@@ -444,7 +457,7 @@ class ProcessConfig extends Component {
               })}
             </div>
             <span
-              className="ThemeColor3 ThemeHoverColor2 pointer"
+              className="colorPrimary hoverColorPrimaryDark pointer"
               onClick={() => this.setState({ showWorkflow: true })}
             >
               <Icon icon="add" className="mRight5 Font16" />
@@ -606,9 +619,9 @@ class ProcessConfig extends Component {
           {_l('启用后，我们会自动为您的业务流程生成相关的API开发文档，供您向其他第三方外部系统提供平台开放能力')}
           {data.pbcConfig.enable && (
             <a
-              href={`/worksheetapi/${flowInfo.relationId}`}
+              href={pathCompletion(`/worksheetapi/${flowInfo.relationId}`)}
               target="_blank"
-              className="mLeft2 ThemeColor3 ThemeHoverColor2"
+              className="mLeft2 colorPrimary hoverColorPrimaryDark"
             >
               {_l('查看文档')}
             </a>
@@ -934,9 +947,9 @@ class ProcessConfig extends Component {
             : _l('为Webhook配置鉴权认证，IP白名单，自定义响应。请求参数需包含 AppKey、Sign')}
           {data.pbcConfig.authType !== 0 && (
             <a
-              href={`/worksheetapi/${flowInfo.relationId}`}
+              href={pathCompletion(`/worksheetapi/${flowInfo.relationId}`)}
               target="_blank"
-              className="mLeft2 ThemeColor3 ThemeHoverColor2"
+              className="mLeft2 colorPrimary hoverColorPrimaryDark"
             >
               {_l('查看文档')}
             </a>
@@ -1005,7 +1018,9 @@ class ProcessConfig extends Component {
               onClick={() => this.setState({ tab: item.value })}
             >
               <Icon className="Font16" icon={item.icon} />
-              {item.text}
+              <span className="tabText" title={item.text}>
+                {item.text}
+              </span>
               {item.tip && (
                 <Tooltip title={item.tip}>
                   <Icon icon="info" className="textTertiary mLeft5" />
@@ -1027,7 +1042,7 @@ class ProcessConfig extends Component {
 
           {!flowInfo.parentId && (
             <div className="pLeft40 pRight40 mTop20 flexRow alignItemsCenter">
-              <span className="processConfigSave ThemeBGColor3 ThemeHoverBGColor2 pointer" onClick={this.onSave}>
+              <span className="processConfigSave bgColorPrimary hoverBgColorPrimaryDark pointer" onClick={this.onSave}>
                 {_l('保存')}
               </span>
               <Support

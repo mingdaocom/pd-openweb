@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
+import { pathCompletion } from 'src/utils/common';
 import { removePssId } from 'src/utils/pssId';
 import AccountCon from './AccountCon';
 
@@ -45,7 +46,7 @@ export default function DelDialog(props) {
                       removePssId();
                       window.localStorage.removeItem(`PortalLoginInfo-${appId}`); //删除自动登录的key
                       window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-                      const url = `${location.origin}${window.subPath || ''}/app/${appId}`;
+                      const url = pathCompletion(`/app/${appId}`);
                       location.href = props.url || url; // 跳转到登录
                     } else {
                       if (res.actionResult == ActionResult.noEfficacyVerifyCode) {

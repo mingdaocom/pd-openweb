@@ -33,14 +33,23 @@ class WorkflowInfo extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      this.setState({
-        name: nextProps.flowInfo.name,
-        explain: nextProps.flowInfo.explain || '',
-        iconColor: nextProps.flowInfo.iconColor || '#1677ff',
-        iconName: nextProps.flowInfo.iconName || '',
-      });
+  /**
+   * 确定按钮点击事件
+   */
+  /**
+   * 确定按钮点击事件
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible) {
+        this.setState({
+          name: this.props.flowInfo.name,
+          explain: this.props.flowInfo.explain || '',
+          iconColor: this.props.flowInfo.iconColor || '#1677ff',
+          iconName: this.props.flowInfo.iconName || '',
+        });
+      }
     }
   }
 
@@ -88,7 +97,7 @@ class WorkflowInfo extends Component {
               <input
                 type="text"
                 ref={name => (this.name = name)}
-                className="ThemeHoverBorderColor3 ThemeBorderColor3"
+                className="hoverBorderColorPrimary borderColorPrimary"
                 maxLength={30}
                 autoFocus
                 value={name}

@@ -28,6 +28,11 @@ export const HomePageWrap = styled.div`
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
+  @keyframes homePageRefreshRotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
   .basicInfo {
     display: flex;
     gap: 10px;
@@ -41,6 +46,21 @@ export const HomePageWrap = styled.div`
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      position: relative;
+      .versionRefreshIcon {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        line-height: 20px;
+        text-align: center;
+        &.refreshing {
+          animation: homePageRefreshRotate 0.8s linear infinite;
+          pointer-events: none;
+        }
+      }
       .renewTag {
         color: var(--color-success);
         .doneIcon {
@@ -358,6 +378,27 @@ export const HomePageWrap = styled.div`
       display: flex;
       flex-direction: column;
     }
+    .upgradeWrapper {
+      display: flex;
+      align-items: center;
+      margin-top: 4px;
+      .upgradeBtn {
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        border: 1px solid #4caf50;
+        border-radius: 14px;
+        color: #4caf50;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+          color: #fff;
+          background-color: #4caf50;
+        }
+      }
+    }
     .accountInfo {
       display: flex;
       align-items: center;
@@ -434,8 +475,12 @@ export const HomePageWrap = styled.div`
         background-color: rgba(0, 196, 59, 0.1);
       }
     }
+    .Font11 {
+      font-size: 11px;
+    }
     .expireDays {
       margin: 0 12px;
+      font-size: 12px;
       span {
         font-size: 16px;
         color: var(--color-primary);

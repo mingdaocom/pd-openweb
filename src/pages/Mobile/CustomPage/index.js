@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import { SpinLoading } from 'antd-mobile';
@@ -9,10 +8,11 @@ import styled from 'styled-components';
 import { WaterMark } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import customApi from 'statistics/api/custom';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import { loadSDK } from 'src/components/Form/core/utils';
 import {
+  CUSTOM_PAGE_IFRAME_ALLOW,
   getDefaultLayout,
   getEnumType,
   isLightColor,
@@ -38,7 +38,15 @@ const getLayout = components =>
     const layoutType = 'mobile';
     return layout
       ? { ...layout, i: `${id || index}` }
-      : { ...getDefaultLayout({ components, index, layoutType, titleVisible }), i: `${id || index}` };
+      : {
+          ...getDefaultLayout({
+            components,
+            index,
+            layoutType,
+            titleVisible,
+          }),
+          i: `${id || index}`,
+        };
   });
 
 const LayoutContent = styled.div`
@@ -55,7 +63,8 @@ const LayoutContent = styled.div`
     &.haveTitle {
       height: calc(100% - 40px);
     }
-    &.tabs {
+    &.tabs,
+    &.subsection {
       overflow: inherit;
       box-shadow: none;
       background-color: transparent !important;
@@ -73,7 +82,6 @@ const LayoutContent = styled.div`
     color: var(--title-color);
   }
 `;
-
 const EmptyData = styled.div`
   .iconWrap {
     width: 130px;
@@ -89,9 +97,7 @@ const EmptyData = styled.div`
     }
   }
 `;
-
-@AppPermissions
-export default class CustomPage extends Component {
+let CustomPage = class CustomPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -103,30 +109,35 @@ export default class CustomPage extends Component {
       urlTemplate: '',
     };
   }
+
   componentDidMount() {
     this.getPage(this.props);
     this.getPageInfo(this.props);
+
     if (!window.isMingDaoApp) {
       workflowPushSoket();
     }
-
-    loadSDK();
   }
-  componentWillReceiveProps(nextProps) {
-    const { params: newParams } = nextProps.match;
-    const { params } = this.props.match;
 
-    if (newParams.worksheetId !== params.worksheetId) {
-      this.getPage(nextProps);
-      this.getPageInfo(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { params: newParams } = this.props.match;
+      const { params } = prevProps.match;
+
+      if (newParams.worksheetId !== params.worksheetId) {
+        this.getPage(this.props);
+        this.getPageInfo(this.props);
+      }
     }
   }
+
   componentWillUnmount() {
     $(window).off('orientationchange');
     if (!window.IM) return;
     IM.socket.off('workflow_push');
     IM.socket.off('workflow');
   }
+
   getPage(props) {
     const { params } = props.match;
     const { appNaviStyle, appSection = [] } = props;
@@ -147,13 +158,18 @@ export default class CustomPage extends Component {
       });
       store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
     } else {
-      this.setState({ loading: true });
+      this.setState({
+        loading: true,
+      });
       customApi
         .getPage({
           appId: params.worksheetId,
         })
         .then(result => {
-          compatibleMDJS('workItemInfo', { item: result });
+          compatibleMDJS('workItemInfo', {
+            item: result,
+          });
+
           if (appNaviStyle === 2) {
             let navSheetList = _.flatten(
               appSection.map(item => {
@@ -165,6 +181,7 @@ export default class CustomPage extends Component {
             )
               .filter(item => [1, 3].includes(item.status) && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
               .slice(0, 4);
+
             navSheetList.forEach(item => {
               if (item.workSheetId === params.worksheetId) {
                 safeLocalStorageSetItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
@@ -190,6 +207,7 @@ export default class CustomPage extends Component {
       location.reload();
     });
   }
+
   getPageInfo(props) {
     const { params } = props.match;
     homeAppApi
@@ -205,6 +223,7 @@ export default class CustomPage extends Component {
         });
       });
   }
+
   renderLoading() {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter h100">
@@ -212,6 +231,7 @@ export default class CustomPage extends Component {
       </div>
     );
   }
+
   renderWithoutData() {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter h100">
@@ -224,6 +244,7 @@ export default class CustomPage extends Component {
       </div>
     );
   }
+
   renderContent() {
     const { apk, pageConfig } = this.state;
     const allPageComponents = this.state.pageComponents;
@@ -277,10 +298,14 @@ export default class CustomPage extends Component {
             return (
               <LayoutContent key={`${id || index}`} className="resizableWrap">
                 {titleVisible && (
-                  <div className="componentTitle overflow_ellipsis bold">{translateInfo.mobileTitle || title}</div>
+                  <div className="componentTitle overflow_ellipsis bold">
+                    {title ? translateInfo.mobileTitle || title : ''}
+                  </div>
                 )}
                 <div
-                  className={cx('widgetContent', componentType, { haveTitle: titleVisible })}
+                  className={cx('widgetContent', componentType, {
+                    haveTitle: titleVisible,
+                  })}
                   style={{
                     backgroundColor: widgetConfig.widgetBgColor,
                   }}
@@ -310,6 +335,7 @@ export default class CustomPage extends Component {
       </div>
     );
   }
+
   renderUrlTemplate() {
     const { params } = this.props.match;
     const { urlTemplate } = this.state;
@@ -335,16 +361,31 @@ export default class CustomPage extends Component {
     const url = urlList.join('');
     return (
       <div className="h100 w100">
-        <iframe className="w100 h100" style={{ border: 'none' }} src={insertPortal(url)} />
+        <iframe
+          className="w100 h100"
+          style={{
+            border: 'none',
+          }}
+          allow={CUSTOM_PAGE_IFRAME_ALLOW}
+          allowFullScreen
+          src={insertPortal(url)}
+        />
       </div>
     );
   }
+
   render() {
     const { pageTitle, appNaviStyle } = this.props;
     const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
     return (
       <WaterMark projectId={apk.projectId}>
-        <div id="componentsWrap" className="h100 w100 bgTertiary" style={{ overflowY: 'auto' }}>
+        <div
+          id="componentsWrap"
+          className="h100 w100 bgTertiary"
+          style={{
+            overflowY: 'auto',
+          }}
+        >
           <DocumentTitle title={pageTitle || pageName || _l('自定义页面')} />
           {urlTemplate
             ? this.renderUrlTemplate()
@@ -358,7 +399,9 @@ export default class CustomPage extends Component {
             !_.get(window, 'shareState.shareId') &&
             !location.href.includes('embed/page') && (
               <Back
-                style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
+                style={{
+                  bottom: appNaviStyle === 2 ? '70px' : '20px',
+                }}
                 className="low"
                 icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
                 onClick={() => {
@@ -377,4 +420,6 @@ export default class CustomPage extends Component {
       </WaterMark>
     );
   }
-}
+};
+CustomPage = AppPermissions(CustomPage);
+export default CustomPage;

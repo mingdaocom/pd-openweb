@@ -6,9 +6,10 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import CustomFields from 'src/components/Form';
 import DataFormat from 'src/components/Form/core/DataFormat';
+import { ADD_EVENT_ENUM } from 'src/components/Form/core/enum';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
-import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
+import withWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 import { isRelateRecordTableControl } from 'src/utils/control';
 
 const Con = styled.div`
@@ -33,7 +34,6 @@ const Con = styled.div`
     }
   }
 `;
-
 const LoadMask = styled.div`
   position: absolute;
   width: 100%;
@@ -44,8 +44,7 @@ const LoadMask = styled.div`
   background: rgba(255, 255, 255, 0.8);
   z-index: 2;
 `;
-@useWorksheetRowProvider
-class FillRecordControls extends React.Component {
+let FillRecordControls = class FillRecordControls extends React.Component {
   constructor(props) {
     super(props);
     const { projectId } = props;
@@ -57,10 +56,14 @@ class FillRecordControls extends React.Component {
           let hasDefaultControls = [];
           const formDataForDataFormat = formData.map(c => {
             const newControl = { ...c };
+
             const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
+
             newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '', defaultfunc: '' };
+
             if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
               newControl.value = '';
+
               if (_.includes([9, 10, 11], newControl.type)) {
                 newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
               } else {
@@ -78,6 +81,7 @@ class FillRecordControls extends React.Component {
 
           function controlIsReadOnly(c) {
             const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
+
             return writeControl && writeControl.type === 1;
           }
 
@@ -102,7 +106,9 @@ class FillRecordControls extends React.Component {
                 from: 2,
                 projectId,
                 onAsyncChange: ({ controlId, value }) => {
-                  const updatedControl = _.find(formData, { controlId });
+                  const updatedControl = _.find(formData, {
+                    controlId,
+                  });
 
                   if (
                     updatedControl &&
@@ -139,23 +145,16 @@ class FillRecordControls extends React.Component {
 
               if (_.isUndefined(c.dataSource)) {
                 return undefined;
-              }
+              } // 自定义动作异化：标签页不能配置，所以默认都显示
 
-              // 自定义动作异化：标签页不能配置，所以默认都显示
               if (c.type === 52) return { ...c, controlPermissions: '111', fieldPermission: '111' };
+
               if (!writeControl || c.fromMaster) {
-                return {
-                  ...c,
-                  controlPermissions: '000',
-                };
+                return { ...c, controlPermissions: '000' };
               }
 
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '2') {
-                return {
-                  ...c,
-                  value: '',
-                  controlPermissions: '000',
-                };
+                return { ...c, value: '', controlPermissions: '000' };
               }
 
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
@@ -166,7 +165,9 @@ class FillRecordControls extends React.Component {
                 c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
+
               const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+
               const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
 
               if (defaultFormControl && !needClear) {
@@ -209,7 +210,9 @@ class FillRecordControls extends React.Component {
                         });
                         item.store.dispatch({
                           type: 'UPDATE_TABLE_STATE',
-                          value: { count: 0 },
+                          value: {
+                            count: 0,
+                          },
                         });
                       }
                     });
@@ -228,34 +231,42 @@ class FillRecordControls extends React.Component {
         },
       },
     );
-    this.handleAppScan(controls);
     this.state = {
       formData: controls,
       showError: false,
     };
   }
+
   cellObjs = {};
   customwidget = React.createRef();
   formcon = React.createRef();
+  appScanStarted = false;
   needRunFunctionsAfterDataReady = [];
-
   handleAppScan = controls => {
     const { hideDialog = () => {}, worksheetInfo } = this.props;
     handleAPPScanCode({
       controls,
       worksheetInfo,
       updateData: data => {
-        this.customwidget.current.dataFormat.updateDataSource(data);
-        this.customwidget.current.updateRenderData();
+        const form = this.customwidget.current;
+        const currentControl = _.find(form.dataFormat.getDataSource(), { controlId: data.controlId });
+
+        if (!currentControl) return;
+
+        form.handleChange(data.value, data.controlId, currentControl, currentControl.type !== 2);
+        form.triggerCustomEvent({
+          ...currentControl,
+          ...data,
+          triggerType: ADD_EVENT_ENUM.CHANGE,
+        });
       },
       handleSubmit: () => {
-        this.handleSave();
+        setTimeout(() => this.handleSave(), 0);
       },
       handleScanFinished: () => {},
       onCancel: hideDialog,
     });
   };
-
   handleSave = () => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
@@ -270,14 +281,18 @@ class FillRecordControls extends React.Component {
       return;
     }
 
-    this.setState({ submitLoading: true });
+    this.setState({
+      submitLoading: true,
+    });
     this.customwidget.current.submitFormData();
   };
   onSave = async (error, { data, updateControlIds }) => {
     const { continueFill } = this.props;
 
     if (error) {
-      this.setState({ submitLoading: false });
+      this.setState({
+        submitLoading: false,
+      });
       return;
     }
 
@@ -289,7 +304,9 @@ class FillRecordControls extends React.Component {
 
     if (hasError) {
       alert(_l('请正确填写记录'), 3);
-      this.setState({ submitLoading: false });
+      this.setState({
+        submitLoading: false,
+      });
       return;
     }
 
@@ -306,7 +323,10 @@ class FillRecordControls extends React.Component {
     }
 
     if (!continueFill) {
-      this.setState({ isSubmitting: true, submitLoading: false });
+      this.setState({
+        isSubmitting: true,
+        submitLoading: false,
+      });
     }
 
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
@@ -319,17 +339,19 @@ class FillRecordControls extends React.Component {
             hasDefaultRelateRecordTableControls: this.hasDefaultRelateRecordTableControls,
           }),
         ),
-      {
-        ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
-      },
+      { ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']) },
       this.customwidget.current,
       err => {
         if (err) {
-          this.setState({ isSubmitting: false, submitLoading: false });
+          this.setState({
+            isSubmitting: false,
+            submitLoading: false,
+          });
         }
       },
     );
   };
+
   render() {
     const {
       appId,
@@ -344,12 +366,19 @@ class FillRecordControls extends React.Component {
       customButton,
     } = this.props;
     const { submitLoading, isSubmitting, formData, showError, formFlag } = this.state;
-
     return (
       <Con>
         <div className="flex customFieldsWrapper mobileFillRecordControls">
           {submitLoading && (
-            <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
+            <LoadMask
+              style={
+                continueFill
+                  ? {
+                      zIndex: 10,
+                    }
+                  : {}
+              }
+            >
               <LoadDiv />
             </LoadMask>
           )}
@@ -377,18 +406,28 @@ class FillRecordControls extends React.Component {
               appId={appId}
               worksheetId={worksheetId}
               showError={showError}
-              registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+              registerCell={({ item, cell }) =>
+                (this.cellObjs[item.controlId] = {
+                  item,
+                  cell,
+                })
+              }
               onChange={data => {
                 this.setState({
                   formData: data,
                 });
               }}
               onSave={this.onSave}
-              onFormDataReady={() => {
+              onFormDataReady={dataFormat => {
                 try {
                   this.needRunFunctionsAfterDataReady.forEach(fn => fn());
                 } catch (err) {
                   console.log(err);
+                }
+
+                if (!this.appScanStarted) {
+                  this.appScanStarted = true;
+                  this.handleAppScan(dataFormat.getDataSource());
                 }
               }}
             />
@@ -410,6 +449,6 @@ class FillRecordControls extends React.Component {
       </Con>
     );
   }
-}
-
+};
+FillRecordControls = withWorksheetRowProvider(FillRecordControls);
 export default FillRecordControls;

@@ -7,7 +7,7 @@
                 <span class="block">{{= _l('全部任务')}}</span>
             </span>
         </div>
-        <div class="ThemeColor3">
+        <div class="colorPrimary">
             <span title="{{= _l('此项目下正在未完成的任务数')}}">
                 <span class="charBarNum2">{{=it.data.underway}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('未完成')}}</span>
@@ -28,7 +28,7 @@
                 <span class="block">{{= _l('逾期时间')}}</span>
             </span>
         </div>
-        <div class="ThemeColor3">
+        <div class="colorPrimary">
             <span title="{{= _l('此项目下已经完成的任务数')}}">
                 <span class="charBarNum5">{{=it.data.completed}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('已完成')}}</span>
@@ -67,14 +67,14 @@
 </div>
 <div class="folderChartNavBox relative">
     <ul class="folderChartNav">
-        <li class="active ThemeColor3 ThemeBorderColor3">{{= _l('任务统计')}}</li>
+        <li class="active colorPrimary borderColorPrimary">{{= _l('任务统计')}}</li>
         <li>{{= _l('按负责人')}}</li>
         <li>{{= _l('按看板')}}</li>
         <li>{{= _l('自定义任务内容')}}</li>
     </ul>
     <ul class="folderChartTime">
         <span class="folderChartTimeTxt">{{=it.timeTxt}}</span>
-        <li class="activeClass ThemeBorderColor3 ThemeBGColor3" data-type="6">{{= _l('%0天',7)}}</li>
+        <li class="activeClass borderColorPrimary bgColorPrimary" data-type="6">{{= _l('%0天',7)}}</li>
         <li data-type="13">{{= _l('%0天',14)}}</li>
         <li data-type="29">{{= _l('%0天',30)}}</li>
         <li data-type="custom">{{= _l('自定义')}}</li>

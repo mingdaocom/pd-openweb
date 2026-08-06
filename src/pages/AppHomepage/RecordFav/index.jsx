@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
 import styled from 'styled-components';
 import { Icon, ScrollView, SortableList, SvgIcon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite.js';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { addBehaviorLog } from 'src/utils/project';
 import Item from './Item';
@@ -131,24 +130,28 @@ const Cell = styled.div`
   margin: ${({ forCard }) => (forCard ? `16px 0` : '25px 0 0 0')};
 `;
 
+const LoadableRecordInfoWrapper = lazy(() => import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper'));
+
 let request;
 let currentProjectId;
 
 function RecordFav(props) {
   const { projectId } = props;
-  const [{ loading, navloading, openNav, keywords, recordListAll, recordList, topList, favApps, appId }, setState] =
-    useSetState({
-      loading: props.loading || true,
-      navloading: true,
-      openNav: localStorage.getItem('recordFavIsFolded') === '1',
-      keywords: '',
-      recordListAll: [],
-      recordList: [],
-      topList: [],
-      favApps: [],
-      appId: 'all',
-      record: {},
-    });
+  const [
+    { loading, navloading, openNav, keywords, recordListAll, recordList, topList, favApps, appId, record },
+    setState,
+  ] = useSetState({
+    loading: props.loading || true,
+    navloading: true,
+    openNav: localStorage.getItem('recordFavIsFolded') === '1',
+    keywords: '',
+    recordListAll: [],
+    recordList: [],
+    topList: [],
+    favApps: [],
+    appId: 'all',
+    record: {},
+  });
 
   useEffect(() => {
     getAllList();
@@ -348,19 +351,9 @@ function RecordFav(props) {
   };
 
   const getRowInfo = info => {
-    const { rowId, viewId, worksheetId, appId } = info;
+    const { rowId, worksheetId } = info;
     addBehaviorLog('worksheetRecord', worksheetId, { rowId });
-    openRecordInfo({
-      appId,
-      worksheetId,
-      recordId: rowId,
-      viewId,
-      // onClose: () => onRefresh(),
-      currentSheetRows: topList.concat(recordList),
-      showPrevNext: true,
-      currentIndex: rowId,
-      projectId,
-    });
+    setState({ record: info });
   };
 
   const onUpdateFavoriteTop = (favoriteId, isTop) => {
@@ -459,10 +452,28 @@ function RecordFav(props) {
     );
   };
 
+  const recordId = record.rowId || record.rowid;
+
   return (
     <Con className={cx('flexRow Relative', props.className)} forCard={props.forCard}>
       {!props.forCard && renderNav()}
       {renderCon()}
+      {!!recordId && (
+        <Suspense fallback={null}>
+          <LoadableRecordInfoWrapper
+            visible
+            appId={record.appId}
+            worksheetId={record.worksheetId}
+            recordId={recordId}
+            viewId={record.viewId}
+            currentSheetRows={topList.concat(recordList)}
+            showPrevNext
+            projectId={projectId}
+            handleSwitchRecord={newRecord => setState({ record: newRecord })}
+            hideRecordInfo={() => setState({ record: {} })}
+          />
+        </Suspense>
+      )}
     </Con>
   );
 }

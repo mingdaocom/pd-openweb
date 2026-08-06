@@ -118,23 +118,29 @@ export default class RelateRecordDropdown extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.selected, nextProps.selected)) {
-      this.setState({
-        selected: nextProps.selected,
-      });
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.selected, this.props.selected)) {
+        this.setState({
+          selected: this.props.selected,
+        });
+      }
 
-    if (nextProps.flag !== this.props.flag) {
-      this.setState({ addedIds: [], deletedIds: [], defaultSelected: nextProps.selected || [] });
-    }
+      if (this.props.flag !== prevProps.flag) {
+        this.setState({
+          addedIds: [],
+          deletedIds: [],
+          defaultSelected: this.props.selected || [],
+        });
+      }
 
-    if (
-      _.get(nextProps, 'control.advancedSetting.searchcontrol') !==
-        _.get(this.props, 'control.advancedSetting.searchcontrol') ||
-      !_.isEqual(_.get(this.props, 'control.relationControls'), _.get(nextProps, 'control.relationControls'))
-    ) {
-      this.initSearchControl(nextProps);
+      if (
+        _.get(this.props, 'control.advancedSetting.searchcontrol') !==
+          _.get(prevProps, 'control.advancedSetting.searchcontrol') ||
+        !_.isEqual(_.get(prevProps, 'control.relationControls'), _.get(this.props, 'control.relationControls'))
+      ) {
+        this.initSearchControl(this.props);
+      }
     }
   }
 
@@ -195,9 +201,13 @@ export default class RelateRecordDropdown extends React.Component {
     const { control = {} } = props;
     const { searchcontrol } = control.advancedSetting || {};
     let searchControl;
+    // 是否为用户在「用户查询」中指定了具体搜索字段；未指定时（搜索内容=所有文本类型字段）
+    // 下面回退到标题字段仅用于新建记录预填，不代表只能搜标题
+    let isAssignedSearchControl = false;
 
     if (searchcontrol) {
       searchControl = _.find(control.relationControls, { controlId: searchcontrol });
+      isAssignedSearchControl = !!searchControl;
     }
 
     if (!searchControl) {
@@ -205,6 +215,7 @@ export default class RelateRecordDropdown extends React.Component {
     }
 
     this.searchControl = searchControl;
+    this.isAssignedSearchControl = isAssignedSearchControl;
   }
 
   getDefaultRelateSheetValue() {
@@ -467,7 +478,7 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {_.isEmpty(staticRecords) && canSelect && !selected.length && active && !keywords && this.searchControl && (
           <PlaceHolder className="ellipsis" onClick={this.focusInput}>
-            {_l('搜索%0', this.searchControl.controlName)}
+            {this.isAssignedSearchControl ? _l('搜索%0', this.searchControl.controlName) : _l('搜索')}
           </PlaceHolder>
         )}
         {insheet && isediting && !canSelect && selected.length === 0 && (
@@ -815,7 +826,7 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {!disabled && showDialogSelect && (insheet ? isediting : true) && (
           <i
-            className={cx('icon icon-table selectDialogIcon ThemeHoverColor3', { clearVisible: showClearIcon })}
+            className={cx('icon icon-table selectDialogIcon hoverColorPrimary', { clearVisible: showClearIcon })}
             onClick={e => {
               e.stopPropagation();
               e.preventDefault();

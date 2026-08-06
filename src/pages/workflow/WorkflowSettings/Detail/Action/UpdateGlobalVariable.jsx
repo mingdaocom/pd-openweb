@@ -52,7 +52,7 @@ export default props => {
 
       {!data.fields.length && (
         <div
-          className="inlineFlexRow mTop12 ThemeColor3 workflowDetailAddBtn"
+          className="inlineFlexRow mTop12 colorPrimary workflowDetailAddBtn"
           onClick={() =>
             SelectGlobalVar({
               projectId: props.companyId,

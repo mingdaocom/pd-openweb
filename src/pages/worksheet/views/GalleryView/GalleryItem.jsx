@@ -4,7 +4,6 @@ import { useSetState } from 'react-use';
 import { Skeleton } from 'antd';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import sheetAjax from 'src/api/worksheet';
 import EditableCard from '../components/EditableCard';
 import EditingRecordItem from '../components/EditingRecordItem';
 import RecordPortal from '../components/RecordPortal';
@@ -45,7 +44,7 @@ const GalleryItem = props => {
       const height = $ref.current.getBoundingClientRect().height;
       updateGalleryViewCard({ height, needUpdate: false });
     }
-  }, [inView, galleryViewCard.needUpdate]);
+  }, [inView, galleryViewCard.needUpdate, updateGalleryViewCard]);
 
   const updateTitleData = control => {
     const { data, onUpdateFn, base, views } = props;
@@ -112,7 +111,7 @@ const GalleryItem = props => {
             props.onUpdateFn('', item);
           }}
           onDelete={() => {
-            sheetAjax
+            worksheetAjax
               .deleteWorksheetRows({ rowIds: [data.rowId], ..._.pick(view, ['worksheetId', 'viewId']) })
               .then(res => {
                 if (res.isSuccess) {

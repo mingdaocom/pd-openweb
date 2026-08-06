@@ -3,6 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserCard, UserName } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态发布者姓名和发布到的群组
@@ -45,7 +46,7 @@ class PostUsernameGroup extends React.Component {
                 <a
                   key={'group' + g.groupId}
                   className="InlineBlock wMax100 breakAll ellipsis"
-                  href={'/group/groupValidate?gID=' + g.groupId}
+                  href={pathCompletion('/group/groupValidate?gID=' + g.groupId)}
                 >
                   {g.name}
                 </a>
@@ -106,7 +107,7 @@ class PostUsernameGroup extends React.Component {
     if (icon) {
       children.push(
         <Tooltip title={postTypeName}>
-          <i key="icon" className={'mLeft5 Font16 ThemeColor3 icon-' + icon} />
+          <i key="icon" className={'mLeft5 Font16 colorPrimary icon-' + icon} />
         </Tooltip>,
       );
     }

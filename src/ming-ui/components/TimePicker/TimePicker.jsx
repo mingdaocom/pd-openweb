@@ -113,13 +113,15 @@ class TimePicker extends Component {
     this.clickHandler = this.addEvent(document, 'click', this.withClickAway);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if ('value' in nextProps) {
-      this.setState({ value: nextProps.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if ('value' in this.props) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
     }
-  }
 
-  componentDidUpdate() {
     if (!this.clickHandler) {
       this.clickHandler = this.addEvent(document, 'click', this.withClickAway);
     }
@@ -145,7 +147,7 @@ class TimePicker extends Component {
         value={formatValue}
         placeholder={placeholder}
         onClick={this.handleFocus}
-        className="TimePicker-input ThemeHoverColor3 ThemeHoverBorderColor3"
+        className="TimePicker-input hoverColorPrimary hoverBorderColorPrimary"
         ref={timepicker => (this._timepicker = timepicker)}
       />
     );

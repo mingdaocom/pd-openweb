@@ -26,14 +26,12 @@ class Marker extends React.Component {
     }
   }
 
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  componentWillReceiveProps(nextProps) {
+  shouldComponentUpdate(nextProps) {
     if (this.map) {
       this.refreshMarkerLayout(nextProps);
     }
+
+    return false;
   }
 
   componentDidMount() {

@@ -14,8 +14,7 @@ export default function Analysis(props) {
   const [visible, setVisible] = useState(Boolean(widget.value));
 
   // 图表名称
-  // eslint-disable-next-line no-unused-vars
-  const [report, setReport] = useSetState({ name: widget.name || _l('未命名'), id: widget.value || '' });
+  const [report] = useSetState({ name: widget.name || _l('未命名'), id: widget.value || '' });
 
   // 图表数据源 工作表和相应视图
   const [dataSource, setDataSource] = useSetState({

@@ -77,7 +77,7 @@ function useChat({
 
   const handleFetch = async function (
     messagesForFetch,
-    { noUpdateMessages = false, targetMessageId = undefined, prevUserMessageId, toolMessageId } = {},
+    { noUpdateMessages = false, targetMessageId = undefined, prevUserMessageId, toolMessageId, agentParams } = {},
   ) {
     try {
       if (!abortControllerRef.current) {
@@ -90,6 +90,7 @@ function useChat({
           abortController: abortControllerRef.current,
           prevUserMessageId,
           toolMessageId,
+          agentParams,
         },
       );
       setIsRequesting(false);
@@ -124,7 +125,15 @@ function useChat({
               data = safeParse(event.data);
             }
 
-            const messageContent = get(data, 'choices.0.delta.content') || '';
+            const isAgentTextDelta = data.EventType === 'text-delta';
+            const hasChoices = isArray(data.choices) && data.choices.length > 0;
+
+            if (!isAgentTextDelta && !hasChoices) {
+              return;
+            }
+
+            const messageContent =
+              get(data, 'choices.0.delta.content') || (typeof data.Delta === 'string' ? data.Delta : '') || '';
 
             if (!cache.current.isFirstMessageJSONDone) {
               cache.current.isFirstMessageJSONDone = true;
@@ -147,6 +156,7 @@ function useChat({
               setMessages(prev => {
                 let lastMessage = prev[prev.length - 1];
                 const prevMessage = prev[prev.length - 2];
+
                 if (prevMessage && data.instanceId) {
                   prevMessage.id = data.instanceId;
                   prevMessage.modelMessageId = data.instanceId;
@@ -297,9 +307,22 @@ function useChat({
       allowEmpty = false,
       originMessageForRegenerate,
       useFileContentFormat = false,
+      attachments,
     } = {},
   ) => {
     if (!content.trim() && !isEmpty(images) && !allowEmpty && !isEmpty(fileIds)) return;
+
+    let agentParams = { message: content };
+
+    if (isArray(attachments) && !isEmpty(attachments)) {
+      agentParams.attachments = attachments.map(attachment => ({
+        type: /^image\//.test(attachment.type || '') ? 'image' : 'doc',
+        url: attachment.url,
+        name: attachment.name,
+        size: attachment.size,
+      }));
+    }
+
     if (images) {
       content = [
         {
@@ -362,7 +385,7 @@ function useChat({
     setInput('');
     setLoading(true);
     setIsRequesting(true);
-    handleFetch([...messages.filter(item => !item.disabled), userMessage]);
+    handleFetch([...messages.filter(item => !item.disabled), userMessage], { agentParams });
   };
 
   const reGenerateMessageAndNoUpdateMessages = function (messageId, content) {

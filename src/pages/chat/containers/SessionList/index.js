@@ -5,11 +5,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import ClickAway from 'ming-ui/components/ClickAway';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import GroupController from 'src/api/group';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import SessionItem from '../../components/SessionItem';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils/';
@@ -18,8 +17,7 @@ import Constant from '../../utils/constant';
 import * as socket from '../../utils/socket';
 import './index.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 class ContextMenu extends Component {
   constructor(props) {
     super(props);
@@ -29,11 +27,14 @@ class ContextMenu extends Component {
     this.popup.className = 'ChatList-ContextMenu';
     document.querySelector('body').appendChild(this.popup);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      this.renderLayer(nextProps);
-    } else {
-      $(this.popup).hide();
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.visible) {
+        this.renderLayer(this.props);
+      } else {
+        $(this.popup).hide();
+      }
     }
   }
   handleShow(offset) {
@@ -114,53 +115,67 @@ class SessionList extends Component {
   componentWillUnmount() {
     this.resizeObserver && this.resizeObserver.unobserve(this.sessionListWrap);
   }
-  componentWillReceiveProps(nextProps) {
-    const { chatCount } = this.state;
-    const { sessionList, currentSession } = nextProps;
 
-    if (!sessionList.length) {
-      this.getChatSessionList(1);
-      return;
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { chatCount } = this.state;
+      const { sessionList, currentSession } = this.props;
 
-    const currentChatCount = sessionList.reduce((count, item) => {
-      if (item.count && 'isSilent' in item) {
-        return item.isSilent ? count : (count += item.count);
-      } else if (item.count && ('isPush' in item ? item.isPush : true)) {
-        return (count += item.count);
-      } else {
-        return count;
+      if (!sessionList.length) {
+        this.getChatSessionList(1);
+        return;
       }
-    }, 0);
-    window.setUnreadCount && window.setUnreadCount(currentChatCount);
-    if (currentChatCount !== chatCount) {
-      this.setState({
-        chatCount: currentChatCount,
-      });
-    }
 
-    if (this.props.currentSession.id && currentSession.id !== this.props.currentSession.id) {
-      const { id } = getRequest();
-
-      if (this.isWindowChat && id) {
-        history.replaceState(null, '', window.location.pathname);
+      const currentChatCount = sessionList.reduce((count, item) => {
+        if (item.count && 'isSilent' in item) {
+          return item.isSilent ? count : (count += item.count);
+        } else if (item.count && ('isPush' in item ? item.isPush : true)) {
+          return (count += item.count);
+        } else {
+          return count;
+        }
+      }, 0);
+      window.setUnreadCount && window.setUnreadCount(currentChatCount);
+      if (currentChatCount !== chatCount) {
+        this.setState({
+          chatCount: currentChatCount,
+        });
       }
-    }
 
-    if (this.props.messageListShowType !== nextProps.messageListShowType) {
-      this.props.dispatch(actions.setSessionList(sessionList));
-    }
+      if (prevProps.currentSession.id && currentSession.id !== prevProps.currentSession.id) {
+        const { id } = getRequest();
 
-    if (this.isWindowChat && sessionList.length && _.isEmpty(currentSession)) {
-      const { id, type } = getRequest();
-      const target = _.find(sessionList, { value: id });
+        if (this.isWindowChat && id) {
+          history.replaceState(null, '', window.location.pathname);
+        }
+      }
 
-      if (target) {
-        this.handleOpenPanel(target);
-      } else if (utils.getIsInbox(id)) {
-        id && this.addInbox({ id, type });
-      } else {
-        id && this.addSession({ id, type });
+      if (prevProps.messageListShowType !== this.props.messageListShowType) {
+        prevProps.dispatch(actions.setSessionList(sessionList));
+      }
+
+      if (this.isWindowChat && sessionList.length && _.isEmpty(currentSession)) {
+        const { id, type } = getRequest();
+
+        const target = _.find(sessionList, {
+          value: id,
+        });
+
+        if (target) {
+          this.handleOpenPanel(target);
+        } else if (utils.getIsInbox(id)) {
+          id &&
+            this.addInbox({
+              id,
+              type,
+            });
+        } else {
+          id &&
+            this.addSession({
+              id,
+              type,
+            });
+        }
       }
     }
   }
@@ -313,9 +328,10 @@ class SessionList extends Component {
     this.props.dispatch(actions.setNewCurrentSession(item));
 
     // 同步窗口
+    const sessionType = Number(item.type) || (item.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER);
     const param = {
       id: item.value,
-      type: item.isGroup ? 2 : 1,
+      type: sessionType,
     };
 
     if ('showBadge' in item) {
@@ -430,9 +446,9 @@ class SessionList extends Component {
     const { type, value } = hoverItem;
 
     if (type === Constant.SESSIONTYPE_USER) {
-      window.open(`/user_${value}`);
+      window.open(pathCompletion(`/user_${value}`));
     } else if (type === Constant.SESSIONTYPE_GROUP) {
-      window.open(`/feed?groupId=${value}`);
+      window.open(pathCompletion(`/feed?groupId=${value}`));
     }
 
     this.handleClickAway();
@@ -561,18 +577,18 @@ class SessionList extends Component {
 
     if (visible) {
       return (
-        <div className="SessionList-clearAll ThemeBGColor9">
+        <div className="SessionList-clearAll bgPrimary">
           {socketState === 0 && (
             <Fragment>
               <div onClick={this.handleGotoSession.bind(this)}>
-                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <h3 className="textPrimary">{_l('消息')}</h3>
                 <div className={cx('text', { red: chatCount })}>
                   {chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}
                 </div>
               </div>
               <Tooltip title={_l('忽略全部消息')} placement="left">
                 <div className="clearAll" onClick={this.handleClearAllCount.bind(this, visible)}>
-                  <i className="icon-clean_all ThemeColor3"></i>
+                  <i className="icon-clean_all colorPrimary"></i>
                 </div>
               </Tooltip>
             </Fragment>
@@ -580,7 +596,7 @@ class SessionList extends Component {
           {socketState === 1 && (
             <Fragment>
               <div>
-                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <h3 className="textPrimary">{_l('消息')}</h3>
                 <div className="text red">{_l('网络已断开，正在重新连接')}</div>
               </div>
               <div className="clearAll">
@@ -591,7 +607,7 @@ class SessionList extends Component {
           {socketState === 2 && (
             <Fragment>
               <div>
-                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <h3 className="textPrimary">{_l('消息')}</h3>
                 <div className="text red">{_l('网络已断开')}</div>
               </div>
               <Tooltip title={_l('刷新页面')} placement="left">
@@ -606,7 +622,7 @@ class SessionList extends Component {
     } else {
       return (
         <div
-          className="SessionList-clearAll ThemeBGColor9"
+          className="SessionList-clearAll bgPrimary"
           onClick={socketState === 0 ? this.handleClearAllCount.bind(this, visible) : undefined}
           onContextMenu={event => {
             socketState === 0 && this.handleContextClearMenu(event);
@@ -680,7 +696,6 @@ class SessionList extends Component {
               </div>
             )}
             <ClickAwayable
-              component="div"
               onClickAway={this.handleClickAway.bind(this)}
               onClickAwayExceptions={['.ChatPanel-addToolbar-menu']}
             >

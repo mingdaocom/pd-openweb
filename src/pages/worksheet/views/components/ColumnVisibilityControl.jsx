@@ -82,11 +82,14 @@ function ColumnVisibilityControl(props) {
         setColumnHeadHeight(baseColumnHead.offsetHeight);
       };
 
+      if (!baseColumnHead) return;
       updateHeight();
-      resizeObserverRef.current = new ResizeObserver(() => {
-        updateHeight();
-      });
-      resizeObserverRef.current.observe(baseColumnHead);
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserverRef.current = new ResizeObserver(() => {
+          updateHeight();
+        });
+        resizeObserverRef.current.observe(baseColumnHead);
+      }
     }, 200);
 
     return () => {
@@ -214,7 +217,7 @@ function ColumnVisibilityControl(props) {
     >
       <Tooltip title={_l('显示列设置')} placement="top">
         <IconWrapper height={columnHeadHeight} headTitleCenter={headTitleCenter}>
-          <Icon icon="table_eye" className={`${hasHiddenColumns ? 'ThemeColor3' : 'textSecondary'} Font18 Hand`} />
+          <Icon icon="table_eye" className={`${hasHiddenColumns ? 'colorPrimary' : 'textSecondary'} Font18 Hand`} />
         </IconWrapper>
       </Tooltip>
     </Trigger>

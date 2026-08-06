@@ -7,11 +7,11 @@ import * as actions from 'mobile/RelationRow/redux/actions';
 import RelationAction from './RelationAction';
 import RelationList from './RelationList';
 
-@withRouter
-class Home extends Component {
+let Home = class Home extends Component {
   constructor(props) {
     super(props);
   }
+
   handleScroll = event => {
     const { loadParams, updatePageIndex } = this.props;
     const { clientHeight, scrollHeight, scrollTop } = event.target;
@@ -22,13 +22,17 @@ class Home extends Component {
       updatePageIndex(pageIndex + 1);
     }
   };
+
   render() {
     const { controlId, params } = this.props;
     return (
       <Fragment>
         <div
           className="flexColumn flex"
-          style={{ overflowX: 'hidden', overflowY: 'auto' }}
+          style={{
+            overflowX: 'hidden',
+            overflowY: 'auto',
+          }}
           onScroll={this.handleScroll}
         >
           <RelationList {...params} />
@@ -37,11 +41,9 @@ class Home extends Component {
       </Fragment>
     );
   }
-}
-
+};
+Home = withRouter(Home);
 export default connect(
-  state => ({
-    ..._.pick(state.mobile, ['loadParams']),
-  }),
+  state => ({ ..._.pick(state.mobile, ['loadParams']) }),
   dispatch => bindActionCreators(_.pick(actions, ['updatePageIndex']), dispatch),
 )(Home);

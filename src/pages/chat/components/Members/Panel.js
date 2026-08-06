@@ -30,7 +30,7 @@ export class Member extends Component {
         </div>
         {accountId === item.accountId ? undefined : (
           <div className="userAction" onClick={this.props.onOpenSession.bind(this, item)}>
-            <i className="ThemeColor3 icon-chat-session" />
+            <i className="colorPrimary icon-chat-session" />
           </div>
         )}
       </div>
@@ -53,20 +53,23 @@ export default class MembersPanel extends Component {
       groupMemberCount: 0,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    const { session } = nextProps;
 
-    if (session.groupMemberCount !== this.state.groupMemberCount) {
-      this.setState(
-        {
-          pageIndex: 1,
-          loading: false,
-          members: [],
-        },
-        () => {
-          this.getGroupUsers();
-        },
-      );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { session } = this.props;
+
+      if (session.groupMemberCount !== this.state.groupMemberCount) {
+        this.setState(
+          {
+            pageIndex: 1,
+            loading: false,
+            members: [],
+          },
+          () => {
+            this.getGroupUsers();
+          },
+        );
+      }
     }
   }
   componentDidMount() {
@@ -123,7 +126,7 @@ export default class MembersPanel extends Component {
     return (
       <div className="ChatPanel-MembersPanel">
         <div className="header">
-          <span className="slideInfoBar ThemeColor3" onClick={this.props.onSetPanelVisible.bind(this, false)}>
+          <span className="slideInfoBar colorPrimary" onClick={this.props.onSetPanelVisible.bind(this, false)}>
             <i className="icon-arrow-left-border" />
             {_l('返回')}
           </span>

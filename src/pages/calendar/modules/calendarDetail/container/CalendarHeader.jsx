@@ -115,7 +115,6 @@ export default class CalendarHeader extends Component {
           this.setState({ isShowCategory: false });
         }}
         onClickAwayExceptions={[this.catBtn]}
-        ignoreOnHide={true}
       >
         {(() => {
           if (!isCategoryReady) {
@@ -173,13 +172,14 @@ export default class CalendarHeader extends Component {
     return (
       <div className="calendarOperations pLeft15">
         <span
-          className="icon-task-later Font18 ThemeHoverColor3 pointer"
+          className="icon-task-later Font18 hoverColorPrimary pointer"
           title={_l('刷新')}
           onClick={reFetchData}
         ></span>
+
         <span className="Relative mLeft20 calMoreOp">
           <span
-            className="icon-more_horiz Font19 ThemeHoverColor3 pointer"
+            className="icon-more_horiz Font19 hoverColorPrimary pointer"
             ref={btn => {
               this.opBtn = btn;
             }}
@@ -196,7 +196,6 @@ export default class CalendarHeader extends Component {
                 this.setState({ isShowOpList: false });
               }}
               onClickAwayExceptions={[this.opBtn]}
-              ignoreOnHide={true}
               con={'.calendarHeader'}
             >
               {(showExit || showDelete) && !md.global.SysSettings.forbidSuites.includes('2') ? (
@@ -219,7 +218,7 @@ export default class CalendarHeader extends Component {
           ) : null}
         </span>
         {Config.isDetailPage ? null : (
-          <span className="mLeft20 icon-close Font20 ThemeHoverColor3 pointer" onClick={Config.closeDialog} />
+          <span className="mLeft20 icon-close Font20 hoverColorPrimary pointer" onClick={Config.closeDialog} />
         )}
       </div>
     );

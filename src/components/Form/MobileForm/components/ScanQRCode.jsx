@@ -83,6 +83,7 @@ const ZxingWrapper = styled.div`
 
 const isWx = window.isWeiXin && !window.isWxWork;
 const isMobile = browserIsMobile();
+const MAX_SCAN_CANVAS_SIZE = 960;
 
 export const getIsScanQR = () => {
   return isMobile;
@@ -597,32 +598,75 @@ export default class Widgets extends Component {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'environment' },
     });
-    if (!video) return;
+
+    if (!video || !this.state.visible) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+
     video.srcObject = stream;
     video.setAttribute('playsinline', true); // iOS 兼容
     await video.play();
-    this.tick();
+
+    if (this.state.visible) {
+      this.tick();
+    }
   };
 
-  stopCamera = () => {
-    const stream = this.videoRef.current?.srcObject;
+  cleanupVideoElement = video => {
+    if (!video) return;
+
+    const stream = video.srcObject;
 
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
     }
 
+    video.pause();
+    video.srcObject = null;
+    video.removeAttribute('src');
+    video.load?.();
+  };
+
+  cleanupCanvasElement = canvas => {
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
+  };
+
+  stopCamera = () => {
     cancelAnimationFrame(this.animationFrame);
+    this.animationFrame = null;
+    this.cleanupVideoElement(this.videoRef.current);
+    this.cleanupCanvasElement(this.canvasRef.current);
   };
 
   tick = () => {
+    if (!this.state.visible) return;
+
     const video = this.videoRef.current;
     const canvas = this.canvasRef.current;
+
+    if (!video || !canvas || !video.srcObject) return;
 
     // 视频已准备好播放
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       const ctx = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
+
+      if (!videoWidth || !videoHeight) {
+        this.animationFrame = requestAnimationFrame(this.tick);
+        return;
+      }
+
+      const scale = Math.min(1, MAX_SCAN_CANVAS_SIZE / Math.max(videoWidth, videoHeight));
+      canvas.width = Math.round(videoWidth * scale);
+      canvas.height = Math.round(videoHeight * scale);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -714,7 +758,10 @@ export default class Widgets extends Component {
   stopZxing = () => {
     if (this.zxingCodeReader) {
       this.zxingCodeReader.reset();
+      this.zxingCodeReader = null;
     }
+
+    this.cleanupVideoElement(this.zxingVideoRef.current);
   };
 
   calculateBorderWidth = (video, isBarcode = false) => {

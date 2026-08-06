@@ -1,14 +1,14 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { ActionSheet, Button, Popup } from 'antd-mobile';
+import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
-import _, { isArray } from 'lodash';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import MobilePopup from 'ming-ui/components/MobilePopup';
 import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
 import { getRequest, removeTempRecordValueFromLocal } from 'src/utils/common';
-import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
 import AdvancedSettingHandler from '../AdvancedSettingHandler';
 import NewRecordContent from '../NewRecordContent';
 import CompositeInput from './components/CompositeInput';
@@ -20,7 +20,7 @@ import VoiceProvider from './components/VoiceProvider';
 import { generateRecord } from './core/utils';
 import './index.less';
 
-const ModalWrap = styled(Popup)`
+const ModalWrap = styled(MobilePopup)`
   .mobileContainer {
     padding-top: 25px;
   }
@@ -70,6 +70,13 @@ const CloseIcon = styled.div`
   cursor: pointer;
 `;
 
+const checkUploading = () => {
+  return (
+    $('.customFormFileBox').find('.uploadingProcessCircle').length ||
+    $('.customFormFileBox').find('.fileUpdateLoading').length
+  );
+};
+
 function NewRecord(props) {
   const {
     visible,
@@ -96,7 +103,7 @@ function NewRecord(props) {
 
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
-  const [sessionId, setSessionId] = useState(Date.now().toString());
+
   // 上传中、识别中 toast 显示
   const [aiToastVisible, setAiToastVisible] = useState(false);
   const [aiToastType, setAiToastType] = useState('');
@@ -116,73 +123,7 @@ function NewRecord(props) {
     !md.global.SysSettings.hideAIBasicFun &&
     !_.isEmpty(worksheetInfo) &&
     String(_.get(worksheetInfo, 'advancedSetting.aifillin')) !== '1';
-  const { offlineUpload, page } = getRequest();
-
-  const handOverNavigation = isBack => {
-    if (!window.isMingDaoApp) {
-      return;
-    }
-
-    compatibleMDJS('handOverNavigation', { sessionId });
-    setSessionId('');
-    (page === 'newRecord' || (isArray(page) && page[page.length - 1] === 'newRecord')) && isBack && history.back();
-  };
-
-  useEffect(() => {
-    const cancel = () => {
-      if (_.isArray(page) && page[page.length - 1] !== 'newRecord') {
-        return;
-      }
-
-      handleReplaceState('page', isArray(page) ? page[page.length - 1] : page, () => {
-        const setRestoreVisible = _.get(newRecordContent.current, 'setRestoreVisible');
-        hideNewRecord();
-        setRestoreVisible && setRestoreVisible(false);
-      });
-    };
-
-    if (!notDialog) {
-      window.addEventListener('popstate', cancel, false);
-    }
-
-    return () => {
-      if (!notDialog) {
-        window.removeEventListener('popstate', cancel, false);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    compatibleMDJS('takeOverNavigation', {
-      sessionId, // 随机ID
-      appWillGoBack: data => {
-        var sessionId = data.sessionId;
-        // sessionId: 传入的sessionId
-        // url: App 将返回的页面, 为空则是关闭当前浏览器
-        // 若App执行失败, 将夺回控制权
-
-        // H5决定
-
-        // 1: 允许App执行, 通常伴随交还控制权
-        // 建议在return 1前调用handOverNavigation, 避免上下文丢失
-        // 2: 取消原生返回, H5执行返回
-        // return 1/2;
-        setSessionId(sessionId);
-        const { page } = getRequest();
-
-        if (page && _.isArray(page)) {
-          history.back();
-        }
-
-        return page && _.isArray(page) ? 2 : 1;
-      },
-    });
-
-    return () => {
-      if (page && _.isArray(page)) return;
-      handOverNavigation();
-    };
-  }, []);
+  const { offlineUpload } = getRequest();
 
   useEffect(() => {
     propsRef.current = props;
@@ -266,13 +207,6 @@ function NewRecord(props) {
         </div>
       ),
     });
-  };
-
-  const checkUploading = () => {
-    return (
-      $('.customFormFileBox').find('.uploadingProcessCircle').length ||
-      $('.customFormFileBox').find('.fileUpdateLoading').length
-    );
   };
 
   const handleAdd = async (isContinue, appScanAutoFill) => {
@@ -493,17 +427,7 @@ function NewRecord(props) {
           </VoiceProvider>
         </Fragment>
       )}
-      {!window.isMingDaoApp && (
-        <i
-          className="icon icon-cancel textTertiary Font22"
-          onClick={() => {
-            hideNewRecordModal();
-            if (location.search && window.isMingDaoApp) {
-              history.back();
-            }
-          }}
-        ></i>
-      )}
+      {!window.isMingDaoApp && <i className="icon icon-cancel textTertiary Font22" onClick={hideNewRecordModal}></i>}
     </div>
   );
   const content = (
@@ -523,7 +447,6 @@ function NewRecord(props) {
       onSubmitEnd={() => setLoading(false)}
       viewId=""
       handleAdd={handleAdd}
-      handOverNavigation={handOverNavigation}
       mobileFilledByAiMap={mobileFilledByAiMap}
     />
   );
@@ -575,6 +498,8 @@ function NewRecord(props) {
       <ModalWrap
         className={cx('MobileNewRecordModal mobileModal full', className)}
         onClose={hideNewRecord}
+        layerId={`newRecord-${worksheetInfo.worksheetId}`}
+        historyUrlParams={{ page: 'newRecord' }}
         visible={visible}
       >
         {contentWrap}

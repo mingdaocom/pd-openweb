@@ -9,6 +9,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import ExternalPortalApi from 'src/api/externalPortal.js';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
+import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
   overflow: hidden;
@@ -188,7 +189,7 @@ function Setting(props) {
             <span className="Bold">{_l('生成地址')}</span>
             <Icon
               icon="close"
-              className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
+              className="Right LineHeight25 textTertiary Hand Font22 hoverColorPrimary"
               onClick={() => {
                 closeSet();
               }}
@@ -199,7 +200,7 @@ function Setting(props) {
           </div>
           <div className="pLeft24 pRight24">
             <span
-              className="setBtn Hand ThemeHoverBGColor3 mTop20 InlineBlock"
+              className="setBtn Hand hoverBgColorPrimaryDark mTop20 InlineBlock"
               onClick={() => {
                 initUrl();
               }}
@@ -362,7 +363,7 @@ function Setting(props) {
             <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('默认角色')}</h6>
             <Dropdown
               data={roleList.map(o => {
-                return { text: o.name, value: o.roleId };
+                return { text: getTranslateInfo(appId, null, o.roleId).name || o.name, value: o.roleId };
               })}
               border
               isAppendToBody

@@ -24,7 +24,9 @@ function RecordCard({ showAsTitle, config, functionArguments }) {
   const [hiddenControlIds, setHiddenControlIds] = useState([]);
   useEffect(() => {
     const worksheetId = functionArguments.worksheet_id;
-    const rows = [functionArguments.fields];
+    // 过滤掉空字段对象：AI 偶尔回吐 fields:[{},{}]，会让后端 HandleAIRequest 空引用异常
+    const fields = (functionArguments.fields || []).filter(f => f && Object.keys(f).length > 0);
+    const rows = [fields];
     sheetAjax.handleAIRequest({ worksheetId, rows }).then(async res => {
       const titleControl = find(get(res.worksheet, 'template.controls', []), c => c.attribute === 1);
       const updatedRow = res.data ? res.data[0] : {};

@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Button, Dialog, Icon, QiniuUpload, Radio, Slider, SortableList, Switch } from 'ming-ui';
 import projectSettingApi from 'src/api/projectSetting';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import BulletinSetting from './BulletinSetting';
 import { themeColors } from './utils';
 
@@ -215,6 +215,29 @@ const AdvancedThemeItem = styled.div`
   }
 `;
 
+const collectRadios = [
+  { value: 0, text: _l('显示当前组织') },
+  { value: 1, text: _l('显示所有组织') },
+];
+const todoRadios = [
+  { value: 0, text: _l('计数') },
+  { value: 1, text: _l('列表') },
+];
+const modules = [
+  { value: 0, text: _l('应用收藏') },
+  { value: 1, text: _l('最近使用') },
+  { value: 2, text: _l('记录收藏') },
+  { value: 3, text: _l('图表收藏') },
+];
+const renderItem = ({ item }) => {
+  return (
+    <SortItem>
+      <Icon className="mRight8 Font14 textTertiary" icon="drag" />
+      <span>{item.text}</span>
+    </SortItem>
+  );
+};
+
 export default function DashboardSetting(props) {
   const {
     currentProject = {},
@@ -245,38 +268,12 @@ export default function DashboardSetting(props) {
       : color
     : currentTheme.themeKey;
 
-  const collectRadios = [
-    { value: 0, text: _l('显示当前组织') },
-    { value: 1, text: _l('显示所有组织') },
-  ];
-
-  const todoRadios = [
-    { value: 0, text: _l('计数') },
-    { value: 1, text: _l('列表') },
-  ];
-
-  const modules = [
-    { value: 0, text: _l('应用收藏') },
-    { value: 1, text: _l('最近使用') },
-    { value: 2, text: _l('记录收藏') },
-    { value: 3, text: _l('图表收藏') },
-  ];
-
   const updateLogo = logoName => {
     projectSettingApi.setLogo({ logoName, projectId: currentProject.projectId }).then(res => {
       if (res) {
         updatePlatformSetting({ logo: logoName, editingKey: 'logo' });
       }
     });
-  };
-
-  const renderItem = ({ item }) => {
-    return (
-      <SortItem>
-        <Icon className="mRight8 Font14 textTertiary" icon="drag" />
-        <span>{item.text}</span>
-      </SortItem>
-    );
   };
 
   return (

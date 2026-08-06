@@ -38,9 +38,11 @@ export default class SelectWorkflow extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.visible && nextProps.visible) {
-      this.getData();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!prevProps.visible && this.props.visible) {
+        this.getData();
+      }
     }
   }
 

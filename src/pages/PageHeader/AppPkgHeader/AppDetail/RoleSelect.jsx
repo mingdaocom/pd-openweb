@@ -3,9 +3,10 @@ import cx from 'classnames';
 import localForage from 'localforage';
 import styled from 'styled-components';
 import { Button, Checkbox, Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import appManagementApi from 'src/api/appManagement';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { getTranslateInfo } from 'src/utils/app';
 import { ICON_ROLE_TYPE } from '../config';
 
 const OkButtonWrap = styled.div`
@@ -112,7 +113,18 @@ function RoleSelect(props) {
     if (!visible) return;
 
     appManagementApi.getDebugRoles({ appId }).then(({ roles }) => {
-      setRoleList(roles);
+      setRoleList(
+        roles.map(item => {
+          if (item.roleType === 0) {
+            return {
+              ...item,
+              name: getTranslateInfo(appId, null, item.roleId).name || item.name,
+            };
+          } else {
+            return item;
+          }
+        }),
+      );
     });
   }, [visible]);
 
@@ -237,4 +249,4 @@ function RoleSelect(props) {
   );
 }
 
-export default withClickAway(RoleSelect);
+export default ClickAway.wrap(RoleSelect);

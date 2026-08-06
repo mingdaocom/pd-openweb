@@ -237,7 +237,7 @@ const DropdownComp = props => {
           advancedSetting.allowadd === '1' &&
           canAddOption && (
             <Select.Option value={`add_${keywords}`}>
-              <span className="ellipsis customRadioItem ThemeColor3" title={_l('添加新的选项：') + keywords}>
+              <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
                 {_l('添加新的选项：') + keywords}
               </span>
             </Select.Option>

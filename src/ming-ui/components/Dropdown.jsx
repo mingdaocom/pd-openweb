@@ -190,18 +190,6 @@ class Dropdown extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.props.value) {
-      this.setState({
-        value: nextProps.value,
-      });
-    }
-
-    if (_.isBoolean(nextProps.popupVisible)) {
-      this.setState({ showMenu: nextProps.popupVisible });
-    }
-  }
-
   getTextFromDataById(data, value) {
     let text = this.props.placeholder;
 
@@ -266,7 +254,21 @@ class Dropdown extends Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== prevProps.value) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
+
+      if (_.isBoolean(this.props.popupVisible)) {
+        this.setState({
+          showMenu: this.props.popupVisible,
+        });
+      }
+    }
+
     this.trigger && this.trigger.forcePopupAlign();
   }
 
@@ -460,8 +462,8 @@ class Dropdown extends Component {
             {value != undefined ? (
               <span
                 className={cx('value', {
-                  ThemeHoverColor3: this.props.hoverTheme,
-                  ThemeHoverBorderColor3: this.props.hoverTheme,
+                  hoverColorPrimary: this.props.hoverTheme,
+                  hoverBorderColorPrimary: this.props.hoverTheme,
                 })}
               >
                 {this.props.renderError && !this.props.data.map(o => o.value).includes(value)

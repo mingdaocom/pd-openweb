@@ -103,7 +103,7 @@ export default class PublishBtn extends Component {
               <span className="mLeft10 Font12 textSecondary">{createTimeSpan(item.createdDate, 2)}</span>
             ) : (
               <span
-                className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'textSecondary')}
+                className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'colorPrimary' : 'textSecondary')}
               >{`${createTimeSpan(item.lastModifiedDate, 2)} ${publishStatus2Text[item.publishStatus]}`}</span>
             )}
           </Fragment>

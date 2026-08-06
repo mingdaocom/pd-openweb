@@ -301,6 +301,7 @@ const StatisticsValue = props => {
           {sizeTypes.map(item => (
             <div
               key={item.value}
+              title={item.name}
               className={cx('flex centerAlign pointer textSecondary', {
                 active: (numberChartStyle.fontSize || 28) === item.value,
               })}
@@ -308,7 +309,7 @@ const StatisticsValue = props => {
                 onChangeNumberStyle({ fontSize: item.value });
               }}
             >
-              {item.name}
+              <span className="ellipsis">{item.name}</span>
             </div>
           ))}
         </div>
@@ -456,6 +457,7 @@ export const ContrastValue = props => {
           {colorTypes.map(item => (
             <div
               key={item.value}
+              title={item.name}
               className={cx('flex centerAlign pointer textSecondary', {
                 active: (numberChartStyle.contrastColor || 0) === item.value,
               })}
@@ -465,7 +467,7 @@ export const ContrastValue = props => {
                 });
               }}
             >
-              {item.name}
+              <span className="ellipsis">{item.name}</span>
             </div>
           ))}
         </div>

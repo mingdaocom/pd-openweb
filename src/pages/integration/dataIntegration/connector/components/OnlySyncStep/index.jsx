@@ -216,6 +216,7 @@ export default function OnlySyncStep(props) {
               sourceField: { ...mapping.sourceField, alias: mapping.sourceField.name },
               destField: { ...mapping.destField, alias: mapping.destField.name },
             }; //将alias赋值成name提交
+            const { isCheck } = item.destField;
 
             if (isCreate) {
               return isSourceAppType && isDestAppType
@@ -228,13 +229,13 @@ export default function OnlySyncStep(props) {
                       'oid',
                       'controlSetting',
                     ]),
-                    destField: item.destField.isCheck
+                    destField: isCheck
                       ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'comment'])
                       : null,
                   }
                 : {
                     ...item,
-                    destField: item.destField.isCheck ? item.destField : null,
+                    destField: isCheck ? item.destField : null,
                   };
             } else {
               return isDestAppType
@@ -242,7 +243,7 @@ export default function OnlySyncStep(props) {
                     sourceField: isSourceAppType
                       ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'isPk'])
                       : item.sourceField,
-                    destField: item.destField.isCheck
+                    destField: isCheck
                       ? isSourceAppType
                         ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'isPk'])
                         : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull', 'isCheck', 'oid'])
@@ -1032,10 +1033,7 @@ export default function OnlySyncStep(props) {
                                                 </span>
                                               }
                                             >
-                                              <span
-                                                className="Hand mLeft4"
-                                                onClick={e => e.stopPropagation()}
-                                              >
+                                              <span className="Hand mLeft4" onClick={e => e.stopPropagation()}>
                                                 <Icon icon="info" className="textTertiary Font14" />
                                               </span>
                                             </Tooltip>

@@ -2,9 +2,9 @@ import { find, get } from 'lodash';
 import _ from 'lodash';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
-import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { getAdvanceSetting } from 'src/utils/control';
 import { isTimeStyle, renderText as renderCellText } from 'src/utils/control';
+import { FIELD_REG_EXP } from 'src/utils/controlCommon';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToServerZone } from 'src/utils/project';
 
@@ -256,6 +256,39 @@ export const getTitleControlForCard = (currentView, worksheetControls) => {
     viewtitle ? viewtitle === item.controlId : item.attribute === 1,
   );
   return titleControl;
+};
+
+// 仅当 viewtitle 形如 $单个字段ID$ 时归一为真实字段 ID，其余（空 / 普通 ID / 组合标题）原样返回。
+// 用于卡片标题的「读取/展示侧」兼容：配置保存仍走原值，只有展示与配置高亮按真实字段 ID 匹配。
+export const getWrappedViewTitleControlId = viewtitle => {
+  const controlFields = viewtitle ? viewtitle.match(FIELD_REG_EXP) || [] : [];
+  return controlFields.length === 1 && controlFields[0] === viewtitle ? viewtitle.replace(/\$/g, '') : viewtitle;
+};
+
+// 卡片标题的呈现侧兼容：配置仍保存原值，只有 $单个字段ID$ 展示时归一成真实字段 ID。
+export const getCardTitleFieldForView = (row = {}, worksheetControls = [], currentView = {}) => {
+  const viewtitle = _.get(currentView, 'advancedSetting.viewtitle');
+  const controlId = getWrappedViewTitleControlId(viewtitle);
+  const titleControl = getTitleControlForCard(
+    {
+      ...currentView,
+      advancedSetting: {
+        ..._.get(currentView, 'advancedSetting'),
+        viewtitle: controlId,
+      },
+    },
+    worksheetControls,
+  );
+
+  if (!titleControl) {
+    return;
+  }
+
+  return {
+    ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR),
+    value: row[titleControl.controlId],
+    isWrappedViewTitle: controlId !== viewtitle,
+  };
 };
 
 export const getShowViews = views => {

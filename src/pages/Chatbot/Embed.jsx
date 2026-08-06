@@ -9,6 +9,7 @@ import UnNormal from 'worksheet/views/components/UnNormal';
 import preall from 'src/common/preall';
 import store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
+import { addSubPathOfRoute, getPathWithoutSubPath } from 'src/utils/common';
 import Chatbot from './index';
 
 const ChatbotWrap = withRouter(props => {
@@ -51,7 +52,8 @@ const ChatbotWrap = withRouter(props => {
         data={{ appId, chatbotId, conversationId }}
         isEmbed={true}
         navigateToConversation={(conversationId, isReplace = false) => {
-          const basePathName = location.pathname.startsWith('/embed/chatbot/s') ? '/embed/chatbot/s' : '/embed/chatbot';
+          const pathname = getPathWithoutSubPath(location.pathname);
+          const basePathName = pathname.startsWith('/embed/chatbot/s') ? '/embed/chatbot/s' : '/embed/chatbot';
           navigateTo(`${basePathName}/${appId}/${chatbotId}/${conversationId || ''}`, isReplace);
         }}
       />
@@ -68,11 +70,11 @@ class LandChatbot extends Component {
       <Router>
         <Switch>
           <Route
-            path={`${window.subPath || ''}/embed/chatbot/:appId/:chatbotId/:conversationId?`}
+            path={addSubPathOfRoute('/embed/chatbot/:appId/:chatbotId/:conversationId?')}
             component={ChatbotWrap}
           />
           <Route
-            path={`${window.subPath || ''}/embed/chatbot/s/:appId/:chatbotId/:conversationId?`}
+            path={addSubPathOfRoute('/embed/chatbot/s/:appId/:chatbotId/:conversationId?')}
             component={ChatbotWrap}
           />
           <Route component={null} />

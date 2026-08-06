@@ -67,7 +67,7 @@ export default class Signature extends Component {
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
     this.signaturePad = new SignaturePad.default(canvas, {
-      penColor: '#9e9e9e',
+      penColor: '#151515',
       onBegin: () => {
         this.setState({ isEdit: true });
         if (isFunction(onBegin)) {
@@ -154,7 +154,7 @@ export default class Signature extends Component {
         {showButton && (
           <div className="flexRow mTop10" style={{ minHeight: 20 }}>
             {!md.global.Account.isPortal && (
-              <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.getSignature}>
+              <span className="colorPrimary hoverColorPrimaryDark pointer flexRow" onClick={this.getSignature}>
                 {_l('使用上次签名')}
               </span>
             )}
@@ -185,7 +185,7 @@ export default class Signature extends Component {
 
             <div className="flex" />
             {(isEdit || !!signature) && (
-              <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.clear}>
+              <span className="colorPrimary hoverColorPrimaryDark pointer flexRow" onClick={this.clear}>
                 <Icon icon="e-signature" className="Font16 mRight5" />
                 {_l('重新签名')}
               </span>

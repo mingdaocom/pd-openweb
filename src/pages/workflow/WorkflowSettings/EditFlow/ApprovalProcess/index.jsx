@@ -4,6 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/common';
 import { CreateNode, SimplifyNode } from '../components';
 import 'rc-trigger/assets/index.css';
 
@@ -118,7 +119,7 @@ export default props => {
           </Fragment>
         }
         nodeTriggerFunc={() => isHide && changeShrink()}
-        IconTriggerFunc={() => window.open(`/workflowedit/${id}`)}
+        IconTriggerFunc={() => window.open(pathCompletion(`/workflowedit/${id}`))}
         operatorTriggerFunc={handleFoldBtnTipsPosition}
       />
     </Box>
@@ -155,7 +156,7 @@ export default props => {
             <Tooltip
               title={() => (
                 <span
-                  className="workflowBranchBtnSmall textSecondary ThemeHoverColor3 mTop7"
+                  className="workflowBranchBtnSmall textSecondary hoverColorPrimary mTop7"
                   onMouseDown={() => {
                     nodeNameRef && nodeNameRef.current && nodeNameRef.current.blur();
                     changeShrink();

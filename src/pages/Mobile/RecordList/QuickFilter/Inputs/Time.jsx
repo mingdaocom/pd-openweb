@@ -10,7 +10,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-background-secondary) !important;
 `;
 
 const dealDate = date => {
@@ -71,30 +71,30 @@ export default function Time(props) {
                 unit === '1'
                   ? {
                       hour: {
-                        format: _l('hh时'),
-                        caption: 'Hour',
+                        format: 'hh',
+                        caption: _l('时'),
                         step: 1,
                       },
                       minute: {
-                        format: _l('mm分'),
-                        caption: 'Min',
+                        format: 'mm',
+                        caption: _l('分'),
                         step: 1,
                       },
                     }
                   : {
                       hour: {
-                        format: _l('hh时'),
-                        caption: 'Hour',
+                        format: 'hh',
+                        caption: _l('时'),
                         step: 1,
                       },
                       minute: {
-                        format: _l('mm分'),
-                        caption: 'Min',
+                        format: 'mm',
+                        caption: _l('分'),
                         step: 1,
                       },
                       second: {
-                        format: _l('ss秒'),
-                        caption: 'Second',
+                        format: 'ss',
+                        caption: _l('秒'),
                         step: 1,
                       },
                     }
@@ -147,30 +147,30 @@ export default function Time(props) {
                 unit === '1'
                   ? {
                       hour: {
-                        format: _l('hh时'),
-                        caption: 'Hour',
+                        format: 'hh',
+                        caption: _l('时'),
                         step: 1,
                       },
                       minute: {
-                        format: _l('mm分'),
-                        caption: 'Min',
+                        format: 'mm',
+                        caption: _l('分'),
                         step: 1,
                       },
                     }
                   : {
                       hour: {
-                        format: _l('hh时'),
-                        caption: 'Hour',
+                        format: 'hh',
+                        caption: _l('时'),
                         step: 1,
                       },
                       minute: {
-                        format: _l('mm分'),
-                        caption: 'Min',
+                        format: 'mm',
+                        caption: _l('分'),
                         step: 1,
                       },
                       second: {
-                        format: _l('ss秒'),
-                        caption: 'Second',
+                        format: 'ss',
+                        caption: _l('秒'),
                         step: 1,
                       },
                     }

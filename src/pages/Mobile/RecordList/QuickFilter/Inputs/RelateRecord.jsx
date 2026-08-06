@@ -5,6 +5,42 @@ import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
 import { getTitleTextFromControls } from 'src/utils/control';
 import RelateRecordOptions from './RelateRecordOptions';
 
+const getDefaultRelateSheetValue = () => {
+  try {
+    const { formData, controlId, recordId, worksheetId } = this.props.control;
+    const titleControl = _.find(formData, control => control.attribute === 1);
+    const defaultRelatedSheetValue = {
+      name: titleControl.value,
+      sid: recordId,
+      type: 8,
+      sourcevalue: JSON.stringify({
+        ..._.assign(...formData.map(c => ({ [c.controlId]: c.value }))),
+        [titleControl.controlId]: titleControl.value,
+        rowid: recordId,
+      }),
+    };
+
+    if (titleControl.type === 29) {
+      try {
+        const cellData = JSON.parse(titleControl.value);
+        defaultRelatedSheetValue.name = cellData[0].name;
+      } catch (err) {
+        console.log(err);
+        defaultRelatedSheetValue.name = '';
+      }
+    }
+
+    return {
+      worksheetId,
+      relateSheetControlId: controlId,
+      value: defaultRelatedSheetValue,
+    };
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+};
+
 export default function RelateRecord(props) {
   const { values = [], advancedSetting, onChange = () => {}, appId, worksheetId, filtersData } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
@@ -55,42 +91,6 @@ export default function RelateRecord(props) {
       ...value,
     });
   }
-
-  const getDefaultRelateSheetValue = () => {
-    try {
-      const { formData, controlId, recordId, worksheetId } = this.props.control;
-      const titleControl = _.find(formData, control => control.attribute === 1);
-      const defaultRelatedSheetValue = {
-        name: titleControl.value,
-        sid: recordId,
-        type: 8,
-        sourcevalue: JSON.stringify({
-          ..._.assign(...formData.map(c => ({ [c.controlId]: c.value }))),
-          [titleControl.controlId]: titleControl.value,
-          rowid: recordId,
-        }),
-      };
-
-      if (titleControl.type === 29) {
-        try {
-          const cellData = JSON.parse(titleControl.value);
-          defaultRelatedSheetValue.name = cellData[0].name;
-        } catch (err) {
-          console.log(err);
-          defaultRelatedSheetValue.name = '';
-        }
-      }
-
-      return {
-        worksheetId,
-        relateSheetControlId: controlId,
-        value: defaultRelatedSheetValue,
-      };
-    } catch (err) {
-      console.log(err);
-      return;
-    }
-  };
 
   return (
     <div className="controlWrapper">

@@ -1,12 +1,13 @@
 import React, {
   createContext,
+  lazy,
+  Suspense,
   useContext,
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useReducer,
   useRef,
-  useState,
 } from 'react';
 import _ from 'lodash';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
@@ -18,8 +19,10 @@ import WidgetsVerifyCode from './components/WidgetsVerifyCode';
 import { FORM_ERROR_TYPE } from './core/config';
 import DataFormat from './core/DataFormat';
 import { commonDefaultProps, commonPropTypes } from './core/formPropTypes';
+import { destroyMapLocation, retainMapLocation } from './core/mapUtils';
 import { useFormEventManager } from './core/useFormEventManager';
 import { loadSDK } from './core/utils';
+import { fixWeixinInputBlurScroll } from './MobileForm/tools/utils';
 import {
   checkControlUniqueAction,
   getConfigAction,
@@ -40,7 +43,6 @@ import { initialState, reducer } from './store/reducers';
 import './index.less';
 
 export const EntranceContext = createContext();
-
 export const useFormStore = () => {
   const context = useContext(EntranceContext);
 
@@ -52,8 +54,10 @@ export const useFormStore = () => {
 };
 
 const isMobile = browserIsMobile();
-
-const Entrance = React.forwardRef((props, ref) => {
+const LoadableMobileForm = lazy(() => import('./MobileForm'));
+const LoadableDesktopForm = lazy(() => import('./DesktopForm'));
+const Entrance = React.forwardRef((componentProps, ref) => {
+  const props = _.defaults({}, componentProps, commonDefaultProps);
   const recordInfoContext = useContext(RecordInfoContext);
   const dataFormat = useRef(null);
   const abortController = useRef(new AbortController());
@@ -62,6 +66,7 @@ const Entrance = React.forwardRef((props, ref) => {
   const changeStatus = useRef(false);
   const submitBegin = useRef(false);
   const containerRef = useRef(null); // 专门用于获取真实DOM的ref
+
   const firstRenderMap = useRef({
     flag: true,
     worksheetId: true,
@@ -74,14 +79,13 @@ const Entrance = React.forwardRef((props, ref) => {
     searchConfig: props.searchConfig || [],
   });
   const stateRef = useRef(state);
-  const [Component, setComponent] = useState(null);
+  const Component = isMobile ? LoadableMobileForm : LoadableDesktopForm; // 定义 getState 方法，始终返回最新 state
 
-  // 定义 getState 方法，始终返回最新 state
   const getState = () => stateRef.current;
-
   /**
    * 规则筛选数据
    */
+
   const getFilterDataByRule = (isInit = false) => {
     getFilterDataByRuleAction(dispatch, {
       props,
@@ -94,19 +98,27 @@ const Entrance = React.forwardRef((props, ref) => {
       onChangeEnhance,
     });
   };
-
   /**
    * 获取配置（业务规则 || 查询配置）
    */
-  const getConfig = ({ getRules, getSearchConfig }) => {
-    getConfigAction(dispatch, { props, getRules, getSearchConfig });
-  };
 
+  const getConfig = ({ getRules, getSearchConfig }) => {
+    getConfigAction(dispatch, {
+      props,
+      getRules,
+      getSearchConfig,
+    });
+  };
   /**
    * 更新error显示状态
    */
+
   const updateErrorState = (isShow, controlId) => {
-    updateErrorStateAction(dispatch, { getState, isShow, controlId });
+    updateErrorStateAction(dispatch, {
+      getState,
+      isShow,
+      controlId,
+    });
   };
 
   const getSubmitData = options => {
@@ -117,13 +129,14 @@ const Entrance = React.forwardRef((props, ref) => {
       dataFormat: dataFormat.current,
       getSubmitBegin: () => submitBegin.current,
       getControlRefs: () => controlRefs.current,
+      getFormContainer: () => containerRef.current,
       newErrorDialog,
     });
   };
-
   /**
    * 表单提交数据
    */
+
   const submitFormData = options => {
     submitFormDataAction(dispatch, {
       props,
@@ -133,13 +146,14 @@ const Entrance = React.forwardRef((props, ref) => {
       updateSubmitBegin: bool => (submitBegin.current = bool),
       getSubmitBegin: () => submitBegin.current,
       getControlRefs: () => controlRefs.current,
+      getFormContainer: () => containerRef.current,
       newErrorDialog,
     });
   };
-
   /**
    * 组件onChange方法
    */
+
   const handleChange = (value, cid, item, searchByChange = true) => {
     handleChangeAction(dispatch, {
       props,
@@ -175,15 +189,13 @@ const Entrance = React.forwardRef((props, ref) => {
   const updateLoadingItems = items => {
     updateLoadingItemsAction(dispatch, items);
   };
-
   /**
    * 提交的时唯一值错误
    */
+
   const uniqueErrorUpdate = uniqueErrorIds => {
     const { uniqueErrorItems } = getState();
-
     alert(_l('记录提交失败：数据重复'), 2);
-
     (uniqueErrorIds || []).forEach(controlId => {
       if (
         !_.find(uniqueErrorItems, item => item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE)
@@ -197,10 +209,10 @@ const Entrance = React.forwardRef((props, ref) => {
       }
     });
   };
-
   /**
    * 更新渲染数据
    */
+
   const updateRenderData = () => {
     const newErrorItems = dataFormat.current.getErrorControls();
     const { errorItems = [] } = state;
@@ -234,16 +246,19 @@ const Entrance = React.forwardRef((props, ref) => {
     const { instanceId, workId } = browserIsMobile()
       ? mobileApprovalRecordInfo
       : _.get(recordInfoContext, 'recordBaseInfo') || {};
-    return { instanceId, workId };
+    return {
+      instanceId,
+      workId,
+    };
   };
 
   const onChangeEnhance = (dataSource, controlIds, obj) => {
     props.onChange(dataSource, controlIds, obj);
   };
-
   /**
    * 初始化数据
    */
+
   const initSourceAction = (data, disabled, reInit = false) => {
     const {
       appId,
@@ -284,9 +299,7 @@ const Entrance = React.forwardRef((props, ref) => {
       verifyAllControls,
       abortController: abortController.current,
       storeCenter: storeCenter.current,
-      embedData: {
-        ..._.pick(props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
-      },
+      embedData: { ..._.pick(props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']) },
       searchConfig: searchConfig.filter(i => !i.eventType),
       loadRowsWhenChildTableStoreCreated,
       updateLoadingItems: loadingItems => {
@@ -303,12 +316,24 @@ const Entrance = React.forwardRef((props, ref) => {
           changeStatus.current = true;
         }
       },
-      onAsyncChange: ({ controlId }) => {
-        onChangeEnhance(dataFormat.current.getDataSource(), [controlId], { isAsyncChange: true });
+      onAsyncChange: changes => {
+        const { controlId, controlIds } = changes;
+
+        if (isMobile) {
+          // H5 子表行详情依赖原始异步回填值重放 DataFormat，避免 getDataSource 快照未包含最新 sourcevalue。
+          onChangeEnhance(dataFormat.current.getDataSource(), controlIds || [controlId], {
+            isAsyncChange: true,
+            asyncChanges: changes,
+          });
+        } else {
+          onChangeEnhance(dataFormat.current.getDataSource(), [controlId], {
+            isAsyncChange: true,
+          });
+        }
+
         changeStatus.current = true;
         getFilterDataByRule();
-        updateErrorItems(dataFormat.current.getErrorControls());
-        // updateLoadingItems({ ...state.loadingItems });
+        updateErrorItems(dataFormat.current.getErrorControls()); // updateLoadingItems({ ...state.loadingItems });
       },
     });
     getFilterDataByRule(true);
@@ -320,10 +345,10 @@ const Entrance = React.forwardRef((props, ref) => {
     changeStatus.current = !reInit;
     onFormDataReady(dataFormat.current);
   };
-
   /**
    * 渲染短信验证码
    */
+
   const renderVerifyCode = item => {
     const { controlId, type } = item;
     const { smsVerificationFiled, smsVerification, worksheetId } = props;
@@ -334,17 +359,22 @@ const Entrance = React.forwardRef((props, ref) => {
           {...item}
           verifyCode={state.verifyCode}
           worksheetId={worksheetId}
-          handleChange={code => dispatch({ type: 'SET_VERIFY_CODE', payload: code })}
+          handleChange={code =>
+            dispatch({
+              type: 'SET_VERIFY_CODE',
+              payload: code,
+            })
+          }
         />
       );
     }
 
     return null;
-  };
+  }; // 提示错误二次确认层
 
-  // 提示错误二次确认层
   const newErrorDialog = (errors, options) => {
     const isAllIgnoreError = errors.every(i => i.ignoreErrorMessage);
+
     const uniqueErrors = _.uniqBy(errors, 'errorMessage');
 
     if (isMobile) {
@@ -358,7 +388,9 @@ const Entrance = React.forwardRef((props, ref) => {
         onCancel: () => {
           // 新建子表保存
           if (props.continueSubmit) {
-            props.continueSubmit({ ignoreDialog: true });
+            props.continueSubmit({
+              ignoreDialog: true,
+            });
           } else {
             submitFormData({ ...options, ignoreDialog: true });
           }
@@ -372,7 +404,9 @@ const Entrance = React.forwardRef((props, ref) => {
                     <Icon
                       className="Font16 mRight10"
                       icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
-                      style={{ color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)' }}
+                      style={{
+                        color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)',
+                      }}
                     />
                   </div>
 
@@ -397,12 +431,16 @@ const Entrance = React.forwardRef((props, ref) => {
                   <Tooltip
                     title={item.ignoreErrorMessage ? _l('非强制校验，可选择忽略') : _l('必须修改正确后才能保存')}
                     placement="bottomLeft"
-                    align={{ offset: [-12, 0] }}
+                    align={{
+                      offset: [-12, 0],
+                    }}
                   >
                     <Icon
                       className="Font16 pointer"
                       icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
-                      style={{ color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)' }}
+                      style={{
+                        color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)',
+                      }}
                     />
                   </Tooltip>
 
@@ -425,72 +463,56 @@ const Entrance = React.forwardRef((props, ref) => {
   const setLoadingInfo = (key, status) => {
     dataFormat.current.loadingInfo[key] = status;
     updateLoadingItems({ ...dataFormat.current.loadingInfo });
-  };
+  }; // 初始化数据
 
-  // 初始化数据
   useEffect(() => {
     const { rulesLoading, searchConfig } = state;
-
     const { data, disabled, isWorksheetQuery } = props;
 
     if (!rulesLoading && !isWorksheetQuery) {
       initSourceAction(data, disabled);
     } else if (rulesLoading || (isWorksheetQuery && searchConfig && !searchConfig.length)) {
-      getConfig({ getRules: rulesLoading, getSearchConfig: isWorksheetQuery && !searchConfig.length });
-    }
-
-    if (window.isWeiXin) {
-      // 处理微信webview键盘收起 网页未撑开
-      $(document).on('blur', '.customMobileFormContainer input', () => {
-        window.scrollTo(0, 0);
+      getConfig({
+        getRules: rulesLoading,
+        getSearchConfig: isWorksheetQuery && !searchConfig.length,
       });
     }
 
+    if (window.isWeiXin) {
+      $(document).on('blur.weixinInputBlurScroll', '.customMobileFormContainer input', fixWeixinInputBlurScroll);
+    }
+
     loadSDK();
+    return () => {
+      $(document).off('blur.weixinInputBlurScroll', '.customMobileFormContainer input', fixWeixinInputBlurScroll);
+    };
   }, []);
 
-  // 根据平台加载组件
   useEffect(() => {
-    const loadComponent = async () => {
-      if (isMobile) {
-        const module = await import('./MobileForm');
-        setComponent(() => module.default);
-      } else {
-        const module = await import('./DesktopForm');
-        setComponent(() => module.default);
-      }
-    };
-
-    loadComponent();
+    retainMapLocation();
 
     return () => {
       abortController.current.abort();
+      destroyMapLocation();
     };
   }, []);
 
   useLayoutEffect(() => {
     stateRef.current = state;
-  }, [state]);
+  }, [state]); // 监听 是否执行getConfig，如果执行，则等待配置加载完再初始化数据
 
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
-  // 监听 是否执行getConfig，如果执行，则等待配置加载完再初始化数据
   useEffect(() => {
     if (state.rules && state.searchConfig && state.configLock) {
       initSourceAction(props.data, props.disabled);
       updateConfigLockAction(dispatch, false);
     }
   }, [state.rules, state.searchConfig, state.configLock]);
-
   useEffect(() => {
     if (Object.values(state.loadingItems).every(i => !i) && submitBegin.current) {
       submitFormData();
     }
-  }, [state.loadingItems, state.renderData]);
+  }, [state.loadingItems, state.renderData]); // 监听 flag 和 data.length
 
-  // 监听 flag 和 data.length
   useEffect(() => {
     if (firstRenderMap.current.flag) {
       firstRenderMap.current.flag = false;
@@ -498,19 +520,20 @@ const Entrance = React.forwardRef((props, ref) => {
     }
 
     initSourceAction(props.data, props.disabled, true);
-  }, [props.flag, props.data.length, props.disabled, props.isRecordLock]);
+  }, [props.flag, props.data.length, props.disabled, props.isRecordLock]); // 监听 worksheetId
 
-  // 监听 worksheetId
   useEffect(() => {
     if (firstRenderMap.current.worksheetId) {
       firstRenderMap.current.worksheetId = false;
       return;
     }
 
-    getConfig({ getRules: true, getSearchConfig: true });
-  }, [props.worksheetId]);
+    getConfig({
+      getRules: true,
+      getSearchConfig: true,
+    });
+  }, [props.worksheetId]); // 监听 recordId
 
-  // 监听 recordId
   useEffect(() => {
     if (firstRenderMap.current.recordId) {
       firstRenderMap.current.recordId = false;
@@ -518,62 +541,55 @@ const Entrance = React.forwardRef((props, ref) => {
     }
 
     storeCenter.current = {};
-  }, [props.recordId]);
+  }, [props.recordId]); // 暴露方法
 
-  // 暴露方法
   useImperativeHandle(ref, () => ({
     uniqueErrorUpdate,
     submitFormData,
     getSubmitData,
     handleChange,
+    triggerCustomEvent,
     getFilterDataByRule,
     setActiveTabControlId,
     updateRenderData,
     dataFormat: dataFormat.current,
     state,
-  }));
+  })); // 使用表单事件管理器
 
-  // 使用表单事件管理器
   const widgetEventProps = useFormEventManager({
     containerRef,
     stateRef,
     ..._.pick(props, ['from', 'disabledTabs', 'disabledChildTableCheck', 'flag']),
   });
-
-  if (!Component) {
-    return <LoadDiv />;
-  }
-
   return (
-    <EntranceContext.Provider value={{ state, dispatch }}>
+    <EntranceContext.Provider
+      value={{
+        state,
+        dispatch,
+      }}
+    >
       <div className="h100 w100 formContainer" ref={containerRef}>
-        <Component
-          {...props}
-          {...state}
-          {...widgetEventProps}
-          controlRefs={controlRefs}
-          dataFormat={dataFormat}
-          checkControlUnique={checkControlUnique}
-          submitFormData={submitFormData}
-          renderVerifyCode={renderVerifyCode}
-          setActiveTabControlId={setActiveTabControlId}
-          updateErrorState={updateErrorState}
-          handleChange={handleChange}
-          triggerCustomEvent={triggerCustomEvent}
-          setLoadingInfo={setLoadingInfo}
-          updateRenderData={updateRenderData}
-        />
+        <Suspense fallback={<LoadDiv className="mTop10" />}>
+          <Component
+            {...props}
+            {...state}
+            {...widgetEventProps}
+            controlRefs={controlRefs}
+            dataFormat={dataFormat}
+            checkControlUnique={checkControlUnique}
+            submitFormData={submitFormData}
+            renderVerifyCode={renderVerifyCode}
+            setActiveTabControlId={setActiveTabControlId}
+            updateErrorState={updateErrorState}
+            handleChange={handleChange}
+            triggerCustomEvent={triggerCustomEvent}
+            setLoadingInfo={setLoadingInfo}
+            updateRenderData={updateRenderData}
+          />
+        </Suspense>
       </div>
     </EntranceContext.Provider>
   );
 });
-
-Entrance.propTypes = {
-  ...commonPropTypes,
-};
-
-Entrance.defaultProps = {
-  ...commonDefaultProps,
-};
-
+Entrance.propTypes = { ...commonPropTypes };
 export default Entrance;

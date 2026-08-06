@@ -91,7 +91,7 @@ export default function Users(props) {
           }
 
           return (
-            <UserItem>
+            <UserItem key={item.accountId}>
               {/* <img src={item.avatar} alt="" className="userAvatar" /> */}
               <UserHead
                 className="userAvatar InlineBlock"

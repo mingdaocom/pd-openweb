@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
+import { FunctionWrap, Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
@@ -19,7 +18,7 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { fieldCanSort } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import Filter from './Filter';
 import QuickFilterView from './QuickFilterView';
@@ -39,6 +38,7 @@ export default class RecordCardListDialog extends Component {
     coverCid: PropTypes.string, // 封面字段 id
     showControls: PropTypes.arrayOf(PropTypes.string), // 显示在卡片里的字段 id 数组
     filterRowIds: PropTypes.arrayOf(PropTypes.string), // 过滤的记录
+    ignoreRowIds: PropTypes.arrayOf(PropTypes.string), // 忽略的记录
     filterRelatesheetControlIds: PropTypes.arrayOf(PropTypes.string), // 过滤的关联表控件对应控件id
     multiple: PropTypes.bool, // 是否多选
     visible: PropTypes.bool, // 弹窗显示
@@ -51,6 +51,7 @@ export default class RecordCardListDialog extends Component {
     allowNewRecord: true,
     disabledManualWrite: false,
     filterRowIds: [],
+    ignoreRowIds: [],
     showControls: [],
     filterRelatesheetControlIds: [],
     onClose: () => {},
@@ -137,23 +138,18 @@ export default class RecordCardListDialog extends Component {
     }
 
     if (this.inputRef && keyWords) this.inputRef.value = keyWords;
-    window.addEventListener('popstate', this.onQueryChange, false);
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.keyWords !== nextProps.keyWords) {
-      this.setState({
-        keyWords: nextProps.keyWords,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.keyWords !== this.props.keyWords) {
+        this.setState({
+          keyWords: this.props.keyWords,
+        });
+      }
     }
   }
-  onQueryChange = () => {
-    if (this.state.showNewRecord) {
-      const { controlId } = this.props;
-      handleReplaceState('page', `newRelateRecord-${controlId}`, () => {
-        this.setState({ showNewRecord: false });
-      });
-    }
-  };
+
   abortSearch() {
     if (this.searchAjax && _.isFunction(this.searchAjax.abort)) {
       this.searchAjax.abort();
@@ -259,7 +255,7 @@ export default class RecordCardListDialog extends Component {
         appId,
         viewId,
         searchType: 1,
-        pageSize: 20,
+        pageSize: 50,
         pageIndex,
         status: 1,
         keyWords: isScanSearch && scancontrol === '1' && scancontrolid ? '' : keyWords,
@@ -268,6 +264,7 @@ export default class RecordCardListDialog extends Component {
         sortControls,
         filterControls: ignoreAllFilters ? [] : filterControls || [],
         fastFilters,
+        rowId: !_.get(control, 'isSubList') ? _.get(control, 'recordId') || recordId : undefined,
       };
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
@@ -281,10 +278,11 @@ export default class RecordCardListDialog extends Component {
         status: 1,
         keyWords,
         isGetWorksheet: true,
-        getType: 7,
+        getType: getFilterRowsGetType || (isDraft ? 27 : 7),
         sortControls,
         filterControls: ignoreAllFilters ? [] : filterControls || [],
         fastFilters,
+        rowId: !_.get(control, 'isSubList') ? _.get(control, 'recordId') || recordId : undefined,
         shareId: window.publicWorksheetShareId,
       };
     }
@@ -312,15 +310,15 @@ export default class RecordCardListDialog extends Component {
       }
     }
 
-    if (parentWorksheetId && controlId) {
+    if (!_.isEmpty(ignoreRowIds)) {
+      args.requestParams = {
+        _system_excluderowids: JSON.stringify(ignoreRowIds),
+      };
+    }
+
+    if (parentWorksheetId && controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
-      args.rowId = recordId;
       args.controlId = controlId;
-      if (ignoreRowIds) {
-        args.requestParams = {
-          _system_excluderowids: JSON.stringify(ignoreRowIds),
-        };
-      }
     }
 
     this.setState({ loading: true });
@@ -509,7 +507,7 @@ export default class RecordCardListDialog extends Component {
     } else {
       onOk([record]);
       onClose();
-      window.isMingDaoApp && handleReplaceHistoryState();
+      handleReplaceHistoryState();
     }
   };
 
@@ -518,7 +516,7 @@ export default class RecordCardListDialog extends Component {
     const { selectedRecords } = this.state;
     onOk(selectedRecords);
     onClose();
-    window.isMingDaoApp && handleReplaceHistoryState();
+    handleReplaceHistoryState();
   };
 
   handleSort = (control, isAsc) => {
@@ -676,7 +674,7 @@ export default class RecordCardListDialog extends Component {
                 onChange={data => {
                   onOk([data]);
                   onClose();
-                  window.isMingDaoApp && handleReplaceHistoryState();
+                  handleReplaceHistoryState();
                 }}
                 onOpenRecordCardListDialog={keyWords => {
                   const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
@@ -809,7 +807,6 @@ export default class RecordCardListDialog extends Component {
           <div
             className="worksheetRecordCard allowNewRecordBtn valignWrapper flexRow"
             onClick={() => {
-              handlePushState('page', `newRelateRecord-${controlId}`);
               this.setState({ showNewRecord: true });
             }}
           >
@@ -854,7 +851,7 @@ export default class RecordCardListDialog extends Component {
               } else {
                 onOk([row]);
                 onClose();
-                window.isMingDaoApp && handleReplaceHistoryState();
+                handleReplaceHistoryState();
               }
             }}
           />
@@ -891,7 +888,7 @@ export default class RecordCardListDialog extends Component {
 
                       {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
                         <div
-                          className="mTop10 ThemeColor3 TxtCenter Hand"
+                          className="mTop10 colorPrimary TxtCenter Hand"
                           onClick={() => this.setState({ ignoreAllFilters: true }, this.loadRecorcd)}
                         >
                           {_l('查看全部记录')}
@@ -924,6 +921,7 @@ export default class RecordCardListDialog extends Component {
       control = {},
       onClear = () => {},
       className,
+      layerId,
       handleReplaceHistoryState = () => {},
     } = this.props;
     const { selectedRecords, error } = this.state;
@@ -936,18 +934,16 @@ export default class RecordCardListDialog extends Component {
         title={control?.controlName || _l('关联记录')}
         confirmDisable={!selectedRecords.length}
         confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
-        onClose={() => {
-          onClose();
-          window.isMingDaoApp && handleReplaceHistoryState();
-        }}
+        onClose={onClose}
         onConfirm={multiple ? this.handleConfirm : null}
         clearDisable={!multiple && !filterRowIds.length}
+        layerId={layerId}
         onClear={
           !multiple
             ? () => {
                 onClear();
                 onClose();
-                window.isMingDaoApp && handleReplaceHistoryState();
+                handleReplaceHistoryState();
               }
             : null
         }
@@ -967,17 +963,4 @@ export default class RecordCardListDialog extends Component {
   }
 }
 
-export function mobileSelectRecord(props) {
-  const div = document.createElement('div');
-
-  document.body.appendChild(div);
-
-  const root = createRoot(div);
-
-  function destory() {
-    root.unmount();
-    document.body.removeChild(div);
-  }
-
-  root.render(<RecordCardListDialog visible {...props} onClose={destory} />);
-}
+export const mobileSelectRecord = props => FunctionWrap(RecordCardListDialog, { ...props });

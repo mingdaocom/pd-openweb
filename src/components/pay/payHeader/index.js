@@ -2,6 +2,7 @@
 import mdImg from 'staticfiles/images/mingdao.png';
 import styled from 'styled-components';
 import projectSettingController from 'src/api/projectSetting';
+import { pathCompletion } from 'src/utils/common';
 
 const PayHeaderWrap = styled.div`
   position: fixed;
@@ -55,7 +56,7 @@ export default function PayHeader(props) {
 
   return (
     <PayHeaderWrap>
-      <a href="/" className="TxtMiddle InlineBlock">
+      <a href={pathCompletion('/')} className="TxtMiddle InlineBlock">
         <img
           src={logo && !logo.includes('emptylogo.png') ? logo : mdImg}
           className="TxtMiddle"

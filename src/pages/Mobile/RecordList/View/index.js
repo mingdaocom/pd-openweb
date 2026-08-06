@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _, { identity } from 'lodash';
@@ -6,30 +6,38 @@ import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { loadSDK } from 'src/components/Form/core/utils';
+import { permitList } from 'src/pages/FormSet/config';
+import { isOpenPermit } from 'src/pages/FormSet/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
+import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { getRequest } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
-import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
+import {
+  filterButtonBySheetSwitchPermit,
+  getHighAuthSheetSwitchPermit,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/worksheet';
 import GroupFilter from '../GroupFilter';
 import GroupFilterList from '../GroupFilter/GroupFilterList';
 import MobileSheetContext from '../MobileSheetContext';
 import { WithoutRows } from '../SheetRows';
-import BoardView from './BoardView';
-import CalendarView from './CalendarView';
-import CustomWidgetView from './CustomWidgetView';
-import DetailView from './DetailView';
-import GalleryView from './GalleryView';
-import GunterView from './GunterView';
-import HierarchyView from './HierarchyView';
-import MobileMapView from './MapView';
-import ResourceView from './ResourceView';
-import SheetView from './SheetView';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
+
+const SheetView = lazy(() => import('./SheetView'));
+const HierarchyView = lazy(() => import('./HierarchyView'));
+const BoardView = lazy(() => import('./BoardView'));
+const GalleryView = lazy(() => import('./GalleryView'));
+const CalendarView = lazy(() => import('./CalendarView'));
+const GunterView = lazy(() => import('./GunterView'));
+const DetailView = lazy(() => import('./DetailView'));
+const ResourceView = lazy(() => import('./ResourceView'));
+const MobileMapView = lazy(() => import('./MapView'));
+const CustomWidgetView = lazy(() => import('./CustomWidgetView'));
 
 const TYPE_TO_COMP = {
   [sheet]: SheetView,
@@ -48,6 +56,8 @@ class View extends Component {
   constructor(props) {
     super(props);
     this.viewComRef = React.createRef();
+    this.checkWorksheetRowsBtnDebounced = _.debounce(this.checkWorksheetRowsBtn, 120);
+    this.buttonsCheckRequestKey = '';
   }
   componentDidMount() {
     const { view, base = {} } = this.props;
@@ -59,7 +69,6 @@ class View extends Component {
       window.APP_OPEN_NEW_PAGE = base.type === 'single';
     }
 
-    loadSDK();
     if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
@@ -84,64 +93,83 @@ class View extends Component {
 
     this.props.handleLoadOperateButtons({ worksheetInfo: this.props.worksheetInfo });
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
-      this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.mobileNavGroupFilters, this.props.mobileNavGroupFilters)) {
+        prevProps.fetchSheetRows({
+          navGroupFilters: this.props.mobileNavGroupFilters,
+        });
+      }
+
+      this.prepareCheckWorksheetRowsBtn(this.props, prevProps);
+    }
+  }
+  componentWillUnmount() {
+    window.APP_OPEN_NEW_PAGE = undefined;
+    this.checkWorksheetRowsBtnDebounced.cancel();
+    emitter.removeListener('MOBILE_RELOAD_RECORD_INFO', this.refreshList);
+    if (!window.IM) return;
+    IM.socket.off('workflow_push');
+  }
+  getOperateButtons = props => {
+    const { view, sheetButtons, printList, sheetSwitchPermit } = props;
+    let operatesButtons = getSheetOperatesButtons(view, {
+      buttons: sheetButtons,
+      printList,
+    });
+    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, sheetSwitchPermit, view.viewId);
+    return operatesButtons;
+  };
+
+  prepareCheckWorksheetRowsBtn = (nextProps, prevProps) => {
+    const { currentSheetRows, base, view } = nextProps;
+    const operatesButtons = this.getOperateButtons(nextProps);
+    const rowIds = currentSheetRows.map(r => r.rowid).filter(identity);
+    const btnIds = getSheetOperateButtonIds(operatesButtons);
+
+    if (
+      [0, 1, 3].includes(view.viewType) &&
+      !_.isEmpty(rowIds) &&
+      !_.isEmpty(btnIds) &&
+      (!_.isEqual(currentSheetRows, prevProps.currentSheetRows) ||
+        !_.isEqual(operatesButtons, this.getOperateButtons(prevProps)))
+    ) {
+      this.checkWorksheetRowsBtnDebounced({
+        worksheetId: base?.worksheetId,
+        rowIds,
+        btnIds,
+        updateButtonsCheckStatus: nextProps.updateButtonsCheckStatus,
+      });
     }
 
     if (
-      nextProps.base.viewId === this.props.base.viewId &&
+      nextProps.base.viewId === prevProps.base.viewId &&
       nextProps.batchOptCheckedData.length &&
       _.isEmpty(nextProps.viewPermission)
     ) {
       const { appId, worksheetId, viewId } = nextProps.base || {};
       nextProps.updateMobileViewPermission({ appId, worksheetId, viewId });
     }
-
-    this.checkWorksheetRowsBtn(nextProps);
-  }
-  componentWillUnmount() {
-    window.APP_OPEN_NEW_PAGE = undefined;
-    emitter.removeListener('MOBILE_RELOAD_RECORD_INFO', this.refreshList);
-    if (!window.IM) return;
-    IM.socket.off('workflow_push');
-  }
-  getOperateButtons = props => {
-    const { view, sheetButtons, printList } = props;
-    let operatesButtons = getSheetOperatesButtons(view, {
-      buttons: sheetButtons,
-      printList,
-    });
-    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, this.sheetSwitchPermit, view.viewId);
-    return operatesButtons;
   };
 
-  checkWorksheetRowsBtn = nextProps => {
-    const { currentSheetRows, sheetButtons, base, view, updateButtonsCheckStatus = () => {} } = nextProps;
+  checkWorksheetRowsBtn = ({ worksheetId, rowIds, btnIds, updateButtonsCheckStatus = () => {} }) => {
+    const requestKey = [worksheetId, rowIds.join(','), btnIds.join(',')].join('|');
+    this.buttonsCheckRequestKey = requestKey;
 
-    if (
-      [0, 1, 3].includes(view.viewType) &&
-      !_.isEmpty(currentSheetRows) &&
-      !_.isEmpty(sheetButtons) &&
-      (!_.isEqual(currentSheetRows, this.props.currentSheetRows) ||
-        !_.isEqual(this.getOperateButtons(nextProps), this.getOperateButtons(this.props)))
-    ) {
-      worksheetAjax
-        .checkWorksheetRowsBtn({
-          worksheetId: base?.worksheetId,
-          rowIds: currentSheetRows.map(r => r.rowid).filter(identity),
-          btnIds: sheetButtons.map(b => b.btnId),
-        })
-        .then(data => {
-          const buttonsCheckStatus = {};
-          data.forEach(item => {
-            item.rowIds.forEach(rowId => {
-              buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
-            });
-          });
-          updateButtonsCheckStatus(buttonsCheckStatus);
+    worksheetAjax.checkWorksheetRowsBtn({ worksheetId, rowIds, btnIds }).then(data => {
+      if (this.buttonsCheckRequestKey !== requestKey) {
+        return;
+      }
+
+      const buttonsCheckStatus = {};
+      data.forEach(item => {
+        item.rowIds.forEach(rowId => {
+          buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
         });
-    }
+      });
+      updateButtonsCheckStatus(buttonsCheckStatus, { rowIds, btnIds });
+    });
   };
 
   refreshList = ({ worksheetId, recordId }) => {
@@ -157,7 +185,7 @@ class View extends Component {
           worksheetId: base.worksheetId,
         })
         .then(row => {
-          updateRow(recordId, row, row.isViewData);
+          updateRow({ recordId, rowData: row, isViewData: row.isViewData });
         });
     }
   };
@@ -181,7 +209,7 @@ class View extends Component {
       appNaviStyle,
       hasDebugRoles,
       controls,
-      sheetSwitchPermit,
+      sheetSwitchPermit = [],
       worksheetInfo,
       filters,
       quickFilterWithDefault,
@@ -197,6 +225,7 @@ class View extends Component {
       printList,
       buttonsCheckStatus,
       config = {},
+      appDetail,
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -245,6 +274,11 @@ class View extends Component {
 
     const quickFilter = _.includes([customize], String(viewType)) ? this.props.pcQuickFilter : this.props.quickFilter;
     const isFilter = quickFilter.length;
+    const lastSheetSwitchPermit =
+      isHaveCharge(_.get(appDetail, 'detail.permissionType')) && base.viewId === worksheetInfo.worksheetId
+        ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetInfo.worksheetId)
+        : sheetSwitchPermit;
+    const canFilter = isOpenPermit(permitList.filterSwitch, lastSheetSwitchPermit);
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
     const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
     let checkedCount = batchOptCheckedData.length;
@@ -259,7 +293,9 @@ class View extends Component {
       sheetSwitchPermit,
       worksheetInfo,
       buttonsCheckStatus,
+      appDetail: appDetail.detail,
     };
+    const ViewComponent = <Component ref={this.viewComRef} {...viewProps} />;
 
     if (
       hasGroupFilter &&
@@ -270,6 +306,7 @@ class View extends Component {
           <div className="overflowHidden flex Relative mobileView">
             <GroupFilter
               {...this.props}
+              canFilter={canFilter}
               changeMobielSheetLoading={this.props.changeMobielSheetLoading}
               groupId={this.props.base.groupId}
             />
@@ -320,6 +357,7 @@ class View extends Component {
               updateActiveSavedFilter={updateActiveSavedFilter}
               base={base}
               config={config}
+              canFilter={canFilter}
             />
           )}
           {_.includes(
@@ -340,11 +378,11 @@ class View extends Component {
                 showSearch={false}
               />
               <div className="flex minWidth0">
-                <Component ref={this.viewComRef} {...viewProps} />
+                <Suspense fallback={null}>{ViewComponent}</Suspense>
               </div>
             </div>
           ) : (
-            <Component ref={this.viewComRef} {...viewProps} />
+            <Suspense fallback={null}>{ViewComponent}</Suspense>
           )}
         </div>
       </MobileSheetContext.Provider>
@@ -380,6 +418,7 @@ export default connect(
       'sheetButtons',
       'printList',
       'buttonsCheckStatus',
+      'appDetail',
     ]),
   }),
   dispatch =>

@@ -19,17 +19,13 @@ const IconWrap = styled(Icon)`
     color: var(--color-primary) !important;
   }
 `;
-
-@connect(
-  state => ({ ..._.pick(state.sheet.gunterView, ['periodType', 'zoom']) }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class Zoom extends Component {
+let Zoom = class Zoom extends Component {
   constructor(props) {
     super(props);
     window.isZoom = true;
     this.isMobile = browserIsMobile();
   }
+
   handleReduce = () => {
     if (!window.isZoom) {
       return;
@@ -80,9 +76,13 @@ export default class Zoom extends Component {
       }
     });
   };
+
   render() {
     const { periodType } = this.props;
-    const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType }) || {};
+    const { minDayWidth, defaultMinDayWidth } =
+      _.find(PERIODS, {
+        value: periodType,
+      }) || {};
     const reduceDisable = periodType === PERIOD_TYPE.year && minDayWidth <= defaultMinDayWidth;
     const addDisable = periodType === PERIOD_TYPE.day && minDayWidth >= defaultMinDayWidth;
     return (
@@ -99,7 +99,10 @@ export default class Zoom extends Component {
         </Tooltip>
         <Tooltip title={this.isMobile ? '' : <span>{_l('放大')}</span>}>
           <IconWrap
-            className={cx('Font18 textSecondary pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
+            className={cx('Font18 textSecondary pointer mLeft6', {
+              disable: addDisable,
+              hoverColor: !this.isMobile,
+            })}
             icon="add1"
             onClick={addDisable ? _.noop : this.handleAdd}
           />
@@ -107,4 +110,9 @@ export default class Zoom extends Component {
       </Fragment>
     );
   }
-}
+};
+Zoom = connect(
+  state => ({ ..._.pick(state.sheet.gunterView, ['periodType', 'zoom']) }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(Zoom);
+export default Zoom;

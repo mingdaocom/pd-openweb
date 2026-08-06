@@ -61,7 +61,7 @@ const SwitchStyle = styled.div`
 `;
 
 const SelectValue = styled(DisplayControlOption)`
-  &：hover {
+  &:hover {
     .icon {
       color: var(--color-primary);
     }
@@ -89,14 +89,16 @@ export default class CardAppearance extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { view } = nextProps;
-    const { emptyname = '' } = getAdvanceSetting(view);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { view } = this.props;
+      const { emptyname = '' } = getAdvanceSetting(view);
 
-    if (emptyname !== getAdvanceSetting(this.props.view || {}).emptyname) {
-      this.setState({
-        emptyname,
-      });
+      if (emptyname !== getAdvanceSetting(prevProps.view || {}).emptyname) {
+        this.setState({
+          emptyname,
+        });
+      }
     }
   }
 

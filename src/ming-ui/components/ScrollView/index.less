@@ -3,8 +3,8 @@
   height: 100%;
 }
 
-// 滚动条主题 mixin
-.scrollbar-theme(@size, @padding, @radius, @hoverSize) {
+// 滚动条主题变量（overlayscrollbars.css 的 .os-scrollbar 会把这些默认成 0 / none，依赖主题类覆盖）
+.scrollbar-vars(@size, @padding, @radius, @hoverSize) {
   --os-size: @size;
   --os-size-hover: @hoverSize;
   --os-padding-perpendicular: @padding;
@@ -16,6 +16,11 @@
   --os-handle-bg: rgb(201, 201, 201);
   --os-handle-bg-hover: rgb(151, 151, 151);
   --os-handle-bg-active: rgb(151, 151, 151);
+}
+
+// 滚动条主题 mixin（变量 + 交互行为）
+.scrollbar-theme(@size, @padding, @radius, @hoverSize) {
+  .scrollbar-vars(@size, @padding, @radius, @hoverSize);
 
   .os-scrollbar {
     &-handle {
@@ -41,6 +46,21 @@
 
 .os-theme-padding {
   .scrollbar-theme(10px, 2px, 10px, 14px);
+}
+
+// overlayscrollbars.css 的 `.os-scrollbar` 把 --os-size / --os-handle-bg 等默认成 0 / none，与上面单类的
+// `.os-theme-*`（同特异性）仅靠源码顺序决胜负。而本组件 CSS 与 overlayscrollbars.css 均由
+// MiniCssExtractPlugin(ignoreOrder: true) 抽取，跨 chunk 加载顺序不确定：SPA 从工作台进入应用后顺序可能反转，
+// 默认值反超主题 → --os-size: 0、滚动条全部不可见（整页刷新顺序复位才恢复）。
+// 这里用 `.os-scrollbar.os-theme-*`（特异性 0,2,0）把主题变量直接钉在滚动条元素上，使其与加载顺序无关。
+.os-scrollbar {
+  &.os-theme-common {
+    .scrollbar-vars(6px, 0px, 6px, 10px);
+  }
+
+  &.os-theme-padding {
+    .scrollbar-vars(10px, 2px, 10px, 14px);
+  }
 }
 
 // 防止滚动穿透

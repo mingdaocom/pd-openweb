@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, memo, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -32,6 +32,28 @@ const UserItemBox = styled.div`
   }
 `;
 
+const normalizeUser = obj => {
+  const nextObj = { ...obj };
+  // 同步 name / fullname / fullName
+  const nameValue = nextObj.name ?? nextObj.fullname ?? nextObj.fullName;
+
+  if (nameValue !== undefined) {
+    nextObj.name = nameValue;
+    nextObj.fullname = nameValue;
+    nextObj.fullName = nameValue;
+  }
+
+  // 同步 accountId / id
+  const idValue = nextObj.accountId ?? nextObj.id;
+
+  if (idValue !== undefined) {
+    nextObj.accountId = idValue;
+    nextObj.id = idValue;
+  }
+
+  return nextObj;
+};
+
 function UserSelect(props) {
   const {
     projectId,
@@ -50,7 +72,7 @@ function UserSelect(props) {
     state: { emSizeNum },
   } = useFormStore();
   const userHeadSize = emSizeNum * 1.5 + 6;
-  const selectUsers = getUserValue(value);
+  const selectUsers = useMemo(() => getUserValue(value), [value]);
   const [showSelectUser, setShowSelectUser] = useState(false);
   const [personalInfoVisible, setPersonalInfoVisible] = useState(false);
   const [accountId, setAccountId] = useState(null);
@@ -77,7 +99,7 @@ function UserSelect(props) {
           projectId: enumDefault2 === 2 ? projectId : undefined, // 网络ID, 默认为空, 不限制
           count: isUnique ? 1 : '', // 默认为空, 不限制数量
           //暂不支持 appointed:[], // [accountId], 特定列表, 只加载约定用户
-          selected: selectUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })), // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
+          selected: selectedUsersForApp, // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
           //暂不支持 disabled: [], // 禁用的用户, 交互上不可选择 [{accountId}]
           //暂不支持 additions: ['user-self', ...], // 默认为空, 不支持额外选项
           // 全部支持项:
@@ -114,7 +136,7 @@ function UserSelect(props) {
 
   const removeUser = (e, accountId) => {
     e.stopPropagation();
-    const newValue = selectUsers.filter(item => item.accountId !== accountId);
+    const newValue = selectUsers.filter(item => (item.accountId ?? item.id) !== accountId);
     onChange(JSON.stringify(newValue));
   };
 
@@ -129,30 +151,13 @@ function UserSelect(props) {
     }
   };
 
-  const syncObject = obj => {
-    // 同步 name / fullname / fullName
-    const nameValue = obj.name ?? obj.fullname ?? obj.fullName;
-
-    if (nameValue !== undefined) {
-      obj.name = nameValue;
-      obj.fullname = nameValue;
-      obj.fullName = nameValue;
-    }
-
-    // 同步 accountId / id
-    const idValue = obj.accountId ?? obj.id;
-
-    if (idValue !== undefined) {
-      obj.accountId = idValue;
-      obj.id = idValue;
-    }
-
-    return obj;
-  };
-
-  const formatSelectUser = () => {
-    return selectUsers.map(syncObject);
-  };
+  const normalizedUsers = useMemo(() => selectUsers.map(normalizeUser), [selectUsers]);
+  const hasSelectedUsers = normalizedUsers.length > 0;
+  const firstSelectedUser = normalizedUsers[0];
+  const selectedUsersForApp = useMemo(
+    () => normalizedUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })),
+    [normalizedUsers],
+  );
 
   const renderItem = item => {
     return (
@@ -175,7 +180,7 @@ function UserSelect(props) {
   return (
     <div
       className={cx('customFormControlBox bgInput controlMinHeight customFormControlCapsuleBox', {
-        controlEditReadonly: !formDisabled && !_.isEmpty(selectUsers) && disabled,
+        controlEditReadonly: !formDisabled && hasSelectedUsers && disabled,
         controlDisabled: formDisabled,
         customFormControlNoBorder: !isUnique,
       })}
@@ -183,8 +188,8 @@ function UserSelect(props) {
     >
       {isUnique ? (
         <div className="flexRow alignItemsCenter" style={{ width: '100%' }}>
-          {!_.isEmpty(selectUsers) ? (
-            <div className="flexRow alignItemsCenter flex ellipsis">{renderItem(selectUsers[0])}</div>
+          {hasSelectedUsers ? (
+            <div className="flexRow alignItemsCenter flex ellipsis">{renderItem(firstSelectedUser)}</div>
           ) : (
             <div className="flex textDisabled">{_l('请选择')}</div>
           )}
@@ -192,7 +197,7 @@ function UserSelect(props) {
         </div>
       ) : (
         <Fragment>
-          {selectUsers.map(item => renderItem(item))}
+          {normalizedUsers.map(item => renderItem(item))}
           {!disabled && (
             <div className="TxtCenter customFormAddBtn" onClick={pickUser}>
               <i className="icon-add icon" />
@@ -223,7 +228,7 @@ function UserSelect(props) {
           // filterAccountIds={filterAccountIds}
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}
-          selectedUsers={formatSelectUser()}
+          selectedUsers={normalizedUsers}
           advancedSetting={advancedSetting}
           enumDefault2={enumDefault2}
         />

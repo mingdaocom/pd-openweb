@@ -8,6 +8,11 @@ import { mdNotification } from 'ming-ui/functions';
 import { htmlEncodeReg } from 'src/utils/common';
 import './css/createShare.css';
 
+const handleCopy = () => {
+  copy($('.createShareCopy span').attr('data-clipboard-text'));
+  alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+};
+
 function CreateShare(props) {
   const {
     isCreate = true,
@@ -133,11 +138,6 @@ function CreateShare(props) {
       });
   };
 
-  const handleCopy = () => {
-    copy($('.createShareCopy span').attr('data-clipboard-text'));
-    alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-  };
-
   if (!visible) return null;
 
   return (
@@ -164,7 +164,7 @@ function CreateShare(props) {
             {setting.isAdmin && (
               <div className="shareOperator">
                 <Tooltip title={_l('取消分享')}>
-                  <span className="shareBtn shareBtnClose ThemeColor3" onClick={handleShareBtn}>
+                  <span className="shareBtn shareBtnClose colorPrimary" onClick={handleShareBtn}>
                     {_l('取消分享')}
                   </span>
                 </Tooltip>

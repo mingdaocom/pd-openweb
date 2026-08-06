@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import certificationApi from 'src/api/certification';
+import { pathCompletion } from 'src/utils/common';
 
 const SelectDialog = styled(Dialog)`
   .certItem {
@@ -94,9 +95,11 @@ function SelectCertification(props) {
       ))}
 
       <div
-        className="addCertBtn Font15 bold colorPrimary hoverTextPrimaryLight pointer"
+        className="addCertBtn Font15 bold colorPrimary hoverColorPrimaryLight pointer"
         onClick={() =>
-          window.open(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`)
+          window.open(
+            pathCompletion(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`),
+          )
         }
       >
         {_l('添加全新认证')}

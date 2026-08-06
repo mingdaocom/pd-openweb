@@ -1,16 +1,18 @@
-﻿import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import cx from 'classnames';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Textarea from 'ming-ui/components/Textarea';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
+const ClickAwayable = ClickAway;
 let root;
+
+function getNode(component) {
+  return component && component.getNode ? component.getNode() : null;
+}
 
 class ChecklistOperator extends Component {
   render() {
@@ -20,11 +22,11 @@ class ChecklistOperator extends Component {
         className="boxShadow5 boderRadAll_3 checklistOperator"
         onClickAway={() => this.props.isShowOperator()}
       >
-        <li className="ThemeBGColor3" onClick={() => this.props.createTask()}>
+        <li className="bgColorPrimary" onClick={() => this.props.createTask()}>
           <i className="icon-task-card" />
           {_l('转为任务')}
         </li>
-        <li className="ThemeBGColor3" onClick={() => this.props.removeItem()}>
+        <li className="bgColorPrimary" onClick={() => this.props.removeItem()}>
           <i className="icon-trash" />
           {_l('删除')}
         </li>
@@ -35,17 +37,18 @@ class ChecklistOperator extends Component {
 
 const cardSource = {
   beginDrag(props, monitor, component) {
-    const domNode = findDOMNode(component);
-    if (!domNode) return {};
-    const preview = domNode.outerHTML;
-    const componentRect = domNode.getBoundingClientRect();
-    const outerWidth = $(domNode).outerWidth();
-    config.height = $(domNode).outerHeight();
+    const node = getNode(component);
+
+    if (!node) return {};
+
+    const preview = node.outerHTML;
+    const componentRect = node.getBoundingClientRect();
+    const outerWidth = $(node).outerWidth();
+    config.height = $(node).outerHeight();
     config.offset = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,
     };
-
     root = createRoot($('.taskDetailDragPreviewBox:last')[0]);
     root.render(<DragPreview preview={preview} width={outerWidth} />);
     props.checklistItemBeginDrag(props.data, props.index, props.topIndex);
@@ -53,15 +56,15 @@ const cardSource = {
       index: props.index,
     };
   },
+
   isDragging(props, monitor) {
     const preview = $('.taskDetailDragPreview:last')[0];
     const clientOffset = monitor.getClientOffset();
 
     if (preview && clientOffset) {
       preview.style.left = clientOffset.x - config.offset.x + 'px';
-      preview.style.top = clientOffset.y - config.offset.y + 'px';
+      preview.style.top = clientOffset.y - config.offset.y + 'px'; // 处理滚动条滚动
 
-      // 处理滚动条滚动
       clearInterval(config.setInterval);
       config.setInterval = setInterval(() => {
         const scrollEl = $('.taskDetailScroll .scroll-viewport');
@@ -76,17 +79,20 @@ const cardSource = {
       }, 200);
     }
   },
+
   endDrag(props) {
     props.checklistItemDrop();
     clearInterval(config.setInterval);
-    root.unmount();
+    if (root) {
+      root.unmount();
+      root = undefined;
+    }
   },
 };
-
 const cardTarget = {
   hover(props, monitor, component) {
     const dragIndex = monitor.getItem().index;
-    const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
+    const hoverBoundingRect = getNode(component).getBoundingClientRect();
     const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
     const clientOffset = monitor.getClientOffset();
     const hoverClientY = clientOffset.y - hoverBoundingRect.top;
@@ -102,17 +108,7 @@ const cardTarget = {
     props.checklistItemHover(props.index, props.topIndex);
   },
 };
-
-@DragSource(config.CHECKLIST_ITEM, cardSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
-@DropTarget(config.CHECKLIST_ITEM, cardTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop(),
-}))
-export default class ChecklistItem extends Component {
+let ChecklistItem = class ChecklistItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -120,31 +116,40 @@ export default class ChecklistItem extends Component {
       isShowOperator: false,
     };
   }
-
   /**
    * 修改检查项状态
    */
+
+  setNode = node => {
+    this.node = node;
+  };
+
+  getNode = () => this.node;
+
   updateItemStatus() {
     if (!this.props.noAuth) {
       this.props.updateItemStatus(this.props.data.itemId, !this.props.data.status);
     }
   }
-
   /**
    * 修改名称
    */
+
   editName(evt) {
     evt.nativeEvent.stopImmediatePropagation();
+
     if (!this.props.noAuth) {
-      this.setState({ isEditName: true });
+      this.setState({
+        isEditName: true,
+      });
       this.props.noDragIndexUpdate(this.props.topIndex);
     }
   }
-
   /**
    * 修改检查项名称
    * @param  {object} evt
    */
+
   checklistNameUpdate(evt) {
     if (evt.keyCode === 13 || evt.type === 'blur') {
       if (evt.keyCode === 13) {
@@ -152,8 +157,9 @@ export default class ChecklistItem extends Component {
       }
 
       const name = (evt.currentTarget.value || '').trim();
-
-      this.setState({ isEditName: false });
+      this.setState({
+        isEditName: false,
+      });
       this.props.noDragIndexUpdate(-1);
 
       if (name) {
@@ -162,20 +168,13 @@ export default class ChecklistItem extends Component {
     }
   }
 
-  /**
-   * 检查是左键点击
-   * @param  {object} evt
-   */
-  checkMouseDownIsLeft(evt) {
-    return evt.button === 0;
-  }
-
   render() {
     const { data, connectDragSource, connectDropTarget } = this.props;
 
     if (data.type === 'blank') {
       return (
         <div
+          ref={this.setNode}
           style={{
             height: config.height + 'px',
             backgroundColor: 'var(--color-border-secondary)',
@@ -190,8 +189,12 @@ export default class ChecklistItem extends Component {
         <div
           className={cx(
             'taskChecklistItem flexRow pointer',
-            { itemActive: this.state.isShowOperator },
-            { itemActiveBG: this.state.isEditName },
+            {
+              itemActive: this.state.isShowOperator,
+            },
+            {
+              itemActiveBG: this.state.isEditName,
+            },
           )}
         >
           <span
@@ -212,7 +215,9 @@ export default class ChecklistItem extends Component {
             />
           ) : (
             <span
-              className={cx('flex Font13 checklistItemName', { checklistItemCompleted: data.status })}
+              className={cx('flex Font13 checklistItemName', {
+                checklistItemCompleted: data.status,
+              })}
               onClick={evt => this.editName(evt)}
             >
               {data.name.length > 100 ? data.name.slice(0, 99) + '...' : data.name}
@@ -220,21 +225,26 @@ export default class ChecklistItem extends Component {
           )}
 
           {this.props.noAuth ? undefined : (
-            <i
-              className="icon-moreop ThemeColor3"
-              onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ isShowOperator: true })}
-            />
+            <i className="icon-moreop colorPrimary" onClick={() => this.setState({ isShowOperator: true })} />
           )}
 
           {this.state.isShowOperator ? (
             <ChecklistOperator
-              isShowOperator={() => this.setState({ isShowOperator: false })}
+              isShowOperator={() =>
+                this.setState({
+                  isShowOperator: false,
+                })
+              }
               createTask={() => {
-                this.setState({ isShowOperator: false });
+                this.setState({
+                  isShowOperator: false,
+                });
                 this.props.createTask(data.itemId, data.name);
               }}
               removeItem={() => {
-                this.setState({ isShowOperator: false });
+                this.setState({
+                  isShowOperator: false,
+                });
                 this.props.removeItem(data.itemId);
               }}
             />
@@ -244,11 +254,22 @@ export default class ChecklistItem extends Component {
     };
 
     return (
-      <div>
+      <div ref={this.setNode}>
         {this.props.noDragIndex === this.props.topIndex || this.props.noAuth
           ? checklistItem()
           : connectDragSource(connectDropTarget(checklistItem()))}
       </div>
     );
   }
-}
+};
+ChecklistItem = DragSource(config.CHECKLIST_ITEM, cardSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}))(
+  DropTarget(config.CHECKLIST_ITEM, cardTarget, (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop(),
+  }))(ChecklistItem),
+);
+export default ChecklistItem;

@@ -130,14 +130,16 @@ export default class SelectWroksheet extends React.Component {
     this.loadWorksheets(appId, value, worksheetType);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.appId !== this.props.appId || nextProps.worksheetType !== this.props.worksheetType) {
-      this.loadWorksheets(nextProps.appId, nextProps.value, nextProps.worksheetType);
-      return;
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.appId !== prevProps.appId || this.props.worksheetType !== prevProps.worksheetType) {
+        this.loadWorksheets(this.props.appId, this.props.value, this.props.worksheetType);
+        return;
+      }
 
-    if (nextProps.value !== this.props.value) {
-      this.loadSelectedWorksheet(nextProps.value, nextProps.worksheetType);
+      if (this.props.value !== prevProps.value) {
+        this.loadSelectedWorksheet(this.props.value, this.props.worksheetType);
+      }
     }
   }
 
@@ -221,7 +223,7 @@ export default class SelectWroksheet extends React.Component {
   handleSelectOtherChange = (newappId, worksheetId, worksheet) => {
     const { currentWorksheetId } = this.props;
     this.props.onChange(newappId, worksheetId, worksheet);
-    if (worksheet.workSheetId === currentWorksheetId) {
+    if (!worksheet || worksheet.workSheetId === currentWorksheetId) {
       return;
     }
 

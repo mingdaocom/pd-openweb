@@ -46,25 +46,26 @@ class TaskTree extends Component {
     this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.updateChargeHeaderAvatar.bind(this));
   }
 
-  componentWillReceiveProps(nextProps) {
-    // 减少proejctId不同的而发生的请求
-    let nextConfig = Object.assign({}, nextProps.taskConfig);
-    let currentConfig = Object.assign({}, this.props.taskConfig);
-    let isUpdate = false;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      // 减少proejctId不同的而发生的请求
+      let nextConfig = Object.assign({}, this.props.taskConfig);
+      let currentConfig = Object.assign({}, prevProps.taskConfig);
+      let isUpdate = false; // 解决切换未关联项目的bug
 
-    // 解决切换未关联项目的bug
-    if (nextConfig.folderId === currentConfig.folderId && nextConfig.projectId !== currentConfig.projectId) {
-      isUpdate = true;
-    }
+      // 解决切换未关联项目的bug
+      if (nextConfig.folderId === currentConfig.folderId && nextConfig.projectId !== currentConfig.projectId) {
+        isUpdate = true;
+      }
 
-    nextConfig.projectId = '';
-    currentConfig.projectId = '';
-
-    if ((nextProps.taskConfig.folderId && !_.isEqual(nextConfig, currentConfig)) || config.isGetData || isUpdate) {
-      // 解决props未更新问题
-      setTimeout(() => {
-        this.init();
-      }, 0);
+      nextConfig.projectId = '';
+      currentConfig.projectId = '';
+      if ((this.props.taskConfig.folderId && !_.isEqual(nextConfig, currentConfig)) || config.isGetData || isUpdate) {
+        // 解决props未更新问题
+        setTimeout(() => {
+          this.init();
+        }, 0);
+      }
     }
   }
 
@@ -184,8 +185,8 @@ class TaskTree extends Component {
 
           config.$prevNode = $singleTreeTask;
 
-          $('#taskList .singleTreeTask').removeClass('selectTask ThemeBGColor6');
-          $singleTreeTask.addClass('selectTask ThemeBGColor6');
+          $('#taskList .singleTreeTask').removeClass('selectTask bgColorPrimaryTransparent');
+          $singleTreeTask.addClass('selectTask bgColorPrimaryTransparent');
 
           that.setState({
             openTaskDetail: true,
@@ -208,8 +209,8 @@ class TaskTree extends Component {
           event.stopPropagation();
         },
         hover() {
-          $(this).find('.listFolderNameText').toggleClass('ThemeColor3');
-          $(this).find('.arrow-down').toggleClass('ThemeBorderColor3');
+          $(this).find('.listFolderNameText').toggleClass('colorPrimary');
+          $(this).find('.arrow-down').toggleClass('borderColorPrimary');
         },
       },
       '.taskListStageName',
@@ -309,7 +310,7 @@ class TaskTree extends Component {
         operation={
           item.attr('data-auth') == config.auth.Charger ? (
             <span
-              className="updateChargeBtn ThemeColor3"
+              className="updateChargeBtn colorPrimary"
               onClick={() => this.updateCharge(accountId, taskId, projectId, ele)}
             >
               {_l('将任务托付给他人')}

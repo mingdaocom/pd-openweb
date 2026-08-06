@@ -15,7 +15,7 @@ export default function confirm(props) {
   const handleClose = (needExecCancel = true, isOkBtn) => {
     setTimeout(() => {
       root.unmount();
-      document.body.removeChild(div);
+      div.parentNode?.removeChild(div);
       if (needExecCancel && _.isFunction(props.onCancel)) {
         props.onCancel(isOkBtn);
       }

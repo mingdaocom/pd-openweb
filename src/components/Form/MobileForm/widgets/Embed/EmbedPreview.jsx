@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 
 const Wrap = styled.div`
   display: flex;
@@ -18,18 +19,21 @@ const Wrap = styled.div`
     }
   }
 `;
+const LoadableViewPreview = lazy(() =>
+  import('src/pages/customPage/components/editWidget/view/Preview').then(component => ({
+    default: component.View,
+  })),
+);
 
 export default function EmbedPreview(props) {
   const { setting: { config = {} } = {} } = props;
-  const [ViewComponent, setComponent] = useState(null);
-
-  useEffect(() => {
-    import('src/pages/customPage/components/editWidget/view/Preview').then(component => {
-      setComponent(component);
-    });
-  }, []);
-
   return useMemo(() => {
-    return <Wrap>{ViewComponent ? <ViewComponent.View {...props} /> : null}</Wrap>;
-  }, [config.embedNeedUpdate, ViewComponent]);
+    return (
+      <Wrap>
+        <Suspense fallback={<LoadDiv className="mTop10" />}>
+          <LoadableViewPreview {...props} />
+        </Suspense>
+      </Wrap>
+    );
+  }, [config.embedNeedUpdate]);
 }

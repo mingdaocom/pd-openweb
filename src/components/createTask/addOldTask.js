@@ -5,7 +5,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, LoadDiv } from 'ming-ui';
 import ajaxRequest from 'src/api/taskCenter';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import './css/addOldTask.css';
 
 const SearchTaskCon = styled.ul`
@@ -175,7 +175,7 @@ $.extend(AddOldTask.prototype, {
       })
       .then(function (source) {
         if (source.status) {
-          window.location = 'apps/task/task_' + taskID;
+          window.location.href = pathCompletion('/apps/task/task_' + taskID);
         }
       })
       .catch(function () {

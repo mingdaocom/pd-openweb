@@ -305,12 +305,12 @@ function SearchFolder(props) {
         overflow: { adjustX: true, adjustY: true },
       }}
     >
-      <div className="folderSearch boderRadAll_5 ThemeBorderColor8">
-        <span className="icon-search btnFolderSearch ThemeColor9 Font17" />
+      <div className="folderSearch boderRadAll_5 borderSecondary">
+        <span className="icon-search btnFolderSearch textSecondary Font17" />
         <input
           type="text"
           id="leftSearchTaskOrFolder"
-          className="txtSearch boxSizing ThemeColor10"
+          className="txtSearch boxSizing textPrimary"
           placeholder={_l('搜索')}
           onChange={e => {
             handleSearch(e.target.value);
@@ -345,11 +345,13 @@ class TaskNavigation extends Component {
     this.bindTaskNavAllEvents();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.taskConfig.filterUserId !== this.props.taskConfig.filterUserId) {
-      setTimeout(() => {
-        this.getTaskNavAll();
-      }, 0);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.taskConfig.filterUserId !== prevProps.taskConfig.filterUserId) {
+        setTimeout(() => {
+          this.getTaskNavAll();
+        }, 0);
+      }
     }
   }
 
@@ -436,10 +438,10 @@ class TaskNavigation extends Component {
     const $search = $('#leftSearchTaskOrFolder');
     $search.on({
       focus() {
-        $(this).closest('.folderSearch').addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
+        $(this).closest('.folderSearch').addClass('borderColorPrimary').removeClass('borderSecondary');
       },
       blur() {
-        $(this).closest('.folderSearch').removeClass('ThemeBorderColor3').addClass('ThemeBorderColor8');
+        $(this).closest('.folderSearch').removeClass('borderColorPrimary').addClass('borderSecondary');
       },
     });
 
@@ -473,7 +475,7 @@ class TaskNavigation extends Component {
         taskFilter = 10;
       }
 
-      $taskNavigator.find('.folderList li').removeClass('ThemeBGColor8');
+      $taskNavigator.find('.folderList li').removeClass('bgColorPrimaryTransparent');
 
       const taskConfig = Object.assign(
         {},
@@ -588,7 +590,7 @@ class TaskNavigation extends Component {
             _this
               .find('.folderContent')
               .append(
-                '<span class="folderIcon icon-settings sinSettings Relative ThemeColor8 ThemeHoverColor9 Hidden"></span>',
+                '<span class="folderIcon icon-settings sinSettings Relative textTertiary hoverTextSecondary Hidden"></span>',
               );
           }
 
@@ -661,8 +663,8 @@ class TaskNavigation extends Component {
             taskConfig.listSort = 10;
           }
 
-          $taskNavigator.find('.folderList li').removeClass('ThemeBGColor8');
-          _this.addClass('ThemeBGColor8');
+          $taskNavigator.find('.folderList li').removeClass('bgColorPrimaryTransparent');
+          _this.addClass('bgColorPrimaryTransparent');
 
           if (!that.props.taskConfig.filterUserId) {
             setStateToStorage('', taskConfig);
@@ -931,7 +933,7 @@ class TaskNavigation extends Component {
               sb =
                 sb +
                 `
-              <li data-id="${$item.data('fileid')}" class="ThemeBGColor3 overflow_ellipsis">
+              <li data-id="${$item.data('fileid')}" class="bgColorPrimary overflow_ellipsis">
               ${fileName}
               </li>
               `;
@@ -1125,7 +1127,7 @@ class TaskNavigation extends Component {
       {
         blur() {
           const $this = $(this);
-          $this.removeClass('ThemeBGColor8 ThemeColor10');
+          $this.removeClass('bgColorPrimaryTransparent textPrimary');
 
           const text = $this.val().trim();
 
@@ -1150,7 +1152,7 @@ class TaskNavigation extends Component {
           }
         },
         focus() {
-          $(this).addClass('ThemeBGColor8 ThemeColor10');
+          $(this).addClass('bgColorPrimaryTransparent textPrimary');
           taskNavigationSettings.isBlur = false;
         },
         keydown(event) {
@@ -1229,9 +1231,9 @@ class TaskNavigation extends Component {
     // 选中
     const $el = folderId
       ? $('.topFolderList .folderList li[data-id=' + folderId + ']')
-          .removeClass('ThemeBGColor8')
+          .removeClass('bgColorPrimaryTransparent')
           .eq(0)
-          .addClass('ThemeBGColor8')
+          .addClass('bgColorPrimaryTransparent')
       : [];
     this.renderFolderAvatar();
     if ($el.length) {
@@ -1283,7 +1285,7 @@ class TaskNavigation extends Component {
             !source.data.hasArchivedFile &&
             !source.data.hasNoFIDFile
           ) {
-            $('.networkOnly').append('<div class="noFolderList ThemeColor9">' + _l('创建项目管理任务') + '</div>');
+            $('.networkOnly').append('<div class="noFolderList textSecondary">' + _l('创建项目管理任务') + '</div>');
           } else {
             this.renderSlideFolder(source.data, projectId, callback);
           }
@@ -1351,7 +1353,7 @@ class TaskNavigation extends Component {
       $folderList
         .find('.nullFolderTask')
         .toggleClass(
-          'ThemeBGColor8',
+          'bgColorPrimaryTransparent',
           this.props.taskConfig.projectId === projectId && this.props.taskConfig.folderId === 1,
         )
         .removeClass('Hidden');
@@ -1386,7 +1388,11 @@ class TaskNavigation extends Component {
 
       if (projectId) {
         const $el = $(
-          '.networkFolderList[data-projectid=' + projectId + '] .folderList li.ThemeBGColor8[data-id=' + folderId + ']',
+          '.networkFolderList[data-projectid=' +
+            projectId +
+            '] .folderList li.bgColorPrimaryTransparent[data-id=' +
+            folderId +
+            ']',
         );
 
         if ($el.length) {
@@ -1435,9 +1441,9 @@ class TaskNavigation extends Component {
       if (folderId) {
         $networkFolderList
           .find('.folderList li[data-id=' + folderId + ']')
-          .removeClass('ThemeBGColor8')
+          .removeClass('bgColorPrimaryTransparent')
           .eq(0)
-          .addClass('ThemeBGColor8'); // 选中
+          .addClass('bgColorPrimaryTransparent'); // 选中
       }
 
       this.renderFolderAvatar();
@@ -2070,9 +2076,9 @@ class TaskNavigation extends Component {
       }),
     );
 
-    $('#taskNavigator .folderList li').removeClass('ThemeBGColor8');
+    $('#taskNavigator .folderList li').removeClass('bgColorPrimaryTransparent');
     if (type === 'folder') {
-      $('#taskNavigator .folderList li[data-id=' + folderId + ']').addClass('ThemeBGColor8');
+      $('#taskNavigator .folderList li[data-id=' + folderId + ']').addClass('bgColorPrimaryTransparent');
     }
 
     $('.searchDiv .searchContent').fadeOut();
@@ -2089,49 +2095,52 @@ class TaskNavigation extends Component {
       return (
         <ul className="taskType">
           <li
-            className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
+            className={cx('otherAndMe hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 7 })}
             data-type="otherAndMe"
           >
             <Tooltip title={_l('我与他共同参与的任务')} placement="bottomLeft">
               <span>
-                <i className="icon-charger typeIcon ThemeColor9" />
+                <i className="icon-charger typeIcon textSecondary" />
               </span>
             </Tooltip>
-            <span className="typeName responsibleText ThemeColor10">{_l('与他协作的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
+            <span className="typeName responsibleText textPrimary">{_l('与他协作的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
           </li>
           <li
-            className={cx('responsible ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 2 })}
+            className={cx('responsible hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 2 })}
             data-type="responsible"
           >
             <Tooltip title={_l('他作为负责人的任务')} placement="bottomLeft">
               <span>
-                <i className="icon-task-responsible typeIcon ThemeColor9" />
+                <i className="icon-task-responsible typeIcon textSecondary" />
               </span>
             </Tooltip>
-            <span className="typeName responsibleText ThemeColor10">{_l('他负责的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
-          </li>
-          <li className={cx('trust ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 3 })} data-type="trust">
-            <Tooltip title={_l('他托付给其他人负责的任务')} placement="bottomLeft">
-              <span>
-                <i className="icon-task-trust typeIcon typeIconTrust ThemeColor9" />
-              </span>
-            </Tooltip>
-            <span className="typeName ThemeColor10">{_l('他托付的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
+            <span className="typeName responsibleText textPrimary">{_l('他负责的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
           </li>
           <li
-            className={cx('participate ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 1 })}
+            className={cx('trust hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 3 })}
+            data-type="trust"
+          >
+            <Tooltip title={_l('他托付给其他人负责的任务')} placement="bottomLeft">
+              <span>
+                <i className="icon-task-trust typeIcon typeIconTrust textSecondary" />
+              </span>
+            </Tooltip>
+            <span className="typeName textPrimary">{_l('他托付的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
+          </li>
+          <li
+            className={cx('participate hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 1 })}
             data-type="participate"
           >
             <Tooltip title={_l('他仅作为任务参与者的任务')} placement="bottomRight">
               <span>
-                <i className="icon-double-loop typeIcon typeIconParticipate ThemeColor9" />
+                <i className="icon-double-loop typeIcon typeIconParticipate textSecondary" />
               </span>
             </Tooltip>
-            <span className="typeName ThemeColor10">{_l('他参与的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
+            <span className="typeName textPrimary">{_l('他参与的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
           </li>
         </ul>
       );
@@ -2142,28 +2151,28 @@ class TaskNavigation extends Component {
       return (
         <ul className="taskType">
           <li
-            className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
+            className={cx('otherAndMe hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 7 })}
             data-type="otherAndMe"
           >
             <Tooltip title={_l('我与他共同参与的任务')} placement="bottomRight">
               <span>
-                <i className="icon-charger typeIcon ThemeColor9" />
+                <i className="icon-charger typeIcon textSecondary" />
               </span>
             </Tooltip>
-            <span className="typeName responsibleText ThemeColor10">{_l('与他协作的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
+            <span className="typeName responsibleText textPrimary">{_l('与他协作的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
           </li>
           <li
-            className={cx('otherResponsible ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 10 })}
+            className={cx('otherResponsible hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 10 })}
             data-type="otherResponsible"
           >
             <Tooltip title={_l('我可见的由他负责的任务')} placement="bottomRight">
               <span>
-                <i className="icon-task_custom_personnel typeIcon ThemeColor9" />
+                <i className="icon-task_custom_personnel typeIcon textSecondary" />
               </span>
             </Tooltip>
-            <span className="typeName responsibleText ThemeColor10">{_l('他负责的任务')}</span>
-            <span className="allCountTask Right ThemeColor8" />
+            <span className="typeName responsibleText textPrimary">{_l('他负责的任务')}</span>
+            <span className="allCountTask Right textTertiary" />
           </li>
         </ul>
       );
@@ -2172,39 +2181,43 @@ class TaskNavigation extends Component {
     return (
       <ul className="taskType">
         <li
-          className={cx('myTask ThemeHoverBGColor7', {
-            ThemeBGColor8: (taskFilter === 6 && !keyWords) || taskFilter === 1 || taskFilter === 2 || taskFilter === 3,
+          className={cx('myTask hoverBgTertiary', {
+            bgColorPrimaryTransparent:
+              (taskFilter === 6 && !keyWords) || taskFilter === 1 || taskFilter === 2 || taskFilter === 3,
           })}
           data-type="myTask"
         >
           <Tooltip title={_l('我的任务')} placement="bottomRight">
             <span>
-              <i className="icon-charger typeIcon ThemeColor9" />
+              <i className="icon-charger typeIcon textSecondary" />
             </span>
           </Tooltip>
-          <span className="typeName responsibleText ThemeColor10">{_l('我的任务')}</span>
-          <span className="allCountTask Right ThemeColor8" />
-        </li>
-        <li className={cx('aboutMeStar ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 8 })} data-type="star">
-          <Tooltip title={_l('所有添加星标的任务')} placement="bottomRight">
-            <span>
-              <i className="icon-task-star typeIcon ThemeColor9" />
-            </span>
-          </Tooltip>
-          <span className="typeName ThemeColor10">{_l('星标任务')}</span>
-          <span className="allCountTask Right ThemeColor8" />
+          <span className="typeName responsibleText textPrimary">{_l('我的任务')}</span>
+          <span className="allCountTask Right textTertiary" />
         </li>
         <li
-          className={cx('taskSubordinate ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 9 })}
+          className={cx('aboutMeStar hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 8 })}
+          data-type="star"
+        >
+          <Tooltip title={_l('所有添加星标的任务')} placement="bottomRight">
+            <span>
+              <i className="icon-task-star typeIcon textSecondary" />
+            </span>
+          </Tooltip>
+          <span className="typeName textPrimary">{_l('星标任务')}</span>
+          <span className="allCountTask Right textTertiary" />
+        </li>
+        <li
+          className={cx('taskSubordinate hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 9 })}
           data-type="subordinate"
         >
           <Tooltip title={_l('下属任务')} placement="bottomRight">
             <span>
-              <i className="icon-group typeIcon ThemeColor9" />
+              <i className="icon-group typeIcon textSecondary" />
             </span>
           </Tooltip>
-          <span className="typeName ThemeColor10">{_l('下属任务')}</span>
-          <span className="allCountTask Right ThemeColor8" />
+          <span className="typeName textPrimary">{_l('下属任务')}</span>
+          <span className="allCountTask Right textTertiary" />
         </li>
       </ul>
     );
@@ -2228,12 +2241,12 @@ class TaskNavigation extends Component {
     const { showFolderTemplate, showCopyFolder, folderId, projectId, chargeUser, folderName, isAdmin } = this.state;
 
     return (
-      <div id="taskNavigator" className="ThemeBGColor9 flexColumn">
+      <div id="taskNavigator" className="bgPrimary flexColumn">
         <div
           className={cx('otherBox', { Hidden: !this.props.taskConfig.filterUserId })}
           onClick={this.exitLookOtherTask}
         >
-          <div className="closeOther ThemeColor3 Font13">
+          <div className="closeOther colorPrimary Font13">
             <i className="icon-arrow-left-border Font18" />
             {_l('返回下属任务')}
           </div>
@@ -2250,60 +2263,60 @@ class TaskNavigation extends Component {
         <div className="navContent boxSizing flex" />
 
         <div className="createNewBox">
-          <span className="createNew ThemeColor9 ThemeBorderColor8 ThemeHoverBGColor7">
+          <span className="createNew textSecondary borderSecondary hoverBgTertiary">
             <i className="icon-plus" />
             {_l('创建项目')}
           </span>
         </div>
 
         <ul className="folderSettingsList boderRadAll_3 boxShadow5 Hidden">
-          <li data-type="popTop" className="ThemeBGColor3 importantProject">
+          <li data-type="popTop" className="bgColorPrimary importantProject">
             <i className="icon-set_top" />
             <span>{_l('置顶')}</span>
           </li>
-          <li data-type="addfile" className="ThemeBGColor3 addFileBox">
+          <li data-type="addfile" className="bgColorPrimary addFileBox">
             <i className="icon-addto-folder" />
             {_l('添加到文件夹')}
             <i className="arrorwRight Right " />
             <div className="fileFoldersBox">
               <ul className="fileFolders boderRadAll_3 boxShadow5 Hidden">
-                <li data-type="exitfile" className="ThemeBGColor3 Hidden exitFile">
+                <li data-type="exitfile" className="bgColorPrimary Hidden exitFile">
                   {_l('直接移出')}
                 </li>
-                <li data-id="new" className="ThemeBGColor3 newFile">
+                <li data-id="new" className="bgColorPrimary newFile">
                   {_l('新建项目文件夹')}
                 </li>
               </ul>
             </div>
           </li>
-          <li data-type="copyFolder" className="ThemeBGColor3 copyFolder">
+          <li data-type="copyFolder" className="bgColorPrimary copyFolder">
             <i className="icon-task-new-copy" />
             <span>{_l('复制项目')}</span>
           </li>
           <li className="dividerLine" />
-          <li data-type="slide" className="ThemeBGColor3 slideFolders">
+          <li data-type="slide" className="bgColorPrimary slideFolders">
             <i className="icon-public-folder-hidden" />
             <span>{_l('隐藏项目')}</span>
           </li>
-          <li data-type="pigeonhole" className="ThemeBGColor3 pigeonhole">
+          <li data-type="pigeonhole" className="bgColorPrimary pigeonhole">
             <i className="icon-task-pigeonhole" />
             <span>{_l('归档项目')}</span>
           </li>
-          <li data-type="del" className="ThemeBGColor3 chargeAuth">
+          <li data-type="del" className="bgColorPrimary chargeAuth">
             <i className="icon-trash" />
             {_l('删除项目')}
           </li>
-          <li data-type="exit" className="ThemeBGColor3 Hidden exitFolder">
+          <li data-type="exit" className="bgColorPrimary Hidden exitFolder">
             <i className="icon-groupExit" />
             {_l('退出项目')}
           </li>
         </ul>
 
         <ul className="projectFolderOp boderRadAll_3 boxShadow5 Hidden">
-          <li className="ThemeBGColor3" data-type="rename">
+          <li className="bgColorPrimary" data-type="rename">
             {_l('重命名项目文件夹')}
           </li>
-          <li className="ThemeBGColor3" data-type="abort">
+          <li className="bgColorPrimary" data-type="abort">
             {_l('解散项目文件夹')}
           </li>
         </ul>

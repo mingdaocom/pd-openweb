@@ -100,6 +100,17 @@ const ArrowDown = styled.span`
 let ajaxPromise = null;
 const pageSize = 40;
 
+const renderNull = txt => {
+  return (
+    <React.Fragment>
+      <div className="emptyIcon flexRow alignItemsCenter TxtCenter">
+        <Icon icon="aggregate_table" className="textDisabled Font50" />
+      </div>
+      <div className="emptyHint TxtCenter textTertiary Font17 mTop20">{txt || _l('暂无聚合表')}</div>
+    </React.Fragment>
+  );
+};
+
 export default function AggregationTables(props) {
   const cache = useRef({});
   const { aggTableId } = getRequest();
@@ -184,17 +195,6 @@ export default function AggregationTables(props) {
     }, 500),
     [],
   );
-
-  const renderNull = txt => {
-    return (
-      <React.Fragment>
-        <div className="emptyIcon flexRow alignItemsCenter TxtCenter">
-          <Icon icon="aggregate_table" className="textDisabled Font50" />
-        </div>
-        <div className="emptyHint TxtCenter textTertiary Font17 mTop20">{txt || _l('暂无聚合表')}</div>
-      </React.Fragment>
-    );
-  };
 
   /**
    * 渲染内容

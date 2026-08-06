@@ -1,0 +1,21 @@
+export const defaultConfig = {
+  pageStyleType: 'light',
+  pageBgColor: 'lightColor',
+  chartColor: {
+    colorGroupId: 'adaptThemeColor',
+    colorType: 1,
+  },
+  chartColorIndex: 1,
+  numberChartColor: '',
+  numberChartColorIndex: 1,
+  pivoTableColor: '',
+  refresh: 0,
+  headerVisible: true,
+  shareVisible: true,
+  chartShare: true,
+  chartExportExcel: true,
+  downloadVisible: true,
+  fullScreenVisible: true,
+  customColors: [],
+  webNewCols: 48,
+};

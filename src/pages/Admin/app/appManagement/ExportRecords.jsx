@@ -225,7 +225,7 @@ export default function ExportRecords({ projectId, type }) {
         width: 100,
         render: downLoadUrl => {
           return downLoadUrl ? (
-            <a href={downLoadUrl} target="_blank" rel="noopener noreferrer" className="ThemeColor3">
+            <a href={downLoadUrl} target="_blank" rel="noopener noreferrer" className="colorPrimary">
               {_l('下载')}
             </a>
           ) : (

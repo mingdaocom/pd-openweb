@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import accountController from 'src/api/account';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import './style.css';
 
 var ACTIONRESULTS = {
@@ -74,7 +74,7 @@ function Comp() {
       </div>
       <div class="main">
         {renderCon()}
-        <a href="/login" class="btn btnEnabled Font14 mBottom20">
+        <a href={pathCompletion('/login')} class="btn btnEnabled Font14 mBottom20">
           {_l('登录')}
         </a>
       </div>

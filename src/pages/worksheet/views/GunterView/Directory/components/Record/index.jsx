@@ -1,10 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
@@ -13,7 +13,6 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import { renderText as renderCellText } from 'src/utils/control';
-import { handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 
 export const RecordWrapper = styled.div`
@@ -105,65 +104,48 @@ export const RecordWrapper = styled.div`
     display: none;
   }
 `;
-
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView', 'isCharge']),
-    ..._.pick(state.appPkg, ['permissionType']),
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class Record extends Component {
+const LoadableRecordInfo = lazy(() => import('worksheet/views/GunterView/components/RecordInfo'));
+const LoadableRecordOperate = lazy(() => import('worksheet/components/RecordOperate'));
+const LoadableCellControls = lazy(() => import('worksheet/components/CellControls'));
+let Record = class Record extends Component {
   constructor(props) {
     super(props);
     this.state = {
       startTimeEdit: false,
       endTimeEdit: false,
       recordInfoVisible: false,
-      RecordInfoComponent: null,
-      RecordOperateComponent: null,
-      CellControlComponent: null,
     };
     this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 500);
   }
+
   componentDidMount() {
-    import('worksheet/views/GunterView/components/RecordInfo').then(component => {
-      this.setState({
-        RecordInfoComponent: component.default,
-      });
-    });
-    import('worksheet/components/RecordOperate').then(component => {
-      this.setState({
-        RecordOperateComponent: component.default,
-      });
-    });
-    import('worksheet/components/CellControls').then(component => {
-      this.setState({
-        CellControlComponent: component.default,
-      });
-    });
     window.addEventListener('popstate', this.onQueryChange);
   }
+
   componentWillUnmount() {
     window.removeEventListener('popstate', this.onQueryChange);
   }
+
   get canedit() {
     const { row, base, sheetSwitchPermit } = this.props;
     return row.allowedit && isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId) && !row.sys_lock;
   }
-  onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
-  };
+
   handleClick = () => {
     const { row, controls, gunterView } = this.props;
     handleRecordClick(
       {
-        advancedSetting: { clicktype: gunterView.viewConfig.clickType },
+        advancedSetting: {
+          clicktype: gunterView.viewConfig.clickType,
+        },
       },
       row,
       () => {
         const { titleDisable } = gunterView.viewConfig;
-        const titleControl = _.find(controls, { attribute: 1 });
+
+        const titleControl = _.find(controls, {
+          attribute: 1,
+        });
 
         if (this.clicktimer) {
           clearTimeout(this.clicktimer);
@@ -171,11 +153,15 @@ export default class Record extends Component {
           this.canedit &&
             titleControl.type === 2 &&
             !titleDisable &&
-            this.props.updateGroupingRow({ isEdit: true }, row.rowid);
+            this.props.updateGroupingRow(
+              {
+                isEdit: true,
+              },
+              row.rowid,
+            );
         } else {
           this.clicktimer = setTimeout(() => {
             this.clicktimer = null;
-            handlePushState('page', 'recordDetail');
             this.setState({
               recordInfoVisible: true,
             });
@@ -189,10 +175,22 @@ export default class Record extends Component {
     const value = event.target.value;
     const { checkrange, min, max } = getAdvanceSetting(titleControl);
     this.props.updateEditIndex(null);
-    this.props.updateGroupingRow({ isEdit: false }, row.rowid);
+    this.props.updateGroupingRow(
+      {
+        isEdit: false,
+      },
+      row.rowid,
+    );
+
     if (checkrange === '1') {
       if (value.length > +max || value.length < +min) {
-        const errorText = FORM_ERROR_TYPE_TEXT.TEXT_RANGE({ value, advancedSetting: { min, max } });
+        const errorText = FORM_ERROR_TYPE_TEXT.TEXT_RANGE({
+          value,
+          advancedSetting: {
+            min,
+            max,
+          },
+        });
         alert(errorText);
         return;
       }
@@ -214,62 +212,82 @@ export default class Record extends Component {
       }
     }
   };
+
   renderStartTime() {
-    const { startTimeEdit, CellControlComponent } = this.state;
+    const { startTimeEdit } = this.state;
     const { base, sheetSwitchPermit, worksheetInfo, row, controls, gunterView, widthConfig } = this.props;
     const { startId, startDisable, displayControls } = gunterView.viewConfig;
-    const startControl = _.find(controls, { controlId: startId });
+
+    const startControl = _.find(controls, {
+      controlId: startId,
+    });
+
     return (
       <div
         className="field valignWrapper startTimeField overflowHidden Relative"
-        style={{ width: widthConfig[displayControls.length + 1] }}
+        style={{
+          width: widthConfig[(displayControls || []).length + 1],
+        }}
       >
         {startTimeEdit ? (
-          <CellControlComponent
-            viewId={base.viewId}
-            worksheetId={base.worksheetId}
-            appId={base.appId}
-            sheetSwitchPermit={sheetSwitchPermit}
-            tableFromModule={3}
-            clickEnterEditing={true}
-            isSubList={false}
-            isediting={true}
-            clearCellError={() => {}}
-            cellUniqueValidate={() => {}}
-            cell={{ ...startControl, value: row.startTime, notConvertZone: true }}
-            row={row}
-            rowFormData={() => controls}
-            rowIndex={1}
-            rowHeight={32}
-            from={1}
-            projectId={worksheetInfo.projectId}
-            updateCell={cell => {
-              this.debounceUpdateRecordTime(row, cell.value || '', null);
-            }}
-            onCellFocus={() => {
-              this.setState({ startTimeEdit: false });
-            }}
-            checkRulesErrorOfControl={() => {}}
-          />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableCellControls
+              viewId={base.viewId}
+              worksheetId={base.worksheetId}
+              appId={base.appId}
+              sheetSwitchPermit={sheetSwitchPermit}
+              tableFromModule={3}
+              clickEnterEditing={true}
+              isSubList={false}
+              isediting={true}
+              clearCellError={() => {}}
+              cellUniqueValidate={() => {}}
+              cell={{ ...startControl, value: row.startTime, notConvertZone: true }}
+              row={row}
+              rowFormData={() => controls}
+              rowIndex={1}
+              rowHeight={32}
+              from={1}
+              projectId={worksheetInfo.projectId}
+              updateCell={cell => {
+                this.debounceUpdateRecordTime(row, cell.value || '', null);
+              }}
+              onCellFocus={() => {
+                this.setState({
+                  startTimeEdit: false,
+                });
+              }}
+              checkRulesErrorOfControl={() => {}}
+            />
+          </Suspense>
         ) : (
           <Fragment>
             <div className="flex startTimeWrap">
               <span
                 className="pointer overflow_ellipsis"
                 onDoubleClick={() => {
-                  row.allowedit && !startDisable && this.setState({ startTimeEdit: true });
+                  row.allowedit &&
+                    !startDisable &&
+                    this.setState({
+                      startTimeEdit: true,
+                    });
                 }}
               >
                 {renderCellText(
                   { ...startControl, value: row.originalStartTime || row.startTime },
-                  { appId: base.appId },
+                  {
+                    appId: base.appId,
+                  },
                 ) || '--'}
               </span>
             </div>
             {this.canedit && !startDisable && (
               <Icon
                 onClick={() => {
-                  row.allowedit && this.setState({ startTimeEdit: true });
+                  row.allowedit &&
+                    this.setState({
+                      startTimeEdit: true,
+                    });
                 }}
                 icon="bellSchedule mRight8 pointer Font17 textTertiary"
               />
@@ -279,60 +297,82 @@ export default class Record extends Component {
       </div>
     );
   }
+
   renderEndTime() {
-    const { endTimeEdit, CellControlComponent } = this.state;
+    const { endTimeEdit } = this.state;
     const { base, sheetSwitchPermit, worksheetInfo, row, controls, gunterView, widthConfig } = this.props;
     const { endId, endDisable, displayControls } = gunterView.viewConfig;
-    const enndControl = _.find(controls, { controlId: endId });
+
+    const enndControl = _.find(controls, {
+      controlId: endId,
+    });
+
     return (
       <div
         className="field valignWrapper endTimeField Relative"
-        style={{ width: widthConfig[displayControls.length + 2] }}
+        style={{
+          width: widthConfig[(displayControls || []).length + 2],
+        }}
       >
         {endTimeEdit ? (
-          <CellControlComponent
-            viewId={base.viewId}
-            worksheetId={base.worksheetId}
-            appId={base.appId}
-            sheetSwitchPermit={sheetSwitchPermit}
-            tableFromModule={3}
-            clickEnterEditing={true}
-            isSubList={false}
-            isediting={true}
-            clearCellError={() => {}}
-            cellUniqueValidate={() => {}}
-            cell={{ ...enndControl, value: row.endTime, notConvertZone: true }}
-            row={row}
-            rowFormData={() => controls}
-            rowIndex={1}
-            rowHeight={32}
-            from={1}
-            projectId={worksheetInfo.projectId}
-            updateCell={cell => {
-              this.debounceUpdateRecordTime(row, null, cell.value || '');
-            }}
-            onCellFocus={() => {
-              this.setState({ endTimeEdit: false });
-            }}
-            checkRulesErrorOfControl={() => {}}
-          />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableCellControls
+              viewId={base.viewId}
+              worksheetId={base.worksheetId}
+              appId={base.appId}
+              sheetSwitchPermit={sheetSwitchPermit}
+              tableFromModule={3}
+              clickEnterEditing={true}
+              isSubList={false}
+              isediting={true}
+              clearCellError={() => {}}
+              cellUniqueValidate={() => {}}
+              cell={{ ...enndControl, value: row.endTime, notConvertZone: true }}
+              row={row}
+              rowFormData={() => controls}
+              rowIndex={1}
+              rowHeight={32}
+              from={1}
+              projectId={worksheetInfo.projectId}
+              updateCell={cell => {
+                this.debounceUpdateRecordTime(row, null, cell.value || '');
+              }}
+              onCellFocus={() => {
+                this.setState({
+                  endTimeEdit: false,
+                });
+              }}
+              checkRulesErrorOfControl={() => {}}
+            />
+          </Suspense>
         ) : (
           <Fragment>
             <div className="flex endTimeWrap overflowHidden">
               <span
                 className="pointer overflow_ellipsis"
                 onDoubleClick={() => {
-                  row.allowedit && !endDisable && this.setState({ endTimeEdit: true });
+                  row.allowedit &&
+                    !endDisable &&
+                    this.setState({
+                      endTimeEdit: true,
+                    });
                 }}
               >
-                {renderCellText({ ...enndControl, value: row.originalEndTime || row.endTime }, { appId: base.appId }) ||
-                  '--'}
+                {renderCellText(
+                  { ...enndControl, value: row.originalEndTime || row.endTime },
+                  {
+                    appId: base.appId,
+                  },
+                ) || '--'}
               </span>
             </div>
             {this.canedit && !endDisable && (
               <Icon
                 onClick={() => {
-                  row.allowedit && this.setState({ endTimeEdit: true });
+                  row.allowedit &&
+                    this.setState({
+                      endTimeEdit: true,
+                    });
                 }}
                 icon="bellSchedule mRight8 pointer Font17 textTertiary"
               />
@@ -342,80 +382,98 @@ export default class Record extends Component {
       </div>
     );
   }
+
   renderMore() {
-    const { RecordOperateComponent } = this.state;
     const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView, isCharge, permissionType, controls } =
       this.props;
     const { appId, worksheetId, viewId } = base;
     const isDevAndOps = canEditApp(permissionType) || canEditData(permissionType);
-
-    if (!RecordOperateComponent) return null;
-
     return (
-      <RecordOperateComponent
-        popupAlign={{
-          offset: [0, 10],
-          points: ['tl', 'bl'],
-        }}
-        isCharge={isCharge}
-        isDevAndOps={isDevAndOps}
-        shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav', 'lock']}
-        allowDelete={row.allowdelete}
-        allowCopy={worksheetInfo.allowAdd}
-        projectId={worksheetInfo.projectId}
-        isRecordLock={row.sys_lock}
-        isAdmin={worksheetInfo.roleType === 2}
-        entityName={worksheetInfo.entityName}
-        appId={appId}
-        worksheetId={worksheetId}
-        sheetSwitchPermit={sheetSwitchPermit}
-        viewId={viewId}
-        recordId={row.rowid}
-        formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
-        updateRecordLock={() => {
-          updateRecordLockStatus(
-            {
-              ..._.pick(base, ['appId', 'viewId', 'worksheetId']),
-              recordId: row.rowid,
-              updateType: row.sys_lock ? 42 : 41,
-            },
-            (err, resdata) => {
-              if (resdata) {
-                this.props.updateRecord(row, [], { ...row, sys_lock: resdata.sys_lock });
+      <Suspense fallback={null}>
+        <LoadableRecordOperate
+          popupAlign={{
+            offset: [0, 10],
+            points: ['tl', 'bl'],
+          }}
+          isCharge={isCharge}
+          isDevAndOps={isDevAndOps}
+          shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav', 'lock']}
+          allowDelete={row.allowdelete}
+          allowCopy={worksheetInfo.allowAdd}
+          projectId={worksheetInfo.projectId}
+          isRecordLock={row.sys_lock}
+          isAdmin={worksheetInfo.roleType === 2}
+          entityName={worksheetInfo.entityName}
+          appId={appId}
+          worksheetId={worksheetId}
+          sheetSwitchPermit={sheetSwitchPermit}
+          viewId={viewId}
+          recordId={row.rowid}
+          formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
+          updateRecordLock={() => {
+            updateRecordLockStatus(
+              {
+                ..._.pick(base, ['appId', 'viewId', 'worksheetId']),
+                recordId: row.rowid,
+                updateType: row.sys_lock ? 42 : 41,
+              },
+              (err, resdata) => {
+                if (resdata) {
+                  this.props.updateRecord(row, [], { ...row, sys_lock: resdata.sys_lock });
 
-                if (resdata.sys_lock) {
-                  alert(_l('%0锁定成功', worksheetInfo.entityName));
-                } else {
-                  alert(_l('%0已解锁', worksheetInfo.entityName));
+                  if (resdata.sys_lock) {
+                    alert(_l('%0锁定成功', worksheetInfo.entityName));
+                  } else {
+                    alert(_l('%0已解锁', worksheetInfo.entityName));
+                  }
                 }
-              }
-            },
-          );
-        }}
-        onUpdate={(updateControls, newItem) => {
-          this.props.updateRecord(row, updateControls, newItem);
-        }}
-        onDelete={() => {
-          this.props.removeRecord(row.rowid);
-        }}
-        onCopySuccess={data => {
-          const { grouping } = gunterView;
-          const { rows } = _.find(grouping, { key: groupKey });
-          const index = _.findIndex(rows, { rowid: row.rowid });
-          this.props.addNewRecord(data, index + 1);
-        }}
-      >
-        <Icon className="textTertiary Font17 mRight5 pointer" icon="more_horiz" />
-      </RecordOperateComponent>
+              },
+            );
+          }}
+          onUpdate={(updateControls, newItem) => {
+            this.props.updateRecord(row, updateControls, newItem);
+          }}
+          onDelete={() => {
+            this.props.removeRecord(row.rowid);
+          }}
+          onCopySuccess={data => {
+            const { grouping } = gunterView;
+
+            const { rows } = _.find(grouping, {
+              key: groupKey,
+            });
+
+            const index = _.findIndex(rows, {
+              rowid: row.rowid,
+            });
+
+            this.props.addNewRecord(data, index + 1);
+          }}
+        >
+          <Icon className="textTertiary Font17 mRight5 pointer" icon="more_horiz" />
+        </LoadableRecordOperate>
+      </Suspense>
     );
   }
+
   renderTitle() {
     const { row, groupKey, controls, gunterView, widthConfig, base } = this.props;
     const { titleDisable, navTitle } = gunterView.viewConfig;
-    const titleControl = _.find(controls, { controlId: navTitle });
+
+    const titleControl = _.find(controls, {
+      controlId: navTitle,
+    });
+
     const value = row[titleControl?.controlId] || row.titleValue;
     const emptyValue = '--';
-    const title = titleControl ? renderCellText({ ...titleControl, value }, { appId: base.appId }) : '';
+    const title = titleControl
+      ? renderCellText(
+          { ...titleControl, value },
+          {
+            appId: base.appId,
+          },
+        )
+      : '';
 
     if (!titleControl) {
       return null;
@@ -423,8 +481,12 @@ export default class Record extends Component {
 
     return (
       <div
-        className={cx('groupingName valignWrapper', { edit: row.isEdit && !row.sys_lock })}
-        style={{ width: widthConfig[0] }}
+        className={cx('groupingName valignWrapper', {
+          edit: row.isEdit && !row.sys_lock,
+        })}
+        style={{
+          width: widthConfig[0],
+        }}
         onClick={row.isEdit ? _.noop : this.handleClick}
       >
         {row.isEdit && titleControl.type === 2 ? (
@@ -463,40 +525,44 @@ export default class Record extends Component {
       </div>
     );
   }
+
   renderControl(data, index) {
-    const { CellControlComponent } = this.state;
     const { row, widthConfig, base, controls, worksheetInfo } = this.props;
-    const cell = Object.assign({}, data, { value: row[data.controlId] });
+    const cell = Object.assign({}, data, {
+      value: row[data.controlId],
+    });
     const rowFormData = controls.map(c => ({ ...c, value: row[c.controlId] }));
     return (
       <div
         className={cx('field otherField valignWrapper Relative overflowHidden', `otherField${cell.type}`)}
         key={data.controlId}
-        style={{ width: widthConfig[index] }}
+        style={{
+          width: widthConfig[index],
+        }}
       >
         <div>
-          <CellControlComponent
-            rowHeight={32}
-            cell={cell}
-            from={4}
-            className={'w100'}
-            appId={base.appId}
-            row={row}
-            rowFormData={() => rowFormData}
-            worksheetId={base.worksheetId}
-            projectId={worksheetInfo.projectId}
-          />
+          <Suspense fallback={<LoadDiv className="mTop10" />}>
+            <LoadableCellControls
+              rowHeight={32}
+              cell={cell}
+              from={4}
+              className={'w100'}
+              appId={base.appId}
+              row={row}
+              rowFormData={() => rowFormData}
+              worksheetId={base.worksheetId}
+              projectId={worksheetInfo.projectId}
+            />
+          </Suspense>
         </div>
       </div>
     );
   }
+
   render() {
-    const { recordInfoVisible, RecordInfoComponent, CellControlComponent } = this.state;
+    const { recordInfoVisible } = this.state;
     const { row, gunterView, controls } = this.props;
     const { displayControls } = gunterView.viewConfig;
-
-    if (!CellControlComponent) return null;
-
     return (
       <RecordWrapper
         className={cx('valignWrapper gunterRecord w100', `gunterRecord-${row.rowid}`)}
@@ -514,23 +580,48 @@ export default class Record extends Component {
           }
         }}
       >
-        {_.get(window, 'shareState.shareId') ? <div style={{ width: 22 }} /> : this.renderMore()}
+        {_.get(window, 'shareState.shareId') ? (
+          <div
+            style={{
+              width: 22,
+            }}
+          />
+        ) : (
+          this.renderMore()
+        )}
         {this.renderTitle()}
         {(displayControls || []).map((data, index) =>
-          this.renderControl(_.find(controls, { controlId: data.controlId }) || data, index + 1),
+          this.renderControl(
+            _.find(controls, {
+              controlId: data.controlId,
+            }) || data,
+            index + 1,
+          ),
         )}
         {this.renderStartTime()}
         {this.renderEndTime()}
         <div className="dayCountField overflow_ellipsis">{row.diff ? _l('%0天', row.diff) : '--'}</div>
         {recordInfoVisible && (
-          <RecordInfoComponent
-            row={row}
-            onClose={() => {
-              this.setState({ recordInfoVisible: false });
-            }}
-          />
+          <Suspense fallback={null}>
+            <LoadableRecordInfo
+              row={row}
+              onClose={() => {
+                this.setState({
+                  recordInfoVisible: false,
+                });
+              }}
+            />
+          </Suspense>
         )}
       </RecordWrapper>
     );
   }
-}
+};
+Record = connect(
+  state => ({
+    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView', 'isCharge']),
+    ..._.pick(state.appPkg, ['permissionType']),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(Record);
+export default Record;

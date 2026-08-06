@@ -11,6 +11,7 @@ import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDial
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
 import { formatDataForPortalControl, formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util';
+import { translatePortalRoleOptions } from 'src/pages/Role/PortalCon/tabCon/util-pure';
 import * as actions from '../../../redux/actions';
 import HeaderCon from './Header';
 import { Wrap } from './style';
@@ -109,7 +110,7 @@ function User(props) {
       .then(res => {
         const { controls, showControlIds = [] } = res;
         setHideIds(showControlIds);
-        setControls(controls);
+        setControls(translatePortalRoleOptions(appId, controls));
       });
   };
 
@@ -120,7 +121,7 @@ function User(props) {
 
   useEffect(() => {
     setColumns(getColumns(controls, roleList, filterStatus, setFilterStatus, setFastFilters, filterStatusNum, appId));
-  }, [controls, showPortalControlIds, roleList]);
+  }, [controls, showPortalControlIds, roleList, appId]);
 
   const [showControls, setShowControls] = useState([]); //显示列
 
@@ -234,6 +235,7 @@ function User(props) {
           title={_l('选择角色')}
           setChangeRoleDialog={setChangeRoleDialog}
           changeRoleDialog={changeRoleDialog}
+          appId={appId}
           roleList={roleList}
           onOk={roleId => {
             updateListByRoleid({ roleId: roleId, rowIds: selectedIds }, () => {

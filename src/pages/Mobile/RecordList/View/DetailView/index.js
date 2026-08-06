@@ -28,14 +28,20 @@ class DetailView extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      _.get(nextProps, 'view.childType') === 1 &&
-      _.get(this.props, 'view.viewId') !== _.get(nextProps, 'view.viewId')
-    ) {
-      this.setState({ loading: true });
-    } else {
-      this.setState({ loading: false });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        _.get(this.props, 'view.childType') === 1 &&
+        _.get(prevProps, 'view.viewId') !== _.get(this.props, 'view.viewId')
+      ) {
+        this.setState({
+          loading: true,
+        });
+      } else {
+        this.setState({
+          loading: false,
+        });
+      }
     }
   }
 
@@ -71,6 +77,7 @@ class DetailView extends Component {
       view,
       currentSheetRows = [],
       base = {},
+      appDetail,
       sheetSwitchPermit,
       appNaviStyle,
       worksheetInfo = {},
@@ -95,6 +102,7 @@ class DetailView extends Component {
               enablePayment={worksheetInfo.enablePayment}
               worksheetInfo={worksheetInfo}
               appId={base.appId}
+              appDetail={appDetail?.detail}
               worksheetId={base.worksheetId}
               viewId={base.viewId || view.viewId}
               rowId={currentSheetRows[0].rowid}
@@ -106,7 +114,7 @@ class DetailView extends Component {
             />
           )
         ) : (
-          <SheetRows view={view} navigateTo={window.mobileNavigateTo} />
+          <SheetRows view={view} />
         )}
       </DetailViewWrap>
     );
@@ -125,6 +133,7 @@ export default connect(
       'activeSavedFilter',
       'sheetRowLoading',
       'isCharge',
+      'appDetail',
     ]),
   }),
   dispatch =>

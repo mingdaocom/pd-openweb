@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -7,12 +7,14 @@ import Trigger from 'rc-trigger';
 import { MdLink, UpgradeIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
+import { getPathWithoutSubPath } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import './index.less';
 
-@withRouter
-export default class AdminLeftMenu extends Component {
+const isRoutePathMatched = (path, pathname) => pathToRegexp(path).test(getPathWithoutSubPath(pathname));
+
+let AdminLeftMenu = class AdminLeftMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,37 +31,43 @@ export default class AdminLeftMenu extends Component {
       location: { pathname },
       menuList,
     } = this.props;
-
     const currentProject = getCurrentProject(projectId, true);
-
     this.setState({
       currentCompanyName: currentProject.companyName,
     });
 
     const nav = _.find(menuList, item =>
-      _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => pathToRegexp(path).test(pathname))),
+      _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => isRoutePathMatched(path, pathname))),
     );
 
     if (pathname.indexOf('home') > -1) {
-      this.setState({ userExpand: true });
+      this.setState({
+        userExpand: true,
+      });
     }
 
     if (pathname.indexOf('home') === -1 && !_.isEmpty(nav)) {
-      this.setState({ [`${nav.key}Expand`]: true });
+      this.setState({
+        [`${nav.key}Expand`]: true,
+      });
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const {
-      location: { pathname },
-      menuList,
-    } = nextProps;
-    const nav = _.find(menuList, item =>
-      _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => pathToRegexp(path).test(pathname))),
-    );
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const {
+        location: { pathname },
+        menuList,
+      } = this.props;
+      const nav = _.find(menuList, item =>
+        _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => isRoutePathMatched(path, pathname))),
+      );
 
-    if (pathname.indexOf('home') === -1 && !_.isEmpty(nav)) {
-      this.setState({ [`${nav.key}Expand`]: true });
+      if (pathname.indexOf('home') === -1 && !_.isEmpty(nav)) {
+        this.setState({
+          [`${nav.key}Expand`]: true,
+        });
+      }
     }
   }
 
@@ -71,7 +79,6 @@ export default class AdminLeftMenu extends Component {
         params: { projectId },
       },
     } = this.props;
-
     if (
       key === 'billinfo' &&
       (window.platformENV.isLocal || window.platformENV.isOverseas) &&
@@ -84,6 +91,7 @@ export default class AdminLeftMenu extends Component {
       md.global.SysSettings.hideWeixin
     )
       return;
+
     if (
       key === 'platformintegration' &&
       (window.platformENV.isLocal || window.platformENV.isOverseas) &&
@@ -97,9 +105,7 @@ export default class AdminLeftMenu extends Component {
       return;
     }
 
-    const isActive = () => {
-      return _.some(routes, route => pathToRegexp(route.path).test(pathname));
-    };
+    const isActive = () => _.some(routes, route => isRoutePathMatched(route.path, pathname));
 
     let routeIndex = undefined;
     let featureType = getFeatureStatus(projectId, featureId);
@@ -118,7 +124,13 @@ export default class AdminLeftMenu extends Component {
     const route = routes[routeIndex || 0] || {};
     const toPath = compile(menuPath || route.path);
     const path =
-      route.path && route.path.indexOf(':projectId') === -1 ? toPath({ 0: projectId }) : toPath({ projectId });
+      route.path && route.path.indexOf(':projectId') === -1
+        ? toPath({
+            0: projectId,
+          })
+        : toPath({
+            projectId,
+          });
     const isHome = key === 'home';
 
     const platIntegrationUpgrade = _.every(
@@ -132,10 +144,16 @@ export default class AdminLeftMenu extends Component {
     );
 
     const licenseType = (md.global.Account.projects.find(o => o.projectId === projectId) || {}).licenseType;
+
     const isFreeUpgrade = licenseType === 0 && _.includes(['groups', 'orgothers', 'loginlog', 'orglog'], key);
 
     return (
-      <li key={key} className={cx('item', { active: isActive() && subListVisible })}>
+      <li
+        key={key}
+        className={cx('item', {
+          active: isActive() && subListVisible,
+        })}
+      >
         <MdLink
           to={path}
           className={cx('stopPropagation', {
@@ -144,7 +162,12 @@ export default class AdminLeftMenu extends Component {
             'activeItem bold': isActive(),
             activeExtend: isActive() && isExtend,
           })}
-          onClick={() => this.setState({ subListVisible: false, menuGroupKey: null })}
+          onClick={() =>
+            this.setState({
+              subListVisible: false,
+              menuGroupKey: null,
+            })
+          }
         >
           {icon && <i className={cx('Font20 textPrimary mRight10 homeIcon', icon)} />}
           {!isExtend && key === 'home' ? (
@@ -179,7 +202,6 @@ export default class AdminLeftMenu extends Component {
     const { menuList = [], match, location } = this.props;
     const { params } = match;
     const { pathname } = location;
-
     return (
       <div id="menuList" className={cx(isExtend ? 'extendList' : 'closeList')}>
         <div className="h100 Relative menuContainer">
@@ -194,11 +216,16 @@ export default class AdminLeftMenu extends Component {
             </div>
             <Tooltip
               placement="right"
-              align={{ offset: [10, 0] }}
+              align={{
+                offset: [10, 0],
+              }}
               title={isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}
             >
               <span
-                className={cx('Hand Font12 ThemeColor9 titleIconBox Block', isExtend ? 'icon-back-02' : 'icon-next-02')}
+                className={cx(
+                  'Hand Font12 textSecondary titleIconBox Block',
+                  isExtend ? 'icon-back-02' : 'icon-next-02',
+                )}
                 onClick={this.handleTransition.bind(this)}
               ></span>
             </Tooltip>
@@ -214,14 +241,20 @@ export default class AdminLeftMenu extends Component {
                       (!featureId || (featureId && getFeatureStatus(params.projectId, featureId))) &&
                       !(!window.platformENV.isPlatform && key === 'billinfo'),
                   );
-
                   return (
-                    <div key={index} className={cx({ Hidden: !subMenuList.length })}>
+                    <div
+                      key={index}
+                      className={cx({
+                        Hidden: !subMenuList.length,
+                      })}
+                    >
                       {title ? (
                         <div
                           className="subTitle flexRow alignItemsCenter Hand"
                           onClick={() => {
-                            this.setState({ [`${key}Expand`]: !this.state[`${key}Expand`] });
+                            this.setState({
+                              [`${key}Expand`]: !this.state[`${key}Expand`],
+                            });
                           }}
                         >
                           <i className={cx('Font20 textPrimary mRight10', icon)} />
@@ -241,7 +274,9 @@ export default class AdminLeftMenu extends Component {
                       ) : (
                         <ul
                           className="manageItems overflowHidden"
-                          style={{ height: !this.state[`${key}Expand`] ? 0 : subMenuList.length * 48 }}
+                          style={{
+                            height: !this.state[`${key}Expand`] ? 0 : subMenuList.length * 48,
+                          }}
                         >
                           {_.map(subMenuList, this.renderLinkItem)}
                         </ul>
@@ -251,6 +286,7 @@ export default class AdminLeftMenu extends Component {
                 })
               : menuList.map(item => {
                   const { key, title, icon, subMenuList = [] } = item;
+
                   const currentPathNames = _.reduce(
                     subMenuList,
                     (result, { routes = [] }) => {
@@ -261,18 +297,32 @@ export default class AdminLeftMenu extends Component {
                   );
 
                   return (
-                    <div key={key} className={cx({ Hidden: !subMenuList.length })}>
+                    <div
+                      key={key}
+                      className={cx({
+                        Hidden: !subMenuList.length,
+                      })}
+                    >
                       {key === 'home' ? (
                         _.map(subMenuList, this.renderLinkItem)
                       ) : (
                         <Trigger
                           action={['click']}
                           popupVisible={subListVisible && menuGroupKey === key}
-                          onPopupVisibleChange={visible => this.setState({ subListVisible: visible })}
+                          onPopupVisibleChange={visible =>
+                            this.setState({
+                              subListVisible: visible,
+                            })
+                          }
                           popup={
                             <div className="hoverMenuWrap">
                               <div className="textTertiary Font12 pLeft20 mBottom10">{title}</div>
-                              <ul className="manageItems overflowHidden" style={{ height: subMenuList.length * 48 }}>
+                              <ul
+                                className="manageItems overflowHidden"
+                                style={{
+                                  height: subMenuList.length * 48,
+                                }}
+                              >
                                 {_.map(subMenuList, this.renderLinkItem)}
                               </ul>
                             </div>
@@ -280,14 +330,22 @@ export default class AdminLeftMenu extends Component {
                           popupAlign={{
                             points: ['tr', 'br'],
                             offset: [-40, -40],
-                            overflow: { adjustX: true, adjustY: true },
+                            overflow: {
+                              adjustX: true,
+                              adjustY: true,
+                            },
                           }}
                         >
                           <div
                             className={cx('shrinkNav flexRow alignItemsCenter Hand', {
-                              activeSubTitle: _.some(currentPathNames, path => pathToRegexp(path).test(pathname)),
+                              activeSubTitle: _.some(currentPathNames, path => isRoutePathMatched(path, pathname)),
                             })}
-                            onMouseEnter={() => this.setState({ subListVisible: true, menuGroupKey: key })}
+                            onMouseEnter={() =>
+                              this.setState({
+                                subListVisible: true,
+                                menuGroupKey: key,
+                              })
+                            }
                           >
                             <i className={cx('Font20 textPrimary mRight10', icon)} />
                           </div>
@@ -301,4 +359,6 @@ export default class AdminLeftMenu extends Component {
       </div>
     );
   }
-}
+};
+AdminLeftMenu = withRouter(AdminLeftMenu);
+export default AdminLeftMenu;

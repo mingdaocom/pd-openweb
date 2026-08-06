@@ -106,7 +106,7 @@ export default class ConfigControl extends Component {
   cacheSource = null;
   hasRecordId = {};
 
-  componentWillMount() {
+  componentDidMount() {
     const { appId, worksheetId } = this.props;
     this.getWorksheetInfo({ appId, worksheetId });
   }
@@ -154,9 +154,11 @@ export default class ConfigControl extends Component {
       for (const control of worksheetControls.filter(item => item.dataSource == worksheetId)) {
         const mapping = controlMapping.find(item => item.ControlId == control.controlId);
         if (!mapping) continue;
+        const { sourceConfig } = mapping;
+        const sourceControlId = sourceConfig.controlId;
 
-        if (mapping.sourceConfig.controlId) {
-          control.sourceConfig = mapping.sourceConfig.controlId;
+        if (sourceControlId) {
+          control.sourceConfig = sourceControlId;
         } else {
           // 模糊匹配映射字段
           const arr = (mapping.ColumnName || '').split('-');
@@ -165,7 +167,7 @@ export default class ConfigControl extends Component {
 
           if (item) {
             control.sourceConfig = item.value;
-            mapping.sourceConfig.controlId = item.value;
+            sourceConfig.controlId = item.value;
           } else if (title) {
             // 如果没有，默认选择标题字段作为映射
             control.sourceConfig = title.value;
@@ -869,7 +871,7 @@ export default class ConfigControl extends Component {
                 </Tooltip>
                 {!!skipSize && (
                   <div
-                    className="mLeft5 relative ThemeColor3 ThemeHoverColor2 pointer"
+                    className="mLeft5 relative colorPrimary hoverColorPrimaryDark pointer"
                     onClick={() => (isCharge || !edited) && this.setState({ showErrorSkip: true })}
                   >
                     {skipSize === errorSkip.length ? _l('全部') : `(${skipSize}/${errorSkip.length})`}
@@ -931,7 +933,7 @@ export default class ConfigControl extends Component {
 
             {isCharge && (
               <span
-                className="Hand ThemeColor3 hoverTextPrimaryLight mLeft20"
+                className="Hand colorPrimary hoverColorPrimaryLight mLeft20"
                 style={{ height: 18 }}
                 onClick={() => this.saveConfig()}
               >
@@ -1237,7 +1239,7 @@ export default class ConfigControl extends Component {
                                 'icon-backspace Font18',
                                 (_.find(controlMapping, item => item.ControlId === controlItem.controlId) || {})
                                   .ColumnNum
-                                  ? 'ThemeColor3'
+                                  ? 'colorPrimary'
                                   : 'textDisabled',
                               )}
                             />

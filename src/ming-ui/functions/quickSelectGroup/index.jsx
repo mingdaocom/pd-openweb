@@ -406,7 +406,7 @@ export function SelectGroupTrigger(props) {
       {props.children || (
         <DefaultChildWrap className="Hand">
           {!hideIcon && <Icon icon="eye" className="Font16 textPlaceholder mRight5" />}
-          <span className="ThemeColor3">
+          <span className="colorPrimary">
             {value.length
               ? value.length === 1
                 ? _.get(value[0], 'extra.isProject')

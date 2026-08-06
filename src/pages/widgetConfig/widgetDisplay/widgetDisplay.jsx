@@ -37,7 +37,7 @@ export default function WidgetDisplay(props) {
     hidetitle,
     titlesize = '0',
     titlestyle = '0000',
-    titlecolor = 'var(--color-text-title)',
+    titlecolor = 'var(--color-text-primary)',
     showtype,
     customtype,
   } = getAdvanceSetting(data);

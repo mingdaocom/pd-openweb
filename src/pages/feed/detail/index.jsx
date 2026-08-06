@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 import { LoadDiv, ScrollView } from 'ming-ui';
@@ -7,21 +7,20 @@ import PostDetails from '../components/post/postDetails/postDetails';
 import { changePostDetailId, clearPostDetail } from './redux/postDetailActions';
 import './feeddetail.css';
 
-@connect(state => ({
-  postItem: state.post.postsById[state.postDetail.postId],
-  error: state.postDetail.errors[state.postDetail.postId],
-}))
-export default class FeedDetailEntrypoint extends Component {
+let FeedDetailEntrypoint = class FeedDetailEntrypoint extends Component {
   componentDidMount() {
     $('html').addClass('AppFeed AppFeedDetail');
-
     this.handleQueryChange(this.props);
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.location.search !== nextProps.location.search) {
-      this.handleQueryChange(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.location.search !== this.props.location.search) {
+        this.handleQueryChange(this.props);
+      }
     }
   }
+
   componentWillUnmount() {
     $('html').removeClass('AppFeed AppFeedDetail');
     this.props.dispatch(clearPostDetail());
@@ -37,6 +36,7 @@ export default class FeedDetailEntrypoint extends Component {
 
     props.dispatch(changePostDetailId(itemID, knowledgeId || knowledgeID, projectId));
   }
+
   renderError() {
     return (
       <div className="TxtCenter mTop20 Feeddetail">
@@ -56,6 +56,7 @@ export default class FeedDetailEntrypoint extends Component {
       </div>
     );
   }
+
   renderPostDetail() {
     return this.props.postItem ? (
       <PostDetails postItem={this.props.postItem} />
@@ -65,6 +66,7 @@ export default class FeedDetailEntrypoint extends Component {
       </div>
     );
   }
+
   render() {
     return (
       <ScrollView className="relative">
@@ -74,4 +76,9 @@ export default class FeedDetailEntrypoint extends Component {
       </ScrollView>
     );
   }
-}
+};
+FeedDetailEntrypoint = connect(state => ({
+  postItem: state.post.postsById[state.postDetail.postId],
+  error: state.postDetail.errors[state.postDetail.postId],
+}))(FeedDetailEntrypoint);
+export default FeedDetailEntrypoint;

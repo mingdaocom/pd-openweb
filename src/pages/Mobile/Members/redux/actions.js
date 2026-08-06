@@ -1,6 +1,7 @@
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getTranslateInfo } from 'src/utils/app';
 
 // 申请状况
 const getAppApplyInfo = appId => (dispatch, getState) => {
@@ -41,12 +42,13 @@ export const getMembers = appId => dispatch => {
         jobInfos = [],
         projectOrganizeInfos = [],
       }) => {
+        const translateInfo = getTranslateInfo(appId, null, roleId);
         return {
           users,
           roleId,
           roleType,
-          label: name,
-          description,
+          label: translateInfo.name || name,
+          description: translateInfo.description || description,
           permissionWay,
           count: users.length + departmentTreesInfos.length + jobInfos.length + projectOrganizeInfos.length,
         };

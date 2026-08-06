@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
@@ -16,12 +16,14 @@ import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
-import { dateConvertToUserZone, handlePushState, handleReplaceState } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/project';
 import StepHeader from '../ExecDialog/StepHeader';
 import WorkflowAction, { TaskRevokeAction } from './Action';
 import './index.less';
 
 const isMobile = browserIsMobile();
+const LoadableMobileProcessRecord = lazy(() => import('src/pages/Mobile/ProcessRecord'));
+const LoadableExecDialog = lazy(() => import('src/pages/workflow/components/ExecDialog'));
 
 const renderTimeConsuming = (createDate, completeDate) => {
   const timeConsuming = moment(createDate) - moment(completeDate);
@@ -45,7 +47,10 @@ const renderState = data => {
     return (
       <div
         className="state bold valignWrapper Font13"
-        style={{ backgroundColor: 'var(--color-text-disabled)', color: '#fff' }}
+        style={{
+          backgroundColor: 'var(--color-text-disabled)',
+          color: '#fff',
+        }}
       >
         {_l('流程撤回')}
       </div>
@@ -55,13 +60,23 @@ const renderState = data => {
   if (workItem) {
     if (type === 3 || type === 0)
       return (
-        <span className="bold" style={{ color: 'var(--color-primary)' }}>
+        <span
+          className="bold"
+          style={{
+            color: 'var(--color-primary)',
+          }}
+        >
           {_l('等我填写...')}
         </span>
       );
     if (type === 4)
       return (
-        <span className="bold" style={{ color: 'var(--color-primary)' }}>
+        <span
+          className="bold"
+          style={{
+            color: 'var(--color-primary)',
+          }}
+        >
           {_l('等我审批...')}
         </span>
       );
@@ -74,7 +89,12 @@ const renderState = data => {
     const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
     const { text, bg, icon } = INSTANCELOG_STATUS[instanceStatus];
     return (
-      <div className="state bold valignWrapper" style={{ backgroundColor: bg }}>
+      <div
+        className="state bold valignWrapper"
+        style={{
+          backgroundColor: bg,
+        }}
+      >
         {icon ? <Icon icon={icon} className="mRight5" /> : null}
         <div className="Font13">{text}</div>
       </div>
@@ -92,11 +112,8 @@ const renderSurplusTime = data => {
 
     return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
   });
-
   if (!workItems.length) return null;
-
   const time = moment() - moment(workItems[0].dueTime) || 0;
-
   return (
     <div className="flexRow valignWrapper mBottom12">
       <div className="Font13 textSecondary label">{_l('剩余时间')}</div>
@@ -120,7 +137,6 @@ function CurrentWorkItems(props) {
   const allCurrentWorkItems = (data.currentWorkItems || []).filter(c => c.operationType !== 5);
   const [currentWorkItems, setCurrentWorkItems] = useState(allCurrentWorkItems);
   const wrapRef = useRef();
-
   useEffect(() => {
     if (currentWorkItems.length && wrapRef.current) {
       const { clientWidth } = wrapRef.current;
@@ -130,7 +146,6 @@ function CurrentWorkItems(props) {
       setCurrentWorkItems(allCurrentWorkItems.slice(0, count - 1));
     }
   }, [formWidth]);
-
   return (
     !!(currentWorkItems || []).length && (
       <div className="flexRow valignWrapper mBottom12">
@@ -143,7 +158,10 @@ function CurrentWorkItems(props) {
               ) : (
                 <UserHead
                   size={24}
-                  user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
+                  user={{
+                    userHead: data.workItemAccount.avatar,
+                    accountId: data.workItemAccount.accountId,
+                  }}
                   appId={appId}
                   projectId={projectId}
                 />
@@ -180,7 +198,9 @@ function WorkflowCard(props) {
   const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog, onReset } = props;
   const { currents, createDate, completeDate, revokeDate, completed, createAccount, workItem, process, status } = data;
   const currentWorkItems = data.currentWorkItems || [];
+
   const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
+
   const isBranch = !!(currents || []).length;
 
   const getIsRevoke = () => {
@@ -200,7 +220,9 @@ function WorkflowCard(props) {
     const { name } = flowNode || {};
     return (
       <div
-        className={cx('flexColumn itemWrapper', { mTop18: !isBranch })}
+        className={cx('flexColumn itemWrapper', {
+          mTop18: !isBranch,
+        })}
         onClick={isBranch ? () => onViewFlowStep(data) : undefined}
       >
         {!allowReset && (
@@ -246,11 +268,19 @@ function WorkflowCard(props) {
 
   return (
     <div className={cx('workflowCard', isMobile ? 'mBottom10' : 'mBottom18')}>
-      <div className={cx({ pointer: !isBranch })} onClick={!isBranch ? () => onViewFlowStep(data) : undefined}>
+      <div
+        className={cx({
+          pointer: !isBranch,
+        })}
+        onClick={!isBranch ? () => onViewFlowStep(data) : undefined}
+      >
         <div className="flexRow valignWrapper">
           <UserHead
             size={32}
-            user={{ userHead: createAccount.avatar, accountId: createAccount.accountId }}
+            user={{
+              userHead: createAccount.avatar,
+              accountId: createAccount.accountId,
+            }}
             appId={appId}
             projectId={projectId}
           />
@@ -273,7 +303,12 @@ function WorkflowCard(props) {
         </div>
         {isBranch && (
           <Fragment>
-            <div className="branchNode" style={{ margin: '5px 0 5px 43px' }}>
+            <div
+              className="branchNode"
+              style={{
+                margin: '5px 0 5px 43px',
+              }}
+            >
               {_l('%0个节点办理中...', (currents || []).length)}
             </div>
             <div className="branchNodeLine" />
@@ -287,18 +322,30 @@ function WorkflowCard(props) {
               })
               .map((data, index) => (
                 <Fragment key={data.workId}>
-                  <div className={cx('branchWrap pointer', { hover: !isMobile })}>
+                  <div
+                    className={cx('branchWrap pointer', {
+                      hover: !isMobile,
+                    })}
+                  >
                     {renderContent(data)}
                     {!isRecordLock && (
                       <WorkflowAction
-                        className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
+                        className={cx('mTop20', {
+                          mBottom5: index !== currents.length - 1,
+                        })}
                         appId={appId}
                         projectId={projectId}
                         isBranch={isBranch}
                         isCharge={isCharge}
                         data={data}
                         currentWorkflow={currentWorkflow}
-                        {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
+                        {...{
+                          onAction,
+                          onRevoke,
+                          onUrge,
+                          onReset,
+                          onViewExecDialog,
+                        }}
                       />
                     )}
                   </div>
@@ -316,7 +363,13 @@ function WorkflowCard(props) {
           isCharge={isCharge}
           data={data}
           currentWorkflow={currentWorkflow}
-          {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
+          {...{
+            onAction,
+            onRevoke,
+            onUrge,
+            onReset,
+            onViewExecDialog,
+          }}
         />
       )}
     </div>
@@ -343,7 +396,6 @@ export default function SheetWorkflow(props) {
   const [viewWorkflow, setViewWorkflow] = useState(null);
   const [actionVisible, setActionVisible] = useState(false);
   const [allowTaskRevokeBackNodeId, setAllowTaskRevokeBackNodeId] = useState(null);
-  const [ProcessRecord, setProcessRecord] = useState(null);
   const [archivedList, setArchivedList] = useState([]);
   const [selecteArchived, setSelecteArchived] = useState({});
   const [filterVisible, setFilterVisible] = useState(false);
@@ -364,10 +416,7 @@ export default function SheetWorkflow(props) {
 
       Promise.all([
         instanceVersion.getTodoList2(param),
-        instanceVersion.getTodoList2({
-          ...param,
-          complete: true,
-        }),
+        instanceVersion.getTodoList2({ ...param, complete: true }),
       ]).then(result => {
         const [unfinished, completed] = result;
         const list = unfinished
@@ -375,10 +424,7 @@ export default function SheetWorkflow(props) {
             const { process, flowNode } = item;
             return {
               ...item,
-              process: {
-                ...process,
-                name: getTranslateInfo(appId, null, process.parentId).name || process.name,
-              },
+              process: { ...process, name: getTranslateInfo(appId, null, process.parentId).name || process.name },
               flowNode: {
                 ...flowNode,
                 name: getTranslateInfo(appId, process.parentId, flowNode.id).nodename || flowNode.name,
@@ -392,6 +438,7 @@ export default function SheetWorkflow(props) {
           );
         setList(list);
         setLoading(false);
+
         if (list.length === 1 && unfinished.length === 1) {
           const firstData = list[0];
 
@@ -444,17 +491,13 @@ export default function SheetWorkflow(props) {
       instance.backFlowNodes.forEach(flowNode => {
         flowNode.name = getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name;
       });
+
       if (_.get(instance.currentWork, 'flowNode.name')) {
         const { flowNode } = instance.currentWork;
         flowNode.name = getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name;
       }
 
-      setCurrentWorkflow({
-        ...instance,
-        ...param,
-        cardData: data,
-        instanceId: data.id,
-      });
+      setCurrentWorkflow({ ...instance, ...param, cardData: data, instanceId: data.id });
     });
   };
 
@@ -481,7 +524,10 @@ export default function SheetWorkflow(props) {
           const { cardData } = currentWorkflow;
 
           if (workflowVisible) {
-            const card = _.find(list, { id: cardData.id });
+            const card = _.find(list, {
+              id: cardData.id,
+            });
+
             card && handleViewFlowStep(card);
           }
         });
@@ -490,7 +536,11 @@ export default function SheetWorkflow(props) {
 
     if (action === 'taskRevoke') {
       const { works } = currentWorkflow;
-      const data = _.find(works, { allowTaskRevokeBackNodeId });
+
+      const data = _.find(works, {
+        allowTaskRevokeBackNodeId,
+      });
+
       instance['taskRevoke']({
         id: data.instanceId,
         workId: data.workId,
@@ -514,14 +564,26 @@ export default function SheetWorkflow(props) {
     }
 
     if (action === 'pass') {
-      return instanceVersion.pass2({ id, workId, ...restPara });
+      return instanceVersion.pass2({
+        id,
+        workId,
+        ...restPara,
+      });
     }
 
     if (action === 'overrule') {
-      return instanceVersion.overrule2({ id, workId, ...restPara });
+      return instanceVersion.overrule2({
+        id,
+        workId,
+        ...restPara,
+      });
     }
 
-    return instance[action]({ id, workId, ...restPara });
+    return instance[action]({
+      id,
+      workId,
+      ...restPara,
+    });
   };
 
   const handleCloseDrawer = () => {
@@ -553,12 +615,7 @@ export default function SheetWorkflow(props) {
           ...instance,
           opinionTemplate: instance.opinionTemplate || {},
           value: 'revoke',
-          cardData: {
-            ...cardData,
-            id: data.id,
-            workId: data.workId,
-            revokeWorkId: data.revokeWorkId,
-          },
+          cardData: { ...cardData, id: data.id, workId: data.workId, revokeWorkId: data.revokeWorkId },
           currentWork,
           instanceId: data.id,
         });
@@ -568,7 +625,11 @@ export default function SheetWorkflow(props) {
 
   const handleTaskRevoke = () => {
     const { works, cardData, currentWork } = currentWorkflow;
-    const data = _.find(works, { allowTaskRevokeBackNodeId });
+
+    const data = _.find(works, {
+      allowTaskRevokeBackNodeId,
+    });
+
     instanceVersion
       .get2({
         id: data.instanceId,
@@ -598,13 +659,7 @@ export default function SheetWorkflow(props) {
         const { cardData = {} } = currentWorkflow;
 
         if (cardData.workId === data.workId) {
-          setCurrentWorkflow({
-            ...currentWorkflow,
-            cardData: {
-              ...cardData,
-              urgeDisable: true,
-            },
-          });
+          setCurrentWorkflow({ ...currentWorkflow, cardData: { ...cardData, urgeDisable: true } });
         }
 
         setList(
@@ -613,24 +668,15 @@ export default function SheetWorkflow(props) {
               if (_.get(item, 'currents.length')) {
                 const currents = item.currents.map(item => {
                   if (item.workId === data.workId) {
-                    return {
-                      ...item,
-                      urgeDisable: true,
-                    };
+                    return { ...item, urgeDisable: true };
                   } else {
                     return item;
                   }
                 });
-                return {
-                  ...item,
-                  currents,
-                };
+                return { ...item, currents };
               }
 
-              return {
-                ...item,
-                urgeDisable: true,
-              };
+              return { ...item, urgeDisable: true };
             } else {
               return item;
             }
@@ -651,7 +697,11 @@ export default function SheetWorkflow(props) {
         handleCloseDrawer();
         getList().then(list => {
           const { cardData } = currentWorkflow;
-          const card = _.find(list, { id: cardData.id });
+
+          const card = _.find(list, {
+            id: cardData.id,
+          });
+
           card && handleViewFlowStep(card);
         });
       }
@@ -669,7 +719,11 @@ export default function SheetWorkflow(props) {
         handleCloseDrawer();
         getList().then(list => {
           const { cardData } = currentWorkflow;
-          const card = _.find(list, { id: cardData.id });
+
+          const card = _.find(list, {
+            id: cardData.id,
+          });
+
           card && handleViewFlowStep(card);
         });
       }
@@ -714,7 +768,6 @@ export default function SheetWorkflow(props) {
   };
 
   const handleViewExecDialog = data => {
-    handlePushState('page', 'processRecord');
     setViewWorkflow({
       id: data.id,
       workId: data.workId,
@@ -735,7 +788,7 @@ export default function SheetWorkflow(props) {
               }}
             >
               <div className="flex Bold">{item.text}</div>
-              {item.id === selecteArchived.id && <Icon icon="done" className="Font18 ThemeColor3" />}
+              {item.id === selecteArchived.id && <Icon icon="done" className="Font18 colorPrimary" />}
             </div>
           ),
         };
@@ -755,27 +808,13 @@ export default function SheetWorkflow(props) {
   };
 
   useEffect(() => {
-    if (isMobile) {
-      import('src/pages/Mobile/ProcessRecord').then(component => {
-        setProcessRecord(component);
-      });
-    } else {
-      import('src/pages/workflow/components/ExecDialog').then(component => {
-        setProcessRecord(component);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
     handleCloseDrawer();
     getList();
     getArchivedList();
   }, [recordId]);
-
   useEffect(() => {
     selecteArchived.sourceId && getList();
   }, [selecteArchived.sourceId]);
-
   useEffect(() => {
     if (refreshBtnNeedLoading) {
       handleCloseDrawer();
@@ -784,32 +823,27 @@ export default function SheetWorkflow(props) {
     }
   }, [refreshBtnNeedLoading]);
 
-  useEffect(() => {
-    window.addEventListener('popstate', onQueryChange);
-    return () => {
-      window.removeEventListener('popstate', onQueryChange);
-    };
-  }, []);
-
-  const onQueryChange = () => {
-    handleReplaceState('page', 'processRecord', () => setViewWorkflow(null));
-  };
-
   const renderStepItem = () => {
     const { processId, cardData = {}, processName, works = [], status } = currentWorkflow;
     const { id, workId, completed, parentCurrents = [] } = cardData;
     const allowTaskRevokeWorks = works.filter((_, index) => index).filter(n => n.allowTaskRevokeBackNodeId && isCharge);
+
     const currentWork = (function () {
       if (allowTaskRevokeBackNodeId) {
-        return _.find(works, { allowTaskRevokeBackNodeId });
+        return _.find(works, {
+          allowTaskRevokeBackNodeId,
+        });
       }
 
       if (parentCurrents.length) {
-        return _.find(parentCurrents, { workId });
+        return _.find(parentCurrents, {
+          workId,
+        });
       }
 
       return currentWorkflow.currentWork;
     })();
+
     const stepsCurrents = (function () {
       if (parentCurrents.length) {
         return parentCurrents.concat(allowTaskRevokeWorks);
@@ -817,6 +851,7 @@ export default function SheetWorkflow(props) {
 
       return allowTaskRevokeWorks.length ? allowTaskRevokeWorks.concat(currentWorkflow.currentWork || []) : [];
     })();
+
     return (
       <div className="h100 flexColumn bgSecondary">
         <StepHeader
@@ -831,7 +866,12 @@ export default function SheetWorkflow(props) {
           hideStep={props.hideStep}
         />
         {!!parentCurrents.length && (
-          <div className="branchNode" style={{ margin: isMobile ? '3px 0px 6px 35px' : '3px 0px 6px 55px' }}>
+          <div
+            className="branchNode"
+            style={{
+              margin: isMobile ? '3px 0px 6px 35px' : '3px 0px 6px 55px',
+            }}
+          >
             {_l('%0个节点办理中...', parentCurrents.length)}
           </div>
         )}
@@ -844,7 +884,10 @@ export default function SheetWorkflow(props) {
             currents={stepsCurrents.map(n => n.workId)}
             onChangeCurrentWork={workId => {
               if (allowTaskRevokeWorks.length) {
-                const work = _.find(works, { workId }) || {};
+                const work =
+                  _.find(works, {
+                    workId,
+                  }) || {};
 
                 if (work.allowTaskRevokeBackNodeId && work.workId === workId && isCharge) {
                   setAllowTaskRevokeBackNodeId(work.allowTaskRevokeBackNodeId);
@@ -855,14 +898,11 @@ export default function SheetWorkflow(props) {
                 return;
               }
 
-              const newCardData = _.find(parentCurrents, { workId });
-              setCurrentWorkflow({
-                ...currentWorkflow,
-                cardData: {
-                  ...newCardData,
-                  workId,
-                },
+              const newCardData = _.find(parentCurrents, {
+                workId,
               });
+
+              setCurrentWorkflow({ ...currentWorkflow, cardData: { ...newCardData, workId } });
             }}
             works={works}
             status={status}
@@ -913,6 +953,7 @@ export default function SheetWorkflow(props) {
         className="icon_Hover_21 flexRow alignItemsCenter Hand"
         onClick={e => {
           e.stopPropagation();
+
           if (isMobile) {
             handleMobileMoreAction();
           }
@@ -943,23 +984,45 @@ export default function SheetWorkflow(props) {
             popupAlign={{
               points: ['tr', 'br'],
               offset: [0, 10],
-              overflow: { adjustX: true, adjustY: true },
+              overflow: {
+                adjustX: true,
+                adjustY: true,
+              },
             }}
             popup={
-              <Menu style={{ left: 'initial', right: 0, width: 180 }} onClick={e => e.stopPropagation()}>
+              <Menu
+                style={{
+                  left: 'initial',
+                  right: 0,
+                  width: 180,
+                }}
+                onClick={e => e.stopPropagation()}
+              >
                 {archivedList.map((item, index) => (
                   <MenuItem
                     key={index}
-                    className={cx('Relative', { selected: item.id === selecteArchived.id })}
+                    className={cx('Relative', {
+                      selected: item.id === selecteArchived.id,
+                    })}
                     onClick={() => {
                       setSelecteArchived({ ...item, sourceId: `clickTrigger-${index}` });
                       setFilterVisible(false);
                     }}
-                    style={{ lineHeight: '40px', height: 40 }}
+                    style={{
+                      lineHeight: '40px',
+                      height: 40,
+                    }}
                   >
                     {item.text}
                     {item.id === selecteArchived.id && (
-                      <Icon icon="done" className="Font14 ThemeColor3" style={{ right: 10, left: 'auto' }} />
+                      <Icon
+                        icon="done"
+                        className="Font14 colorPrimary"
+                        style={{
+                          right: 10,
+                          left: 'auto',
+                        }}
+                      />
                     )}
                   </MenuItem>
                 ))}
@@ -974,7 +1037,6 @@ export default function SheetWorkflow(props) {
   };
 
   const Wrap = isMobile ? Fragment : ScrollView;
-
   return (
     <div className="h100 w100 sheetWorkflowWrapper Relative">
       {renderFilter()}
@@ -1022,38 +1084,42 @@ export default function SheetWorkflow(props) {
         getContainer={isMobile ? () => document.body : false}
         mask={isMobile}
         push={false}
-        style={{ position: 'absolute' }}
+        style={{
+          position: 'absolute',
+        }}
         onClose={handleCloseDrawer}
         visible={workflowVisible}
       >
         {renderStepItem()}
       </Drawer>
       {viewWorkflow &&
-        ProcessRecord &&
         (isMobile ? (
-          <ProcessRecord.default
-            isModal={true}
-            visible={true}
-            instanceId={viewWorkflow.id}
-            workId={viewWorkflow.workId}
-            onClose={() => {
-              history.back();
-              setViewWorkflow(null);
-            }}
-          />
+          <Suspense fallback={null}>
+            <LoadableMobileProcessRecord
+              isModal={true}
+              visible={true}
+              instanceId={viewWorkflow.id}
+              workId={viewWorkflow.workId}
+              onClose={() => {
+                setViewWorkflow(null);
+              }}
+            />
+          </Suspense>
         ) : (
-          <ProcessRecord.default
-            id={viewWorkflow.id}
-            workId={viewWorkflow.workId}
-            onClose={() => {
-              setViewWorkflow(null);
-              reloadRecord();
-            }}
-            onSave={() => {
-              handleCloseDrawer();
-              getList();
-            }}
-          />
+          <Suspense fallback={null}>
+            <LoadableExecDialog
+              id={viewWorkflow.id}
+              workId={viewWorkflow.workId}
+              onClose={() => {
+                setViewWorkflow(null);
+                reloadRecord();
+              }}
+              onSave={() => {
+                handleCloseDrawer();
+                getList();
+              }}
+            />
+          </Suspense>
         ))}
       {actionVisible &&
         (isMobile ? (

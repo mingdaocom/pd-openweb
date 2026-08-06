@@ -9,10 +9,10 @@ import ChatController from 'src/api/chat';
 import DiscussionController from 'src/api/discussion';
 import KcController from 'src/api/kc';
 import WorksheetController from 'src/api/worksheet';
-import createCalendar from 'src/components/createCalendar/createCalendar';
+import createCalendar from 'src/components/createCalendar/load';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import createFeed from 'src/pages/feed/components/createFeed';
+import createFeed from 'src/pages/feed/components/createFeed/load';
 import { getClassNameByExt } from 'src/utils/common';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -923,11 +923,11 @@ ShareAttachment.prototype = {
         $sendToOther.addClass('inited').removeClass('hide');
         $sendToContent.empty();
         SA.$dialog.find('.selectTargetCon').addClass('hide');
-        $sendToContent.html('<span class="kcPath ThemeColor3">' + _l('请选择文件夹') + '</span>');
+        $sendToContent.html('<span class="kcPath colorPrimary">' + _l('请选择文件夹') + '</span>');
         $sendToContent.on('click', '.kcPath', function () {
           SA.selectKcPath(function (result, path) {
             SA.kcPath = result;
-            $sendToContent.html('<span class="kcPath ThemeColor3">' + path + '</span>');
+            $sendToContent.html('<span class="kcPath colorPrimary">' + path + '</span>');
           });
         });
         $sendToContent.find('.kcPath').trigger('click');

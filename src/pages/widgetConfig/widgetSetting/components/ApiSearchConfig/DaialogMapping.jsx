@@ -10,6 +10,54 @@ import { dealRequestControls } from '../../../util/data';
 import { getMapControls } from '../DynamicDefaultValue/util';
 import './DialogMapping.less';
 
+const renderHeader = showSupport => {
+  return (
+    <div className={cx('mappingHeader mBottom20', { mTop44: !showSupport })}>
+      <span className="Font14 Bold">
+        {showSupport ? _l('将所选的数据写入表单字段') : _l('将其他返回数据写入表单字段')}
+      </span>
+      {showSupport && (
+        <Support
+          className="textTertiary"
+          type={2}
+          text={_l('映射规则')}
+          href="https://help.mingdao.com/worksheet/control-api-query"
+        />
+      )}
+    </div>
+  );
+};
+const getOptions = item => {
+  if (item.type === 10000008) {
+    return { iconType: 34, placeholder: _l('请选择子表') };
+  }
+
+  if (item.type === 10000007) {
+    return { iconType: 2, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('选择文本，或子表字段') };
+  }
+
+  return { iconType: item.type, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('请选择') };
+};
+const findCurrentValue = (item = {}, i = {}) => {
+  if (item.dataSource) return i.subid;
+  if (item.type === 10000007) return i.subid || i.cid;
+  if (!item.dataSource && !i.subid) return i.cid;
+  return undefined;
+};
+const renderNoData = () => {
+  return (
+    <div className="mappingNoDataBox">
+      <Support
+        className="textTertiary Right"
+        type={2}
+        text={_l('映射规则')}
+        href="https://help.mingdao.com/worksheet/control-api-query"
+      />
+      <div className="noDataContent">{_l('没有返回参数, 请检查模版配置')}</div>
+    </div>
+  );
+};
+
 export default function DialogMapping(props) {
   const {
     data = {},
@@ -36,24 +84,6 @@ export default function DialogMapping(props) {
   const selectData = originResponseControls
     .filter(i => _.includes(selectOptions, i.controlId))
     .map(item => ({ ...item, dataSource: '' }));
-
-  const renderHeader = showSupport => {
-    return (
-      <div className={cx('mappingHeader mBottom20', { mTop44: !showSupport })}>
-        <span className="Font14 Bold">
-          {showSupport ? _l('将所选的数据写入表单字段') : _l('将其他返回数据写入表单字段')}
-        </span>
-        {showSupport && (
-          <Support
-            className="textTertiary"
-            type={2}
-            text={_l('映射规则')}
-            href="https://help.mingdao.com/worksheet/control-api-query"
-          />
-        )}
-      </div>
-    );
-  };
 
   const renderForm = (list = []) => {
     if (!list.length) return null;
@@ -83,18 +113,6 @@ export default function DialogMapping(props) {
         })}
       </Fragment>
     );
-  };
-
-  const getOptions = item => {
-    if (item.type === 10000008) {
-      return { iconType: 34, placeholder: _l('请选择子表') };
-    }
-
-    if (item.type === 10000007) {
-      return { iconType: 2, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('选择文本，或子表字段') };
-    }
-
-    return { iconType: item.type, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('请选择') };
   };
 
   const getDropData = (item = {}, showValue) => {
@@ -204,13 +222,6 @@ export default function DialogMapping(props) {
     return newItem.subid || _.isUndefined(newItem.subid) ? i.pid === newItem.pid : !i.subid;
   };
 
-  const findCurrentValue = (item = {}, i = {}) => {
-    if (item.dataSource) return i.subid;
-    if (item.type === 10000007) return i.subid || i.cid;
-    if (!item.dataSource && !i.subid) return i.cid;
-    return undefined;
-  };
-
   const renderItem = item => {
     const { iconType, placeholder } = getOptions(item);
     // 单条映射的配置
@@ -246,7 +257,7 @@ export default function DialogMapping(props) {
         </div>
 
         <div className="controlSeparate">
-          <i className={cx('icon-backspace Font18', showValue ? 'ThemeColor3' : 'textDisabled')} />
+          <i className={cx('icon-backspace Font18', showValue ? 'colorPrimary' : 'textDisabled')} />
         </div>
 
         <div className="mappingControl">
@@ -280,20 +291,6 @@ export default function DialogMapping(props) {
             }}
           />
         </div>
-      </div>
-    );
-  };
-
-  const renderNoData = () => {
-    return (
-      <div className="mappingNoDataBox">
-        <Support
-          className="textTertiary Right"
-          type={2}
-          text={_l('映射规则')}
-          href="https://help.mingdao.com/worksheet/control-api-query"
-        />
-        <div className="noDataContent">{_l('没有返回参数, 请检查模版配置')}</div>
       </div>
     );
   };

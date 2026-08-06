@@ -19,7 +19,7 @@ const Wrap = styled.div`
   }
 
   .roleDialogDangerTitle {
-    color: @dangerColor;
+    color: var(--color-error);
   }
 `;
 
@@ -98,7 +98,7 @@ export default class extends React.PureComponent {
     const { roleList, onOk } = this.props;
 
     if (deleteType === DELETE_TYPES.MOVE && !selectedRole) {
-      alert('请选择要移动到的角色');
+      alert(_l('请选择要移动到的角色'));
       return;
     }
 

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { getTitleStyle } from 'src/utils/controlCommon';
 
 const Con = styled.div`
   display: flex;
@@ -240,7 +240,7 @@ export default function SectionTableNav(props) {
               <i
                 className={`icon icon-${
                   isSplit ? 'call_to_action_off' : 'call_to_action_on'
-                } Font20 textTertiary Hand ThemeHoverColor3`}
+                } Font20 textTertiary Hand hoverColorPrimary`}
                 onClick={() => setSplit(!isSplit)}
               />
             </span>

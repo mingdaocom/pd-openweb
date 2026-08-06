@@ -236,7 +236,7 @@ class DateTBody extends Component {
             className={cls}
           >
             {dateHtml}
-            {isInRangeClass ? <span className={`${prefixCls}-cell-bg ThemeBGColor6`} /> : null}
+            {isInRangeClass ? <span className={`${prefixCls}-cell-bg bgColorPrimaryTransparent`} /> : null}
           </div>,
         );
 

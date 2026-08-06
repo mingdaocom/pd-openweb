@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { pathCompletion } from 'src/utils/common';
 import { CreateNode, NodeOperate } from '../components';
 
 export default class SubProcess extends Component {
@@ -40,7 +41,7 @@ export default class SubProcess extends Component {
         </div>
         {item.subProcessId && (
           <i
-            className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2"
+            className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark"
             onMouseDown={this.openSubProcess}
           />
         )}
@@ -53,7 +54,7 @@ export default class SubProcess extends Component {
     const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/workflowedit/${item.subProcessId}`);
+    window.open(pathCompletion(`/workflowedit/${item.subProcessId}`));
   };
 
   render() {

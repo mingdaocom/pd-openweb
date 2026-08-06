@@ -241,7 +241,7 @@ function ExplanList(props) {
                             alert(_l('复制成功'));
                           }}
                         >
-                          <span className="icon-content-copy mLeft8 textDisabled hoverTextPrimaryLight Hand"></span>
+                          <span className="icon-content-copy mLeft8 textDisabled hoverColorPrimaryLight Hand"></span>
                         </span>
                       </Tooltip>
                     </div>
@@ -362,7 +362,7 @@ function ExplanList(props) {
                     }
                     popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
                   >
-                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverTextPrimaryLight Hand" />
+                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverColorPrimaryLight Hand" />
                   </Trigger>
                 )}
               </Fragment>

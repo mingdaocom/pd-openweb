@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import kcCtrl from 'src/api/kc';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize, pathCompletion } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 
 export const QiniuUpload = {
@@ -271,7 +271,7 @@ export const openMdDialog = () => {
         </div>
         <div className="mTop20 mBottom20 TxtCenter">
           <a
-            href="/personal?type=enterprise"
+            href={pathCompletion('/personal?type=enterprise')}
             className="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small"
           >
             {_l('升级至专业版')}

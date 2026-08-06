@@ -91,9 +91,13 @@ const Con = styled.span`
       z-index: 2;
     }
   }
-  &.showCheckbox:not(.highlightFromProps) {
-    .rowIndex {
-      background: inherit;
+  /* 批量编辑态行头只展示 checkbox，hover 时不再叠加显示更多操作 icon */
+  &.showCheckbox.hover {
+    .delete,
+    .open,
+    .operateBtn,
+    .moreOperate {
+      display: none;
     }
   }
   &.disabled:not(.showNumber) {
@@ -215,7 +219,7 @@ export default function RowHead(props) {
         />
       )}
       {!disabled && isSavedData && allowAdd && !allowCancel && allowCopy && (
-        <i className="operateBtn icon icon-copy hand ThemeHoverColor3" onClick={onCopy}></i>
+        <i className="operateBtn icon icon-copy hand hoverColorPrimary" onClick={onCopy}></i>
       )}
       {!disabled &&
         isSavedData &&
@@ -228,7 +232,7 @@ export default function RowHead(props) {
         ))}
       {allowOpenRecord && (
         <span className="open" onClick={() => onOpen(rowIndex)}>
-          <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>
+          <i className="icon icon-worksheet_enlarge hoverColorPrimary"></i>
         </span>
       )}
     </Con>

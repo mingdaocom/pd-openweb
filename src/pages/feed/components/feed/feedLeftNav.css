@@ -34,7 +34,7 @@
   color: var(--color-warning) !important;
   font-size: 16px;
 }
-.feedLeftNav .feedFixedList .Item.ThemeBGColor8 .Item-content:hover {
+.feedLeftNav .feedFixedList .Item.bgColorPrimaryTransparent .Item-content:hover {
   background-color: initial !important;
 }
 .feedLeftNav .avatarList .icon-official-group {

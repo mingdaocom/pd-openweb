@@ -65,6 +65,15 @@ const getGroupCount = (list, subModule) => {
   return _.uniqBy(totalList, subModule === SUB_MODULE_TYPES.WORKFLOW ? 'parentId' : 'id').length;
 };
 
+const renderEmptyReference = () => {
+  return (
+    <div className="emptyContent">
+      <img width={160} height={160} src={emptyBg} />
+      <div className="textTertiary Font16">{_l('暂未被引用')}</div>
+    </div>
+  );
+};
+
 function WorksheetReferenceDialog(props) {
   const { data = {}, globalSheetInfo = {}, type = 1 } = props;
   const { worksheetId, appId, name: worksheetName } = globalSheetInfo;
@@ -214,15 +223,6 @@ function WorksheetReferenceDialog(props) {
     });
   };
 
-  const renderEmptyReference = () => {
-    return (
-      <div className="emptyContent">
-        <img width={160} height={160} src={emptyBg} />
-        <div className="textTertiary Font16">{_l('暂未被引用')}</div>
-      </div>
-    );
-  };
-
   const renderContent = () => {
     if (loading) {
       return (
@@ -325,7 +325,7 @@ function WorksheetReferenceDialog(props) {
             {_l(
               '未包含功能上线前配置的工作流中所产生的引用关系。首次使用时需要对全组织工作流进行初始化扫描，以获取历史引用关系。',
             )}
-            <span className="pointer ThemeColor3 ThemeHoverColor3" onClick={() => handleConfirm()}>
+            <span className="pointer colorPrimary hoverColorPrimary" onClick={() => handleConfirm()}>
               {_l('立即初始化')}
             </span>
           </div>
@@ -352,7 +352,7 @@ function WorksheetReferenceDialog(props) {
               <div className="flex TxtRight">
                 <Tooltip title={_l('重新扫描')} placement="bottom">
                   <span
-                    className="textTertiary ThemeHoverColor2 pointer icon-workflow_cycle Font18"
+                    className="textTertiary hoverColorPrimaryDark pointer icon-workflow_cycle Font18"
                     onClick={() => {
                       if (loading) {
                         alert(_l('正在扫描，请勿重复操作'), 3);
@@ -428,7 +428,7 @@ export default function WorksheetReference(props) {
   return (
     <Fragment>
       <span
-        className={cx('Font13 ThemeColor3 ThemeHoverColor2 pointer Normal', props.className)}
+        className={cx('Font13 colorPrimary hoverColorPrimaryDark pointer Normal', props.className)}
         onClick={e => {
           e.stopPropagation();
           renderDialog(props);

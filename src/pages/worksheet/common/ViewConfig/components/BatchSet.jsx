@@ -82,6 +82,13 @@ const getListstyle = (a, b) => {
   return { styles: (safeParse(time1 > time2 ? a : b) || {}).styles, applyToAll: time2 > time1 };
 };
 
+const canSetDirection = o => {
+  return (
+    WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(o.type === 30 ? o.sourceControlType : o.type) ||
+    ['ctime', 'utime'].includes(o.controlId)
+  );
+};
+
 export default function BatchSetDialog(props) {
   const {
     columns,
@@ -157,20 +164,13 @@ export default function BatchSetDialog(props) {
     });
   };
 
-  const canSetDirection = o => {
-    return (
-      WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(o.type === 30 ? o.sourceControlType : o.type) ||
-      ['ctime', 'utime'].includes(o.controlId)
-    );
-  };
-
   const renderList = type => {
     const list = type === 'Show' ? showList : hideList;
     return (
       <React.Fragment>
         {type !== 'Show' && (
           <div
-            className={cx('Bold Hand ThemeHoverColor3', { mTop20: type !== 'Show' })}
+            className={cx('Bold Hand hoverColorPrimary', { mTop20: type !== 'Show' })}
             onClick={() =>
               setState({
                 state: {

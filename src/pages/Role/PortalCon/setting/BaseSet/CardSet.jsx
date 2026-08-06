@@ -41,7 +41,7 @@ export default function (props) {
         optionLabelProp="label"
         onChange={value => {
           if (value.length > 6) {
-            alert('最多支持显示6个字段');
+            alert(_l('最多支持显示6个字段'));
             return;
           }
 
@@ -66,7 +66,7 @@ export default function (props) {
         optionLabelProp="label"
         onChange={value => {
           if (value.length > 6) {
-            alert('最多支持显示6个字段');
+            alert(_l('最多支持显示6个字段'));
             return;
           }
 

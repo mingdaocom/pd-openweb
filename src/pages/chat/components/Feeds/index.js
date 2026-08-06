@@ -117,10 +117,10 @@ export class FeesItem extends Component {
               <i className={item.icon} />
             </div>
             <div className="file-info">
-              <div className="file-info-name ThemeColor3">{item.originalFilename}</div>
+              <div className="file-info-name colorPrimary">{item.originalFilename}</div>
             </div>
             <div className="file-info-action">
-              <a href={item.downloadUrl} className="download ThemeColor3 icon-download" target="_blank" />
+              <a href={item.downloadUrl} className="download colorPrimary icon-download" target="_blank" />
             </div>
           </div>
         ))}
@@ -202,7 +202,7 @@ export default class Feeds extends Component {
           {postList.length ? (
             <span
               onClick={this.props.onSetPanelVisible.bind(this, true)}
-              className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
+              className="ChatPanel-sessionInfo-hander-entry colorPrimary"
             >
               {_l('所有动态')}
               <i className="icon-arrow-right-border" />

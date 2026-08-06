@@ -15,7 +15,8 @@ import silver_crown from 'statistics/assets/topChart/silver_crown.png';
 import silver_medal from 'statistics/assets/topChart/silver_medal.png';
 import there from 'statistics/assets/topChart/there.png';
 import two from 'statistics/assets/topChart/two.png';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 
 const formatTopChartData = map => {
@@ -43,6 +44,23 @@ const formatTopChartData = map => {
   }
 
   return result;
+};
+
+const getProgressControlId = (sorts, yaxisList) => {
+  const sortId = _.findKey(_.get(sorts, 0));
+
+  return _.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId');
+};
+
+const getProgressWidth = (value, maxValue) => {
+  value = Number(value);
+  maxValue = Number(maxValue);
+
+  if (!Number.isFinite(value) || !Number.isFinite(maxValue) || maxValue <= 0) {
+    return 0;
+  }
+
+  return Math.min(Math.max((value / maxValue) * 100, 0), 100);
 };
 
 const TopChartContent = styled.div`
@@ -139,9 +157,12 @@ export default class extends Component {
   componentDidMount() {
     this.setCount(this.props);
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.reportData.yaxisList, this.props.reportData.yaxisList)) {
-      this.setCount(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(this.props.reportData.yaxisList, prevProps.reportData.yaxisList)) {
+        this.setCount(this.props);
+      }
     }
   }
   setCount(props) {
@@ -300,10 +321,9 @@ export default class extends Component {
       </div>
     );
   }
-  renderItem(data, index, maxValue) {
+  renderItem(data, index, progressControlId, maxValue) {
     const { projectId, reportData, isViewOriginalData, isLinkageData, isThumbnail, sourceType } = this.props;
-    const { style = {}, yaxisList, displaySetup, sorts, xaxes } = reportData;
-    const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
+    const { style = {}, yaxisList, displaySetup, xaxes } = reportData;
     const { valueProgressVisible } = style;
     const isUserHead = xaxes.displayMode === 'fieldStyle' && data.name;
 
@@ -368,7 +388,7 @@ export default class extends Component {
             <div
               className="progress"
               style={{
-                width: `${(data[_.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId')] / maxValue) * 100}%`,
+                width: `${getProgressWidth(data[progressControlId], maxValue)}%`,
                 backgroundColor: this.getBgColor(data),
               }}
             />
@@ -392,15 +412,17 @@ export default class extends Component {
     const { customPageConfig = {}, reportData, isThumbnail, isMobile } = this.props;
     const { pageStyleType = 'light' } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
-    const { map, yaxisList } = reportData;
+    const { map, yaxisList, sorts } = reportData;
     const data = formatTopChartData(map);
-    const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
+    const progressControlId = getProgressControlId(sorts, yaxisList);
+    const values = data.map(data => Number(data[progressControlId])).filter(value => Number.isFinite(value));
+    const maxValue = _.max(values) || 0;
     return (
       <TopChartContent className={cx('h100 topChart', { isMobile })} isDark={isDark} yaxisListLength={yaxisList.length}>
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader(isDark)}
-            {data.map((data, index) => this.renderItem(data, index, maxValue || 0, isDark))}
+            {data.map((data, index) => this.renderItem(data, index, progressControlId, maxValue))}
           </Fragment>
         </ScrollView>
       </TopChartContent>

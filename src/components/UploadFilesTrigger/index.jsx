@@ -3,15 +3,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import Button from 'ming-ui/components/Button';
+import ClickAway from 'ming-ui/components/ClickAway';
 import Icon from 'ming-ui/components/Icon';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import UploadFiles from 'src/components/UploadFiles';
 import { generateRandomPassword } from 'src/utils/common';
 import './index.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const builtinPlacements = {
   topLeft: {
     points: ['bl', 'tl'],
@@ -42,9 +40,12 @@ export default class UploadFilesTrigger extends Component {
       this.setTriggerPanelVisible(true);
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if (_.isBoolean(nextProps.popupVisible) && nextProps.popupVisible !== this.props.popupVisible) {
-      this.setTriggerPanelVisible(nextProps.popupVisible);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (_.isBoolean(this.props.popupVisible) && this.props.popupVisible !== prevProps.popupVisible) {
+        this.setTriggerPanelVisible(this.props.popupVisible);
+      }
     }
   }
   show = e => {
@@ -123,7 +124,7 @@ export default class UploadFilesTrigger extends Component {
         </div>
         <Icon
           icon="close"
-          className="textSecondary pointer Font18 ThemeHoverColor3"
+          className="textSecondary pointer Font18 hoverColorPrimary"
           onClick={this.setTriggerPanelVisible.bind(this, false)}
         />
       </div>
@@ -150,7 +151,6 @@ export default class UploadFilesTrigger extends Component {
     const isData = !!(temporaryData.length + kcAttachmentData.length);
     return (
       <ClickAwayable
-        component="div"
         specialFilter={specialFilter}
         onClickAwayExceptions={[
           '.folderSelectDialog',

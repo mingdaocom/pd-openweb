@@ -82,7 +82,7 @@ const MyUpdater = {
 
         if (targetDivID == '#Attachment_updater') {
           $('#hidden_UpdaterType').val('9');
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           if (
             $('#textarea_Updater') &&
             ($('#textarea_Updater').val().trim() == '' ||
@@ -92,7 +92,7 @@ const MyUpdater = {
           }
         } else if (targetDivID == '#Link_updater') {
           $('#hidden_UpdaterType').val('1');
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           if (
             $('#textarea_Updater') &&
             ($('#textarea_Updater').val().trim() == '' ||
@@ -113,7 +113,7 @@ const MyUpdater = {
         } else if (targetDivID == '#Vote_updater') {
           $('#voteLastHour').val(new Date().getHours());
           $('#hidden_UpdaterType').val('7');
-          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
           $('#Vote_updaterOperator').show();
           if (
             $('#textarea_Updater') &&
@@ -301,9 +301,9 @@ const MyUpdater = {
 
     $('#hidden_UpdaterType').val('0');
     $("div.myUpdateItem_Content a[targetdiv='#Attachment_updater']")
-      .removeClass('ThemeColor3')
+      .removeClass('colorPrimary')
       .addClass('textPlaceholder');
-    $('div.myUpdateItem_Content a[targetdiv]').removeClass('ThemeColor3').addClass('textPlaceholder');
+    $('div.myUpdateItem_Content a[targetdiv]').removeClass('colorPrimary').addClass('textPlaceholder');
     $('#Attachment_updater,#Link_updater,#Vote_updater,#Storage_updater').hide();
 
     $('#Attachment_updater')
@@ -613,7 +613,7 @@ const MyUpdater = {
       },
       children: (
         <div className="pTop20 pBottom20">
-          <div className="ThemeColor3 Font16 TxtCenter">{_l('是否将此动态作为问答？')}</div>
+          <div className="colorPrimary Font16 TxtCenter">{_l('是否将此动态作为问答？')}</div>
         </div>
       ),
     });

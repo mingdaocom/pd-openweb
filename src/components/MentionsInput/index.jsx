@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -19,24 +19,17 @@ import './index.less';
 const categoryLetterArr = ['#', '＃'];
 const atLetterArr = ['@', '＠'];
 
-let mentionsCollection = [];
-let isAt = false;
-let atPos = 0;
-let currentType = null;
-let currentDataQuery = null;
-let promiseObj = null;
-
-let externalResults = {};
-let externalActiveId = '';
-
-const mentionItemHighlight = _.template('<strong><span>@<%= value %></span></strong>');
+const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const highlightTerm = (value, term) => {
   if (!term && !term?.length) {
     return value;
   }
 
-  return value.replace(new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + term + ')(?![^<>]*>)(?![^&;]+;)', 'gi'), '<b>$1</b>');
+  return value.replace(
+    new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + escapeRegExp(term) + ')(?![^<>]*>)(?![^&;]+;)', 'gi'),
+    '<b>$1</b>',
+  );
 };
 
 const addressBookSelectConfig = {
@@ -60,22 +53,78 @@ const MentionsInput = props => {
     getPopupContainer,
     getPopupMaxHeight,
     defaultMaxHeight,
+    getAtData,
     initCallback,
   } = props;
   const [triggerPopupVisible, setTriggerPopupVisible] = useState(false);
   const [results, setResults] = useState({});
-  const [pageIndex, setPageIndex] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [isMore, setIsMore] = useState(true);
   const [activeId, setActiveId] = useState('');
+  const popupVisible = useRef(false);
+  const popupRef = useRef(null);
+  const chatPage = useRef({
+    query: '',
+    pageIndex: 1,
+    isMore: true,
+    accounts: [],
+  });
   const mentionItemSyntax =
     sourceType === SOURCE_TYPE.POST ? _.template('<%= type %>:<%= id %>') : _.template('[aid]<%= id %>[/aid]');
   const mentionAllSyntax =
     sourceType === SOURCE_TYPE.POST ? _.template('<%= type %>:<%= id %>') : _.template('[all]<%= id %>[/all]');
   const rect = input.getBoundingClientRect();
-  let timerId = null;
+  const timerId = useRef(null);
+  const debouncedSearch = useRef(null);
+  const mentionState = useRef({
+    isAt: false,
+    atPos: 0,
+    currentType: null,
+    currentDataQuery: null,
+    promiseObj: null,
+    requestId: 0,
+    externalResults: {},
+    externalActiveId: '',
+    mentionsCollection: [],
+  });
+  const getMentionsCollection = () => mentionState.current.mentionsCollection || [];
+
+  const createRequestId = () => {
+    mentionState.current.requestId += 1;
+    return mentionState.current.requestId;
+  };
+
+  const isLatestRequest = requestId => mentionState.current.requestId === requestId;
+
+  const syncMentionsCollection = message => {
+    const mentionTextCounts = {};
+    const mentionsCollection = getMentionsCollection().filter(mention => {
+      const mentionText = '@' + mention.fullname;
+      const count = message.split(mentionText).length - 1;
+      const usedCount = mentionTextCounts[mentionText] || 0;
+
+      if (usedCount < count) {
+        mentionTextCounts[mentionText] = usedCount + 1;
+        return true;
+      }
+
+      return false;
+    });
+
+    mentionState.current.mentionsCollection = mentionsCollection;
+    return mentionsCollection;
+  };
+
+  const updateTriggerPopupVisible = visible => {
+    if (!visible) {
+      createRequestId();
+    }
+
+    popupVisible.current = visible;
+    setTriggerPopupVisible(visible);
+  };
 
   useEffect(() => {
+    debouncedSearch.current = _.debounce(query => doSearch(query), 200);
     input.addEventListener('focus', handleValueChange);
     input.addEventListener('keyup', handleValueChange);
     input.addEventListener('keydown', handleKeydown);
@@ -85,12 +134,12 @@ const MentionsInput = props => {
         return;
       }
 
-      var value = mentionsCollection.length ? input.messageText : input.value;
+      var value = getMentionsCollection().length ? input.messageText : input.value;
       callback(value);
     };
 
     input.setValue = (text, messageText, mentionsCollectionArg) => {
-      mentionsCollection = mentionsCollectionArg;
+      mentionState.current.mentionsCollection = mentionsCollectionArg || [];
       input.value = text;
       input.messageText = messageText;
       updateValues();
@@ -98,7 +147,7 @@ const MentionsInput = props => {
 
     input.reset = () => {
       input.value = '';
-      mentionsCollection = [];
+      mentionState.current.mentionsCollection = [];
       updateValues();
     };
 
@@ -117,7 +166,7 @@ const MentionsInput = props => {
       var data = {
         text: input.value,
         messageText: input.messageText,
-        mentionsCollection: mentionsCollection,
+        mentionsCollection: getMentionsCollection(),
       };
       safeLocalStorageSetItem(key, JSON.stringify(data));
     };
@@ -127,18 +176,18 @@ const MentionsInput = props => {
       var json = localStorage.getItem(key);
       var data;
       try {
-        data = json && JSON.parse(json);
+        data = json && safeParse(json);
       } catch (err) {
         console.log(err);
         data = null;
       }
 
       if (!data || !data.text) {
-        mentionsCollection = [];
+        mentionState.current.mentionsCollection = [];
         return callback(false);
       }
 
-      mentionsCollection = data.mentionsCollection;
+      mentionState.current.mentionsCollection = data.mentionsCollection || [];
       input.value = data.text;
       input.messageText = data.messageText;
 
@@ -147,11 +196,11 @@ const MentionsInput = props => {
     };
 
     input.getMentions = callback => {
-      callback && callback(mentionsCollection);
+      callback && callback(getMentionsCollection());
     };
 
     input.addMention = user => {
-      currentType = '@';
+      mentionState.current.currentType = '@';
       handleAddMention(user);
     };
 
@@ -166,17 +215,24 @@ const MentionsInput = props => {
       input.removeEventListener('keyup', handleValueChange);
       input.removeEventListener('keydown', handleKeydown);
       input.removeEventListener('blur', handleBlur);
+      clearTimeout(timerId.current);
+      debouncedSearch.current && debouncedSearch.current.cancel();
+      const { promiseObj } = mentionState.current;
+
+      if (promiseObj && promiseObj.abort) {
+        promiseObj.abort();
+      }
     };
   }, []);
 
   const handleBlur = () => {
-    timerId = setTimeout(() => {
-      setTriggerPopupVisible(false);
+    timerId.current = setTimeout(() => {
+      updateTriggerPopupVisible(false);
     }, 500);
   };
 
   const handleSelectUser = () => {
-    setTriggerPopupVisible(false);
+    updateTriggerPopupVisible(false);
     dialogSelectUser({
       showMoreInvite: false,
       overlayClosable: false,
@@ -201,13 +257,15 @@ const MentionsInput = props => {
   };
 
   const handleAddMention = mention => {
+    const state = mentionState.current;
+    const currentType = state.currentType;
     var currentMessage = input.value;
     var position = getCaretPosition(input);
 
     var startCaretPosition = 0;
-    if (isAt && atPos < position) {
+    if (state.isAt && state.atPos < position) {
       // 中文问题
-      startCaretPosition = position - currentDataQuery.length - 1;
+      startCaretPosition = position - (state.currentDataQuery || '').length - 1;
     } else {
       startCaretPosition = position - 1;
     }
@@ -220,18 +278,18 @@ const MentionsInput = props => {
       if (_.isArray(mention)) {
         const value = mention.map(item => '@' + item.fullname).join(' ');
         startEndIndex = (start + value).length + 1;
-        mentionsCollection = mentionsCollection.concat(mention);
+        state.mentionsCollection = getMentionsCollection().concat(mention);
       } else {
         startEndIndex = (start + '@' + mention.fullname).length + 1;
-        mentionsCollection.push(mention);
+        state.mentionsCollection = getMentionsCollection().concat(mention);
       }
     } else if (showCategory && categoryLetterArr.indexOf(currentType) > -1) {
       startEndIndex = (start + '#' + mention.value + '#').length + 1;
     }
 
-    isAt = false;
-    atPos = 0;
-    currentDataQuery = '';
+    state.isAt = false;
+    state.atPos = 0;
+    state.currentDataQuery = '';
 
     var updatedMessageText;
     if (atLetterArr.indexOf(currentType) > -1) {
@@ -246,7 +304,7 @@ const MentionsInput = props => {
     }
 
     if (updatedMessageText) {
-      currentType = '';
+      state.currentType = '';
       input.value = updatedMessageText;
       updateValues();
       input.focus();
@@ -254,46 +312,46 @@ const MentionsInput = props => {
       props.onSelected && props.onSelected(mention.fullname);
     }
 
-    setTriggerPopupVisible(false);
+    updateTriggerPopupVisible(false);
   };
 
   const handleScroll = event => {
     const { scrollTop, scrollHeight, clientHeight } = event.target;
 
-    if (sourceType === SOURCE_TYPE.CHAT && scrollTop + clientHeight >= scrollHeight && !loading && isMore) {
-      getUsers(currentDataQuery);
+    if (
+      sourceType === SOURCE_TYPE.CHAT &&
+      scrollTop + clientHeight >= scrollHeight &&
+      !loading &&
+      chatPage.current.isMore
+    ) {
+      getUsers(mentionState.current.currentDataQuery, [], createRequestId(), true);
     }
   };
 
   const updateValues = () => {
     var syntaxMessage = input.value;
-    var mentionText = htmlEncodeReg(syntaxMessage);
+    const mentionsCollection = syncMentionsCollection(syntaxMessage);
 
     _.each(mentionsCollection, function (mention) {
       var textSyntax = mentionItemSyntax(mention);
-      var encodedMention = _.extend({}, mention, { value: htmlEncodeReg(mention.fullname) });
-      var textHighlight = mentionItemHighlight(encodedMention);
       if (mention.id === 'atAll' || mention.id === 'isCommentAtAll') {
         // atAll 特殊处理 转化为 [all]atAll[all] 或者 user:isCommentAtAll
         textSyntax = mentionAllSyntax(mention);
       }
 
       syntaxMessage = syntaxMessage.replace('@' + mention.fullname, textSyntax);
-      mentionText = mentionText.replace(textSyntax, textHighlight);
     });
 
-    mentionText = mentionText.replace(/\n/g, '<br />');
-    mentionText = mentionText.replace(/ {2}/g, '&nbsp; ');
-
-    // elmMentionsOverlay.find('div').html(mentionText);
     input.messageText = syntaxMessage;
   };
 
   const handleValueChange = e => {
     updateValues();
 
-    if (timerId) {
-      clearTimeout(timerId);
+    const state = mentionState.current;
+
+    if (timerId.current) {
+      clearTimeout(timerId.current);
     }
 
     const target = e?.target || input;
@@ -312,24 +370,24 @@ const MentionsInput = props => {
     let startChar = currentMessage.substring(startPos - 1, startPos);
 
     if (atLetterArr.indexOf(startChar) > -1 || (showCategory && categoryLetterArr.indexOf(startChar) > -1)) {
-      atPos = startPos;
-      isAt = true;
-      currentType = startChar;
+      state.atPos = startPos;
+      state.isAt = true;
+      state.currentType = startChar;
     } else if (startChar == ' ' || startChar == '') {
-      isAt = false;
-      currentType = '';
+      state.isAt = false;
+      state.currentType = '';
     }
 
-    if (!isAt) {
+    if (!state.isAt) {
       // 解决部分数据法恶心的问题
-      var message = currentMessage.substring(atPos, startPos);
+      var message = currentMessage.substring(state.atPos, startPos);
       if (
         (message.indexOf(' ') == -1 && message.indexOf('\n') == -1) ||
         (window.isSafari && atLetterArr.includes(message.charAt(message.length - 1)))
       ) {
         // 没有空格 没有换行，重新激活搜索
-        isAt = true;
-        currentType = currentMessage.substring(atPos - 1, atPos);
+        state.isAt = true;
+        state.currentType = currentMessage.substring(state.atPos - 1, state.atPos);
       }
     }
 
@@ -337,24 +395,27 @@ const MentionsInput = props => {
       currentMessage &&
       atLetterArr.includes(currentMessage.substring(currentMessage.length, currentMessage.length - 1))
     ) {
-      currentType = '@';
-      currentDataQuery = '';
+      state.currentType = '@';
+      state.currentDataQuery = '';
+      debouncedSearch.current && debouncedSearch.current.cancel();
       _.defer(() => doSearch(''));
       return;
     }
 
-    if (isAt && atPos <= getCaretPosition(target)) {
-      currentDataQuery = currentMessage.substring(atPos, getCaretPosition(target));
-      _.debounce(() => doSearch(currentDataQuery), 200)();
+    if (state.isAt && state.atPos <= getCaretPosition(target)) {
+      state.currentDataQuery = currentMessage.substring(state.atPos, getCaretPosition(target));
+      debouncedSearch.current(state.currentDataQuery);
     } else {
-      setTriggerPopupVisible(false);
+      debouncedSearch.current && debouncedSearch.current.cancel();
+      updateTriggerPopupVisible(false);
     }
   };
 
   const handleKeydown = e => {
+    const state = mentionState.current;
     const { which } = e;
-    const { accounts = [], groups = [], categorys = [] } = externalResults;
-    const visible = !!document.querySelector('.mentionsAutocompleteList');
+    const { accounts = [], groups = [], categorys = [] } = state.externalResults;
+    const visible = popupVisible.current;
 
     if (e.ctrlKey && (e.keyCode === 13 || e.keyCode === 108)) {
       if (props.submitBtn) {
@@ -368,7 +429,7 @@ const MentionsInput = props => {
     if (!visible) return;
 
     const res = accounts.concat(groups, categorys);
-    let index = _.findIndex(res, { id: externalActiveId });
+    let index = _.findIndex(res, { id: state.externalActiveId });
 
     if (which === 38) {
       e.stopPropagation();
@@ -376,7 +437,7 @@ const MentionsInput = props => {
       if (index === 0) return;
       const newIndex = index ? index - 1 : res.length - 1;
       const id = _.get(res[newIndex], 'id') || 0;
-      externalActiveId = id;
+      state.externalActiveId = id;
       setActiveId(id);
       setTimeout(() => adjustViewport('up'), 0);
     }
@@ -387,7 +448,7 @@ const MentionsInput = props => {
       if (index === res.length - 1) return;
       const newIndex = index + 1;
       const id = _.get(res[newIndex], 'id') || 0;
-      externalActiveId = id;
+      state.externalActiveId = id;
       setActiveId(id);
       setTimeout(() => adjustViewport('down'), 0);
     }
@@ -395,7 +456,7 @@ const MentionsInput = props => {
     if (which === 13) {
       e.stopPropagation();
       e.preventDefault();
-      if (externalActiveId === 'addressBookSelect' && sourceType !== SOURCE_TYPE.CHAT) {
+      if (state.externalActiveId === 'addressBookSelect' && sourceType !== SOURCE_TYPE.CHAT) {
         handleSelectUser();
         return;
       }
@@ -405,7 +466,7 @@ const MentionsInput = props => {
   };
 
   const adjustViewport = direction => {
-    const wrapEl = document.querySelector('.mentionsAutocompleteList');
+    const wrapEl = popupRef.current;
     const activeEl = wrapEl ? wrapEl.querySelector('.mentionItem.active') : null;
 
     if (activeEl) {
@@ -423,11 +484,12 @@ const MentionsInput = props => {
   };
 
   const doSearch = query => {
-    if (atLetterArr.indexOf(currentType) > -1) {
-      // !query 使用 sessionStorage  atData
+    const state = mentionState.current;
+    const requestId = createRequestId();
+
+    if (atLetterArr.indexOf(state.currentType) > -1) {
       if (props.forReacordDiscussion) {
-        let atData = sessionStorage.getItem('atData') || '[]';
-        let recordAtdatas = JSON.parse(atData) || [];
+        let recordAtdatas = (_.isFunction(getAtData) ? getAtData() : props.atData) || [];
         recordAtdatas = recordAtdatas.map(o => {
           return {
             ...o,
@@ -435,13 +497,19 @@ const MentionsInput = props => {
             isAtData: true,
           };
         });
-        getUsers(query, recordAtdatas);
+        getUsers(query, recordAtdatas, requestId);
       } else {
-        getUsers(query);
+        getUsers(query, [], requestId);
       }
-    } else if (showCategory && categoryLetterArr.indexOf(currentType) > -1) {
-      promiseObj = categoryApi.autoCompleteCategory({ keywords: query });
-      promiseObj.then(function (result) {
+    } else if (showCategory && categoryLetterArr.indexOf(state.currentType) > -1) {
+      if (state.promiseObj && state.promiseObj.abort) {
+        state.promiseObj.abort();
+      }
+
+      state.promiseObj = categoryApi.autoCompleteCategory({ keywords: query });
+      state.promiseObj.then(function (result) {
+        if (!isLatestRequest(requestId)) return;
+
         populateDropdown(query, {
           categorys: result.map(item => {
             return {
@@ -451,22 +519,26 @@ const MentionsInput = props => {
             };
           }),
         });
-        setTriggerPopupVisible(true);
+        updateTriggerPopupVisible(true);
       });
     }
   };
 
-  const getUsers = async (query, recordAtdatas = []) => {
-    if (promiseObj && promiseObj.abort) {
-      promiseObj.abort();
+  const getUsers = async (query, recordAtdatas = [], requestId = createRequestId(), isLoadMore = false) => {
+    const state = mentionState.current;
+
+    if (state.promiseObj && state.promiseObj.abort) {
+      state.promiseObj.abort();
     }
 
     // chat 群组成员
     if (sourceType === SOURCE_TYPE.CHAT) {
       const { chatParas } = props;
       const pageSize = 15;
+      const pageQuery = query || '';
+      const pageIndex = isLoadMore && chatPage.current.query === pageQuery ? chatPage.current.pageIndex : 1;
       setLoading(true);
-      promiseObj = groupApi
+      state.promiseObj = groupApi
         .getGroupUsers({
           pageSize,
           pageIndex,
@@ -474,8 +546,10 @@ const MentionsInput = props => {
           keywords: query,
         })
         .then(data => {
+          if (!isLatestRequest(requestId)) return;
+
           const { groupUsers } = data;
-          const responseData = { accounts: results.accounts || [] };
+          const responseData = { accounts: pageIndex === 1 ? [] : chatPage.current.accounts };
           const atAll = [
             {
               type: 'user',
@@ -501,11 +575,15 @@ const MentionsInput = props => {
             responseData.accounts = responseData.accounts.concat(accounts);
           }
 
-          setTriggerPopupVisible(responseData.accounts.length ? true : false);
+          chatPage.current = {
+            query: pageQuery,
+            pageIndex: pageIndex + 1,
+            isMore: groupUsers.length === pageSize,
+            accounts: responseData.accounts,
+          };
+          updateTriggerPopupVisible(responseData.accounts.length ? true : false);
           populateDropdown(query, responseData);
 
-          setPageIndex(pageIndex + 1);
-          setIsMore(groupUsers.length === pageSize);
           setLoading(false);
         });
       return;
@@ -550,7 +628,7 @@ const MentionsInput = props => {
       }
 
       let responseInitData = { accounts: data };
-      props.forReacordDiscussion && populateDropdown(query, responseInitData);
+      props.forReacordDiscussion && isLatestRequest(requestId) && populateDropdown(query, responseInitData);
     }
 
     // 获取参与者的个人状态
@@ -560,6 +638,8 @@ const MentionsInput = props => {
         })
       : null;
 
+    if (!isLatestRequest(requestId)) return;
+
     recordAtdatas =
       statusOptionsData && statusOptionsData.onStatusOptions && statusOptionsData.onStatusOptions.length
         ? recordAtdatas.map(account => ({
@@ -568,13 +648,15 @@ const MentionsInput = props => {
           }))
         : recordAtdatas;
 
-    promiseObj = userApi.getUsersByKeywords({
+    state.promiseObj = userApi.getUsersByKeywords({
       search: searchType,
       keywords: query,
       currentProjectId: projectId,
     });
 
-    promiseObj.then(function getUsersByKeywordsCb(responseData) {
+    state.promiseObj.then(function getUsersByKeywordsCb(responseData) {
+      if (!isLatestRequest(requestId)) return;
+
       const originAccounts = _.cloneDeep(responseData.accounts);
 
       if (!query) {
@@ -639,7 +721,7 @@ const MentionsInput = props => {
           showFullname: highlightTerm(htmlEncodeReg(item.name), query),
         };
       });
-      setTriggerPopupVisible(true);
+      updateTriggerPopupVisible(true);
       populateDropdown(query, responseData);
     });
   };
@@ -649,12 +731,12 @@ const MentionsInput = props => {
     const id = _.get(accounts[0] || categorys[0], 'id');
     setActiveId(id);
     setResults(results);
-    externalResults = results;
-    externalActiveId = id;
+    mentionState.current.externalResults = results;
+    mentionState.current.externalActiveId = id;
   };
 
   const { accounts = [], groups = [], categorys = [] } = results;
-  const isCategory = showCategory && categoryLetterArr.indexOf(currentType) > -1;
+  const isCategory = showCategory && categoryLetterArr.indexOf(mentionState.current.currentType) > -1;
 
   const getMaxHeight = () => {
     const max = defaultMaxHeight || document.body.clientHeight / 2;
@@ -699,6 +781,7 @@ const MentionsInput = props => {
       popupClassName="mentionsTriggerWrap"
       popup={
         <div
+          ref={popupRef}
           className="mentionsAutocompleteList"
           onScroll={handleScroll}
           style={{ maxHeight: getMaxHeight(), width: getWidth() }}
@@ -809,14 +892,14 @@ const MentionsInput = props => {
                       ? _l('没有找到')
                       : _l(
                           '没有找到，%0 加入吧!',
-                          `<span class="ThemeColor3 Hand mLeft3">${_l('邀请更多的同事')}</span>`,
+                          `<span class="colorPrimary Hand mLeft3">${_l('邀请更多的同事')}</span>`,
                         ),
                 }}
                 onClick={() => {
                   if (isCategory) return;
                   import('src/components/addFriends').then(func => {
                     func.default({ fromType: 0 });
-                    setTriggerPopupVisible(false);
+                    updateTriggerPopupVisible(false);
                   });
                 }}
               ></p>

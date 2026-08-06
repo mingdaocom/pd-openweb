@@ -4,6 +4,12 @@ export const BTN_TYPE = [
   { value: 3, txt: _l('仅图标') },
 ];
 
+// OptionWorksheetBtn 操作类型；按钮停用态以后端返回的 status === 0 为准。
+export const WORKSHEET_BTN_OPTION_TYPE = {
+  disable: 12,
+  enable: 13,
+};
+
 export const maxNum = 3;
 
 export const BTN_LIST = [

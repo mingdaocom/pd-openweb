@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
+import { get } from 'lodash';
 import styled from 'styled-components';
-import { get } from 'svg.js';
 import { BgIconButton, Checkbox, Dialog } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';

@@ -7,6 +7,7 @@ import global from 'src/api/global';
 import { resetPortalUrl } from 'src/pages/AuthService/portalAccount/util.js';
 import { initThemeMode } from 'src/router/globalEvents';
 import { navigateTo, navigateToLogin, navigateToLogout, redirect } from 'src/router/navigateTo';
+import { browserIsMobile, getPathWithoutSubPath, pathCompletion } from 'src/utils/common';
 import { getPssId, setPssId } from 'src/utils/pssId';
 
 /** 存储分发类入口 状态 和 分享id */
@@ -67,6 +68,18 @@ const parseShareId = () => {
   }
 };
 
+const isPublicMingoPlan = () => /\/public\/mingo\/plan(?:\/|$)/i.test(location.pathname);
+
+// 官网免登录跳转承接页路由（PC + 移动端 mingo 创建应用）
+const isMingoCreateAppRoute = () => {
+  const pathname = getPathWithoutSubPath(location.pathname);
+  const params = new URLSearchParams(location.search || '');
+  const isMarkedMingoChat =
+    /\/mingo\/chat\/[^/]+(?:\/|$)/i.test(pathname) && (params.get('anon') === '1' || params.get('entry') === '1');
+
+  return /\/mobile\/mingo\/create-app(?:\/|$)/i.test(pathname) || isMarkedMingoChat;
+};
+
 const clearLocalStorage = () => {
   try {
     Object.keys(localStorage)
@@ -85,9 +98,9 @@ const normalizeUrls = obj => {
   for (const key in obj) {
     const value = obj[key];
 
-    // AppFileServer、PluginRuntimeUrl、WebUrl、PlatformUrl 不处理
+    // AppFileServer、WebUrl、PlatformUrl 不处理
     // AjaxApiUrl 应用库引用的library中没有斜杠，所以不处理
-    if (['AppFileServer', 'PluginRuntimeUrl', 'WebUrl', 'PlatformUrl', 'AjaxApiUrl'].includes(key)) {
+    if (['AppFileServer', 'WebUrl', 'PlatformUrl', 'AccountUrl', 'AjaxApiUrl'].includes(key)) {
       continue;
     }
 
@@ -101,8 +114,6 @@ const normalizeUrls = obj => {
 };
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
-  const lang = getCurrentLang();
-
   // 处理location.href方法异步的问题
   window.isWaiting = false;
 
@@ -112,13 +123,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   // 清除 AMap 和 体积大于200k的 localStorage
   clearLocalStorage();
 
-  // 设置moment语言
-  moment.locale(_.includes(['en', 'ja'], lang) ? lang : lang === 'zh-Hant' ? 'zh-tw' : 'zh-cn');
-
-  // 设置语言
-  $('body').attr('id', lang);
-
-  const defaultGlobal = _.cloneDeep(md.global);
+  const defaultGlobal = window.md ? _.cloneDeep(window.md.global) : {};
   const urlObj = new URL(decodeURIComponent(location.href));
   let args = requestParams || {};
 
@@ -149,11 +154,50 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   window.platformENV.isLocal = /(server|server-platform)$/.test(md.global.Config.ProductCode);
   window.platformENV.isPlatform = /(saas|platform)$/.test(md.global.Config.ProductCode);
 
+  // 海外用户默认语言为英文，默认国家为香港
+  if (window.platformENV.isOverseas) {
+    window.md.global.Config.DefaultLang = 'en';
+    window.md.global.Config.DefaultConfig.initialCountry = 'hk';
+    window.md.global.Config.DefaultConfig.preferredCountries = ['hk'];
+  }
+
+  const lang = getCurrentLang();
+
+  // 设置默认语言
+  if (!lang) {
+    window.isWaiting = true;
+    const sysDefaultLang = window.getDefaultLangKey();
+
+    if (
+      (location.pathname.includes('/public/') && !isPublicMingoPlan()) ||
+      location.pathname.includes('/recordfileupload')
+    ) {
+      const search = location.search ? `${location.search}&sys_lang=${sysDefaultLang}` : `?sys_lang=${sysDefaultLang}`;
+      location.href = pathCompletion(`${location.pathname}${search}`);
+    } else {
+      setCookie('i18n_langtag', sysDefaultLang);
+      window.location.reload();
+    }
+
+    return;
+  }
+
+  // 设置moment语言
+  moment.locale(_.includes(['en', 'ja', 'th', 'ms'], lang) ? lang : lang === 'zh-Hant' ? 'zh-tw' : 'zh-cn');
+
+  // 设置语言
+  $('body').attr('id', lang);
+
   if (window.shareState.shareId) {
     initThemeMode();
   }
 
-  if (allowNotLogin || window.isPublicApp) return;
+  // H5系统打印
+  const isMobilePrintForm = /^\/printForm(?:\/|$)/.test(getPathWithoutSubPath(location.pathname)) && browserIsMobile();
+
+  if (allowNotLogin) window.allowNotLogin = true;
+
+  if (allowNotLogin || window.isPublicApp || (isMobilePrintForm && !md.global.Account.accountId)) return;
 
   if (!md.global.Account.accountId) {
     navigateToLogin();
@@ -163,8 +207,9 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   initThemeMode();
 
   if (
-    ((window.subPath || location.href.indexOf('theportal.cn') > -1) && !md.global.Account.isPortal) ||
-    (!window.subPath && location.href.indexOf('theportal.cn') === -1 && md.global.Account.isPortal)
+    ((location.href.includes('/portal/') || location.href.indexOf('theportal.cn') > -1) &&
+      !md.global.Account.isPortal) ||
+    (!location.href.includes('/portal/') && location.href.indexOf('theportal.cn') === -1 && md.global.Account.isPortal)
   ) {
     window.isWaiting = true;
     if (window.isWeiXin) {
@@ -172,15 +217,15 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     } else {
       if (
         md.global.Account.isPortal &&
-        location.href.indexOf('theportal.cn') === -1 &&
-        location.href.indexOf('/portal/') === -1 &&
+        !location.href.includes('theportal.cn') &&
+        !location.href.includes('/portal/') &&
         md.global.Account.appId
       ) {
-        location.href = `${window.subPath || ''}/portal/${md.global.Account.appId}`;
+        location.href = pathCompletion(`/portal/${md.global.Account.appId}`);
         return;
       }
 
-      location.href = `${md.global.Config.WebUrl}dashboard`;
+      location.href = pathCompletion('/dashboard');
     }
 
     return;
@@ -190,11 +235,12 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   if (!md.global.Account.langModified) {
     accountSetting.autoEditAccountLangSetting({ langType: getCurrentLangCode(lang) });
 
-    if (!md.global.Account.isPortal && !urlObj.href.includes('oauth/authorize')) {
+    if (!md.global.Account.isPortal && !urlObj.href.includes('oauth/authorize') && !isMingoCreateAppRoute()) {
       navigateTo('/app/my');
     }
   } else if (
     md.global.Account.lang !== lang &&
+    !window.shareState.isPublicFormPreview &&
     !urlObj.hash.includes('i18n_reload') &&
     !localStorage.getItem('i18n_reload')
   ) {
@@ -227,7 +273,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   // HAP显示人事
   if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
-    md.global.SysSettings.forbidSuites = md.global.SysSettings.forbidSuites.replace('5', '');
+    md.global.SysSettings.forbidSuites = (md.global.SysSettings.forbidSuites || '').replace('5', '');
   }
 
   // 加载云客服

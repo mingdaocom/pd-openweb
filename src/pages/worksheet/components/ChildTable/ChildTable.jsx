@@ -31,6 +31,7 @@ import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import Pagination from 'worksheet/components/Pagination';
 import { SearchInput } from 'worksheet/components/RelateRecordTable/Operate';
 import MobileSearchInput from 'worksheet/components/SearchInput';
@@ -197,6 +198,26 @@ class ChildTable extends React.Component {
     registerCell: () => {},
   };
 
+  static getDerivedStateFromProps(props, state) {
+    const nextValue = _.get(props, 'control.value');
+
+    if (!state.__valueChangedInited) {
+      return { __valueChangedInited: true, __lastObservedValue: nextValue, valueChanged: false };
+    }
+
+    if (!_.isEqual(state.__lastObservedValue, nextValue)) {
+      return { __lastObservedValue: nextValue, valueChanged: true };
+    }
+
+    // 主记录保存后子表 control.value 切回已保存态，需让筛选/刷新等依赖项重新可用；
+    // 真正的"已脏未保存"状态由 changes.isDirty / recordEditing 持续兜底。
+    if (state.valueChanged) {
+      return { valueChanged: false };
+    }
+
+    return null;
+  }
+
   constructor(props) {
     super(props);
     this.defaultDirection = get(props, 'control.advancedSetting.direction') === '1' ? 'vertical' : 'horizontal';
@@ -239,9 +260,14 @@ class ChildTable extends React.Component {
   componentDidMount() {
     const { control, recordId, needResetControls } = this.props;
     this.updateDefsourceOfControl();
+
     if (recordId) {
       if (!(get(this, 'props.base.loaded') || get(this, 'props.base.reset'))) {
         this.loadRows(undefined, { needResetControls });
+      } else {
+        // store 已加载完成(如大表单复用/切换记录预置的 store)，loadRows 不会再触发，
+        // 此时若树形 treeMap 未建则主动补建，避免展开 icon 不显示
+        this.ensureTreeTableViewData();
       }
     }
 
@@ -255,83 +281,127 @@ class ChildTable extends React.Component {
     window.addEventListener('keydown', this.handleKeyDown);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.refreshFlag && nextProps.refreshFlag !== this.props.refreshFlag) {
-      this.refresh();
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.refreshFlag && this.props.refreshFlag !== prevProps.refreshFlag) {
+        this.refresh();
+      }
 
-    const { initRows } = this.props;
-    this.updateDefsourceOfControl(nextProps);
-    const control = this.props.control;
-    const nextControl = nextProps.control;
-    const isAddRecord = !nextProps.recordId;
-    const valueChanged = !_.isEqual(control.value, nextControl.value);
-    this.valueChanged = valueChanged;
-    if (nextProps.recordId !== this.props.recordId) {
-      this.refresh(nextProps, { needResetControls: false });
-    } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
-      initRows([]);
-    }
+      const { initRows } = this.props;
+      this.updateDefsourceOfControl(this.props);
+      const control = prevProps.control;
+      const nextControl = this.props.control;
+      const isAddRecord = !this.props.recordId;
+      const valueChanged = !_.isEqual(control.value, nextControl.value);
 
-    if (
-      nextControl.controlId !== control.controlId ||
-      !_.isEqual(nextControl.showControls, control.showControls) ||
-      !_.isEqual(
-        (control.relationControls || []).map(a => a.fieldPermission),
-        (nextControl.relationControls || []).map(a => a.fieldPermission),
-      ) ||
-      !_.isEqual(
-        (control.relationControls || []).map(a => a.required),
-        (nextControl.relationControls || []).map(a => a.required),
-      )
-    ) {
-      this.setState(
-        {
-          controls: this.getControls(nextProps),
-        },
-        () => {
-          if (!_.isEqual(nextControl.showControls, control.showControls)) {
-            this.setState({
-              sheetColumnWidths: this.getSheetColumnWidths(nextProps.control),
-            });
-          }
-        },
-      );
-    }
+      if (this.props.recordId !== prevProps.recordId) {
+        this.refresh(this.props, {
+          needResetControls: false,
+        });
+      } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
+        initRows([]);
+      }
 
-    // 重新渲染子表来适应新宽度
-    if (
-      nextProps.control.sideVisible !== this.props.control.sideVisible ||
-      nextProps.control.formWidth !== this.props.control.formWidth
-    ) {
-      setTimeout(() => {
-        try {
-          if (this.worksheettable && this.worksheettable.current) {
-            const ref = this.worksheettable.current;
-            if (typeof ref.updateSize === 'function') {
-              ref.updateSize();
-            } else if (typeof ref.handleUpdate === 'function') {
-              ref.handleUpdate();
+      if (
+        nextControl.controlId !== control.controlId ||
+        !_.isEqual(nextControl.showControls, control.showControls) ||
+        !_.isEqual(
+          (control.relationControls || []).map(a => a.fieldPermission),
+          (nextControl.relationControls || []).map(a => a.fieldPermission),
+        ) ||
+        !_.isEqual(
+          (control.relationControls || []).map(a => a.required),
+          (nextControl.relationControls || []).map(a => a.required),
+        )
+      ) {
+        this.setState(
+          {
+            controls: this.getControls(this.props),
+          },
+          () => {
+            if (!_.isEqual(nextControl.showControls, control.showControls)) {
+              this.setState({
+                sheetColumnWidths: this.getSheetColumnWidths(this.props.control),
+              });
             }
+          },
+        );
+      } // 重新渲染子表来适应新宽度
+
+      // 重新渲染子表来适应新宽度
+      if (
+        this.props.control.sideVisible !== prevProps.control.sideVisible ||
+        this.props.control.formWidth !== prevProps.control.formWidth
+      ) {
+        setTimeout(() => {
+          try {
+            if (this.worksheettable && this.worksheettable.current) {
+              const ref = this.worksheettable.current;
+
+              if (typeof ref.updateSize === 'function') {
+                ref.updateSize();
+              } else if (typeof ref.handleUpdate === 'function') {
+                ref.handleUpdate();
+              }
+            }
+          } catch (err) {
+            console.error(err);
           }
-        } catch (err) {
-          console.error(err);
+        }, 100);
+      }
+
+      if (!_.isEqual(prevProps.rows, this.props.rows)) {
+        const { pageIndex, pageSize } = this.state;
+        const pageNum = Math.ceil(this.props.rows.length / pageSize);
+
+        if (pageIndex > pageNum && pageNum) {
+          this.setState({
+            pageIndex: pageNum,
+          });
         }
-      }, 100);
-    }
 
-    if (!_.isEqual(this.props.rows, nextProps.rows)) {
-      const { pageIndex, pageSize } = this.state;
-      const pageNum = Math.ceil(nextProps.rows.length / pageSize);
-
-      if (pageIndex > pageNum && pageNum) {
-        this.setState({ pageIndex: pageNum });
+        if (get(this.props, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
+          this.dataFormatCacheMap.clear();
+        }
       }
 
-      if (get(nextProps, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
-        this.dataFormatCacheMap.clear();
-      }
+      this.ensureTreeTableViewData();
     }
+  }
+
+  // 树形子表自愈：行已就位但 treeMap 未覆盖根行时主动补建一次。
+  // 切换记录时大表单会替换子表 store，新 store 的建树逻辑(setRowsFromStaticRows)可能排在
+  // waitListForLoadRows 队列里，而该队列仅在 LOAD_ROWS_COMPLETE 时 drain；若新 store 未走
+  // loadRows 便不会触发，导致树永不建、展开 icon 消失。此处兜底覆盖所有行注入路径。
+  ensureTreeTableViewData() {
+    const { base = {}, rows = [], treeTableViewData = {}, updateTreeTableViewData } = this.props;
+
+    if (!get(base, 'isTreeTableView') || !isFunction(updateTreeTableViewData)) {
+      return;
+    }
+
+    const realRows = rows.filter(r => r.rowid && !/^empty-/.test(r.rowid));
+
+    if (!realRows.length) {
+      return;
+    }
+
+    const treeMap = treeTableViewData.treeMap || {};
+    const rootRows = realRows.filter(r => !r.pid);
+    const missing = rootRows.some(r => !treeMap[r.rowid]);
+
+    if (!missing) {
+      return;
+    }
+
+    // 用 rows 引用去重：同一份 rows(引用未变)重建仍补不出根行(degenerate)时不再重试，避免死循环；
+    // 切换/切回记录会替换 store 产生新 rows 引用，不会被误跳过，确保能重新建树
+    if (this._treeRebuiltForRows === rows) {
+      return;
+    }
+
+    this._treeRebuiltForRows = rows;
+    updateTreeTableViewData();
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -346,7 +416,10 @@ class ChildTable extends React.Component {
       !_.isEqual(this.props.mobileIsEdit, nextProps.mobileIsEdit) ||
       !_.isEqual(this.props.control.relationControls, nextProps.control.relationControls) ||
       !_.isEqual(this.props.control.fieldPermission, nextProps.control.fieldPermission) ||
-      !_.isEqual(this.props.sortConfig, nextProps.sortConfig)
+      !_.isEqual(this.props.sortConfig, nextProps.sortConfig) ||
+      !_.isEqual(this.props.filterControls, nextProps.filterControls) ||
+      !_.isEqual(this.props.changes, nextProps.changes) ||
+      !_.isEqual(this.props.valueChanged, nextProps.valueChanged)
     );
   }
 
@@ -417,6 +490,7 @@ class ChildTable extends React.Component {
     if (baseLoading) {
       return [];
     }
+
     const controls = replaceControlsTranslateInfo(
       appId,
       worksheetInfo.worksheetId,
@@ -445,9 +519,14 @@ class ChildTable extends React.Component {
       console.log(err);
     }
 
-    let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
+    // controlssorts 可能是子表新增字段之前存下的旧排序，缺失的字段按显示字段顺序补齐，
+    // 避免落到接口返回的无序 controls 上导致列顺序错乱
+    const sortedControlIds = _.isEmpty(controlssorts) ? showControls : _.uniq(controlssorts.concat(showControls));
+
+    let result = sortControlByIds(controls, sortedControlIds).map(c => {
       const control = { ...c };
       const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
+
       if (resetedControl) {
         control.required = resetedControl.required;
         control.fieldPermission = resetedControl.fieldPermission;
@@ -465,6 +544,7 @@ class ChildTable extends React.Component {
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
       }
+
       if (!useUserPermission && !isWorkflow) {
         control.controlPermissions = '111';
       } else {
@@ -488,6 +568,7 @@ class ChildTable extends React.Component {
         control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 1, '0');
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 1, '0');
       }
+
       return control;
     });
     updateBase({ controls: result });
@@ -517,6 +598,7 @@ class ChildTable extends React.Component {
     if (
       (window.isMacOs ? e.metaKey : e.ctrlKey) &&
       e.key === 'Enter' &&
+      this.childTableCon &&
       this.childTableCon.querySelector('.cell.focus')
     ) {
       e.preventDefault();
@@ -928,6 +1010,9 @@ class ChildTable extends React.Component {
         }
 
         setTimeout(() => {
+          if (!this.worksheettable.current || !this.worksheettable.current.table) {
+            return;
+          }
           let activeCell = null;
 
           if (layoutDirection === 'horizontal') {
@@ -1093,7 +1178,12 @@ class ChildTable extends React.Component {
 
     const newRow = this.rowUpdate(
       {
-        row: { ...rowData, ...(tempRowId ? { rowid: tempRowId, isCreate: true } : {}) },
+        // 空行（仅含 rowid）直接转新行时要补 allowedit/allowdelete：rowUpdate 会原样透传这些字段，
+        // 不补的话新行 allowedit 为 undefined，canedit 计算为 false —— 编辑失焦后这条记录无法再次编辑。
+        row: {
+          ...rowData,
+          ...(tempRowId ? { rowid: tempRowId, isCreate: true, allowedit: true, allowdelete: true } : {}),
+        },
         controlId: cell.controlId,
         value,
       },
@@ -1194,8 +1284,16 @@ class ChildTable extends React.Component {
     });
   };
 
-  handleClearCellError = key => {
+  handleClearCellError = (key, error) => {
     const { cellErrors, updateCellErrors } = this.props;
+
+    if (error) {
+      // 二参形式用于"失焦兜底"：把校验错误写入 cellErrors，让主记录保存时也能拦截
+      if (cellErrors[key] === error) return;
+      updateCellErrors({ ...cellErrors, [key]: error });
+      return;
+    }
+
     updateCellErrors(_.omit(cellErrors, [key]));
   };
 
@@ -1240,7 +1338,10 @@ class ChildTable extends React.Component {
           .then(res => {
             if (!res.isSuccess && res.data && res.data.rowId !== rowId) {
               // 不唯一
-              updateCellErrors({ [`${rowId}-${controlId}`]: FORM_ERROR_TYPE_TEXT.UNIQUE(checkControl, true) });
+              updateCellErrors({
+                ...this.props.cellErrors,
+                [`${rowId}-${controlId}`]: FORM_ERROR_TYPE_TEXT.UNIQUE(checkControl, true),
+              });
             } else if (res.isSuccess) {
               // 唯一
             }
@@ -1308,8 +1409,9 @@ class ChildTable extends React.Component {
     $('.cell').removeClass('errorActive');
   };
   handleBatchUpdateRecords = ({ tableRows, activeControl } = {}) => {
-    const { appId, control, updateRows } = this.props;
-    const { selectedRowIds } = this.state;
+    const { appId, control, updateRows, rows, clearAndSetRows, updateTreeTableViewData, sortRows, sortConfig } =
+      this.props;
+    const { selectedRowIds, controls } = this.state;
     const { projectId, worksheetId } = this.worksheetInfo;
 
     if (!selectedRowIds.length) {
@@ -1337,14 +1439,60 @@ class ChildTable extends React.Component {
         template: { controls: this.getShowColumns() },
       },
       triggerBatchUpdateRecords: ({ needUpdateControls, onClose }) => {
-        const changes = needUpdateControls.reduce((acc, control) => {
-          acc[control.controlId] = control.sourceValue || control.value;
+        // 关联记录清空不能用 ''：子表提交格式化时 '' 与 'deleteRowIds: all' 都会被当作 undefined 而无法清空，
+        // 必须按「该行当前关联 id」下发 `deleteRowIds: id1,id2`（与单元格清空一致）。各行待删 id 不同，
+        // 故不能用单值 updateRows；又因逐行多次 updateRows 会互相覆盖只生效一条，改用 clearAndSetRows 单次提交。
+        const relateClearCids = needUpdateControls
+          .filter(c => c.type === 29 && c.editType === 'clear')
+          .map(c => c.controlId);
+        const baseChanges = needUpdateControls.reduce((acc, c) => {
+          if (c.type === 29 && c.editType === 'clear') return acc;
+          acc[c.controlId] = c.sourceValue || c.value;
           return acc;
         }, {});
-        updateRows({ rowIds: selectedRowIds, value: changes });
+
+        if (relateClearCids.length) {
+          const selectedIdSet = new Set(selectedRows.map(r => r.rowid));
+          const newRows = rows.map(row => {
+            if (!selectedIdSet.has(row.rowid)) return row;
+            const rowChanges = { ...baseChanges };
+            relateClearCids.forEach(cid => {
+              const ids = safeParse(row[cid], 'array')
+                .map(r => r.sid)
+                .filter(Boolean);
+              rowChanges[cid] = ids.length ? `deleteRowIds: ${ids.join(',')}` : '';
+            });
+            return { ...row, ...rowChanges };
+          });
+          clearAndSetRows(newRows, { isSetValueFromEvent: true, controls });
+          updateTreeTableViewData();
+          // clearAndSetRows 会重置展示排序（sortConfig），与原 updateRows 行为不同，这里恢复，避免副作用。
+          if (sortConfig && sortConfig.controlId) {
+            const sortControl = _.find(controls, { controlId: sortConfig.controlId });
+
+            if (sortControl) {
+              sortRows({ control: sortControl, isAsc: sortConfig.isAsc });
+            }
+          }
+        } else {
+          updateRows({ rowIds: selectedRowIds, value: baseChanges });
+        }
         selectedRowIds.forEach(rowId => {
           this.dataFormatCacheMap.delete(rowId);
         });
+        // 批量编辑（含清空）后，被修改单元格的旧格式校验错误（手机/证件等）已不对应新值，需同步清掉 cellErrors，否则失焦时持久化的错误状态会残留。
+        const { cellErrors, updateCellErrors } = this.props;
+
+        if (!_.isEmpty(cellErrors)) {
+          const clearedKeys = _.flatMap(selectedRowIds, rowId =>
+            needUpdateControls.map(c => `${rowId}-${c.controlId}`),
+          );
+
+          if (clearedKeys.some(key => key in cellErrors)) {
+            updateCellErrors(_.omit(cellErrors, clearedKeys));
+          }
+        }
+
         onClose();
       },
     });
@@ -1377,8 +1525,12 @@ class ChildTable extends React.Component {
       masterData,
       updateTreeNodeExpansion,
       isDraft,
+      filterControls = [],
+      setFilterControls,
+      changes = {},
     } = this.props;
     const { isTreeTableView } = base;
+    const isDirty = !!changes.isDirty;
     const { projectId, rules } = this.worksheetInfo;
     const { searchConfig } = this;
     let {
@@ -1444,7 +1596,7 @@ class ChildTable extends React.Component {
       }
     });
     const originRows = tableRows;
-    const valueChanged = _.isUndefined(this.props.valueChanged) ? this.valueChanged : this.props.valueChanged;
+    const valueChanged = _.isUndefined(this.props.valueChanged) ? this.state.valueChanged : this.props.valueChanged;
     const disabled = !controlPermission.editable || control.disabled;
     const noColumns = !controls.length;
     const columns = this.getShowColumns();
@@ -1471,7 +1623,8 @@ class ChildTable extends React.Component {
       layoutDirection === 'horizontal' &&
       String(get(control, 'advancedSetting.openstatistics')) === '1' &&
       !isTreeTableView &&
-      !get(window, 'shareState.shareId');
+      !get(window, 'shareState.shareId') &&
+      filterEmptyChildTableRows(tableRows).length > 0;
 
     if (!columns.length) {
       return <div className="childTableEmptyTag"></div>;
@@ -1575,7 +1728,7 @@ class ChildTable extends React.Component {
               ref={this.searchRef}
               inputWidth={100}
               searchIcon={
-                <IconBtn className="Hand ThemeHoverColor3">
+                <IconBtn className="Hand hoverColorPrimary">
                   <i className="icon icon-search inherit" />
                 </IconBtn>
               }
@@ -1601,10 +1754,53 @@ class ChildTable extends React.Component {
               }}
             />
           ))}
+        {!isMobile &&
+          !isTreeTableView &&
+          recordId &&
+          !control.isCustomButtonFillRecord &&
+          !get(window, 'shareState.shareId') &&
+          (() => {
+            const recordEditing = !!(this.context && this.context.iseditting);
+            const dirty = isDirty || valueChanged || recordEditing;
+            const tooltipTitle = dirty
+              ? _l('存在未保存修改。为避免编辑对象变化，请先保存或取消修改后再调整筛选。')
+              : '';
+
+            // 内嵌表与放大弹层共用同一个 control.store（filterControls / rows 同一份），
+            // 两边都渲染完整可编辑筛选器并共用同一 filterCompId；通过 controlledFilterControls
+            // 把共享的 filterControls 回填到面板，使两处筛选条件与数据始终保持同步。
+            return (
+              <Tooltip title={tooltipTitle} placement="bottom">
+                <span style={{ display: 'inline-block', margin: '4px 5px 0 0' }}>
+                  <WorkSheetFilter
+                    style={{ paddingTop: 8 }}
+                    filterCompId={`childTable-${control.controlId}`}
+                    controlledFilterControls={filterControls}
+                    className="actionWrap mLeft6"
+                    getPopupContainer={() => document.body}
+                    zIndex={1000}
+                    appId={appId}
+                    viewId={control.viewId}
+                    projectId={projectId}
+                    worksheetId={control.dataSource}
+                    columns={columns.map((c, idx) => ({ ...c, controlPermissions: '111', row: idx, col: 0 }))}
+                    filterResigned={false}
+                    showSavedFilters={false}
+                    readOnly={dirty}
+                    onChange={({ filterControls: next }) => {
+                      if (dirty) return;
+                      setFilterControls(next);
+                      this.setState({ pageIndex: 1 }, () => this.loadRows());
+                    }}
+                  />
+                </span>
+              </Tooltip>
+            );
+          })()}
         {this.defaultDirection === 'vertical' && (
           <Tooltip title={_l('行列转置')} placement="bottom">
             <IconBtn
-              className="Hand ThemeHoverColor3"
+              className="Hand hoverColorPrimary mLeft6"
               onClick={() =>
                 this.setState({ layoutDirection: layoutDirection === 'horizontal' ? 'vertical' : 'horizontal' })
               }
@@ -1635,6 +1831,7 @@ class ChildTable extends React.Component {
                   rowId: recordId,
                   controlId: control.controlId,
                   clientId: window.clientId || sessionStorage.getItem('clientId'),
+                  filterControls,
                   fileName:
                     `${((_.last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(
                       0,
@@ -1654,7 +1851,7 @@ class ChildTable extends React.Component {
                 this.refresh();
               }}
             >
-              <IconBtn className="ThemeHoverColor3">
+              <IconBtn className="hoverColorPrimary">
                 <i className="icon icon-task-later" />
               </IconBtn>
             </span>
@@ -1678,7 +1875,7 @@ class ChildTable extends React.Component {
                 })
               }
             >
-              <IconBtn className="Hand ThemeHoverColor3">
+              <IconBtn className="Hand hoverColorPrimary">
                 <i className="icon icon-worksheet_enlarge" />
               </IconBtn>
             </span>
@@ -1877,7 +2074,10 @@ class ChildTable extends React.Component {
               )}
               <div className="flex"></div>
               {keywords && <SearchResultNum>{_l('共 %0 行', tableRows.length)}</SearchResultNum>}
-              {!isBatchEditing && <div className="mTop5 flexRow alignItemsCenter">{operateComp}</div>}
+              {/* 批量编辑时不能卸载，否则 WorkSheetFilter 内部 reducer 状态丢失，"已筛选"指示消失 */}
+              <div className="mTop5 flexRow alignItemsCenter" style={isBatchEditing ? { display: 'none' } : undefined}>
+                {operateComp}
+              </div>
               {showAsPages && tableRows.length > pageSize && (
                 <Pagination
                   allowChangePageSize={false}
@@ -1921,8 +2121,9 @@ class ChildTable extends React.Component {
                 expandCellAppendWidth={this.expandCellAppendWidth}
                 from={from}
                 isDraft={isDraft}
-                tableType="classic"
+                tableType={get(control, 'advancedSetting.sheettype') === '0' ? 'simple' : 'classic'}
                 isSubList
+                disableValidate={this.props.disableValidate}
                 formItemId={this.props.formItemId}
                 showAsZebra={false}
                 wrapControlName={titleWrap}
@@ -2289,8 +2490,11 @@ class ChildTable extends React.Component {
                 onUpdateRules={newRules => {
                   updateBase({ worksheetInfo: { ...this.worksheetInfo, rules: newRules } });
                 }}
-                onCellClick={(_, __, rowIndex, columnIndex, { isSpace } = {}) => {
-                  if (isSpace) {
+                onCellClick={(_, row, rowIndex, columnIndex, { isSpace } = {}) => {
+                  const isSimpleMode = get(control, 'advancedSetting.sheettype') === '0';
+                  const isEmptyRow = String(get(row, 'rowid') || '').startsWith('empty');
+
+                  if ((isSpace || isSimpleMode) && allowOpenRecord && !isEmptyRow) {
                     this.openDetail(layoutDirection === 'vertical' ? columnIndex - 1 : rowIndex);
                   }
                 }}
@@ -2553,6 +2757,8 @@ const mapStateToProps = state => ({
   lastAction: state.lastAction,
   cellErrors: state.cellErrors,
   sortConfig: state.sortConfig,
+  filterControls: state.filterControls,
+  changes: state.changes,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -2572,6 +2778,8 @@ const mapDispatchToProps = dispatch => ({
   updateCellErrors: bindActionCreators(actions.updateCellErrors, dispatch),
   updateBase: bindActionCreators(actions.updateBase, dispatch),
   updateTreeNodeExpansion: bindActionCreators(actions.updateTreeNodeExpansion, dispatch),
+  updateTreeTableViewData: bindActionCreators(actions.updateTreeTableViewData, dispatch),
+  setFilterControls: bindActionCreators(actions.setFilterControls, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChildTable);

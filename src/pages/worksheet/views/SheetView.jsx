@@ -6,7 +6,7 @@ import _, { get, identity, isFunction, pick } from 'lodash';
 import PropTypes, { bool, func, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
@@ -375,8 +375,7 @@ const MemoizedRowHead = React.memo(
   },
 );
 
-@autoSize
-class TableView extends React.Component {
+class TableViewBase extends React.Component {
   static propTypes = {
     isTreeTableView: bool,
     worksheetInfo: PropTypes.shape({}),
@@ -400,6 +399,48 @@ class TableView extends React.Component {
   };
 
   table = React.createRef();
+
+  static getDerivedStateFromProps(props, state) {
+    if (!state.__derivedInited) {
+      return {
+        __derivedInited: true,
+        __lastViewId: props.viewId,
+        __lastWorksheetId: props.worksheetId,
+        __lastRefreshFlag: get(props, 'sheetViewData.refreshFlag'),
+      };
+    }
+
+    const patch = {};
+    const changeView = state.__lastWorksheetId === props.worksheetId && state.__lastViewId !== props.viewId;
+
+    if (changeView) {
+      const navGroupData = (get(props, 'worksheetInfo.template.controls') || []).find(
+        o => o.controlId === get(props, 'view.navGroup[0].controlId'),
+      );
+      const navGroupToSearch =
+        !!navGroupData &&
+        get(props, 'view.advancedSetting.showallitem') === '1' &&
+        !get(props, 'view.navGroup[0].viewId') &&
+        (get(props, 'view.navGroup') || []).length > 0;
+      const noNavGroup = navGroupToSearch && _.isEmpty(props.navGroupFilters);
+
+      if (!(noNavGroup || get(props, 'view.advancedSetting.clicksearch') === '1')) {
+        patch.buttonsCheckStatus = {};
+      }
+    }
+
+    if (state.__lastViewId !== props.viewId) patch.__lastViewId = props.viewId;
+    if (state.__lastWorksheetId !== props.worksheetId) patch.__lastWorksheetId = props.worksheetId;
+
+    const nextRefreshFlag = get(props, 'sheetViewData.refreshFlag');
+
+    if (state.__lastRefreshFlag !== nextRefreshFlag) {
+      patch.disableMaskDataControls = {};
+      patch.__lastRefreshFlag = nextRefreshFlag;
+    }
+
+    return _.isEmpty(patch) ? null : patch;
+  }
 
   constructor(props) {
     super(props);
@@ -440,6 +481,7 @@ class TableView extends React.Component {
     document.body?.addEventListener('click', this.outerClickEvent);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     emitter.addListener('RELOAD_SHEET_VIEW', this.props.refresh);
+    emitter.addListener('ADD_RECORD_TO_SHEETVIEW', this.addRecordToViewEvent);
     this.bindShift();
     window[`getTableColumnWidth-${this.props.worksheetId}`] = control => {
       const width = getTableColumnWidth(
@@ -453,139 +495,6 @@ class TableView extends React.Component {
     };
 
     window.addEventListener('paste', this.handlePaste);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const {
-      view,
-      fetchRows,
-      setRowsEmpty,
-      changePageIndex,
-      refresh,
-      navGroupFilters,
-      quickFilter,
-      setColumnStyles,
-      getWorksheetSheetViewSummary,
-      abortRequest = () => {},
-      setViewLayout = () => {},
-    } = nextProps;
-    const changeView = this.props.worksheetId === nextProps.worksheetId && this.props.viewId !== nextProps.viewId;
-
-    if (!_.isEqual(get(nextProps, ['navGroupFilters']), get(this.props, ['navGroupFilters']))) {
-      changePageIndex(1);
-    }
-
-    const noNavGroup = this.navGroupToSearch(nextProps) && _.isEmpty(navGroupFilters);
-    const quickFilterNeedClickToSearch =
-      !(nextProps.chartId || nextProps.chartIdFromUrl) &&
-      get(nextProps, 'view.advancedSetting.clicksearch') === '1' &&
-      _.isEmpty(quickFilter);
-
-    if (changeView) {
-      abortRequest();
-      if (noNavGroup || get(view, 'advancedSetting.clicksearch') === '1') {
-        setRowsEmpty();
-        setViewLayout(view.viewId);
-      } else {
-        fetchRows({ changeView });
-        this.setState({ buttonsCheckStatus: {} });
-      }
-    } else if (
-      _.some(
-        [
-          'sheetFetchParams.pageIndex',
-          'sheetFetchParams.sortControls',
-          'view.moreSort',
-          'view.advancedSetting.clicksearch',
-          'view.advancedSetting.enablerules',
-          'navGroupFilters',
-          'view.navGroup',
-          'view.advancedSetting.showallitem',
-          'view.advancedSetting.shownullitem',
-          'view.advancedSetting.topshow',
-          'view.advancedSetting.topfilters',
-          'view.advancedSetting.defaultlayer',
-          'view.advancedSetting.fastedit',
-          'view.advancedSetting.defaultsort',
-          'view.advancedSetting.groupsetting',
-          'view.advancedSetting.groupfilters',
-          'view.advancedSetting.groupshow',
-          'view.advancedSetting.groupcustom',
-          'view.advancedSetting.groupsorts',
-          'view.advancedSetting.groupopen',
-          'view.advancedSetting.groupempty',
-          'view.viewControl',
-        ],
-        key => !_.isEqual(get(nextProps, key), get(this.props, key)),
-      )
-    ) {
-      if (noNavGroup || quickFilterNeedClickToSearch) {
-        setRowsEmpty();
-      } else {
-        fetchRows();
-      }
-    } else if (
-      get(this.props, 'view.advancedSetting.refreshtime') !== get(nextProps, 'view.advancedSetting.refreshtime')
-    ) {
-      console.log('refresh');
-    } else if (get(this.props, 'sheetViewData.refreshFlag') !== get(nextProps, 'sheetViewData.refreshFlag')) {
-      this.setState({ disableMaskDataControls: {} });
-    } else if (get(this.props, 'view.advancedSetting.sheettype') !== get(nextProps, 'view.advancedSetting.sheettype')) {
-      refresh();
-    }
-
-    if (
-      _.some(['view.advancedSetting.liststyle'], key => !_.isEqual(get(nextProps, key), get(this.props, key))) ||
-      _.some(['worksheetInfo.advancedSetting.liststyle'], key => !_.isEqual(get(nextProps, key), get(this.props, key)))
-    ) {
-      setColumnStyles(nextProps.view, nextProps.worksheetInfo);
-      getWorksheetSheetViewSummary({ reset: true });
-    }
-
-    if (
-      nextProps.operateButtonLoading !== this.props.operateButtonLoading ||
-      nextProps.sheetViewData.loading !== this.props.sheetViewData.loading ||
-      !_.isEqual(nextProps.sheetViewData.rows, this.props.sheetViewData.rows) ||
-      !_.isEqual(this.getOperateButtons(nextProps), this.getOperateButtons(this.props))
-    ) {
-      const { pageIndex, pageSize } = nextProps.sheetFetchParams;
-      const key = `${pageIndex}x${pageSize}`;
-
-      if (
-        !nextProps.operateButtonLoading &&
-        !nextProps.sheetViewData.loading &&
-        (!get(this, `state.buttonsCheckStatus.${key}`) ||
-          !_.isEqual(get(nextProps, 'sheetViewData.rows'), get(this.props, 'sheetViewData.rows')) ||
-          !_.isEqual(this.getOperateButtons(nextProps), this.getOperateButtons(this.props)))
-      ) {
-        const operatesButtons = this.getOperateButtons(nextProps);
-
-        if (operatesButtons.length && !_.get(window, 'shareState.shareId')) {
-          const rows = nextProps.sheetViewData.rows;
-          const rowIds = rows.map(r => r.rowid).filter(identity);
-
-          if (_.isEmpty(rowIds)) {
-            return;
-          }
-
-          worksheetAjax
-            .checkWorksheetRowsBtn({
-              worksheetId: nextProps.worksheetId,
-              rowIds,
-              btnIds: operatesButtons.map(b => b.btnId),
-            })
-            .then(data => {
-              const buttonsCheckStatus = {};
-              data.forEach(item => {
-                item.rowIds.forEach(rowId => {
-                  buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
-                });
-              });
-              this.setState({ buttonsCheckStatus: { [key]: buttonsCheckStatus } });
-            });
-        }
-      }
-    }
   }
 
   getOperateButtons = props => {
@@ -618,6 +527,155 @@ class TableView extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const {
+        view,
+        fetchRows,
+        setRowsEmpty,
+        changePageIndex,
+        refresh,
+        navGroupFilters,
+        quickFilter,
+        setColumnStyles,
+        getWorksheetSheetViewSummary,
+        abortRequest = () => {},
+        setViewLayout = () => {},
+      } = this.props;
+      const changeView = prevProps.worksheetId === this.props.worksheetId && prevProps.viewId !== this.props.viewId;
+
+      if (!_.isEqual(get(this.props, ['navGroupFilters']), get(prevProps, ['navGroupFilters']))) {
+        changePageIndex(1);
+      }
+
+      const noNavGroup = this.navGroupToSearch(this.props) && _.isEmpty(navGroupFilters);
+      const quickFilterNeedClickToSearch =
+        !(this.props.chartId || this.props.chartIdFromUrl) &&
+        get(this.props, 'view.advancedSetting.clicksearch') === '1' &&
+        _.isEmpty(quickFilter);
+
+      if (changeView) {
+        abortRequest();
+
+        if (noNavGroup || get(view, 'advancedSetting.clicksearch') === '1') {
+          setRowsEmpty();
+          setViewLayout(view.viewId);
+        } else {
+          fetchRows({
+            changeView,
+          });
+        }
+      } else if (
+        _.some(
+          [
+            'sheetFetchParams.pageIndex',
+            'sheetFetchParams.sortControls',
+            'view.moreSort',
+            'view.advancedSetting.clicksearch',
+            'view.advancedSetting.enablerules',
+            'navGroupFilters',
+            'view.navGroup',
+            'view.advancedSetting.showallitem',
+            'view.advancedSetting.shownullitem',
+            'view.advancedSetting.topshow',
+            'view.advancedSetting.topfilters',
+            'view.advancedSetting.defaultlayer',
+            'view.advancedSetting.fastedit',
+            'view.advancedSetting.defaultsort',
+            'view.advancedSetting.groupsetting',
+            'view.advancedSetting.groupfilters',
+            'view.advancedSetting.groupshow',
+            'view.advancedSetting.groupcustom',
+            'view.advancedSetting.groupsorts',
+            'view.advancedSetting.groupopen',
+            'view.advancedSetting.groupempty',
+            'view.viewControl',
+          ],
+          key => !_.isEqual(get(this.props, key), get(prevProps, key)),
+        )
+      ) {
+        if (noNavGroup || quickFilterNeedClickToSearch) {
+          setRowsEmpty();
+        } else {
+          fetchRows();
+        }
+      } else if (
+        get(prevProps, 'view.advancedSetting.refreshtime') !== get(this.props, 'view.advancedSetting.refreshtime')
+      ) {
+        console.log('refresh');
+      } else if (
+        get(prevProps, 'view.advancedSetting.sheettype') !== get(this.props, 'view.advancedSetting.sheettype')
+      ) {
+        refresh();
+      }
+
+      if (
+        _.some(['view.advancedSetting.liststyle'], key => !_.isEqual(get(this.props, key), get(prevProps, key))) ||
+        _.some(
+          ['worksheetInfo.advancedSetting.liststyle'],
+          key => !_.isEqual(get(this.props, key), get(prevProps, key)),
+        )
+      ) {
+        setColumnStyles(this.props.view, this.props.worksheetInfo);
+        getWorksheetSheetViewSummary({
+          reset: true,
+        });
+      }
+
+      if (
+        this.props.operateButtonLoading !== prevProps.operateButtonLoading ||
+        this.props.sheetViewData.loading !== prevProps.sheetViewData.loading ||
+        !_.isEqual(this.props.sheetViewData.rows, prevProps.sheetViewData.rows) ||
+        !_.isEqual(this.getOperateButtons(this.props), this.getOperateButtons(prevProps))
+      ) {
+        const { pageIndex, pageSize } = this.props.sheetFetchParams;
+        const key = `${pageIndex}x${pageSize}`;
+
+        if (
+          !this.props.operateButtonLoading &&
+          !this.props.sheetViewData.loading &&
+          (!get(this, `state.buttonsCheckStatus.${key}`) ||
+            !_.isEqual(get(this.props, 'sheetViewData.rows'), get(prevProps, 'sheetViewData.rows')) ||
+            !_.isEqual(this.getOperateButtons(this.props), this.getOperateButtons(prevProps)))
+        ) {
+          const operatesButtons = this.getOperateButtons(this.props);
+
+          if (operatesButtons.length && !_.get(window, 'shareState.shareId')) {
+            const rows = this.props.sheetViewData.rows;
+            const rowIds = rows.map(r => r.rowid).filter(identity);
+
+            if (_.isEmpty(rowIds)) {
+              return;
+            }
+
+            worksheetAjax
+              .checkWorksheetRowsBtn({
+                worksheetId: this.props.worksheetId,
+                rowIds,
+                // 分组按钮在 operatesButtons 里是 group_ref，其 btnId 是合成的 group:xxx，
+                // 真正的成员按钮 id 在 b.buttons 内。需展开成员真实 btnId，否则组内按钮拿不到执行状态，
+                // OperateButtons 里按 status 判定会把分组内按钮全部置灰。
+                btnIds: _.flatMap(operatesButtons, b =>
+                  b.type === 'group_ref' && _.isArray(b.buttons) ? b.buttons.map(member => member.btnId) : [b.btnId],
+                ),
+              })
+              .then(data => {
+                const buttonsCheckStatus = {};
+                data.forEach(item => {
+                  item.rowIds.forEach(rowId => {
+                    buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
+                  });
+                });
+                this.setState({
+                  buttonsCheckStatus: {
+                    [key]: buttonsCheckStatus,
+                  },
+                });
+              });
+          }
+        }
+      }
+    }
+
     const { view } = this.props;
 
     if (
@@ -626,7 +684,10 @@ class TableView extends React.Component {
         !_.isEqual(
           prevProps.sheetViewData.rows.filter(r => r.rowid === 'groupTitle').map(r => r.count),
           this.props.sheetViewData.rows.filter(r => r.rowid === 'groupTitle').map(r => r.count),
-        ))
+        )) ||
+      // 操作列「快捷按钮」集合变化（如启用/停用分组内按钮导致空分组显隐）会改变 operatesButtonsWidth，
+      // 但 react-window 列宽是缓存的，仅 re-render 传入新宽度不会重测量，需显式 forceUpdate 让其按新宽度重算。
+      !_.isEqual(this.getOperateButtons(this.props), this.getOperateButtons(prevProps))
     ) {
       if (_.isFunction(_.get(this.table, 'current.table.refs.forceUpdate'))) {
         this.table.current.table.refs.forceUpdate();
@@ -669,9 +730,21 @@ class TableView extends React.Component {
           'buttons',
           'printList',
           'worksheetInfo.isRequestingRelationControls',
+          'worksheetInfo.advancedSetting.liststyle',
           'operateButtonLoading',
+          // 操作列「快捷按钮」依赖 sheetButtons（getOperateButtons 取的就是它）；
+          // 启用/停用分组内按钮只改 sheetButtons 的 status，漏听会导致不 re-render、
+          // operatesButtonsWidth 不重算 → 快捷按钮列宽度不更新。注意它与 buttons 是两个不同的 prop。
+          'sheetButtons',
           'saveViewSetLoading',
           'foldedMap',
+          'worksheetId',
+          'viewId',
+          'sheetFetchParams',
+          'navGroupFilters',
+          'quickFilter',
+          'chartId',
+          'chartIdFromUrl',
         ],
         key => !_.isEqual(get(nextProps, key), get(this.props, key)),
       )
@@ -683,6 +756,7 @@ class TableView extends React.Component {
     document.body?.removeEventListener('click', this.outerClickEvent);
     emitter.removeListener('RELOAD_SHEET_VIEW', this.props.refresh);
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
+    emitter.removeListener('ADD_RECORD_TO_SHEETVIEW', this.addRecordToViewEvent);
     this.unbindShift();
     if (this.refreshTimer) {
       clearInterval(this.refreshTimer);
@@ -700,12 +774,12 @@ class TableView extends React.Component {
     if (
       !!document.querySelector('.ant-modal-root') ||
       window.cellisediting ||
+      window.cellisfocus ||
       window.newRecordActive ||
       this.state.recordInfoVisible ||
       !this.tableConfig.allowAdd ||
       !isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) ||
-      document.activeElement.tagName.toLowerCase() === 'input' ||
-      document.activeElement.tagName.toLowerCase() === 'textarea'
+      ['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())
     ) {
       return;
     }
@@ -786,6 +860,18 @@ class TableView extends React.Component {
         }
       });
     }
+  };
+
+  // 外部（如工作流推送打开记录）提交或新增记录后，将记录加为当前表的最新记录
+  addRecordToViewEvent = ({ worksheetId, record } = {}) => {
+    const { addRecord, sheetViewData } = this.props;
+    const rowId = _.get(record, 'rowid');
+
+    if (worksheetId !== this.props.worksheetId || !rowId || _.find(sheetViewData.rows, r => r.rowid === rowId)) {
+      return;
+    }
+
+    addRecord(record);
   };
 
   handleCellClick = (cell, row) => {
@@ -904,11 +990,12 @@ class TableView extends React.Component {
     let { showControls = [] } = view || {};
 
     if (showControlIds && showControlIds.length) {
-      const orderedIds = showControls.length ? showControls : controls.map(c => c.controlId);
-      return orderedIds
-        .filter(cid => showControlIds.includes(cid))
-        .map(cid => _.find(controls, { controlId: cid }))
-        .filter(_.identity);
+      // 有视图配置(showControls)时按其顺序排列，并保留 showControls 中不存在的选中列(放末尾)；
+      // 未关联视图或视图未配置显示列时，尊重传入的 showControlIds 顺序
+      const orderedIds = showControls.length
+        ? _.uniq([...showControls.filter(cid => showControlIds.includes(cid)), ...showControlIds])
+        : showControlIds;
+      return orderedIds.map(cid => _.find(controls, { controlId: cid })).filter(_.identity);
     }
 
     let columns = [];
@@ -1053,7 +1140,12 @@ class TableView extends React.Component {
   get disabledFunctions() {
     const { chartId } = this;
 
-    if (chartId || this.props.isTreeTableView || this.props.hideFilter) {
+    if (
+      chartId ||
+      this.props.isTreeTableView ||
+      this.props.hideFilter ||
+      !isOpenPermit(permitList.filterSwitch, this.sheetSwitchPermit)
+    ) {
       return ['filter'];
     } else {
       return [];
@@ -1624,7 +1716,7 @@ class TableView extends React.Component {
   };
 
   renderGroupMore = ({ className, style, row, columnIndex, getColumnWidth }) => {
-    const { loadGroupMore, groupFetchParams = {} } = this.props;
+    const { loadGroupMore } = this.props;
     const { fixedColumnCount } = this.props.sheetViewConfig;
     let newClassName = className + ' loadMoreCell';
 
@@ -1640,20 +1732,20 @@ class TableView extends React.Component {
             className="textSecondary Font13 Hand valignWrapper"
             style={{ marginLeft: 40, height: '100%' }}
             onClick={() => {
-              if (groupFetchParams[row.groupKey]?.isLoading) {
+              if (row.isLoading) {
                 return;
               }
 
               loadGroupMore(row.groupKey);
             }}
           >
-            {groupFetchParams[row.groupKey]?.isLoading ? (
+            {row.isLoading ? (
               <>
                 {_l('加载中')}
                 <i className="icon icon-loading_button groupLoading InlineBlock mLeft5 textTertiary Font18"></i>{' '}
               </>
             ) : (
-              <span className="ThemeHoverColor3">{_l('加载更多')}</span>
+              <span className="hoverColorPrimary">{_l('加载更多')}</span>
             )}
           </div>
         </div>
@@ -2136,6 +2228,8 @@ class TableView extends React.Component {
   }
 }
 
+const TableView = autoSize(TableViewBase);
+
 function SheetViewConnecter(props) {
   const {
     view,
@@ -2146,7 +2240,6 @@ function SheetViewConnecter(props) {
     updateRows,
     updateTreeByRowChange,
   } = props;
-  const { treeMap } = treeTableViewData;
   const context = useContext(SheetContext);
   const rows = useMemo(() => {
     if (!isTreeTableView || !!filters.keyWords) {
@@ -2154,7 +2247,7 @@ function SheetViewConnecter(props) {
     } else {
       return getSheetViewRows(sheetViewData, treeTableViewData);
     }
-  }, [sheetViewData.rows, isTreeTableView, treeMap]);
+  }, [filters.keyWords, isTreeTableView, sheetViewData, treeTableViewData]);
   return (
     <TableView
       {...props}

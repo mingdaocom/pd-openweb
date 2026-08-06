@@ -41,11 +41,13 @@ function Container() {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
+
           if (response.success) {
             // 如果存在 appscheme，显示对话框并返回 scheme URL
             if (request.appscheme) {
               showLoginSuccessDialog(response, request.appscheme);
             }
+
             const ua = navigator.userAgent;
             const isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
             const info = {
@@ -58,6 +60,7 @@ function Container() {
             };
             const string = JSON.stringify(info);
             const base64 = window.btoa(string);
+
             if (isIOS) {
               window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
             } else {
@@ -69,6 +72,7 @@ function Container() {
         }
       }
     };
+
     xhr.send(JSON.stringify(request));
   };
 

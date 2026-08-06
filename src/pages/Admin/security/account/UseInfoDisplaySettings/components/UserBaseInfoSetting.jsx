@@ -27,13 +27,15 @@ export default class UserBaseInfoSetting extends Component {
     this.getUserCardInfo();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.flag !== nextProps.flag) {
-      this.setState({
-        baseSettingData: getFieldsData(false, _.get(nextProps, 'settings.psersonalSetList', [])),
-        cardSettingData: getFieldsData(true, _.get(nextProps, 'settings.cardSetList', [])),
-        displayFieldForName: _.get(nextProps, 'settings.displayFieldForName'),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.flag !== this.props.flag) {
+        this.setState({
+          baseSettingData: getFieldsData(false, _.get(this.props, 'settings.psersonalSetList', [])),
+          cardSettingData: getFieldsData(true, _.get(this.props, 'settings.cardSetList', [])),
+          displayFieldForName: _.get(this.props, 'settings.displayFieldForName'),
+        });
+      }
     }
   }
 

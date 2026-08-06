@@ -90,6 +90,7 @@ export default function CreateVerticalRecord(props) {
               autoFocus
               onPressEnter={() => {
                 const formattedValue = value.trim();
+
                 if (formattedValue) {
                   createTextTitleRecord(formattedValue, true);
                   setValue('');
@@ -101,6 +102,7 @@ export default function CreateVerticalRecord(props) {
               value={value}
               onBlur={() => {
                 const formattedValue = value.trim();
+
                 if (formattedValue) {
                   createTextTitleRecord(formattedValue);
                   setValue('');

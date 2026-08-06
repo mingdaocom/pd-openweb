@@ -153,7 +153,7 @@ export default function DelegationConfigModal(props) {
     ? entrustData.companyId
     : !_.includes(existCompanyIds, localStorage.getItem('currentProjectId'))
       ? localStorage.getItem('currentProjectId')
-      : projectList.find(it => !_.includes(existCompanyIds, it.projectId)).projectId;
+      : (projectList.find(it => !_.includes(existCompanyIds, it.projectId)) || {}).projectId;
   const currentProject = _.find(projectList, it => it.projectId == currentProjectId);
   const [orgInfo, setOrgInfo] = useState(!_.isEmpty(currentProject) ? currentProject : projectList[0]);
   const [selectUserVisible, setSelectUserVisible] = useState(false);
@@ -407,7 +407,7 @@ export default function DelegationConfigModal(props) {
                     <div className="flex pRight8 overflowHidden">
                       {selectedApps.map(item => {
                         return (
-                          <div className="appTags">
+                          <div key={item.appId} className="appTags">
                             <span className="ellipsis">{item.appName}</span>
                             <i
                               className="icon-minus-square Font16 tagDel"
@@ -477,6 +477,7 @@ export default function DelegationConfigModal(props) {
             {projectList.map(it => {
               return (
                 <div
+                  key={it.projectId}
                   className="flexRow projectItem"
                   onClick={() => {
                     if (_.includes(existCompanyIds, it.projectId)) return;

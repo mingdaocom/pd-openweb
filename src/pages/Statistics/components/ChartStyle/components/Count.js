@@ -156,6 +156,7 @@ export const Location = ({ summary, locationType, onChangeSummary }) => {
         {getLocationTypes(locationType).map(item => (
           <div
             key={item.value}
+            title={item.text}
             className={cx('flex centerAlign pointer textSecondary', { active: summary.location == item.value })}
             onClick={() => {
               onChangeSummary({
@@ -163,7 +164,7 @@ export const Location = ({ summary, locationType, onChangeSummary }) => {
               });
             }}
           >
-            {item.text}
+            <span className="ellipsis">{item.text}</span>
           </div>
         ))}
       </div>

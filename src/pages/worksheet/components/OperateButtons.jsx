@@ -107,9 +107,15 @@ export default function OperateButtons({
   });
   buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId, row);
   if (_.isObject(status)) {
+    const isCustomBtnDisabled = button => button.type === 'custom_button' && !status[`${recordId}-${button.btnId}`];
     buttons = buttons.map(button => ({
       ...button,
-      disabled: button.type === 'custom_button' && !status[`${recordId}-${button.btnId}`],
+      disabled: isCustomBtnDisabled(button),
+      // 分组(group_ref)的成员按钮嵌套在 buttons 里，顶层 map 遍历不到，
+      // 需同样按 status 计算各成员的 disabled，否则组内按钮不满足执行条件时不会置灰。
+      ...(button.type === 'group_ref' && _.isArray(button.buttons)
+        ? { buttons: button.buttons.map(member => ({ ...member, disabled: isCustomBtnDisabled(member) })) }
+        : {}),
     }));
   }
 
@@ -121,8 +127,10 @@ export default function OperateButtons({
   useLayoutEffect(() => {
     if (loading && isInCard && conRef.current) {
       setTimeout(() => {
-        setWidth(conRef.current.clientWidth);
-        setLoading(false);
+        if (conRef.current) {
+          setWidth(conRef.current.clientWidth);
+          setLoading(false);
+        }
       }, 0);
     }
   });
@@ -176,83 +184,84 @@ export default function OperateButtons({
             showIcon,
             showAsPrimary: style === 'standard' && index < primaryNum,
             className: ['operates-' + style, 'operates-showIcon-' + showIcon].join(' '),
-            ...(button.type !== 'custom_button' && {
-              onClick: () => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
-
-                if (button.type === 'copy') {
-                  handleCopyRecord({
-                    worksheetId,
-                    viewId,
-                    recordId,
-                    onCopySuccess,
-                  });
-                } else if (button.type === 'delete') {
-                  if (row.sys_lock) {
-                    alert(_l('%0已锁定', entityName), 3);
+            ...(button.type !== 'custom_button' &&
+              button.type !== 'group_ref' && {
+                onClick: () => {
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
 
-                  handleDeleteRecord({
-                    worksheetId,
-                    recordId,
-                    // onDelete,
-                    onDeleteSuccess,
-                  });
-                } else if (button.type === 'share') {
-                  handleShareRecord({
-                    isCharge,
-                    appId,
-                    worksheetId,
-                    viewId,
-                    recordId,
-                    sheetSwitchPermit,
-                  });
-                } else if (button.type === 'sysprint') {
-                  handleSystemPrintRecord({
-                    worksheetId,
-                    viewId,
-                    appId,
-                    projectId,
-                    recordId,
-                    rowIds: [recordId],
-                  });
-                } else if (button.type === 'print') {
-                  worksheetAjax
-                    .getPrintList({
-                      viewId,
+                  if (button.type === 'copy') {
+                    handleCopyRecord({
                       worksheetId,
-                      rowIds: [recordId].filter(Boolean),
-                    })
-                    .then(templates => {
-                      if (find(templates, template => template.id === button.printItem.id && !template.disabled)) {
-                        handleTemplateRecordPrint({
-                          worksheetId,
-                          viewId,
-                          recordId,
-                          appId,
-                          projectId,
-                          template: button.printItem,
-                          attriData: controls
-                            .filter(o => o.attribute === 1)
-                            .map(o => ({
-                              ...o,
-                              value: get(row, o.controlId),
-                            })),
-                          updatePrintStatus: ({ printLoading }) =>
-                            setBtnDisable(old => ({ ...old, [button.btnId]: printLoading })),
-                        });
-                      } else {
-                        alert(_l('无法打印“%0”', button.printItem.name), 3);
-                        setBtnDisable(old => ({ ...old, [button.printItem.id]: true }));
-                      }
+                      viewId,
+                      recordId,
+                      onCopySuccess,
                     });
-                }
-              },
-            }),
+                  } else if (button.type === 'delete') {
+                    if (row.sys_lock) {
+                      alert(_l('%0已锁定', entityName), 3);
+                      return;
+                    }
+
+                    handleDeleteRecord({
+                      worksheetId,
+                      recordId,
+                      // onDelete,
+                      onDeleteSuccess,
+                    });
+                  } else if (button.type === 'share') {
+                    handleShareRecord({
+                      isCharge,
+                      appId,
+                      worksheetId,
+                      viewId,
+                      recordId,
+                      sheetSwitchPermit,
+                    });
+                  } else if (button.type === 'sysprint') {
+                    handleSystemPrintRecord({
+                      worksheetId,
+                      viewId,
+                      appId,
+                      projectId,
+                      recordId,
+                      rowIds: [recordId],
+                    });
+                  } else if (button.type === 'print') {
+                    worksheetAjax
+                      .getPrintList({
+                        viewId,
+                        worksheetId,
+                        rowIds: [recordId].filter(Boolean),
+                      })
+                      .then(templates => {
+                        if (find(templates, template => template.id === button.printItem.id && !template.disabled)) {
+                          handleTemplateRecordPrint({
+                            worksheetId,
+                            viewId,
+                            recordId,
+                            appId,
+                            projectId,
+                            template: button.printItem,
+                            attriData: controls
+                              .filter(o => o.attribute === 1)
+                              .map(o => ({
+                                ...o,
+                                value: get(row, o.controlId),
+                              })),
+                            updatePrintStatus: ({ printLoading }) =>
+                              setBtnDisable(old => ({ ...old, [button.btnId]: printLoading })),
+                          });
+                        } else {
+                          alert(_l('无法打印“%0”', button.printItem.name), 3);
+                          setBtnDisable(old => ({ ...old, [button.printItem.id]: true }));
+                        }
+                      });
+                  }
+                },
+              }),
           }))}
           btnDisable={btnDisable}
           onButtonClick={btnId => {

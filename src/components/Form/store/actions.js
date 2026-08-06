@@ -4,7 +4,7 @@ import _, { isEmpty } from 'lodash';
 import { Dialog } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
+import { getExpandWidgetIdsMap } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
 import { browserIsMobile } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
@@ -80,6 +80,7 @@ export const getFilterDataByRuleAction = (
   const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = props;
   const { rules = [], searchConfig = [], uniqueErrorItems = [] } = getState();
   let lastRuleSetValueChange;
+
   let tempRenderData = updateRulesData({
     rules,
     recordId,
@@ -142,10 +143,22 @@ export const getFilterDataByRuleAction = (
     },
   });
 
+  const controlMap = {};
+  const sectionControlsMap = {};
+
+  tempRenderData.forEach(item => {
+    controlMap[item.controlId] = item;
+
+    if (item.sectionId) {
+      sectionControlsMap[item.sectionId] = sectionControlsMap[item.sectionId] || [];
+      sectionControlsMap[item.sectionId].push(item);
+    }
+  });
+
   tempRenderData.forEach(item => {
     // 标签页显示，但标签页内没有显示字段，标签页隐藏
     if (item.type === 52 && controlState(item, from).visible && !item.hidden) {
-      const childWidgets = tempRenderData.filter(i => i.sectionId === item.controlId);
+      const childWidgets = sectionControlsMap[item.controlId] || [];
 
       if (_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden))) {
         item.fieldPermission = replaceStr(item.fieldPermission || '111', 0, '0');
@@ -153,13 +166,7 @@ export const getFilterDataByRuleAction = (
     }
 
     // 标签页字读，所有子集只读
-    if (
-      item.sectionId &&
-      !controlState(
-        _.find(tempRenderData, t => t.controlId === item.sectionId),
-        from,
-      ).editable
-    ) {
+    if (item.sectionId && !controlState(controlMap[item.sectionId], from).editable) {
       item.fieldPermission = replaceStr(item.fieldPermission || '111', 1, '0');
     }
   });
@@ -271,7 +278,7 @@ export const errorDialog = errors => {
  */
 export const getSubmitDataAction = (
   dispatch,
-  { props, getState, options, dataFormat, getSubmitBegin, getControlRefs, newErrorDialog },
+  { props, getState, options, dataFormat, getSubmitBegin, getControlRefs, getFormContainer, newErrorDialog },
 ) => {
   const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = props;
   const { rules, activeTabControlId, errorItems, uniqueErrorItems } = getState();
@@ -320,7 +327,8 @@ export const getSubmitDataAction = (
     .filter(c => c.type === 34)
     .map(c => ({
       controlId: c.controlId,
-      error: c.store && getSubListErrorOfStore(c.store),
+      // 工作流审批规则可能会在当前表单数据上改写子表字段必填状态，子表 store 里的 control 可能还是旧配置。
+      error: c.store && getSubListErrorOfStore(c.store, c),
     }))
     .filter(c => !isEmpty(c.error));
   const currentErrorItems = _.uniqBy(
@@ -342,11 +350,13 @@ export const getSubmitDataAction = (
   // 标签页内报错，展开标签页
   // 分段内报错，展开分段
   if (hasError) {
+    const expandWidgetIdsMap = getExpandWidgetIdsMap(data, from);
+    const controlRefs = getControlRefs();
+
     // 分段
     data.forEach(d => {
       if (d.type === 22) {
-        const expandWidgetIds = getExpandWidgetIds(data, d, from);
-        const controlRefs = getControlRefs();
+        const expandWidgetIds = expandWidgetIdsMap[d.controlId] || [];
         const { handleExpand } = controlRefs[d.controlId] || {};
         const visibleErrors = totalErrors.filter(i => _.includes(expandWidgetIds, i.controlId));
 
@@ -363,7 +373,14 @@ export const getSubmitDataAction = (
     );
 
     if (firstErrorItem && !firstErrorItem.isSubList) {
-      const ele = document.getElementById(`formItem-${worksheetId}-${firstErrorItem.controlId}`);
+      // 详情页与审批弹层可能同时存在相同 id 的表单，只在当前表单实例内定位错误控件。
+      const formContainer = getFormContainer && getFormContainer();
+      const formItemId = `formItem-${worksheetId}-${firstErrorItem.controlId}`;
+      const ele =
+        formContainer &&
+        Array.from(formContainer.getElementsByClassName('customFormItem')).find(
+          item => item.id === formItemId && item.closest('.formContainer') === formContainer,
+        );
       ele && ele.scrollIntoView({ block: 'center' });
     }
 
@@ -407,7 +424,17 @@ export const getSubmitDataAction = (
  */
 export const submitFormDataAction = (
   dispatch,
-  { props, getState, options, dataFormat, updateSubmitBegin, getSubmitBegin, getControlRefs, newErrorDialog },
+  {
+    props,
+    getState,
+    options,
+    dataFormat,
+    updateSubmitBegin,
+    getSubmitBegin,
+    getControlRefs,
+    getFormContainer,
+    newErrorDialog,
+  },
 ) => {
   if (!dataFormat) return;
 
@@ -421,6 +448,7 @@ export const submitFormDataAction = (
     dataFormat,
     getSubmitBegin,
     getControlRefs,
+    getFormContainer,
     newErrorDialog,
   });
 
@@ -553,7 +581,13 @@ export const handleChangeAction = (
       },
       searchByChange: searchByChange,
     });
-    getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet });
+
+    getFilterDataByRuleAction(dispatch, {
+      props,
+      dataFormat,
+      getState,
+      disabledRuleSet,
+    });
 
     const newErrorItems = dataFormat.getErrorControls();
     updateErrorItemsAction(

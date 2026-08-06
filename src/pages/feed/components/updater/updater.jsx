@@ -170,7 +170,7 @@ class Updater extends React.Component {
   handleOpen = () => {
     const $Attachment_updater = $('[targetdiv="#Attachment_updater"]');
 
-    if (!$Attachment_updater.hasClass('ThemeColor3')) {
+    if (!$Attachment_updater.hasClass('colorPrimary')) {
       $Attachment_updater.click();
     }
   };
@@ -206,7 +206,7 @@ class Updater extends React.Component {
         <input type="hidden" id="hidden_UpdaterType" />
         <input type="hidden" id="Hidden_FromStorage" value="0" />
         <div>
-          <div className="myUpdateItem ThemeBorderColor4">
+          <div className="myUpdateItem borderColorPrimary">
             <div className="myUpdateItem_Content" id="myUpdateItem_Content" style={{ position: 'relative' }}>
               <div id="msgContainer" className="msgContainer">
                 <textarea id="textarea_Updater" style={{ height: '24px' }} className="TextArea textTertiary Block" />
@@ -229,8 +229,8 @@ class Updater extends React.Component {
                 <div className="Relative">
                   <div className="Absolute Hidden" id="updateCloseContainer" style={{ right: '0px', top: '15px' }}>
                     <Tooltip title={_l('关闭')}>
-                      <span className="update_close ThemeBGColor3" style={{ margin: '5px' }}>
-                        <i className="icon-delete ThemeColor3" />
+                      <span className="update_close bgColorPrimary" style={{ margin: '5px' }}>
+                        <i className="icon-delete colorPrimary" />
                       </span>
                     </Tooltip>
                   </div>
@@ -275,12 +275,12 @@ class Updater extends React.Component {
                     />
                     <div className={cx('addAttachmentToKc mTop10', { Hidden: !this.state.temporaryData.length })}>
                       <input id="addAttachmentToKcToggle" type="checkbox" />
-                      <span id="addAttachmentToKcLink" className="ThemeColor3 Hand">
+                      <span id="addAttachmentToKcLink" className="colorPrimary Hand">
                         {_l('本地文件存入知识中心')}
                       </span>
                     </div>
                     <hr
-                      className={cx('updaterAttachmentSplitter ThemeBorderColor5', {
+                      className={cx('updaterAttachmentSplitter borderColorPrimaryDark', {
                         Hidden: !(this.state.temporaryData.length || this.state.kcAttachmentData.length),
                       })}
                     />

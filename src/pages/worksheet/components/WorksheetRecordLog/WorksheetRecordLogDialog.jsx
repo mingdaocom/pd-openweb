@@ -3,13 +3,12 @@ import { Drawer } from 'antd';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dialog, Icon } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { browserIsMobile } from 'src/utils/common';
 import WorksheetRocordLog from './WorksheetRocordLog';
 import './WorksheetRecordLogDialog.less';
 
-@errorBoundary
-export default class WorksheetRecordLogDialog extends Component {
+class WorksheetRecordLogDialog extends Component {
   static propTypes = {
     appId: PropTypes.string,
     controls: PropTypes.array,
@@ -83,3 +82,5 @@ export default class WorksheetRecordLogDialog extends Component {
     }
   }
 }
+
+export default ErrorBoundary.wrap(WorksheetRecordLogDialog);

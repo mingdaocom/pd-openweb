@@ -44,14 +44,15 @@ export default class UpgradeDetail extends Component {
       });
     }
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.worksheetDetailData, nextProps.worksheetDetailData)) {
-      const { worksheetDetailData, currentWorksheet } = nextProps;
 
-      if (!_.isEmpty(worksheetDetailData)) {
-        this.setState({
-          ...worksheetDetailData[currentWorksheet.id],
-        });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.worksheetDetailData, this.props.worksheetDetailData)) {
+        const { worksheetDetailData, currentWorksheet } = this.props;
+
+        if (!_.isEmpty(worksheetDetailData)) {
+          this.setState({ ...worksheetDetailData[currentWorksheet.id] });
+        }
       }
     }
   }

@@ -97,6 +97,10 @@ const AccountWrap = styled.div`
 const AccountDialogWrap = styled.div``;
 let sendVerifyCodeTimer = null;
 
+const isPasswordRule = str => {
+  return RegExpValidator.isPasswordValid(str);
+};
+
 export default function TelDialog(props) {
   const { setShow, show, classNames, appId, account, onOk } = props;
   const [code, setCode] = useState('');
@@ -111,10 +115,6 @@ export default function TelDialog(props) {
   const { SysSettings = {} } = global;
   const { passwordRegexTip } = SysSettings;
   const codeDiv = useRef();
-
-  const isPasswordRule = str => {
-    return RegExpValidator.isPasswordValid(str);
-  };
 
   const findPwdCallback = res => {
     const { accountResult } = res;

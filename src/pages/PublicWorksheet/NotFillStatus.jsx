@@ -102,6 +102,8 @@ function getTip(worksheetId, status) {
       return _l('此表单仅限在微信客户端中填写');
     case FILL_STATUS.NO_PROJECT_USER:
       return _l('此表单仅限本组织用户填写');
+    case FILL_STATUS.FILL_TIMES_LIMIT:
+      return _l('表单填写次数已达上限');
     default:
       return '';
   }

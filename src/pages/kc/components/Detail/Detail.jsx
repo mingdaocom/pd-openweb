@@ -62,12 +62,6 @@ class Detail extends React.Component {
     );
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!shallowEqual(this.props, nextProps)) {
-      this.getNodesTotalFolderCountAndFileSize(nextProps);
-    }
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     return (
       !shallowEqual(this.props, nextProps) ||
@@ -77,26 +71,46 @@ class Detail extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!shallowEqual(prevProps, this.props)) {
+        this.getNodesTotalFolderCountAndFileSize(this.props);
+      }
+    }
+
     let newState;
 
     if (!shallowEqual(this.props.data, prevProps.data)) {
-      newState = { isAttribute: true, detailLog: null };
+      newState = {
+        isAttribute: true,
+        detailLog: null,
+      };
     }
 
     if (this.props.data && this.props.data.position !== prevProps.data.position) {
-      _.assign(newState, { readablePosition: '' });
+      _.assign(newState, {
+        readablePosition: '',
+      });
     }
 
     if (newState) {
       this.setState(newState);
+
       if (_.has(newState, 'readablePosition')) {
         service
           .getReadablePosition(this.props.data.position)
-          .then(readablePosition => this._isMounted && this.setState({ readablePosition }))
+          .then(
+            readablePosition =>
+              this._isMounted &&
+              this.setState({
+                readablePosition,
+              }),
+          )
           .catch(err => {
             if (err.errorMessage === '无法获取共享文件夹信息，可能已被删除或没有权限') {
               if (this._isMounted) {
-                this.setState({ readablePosition: '位置不可见' });
+                this.setState({
+                  readablePosition: '位置不可见',
+                });
               }
             }
           });
@@ -118,7 +132,7 @@ class Detail extends React.Component {
         .getNodeById(this.props.data.id)
         .then(node => this._isMounted && this.setState({ shareUrl: node.shareUrl }))
         .catch(() => {
-          alert('获取分享链接失败');
+          alert(_l('获取分享链接失败'));
         });
     }
   };
@@ -434,7 +448,7 @@ class Detail extends React.Component {
 
     return (
       <a
-        className="ThemeColor3"
+        className="colorPrimary"
         onClick={() => {
           service
             .getNodeByVersionId({
@@ -498,13 +512,13 @@ class Detail extends React.Component {
           <div className="detailType">
             <ul>
               <li
-                className={cx('transitions', { 'ThemeBorderColor3 ThemeColor3': this.state.isAttribute })}
+                className={cx('transitions', { 'borderColorPrimary colorPrimary': this.state.isAttribute })}
                 onClick={() => this.setState({ isAttribute: true })}
               >
                 {_l('属性')}
               </li>
               <li
-                className={cx('transitions', { 'ThemeBorderColor3 ThemeColor3': !this.state.isAttribute })}
+                className={cx('transitions', { 'borderColorPrimary colorPrimary': !this.state.isAttribute })}
                 onClick={() => this.setState({ isAttribute: false }, this.getNodeLogDetail)}
               >
                 {_l('日志')}
@@ -536,7 +550,7 @@ class Detail extends React.Component {
                     </span>
                   }
                 />
-                <AttributePair name={_l('类型')} value={data.ext ? data.ext : '文件夹'} />
+                <AttributePair name={_l('类型')} value={data.ext ? data.ext : _l('文件夹')} />
                 <AttributePair
                   name={_l('存储位置')}
                   value={<span title={this.state.readablePosition}>{this.state.readablePosition}</span>}

@@ -4,8 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { Inbox } from 'src/pages/chat/components/Inbox';
 import 'src/pages/chat/containers/ChatPanel/index.less';
 import * as actions from 'src/pages/chat/redux/actions';
@@ -21,16 +20,8 @@ const Wrap = styled.div`
     height: calc(100% - 50px);
   }
 `;
-const ClickAwayable = createDecoratedComponent(withClickAway);
-@connect(state => {
-  const { currentSession, currentSessionList, visible } = state.chat;
-  return {
-    currentSession,
-    currentSessionList,
-    visible,
-  };
-})
-export default class PortalMg extends Component {
+const ClickAwayable = ClickAway;
+let PortalMg = class PortalMg extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,12 +29,15 @@ export default class PortalMg extends Component {
       isError: false,
     };
   }
+
   handleClosePanel = () => {
     const { currentSession } = this.props;
 
     if (currentSession.value) {
       this.props.dispatch(actions.setNewCurrentSession({}));
-      socket.Contact.recordAction({ id: '' });
+      socket.Contact.recordAction({
+        id: '',
+      });
       socket.Contact.clearAllUnread();
     }
   };
@@ -51,6 +45,7 @@ export default class PortalMg extends Component {
     this.handleClosePanel();
     e.stopPropagation && e.stopPropagation();
   };
+
   render() {
     const { currentSession } = this.props;
     const exceptions = [
@@ -76,7 +71,6 @@ export default class PortalMg extends Component {
     ];
     return (
       <ClickAwayable
-        component="div"
         onClickAwayExceptions={exceptions}
         onClickAway={this.handleClickAway.bind(this)}
         className={cx('ChatPanel-wrapper ChatPanel-position tipBoxShadow portalChatPanel', {
@@ -109,10 +103,14 @@ export default class PortalMg extends Component {
                 onClick={e => {
                   this.handleClickAway(e);
                 }}
-                className="ChatPanel-inbox-close icon-close ThemeColor3"
+                className="ChatPanel-inbox-close icon-close colorPrimary"
               />
             )}
-            <div className={cx('ChatPanel-inbox-portalCon', { isM: browserIsMobile() })}>
+            <div
+              className={cx('ChatPanel-inbox-portalCon', {
+                isM: browserIsMobile(),
+              })}
+            >
               <Inbox inboxType={currentSession.iconType} count={currentSession.count} />
             </div>
           </Wrap>
@@ -122,4 +120,13 @@ export default class PortalMg extends Component {
       </ClickAwayable>
     );
   }
-}
+};
+PortalMg = connect(state => {
+  const { currentSession, currentSessionList, visible } = state.chat;
+  return {
+    currentSession,
+    currentSessionList,
+    visible,
+  };
+})(PortalMg);
+export default PortalMg;

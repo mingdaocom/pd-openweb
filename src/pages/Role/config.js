@@ -14,8 +14,8 @@ export const PERMISSION_WAYS = {
 export const TEXTS = {
   [PERMISSION_WAYS.CUSTOM]: _l('自定义权限'),
   [PERMISSION_WAYS.OnlyViewAllRecord]: _l('对所有记录只有查看权限'),
-  [PERMISSION_WAYS.OnlyManageSelfRecord]: _l('可查看加入的，只能编辑、删除自己拥有的记录'),
-  [PERMISSION_WAYS.OnlyManageSelfAndSubRecord]: _l('可查看加入的，只能编辑、删除自己拥有的记录'),
+  [PERMISSION_WAYS.OnlyManageSelfRecord]: _l('可查看自己加入的，只能编辑、删除自己拥有的记录'),
+  [PERMISSION_WAYS.OnlyManageSelfAndSubRecord]: _l('可查看自己加入的，只能编辑、删除自己拥有的记录'),
   [PERMISSION_WAYS.ViewAllAndManageSelfRecord]: _l('可查看所有记录，但只能编辑、删除自己拥有的记录'),
   [PERMISSION_WAYS.ViewAllAndManageSelfAndSubRecord]: _l('可查看所有记录，但只能编辑、删除自己拥有的记录'),
   [PERMISSION_WAYS.ManageAllRecord]: _l('可查看、编辑、删除所有记录'),
@@ -91,6 +91,18 @@ export const actionList = [
     tips: _l('包含工作表讨论、记录讨论'),
   },
   {
+    key: 'generalFilter',
+    txt: _l('筛选'),
+  },
+  {
+    key: 'generalStats',
+    txt: _l('统计'),
+  },
+  {
+    key: 'generalButtons',
+    txt: _l('自定义动作'),
+  },
+  {
     key: 'generalSystemPrinting',
     txt: _l('系统打印'),
   },
@@ -121,6 +133,14 @@ export const sheetActionList = [
   {
     key: 'worksheetExport',
     txt: _l('导出'),
+  },
+  {
+    key: 'worksheetFilter',
+    txt: _l('筛选'),
+  },
+  {
+    key: 'worksheetStats',
+    txt: _l('统计'),
   },
   {
     key: 'worksheetDiscuss',

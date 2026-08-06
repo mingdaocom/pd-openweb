@@ -6,8 +6,8 @@ import { func, number, string } from 'prop-types';
 import SVG from 'svg.js';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { browserIsMobile, emitter } from 'src/utils/common';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { getCardWidth } from 'src/utils/worksheet';
 import { getPosition, getRelateSheetId } from '../util';
@@ -42,40 +42,29 @@ export default class SortableRecordItem extends Component {
     if (hierarchyTopLevelDataCount < 200) {
       this.drawConnector();
     }
-
-    window.addEventListener('popstate', this.onQueryChange);
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.onQueryChange);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.recordInfoId &&
-      nextProps.recordInfoId !== this.props.recordInfoId &&
-      nextProps.recordInfoId === this.props.data.rowId
-    ) {
-      this.setState({
-        recordInfoVisible: true,
-        recordInfoRowId: nextProps.recordInfoId,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.recordInfoId &&
+        this.props.recordInfoId !== prevProps.recordInfoId &&
+        this.props.recordInfoId === prevProps.data.rowId
+      ) {
+        this.setState({
+          recordInfoVisible: true,
+          recordInfoRowId: this.props.recordInfoId,
+        });
+      }
     }
-  }
 
-  componentDidUpdate() {
     // if (!isEqual(this.getConnectLinePos(nextProps), this.getConnectLinePos(this.props))) {
     const { hierarchyTopLevelDataCount } = this.props;
 
     if (!this.isFirstSkip || hierarchyTopLevelDataCount < 200) {
       this.drawConnector();
-    }
-    // }
+    } // }
   }
-
-  onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
-  };
 
   getNode = (data, path) => {
     if (!path.length) return {};
@@ -157,11 +146,10 @@ export default class SortableRecordItem extends Component {
     if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
-      window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
+      window.location.href = pathCompletion(`/mobile/record/${appId}/${curInfo.wsid}/${rowId}`);
       return;
     }
 
-    handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
 
@@ -175,7 +163,7 @@ export default class SortableRecordItem extends Component {
 
       // 第一级 (本表)
       if (configIndex === 0 || viewControls.length === 1) {
-        return { worksheetId, viewId };
+        return { worksheetId, viewId, view };
       }
 
       // 获取关联控件配置的viewId
@@ -194,7 +182,8 @@ export default class SortableRecordItem extends Component {
       };
     }
 
-    return { worksheetId, viewId };
+    // 本表层级：详情按钮区需要 view.advancedSetting.detailgroup 才能渲染自定义动作分组
+    return { worksheetId, viewId, view };
   };
   getCurrentSheetRows = () => {
     const { stateTree = [] } = this.props;
@@ -287,6 +276,7 @@ export default class SortableRecordItem extends Component {
               appId={appId}
               worksheetId={recordInfoPara.worksheetId}
               enablePayment={worksheetInfo.enablePayment}
+              worksheetInfo={worksheetInfo}
               viewId={recordInfoPara.viewId}
               rowId={recordInfoRowId}
               onClose={() => {

@@ -81,7 +81,7 @@
   cursor: pointer;
   display: inline-block;
 }
-.folderSelectDialog .folderUrl .levelName:not(.ThemeColor3):hover {
+.folderSelectDialog .folderUrl .levelName:not(.colorPrimary):hover {
   text-decoration: none !important;
 }
 .folderSelectDialog .folderUrl .levelName:nth-child(3) {
@@ -166,7 +166,7 @@
   padding: 0;
   user-select: auto !important;
 }
-.folderSelectDialog .folderNode .nodeList .nodeItem:not(.ThemeBGColor3) .customSelect {
+.folderSelectDialog .folderNode .nodeList .nodeItem:not(.bgColorPrimary) .customSelect {
   z-index: 1000 !important;
 }
 .folderSelectDialog .folderNode .nodeList .nodeItem .leftContent {
@@ -334,7 +334,7 @@
 .folderSelectDialog .folderNode .nodeItem .statusIcon > i {
   vertical-align: middle;
 }
-.folderSelectDialog .folderNode .nodeItem .statusIcon > i:not(.ThemeColor3) {
+.folderSelectDialog .folderNode .nodeItem .statusIcon > i:not(.colorPrimary) {
   opacity: 0.5;
 }
 /*分享权限*/
@@ -385,7 +385,7 @@
   display: inline-block;
   max-width: 132px;
 }
-.folderSelectDialog .sharePermision ul li:not(.ThemeColor3):hover {
+.folderSelectDialog .sharePermision ul li:not(.colorPrimary):hover {
   background-color: var(--color-background-hover);
   cursor: pointer;
 }

@@ -1,7 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, Suspense } from 'react';
 import { Route } from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 import { string } from 'prop-types';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 
 export default class WithTitle extends Component {
   static propTypes = {
@@ -18,7 +19,11 @@ export default class WithTitle extends Component {
     return (
       <Fragment>
         {title && <DocumentTitle title={title} />}
-        <Comp {...props} {...rest} />
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <Comp {...props} {...rest} />
+          </Suspense>
+        </ErrorBoundary>
       </Fragment>
     );
   };

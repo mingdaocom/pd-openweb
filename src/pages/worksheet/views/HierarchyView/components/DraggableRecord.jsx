@@ -176,9 +176,7 @@ export default function DraggableRecord(props) {
     if (!pathId?.length || !parentPathId?.length) return false;
 
     const trimmed = pathId.slice(0, -1);
-    if (parentPathId.length !== trimmed.length) return false;
-
-    return parentPathId.every((element, index) => element === trimmed[index]);
+    return parentPathId.length === trimmed.length && parentPathId.every((element, index) => element === trimmed[index]);
   };
 
   const getStyle = () => {

@@ -7,6 +7,7 @@ import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { pathCompletion } from 'src/utils/common';
 
 const UserListWrapper = styled.div`
   flex: 1;
@@ -151,7 +152,7 @@ export default function RoleUserList(props) {
     roleApi.removeUserFromRole({ accountId: user.accountId, projectId, roleId }).then(res => {
       if (res) {
         if (isOwner) {
-          location.href = '/admin/sysroles/' + projectId;
+          location.href = pathCompletion('/admin/sysroles/' + projectId);
         } else {
           alert(_l('移除成功'));
           onUpdateSuccess();

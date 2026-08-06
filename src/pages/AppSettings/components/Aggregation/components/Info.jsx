@@ -12,6 +12,7 @@ import SyncTask from 'src/pages/integration/api/syncTask.js';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import 'src/pages/workflow/components/Switch/index.less';
 import { getTranslateInfo } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import { AGG_CONTROL_MAX, GROUPMAX, GROUPMAXBYREL, systemControls } from '../config';
 import {
   getAllSourceList,
@@ -30,6 +31,26 @@ import Preview from './Preview';
 import SourceCon from './SourceCon';
 import { Header, Wrap } from './style';
 import './style.less';
+
+const renderErrerDialog = errorMsgList => {
+  return Dialog.confirm({
+    title: _l('报错信息'),
+    className: 'connectorErrorDialog',
+    description: (
+      <div className="errorInfo" style={{ 'max-height': 400, overflow: 'auto' }}>
+        {errorMsgList.map((error, index) => {
+          return (
+            <div key={index} className="mTop5">
+              {error}
+            </div>
+          );
+        })}
+      </div>
+    ),
+    removeCancelBtn: true,
+    okText: _l('关闭'),
+  });
+};
 
 export default function Info(props) {
   const scrollDivRef = useRef(null);
@@ -186,7 +207,7 @@ export default function Info(props) {
   };
 
   const onUpdate = (nodes, isChange = true, data) => {
-    const flowData = data || flowData;
+    const currentFlowData = data || flowData;
     setState({
       isChange,
       updateLoading: true,
@@ -200,21 +221,21 @@ export default function Info(props) {
     AggTableAjax.updateNode(
       {
         projectId,
-        aggTableId: flowData.id,
+        aggTableId: currentFlowData.id,
         nodeConfigs: nodes,
-        updateFlag: isChange, //&& flowData.aggTableTaskStatus !== 0,
+        updateFlag: isChange, //&& currentFlowData.aggTableTaskStatus !== 0,
       },
       { isAggTable: true },
     ).then(res => {
       const clearAll = !!res.nodeConfigs.find(o => o.clearAll);
 
       if (clearAll) {
-        const groupDt = getNodeInfo(flowData, 'GROUP');
-        const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
+        const groupDt = getNodeInfo(currentFlowData, 'GROUP');
+        const aggregateDt = getNodeInfo(currentFlowData, 'AGGREGATE');
         const node = nodes[0];
         let param = {};
 
-        if (flowData.aggTableTaskStatus === 0) {
+        if (currentFlowData.aggTableTaskStatus === 0) {
           param = { sourceHasChange: true };
         }
 
@@ -222,9 +243,9 @@ export default function Info(props) {
           ...param,
           updateLoading: false,
           flowData: {
-            ...flowData,
+            ...currentFlowData,
             aggTableNodes: {
-              ..._.get(flowData, 'aggTableNodes'),
+              ..._.get(currentFlowData, 'aggTableNodes'),
               [node.nodeId]: node,
               [groupDt.nodeId]: { ...groupDt, nodeConfig: { ...groupDt.nodeConfig, config: { groupFields: [] } } },
               [aggregateDt.nodeId]: {
@@ -245,26 +266,6 @@ export default function Info(props) {
         });
         updateNodeConfig(infos);
       }
-    });
-  };
-
-  const renderErrerDialog = errorMsgList => {
-    return Dialog.confirm({
-      title: _l('报错信息'),
-      className: 'connectorErrorDialog',
-      description: (
-        <div className="errorInfo" style={{ 'max-height': 400, overflow: 'auto' }}>
-          {errorMsgList.map((error, index) => {
-            return (
-              <div key={index} className="mTop5">
-                {error}
-              </div>
-            );
-          })}
-        </div>
-      ),
-      removeCancelBtn: true,
-      okText: _l('关闭'),
     });
   };
 
@@ -300,6 +301,13 @@ export default function Info(props) {
         const { errorMsgList = [], isSucceeded } = res;
 
         if (isSucceeded) {
+          if (!id) {
+            location.replace(
+              pathCompletion(`/app/${appId}/settings/aggregations${location.search}`, { hasDomain: false }),
+            );
+            return;
+          }
+
           onClose();
         } else {
           if (errorMsgList.length > 0) {
@@ -321,7 +329,7 @@ export default function Info(props) {
   };
 
   const changeUrl = id => {
-    history.pushState({}, '', `${window.subPath || ''}/app/${appId}/settings/aggregation/${id}${location.search}`);
+    history.pushState({}, '', pathCompletion(`/app/${appId}/settings/aggregation/${id}${location.search}`));
   };
 
   //修改同步任务属性(name)
@@ -412,7 +420,7 @@ export default function Info(props) {
             <div
               title={(flowData || {}).taskName || _l('未命名聚合表')}
               className="name overflow_ellipsis Font16 Bold"
-              onClick={() => setState({ isEdit: true, name: (flowData || {}).taskName })}
+              onClick={() => setState({ isEdit: true, name: (flowData || {}).taskName || '' })}
             >
               {(flowData || {}).taskName || _l('未命名聚合表')}
             </div>
@@ -432,7 +440,7 @@ export default function Info(props) {
           />
           {hasChange && flowData.aggTableTaskStatus === 1 && (
             <span
-              className={cx('reset InlineBlock mRight24 textTertiary', { 'ThemeHoverColor3 Hand': !isPreviewRunning })}
+              className={cx('reset InlineBlock mRight24 textTertiary', { 'hoverColorPrimary Hand': !isPreviewRunning })}
               onClick={() => {
                 if (isPreviewRunning) return;
                 reset();
@@ -487,7 +495,7 @@ export default function Info(props) {
                     placement="bottom"
                     title={<span className="">{_l('标准版支持5个、专业版和旗舰版支持10个')}</span>}
                   >
-                    <Icon icon="info" className="Hand textTertiary ThemeHoverColor3 mLeft5 Font16" />
+                    <Icon icon="info" className="Hand textTertiary hoverColorPrimary mLeft5 Font16" />
                   </Tooltip>
                 )}
               </div>
@@ -522,11 +530,11 @@ export default function Info(props) {
                         </span>
                       }
                     >
-                      <Icon icon="info" className="Hand textTertiary ThemeHoverColor3 mLeft5 Font16" />
+                      <Icon icon="info" className="Hand textTertiary hoverColorPrimary mLeft5 Font16" />
                     </Tooltip>
                   </span>
                   <CheckBox
-                    className="Hand textSecondary ThemeHoverColor3"
+                    className="Hand textSecondary hoverColorPrimary"
                     checked={_.get(groupDt, 'nodeConfig.config.displayNull') !== false}
                     onClick={() => {
                       onUpdate(
@@ -569,7 +577,7 @@ export default function Info(props) {
                   />
                 ) : (
                   <span
-                    className="Hand mTop16 textSecondary ThemeHoverColor3 InlineBlock"
+                    className="Hand mTop16 textSecondary hoverColorPrimary InlineBlock"
                     onClick={() => {
                       setState({ showGroupDialog: true });
                     }}

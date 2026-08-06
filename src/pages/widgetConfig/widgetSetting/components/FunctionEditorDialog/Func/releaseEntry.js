@@ -1,7 +1,7 @@
 import { Base64 } from 'js-base64';
 import exec from './exec';
 
-function runWithParams(control, formData) {
+function runWithParams(control, formData, langCode) {
   if (!control.advancedSetting && control.expression) {
     try {
       control.advancedSetting = {
@@ -12,7 +12,7 @@ function runWithParams(control, formData) {
     }
   }
 
-  const result = exec(control, formData, { type: 'lib' });
+  const result = exec(control, formData, { type: 'lib', langCode });
 
   if (!result.error) {
     return result.value;
@@ -27,16 +27,16 @@ function runWithParams(control, formData) {
 
 function mobileRun(base64Str) {
   const params = JSON.parse(Base64.decode(base64Str));
-  return runWithParams(params.control, params.formData);
+  return runWithParams(params.control, params.formData, params.langCode);
 }
 
 function strRun(str) {
   const params = JSON.parse(str);
-  return runWithParams(params.control, params.formData);
+  return runWithParams(params.control, params.formData, params.langCode);
 }
 
 function objRun(obj) {
-  return runWithParams(obj.control, obj.formData);
+  return runWithParams(obj.control, obj.formData, obj.langCode);
 }
 
 export function run(str, type = 'mobile') {

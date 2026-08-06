@@ -49,7 +49,7 @@ export default function DetailHeader({
   if (customNodeName) {
     return (
       <div className="workflowDetailHeader flexRow">
-        <span className="icon-backspace Font26 mRight10 textPrimary ThemeHoverColor3 pointer" onClick={closeDetail} />
+        <span className="icon-backspace Font26 mRight10 textPrimary hoverColorPrimary pointer" onClick={closeDetail} />
         <div className="flex Font20 textPrimary bold">{customNodeName}</div>
       </div>
     );

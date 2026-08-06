@@ -1,6 +1,6 @@
-import React, { Component, Fragment, useEffect, useState } from 'react';
+import React, { Component, Fragment, useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import JsonView from 'react-json-view';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
@@ -17,7 +17,8 @@ import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { getTranslateInfo, setFavicon } from 'src/utils/app';
+import { getTranslateInfo, setFavicon, shareGetAppLangDetail } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
 import FiltersGenerate from './components/FiltersGenerate';
 import Header from './components/Header';
 import Mcp from './components/Mcp';
@@ -52,6 +53,7 @@ const FIELD_TYPE = FIELD_TYPE_LIST.concat([
   { text: _l('对象'), value: 10000006, en: 'object' },
   { text: _l('文本'), value: 1, en: 'string' },
 ]);
+const isMobile = browserIsMobile();
 
 class WorksheetApi extends Component {
   constructor(props) {
@@ -176,17 +178,6 @@ class WorksheetApi extends Component {
         dataApp = {},
         authorizes = [],
       ] = resArr;
-      const { langInfo, id: appId, projectId } = dataApp;
-
-      if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
-        const lang = await appManagementAjax.getAppLangDetail({
-          projectId,
-          appId,
-          appLangId: langInfo.appLangId,
-        });
-        window[`langData-${appId}`] = lang.items;
-        window[`langVersion-${appId}`] = langInfo.version;
-      }
 
       if (isSharePage) {
         dataApp.iconUrl = shareData.appIcon;
@@ -196,6 +187,22 @@ class WorksheetApi extends Component {
         dataApp.projectId = shareData.projectId;
         dataApp.navColor = shareData.appNavColor;
       }
+
+      const { langInfo, id: appId, projectId } = dataApp;
+
+      if (isSharePage && appId && projectId) {
+        await shareGetAppLangDetail({ appId, projectId });
+      } else if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+        const lang = await appManagementAjax.getAppLangDetail({
+          projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        });
+        window[`langData-${appId}`] = lang.items;
+        window[`langVersion-${appId}`] = langInfo.version;
+      }
+
+      dataApp.name = getTranslateInfo(appId, null, appId).name || dataApp.name;
 
       worksheetList.forEach(item => {
         item.workSheetName = getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName;
@@ -1185,7 +1192,7 @@ class WorksheetApi extends Component {
                       <div className={cx(`mLeft30 w${getWidth(headerData, 'desc')}`)}>
                         {child.desc}
                         {child.linkid && (
-                          <a className="ThemeColor3" onClick={() => this.scrollToFixedPosition(child.linkid)}>
+                          <a className="colorPrimary" onClick={() => this.scrollToFixedPosition(child.linkid)}>
                             {_l('附录')}
                           </a>
                         )}
@@ -1220,13 +1227,7 @@ class WorksheetApi extends Component {
               ) : o.id === 'AreaInfo' ? (
                 <div className="worksheetApiContent2">
                   <div className="Font14 mTop20 textWhite mBottom6">{_l('获取地区信息')}</div>
-                  <JsonView
-                    src={o.cityData}
-                    theme="brewer"
-                    displayDataTypes={false}
-                    displayObjectSize={false}
-                    name={null}
-                  />
+                  <JsonView data={o.cityData} />
                 </div>
               ) : (
                 tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />
@@ -1402,7 +1403,7 @@ class WorksheetApi extends Component {
           <Tooltip title={visible ? _l('隐藏') : _l('显示')}>
             <Icon
               icon={visible ? 'visibility_off' : 'eye_off'}
-              className="Font16 pointer textSecondary ThemeHoverColor2"
+              className="Font16 pointer textSecondary hoverColorPrimaryDark"
               onClick={() => {
                 this.setState({
                   [visibleState]: visible
@@ -1415,7 +1416,7 @@ class WorksheetApi extends Component {
           <Tooltip title={_l('复制')}>
             <Icon
               icon="copy"
-              className="Font16 pointer textSecondary ThemeHoverColor2 mLeft8"
+              className="Font16 pointer textSecondary hoverColorPrimaryDark mLeft8"
               onClick={() => this.onCopy(text)}
             />
           </Tooltip>
@@ -1668,7 +1669,7 @@ class WorksheetApi extends Component {
               <div className="mLeft30 w36">
                 {typeof o.desc === 'object' ? JSON.stringify(o.desc) : o.desc}
                 {o.linkid && (
-                  <a className="ThemeColor3" onClick={() => this.scrollToFixedPosition(o.linkid)}>
+                  <a className="colorPrimary" onClick={() => this.scrollToFixedPosition(o.linkid)}>
                     {_l('附录')}
                   </a>
                 )}
@@ -1683,63 +1684,25 @@ class WorksheetApi extends Component {
   /**
    * 渲染通用的右内容
    */
-  renderRightContent({ data, successData, errorData, outputData, enableClipboard = false }) {
+  renderRightContent({ data, successData, errorData, outputData }) {
     return (
       <div className="worksheetApiContent2">
         <div className="mBottom16 Font14 textDisabled">{_l('提交数据提示')}</div>
 
-        {enableClipboard ? (
-          <JsonView
-            src={data}
-            theme="brewer"
-            displayDataTypes={false}
-            displayObjectSize={false}
-            name={null}
-            enableClipboard={({ namespace = [], src }) => {
-              let copyData = null;
-
-              switch (namespace.length) {
-                case 2:
-                  copyData = src;
-                  break;
-                default:
-                  copyData = JSON.stringify(src);
-                  break;
-              }
-
-              this.onCopy(copyData);
-            }}
-          />
-        ) : (
-          <JsonView src={data} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
-        )}
+        <JsonView data={data} />
 
         {successData ? (
           <Fragment>
             <div className="mTop16 mBottom16 Font14 textDisabled">{_l('返回数据示例')}</div>
-            {successData && (
-              <JsonView
-                src={successData}
-                theme="brewer"
-                displayDataTypes={false}
-                displayObjectSize={false}
-                name={_l('成功')}
-              />
-            )}
-            <JsonView
-              src={errorData}
-              theme="brewer"
-              displayDataTypes={false}
-              displayObjectSize={false}
-              name={_l('失败')}
-            />
+            {successData && <JsonView data={successData} rootKey={_l('成功')} />}
+            <JsonView data={errorData} rootKey={_l('失败')} />
           </Fragment>
         ) : null}
 
         {!!outputData && (
           <Fragment>
             <div className="mTop16 mBottom16 Font14 textDisabled">{_l('返回数据示例')}</div>{' '}
-            <JsonView src={outputData} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
+            <JsonView data={outputData} />
           </Fragment>
         )}
       </div>
@@ -2040,7 +2003,7 @@ class WorksheetApi extends Component {
               style={{ border: 'none' }}
               allowTransparency={true}
               allowFullScreen
-              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}`}
+              src={`${md.global.Config.OpenApiDocUrl}/application_v3/appkey-sign/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}&noHeader=true`}
             />
           ) : (
             <Fragment>
@@ -2123,6 +2086,27 @@ class WorksheetApi extends Component {
   }
 }
 
+const MobileUnsupported = ({ shareData = {} }) => {
+  const dataApp = {
+    iconUrl: shareData.appIcon,
+    iconColor: shareData.appIconColor,
+    name: shareData.appName,
+    projectId: shareData.projectId,
+    navColor: shareData.appNavColor,
+  };
+
+  return (
+    <div className="flexColumn h100">
+      <Header isSharePage={true} data={dataApp} dataApp={dataApp} appId={shareData.appId} />
+      <div className="worksheetApiMobileUnsupported flex">
+        <Icon icon="pc-mac-circle" className="textDisabled" />
+        <div className="Font17 textTertiary mTop30">{_l('当前文档暂不支持在移动端查看')}</div>
+        <div className="Font17 textTertiary mTop12">{_l('请前往电脑端进行查看')}</div>
+      </div>
+    </div>
+  );
+};
+
 const Entry = () => {
   const isSharePage = location.pathname.includes('/public/');
   const pathname = location.pathname.split('/');
@@ -2130,10 +2114,21 @@ const Entry = () => {
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
 
+  const getEntityShareById = useCallback(
+    async data => {
+      const result = await appManagementAjax.getEntityShareById({ id, sourceType: 45, ...data });
+      const clientId = _.get(result, 'data.clientId');
+      window.clientId = clientId;
+      clientId && sessionStorage.setItem(id, clientId);
+      return result;
+    },
+    [id],
+  );
+
   useEffect(() => {
     if (!isSharePage) {
       preall({ type: 'function' });
-      setLoading(false);
+      Promise.resolve().then(() => setLoading(false));
       return;
     }
 
@@ -2148,17 +2143,7 @@ const Entry = () => {
       setShare(result);
       setLoading(false);
     });
-  }, []);
-
-  const getEntityShareById = data => {
-    return new Promise(async resolve => {
-      const result = await appManagementAjax.getEntityShareById({ id, sourceType: 45, ...data });
-      const clientId = _.get(result, 'data.clientId');
-      window.clientId = clientId;
-      clientId && sessionStorage.setItem(id, clientId);
-      resolve(result);
-    });
-  };
+  }, [getEntityShareById, id, isSharePage]);
 
   const renderContent = () => {
     if ([14, 18, 19].includes(share.resultCode)) {
@@ -2205,6 +2190,10 @@ const Entry = () => {
 
   // 分享打开
   if (share.resultCode === 1) {
+    if (isMobile) {
+      return <MobileUnsupported shareData={share.data} />;
+    }
+
     return <WorksheetApi isSharePage={isSharePage} appId={share.data.appId} shareData={share.data} />;
   }
 

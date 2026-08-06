@@ -5,7 +5,7 @@ export default function GroupItem(props) {
   const { avatar, name, isOpen, groupId, groupMemberCount, isSelected, itemClickHandler } = props;
   const className = cx('list-item Font13 Hand', {
     'textDisabled disabled': !isOpen,
-    ThemeBGColor6: isSelected,
+    bgColorPrimaryTransparent: isSelected,
   });
   const style = !isOpen ? { opacity: 0.5 } : null;
   return (

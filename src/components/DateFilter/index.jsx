@@ -10,7 +10,8 @@ import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 
-const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
+const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
 
 const { RangePicker } = DatePicker;
 
@@ -114,7 +115,7 @@ const DateFilter = props => {
                 allowClear={false}
                 suffixIcon={null}
                 bordered={false}
-                locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+                locale={datePickerLocale}
                 format="YYYY/MM/DD"
                 value={customDate}
                 onChange={date => {

@@ -1,6 +1,5 @@
 ﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
-import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
 import cx from 'classnames';
 import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
@@ -13,10 +12,12 @@ import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import { BUTTON_ACTION_TYPE } from 'worksheet/constants/enum';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import { canEditData } from 'worksheet/redux/actions/util';
+import { ADD_EVENT_ENUM } from 'src/components/Form/core/enum';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { openWorkSheetDraft } from 'src/pages/worksheet/common/WorksheetDraft';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import Share from 'src/pages/worksheet/components/Share';
 import { browserIsMobile, emitter, getRequest } from 'src/utils/common';
@@ -141,7 +142,6 @@ function NewRecordForm(props) {
     privateShare,
     isDraft = false,
     handleAddRelation,
-    handOverNavigation = () => {},
   } = props;
   const cache = useRef({
     formLoading: true,
@@ -214,7 +214,6 @@ function NewRecordForm(props) {
           rowStatus: 21,
           setRequesting,
           onSubmitSuccess: ({ rowData, isOverLimit }) => {
-            handOverNavigation(true);
             removeTempRecordValueFromLocal(saveKey, worksheetId);
             if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
               _.get(cache, 'current.tempSaving.cancel')();
@@ -354,8 +353,6 @@ function NewRecordForm(props) {
         alertLockError: () => alertLockError(),
         setServiceError: badData => handleServiceError(badData),
         onSubmitSuccess: ({ rowData, newControls }) => {
-          handOverNavigation(!isContinue);
-
           // 支付配置‘立即支付’，创建记录后弹出付款层
           // if (
           //   worksheetInfo.isAllowImmediatePayment &&
@@ -560,6 +557,25 @@ function NewRecordForm(props) {
     }
   }
 
+  const applyAPPScanControlChange = useCallback(control => {
+    const form = customwidget.current;
+
+    if (!form?.dataFormat || !form?.triggerCustomEvent) return;
+
+    const currentControl =
+      _.find(form.dataFormat.getDataSource(), { controlId: control.controlId }) ||
+      _.find(formdataRef.current, { controlId: control.controlId });
+
+    if (!currentControl) return;
+
+    form.handleChange(control.value, control.controlId, currentControl, currentControl.type !== 2);
+    form.triggerCustomEvent({
+      ...currentControl,
+      ...control,
+      triggerType: ADD_EVENT_ENUM.CHANGE,
+    });
+  }, []);
+
   const handleAPPScanCodeFunc = newFormdata => {
     const { autoFill } = cache.current.newRecordOptions || {};
     newFormdata = newFormdata && !_.isEmpty(newFormdata) ? newFormdata : formdata;
@@ -570,17 +586,10 @@ function NewRecordForm(props) {
 
       return item;
     });
-    const cloneControls = _.clone(controls);
-
     handleAPPScanCode({
       controls,
       worksheetInfo,
-      updateData: control => {
-        const index = _.findIndex(cloneControls, c => c.controlId === control.controlId);
-        cloneControls[index] = { ...cloneControls[index], ...control };
-        setFormdata(cloneControls);
-        setRandom(Math.random());
-      },
+      updateData: applyAPPScanControlChange,
       handleSubmit: isContinueNext => {
         if (_.isUndefined(autoFill)) {
           props.handleAdd(isContinueNext);
@@ -594,7 +603,6 @@ function NewRecordForm(props) {
         handleAPPScanCodeFunc(controls);
       },
       onCancel,
-      handOverNavigation,
     });
   };
 
@@ -657,7 +665,6 @@ function NewRecordForm(props) {
           });
         } else {
           setFormdata(newFormdata);
-          handleAPPScanCodeFunc(newFormdata);
         }
 
         setFormLoading(false);
@@ -928,6 +935,12 @@ function NewRecordForm(props) {
                   masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
                   registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
                   mountRef={ref => (customwidget.current = ref.current)}
+                  onFormDataReady={dataFormat => {
+                    if (cache.current.appScanStarted || offlineUpload === '1') return;
+
+                    cache.current.appScanStarted = true;
+                    handleAPPScanCodeFunc(dataFormat.getDataSource());
+                  }}
                   formFlag={random}
                   recordinfo={worksheetInfo}
                   formdata={(formdata || []).filter(

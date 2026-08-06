@@ -317,7 +317,7 @@ export default class ShareUrl extends React.Component {
                 content={
                   <React.Fragment>
                     <img src={qrurl} />
-                    <p className="ThemeColor3 pBottom8">
+                    <p className="colorPrimary pBottom8">
                       <span
                         className="Hand"
                         onClick={() => {

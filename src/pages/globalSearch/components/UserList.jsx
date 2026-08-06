@@ -8,6 +8,7 @@ import store from 'src/redux/configureStore';
 import { USER_LIST_NAME } from '../enum';
 import { getImgUrl } from '../utils';
 import TextHeightLine from './TextHeightLine';
+import { pathCompletion } from 'src/utils/common';
 
 const Box = styled.div`
   .userListItem {
@@ -142,7 +143,7 @@ export default function UserList(props) {
         <div className={cx('userListShowMore valignWrapper', { userListHr: showHr })}>
           <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
-            href={showMore ? '' : `/search?search_key=${searchKeyword}&search_type=${USER_LIST_NAME[type].searchType}`}
+            href={showMore ? '' : pathCompletion(`/search?search_key=${searchKeyword}&search_type=${USER_LIST_NAME[type].searchType}`)}
             className="text mLeft18 textTertiary"
             onClick={clickShowHandle}
           >

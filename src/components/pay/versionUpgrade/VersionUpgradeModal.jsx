@@ -240,7 +240,7 @@ export default function VersionUpgrade(props) {
     return (
       <DialogWrap visible width={420} showFooter={false} onCancel={onCancel}>
         <div className="contactWrapper">
-          <Icon icon="history_edu" className="Font48 ThemeColor" />
+          <Icon icon="history_edu" className="Font48" />
           <div className="Font17 bold mTop16">{_l('请联系销售购买')}</div>
           <div className="Gray_75 mTop12">{_l('您的组织当前通过线下渠道购买 Nocoly 服务。请联系销售')}</div>
         </div>
@@ -297,7 +297,7 @@ export default function VersionUpgrade(props) {
               <div className="mBottom20">{v.featureTitle}</div>
               {v.featureList.map((item, i) => (
                 <div key={i} className="flexRow alignItemsCenter mBottom4">
-                  <Icon icon="done" className="ThemeColor Font16" />
+                  <Icon icon="done" className="Font16" />
                   <span className="mLeft4">{item}</span>
                 </div>
               ))}
@@ -308,7 +308,7 @@ export default function VersionUpgrade(props) {
         })}
       </div>
       <div
-        className="TxtCenter mTop20 mBottom20 Font14 Gray_75 pointer ThemeHoverColor3"
+        className="TxtCenter mTop20 mBottom20 Font14 Gray_75 pointer hoverColorPrimary"
         onClick={() => window.open('https://www.nocoly.com/pricing')}
       >
         <span>{_l('详细比较计划')}</span>

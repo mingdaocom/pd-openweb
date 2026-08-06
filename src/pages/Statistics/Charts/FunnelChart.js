@@ -4,9 +4,11 @@ import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { isFormatNumber } from 'statistics/common/controlUtils';
+import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { toFixed } from 'src/utils/control';
 import { formatrChartValue, formatYaxisList, getChartColors, getLegendType, getStyleColor } from './common';
+import loadG2Plot from './loadG2Plot';
 
 const mergeDataTime = (data, contrastData) => {
   const maxLengthData = data.length > contrastData.length ? data : contrastData;
@@ -172,22 +174,31 @@ export default class extends Component {
     };
     this.contrastData = null;
     this.FunnelChart = null;
+    this.FunnelComponent = null;
+    this.isUnmounted = false;
   }
   componentDidMount() {
-    import('@antv/g2plot').then(data => {
+    loadG2Plot().then(data => {
+      if (this.isUnmounted) {
+        return;
+      }
+
       this.FunnelComponent = data.Funnel;
       this.renderFunnelChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.FunnelChart && this.FunnelChart.destroy();
+    this.isUnmounted = true;
+    this.destroyFunnelChart();
   }
-  componentWillReceiveProps(nextProps) {
-    const { displaySetup, style } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-
-    // 显示设置
-    if (
+  componentDidUpdate(prevProps) {
+    const { displaySetup, style } = this.props.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = prevProps.reportData;
+    const shouldRecreate =
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
+      this.props.isLinkageData !== prevProps.isLinkageData;
+    const shouldUpdate =
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -198,44 +209,56 @@ export default class extends Component {
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       style.funnelConversionText !== oldStyle.funnelConversionText ||
       !_.isEqual(
-        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(prevProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
       ) ||
-      nextProps.themeColor !== this.props.themeColor ||
-      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
-    ) {
-      const config = this.getComponentConfig(nextProps);
-      this.FunnelChart && this.FunnelChart.update(config);
+      this.props.themeColor !== prevProps.themeColor ||
+      !_.isEqual(this.props.linkageMatch, prevProps.linkageMatch);
+
+    if (!this.FunnelComponent) {
+      return;
     }
 
     // 切换图表类型 & 累计
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
-      nextProps.isLinkageData !== this.props.isLinkageData
-    ) {
-      this.FunnelChart && this.FunnelChart.destroy();
-      this.renderFunnelChart(nextProps);
+    if (shouldRecreate) {
+      this.renderFunnelChart(this.props);
+      return;
+    }
+
+    // 显示设置
+    if (shouldUpdate && this.FunnelChart) {
+      const config = this.getComponentConfig(this.props);
+      this.FunnelChart.update(config);
     }
   }
+  destroyFunnelChart = () => {
+    if (this.FunnelChart) {
+      this.FunnelChart.destroy();
+      this.FunnelChart = null;
+    }
+  };
   renderFunnelChart(props) {
     const { reportData } = props;
     const { displaySetup, style, xaxes } = reportData;
+
+    if (!this.chartEl || !this.FunnelComponent) {
+      return;
+    }
+
     const config = this.getComponentConfig(props);
 
-    if (this.chartEl) {
-      this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
-      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData =
-        props.isLinkageData &&
-        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
-        xaxes.controlId;
-      if (this.isViewOriginalData || this.isLinkageData) {
-        this.FunnelChart.on('element:click', this.handleClick);
-      }
-
-      this.FunnelChart.render();
+    this.destroyFunnelChart();
+    this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
+    this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+    this.isLinkageData =
+      props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      xaxes.controlId;
+    if (this.isViewOriginalData || this.isLinkageData) {
+      this.FunnelChart.on('element:click', this.handleClick);
     }
+
+    this.FunnelChart.render();
   }
   handleClick = ({ data, gEvent }) => {
     const { reportData, isMobile } = this.props;
@@ -311,6 +334,11 @@ export default class extends Component {
   };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
+
+    if (!this.FunnelChart || !this.FunnelComponent) {
+      return;
+    }
+
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState(
       {
@@ -323,7 +351,7 @@ export default class extends Component {
     );
   };
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail, layoutType } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
@@ -332,6 +360,7 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
+    const isMobile = props.isMobile || layoutType === 'mobile';
     const data = formatChartData(map, displaySetup, xaxes, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -429,7 +458,7 @@ export default class extends Component {
             },
           }
         : false,
-      conversionTag: displaySetup.showNumber
+      conversionTag: (isMobile ? (displaySetup.mobileShowNumber ?? displaySetup.showNumber) : displaySetup.showNumber)
         ? {
             formatter: (data, list) => {
               const { CONVERSATION_FIELD } = this.FunnelComponent;

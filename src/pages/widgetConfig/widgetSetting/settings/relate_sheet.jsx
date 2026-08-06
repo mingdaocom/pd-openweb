@@ -1,8 +1,7 @@
-﻿import React, { useEffect } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
-import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -142,6 +141,7 @@ export default function RelateSheet(props) {
     allowdrag = '0',
     openfastfilters,
     chooselisttype,
+    layercontrolid,
   } = getAdvanceSetting(data);
   const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
@@ -150,10 +150,22 @@ export default function RelateSheet(props) {
   const [{ sortVisible }, setState] = useSetState({
     sortVisible: false,
   });
+  const relationSheetConfigCallback = useRef();
+  const relationSheetLoadState = useRef({ status: 'idle' });
 
   const isRelateView = Boolean(viewId);
 
-  const rcsorttype = advancedSetting.rcsorttype || (sorts.length > 0 ? '2' : isRelateView ? '3' : '1');
+  const isSheetDisplay = value => {
+    return _.includes(['2', '5', '6'], value || showtype);
+  };
+
+  const getRelateSortDisplay = (showType = showtype) =>
+    isSheetDisplay(showType) ? RELATE_SORT_DISPLAY.filter(item => item.value !== '1') : RELATE_SORT_DISPLAY;
+
+  const rcsorttype =
+    isSheetDisplay() && advancedSetting.rcsorttype === '1'
+      ? ''
+      : advancedSetting.rcsorttype || (isSheetDisplay() ? '' : sorts.length > 0 ? '2' : isRelateView ? '3' : '1');
 
   const {
     loading,
@@ -161,8 +173,29 @@ export default function RelateSheet(props) {
   } = useSheetInfo({ worksheetId: dataSource, getSwitchPermit: true, saveIndex });
 
   useEffect(() => {
+    if (loading) {
+      relationSheetLoadState.current = { status: 'loading', dataSource };
+    } else if (relationSheetLoadState.current.status === 'loading') {
+      const loadState =
+        worksheetInfo.worksheetId === dataSource
+          ? {
+              status: 'success',
+              dataSource,
+              data: {
+                loading,
+                sheetInfo: worksheetInfo,
+                views,
+                controls,
+              },
+            }
+          : { status: 'success', dataSource, data: {} };
+
+      relationSheetLoadState.current = loadState;
+      relationSheetConfigCallback.current && relationSheetConfigCallback.current(loadState);
+    }
+
     //  切换控件手动更新
-    if (!loading && !isEmpty(controls) && worksheetInfo.worksheetId === dataSource) {
+    if (!loading && !_.isEmpty(controls) && worksheetInfo.worksheetId === dataSource) {
       // 缓存一份接口数据使用
       window.subListSheetConfig[controlId] = {
         loading,
@@ -170,7 +203,6 @@ export default function RelateSheet(props) {
         views,
         controls,
       };
-
       onChange({
         ...(showtype !== '3' && openfastfilters === '0'
           ? handleAdvancedSettingChange(data, {
@@ -211,13 +243,9 @@ export default function RelateSheet(props) {
       });
     }
   }, [scancontrol, scanlink]);
-  const isSheetDisplay = value => {
-    return _.includes(['2', '5', '6'], value || showtype);
-  };
 
   const getShowControls = (controls, showType) => {
-    const feControls = getFilterRelateControls({ controls, data });
-    if (isEmpty(showControls) && controlId.indexOf('-') > -1) return feControls.slice(0, 4).map(item => item.controlId);
+    if (_.isUndefined(showControls) || _.isEmpty(showControls)) return [];
     // 删除掉showControls 中已经被删掉的控件
     return showControls.filter(i => {
       const curItem = _.find(controls, c => c.controlId === i);
@@ -409,7 +437,12 @@ export default function RelateSheet(props) {
                   }
 
                   // 关联单条不支持一下操作
-                  nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '1', choosesorts: '' });
+                  nextData = handleAdvancedSettingChange(nextData, {
+                    sorts: '',
+                    allowcancel: '1',
+                    choosesorts: '',
+                    ...(layercontrolid ? { layercontrolid: '' } : {}),
+                  });
                   onChange(nextData);
                   return;
                 }
@@ -518,6 +551,7 @@ export default function RelateSheet(props) {
                     titlecolor: '',
                     ...(value !== '5' ? { layercontrolid: '' } : {}),
                     showtitleid: '',
+                    rcsorttype: '',
                   }),
                 };
               } else {
@@ -568,7 +602,29 @@ export default function RelateSheet(props) {
               return;
             }
 
-            openSelectConfig(props);
+            openSelectConfig({
+              ...props,
+              relationSheetConfig: {
+                controls,
+                views,
+                sheetInfo: worksheetInfo,
+              },
+              relationSheetLoading: loading,
+              subscribeRelationSheetConfig: callback => {
+                const loadState = relationSheetLoadState.current;
+                relationSheetConfigCallback.current = callback;
+
+                if (loadState.dataSource === dataSource && loadState.status === 'success') {
+                  callback(loadState);
+                }
+
+                return () => {
+                  if (relationSheetConfigCallback.current === callback) {
+                    relationSheetConfigCallback.current = undefined;
+                  }
+                };
+              },
+            });
           }}
         >
           <span className="icon-settings textTertiary mRight6 Font16" />
@@ -615,8 +671,8 @@ export default function RelateSheet(props) {
           </div>
           <Dropdown
             border
-            value={rcsorttype}
-            data={RELATE_SORT_DISPLAY}
+            value={rcsorttype || undefined}
+            data={getRelateSortDisplay()}
             onChange={value => {
               if (value === rcsorttype) return;
               onChange(handleAdvancedSettingChange(data, { rcsorttype: value, sorts: '', allowdrag: '0' }));

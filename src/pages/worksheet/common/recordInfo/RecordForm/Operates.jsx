@@ -10,6 +10,7 @@ export default class Operates extends Component {
     iseditting: PropTypes.bool,
     recordbase: PropTypes.shape({}),
     recordinfo: PropTypes.shape({}),
+    view: PropTypes.shape({}),
     sideVisible: PropTypes.bool,
     sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
     addRefreshEvents: PropTypes.func,
@@ -36,13 +37,17 @@ export default class Operates extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.recordbase.recordId !== this.props.recordbase.recordId ||
-      (nextProps.recordbase.viewId && nextProps.recordbase.viewId !== this.props.recordbase.viewId)
-    ) {
-      this.loadBtns(nextProps.recordbase.recordId, nextProps.recordbase.viewId);
-      this.setState({ btnDisable: {} });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.recordbase.recordId !== prevProps.recordbase.recordId ||
+        (this.props.recordbase.viewId && this.props.recordbase.viewId !== prevProps.recordbase.viewId)
+      ) {
+        this.loadBtns(this.props.recordbase.recordId, this.props.recordbase.viewId);
+        this.setState({
+          btnDisable: {},
+        });
+      }
     }
   }
 
@@ -60,9 +65,10 @@ export default class Operates extends Component {
     const { updateAiActionButtons } = this.props;
     const { api } = this.context;
     const buttons = await api().getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
-    updateAiActionButtons(buttons.filter(btn => btn.btnType === 1 && !btn.disabled));
+    const enabledButtons = buttons.filter(btn => btn.status !== 0);
+    updateAiActionButtons(enabledButtons.filter(btn => btn.btnType === 1 && !btn.disabled));
     this.setState({
-      customBtns: buttons.filter(btn => btn.btnType === 0),
+      customBtns: enabledButtons.filter(btn => btn.btnType === 0),
     });
   };
 
@@ -78,6 +84,7 @@ export default class Operates extends Component {
       iseditting,
       recordbase,
       recordinfo,
+      view,
       reloadRecord,
       hideRecordInfo,
       onUpdate,
@@ -88,6 +95,7 @@ export default class Operates extends Component {
     } = this.props;
     const { customBtns, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
+    const advancedSetting = _.get(view, 'advancedSetting') || {};
     if (iseditting) return <div className="flex" style={{ lineHeight: 1, overflowX: 'hidden' }}></div>;
     return (
       <React.Fragment>
@@ -103,6 +111,8 @@ export default class Operates extends Component {
               recordId={recordId}
               {..._.pick(recordinfo, ['projectId', 'entityName'])}
               buttons={customBtns}
+              detailgroup={advancedSetting.detailgroup}
+              detailbtns={advancedSetting.detailbtns}
               btnDisable={btnDisable}
               reloadRecord={reloadRecord}
               isRecordLock={isRecordLock}

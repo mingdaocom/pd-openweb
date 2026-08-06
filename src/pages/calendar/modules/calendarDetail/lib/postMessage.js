@@ -123,7 +123,7 @@ export default function ({ members, address, description, allDay, start, end, ti
     $('#btnprivate,#btnEmail').on('click', function () {
       var className = ['', 'postContentPrivate', 'postContentEmail'];
       var type = $(this).attr('type');
-      $(this).addClass('ThemeColor3').siblings().removeClass('ThemeColor3');
+      $(this).addClass('colorPrimary').siblings().removeClass('colorPrimary');
 
       $('#btnSendType').attr('type', type).removeClass().addClass(className[type]);
     });

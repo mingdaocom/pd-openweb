@@ -22,8 +22,8 @@ import {
   WaterMark,
 } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
@@ -31,8 +31,8 @@ import processAjax from 'src/pages/workflow/api/process';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getAppFeaturesPath, getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
+import { getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/app';
+import { emitter, getAppFeaturesPath, updateGlobalStoreForMingo } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Search from '../components/Search';
@@ -59,15 +59,11 @@ const HeaderWrap = styled.div`
     justify-content: center;
     align-items: center;
     line-height: normal;
-    margin-left: -3px;
+    margin-left: 10px;
   }
-  .textDisabled {
-    &:hover {
-      color: var(--color-text-secondary) !important;
-      .applicationIcon {
-        box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
-      }
-    }
+  .simpleHeaderBackIcon {
+    line-height: 1;
+    cursor: pointer;
   }
   .trash {
     color: var(--color-text-secondary);
@@ -82,6 +78,17 @@ const HeaderWrap = styled.div`
     }
   }
 `;
+
+function updateWorkflowMingoStore(appDetail = {}) {
+  updateGlobalStoreForMingo({
+    activeModule: 'workflow',
+    appId: appDetail.id,
+    projectId: appDetail.projectId,
+    sectionId: _.get(appDetail, 'sections[0].appSectionId'),
+    appName: appDetail.name,
+    appDescription: appDetail.description,
+  });
+}
 
 const CreateBtn = styled.div`
   .workflowAdd {
@@ -178,7 +185,6 @@ const ArrowDown = styled.span`
   }
 `;
 
-@errorBoundary
 class AppWorkflowList extends Component {
   constructor(props) {
     super(props);
@@ -209,28 +215,45 @@ class AppWorkflowList extends Component {
   requestPending = false;
 
   componentDidMount() {
+    const { appId } = this.props.match.params;
+    updateWorkflowMingoStore({ id: appId, ...(window.appInfo || {}) });
     this.getAppDetail();
     this.checkIsAppAdmin();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const type = this.getQueryStringType();
+  componentWillUnmount() {
+    if (window.globalStoreForMingo?.activeModule === 'workflow') {
+      updateGlobalStoreForMingo({ activeModule: 'worksheet' });
+    }
+  }
 
-    if (type !== this.state.type) {
-      this.setState({
-        loading: true,
-        type,
-        groupFilter: _.get(nextProps, 'match.params.worksheetId') || '',
-        userFilter: '',
-        statusFilter: '',
-        dateFilter: '',
-        keywords: '',
-        isAsc: true,
-        displayType: 'lastModifiedDate',
-        sortType: '',
-      });
-      this.getList(type);
-      this.getCount();
+  /**
+   * 获取type
+   */
+  /**
+   * 获取type
+   */
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const type = this.getQueryStringType();
+
+      if (type !== this.state.type) {
+        this.setState({
+          loading: true,
+          type,
+          groupFilter: _.get(this.props, 'match.params.worksheetId') || '',
+          userFilter: '',
+          statusFilter: '',
+          dateFilter: '',
+          keywords: '',
+          isAsc: true,
+          displayType: 'lastModifiedDate',
+          sortType: '',
+        });
+        this.getList(type);
+        this.getCount();
+      }
     }
   }
 
@@ -250,6 +273,7 @@ class AppWorkflowList extends Component {
     const appId = this.props.match.params.appId;
 
     homeApp.getApp({ appId, getLang: true }).then(appDetail => {
+      updateWorkflowMingoStore(appDetail);
       emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', appDetail);
       getAppLangDetail(appDetail).then(() => {
         appDetail.name = getTranslateInfo(appId, null, appId).name || appDetail.name;
@@ -336,6 +360,25 @@ class AppWorkflowList extends Component {
       });
   }
 
+  backToApp() {
+    const appId = this.props.match.params.appId;
+
+    window.disabledSideButton = true;
+
+    const storage = safeParse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
+    if (storage) {
+      const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+      navigateTo(
+        `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
+          .filter(o => o && !_.includes(['undefined', 'null'], o))
+          .join('/')}?from=insite`,
+      );
+    } else {
+      navigateTo(`/app/${appId}`);
+    }
+  }
+
   /**
    * 渲染头部
    */
@@ -345,35 +388,19 @@ class AppWorkflowList extends Component {
 
     return (
       <HeaderWrap className="flexRow alignItemsCenter">
-        <Tooltip placement="bottomLeft" title={_l('应用：%0', appDetail.name)}>
-          <div
-            className="flexRow pointer textDisabled alignItemsCenter"
-            onClick={() => {
-              window.disabledSideButton = true;
-
-              const storage =
-                JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
-
-              if (storage) {
-                const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-                navigateTo(
-                  `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
-                    .filter(o => o && !_.includes(['undefined', 'null'], o))
-                    .join('/')}?from=insite`,
-                );
-              } else {
-                navigateTo(`/app/${appId}`);
-              }
-            }}
-          >
-            <i className="icon-navigate_before Font20" />
+        <div className="flexRow alignItemsCenter">
+          <i
+            className="icon-backspace simpleHeaderBackIcon Font20 textTertiary hoverColorPrimary"
+            onClick={() => this.backToApp()}
+          />
+          <Tooltip placement="bottomLeft" title={_l('应用：%0', appDetail.name)}>
             <div className="applicationIcon" style={{ backgroundColor: appDetail.iconColor }}>
               <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
             </div>
-          </div>
-        </Tooltip>
+          </Tooltip>
+        </div>
 
-        <div className="flex nativeTitle Font17 bold mLeft16">{_l('自动化工作流')}</div>
+        <div className="flex nativeTitle Font17 bold mLeft10">{_l('自动化工作流')}</div>
 
         <Support
           className="pointer textSecondary mRight15"
@@ -460,8 +487,8 @@ class AppWorkflowList extends Component {
                 to={item.value ? `${linkUrl}${linkUrl.indexOf('?') > -1 ? '&' : '?'}type=${item.value}` : linkUrl}
                 key={item.value}
               >
-                <li className={cx({ 'active ThemeColor3': type === item.value })}>
-                  <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'textSecondary')} />
+                <li className={cx({ 'active colorPrimary': type === item.value })}>
+                  <i className={cx('Font18', item.icon, type === item.value ? 'colorPrimary' : 'textSecondary')} />
                   <span className="flex ellipsis mLeft10">{item.text}</span>
                   <span className="textTertiary mLeft10 Font13">
                     {(item.value ? count[item.value] : _.sum(Object.values(count))) || ''}
@@ -743,7 +770,7 @@ class AppWorkflowList extends Component {
             <div className="flex name mLeft10 mRight20">
               <ListName item={data} type={this.state.type} />
             </div>
-            <div className="w180 pRight20">{getActionTypeContent(this.state.type, data)}</div>
+            <div className="w180 pRight20 breakAll">{getActionTypeContent(this.state.type, data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
             <div className="w120 textSecondary flexRow">
               <UserHead
@@ -756,7 +783,7 @@ class AppWorkflowList extends Component {
             <div className="w20 mRight20 TxtCenter relative">
               <Icon
                 type="more_horiz"
-                className="textSecondary ThemeHoverColor3 pointer Font16 listBtn"
+                className="textSecondary hoverColorPrimary pointer Font16 listBtn"
                 onClick={() => this.setState({ selectFlowId: data.id })}
               />
               {selectFlowId === data.id && this.renderMoreOptions(data)}
@@ -886,8 +913,10 @@ class AppWorkflowList extends Component {
             </MenuItem>
           )}
 
-        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT, FLOW_TYPE.AI_ACTIONS], type) ||
-        (type === FLOW_TYPE.APPROVAL && data.triggerId) ? null : (
+        {_.includes(
+          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT, FLOW_TYPE.AI_ACTIONS],
+          type,
+        ) ? null : (
           <MenuItem>
             <DeleteFlowBtn
               item={data}
@@ -1253,4 +1282,4 @@ class AppWorkflowList extends Component {
   }
 }
 
-export default AppWorkflowList;
+export default ErrorBoundary.wrap(AppWorkflowList);

@@ -109,10 +109,6 @@ export const ROUTE_CONFIG = addSubPathOfRoutes({
     path: '/printForm/:appId/:printType/:type/:from/:key?',
     component: () => import('src/pages/Print'),
   },
-  printFormOld: {
-    path: '/printFormOld/:appId/:printType/:type/:from/:key?',
-    component: () => import('src/pages/OldPrint'),
-  },
   printPivotTable: {
     path: '/printPivotTable/:reportId/:themeColor?',
     component: () => import('src/pages/Statistics/PrintPivotTable'),

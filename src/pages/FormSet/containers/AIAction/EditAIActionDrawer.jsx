@@ -1,4 +1,4 @@
-﻿import React, { Fragment, useEffect, useRef } from 'react';
+import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import _ from 'lodash';
@@ -11,10 +11,7 @@ import { selectRecords } from 'src/components/SelectRecords';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import DrawerFooter from 'src/pages/FormSet/components/DrawerFooter';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
-import Tag from 'src/pages/workflow/WorkflowSettings/Detail/components/Tag/index.jsx';
 import { AGENT_TOOLS } from 'src/pages/workflow/WorkflowSettings/enum';
-import logDialog from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
 import { handleGlobalVariableName } from 'src/pages/workflow/WorkflowSettings/utils';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -128,6 +125,9 @@ const Wrapper = styled.div`
 const BotBox = styled.div`
   overflow: hidden;
 `;
+
+const LoadableDetail = lazy(() => import('src/pages/workflow/WorkflowSettings/Detail'));
+const LoadableTag = lazy(() => import('src/pages/workflow/WorkflowSettings/Detail/components/Tag/index.jsx'));
 
 export default function EditAIActionDrawer(props) {
   const {
@@ -258,11 +258,15 @@ export default function EditAIActionDrawer(props) {
           recordData={recordInfo}
           onClose={() => setState({ showChatbotDialog: false })}
           onOpenMessageLog={({ instanceId }) => {
-            logDialog({
-              processId: info.id,
-              nodeId: info?.flowNodeMap?.[info.startEventId]?.nextId,
-              instanceId,
-            });
+            import('src/pages/workflow/WorkflowSettings/History/components/logDialog')
+              .then(({ default: logDialog }) => {
+                logDialog({
+                  processId: info.id,
+                  nodeId: info?.flowNodeMap?.[info.startEventId]?.nextId,
+                  instanceId,
+                });
+              })
+              .catch(_.noop);
           }}
         />
       </BotBox>
@@ -351,14 +355,16 @@ export default function EditAIActionDrawer(props) {
                           const controlObj = nodeDetail?.formulaMap?.[ids.join('-')] || {};
 
                           return (
-                            <Tag
-                              flowNodeType={nodeObj.type}
-                              appType={nodeObj.appType}
-                              actionId={nodeObj.actionId}
-                              nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
-                              controlId={ids[1]}
-                              controlName={controlObj.name || ''}
-                            />
+                            <Suspense fallback={null}>
+                              <LoadableTag
+                                flowNodeType={nodeObj.type}
+                                appType={nodeObj.appType}
+                                actionId={nodeObj.actionId}
+                                nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
+                                controlId={ids[1]}
+                                controlName={controlObj.name || ''}
+                              />
+                            </Suspense>
                           );
                         }}
                       />
@@ -456,42 +462,44 @@ export default function EditAIActionDrawer(props) {
         </div>
       </DrawerWrapper>
       {showSettingDrawer && (
-        <Detail
-          companyId={info.companyId}
-          processId={info.id}
-          relationId={appId}
-          relationType={2}
-          isAIActions
-          selectNodeId={info?.flowNodeMap?.[info.startEventId]?.nextId} //gengxindonghua
-          selectNodeType={33}
-          closeDetail={() => setState({ showSettingDrawer: false })}
-          customNodeName={_l('AI Agent')}
-          updateNodeData={data => {
-            flowNode
-              .getNodeDetail({
-                processId: info.id,
-                nodeId: data.id,
-                flowNodeType: 33,
-              })
-              .then(res => {
-                setState({ nodeDetail: res });
-                if (res.prompt !== currentActionItem.advancedSetting.prompt) {
-                  handleSave(
-                    {
-                      EditAttrs: ['advancedSetting'],
-                      advancedSetting: { prompt: res.prompt },
-                      btnId: currentActionItem.btnId || '',
-                      worksheetId,
-                      name: currentActionItem.name,
-                    },
-                    false,
-                    undefined,
-                    { ...currentActionItem, advancedSetting: { prompt: res.prompt } },
-                  );
-                }
-              });
-          }}
-        />
+        <Suspense fallback={null}>
+          <LoadableDetail
+            companyId={info.companyId}
+            processId={info.id}
+            relationId={appId}
+            relationType={2}
+            isAIActions
+            selectNodeId={info?.flowNodeMap?.[info.startEventId]?.nextId} //gengxindonghua
+            selectNodeType={33}
+            closeDetail={() => setState({ showSettingDrawer: false })}
+            customNodeName={_l('AI Agent')}
+            updateNodeData={data => {
+              flowNode
+                .getNodeDetail({
+                  processId: info.id,
+                  nodeId: data.id,
+                  flowNodeType: 33,
+                })
+                .then(res => {
+                  setState({ nodeDetail: res });
+                  if (res.prompt !== currentActionItem.advancedSetting.prompt) {
+                    handleSave(
+                      {
+                        EditAttrs: ['advancedSetting'],
+                        advancedSetting: { prompt: res.prompt },
+                        btnId: currentActionItem.btnId || '',
+                        worksheetId,
+                        name: currentActionItem.name,
+                      },
+                      false,
+                      undefined,
+                      { ...currentActionItem, advancedSetting: { prompt: res.prompt } },
+                    );
+                  }
+                });
+            }}
+          />
+        </Suspense>
       )}
     </Fragment>
   );

@@ -38,11 +38,14 @@ export default class Show extends React.Component {
     this.initState(this.props);
     $(window).on('resize', this.getHeight);
   }
-  componentWillReceiveProps(nextProps) {
-    const { view } = nextProps;
 
-    if (!_.isEqual(view, this.props.view)) {
-      this.initState(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { view } = this.props;
+
+      if (!_.isEqual(view, prevProps.view)) {
+        this.initState(this.props);
+      }
     }
   }
   componentWillUnmount() {

@@ -43,11 +43,13 @@ export default class ApplyAction extends PureComponent {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.roles, nextProps.roles)) {
-      this.setState({
-        roles: nextProps.roles,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.roles, this.props.roles)) {
+        this.setState({
+          roles: this.props.roles,
+        });
+      }
     }
   }
 
@@ -121,7 +123,7 @@ export default class ApplyAction extends PureComponent {
     return (
       <Trigger {...triggerProps}>
         <span
-          className="ThemeColor3 ThemeHoverColor2 Hand"
+          className="colorPrimary hoverColorPrimaryDark Hand"
           onClick={() => {
             if (!this.state.popupVisible) {
               this.setState({

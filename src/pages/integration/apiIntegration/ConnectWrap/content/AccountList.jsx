@@ -331,7 +331,7 @@ function AccountList(props) {
             <div className="flex pLeft10">{_l('添加者')}</div>
             <div className="option pLeft10">
               <Icon
-                className="Font18 Hand InlineBlock textTertiary ThemeHoverColor3"
+                className="Font18 Hand InlineBlock textTertiary hoverColorPrimary"
                 icon="refresh"
                 onClick={() => {
                   setState({
@@ -360,7 +360,7 @@ function AccountList(props) {
                     )}
                     {_.get(o, 'createdBy.accountId') === md.global.Account.accountId && (
                       <span
-                        className="ThemeColor3 Hand mLeft25"
+                        className="colorPrimary Hand mLeft25"
                         onClick={() => {
                           refreshAuth(o.id);
                         }}

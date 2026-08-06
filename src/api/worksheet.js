@@ -156,6 +156,7 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -179,12 +180,37 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
   getWorksheetBaseInfo: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetWorksheetBaseInfo', args, options);
+  },
+  /**
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {string} args.relationWorksheetId 关联表的id
+   * @param {boolean} args.getTemplate 是否获取Template
+   * @param {boolean} args.getViews 是否获取Views
+   * @param {string} args.appId 应用Id
+   * @param {boolean} args.handleDefault 处理默认值
+   * @param {} args.getControlType
+   * @param {array} args.worksheetIds 批量工作表id
+   * @param {boolean} args.handControlSource 是否处理关联的原始类型
+   * @param {boolean} args.getRules 是否需要验证规则
+   * @param {boolean} args.getSwitchPermit 是否获取功能开关
+   * @param {boolean} args.getRelationSearch 获取查下记录控件
+   * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getWorksheetById: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetWorksheetById', args, options);
   },
   /**
    * 审批、填写获取子表信息及控件权限
@@ -202,6 +228,7 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {string} args.controlId 子表的控件id
    * @param {string} args.instanceId 流程实例id
    * @param {string} args.workId 运行节点id
@@ -438,6 +465,7 @@ export default {
    * @param {string} args.instanceId
    * @param {string} args.workId
    * @param {string} args.appId
+   * @param {} args.langType
    * @param {string} args.discussId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -589,6 +617,7 @@ export default {
    * @param {string} args.pushUniqueId 推送ID
    * @param {array} args.controls 批量编辑
    * @param {} args.updateType
+   * @param {object} args.requestParams Extra request parameters.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -674,6 +703,7 @@ export default {
    * @param {string} args.pushUniqueId 推送ID
    * @param {array} args.controls 批量编辑
    * @param {} args.updateType
+   * @param {object} args.requestParams Extra request parameters.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -698,6 +728,7 @@ export default {
    * @param {boolean} args.thoroughDelete 彻底删除
    * @param {} args.deleteType
    * @param {string} args.pushUniqueId 推送ID
+   * @param {object} args.requestParams Extra request parameters.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -954,6 +985,7 @@ export default {
    * @param {array} args.navGroupFilters 导航分组筛选
    * @param {array} args.filtersGroup 筛选组件
    * @param {object} args.requestParams 请求参数
+   * @param {} args.getType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1111,6 +1143,7 @@ export default {
    * @param {array} args.navGroupFilters 导航分组筛选
    * @param {array} args.filtersGroup 筛选组件
    * @param {object} args.requestParams 请求参数
+   * @param {} args.getType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1626,6 +1659,54 @@ export default {
     return mdyAPI('Worksheet', 'GetControlsByIds', args, options);
   },
   /**
+   * Get control templates.
+   * @param {Object} args 请求参数
+   * @param {integer} args.type Type: 1 personal, 2 organization.
+   * @param {string} args.keywords Search keywords.
+   * @param {integer} args.pageSize Page size.
+   * @param {integer} args.pageIndex Page index.
+   * @param {string} args.projectId Organization id.
+   * @param {array} args.templateIds Template id list. Empty means all.
+   * @param {boolean} args.getControls Whether to return controls.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getControlTemplate: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetControlTemplate', args, options);
+  },
+  /**
+   * Save control template.
+   * @param {Object} args 请求参数
+   * @param {string} args.templateId
+   * @param {string} args.name
+   * @param {integer} args.type
+   * @param {string} args.desc
+   * @param {array} args.controls
+   * @param {string} args.projectId
+   * @param {string} args.accountId
+   * @param {integer} args.controlCount
+   * @param {integer} args.operationType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  saveControlTemplate: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'SaveControlTemplate', args, options);
+  },
+  /**
+   * Operate control template.
+   * @param {Object} args 请求参数
+   * @param {string} args.templateId
+   * @param {integer} args.operationType Operation type: 0 edit, 1 restore, 9 delete, 11 copy.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  operationControlTemplate: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'OperationControlTemplate', args, options);
+  },
+  /**
    * 获取工作表字段智能建议
    * @param {Object} args 请求参数
    * @param {string} args.prompt 提示词
@@ -1653,12 +1734,24 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
   getWorksheetsControls: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetWorksheetsControls', args, options);
+  },
+  /**
+   * Get role type of worksheets.
+   * @param {Object} args 请求参数
+   * @param {array} args.worksheetIds Worksheet id list.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getWorksheetsRoleType: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetWorksheetsRoleType', args, options);
   },
   /**
    * 编辑控件别名
@@ -1746,6 +1839,7 @@ export default {
    * @param {boolean} args.getSwitchPermit 是否获取功能开关
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {} args.langType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1790,6 +1884,19 @@ export default {
     return mdyAPI('Worksheet', 'GetWorksheetReferences', args, options);
   },
   /**
+   * 获取系统打印短时 clientId
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id。
+   * @param {string} args.worksheetId 工作表id。
+   * @param {string} args.printId 打印模板id。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSystemPrintClientId: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetSystemPrintClientId', args, options);
+  },
+  /**
    * 获取系统打印列表
    * @param {Object} args 请求参数
    * @param {string} args.worksheetId
@@ -1810,6 +1917,9 @@ export default {
    * @param {string} args.viewId
    * @param {string} args.printId
    * @param {array} args.rowIds
+   * @param {} args.getType
+   * @param {string} args.instanceId 流程实例id
+   * @param {string} args.workId 运行节点id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -2458,6 +2568,17 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    **/
   getQuery: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetQuery', args, options);
+  },
+  /**
+   * 批量获取工作表查询
+   * @param {Object} args 请求参数
+   * @param {array} args.ids
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getQueries: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetQueries', args, options);
   },
   /**
    * worksheetId 批量获取工作表查询

@@ -12,6 +12,7 @@ function SingleView(props, ref) {
     showPageTitle,
     showHeader,
     showAsSheetView,
+    singleAppId,
     appId,
     viewId,
     worksheetId,
@@ -28,6 +29,7 @@ function SingleView(props, ref) {
   useEffect(() => {
     store.dispatch(
       updateBase({
+        singleAppId: singleAppId || appId,
         appId,
         viewId,
         worksheetId,

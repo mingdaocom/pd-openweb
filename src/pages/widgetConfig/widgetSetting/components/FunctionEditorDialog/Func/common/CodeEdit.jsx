@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { validateFnExpression } from 'src/utils/common';
 import FunctionEditor from './FunctionEditor';
@@ -167,7 +166,7 @@ function CodeEdit(props, ref) {
   useEffect(() => {
     const handleChange = (...args) => {
       onChange(...args);
-      let available = validateFnExpression(editorRef.current.editor.getValue(), type);
+      let available = validateFnExpression(editorRef.current.getValue(), type);
 
       if (!cache.current.error && !available) {
         setError({ text: _l('语法错误'), type: 'run' });
@@ -192,7 +191,11 @@ function CodeEdit(props, ref) {
         onError: setError,
       });
       editorRef.current = window.functionEditor = functionEditor;
-      handleChange();
+      functionEditor.ready.then(() => {
+        if (editorRef.current === functionEditor) {
+          handleChange();
+        }
+      });
     }
 
     return () => {
@@ -203,7 +206,7 @@ function CodeEdit(props, ref) {
   }, []);
   useEffect(() => {
     if (readOnly && editorRef.current) {
-      editorRef.current.editor.setValue(value);
+      editorRef.current.setValue(value);
     }
   }, [value]);
   useImperativeHandle(ref, () => ({
@@ -213,8 +216,8 @@ function CodeEdit(props, ref) {
     insertFn: (value, position) => {
       editorRef.current.insertFn(value, position);
     },
-    getValue: () => editorRef.current && editorRef.current.editor.getValue(),
-    setValue: v => editorRef.current && editorRef.current.editor.setValue(v),
+    getValue: () => editorRef.current && editorRef.current.getValue(),
+    setValue: v => editorRef.current && editorRef.current.setValue(v),
   }));
   const subListHelpUrl = 'https://help.mingdao.com/worksheet/function-examples/#sumform';
   return (
@@ -259,7 +262,7 @@ function CodeEdit(props, ref) {
                   projectId,
                   width: dialogWidth,
                   control,
-                  value: editorRef.current.editor.getValue(),
+                  value: editorRef.current.getValue(),
                   title,
                   controls,
                   editorRef: editorRef.current,
@@ -267,7 +270,7 @@ function CodeEdit(props, ref) {
                   onChange,
                   insertTagToEditor,
                   onUpdate: newValue => {
-                    editorRef.current.editor.setValue(newValue);
+                    editorRef.current.setValue(newValue);
                   },
                 });
               }}

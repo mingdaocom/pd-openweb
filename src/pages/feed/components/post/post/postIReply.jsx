@@ -2,6 +2,7 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserHead, UserName } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 import postEnum from '../../../constants/postEnum';
 import PostFooter from './postFooter';
 import PostMain from './postMain';
@@ -36,7 +37,7 @@ class PostIReply extends React.Component {
   };
 
   gotoPostDetail = () => {
-    window.location = '/feeddetail?itemID=' + this.props.postItem.postID;
+    window.location.href = pathCompletion('/feeddetail?itemID=' + this.props.postItem.postID);
   };
 
   render() {
@@ -57,14 +58,15 @@ class PostIReply extends React.Component {
               _l('原内容已被删除')
             ) : (
               <span>
-                回复
+                {_l('回复')}
                 <UserName
                   user={{
                     userName: postItem.reply.replyUserName,
                     accountId: postItem.reply.replyAccountId,
                   }}
                 />
-                的{sourceType}: <PostMessage postItem={postItem.reply} inline />
+                {_l('的')}
+                {sourceType}: <PostMessage postItem={postItem.reply} inline />
               </span>
             )}
           </div>

@@ -17,8 +17,10 @@ class DateTimeRangeDoublePicker extends Component {
     this.state = this.generateState(props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState(this.generateState(nextProps));
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState(this.generateState(this.props));
+    }
   }
 
   generateState = props => {
@@ -446,30 +448,34 @@ class DateTimeRangeDoublePicker extends Component {
     ];
 
     if (this.props.type === 'datetime') {
-      startTimePicker = [
-        <span className="label">{_l('时间')}</span>,
-        <Time
-          type={this.props.timeType}
-          min={this.state.startTime.min}
-          max={this.state.startTime.max}
-          value={this.state.startTime.value}
-          onChange={(event, value) => {
-            this.timeOnChange(event, value, 0);
-          }}
-        />,
-      ];
-      endTimePicker = [
-        <span className="label">{_l('时间')}</span>,
-        <Time
-          type={this.props.timeType}
-          min={this.state.endTime.min}
-          max={this.state.endTime.max}
-          value={this.state.endTime.value}
-          onChange={(event, value) => {
-            this.timeOnChange(event, value, 1);
-          }}
-        />,
-      ];
+      startTimePicker = (
+        <div className="timePickerGroup">
+          <span className="label">{_l('时间')}</span>
+          <Time
+            type={this.props.timeType}
+            min={this.state.startTime.min}
+            max={this.state.startTime.max}
+            value={this.state.startTime.value}
+            onChange={(event, value) => {
+              this.timeOnChange(event, value, 0);
+            }}
+          />
+        </div>
+      );
+      endTimePicker = (
+        <div className="timePickerGroup">
+          <span className="label">{_l('时间')}</span>
+          <Time
+            type={this.props.timeType}
+            min={this.state.endTime.min}
+            max={this.state.endTime.max}
+            value={this.state.endTime.value}
+            onChange={(event, value) => {
+              this.timeOnChange(event, value, 1);
+            }}
+          />
+        </div>
+      );
     } else if (this.props.type === 'half') {
       startTimePicker = (
         <Dropdown
@@ -491,6 +497,8 @@ class DateTimeRangeDoublePicker extends Component {
       );
     }
 
+    const clearText = _l('清空');
+    const okText = _l('确定');
     let clearBtn = null;
 
     if (this.props.allowClear) {
@@ -498,14 +506,31 @@ class DateTimeRangeDoublePicker extends Component {
         <Button
           type="link"
           size="small"
+          title={clearText}
           onClick={event => {
             this.buttonOnClick(event, 'clear');
           }}
         >
-          {_l('清空')}
+          {clearText}
         </Button>
       );
     }
+
+    const actionButtons = (
+      <div className="toolbarActions">
+        {clearBtn}
+        <Button
+          type="primary"
+          size="small"
+          title={okText}
+          onClick={event => {
+            this.buttonOnClick(event, 'ok');
+          }}
+        >
+          {okText}
+        </Button>
+      </div>
+    );
 
     return (
       <div className={classNames}>
@@ -546,16 +571,7 @@ class DateTimeRangeDoublePicker extends Component {
           <div className="mui-datetimerangepicker-col">{startTimePicker}</div>
           <div className="mui-datetimerangepicker-col">
             {endTimePicker}
-            {clearBtn}
-            <Button
-              type="primary"
-              size="small"
-              onClick={event => {
-                this.buttonOnClick(event, 'ok');
-              }}
-            >
-              {_l('确定')}
-            </Button>
+            {actionButtons}
           </div>
         </div>
       </div>

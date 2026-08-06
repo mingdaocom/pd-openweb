@@ -17,7 +17,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-background-secondary) !important;
 `;
 
 const replaceTimeValue = value => (value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value);
@@ -30,6 +30,8 @@ const formatValue = (control, value, valueFormat) => {
       : moment(value).format(showType === '2' ? 'YYYY-MM-DD HH:00' : valueFormat)
     : '';
 };
+
+const precisionObj = { 5: 'year', 4: 'month', 3: 'date', 2: 'hour', 1: 'minite', 6: 'second' };
 
 export default function DateTime(props) {
   const {
@@ -92,7 +94,6 @@ export default function DateTime(props) {
   };
 
   const startDateExtraObj = endDateValue ? { max: moment(replaceTimeValue(endDateValue)).toDate() } : {};
-  const precisionObj = { 5: 'year', 4: 'month', 3: 'date', 2: 'hour', 1: 'minite', 6: 'second' };
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">

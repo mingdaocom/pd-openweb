@@ -7,7 +7,7 @@ import DisplayControl from './DisplayControl';
 import TitleControl from './TitleControl';
 
 export default function CardSet(props) {
-  const { appId, view, updateCurrentView, worksheetControls } = props;
+  const { appId, view, updateCurrentView, worksheetControls, columns } = props;
   const { advancedSetting } = view;
   const info = { ...view, appId, editAttrs: ['advancedSetting'] };
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
@@ -36,6 +36,10 @@ export default function CardSet(props) {
       {!['gunter', 'calendar'].includes(viewTypeText) && (
         <TitleControl
           {...props}
+          // 标题字段解析用未过滤的完整 columns：viewtitle 为空时回退到 attribute===1 的标题字段。
+          // worksheetControls（filteredColumns）会剔除视图中被隐藏的控件，标题被隐藏时回退会落空导致下拉显示「请选择」，
+          // 与卡片实际渲染（getTitleControlForCard 取全量控件）不一致。
+          worksheetControls={columns || worksheetControls}
           advancedSetting={advancedSetting}
           isCard
           handleChange={value => {

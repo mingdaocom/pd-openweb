@@ -4,16 +4,14 @@ import { DndProvider } from 'react-dnd-latest';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { useGlobalStore } from 'src/common/GlobalStore';
 import WidgetDisplay from '../widgetDisplay';
 import WidgetList from '../widgetList';
 import WidgetSetting from '../widgetSetting';
 import { DrawerWrap } from '../widgetSetting/content/styled';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
+const ClickAwayable = ClickAway;
 const originFixedInfo = {
   widgetPanelFixed: true,
   settingPanelFixed: true,

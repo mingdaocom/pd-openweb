@@ -70,6 +70,17 @@ const Wrapper = styled.div`
   }
 `;
 
+const maskCode = (data, startCount = 5, endCount = 5) => {
+  return data
+    ? data.slice(0, startCount) + '*'.repeat(data.length - startCount - endCount) + data.slice(-endCount)
+    : '';
+};
+const formatValidDate = (start = '', end = '') => {
+  const startDate = moment(start).format('YYYY-MM-DD');
+  const endDate = moment(end).format('YYYY-MM-DD');
+  return [startDate, endDate].join(' - ');
+};
+
 export default function CertificationDetail(props) {
   const { isHap, onRemoveSuccess, relationId } = props;
   const { certSource, projectId } = _.get(props, 'match.params') || props;
@@ -94,18 +105,6 @@ export default function CertificationDetail(props) {
         }
       })
       .catch(() => setLoading(false));
-  };
-
-  const maskCode = (data, startCount = 5, endCount = 5) => {
-    return data
-      ? data.slice(0, startCount) + '*'.repeat(data.length - startCount - endCount) + data.slice(-endCount)
-      : '';
-  };
-
-  const formatValidDate = (start = '', end = '') => {
-    const startDate = moment(start).format('YYYY-MM-DD');
-    const endDate = moment(end).format('YYYY-MM-DD');
-    return [startDate, endDate].join(' - ');
   };
 
   const onRemoveCert = () => {

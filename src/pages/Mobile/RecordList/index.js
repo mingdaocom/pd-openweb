@@ -2,12 +2,12 @@ import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import DocumentTitle from 'react-document-title';
 import { SpinLoading, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { WaterMark } from 'ming-ui';
 import FixedPage from 'mobile/App/FixedPage.jsx';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
@@ -15,8 +15,8 @@ import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
 import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getRequest } from 'src/utils/common';
-import { handlePushState, mdAppResponse } from 'src/utils/project';
+import { getRequest, pathCompletion } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
 import AppPermissions from '../components/AppPermissions';
 import Back from '../components/Back';
 import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
@@ -27,9 +27,7 @@ import { getDefaultValueInCreate, getViewActionInfo } from './util';
 import View from './View';
 import './index.less';
 
-@withRouter
-@AppPermissions
-class RecordList extends Component {
+let RecordList = class RecordList extends Component {
   constructor(props) {
     super(props);
     const { hideAddRecord } = getRequest();
@@ -40,11 +38,15 @@ class RecordList extends Component {
     this.hideAddRecord = hideAddRecord;
     this.viewRef = React.createRef();
   }
+
   componentDidMount() {
     const { getFilters } = getRequest();
 
     if (getFilters === 'true') {
-      mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
+      mdAppResponse({
+        sessionId: 'Filter test session',
+        type: 'getFilters',
+      }).then(data => {
         const { value = [] } = data;
         this.props.updateFilterControls(value);
         this.props.changeMobileGroupFilters([]);
@@ -53,6 +55,7 @@ class RecordList extends Component {
     } else {
       this.props.changeMobileGroupFilters([]);
       this.getApp(this.props);
+
       if (_.get(this.props, ['filters', 'visible'])) {
         this.props.updateFilters({
           visible: false,
@@ -73,37 +76,41 @@ class RecordList extends Component {
     });
     props.loadWorksheet();
   }
-  componentWillReceiveProps(nextProps) {
-    const { params: newParams } = nextProps.match;
-    const { params } = this.props.match;
-    const view = _.find(nextProps.worksheetInfo.views, v => v.viewId === newParams.viewId) || {};
-    const { viewType } = view;
 
-    if (newParams.viewId !== params.viewId) {
-      this.props.updateBase({ viewId: newParams.viewId });
-      _.includes([0, 3, 6], viewType) && this.props.resetSheetView();
-    }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { params: newParams } = this.props.match;
+      const { params } = prevProps.match;
+      const view = _.find(this.props.worksheetInfo.views, v => v.viewId === newParams.viewId) || {};
+      const { viewType } = view;
 
-    if (viewType === 2) {
-      updateHierarchyConfigLevel(view);
-    }
+      if (newParams.viewId !== params.viewId) {
+        prevProps.updateBase({
+          viewId: newParams.viewId,
+        });
+        _.includes([0, 3, 6], viewType) && prevProps.resetSheetView();
+      }
 
-    if (newParams.worksheetId !== params.worksheetId) {
-      this.props.emptySheetRows();
-      this.props.emptySheetControls();
+      if (viewType === 2) {
+        updateHierarchyConfigLevel(view);
+      }
 
-      this.getApp(nextProps);
+      if (newParams.worksheetId !== params.worksheetId) {
+        prevProps.emptySheetRows();
+        prevProps.emptySheetControls();
+        this.getApp(this.props);
+      }
     }
   }
+
   componentWillUnmount() {
     this.props.emptySheetControls();
-    window.addEventListener('pageshow', this.handleCloseRecordModal);
+    window.removeEventListener('pageshow', this.handleCloseRecordModal);
   }
 
   handleCloseRecordModal = () => {
     this.props.updatePreviewRecordId('');
   };
-
   sheetViewOpenRecord = (recordId, viewId) => {
     this.setState({
       previewRecordId: recordId,
@@ -117,7 +124,10 @@ class RecordList extends Component {
   handleChangeView = view => {
     const { match, now } = this.props;
     const { params } = match;
-    this.props.updateBase({ viewId: view.viewId });
+    this.props.updateBase({
+      viewId: view.viewId,
+    });
+
     if (now) {
       _.includes([0, 3, 6], view.viewType) && this.props.resetSheetView();
     } else {
@@ -127,7 +137,6 @@ class RecordList extends Component {
       );
     }
   };
-
   handleBack = () => {
     const { match, history, appDetail } = this.props;
     const { params } = match;
@@ -167,11 +176,12 @@ class RecordList extends Component {
       debugRoles,
       mobileNavGroupFilters,
       addMobileNewRecord,
+      currentSheetRows,
+      sheetRowLoading,
     } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
     const { appNaviStyle, debugRole } = detail;
-
     const { name } = worksheetInfo;
     let views =
       base.type === 'single'
@@ -179,7 +189,10 @@ class RecordList extends Component {
         : getShowViews(worksheetInfo.views).filter(
             v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
           );
-    const view = _.find(views, { viewId }) || views[0];
+    const view =
+      _.find(views, {
+        viewId,
+      }) || views[0];
     const { params } = match;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
@@ -188,7 +201,12 @@ class RecordList extends Component {
       return (
         <Fragment>
           <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 textTertiary">
-            <img style={{ width: 70 }} src={alreadyDelete} />
+            <img
+              style={{
+                width: 70,
+              }}
+              src={alreadyDelete}
+            />
             {_l('视图已隐藏')}
           </div>
           <Back
@@ -201,7 +219,6 @@ class RecordList extends Component {
     }
 
     const hasDebugRoles = (debugRole || {}).canDebug && !_.isEmpty(debugRoles);
-
     const { canAddRecord, showBatchBtn, showBackBtn, recordActionWrapBottom } = getViewActionInfo({
       view,
       viewId: base.viewId,
@@ -212,11 +229,15 @@ class RecordList extends Component {
       appDetail: detail,
       isHideTabBar,
       hasDebugRoles,
+      currentSheetRows,
+      sheetRowLoading,
     });
     const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
       o => o.controlId === _.get(view, 'navGroup[0].controlId'),
     );
+
     const appNavType = _.get(view, 'advancedSetting.appnavtype');
+
     let hasGroupFilter =
       view.viewId === base.viewId &&
       !_.isEmpty(view.navGroup) &&
@@ -235,17 +256,28 @@ class RecordList extends Component {
         >
           <DocumentTitle title={name} />
           {!batchOptVisible && (
-            <div className={cx('viewTabs', { isPortal: md.global.Account.isPortal })}>
+            <div
+              className={cx('viewTabs', {
+                isPortal: md.global.Account.isPortal,
+              })}
+            >
               <Tabs
                 className="md-adm-tabs flexUnset"
                 activeLineMode="fixed"
                 activeKey={viewId}
                 onChange={viewId => {
-                  const view = _.find(views, { viewId });
-                  this.setCache({ viewId: view.viewId, worksheetId: params.worksheetId });
+                  const view = _.find(views, {
+                    viewId,
+                  });
+
+                  this.setCache({
+                    viewId: view.viewId,
+                    worksheetId: params.worksheetId,
+                  });
                   this.handleChangeView(view);
                   this.props.changeMobileGroupFilters([]);
                   safeLocalStorageSetItem(`mobileViewSheet-${view.viewId}`, view.viewType);
+
                   if (view.viewType === 2) {
                     updateHierarchyConfigLevel(view);
                   }
@@ -280,7 +312,10 @@ class RecordList extends Component {
               <Back
                 icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
                 className="back Static"
-                style={{ position: 'unset!important', marginTop: 10 }}
+                style={{
+                  position: 'unset!important',
+                  marginTop: 10,
+                }}
                 onClick={this.handleBack}
               />
             )}
@@ -294,7 +329,9 @@ class RecordList extends Component {
                 className="Static mTop10"
                 onClick={() => {
                   if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-                    window.open(`/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
+                    window.open(
+                      pathCompletion(`/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`),
+                    );
                     return;
                   }
 
@@ -306,11 +343,6 @@ class RecordList extends Component {
                           defaultFormDataEditable: true,
                         }
                       : {};
-
-                  if (window.isMingDaoApp) {
-                    handlePushState('page', 'newRecord');
-                  }
-
                   openAddRecord({
                     ...param,
                     className: 'full',
@@ -324,17 +356,18 @@ class RecordList extends Component {
                     onAdd: data => {
                       if (_.isEmpty(data)) {
                         return;
-                      }
+                      } // 日历视图，调用内部的刷新方法视图
 
-                      // 日历视图，调用内部的刷新方法视图
                       if (String(view.viewType) === VIEW_DISPLAY_TYPE.calendar) {
                         this.viewRef.current?.viewComRef?.current?.refreshCalendarViewData();
                         return;
-                      }
+                      } // 看板视图
 
-                      // 看板视图
                       if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
-                        addMobileNewRecord({ data, view });
+                        addMobileNewRecord({
+                          data,
+                          view,
+                        });
                         return;
                       }
 
@@ -352,6 +385,7 @@ class RecordList extends Component {
           className="full"
           visible={!!this.state.previewRecordId}
           appId={params.appId}
+          appDetail={appDetail.detail}
           worksheetId={worksheetInfo.worksheetId}
           enablePayment={worksheetInfo.enablePayment}
           worksheetInfo={worksheetInfo}
@@ -367,6 +401,7 @@ class RecordList extends Component {
       </Fragment>
     );
   }
+
   render() {
     const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
@@ -375,7 +410,12 @@ class RecordList extends Component {
 
     if (isNoPublish) {
       return (
-        <div style={{ background: 'var(--color-background-primary)', height: '100%' }}>
+        <div
+          style={{
+            background: 'var(--color-background-primary)',
+            height: '100%',
+          }}
+        >
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
             <span className="textPrimary Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
@@ -398,8 +438,8 @@ class RecordList extends Component {
 
     return <WaterMark projectId={worksheetInfo.projectId}>{this.renderContent()}</WaterMark>;
   }
-}
-
+};
+RecordList = withRouter(AppPermissions(RecordList));
 export default connect(
   state => ({
     ..._.pick(
@@ -408,6 +448,7 @@ export default connect(
       'worksheetInfo',
       'sheetSwitchPermit',
       'currentSheetRows',
+      'sheetRowLoading',
       'workSheetLoading',
       'filters',
       'worksheetControls',
@@ -435,7 +476,6 @@ export default connect(
           'changeBatchOptVisible',
           'updateFilterControls',
           'updateQuickFilter',
-          'updateViewCard',
           'updatePreviewRecordId',
           'addMobileNewRecord',
           'fetchSheetRows',

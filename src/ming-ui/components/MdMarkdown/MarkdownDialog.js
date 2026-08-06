@@ -60,7 +60,7 @@ export default function MarkdownDialog(props) {
             </div>
             <div className="flex"></div>
             <span
-              className="icon-worksheet_narrow Font20 ThemeHoverColor3 pointer"
+              className="icon-worksheet_narrow Font20 hoverColorPrimary pointer"
               onClick={() => handleClose(value)}
             />
           </div>

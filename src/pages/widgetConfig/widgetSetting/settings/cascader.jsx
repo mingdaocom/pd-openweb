@@ -4,6 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { RadioGroup } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { pathCompletion } from 'src/utils/common';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import RelateDetailInfo from '../components/RelateDetailInfo';
@@ -145,7 +146,7 @@ export default function Cascader(props) {
           {_l('层级视图:')}
           <div
             className="viewName overflow_ellipsis pointer Bold"
-            onClick={() => window.open(`/app/${appId}/${groupId}/${dataSource}/${viewId}`)}
+            onClick={() => window.open(pathCompletion(`/app/${appId}/${groupId}/${dataSource}/${viewId}`))}
           >
             {(viewInfo || {}).name}
           </div>

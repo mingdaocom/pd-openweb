@@ -4,7 +4,7 @@ import { downloadFile } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { NODE_VIEW_TYPE } from '../../../constant/enum';
 import { isOffice } from '../../../utils';
-import { PREVIEW_TYPE } from './enum';
+import { HTML_PREVIEW_EXTENSIONS, PREVIEW_TYPE } from './enum';
 
 function canEditFileName(attachment, options) {
   const { hideFunctions } = options;
@@ -134,6 +134,50 @@ export function getPermission(...args) {
     showShare: showShare(...args),
     canEditFileName: canEditFileName(...args),
   };
+}
+
+export function isHtmlPreviewExt(ext = '') {
+  return HTML_PREVIEW_EXTENSIONS.includes(ext.replace(/^\./, '').toLowerCase());
+}
+
+export function canPreviewHtml() {
+  return !(_.get(window, 'platformENV.isLocal') || _.get(window, 'platformENV.isOverseas'));
+}
+
+export function getHtmlPreviewUrl(attachment = {}) {
+  const sourceNode = attachment.sourceNode || {};
+  const urlFromFilePath = sourceNode.filepath && sourceNode.filename ? sourceNode.filepath + sourceNode.filename : '';
+
+  if (attachment.viewUrl) {
+    return attachment.viewUrl;
+  }
+
+  if (attachment.previewAttachmentType === 'KC') {
+    return sourceNode.viewUrl || sourceNode.downloadUrl || '';
+  }
+
+  if (attachment.previewAttachmentType === 'QINIU') {
+    return sourceNode.path || sourceNode.viewUrl || sourceNode.downloadUrl || '';
+  }
+
+  if (attachment.previewAttachmentType === 'COMMON') {
+    return (
+      sourceNode.viewUrl ||
+      sourceNode.previewUrl ||
+      sourceNode.downloadUrl ||
+      sourceNode.privateDownloadUrl ||
+      urlFromFilePath
+    );
+  }
+
+  return (
+    sourceNode.viewUrl ||
+    sourceNode.previewUrl ||
+    sourceNode.path ||
+    sourceNode.downloadUrl ||
+    sourceNode.privateDownloadUrl ||
+    ''
+  );
 }
 
 export function getDownloadUrl(attachment, extra) {

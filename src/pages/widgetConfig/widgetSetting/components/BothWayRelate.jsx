@@ -37,7 +37,7 @@ export default function BothWayRelate(props) {
         <div className="textTertiary">
           <span className="textPrimary">{_l('未添加')}</span>（
           <span
-            className="ThemeColor3 ThemeHoverColor3 pointer mRight5 mLeft5"
+            className="colorPrimary hoverColorPrimary pointer mRight5 mLeft5"
             onClick={() => {
               const toPage = () => toEditWidgetPage({ sourceId: worksheetId, fromURL: 'newPage' });
               props.relateToNewPage(toPage);

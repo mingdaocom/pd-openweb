@@ -166,7 +166,7 @@ const SmallCard = props => {
           const diffWidth = current.clientWidth - 300;
 
           if (diffWidth < 0) {
-            setDiffWidth(diffWidth + -10);
+            setDiffWidth(diffWidth - 10);
             setShowDownloadOfDeleteBtn(false);
           } else {
             setDiffWidth(0);
@@ -294,14 +294,70 @@ const NotSaveSmallCard = props => {
         ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
         : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [diffWidth, setDiffWidth] = useState(0);
+  const [showResetOfDeleteBtn, setShowResetOfDeleteBtn] = useState(true);
+  const wrapRef = useRef(null);
+
+  const handleDelete = () => {
+    isKc ? onDeleteKCFile(data) : onDeleteFile(data);
+  };
 
   const handlePreview = () => {
     if (isEdit) return;
     isKc ? onKCPreview(data) : onPreview(data);
   };
 
+  const renderDropdownOverlay = (
+    <Menu style={{ width: 150 }} className="Relative">
+      {!isKc && (
+        <MenuItem
+          key="rename_input"
+          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            setIsEdit(true);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('重命名')}
+        </MenuItem>
+      )}
+      <MenuItem
+        key="delete"
+        icon={<Icon icon="trash" className="Font17 pRight5" />}
+        onClick={e => {
+          e.stopPropagation();
+          handleDelete();
+          setDropdownVisible(false);
+        }}
+      >
+        {_l('删除')}
+      </MenuItem>
+    </Menu>
+  );
+
   return (
-    <div className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
+    <div
+      className={cx('attachmentSmallCard flexRow alignItemsCenter', {
+        mobile: isMobile,
+        hover: isEdit || dropdownVisible,
+      })}
+      ref={wrapRef}
+      onMouseEnter={() => {
+        const current = _.get(wrapRef, 'current.parentNode.parentNode');
+
+        const diffWidth = current.clientWidth - 300;
+
+        if (diffWidth < 0) {
+          setDiffWidth(diffWidth - 10);
+          setShowResetOfDeleteBtn(false);
+        } else {
+          setDiffWidth(0);
+          setShowResetOfDeleteBtn(true);
+        }
+      }}
+    >
       <div
         className="fileImageWrap fileImageWrap pointer flexRow alignItemsCenter justifyContentCenter"
         onClick={handlePreview}
@@ -325,33 +381,64 @@ const NotSaveSmallCard = props => {
         <div className="fileSize textSecondary">{fileSize}</div>
       </div>
       {!isMobile && (
-        <div className="operateBtns flexRow alignItemsCenter">
-          {!isKc && (
-            <ResetNamePopup
-              originalFileName={data.originalFileName}
-              isEdit={isEdit}
-              setIsEdit={setIsEdit}
-              onSave={name => {
-                onResetNameFile(data.fileID, name);
-              }}
-            >
-              <Tooltip title={_l('重命名')} placement="bottom">
-                <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                  <Icon className="textTertiary Font17" icon="rename_input" />
+        <div className="operateBtns flexRow alignItemsCenter" style={{ marginRight: Math.abs(diffWidth) }}>
+          {!showResetOfDeleteBtn ? (
+            <Fragment>
+              <Trigger
+                action={['click']}
+                popup={renderDropdownOverlay}
+                popupVisible={dropdownVisible}
+                onPopupVisibleChange={setDropdownVisible}
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [5, 5],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+              >
+                <Tooltip title={_l('更多')} placement="bottom">
+                  <div className="btnWrap pointer">
+                    <Icon className="textTertiary Font17" icon="more_horiz" />
+                  </div>
+                </Tooltip>
+              </Trigger>
+              {!isKc && (
+                <ResetNamePopup
+                  originalFileName={data.originalFileName}
+                  isEdit={isEdit}
+                  setIsEdit={setIsEdit}
+                  onSave={name => {
+                    onResetNameFile(data.fileID, name);
+                  }}
+                >
+                  <div />
+                </ResetNamePopup>
+              )}
+            </Fragment>
+          ) : (
+            <Fragment>
+              {!isKc && (
+                <ResetNamePopup
+                  originalFileName={data.originalFileName}
+                  isEdit={isEdit}
+                  setIsEdit={setIsEdit}
+                  onSave={name => {
+                    onResetNameFile(data.fileID, name);
+                  }}
+                >
+                  <Tooltip title={_l('重命名')} placement="bottom">
+                    <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
+                      <Icon className="textTertiary Font17" icon="rename_input" />
+                    </div>
+                  </Tooltip>
+                </ResetNamePopup>
+              )}
+              <Tooltip title={_l('删除')} placement="bottom">
+                <div className="btnWrap pointer delete" onClick={handleDelete}>
+                  <Icon className="textTertiary Font17" icon="trash" />
                 </div>
               </Tooltip>
-            </ResetNamePopup>
+            </Fragment>
           )}
-          <Tooltip title={_l('删除')} placement="bottom">
-            <div
-              className="btnWrap pointer delete"
-              onClick={() => {
-                isKc ? onDeleteKCFile(data) : onDeleteFile(data);
-              }}
-            >
-              <Icon className="textTertiary Font17" icon="trash" />
-            </div>
-          </Tooltip>
         </div>
       )}
       {isMobile && (

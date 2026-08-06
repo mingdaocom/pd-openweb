@@ -7,6 +7,7 @@ import { getMyPermissions, hasPermission } from 'src/components/checkPermission'
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Config from '../../config';
@@ -46,7 +47,7 @@ export default class Invoice extends Component {
           showCreateTaxBtn: !!taxInfos?.length,
           taxList: taxInfos || [],
         });
-        window.history.replaceState({}, '', `${location.origin}/admin/invoice/${Config.projectId}/${currentTab}`);
+        window.history.replaceState({}, '', pathCompletion(`/admin/invoice/${Config.projectId}/${currentTab}`));
       });
   }
 
@@ -107,7 +108,7 @@ export default class Invoice extends Component {
               <Fragment>
                 <Icon
                   icon="backspace"
-                  className="Font22 ThemeHoverColor3 pointer mRight10"
+                  className="Font22 hoverColorPrimary pointer mRight10"
                   onClick={() => {
                     this.setState({ createTaxVisible: false, curTaxNo: '' });
                     navigateTo(`/admin/invoice/${Config.projectId}/taxNo`);

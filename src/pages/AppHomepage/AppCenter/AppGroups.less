@@ -1,5 +1,3 @@
-@import '../../../common/mdcss/Themes/theme.less';
-@import '/src/common/mdcss/Themes/themeVariables.less';
 @addItemBg: var(--color-background-secondary);
 @addItemColor: var(--color-text-tertiary);
 @addItemHoverColor: var(--color-info);
@@ -128,7 +126,7 @@
       color: var(--color-text-tertiary);
       &:hover,
       &.active {
-        color: @themeColor3;
+        color: var(--color-primary);
       }
     }
 
@@ -168,7 +166,7 @@
       .icon-star-hollow {
         color: var(--color-text-tertiary);
         &:hover {
-          color: @themeColor3;
+          color: var(--color-primary);
         }
       }
     }

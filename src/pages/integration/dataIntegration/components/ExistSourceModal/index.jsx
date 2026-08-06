@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, Modal, ScrollView } from 'ming-ui';
 import dataSourceApi from '../../../api/datasource';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { pathCompletion } from 'src/utils/common';
 import { formatDate } from '../../../config';
 import { CREATE_TYPE, dataMirrorDestTypes, ROLE_TYPE, SOURCE_FROM_TYPE } from '../../constant';
 
@@ -352,7 +353,7 @@ export default function ExistSourceModal(props) {
                   })}
                 </ul>
 
-                <a className="leftFooter" href="/integration/source" target="_blank">
+                <a className="leftFooter" href={pathCompletion('/integration/source')} target="_blank">
                   <span className="bold textPrimary">{_l('去集成中心添加')}</span>
                   <Icon icon="launch" className="textTertiary mLeft5 mTop2" />
                 </a>

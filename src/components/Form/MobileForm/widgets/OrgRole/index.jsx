@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, memo, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -17,10 +17,28 @@ function OrgRole(props) {
     value,
     onChange = () => {},
   } = props;
-  const selectOrgRoles = JSON.parse(value || '[]');
+  const rawOrgRoles = useMemo(() => safeParse(value || '[]', 'array'), [value]);
+  const selectOrgRoles = useMemo(
+    () =>
+      rawOrgRoles.map(item => {
+        const organizeId = item.organizeId ?? item.id;
+        const organizeName = item.organizeName ?? item.name;
+
+        return {
+          ...item,
+          organizeId,
+          id: organizeId,
+          organizeName,
+          name: organizeName,
+        };
+      }),
+    [rawOrgRoles],
+  );
   const orgRange = dealUserRange(props, formData, masterData);
   const [showMobileOrgRole, setShowMobileOrgRole] = useState(false);
   const isUnique = enumDefault === 0;
+  const hasSelectedOrgRoles = selectOrgRoles.length > 0;
+  const firstSelectedOrgRole = selectOrgRoles[0];
 
   const pickOrgRole = () => {
     if (formDisabled || disabled) return;
@@ -41,7 +59,7 @@ function OrgRole(props) {
   };
 
   const removeOrgRole = organizeId => {
-    const newValue = selectOrgRoles.filter(item => item.organizeId !== organizeId);
+    const newValue = rawOrgRoles.filter(item => (item.organizeId ?? item.id) !== organizeId);
 
     onChange(JSON.stringify(newValue));
   };
@@ -69,7 +87,7 @@ function OrgRole(props) {
   return (
     <div
       className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
-        controlEditReadonly: !formDisabled && !_.isEmpty(selectOrgRoles) && disabled,
+        controlEditReadonly: !formDisabled && hasSelectedOrgRoles && disabled,
         controlDisabled: formDisabled,
         customFormControlNoBorder: !isUnique,
       })}
@@ -77,8 +95,8 @@ function OrgRole(props) {
     >
       {isUnique ? (
         <div className="flexRow alignItemsCenter" style={{ width: '100%' }}>
-          {!_.isEmpty(selectOrgRoles) ? (
-            <div className="flex">{renderItem(selectOrgRoles[0])}</div>
+          {hasSelectedOrgRoles ? (
+            <div className="flex">{renderItem(firstSelectedOrgRole)}</div>
           ) : (
             <div className="flex textDisabled">{_l('请选择')}</div>
           )}

@@ -4,7 +4,7 @@ import _, { find, get, identity, includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import sheetAjax from 'src/api/worksheet';
 import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
@@ -25,7 +25,7 @@ import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { completeControls, controlState, getTitleTextFromRelateControl } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
@@ -254,72 +254,82 @@ class RelateRecordCards extends Component {
     ) {
       this.loadMoreRecords(1);
     }
-
-    window.addEventListener('popstate', this.onQueryChange);
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.onQueryChange);
-  }
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const control = this.props.control || {};
 
-  componentWillReceiveProps(nextProps) {
-    const control = nextProps.control || {};
+      if (prevProps.control.dataSource !== this.props.control.dataSource) {
+        const {
+          control: { relationControls = [], showControls = [] },
+        } = this.props;
+        const hasRelateControl = this.hasRelateControl(relationControls, showControls);
 
-    if (this.props.control.dataSource !== nextProps.control.dataSource) {
-      const {
-        control: { relationControls = [], showControls = [] },
-      } = nextProps;
-      const hasRelateControl = this.hasRelateControl(relationControls, showControls);
-
-      if (hasRelateControl || (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))) {
-        this.setState({ sheetTemplateLoading: true });
-        this.loadControls(nextProps);
-      }
-    }
-
-    if (nextProps.flag !== this.props.flag) {
-      let showLoadMore = true;
-
-      try {
-        if ((nextProps.records || []).length >= nextProps.count) {
-          showLoadMore = false;
+        if (hasRelateControl || (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))) {
+          this.setState({
+            sheetTemplateLoading: true,
+          });
+          this.loadControls(this.props);
         }
-      } catch (err) {
-        console.error(err);
       }
 
-      if (
-        (_.get(window, 'shareState.isPublicForm') &&
-          _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
-        (browserIsMobile() &&
-          _.includes(['2', '5'], _.get(control, 'advancedSetting.showtype')) &&
-          _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
-          !_.get(this, 'props.control.hasDefaultValue'))
-      ) {
-        this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () =>
-          this.loadMoreRecords(1, nextProps),
-        );
-      } else {
-        this.setState({
-          showLoadMore,
-          pageIndex: 1,
-          records: nextProps.records,
-          count: nextProps.count,
-          addedIds: [],
-          deletedIds: [],
-        });
-        if (_.get(this, 'props.control.isSubList')) {
-          if (nextProps.records.length < nextProps.count) {
-            this.loadMoreRecords(1, nextProps);
+      if (this.props.flag !== prevProps.flag) {
+        let showLoadMore = true;
+
+        try {
+          if ((this.props.records || []).length >= this.props.count) {
+            showLoadMore = false;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+
+        if (
+          (_.get(window, 'shareState.isPublicForm') &&
+            _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
+          (browserIsMobile() &&
+            _.includes(['2', '5'], _.get(control, 'advancedSetting.showtype')) &&
+            _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
+            !_.get(this, 'props.control.hasDefaultValue'))
+        ) {
+          this.setState(
+            {
+              records: [],
+              count: 0,
+              addedIds: [],
+              deletedIds: [],
+            },
+            () => this.loadMoreRecords(1, this.props),
+          );
+        } else {
+          this.setState({
+            showLoadMore,
+            pageIndex: 1,
+            records: this.props.records,
+            count: this.props.count,
+            addedIds: [],
+            deletedIds: [],
+          });
+
+          if (_.get(this, 'props.control.isSubList')) {
+            if (this.props.records.length < this.props.count) {
+              this.loadMoreRecords(1, this.props);
+            }
           }
         }
+
+        this.setState({
+          defaultCount: this.props.count,
+        });
       }
 
-      this.setState({ defaultCount: nextProps.count });
-    }
-
-    if (!_.isEqual(nextProps.records, this.props.records)) {
-      this.setState({ records: nextProps.records, count: nextProps.count });
+      if (!_.isEqual(this.props.records, prevProps.records)) {
+        this.setState({
+          records: this.props.records,
+          count: this.props.count,
+        });
+      }
     }
   }
 
@@ -407,31 +417,6 @@ class RelateRecordCards extends Component {
     return editable && control.enumDefault2 !== 1 && control.enumDefault2 !== 11 && !window.isPublicWorksheet;
   }
 
-  onQueryChange = () => {
-    const { showMobileSelectRecord, previewRecord, showNewRecord } = this.state;
-    const { recordId, controlId } = _.get(this.props, 'control') || {};
-
-    if (showMobileSelectRecord && browserIsMobile()) {
-      const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
-
-      if (!ele) {
-        return;
-      }
-
-      handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
-        ele && document.body.removeChild(ele);
-      });
-    }
-
-    if (showNewRecord) {
-      handleReplaceState('page', `newRelateRecord-${controlId}`, () => this.setState({ showNewRecord: false }));
-    }
-
-    if (previewRecord) {
-      handleReplaceState('page', `relateRecord-${recordId}`, () => this.setState({ previewRecord: undefined }));
-    }
-  };
-
   getCoverUrl(coverId, record) {
     const { controls } = this.state;
     const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
@@ -463,7 +448,12 @@ class RelateRecordCards extends Component {
   loadControls(nextProps) {
     const { dataSource, worksheetId } = (nextProps || this.props).control;
     sheetAjax
-      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, relationWorksheetId: worksheetId })
+      .getWorksheetInfo({
+        worksheetId: dataSource,
+        getTemplate: true,
+        relationWorksheetId: worksheetId,
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
+      })
       .then(data => {
         this.setState({
           controls: replaceControlsTranslateInfo((nextProps || this.props).appId, dataSource, data.template.controls),
@@ -653,7 +643,7 @@ class RelateRecordCards extends Component {
   handleClick = evt => {
     const { control } = this.props;
     const { records } = this.state;
-    const { enumDefault2, controlId } = control;
+    const { enumDefault2 } = control;
 
     if (!$(evt.target).closest('.relateRecordBtn').length) return;
     let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
@@ -666,7 +656,6 @@ class RelateRecordCards extends Component {
     if (enumDefault2 !== 10 && enumDefault2 !== 11) {
       this.handleSelectRecord(this.handleAdd);
     } else if (this.allowNewRecord) {
-      handlePushState('page', `newRelateRecord-${controlId}`);
       this.setState({ showNewRecord: true });
     }
   };
@@ -690,12 +679,15 @@ class RelateRecordCards extends Component {
     } = control;
     const { records, deletedIds } = this.state;
     const { disabledManualWrite, isCard } = this;
+    const isMobile = browserIsMobile();
+    const selectedRowIds = records.map(r => r.rowid);
+    const mobileIgnoreRowIds = enumDefault === 2 ? _.uniq(deletedIds.concat(selectedRowIds)) : selectedRowIds;
     const selectOptions = {
       className: `mobileSelectRecordWrap-${controlId}`,
       control: control,
       recordId,
       isCharge,
-      ignoreRowIds: deletedIds,
+      ignoreRowIds: isMobile ? mobileIgnoreRowIds : deletedIds,
       allowNewRecord: this.allowNewRecord,
       disabledManualWrite: disabledManualWrite,
       multiple: enumDefault === 2,
@@ -721,20 +713,14 @@ class RelateRecordCards extends Component {
       onOk: onOk,
       formData: formData,
       isDraft,
-      handleReplaceHistoryState: browserIsMobile()
-        ? () => {
-            history.back();
-            this.setState({ showMobileSelectRecord: false });
-          }
-        : null,
-      ...(browserIsMobile() && !isCard && !showCoverAndControls
+      layerId: `mobileSelectRecord-${controlId}`,
+      ...(isMobile && !isCard && !showCoverAndControls
         ? { showControls: [], control: { ...control, showControls: [] } }
         : {}),
     };
 
-    if (browserIsMobile()) {
+    if (isMobile) {
       this.setState({ showMobileSelectRecord: true });
-      window.isMingDaoApp && handlePushState('page', `mobileSelectRecord-${controlId}`);
       mobileSelectRecord(Object.assign(selectOptions, options));
       return;
     }
@@ -849,7 +835,6 @@ class RelateRecordCards extends Component {
                       /^temp/.test(record.rowid)
                         ? () => {}
                         : () => {
-                            handlePushState('page', `relateRecord-${recordId}`);
                             addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
                             this.setState({ previewRecord: { recordId: record.rowid } });
                           }
@@ -880,7 +865,7 @@ class RelateRecordCards extends Component {
                 </LoadingButton>
               )}
               <LoadingButton
-                className="ThemeColor3 Hand mBottom10 InlineBlock"
+                className="colorPrimary Hand mBottom10 InlineBlock"
                 onClick={() => this.setState({ showAll: !showAll })}
               >
                 {showAll ? _l('收起') : _l('展开更多')}
@@ -896,7 +881,7 @@ class RelateRecordCards extends Component {
 
   renderDropDownRecordsCon = () => {
     const { control, allowOpenRecord } = this.props;
-    const { appId, viewId, from, recordId, dataSource, disabled, enumDefault, openRelateSheet } = control;
+    const { appId, viewId, from, dataSource, disabled, enumDefault, openRelateSheet } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { records } = this.state;
     const controlPermission = controlState(control, from);
@@ -918,7 +903,6 @@ class RelateRecordCards extends Component {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                       openRelateSheet('', record.wsid, record.rowid, viewId);
                     } else if (isMobile) {
-                      handlePushState('page', `relateRecord-${recordId}`);
                       disabled && this.setState({ previewRecord: { recordId: record.rowid } });
                     } else {
                       this.setState({ previewRecord: { recordId: record.rowid } });

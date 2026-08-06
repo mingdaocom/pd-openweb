@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import DocumentTitle from 'react-document-title';
 import { Button } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon, MobileConfirmPopup } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import DocumentTitle from 'mobile/components/DocumentTitle';
 import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
@@ -389,9 +389,11 @@ class RelationAction extends Component {
                   }
                 }}
               >
-                <Icon icon="add" className="Font20 TxtBottom" />
-                {isRelevance ? _l('添加') : _l('新建')}
-                {entityName}
+                <span className="flexCenter justifyContentCenter">
+                  <Icon icon="add" className="Font20 TxtBottom" />
+                  {isRelevance ? _l('添加') : _l('新建')}
+                  {entityName}
+                </span>
               </Button>
             )}
           </Fragment>

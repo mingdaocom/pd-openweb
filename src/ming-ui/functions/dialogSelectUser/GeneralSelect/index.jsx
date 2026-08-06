@@ -145,26 +145,24 @@ export default class GeneraSelect extends Component {
     return this.promiseObj;
   }
 
-  componentWillReceiveProps(nextProps) {
-    const needUpdate =
-      nextProps.commonSettings.projectId !== this.commonSettings.projectId ||
-      nextProps.commonSettings.dataRange !== this.commonSettings.dataRange;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const needUpdate =
+        this.props.commonSettings.projectId !== this.commonSettings.projectId ||
+        this.props.commonSettings.dataRange !== this.commonSettings.dataRange;
 
-    if (needUpdate) {
-      let state = this.receiveProps(nextProps);
-
-      this.setState(state, () => {
-        this.defaultAction();
-      });
+      if (needUpdate) {
+        let state = this.receiveProps(this.props);
+        this.setState(state, () => {
+          this.defaultAction();
+        });
+      }
     }
-  }
-
-  componentWillMount() {
-    this.defaultAction();
   }
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown, false);
+    this.defaultAction();
   }
 
   componentWillUnmount() {
@@ -429,18 +427,14 @@ export default class GeneraSelect extends Component {
           reqData.pageIndex = 1;
           reqData.pageSize = 100;
           reqData.parentId = '';
-          reqData.onlyMyJoin = localStorage.getItem('isCheckedOnlyMyJoin')
-            ? JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin'))
-            : false;
+          const isCheckedOnlyMyJoin = localStorage.getItem('isCheckedOnlyMyJoin');
+          reqData.onlyMyJoin = isCheckedOnlyMyJoin ? safeParse(isCheckedOnlyMyJoin) : false;
         }
       } else if (tabItem.type == RenderTypes.GROUP) {
         // 群组
         doAction = tabItem.actions.getGroups;
-        reqData.searchGroupType = localStorage.getItem('isCheckedGroupOnlyMyJoin')
-          ? safeParse(localStorage.getItem('isCheckedGroupOnlyMyJoin'))
-            ? 1
-            : 0
-          : 1;
+        const isCheckedGroupOnlyMyJoin = localStorage.getItem('isCheckedGroupOnlyMyJoin');
+        reqData.searchGroupType = isCheckedGroupOnlyMyJoin ? (safeParse(isCheckedGroupOnlyMyJoin) ? 1 : 0) : 1;
       } else {
         // 其他 全部属于 user类型
         doAction = tabItem.actions.getUsers;
@@ -455,11 +449,7 @@ export default class GeneraSelect extends Component {
 
       this.handlePromise(doAction(reqData)).then(data => {
         if (tabItem.type === RenderTypes.DEPARTMENT_USER) {
-          if (
-            localStorage.getItem('isCheckedOnlyMyJoin') &&
-            JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin')) &&
-            !this.state.keywords
-          ) {
+          if (reqData.onlyMyJoin && !this.state.keywords) {
             this.setState({ defaultCheckedDepId: (!_.isEmpty(data) && data[0].departmentId) || null });
           }
         }
@@ -1557,7 +1547,7 @@ export default class GeneraSelect extends Component {
             className={cx('GSelect-head-navbar__item', {
               'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.USER,
             })}
-            renderValue="选择成员（{{value}}）"
+            renderValue={_l('选择成员（{{value}}）')}
           />
         );
         let SelectDepartments = (
@@ -1575,7 +1565,7 @@ export default class GeneraSelect extends Component {
           <li
             key="SelectGroups"
             onClick={() => this.changeChooseType(ChooseType.GROUP)}
-            className={cx('GSelect-head-navbar__item ThemeBorderColor3', {
+            className={cx('GSelect-head-navbar__item borderColorPrimary', {
               'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.GROUP,
             })}
           >

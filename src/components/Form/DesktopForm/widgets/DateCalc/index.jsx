@@ -4,8 +4,8 @@ import { includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
-import { getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { formatFormulaDate, formatStrZero, toFixed } from 'src/utils/control';
+import { getDateToEn, getShowFormat } from 'src/utils/controlCommon';
 import { dateConvertToUserZone } from 'src/utils/project';
 
 const DateCalc = ({ value, enumDefault, unit, advancedSetting, dot }) => {

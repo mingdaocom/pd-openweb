@@ -78,7 +78,7 @@
     transform: translate3d(0, 0, 0);
 
     .controlLabelName {
-      color: var(--color-text-title);
+      color: var(--color-text-primary);
     }
 
     .requiredBtnBox {
@@ -187,7 +187,8 @@
       position: absolute;
       right: 12px;
       font-size: 16px;
-      top: 9px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     .customFormControlMobileHover {
@@ -196,6 +197,9 @@
           border-color: var(--color-background-secondary);
           background: var(--color-background-secondary);
         }
+      }
+      .customFormControlBox {
+        padding: 0 !important;
       }
     }
 
@@ -921,18 +925,6 @@
         white-space: nowrap;
       }
     }
-
-    .customFormControlTel {
-      .iti__selected-country {
-        display: none;
-      }
-      .customFormControlBox {
-        padding-left: 0 !important;
-        &:not(.controlDisabled) {
-          padding-left: 12px !important;
-        }
-      }
-    }
   }
 
   // 新建样式
@@ -965,15 +957,6 @@
         background-color: var(--color-background-input) !important;
         &:focus {
           background-color: var(--color-background-primary) !important;
-        }
-      }
-    }
-
-    .customFormControlMobileHover {
-      input.customFormControlBox {
-        &.customFormPhoneBox {
-          border: none;
-          background: transparent;
         }
       }
     }

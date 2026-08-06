@@ -51,17 +51,19 @@ class DoubleConfirmDialog extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.info, nextProps.info)) {
-      const { info } = nextProps;
-      this.state = {
-        doubleConfirm: info.doubleConfirm || {
-          confirmMsg: _l('你确认执行此操作吗？'),
-          cancelName: _l('取消'),
-          sureName: _l('确认'),
-        },
-        advancedSetting: info.advancedSetting,
-      };
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (!_.isEqual(prevProps.info, this.props.info)) {
+        const { info } = this.props;
+        this.state = {
+          doubleConfirm: info.doubleConfirm || {
+            confirmMsg: _l('你确认执行此操作吗？'),
+            cancelName: _l('取消'),
+            sureName: _l('确认'),
+          },
+          advancedSetting: info.advancedSetting,
+        };
+      }
     }
   }
 
@@ -256,7 +258,7 @@ class DoubleConfirmDialog extends React.Component {
                       <span className="ho">{_l('已设置')}</span>
                       {remarktype !== '1' && ` (${_l('允许用户修改')})`}
                     </div>
-                    <Icon icon={'edit'} className="textTertiary Hand LineHeight36 ThemeHoverColor3" />
+                    <Icon icon={'edit'} className="textTertiary Hand LineHeight36 hoverColorPrimary" />
                   </div>
                 </div>
               )}

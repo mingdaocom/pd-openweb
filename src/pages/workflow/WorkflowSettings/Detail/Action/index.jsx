@@ -28,18 +28,26 @@ export default class Action extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeDetail(nextProps);
-    }
+  /**
+   * 获取动作详情
+   */
 
-    if (
-      nextProps.selectNodeName &&
-      nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId &&
-      !_.isEmpty(this.state.data)
-    ) {
-      this.updateSource({ name: nextProps.selectNodeName });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.selectNodeId !== prevProps.selectNodeId) {
+        this.getNodeDetail(this.props);
+      }
+
+      if (
+        this.props.selectNodeName &&
+        this.props.selectNodeName !== prevProps.selectNodeName &&
+        this.props.selectNodeId === prevProps.selectNodeId &&
+        !_.isEmpty(this.state.data)
+      ) {
+        this.updateSource({
+          name: this.props.selectNodeName,
+        });
+      }
     }
   }
 
@@ -52,6 +60,10 @@ export default class Action extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
+        if (!this.cacheResult) {
+          this.cacheResult = _.cloneDeep(result);
+        }
+
         if (result.appType === APP_TYPE.CALENDAR) {
           result.fields = this.handleCalendarDefault(result.fields);
         }
@@ -220,7 +232,7 @@ export default class Action extends Component {
       }
     }
 
-    if (saveRequest) {
+    if (saveRequest || _.isEqual(data, this.cacheResult)) {
       return;
     }
 
@@ -469,13 +481,14 @@ export default class Action extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (data.actionId === ACTION_ID.ADD && data.appId) ||
-            (_.includes(
-              [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFUND, ACTION_ID.RELATION],
-              data.actionId,
-            ) &&
-              data.selectNodeId) ||
-            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)
+            ((data.actionId === ACTION_ID.ADD && data.appId) ||
+              (_.includes(
+                [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFUND, ACTION_ID.RELATION],
+                data.actionId,
+              ) &&
+                data.selectNodeId) ||
+              _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)) &&
+            !_.isEqual(data, this.cacheResult)
           }
           onSave={this.onSave}
         />

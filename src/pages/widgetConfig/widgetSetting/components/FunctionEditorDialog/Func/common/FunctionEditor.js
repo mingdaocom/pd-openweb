@@ -1,6 +1,5 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import CodeMirror from 'codemirror';
 import _, { get, identity, isEmpty } from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
@@ -11,9 +10,30 @@ import setJavascriptMode from '../lib/javascript';
 import setMatchBrackets from '../lib/matchbrackets';
 import setShowHint from '../lib/show-hint';
 import { getControlType } from './ControlList';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material-darker.css';
-import '../lib/show-hint.css';
+
+let codeMirrorPromise;
+
+function loadCodeMirror() {
+  if (!codeMirrorPromise) {
+    codeMirrorPromise = Promise.all([
+      import('codemirror'),
+      import('codemirror/lib/codemirror.css'),
+      import('codemirror/theme/material-darker.css'),
+      import('../lib/show-hint.css'),
+    ]).then(([module]) => {
+      const CodeMirror = module.default || module;
+
+      setJavascriptMode(CodeMirror);
+      setCloseBrackets(CodeMirror);
+      setMatchBrackets(CodeMirror);
+      setShowHint(CodeMirror);
+
+      return CodeMirror;
+    });
+  }
+
+  return codeMirrorPromise;
+}
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
   useLayoutEffect(() => {
@@ -26,11 +46,6 @@ const TagWrapper = ({ onDidMount = () => {}, tag }) => {
 if (!window.emitter) {
   window.emitter = emitter;
 }
-
-setJavascriptMode(CodeMirror);
-setCloseBrackets(CodeMirror);
-setMatchBrackets(CodeMirror);
-setShowHint(CodeMirror);
 
 function getCodeMirrorThemeName() {
   return document.documentElement.getAttribute('data-theme') === 'dark' ? 'material-darker' : 'default';
@@ -150,14 +165,6 @@ export default class Function {
       });
     }
 
-    this.editor = CodeMirror(dom, args);
-    this._themeObserver = new MutationObserver(() => {
-      const next = getCodeMirrorThemeName();
-      if (this.editor && this.editor.getOption('theme') !== next) {
-        this.editor.setOption('theme', next);
-      }
-    });
-    this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
     this.markers = [];
     this.type = type;
     this.getControlName = getControlName;
@@ -167,11 +174,47 @@ export default class Function {
     this.insertTagToEditor = insertTagToEditor;
     this.onError = onError;
     this.readOnly = options.readOnly;
-    if (value) {
-      this.init(value);
+    this.value = value || '';
+    this.pendingActions = [];
+    this.ready = loadCodeMirror().then(CodeMirror => {
+      if (this.destroyed) return;
+
+      this.CodeMirror = CodeMirror;
+      this.editor = CodeMirror(dom, args);
+      this._themeObserver = new MutationObserver(() => {
+        const next = getCodeMirrorThemeName();
+
+        if (this.editor && this.editor.getOption('theme') !== next) {
+          this.editor.setOption('theme', next);
+        }
+      });
+      this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+
+      if (this.value) {
+        this.init(this.value);
+      }
+
+      this.bindEvent();
+      this.pendingActions.forEach(action => action());
+      this.pendingActions = [];
+    });
+  }
+  runWhenReady(action) {
+    if (this.editor) {
+      action();
+      return;
     }
 
-    this.bindEvent();
+    this.pendingActions.push(action);
+  }
+  getValue() {
+    return this.editor ? this.editor.getValue() : this.value;
+  }
+  setValue(value = '') {
+    this.value = value;
+    this.runWhenReady(() => {
+      this.editor.setValue(value);
+    });
   }
   init(value) {
     this.editor.setValue(value);
@@ -184,7 +227,8 @@ export default class Function {
   bindEvent() {
     const editor = this.editor;
     editor.on('blur', () => {
-      window.emitter.emit('FUNCTIONEDITOR_CLEAR');
+      // 失焦只清临时 hover、保留点击选中的 activeFn，避免函数说明在编辑器失焦后消失
+      window.emitter.emit('FUNCTIONEDITOR_BLUR_FN');
     });
 
     editor.on('cursorActivity', cm => {
@@ -208,6 +252,8 @@ export default class Function {
       }
     });
     editor.on('change', (cm, event) => {
+      this.value = cm.getValue();
+
       if (_.isFunction(this.onChange)) {
         this.onChange();
       }
@@ -235,6 +281,8 @@ export default class Function {
     const editor = this.editor;
     const controls = this.controls;
     const insertTagToEditor = this.insertTagToEditor;
+    const CodeMirror = this.CodeMirror;
+
     CodeMirror.showHint(
       editor,
       function () {
@@ -333,23 +381,27 @@ export default class Function {
     editor.setCursor({ ...cursor, ch: cursor.ch - 1 });
   }
   insertTag({ value }, position) {
-    const editor = this.editor;
-    position = position || editor.getCursor();
-    if (editor.getValue()[position.ch - 1] === '$') {
-      editor.replaceRange(',', position);
-      position = editor.getCursor();
-    }
+    this.runWhenReady(() => {
+      const editor = this.editor;
+      position = position || editor.getCursor();
+      if (editor.getValue()[position.ch - 1] === '$') {
+        editor.replaceRange(',', position);
+        position = editor.getCursor();
+      }
 
-    const strToInsert = `$${value}$`;
-    editor.replaceRange(strToInsert, position);
-    editor.focus();
+      const strToInsert = `$${value}$`;
+      editor.replaceRange(strToInsert, position);
+      editor.focus();
+    });
   }
   insertFn(value, position) {
-    const editor = this.editor;
-    position = position || editor.getCursor();
-    editor.replaceRange(value, position);
-    this.insertBrackets();
-    editor.focus();
+    this.runWhenReady(() => {
+      const editor = this.editor;
+      position = position || editor.getCursor();
+      editor.replaceRange(value, position);
+      this.insertBrackets();
+      editor.focus();
+    });
   }
 
   renderColumnTag(id, options = {}, cb = () => {}) {
@@ -432,7 +484,7 @@ export default class Function {
       let shouldMark = true;
 
       // 处理中文双引号
-      const pos = CodeMirror.Pos(match.line, match.start);
+      const pos = this.CodeMirror.Pos(match.line, match.start);
       const token = this.editor.getTokenAt(pos);
 
       // 检查是否在字符串内部（token类型包含'string'）
@@ -574,6 +626,7 @@ export default class Function {
   }
 
   destroy() {
+    this.destroyed = true;
     if (this._themeObserver) {
       this._themeObserver.disconnect();
       this._themeObserver = null;

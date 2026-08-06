@@ -1,26 +1,9 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import Loadable from 'react-loadable';
 import _ from 'lodash';
-import ErrorPage from 'src/components/errorPage/errorPage';
 import WithTitleRoute from './withTitle';
 
-function Loading(props) {
-  const { error } = props;
-
-  if (error) {
-    console.error(error);
-    return <ErrorPage />;
-  } else {
-    return null;
-  }
-}
-
-const getComponent = component =>
-  Loadable({
-    loader: component,
-    loading: Loading,
-  });
+const getComponent = component => lazy(component);
 
 export default () => {
   const components = [];
@@ -30,6 +13,7 @@ export default () => {
      * 缓存生成的路由组件
      */
     if (components.length > 0) return components;
+
     _.keys(ROUTE_CONFIG).forEach((key, i) => {
       const { component, redirect, ...rest } = ROUTE_CONFIG[key];
 
@@ -41,6 +25,7 @@ export default () => {
         );
       }
     });
+
     return components;
   };
 };

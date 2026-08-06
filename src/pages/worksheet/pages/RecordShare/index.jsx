@@ -8,6 +8,7 @@ import preall from 'src/common/preall';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import globalEvents from 'src/router/globalEvents';
 import { shareGetAppLangDetail } from 'src/utils/app';
+import { pathCompletion } from 'src/utils/common';
 import RecordShare from './RecordShare';
 
 const Entry = () => {
@@ -36,7 +37,7 @@ const Entry = () => {
         const { appId, projectId } = data;
 
         if (!data || !data.rowId) {
-          location.href = `/public/view/${shareId}`;
+          location.href = pathCompletion(`/public/view/${shareId}`);
           return;
         }
 

@@ -17,18 +17,21 @@ export default class Members extends Component {
     const { searchText } = this.props;
     this.updateMembers(searchText);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.searchText !== this.props.searchText) {
-      this.setState(
-        {
-          loading: false,
-          pageIndex: 1,
-          members: [],
-        },
-        () => {
-          this.updateMembers(nextProps.searchText);
-        },
-      );
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.searchText !== prevProps.searchText) {
+        this.setState(
+          {
+            loading: false,
+            pageIndex: 1,
+            members: [],
+          },
+          () => {
+            this.updateMembers(this.props.searchText);
+          },
+        );
+      }
     }
   }
   updateMembers(searchText) {

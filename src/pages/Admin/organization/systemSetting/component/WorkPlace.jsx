@@ -40,24 +40,24 @@ export default class WorkPlace extends Component {
         key: 'workSiteId',
         render: (text, record) => {
           return (
-            <div className="ThemeColor3">
+            <div className="colorPrimary">
               <button
                 type="button"
-                className="ming Button Button--link ThemeColor3 adminHoverColor"
+                className="ming Button Button--link colorPrimary adminHoverColor"
                 onClick={this.showSiteDialog.bind(this, record)}
               >
                 {_l('编辑')}
               </button>
               <button
                 type="button"
-                className="ming Button Button--link ThemeColor3 mLeft24 mRight24 adminHoverColor"
+                className="ming Button Button--link colorPrimary mLeft24 mRight24 adminHoverColor"
                 onClick={this.showMemberDialog.bind(this, record)}
               >
                 {_l('添加成员')}
               </button>
               <button
                 type="button"
-                className="ming Button Button--link ThemeColor3 adminHoverColor"
+                className="ming Button Button--link colorPrimary adminHoverColor"
                 onClick={this.deleteSite.bind(this, record.workSiteId)}
               >
                 {_l('删除')}
@@ -272,7 +272,7 @@ export default class WorkPlace extends Component {
                   <div className="workSiteToolbox">
                     <span className="Font16">{_l(`已选择 %0 条`, selectedRowKeys.length)}</span>
                     <div
-                      className="iconText ThemeColor3 mLeft32 adminHoverColor"
+                      className="iconText colorPrimary mLeft32 adminHoverColor"
                       onClick={this.showMergeDialog.bind(this)}
                     >
                       <span className="icon icon-sp_filter_none_white"></span>
@@ -297,7 +297,7 @@ export default class WorkPlace extends Component {
               </div>
               <div className="searchContainer Right Relative" ref={box => (this.box = box)}>
                 <span
-                  className="icon-search btnSearch ThemeColor9"
+                  className="icon-search btnSearch textSecondary"
                   title={_l('搜索')}
                   onClick={this.handleKeyDown.bind(this)}
                 />
@@ -306,7 +306,7 @@ export default class WorkPlace extends Component {
                   onKeyDown={this.handleKeyDown.bind(this)}
                   onChange={e => this.handleChange(e)}
                   type="text"
-                  className="searchInput ThemeColor10"
+                  className="searchInput textPrimary"
                   placeholder={_l('搜索')}
                 />
                 {keywords && (

@@ -111,6 +111,7 @@ const getTools = ({ widget, widgetType, layoutType, reportType, containerCompone
         reportTypes.NumberChart === reportType ? BASE_TOOL.concat('switchButtonDisplay', 'changeFontSize') : BASE_TOOL,
       button: () => BASE_TOOL.concat('switchButtonDisplay'),
       tabs: () => ['hideMobile'],
+      subsection: () => ['hideMobile'],
       filter: () => BASE_TOOL.concat('filter'),
       '*': () => BASE_TOOL,
     };
@@ -146,7 +147,7 @@ const getTools = ({ widget, widgetType, layoutType, reportType, containerCompone
       pcTools = pcTools.filter(item => !res.includes(item.type));
     }
 
-    if (['tabs', 'card'].includes(widgetType)) {
+    if (['tabs', 'card', 'subsection'].includes(widgetType)) {
       pcTools = pcTools.filter(item => !['move', 'copy', 'insertTitle'].includes(item.type));
     }
 
@@ -358,6 +359,22 @@ export default function Tools(props) {
       return <ContainerSetting {...itemProps} />;
     }
 
+    if (type === 'setting' && ['subsection'].includes(widgetType)) {
+      return (
+        <li
+          className="setting"
+          onClick={() => {
+            updateWidget({
+              widget,
+              edit: true,
+            });
+          }}
+        >
+          <Icon icon="edit" className="Font18" />
+        </li>
+      );
+    }
+
     if (type === 'filter' && ['filter'].includes(widgetType)) {
       return <MobileFilter {...itemProps} />;
     }
@@ -374,6 +391,8 @@ export default function Tools(props) {
     return itemProps.renderItem();
   };
 
+  const widgetTools = TOOLS.filter(n => n.type !== 'setting').map(item => renderTool({ ...item, renderType: 'menu' }));
+
   return (
     <ToolsWrap
       ref={ref}
@@ -388,21 +407,25 @@ export default function Tools(props) {
       {layoutType === 'web' ? (
         <Fragment>
           {renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'setting' }), renderType: 'li' })}
-          <Dropdown
-            trigger={['hover']}
-            placement={placement}
-            visible={dropdownVisible}
-            onVisibleChange={handleUpdateDropdownVisible}
-            overlay={
-              <Menu className="chartMenu widgetToolMenu" style={{ width: 180 }}>
-                {TOOLS.filter(n => n.type !== 'setting').map(item => renderTool({ ...item, renderType: 'menu' }))}
-              </Menu>
-            }
-          >
-            <li className="more">
-              <Icon icon="more_horiz" className="Font18 current" />
-            </li>
-          </Dropdown>
+          {widgetTools.length > 1 ? (
+            <Dropdown
+              trigger={['hover']}
+              placement={placement}
+              visible={dropdownVisible}
+              onVisibleChange={handleUpdateDropdownVisible}
+              overlay={
+                <Menu className="chartMenu widgetToolMenu" style={{ width: 180 }}>
+                  {widgetTools}
+                </Menu>
+              }
+            >
+              <li className="more">
+                <Icon icon="more_horiz" className="Font18 current" />
+              </li>
+            </Dropdown>
+          ) : (
+            renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'del' }), renderType: 'li' })
+          )}
         </Fragment>
       ) : (
         TOOLS.map(item => renderTool({ ...item, renderType: 'li' }))

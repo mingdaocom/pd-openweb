@@ -6,11 +6,11 @@
     </div>
     <ul class="createTaskNetworkList boxShadow5 boderRadAll_3 Hidden" id="createTaskNetworkList">
         {{~md.global.Account.projects:project}}
-        <li class="ThemeBGColor3" data-id="{{=project.projectId}}">
+        <li class="bgColorPrimary" data-id="{{=project.projectId}}">
             <i class="icon-business"></i>{{!project.companyName}}
         </li>
         {{~}}
-        <li class="ThemeBGColor3" data-id=""><i class="icon-charger"></i>{{=_l('个人')}}</li>
+        <li class="bgColorPrimary" data-id=""><i class="icon-charger"></i>{{=_l('个人')}}</li>
     </ul>
     {{?}}
     <div class="createTaskFolder {{=md.global.Account.projects.length ? '' : 'createUpdatePosition'}}">
@@ -19,12 +19,12 @@
         <input
             type="text"
             value="{{=it.folderName ? it.folderName : ''}}"
-            class="txtTaskFolder boderRadAll_3 Hidden Font14 ThemeBorderColor3"
+            class="txtTaskFolder boderRadAll_3 Hidden Font14 borderColorPrimary"
             id="txtTaskFolder"
         />
         <div class="linkageFolder boderRadAll_3 boxShadow5 Hidden">
             <ul></ul>
-            <div class="nullFolder Hidden ThemeColor3" data-folderid="">
+            <div class="nullFolder Hidden colorPrimary" data-folderid="">
                 {{=_l('创建“%0”项目', '<span class="folderListName"></span>')}}
             </div>
         </div>
@@ -38,7 +38,7 @@
         maxlength="100"
         placeholder="{{=_l('请输入任务名称') }}"
         spellcheck="false"
-        class="boxSizing boderRadAll_3 ThemeBorderColor3 Font14"
+        class="boxSizing boderRadAll_3 borderColorPrimary Font14"
         value="{{!it.TaskName }}"
     />
 </div>
@@ -48,18 +48,18 @@
     <span id="taskUserBox" class="circle" data-id="{{=charge.accountId }}">
         <img src="{{=charge.avatar }}" class="imgWidth" alt="{{=_l('负责人头像') }}" />
     </span>
-    <span class="taskUpdateCharge icon-task-folder-charge pointer ThemeColor3" id="taskUpdateCharge"></span>
+    <span class="taskUpdateCharge icon-task-folder-charge pointer colorPrimary" id="taskUpdateCharge"></span>
 </div>
 <div class="boxSizing p82 pRight26 relative Font14 Hidden" id="taskMembersBox">
     <div class="createTaskLabel">{{=_l('任务参与者')}}</div>
     <span class="createTaskAddMemberBox">
-        <i class="icon-task-add-member-circle createTaskAddMember ThemeColor3"></i>
+        <i class="icon-task-add-member-circle createTaskAddMember colorPrimary"></i>
     </span>
 </div>
 <div class="boxSizing p82 pRight26 relative Font14 {{=it.Deadlines ? '' : 'Hidden'}}" id="createTaskDate">
     <div class="createTaskLabel">{{=_l('起止时间')}}</div>
-    <!-- <input class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate" type="text" placeholder="{{=_l('未指定日期')}}" readonly="readonly" value="{{=it.Deadlines }}" /> -->
-    <div class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate"></div>
+    <!-- <input class="boderRadAll_3 boxSizing borderColorPrimary" id="txtLastDate" type="text" placeholder="{{=_l('未指定日期')}}" readonly="readonly" value="{{=it.Deadlines }}" /> -->
+    <div class="boderRadAll_3 boxSizing borderColorPrimary" id="txtLastDate"></div>
 </div>
 <div class="boxSizing p82 pRight26 relative Font14 Hidden" style="height: 38px" id="createTaskStage">
     <div class="createTaskLabel">{{=_l('看板')}}</div>
@@ -72,7 +72,7 @@
         type="text"
         id="txtDescriptionbox"
         spellcheck="false"
-        class="txtDescriptionbox boxSizing boderRadAll_3 ThemeBorderColor3"
+        class="txtDescriptionbox boxSizing boderRadAll_3 borderColorPrimary"
         value=""
         placeholder="{{=_l('填写描述…')}}"
     >
@@ -81,10 +81,10 @@
     <div id="Attachment_updater_createTask"></div>
 </div>
 <div class="boxSizing p82 relative taskTabs Font14" id="taskTabs">
-    <span data-type="member" class="ThemeBorderColor3 ThemeColor3">{{=_l('任务参与者')}}</span>
-    {{?!it.Deadlines}}<span data-type="date" class="ThemeBorderColor3 ThemeColor3">{{=_l('设置时间')}}</span>{{?}}
-    {{?!it.Description}}<span data-type="desc" class="ThemeBorderColor3 ThemeColor3">{{=_l('描述和附件')}}</span>{{?}}
+    <span data-type="member" class="borderColorPrimary colorPrimary">{{=_l('任务参与者')}}</span>
+    {{?!it.Deadlines}}<span data-type="date" class="borderColorPrimary colorPrimary">{{=_l('设置时间')}}</span>{{?}}
+    {{?!it.Description}}<span data-type="desc" class="borderColorPrimary colorPrimary">{{=_l('描述和附件')}}</span>{{?}}
 </div>
 <div class="boxSizing pLeft26 relative createTaskOperator">
-    <span class="boderRadAll_3 ThemeBGColor3" id="taskSubmitBtn">{{=_l('创建')}}</span>
+    <span class="boderRadAll_3 bgColorPrimary" id="taskSubmitBtn">{{=_l('创建')}}</span>
 </div>

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import zendeskApi from 'src/api/Zendesk';
 import * as actions from '../../redux/actions';
 import * as socket from '../../utils/socketEvent';
 import Apps from '../Apps';
@@ -11,12 +12,56 @@ import Toolbar from './Toolbar';
 import ToolbarDrawer from './Toolbar/Drawer';
 import './index.less';
 
+const KEY_STORAGE_KEY = 'zendeskToken';
+const KEY_TIMESTAMP_KEY = 'zendeskTokenTimestamp';
+const EXPIRATION_TIME = 50 * 60 * 1000;
+
+async function fetchKey() {
+  try {
+    const key = await zendeskApi.getWidgetJwt();
+    const currentTime = new Date().getTime();
+    localStorage.setItem(KEY_STORAGE_KEY, key);
+    localStorage.setItem(KEY_TIMESTAMP_KEY, currentTime.toString());
+    return key;
+  } catch (error) {
+    console.error('Error fetching key:', error);
+  }
+}
+
+function getZendeskKey() {
+  const storedKey = localStorage.getItem(KEY_STORAGE_KEY);
+  const storedTimestamp = localStorage.getItem(KEY_TIMESTAMP_KEY);
+
+  if (storedKey && storedTimestamp) {
+    const currentTime = new Date().getTime();
+    const timeElapsed = currentTime - parseInt(storedTimestamp, 10);
+
+    if (timeElapsed < EXPIRATION_TIME) {
+      return Promise.resolve(storedKey);
+    } else {
+      return fetchKey();
+    }
+  }
+
+  return fetchKey();
+}
+
 class Chat extends Component {
   constructor(props) {
     super(props);
   }
   componentDidMount() {
     if (location.href.includes('chat_window')) return;
+
+    // 获取 Zendesk Key
+    if (!window.platformENV.isLocal && window.platformENV.isOverseas) {
+      getZendeskKey().then(key => {
+        window.zE('messenger', 'loginUser', callback => {
+          callback(key);
+        });
+      });
+    }
+
     // 注册事件
     socket.socketInitEvent.call(this);
     // 回复窗口
@@ -87,10 +132,7 @@ class Chat extends Component {
   render() {
     const { toolbarConfig } = this.props;
     const { isOpenMessageList, isOpenCommonApp, sessionListVisible, hideOpenCommonApp } = toolbarConfig;
-    const isLocal = window.platformENV.isLocal;
-    const isInApp = _.get(location.pathname.match(/\/app\/([A-Za-z0-9-]{36})(?=\/|$)/), [1]); //应用
-    //除nocoly外的私有部署环境或应用内展示mingo 同时受开关影响（sysconfig.hideAIBasicFun）
-    const showMingo = !md.global.SysSettings.hideAIBasicFun && (!isLocal || isInApp);
+    const showMingo = !md.global.SysSettings.hideAIBasicFun;
 
     return (
       <Fragment>

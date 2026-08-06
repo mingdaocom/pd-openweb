@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, intlTelInput } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import accountController from 'src/api/account';
 import { encrypt } from 'src/utils/common';
@@ -57,12 +58,19 @@ export default class InitBindAccountDialog extends Component {
     this.itiFn();
   }
 
+  componentWillUnmount() {
+    if (this.verifyCodeTimer) {
+      clearInterval(this.verifyCodeTimer);
+    }
+  }
+
   itiFn = () => {
     if (!this.mobile) return;
-    this.iti = intlTelInput(this.mobile, {
+    this.iti = createIntlTelInput(this.mobile, {
       customPlaceholder: '',
       separateDialCode: true,
       showSelectedDialCode: true,
+      showDialCodeInput: true,
     });
   };
 
@@ -153,11 +161,11 @@ export default class InitBindAccountDialog extends Component {
   countdown = () => {
     const _this = this;
 
-    if (verifyCodeTimer) {
-      clearInterval(verifyCodeTimer);
+    if (this.verifyCodeTimer) {
+      clearInterval(this.verifyCodeTimer);
     }
 
-    let verifyCodeTimer = setInterval(function () {
+    this.verifyCodeTimer = setInterval(function () {
       if (_this.state.seconds <= 0) {
         _this.setState({ isSendVerify: false });
       } else {

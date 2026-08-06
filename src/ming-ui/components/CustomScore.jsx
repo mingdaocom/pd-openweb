@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getDefaultData } from 'src/pages/widgetConfig/config/score.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
@@ -73,12 +72,15 @@ class CustomScore extends Component {
 
     this.onSelect = this.onSelect.bind(this);
   }
-  componentWillReceiveProps(nextProps) {
-    if ('score' in nextProps) {
-      this.setState({
-        score: nextProps.score,
-        lastScore: nextProps.score,
-      });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if ('score' in this.props) {
+        this.setState({
+          score: this.props.score,
+          lastScore: this.props.score,
+        });
+      }
     }
   }
   onSelect(index, event) {

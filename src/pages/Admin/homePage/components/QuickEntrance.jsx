@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import addFriends from 'src/components/addFriends';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { pathCompletion } from 'src/utils/common';
 import { QUICK_ENTRY_CONFIG } from '../config';
 import InstallDialog from './InstallDialog';
 
@@ -19,16 +20,16 @@ export default function QuickEntrance(props) {
         });
         break;
       case 'createDepartment':
-        location.assign(`/admin/structure/${projectId}/create`);
+        location.assign(pathCompletion(`/admin/structure/${projectId}/create`));
         break;
       case 'batchImport':
-        location.assign(`/admin/structure/${projectId}/importusers`);
+        location.assign(pathCompletion(`/admin/structure/${projectId}/importusers`));
         break;
       case 'settingAdmin':
-        location.assign(`/admin/sysroles/${projectId}`);
+        location.assign(pathCompletion(`/admin/sysroles/${projectId}`));
         break;
       case 'completeInfo':
-        location.assign(`/admin/sysinfo/${projectId}`);
+        location.assign(pathCompletion(`/admin/sysinfo/${projectId}`));
         break;
       case 'installDesktop':
         setType('desktop');

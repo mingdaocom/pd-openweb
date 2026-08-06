@@ -64,8 +64,8 @@ export default class Item extends Component {
     const { isDisabled } = this.state;
     const itemClassName = cx('node', {
       disabled: isDisabled,
-      ThemeHoverBorderColor3: !isDisabled,
-      'ThemeBGColor6 ThemeBorderColor3': isHighLight,
+      hoverBorderColorPrimary: !isDisabled,
+      'bgColorPrimaryTransparent borderColorPrimary': isHighLight,
     });
     return (
       <div

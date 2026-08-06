@@ -56,16 +56,20 @@ class Con extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { appRole = {} } = nextProps;
-    const { roleInfos = [] } = appRole;
+  //复制角色到外部门户
 
-    if (!_.isEqual(this.props.appRole.roleInfos, roleInfos)) {
-      this.setState({
-        roleList: roleInfos,
-        // roleId: roleInfos.length > 0 ? roleInfos[0].roleId : '',
-        loading: false,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { appRole = {} } = this.props;
+      const { roleInfos = [] } = appRole;
+
+      if (!_.isEqual(prevProps.appRole.roleInfos, roleInfos)) {
+        this.setState({
+          roleList: roleInfos,
+          // roleId: roleInfos.length > 0 ? roleInfos[0].roleId : '',
+          loading: false,
+        });
+      }
     }
   }
   //复制角色到外部门户

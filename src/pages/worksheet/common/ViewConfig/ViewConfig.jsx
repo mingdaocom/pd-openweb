@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import pluginAjax from 'src/api/plugin.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -47,8 +47,7 @@ import {
 } from './components';
 import { baseSetList, viewTypeConfig } from './config';
 
-@errorBoundary
-export default class ViewConfigCon extends Component {
+class ViewConfigCon extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -62,28 +61,30 @@ export default class ViewConfigCon extends Component {
     this.fetchBtnByAll();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.viewId !== this.props.viewId) {
-      const { view = {}, viewConfigTab, setViewConfigTab } = nextProps;
-      const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.viewId !== prevProps.viewId) {
+        const { view = {}, viewConfigTab, setViewConfigTab } = this.props;
+        const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
 
-      if (viewConfigTab) {
-        setViewConfigTab('');
+        if (viewConfigTab) {
+          setViewConfigTab('');
+        }
+
+        this.setState({
+          viewSetting: viewConfigTab
+            ? viewConfigTab
+            : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
+              ? 'PluginSettings'
+              : 'Setting',
+        });
       }
 
-      this.setState({
-        viewSetting: viewConfigTab
-          ? viewConfigTab
-          : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
-            ? 'PluginSettings'
-            : 'Setting',
-      });
-    }
-
-    if (!_.isEqual(nextProps.view.moreSort, this.props.view.moreSort)) {
-      this.setState({
-        view: nextProps.view,
-      });
+      if (!_.isEqual(this.props.view.moreSort, prevProps.view.moreSort)) {
+        this.setState({
+          view: this.props.view,
+        });
+      }
     }
   }
 
@@ -334,6 +335,7 @@ export default class ViewConfigCon extends Component {
       onShowCreateCustomBtn,
       worksheetId,
       appId,
+      projectId,
       columns,
       view = {},
       refreshFn,
@@ -354,6 +356,7 @@ export default class ViewConfigCon extends Component {
             onShowCreateCustomBtn={onShowCreateCustomBtn}
             worksheetId={worksheetId}
             appId={appId}
+            projectId={projectId}
             viewId={viewId}
             refreshFn={refreshFn}
             btnList={btnList}
@@ -503,3 +506,5 @@ export default class ViewConfigCon extends Component {
     );
   }
 }
+
+export default ErrorBoundary.wrap(ViewConfigCon);

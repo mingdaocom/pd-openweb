@@ -40,7 +40,7 @@ export default class CalendarMembers extends Component {
               return <Member isCreateUser={false} member={m} key={m.accountID} {...memberOtherProps} />;
             })}
             {editable ? (
-              <span onClick={addCalendarMember} className="addCalendarMember ThemeHoverColor3">
+              <span onClick={addCalendarMember} className="addCalendarMember hoverColorPrimary">
                 <Icon icon={'task-add-member-circle'} className="Font26 mRight15 addBtn" />
                 {_l('添加出席者')}
               </span>

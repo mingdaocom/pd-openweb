@@ -182,7 +182,7 @@ export default function Btn(props) {
       footer={null}
       centered={true}
       onCancel={onClose}
-      closeIcon={<Icon icon="close Font24 ThemeHoverColor3" />}
+      closeIcon={<Icon icon="close Font24 hoverColorPrimary" />}
     >
       <Header>
         <div className="typeName">{_l('按钮')}</div>

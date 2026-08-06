@@ -3,9 +3,12 @@ import { connect } from 'react-redux';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
+import openEnlargeImage from 'ming-ui/components/UserCard/EnlargeImage';
+import userAjax from 'src/api/user.js';
 import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
 import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
+import { pathCompletion } from 'src/utils/common';
 
 const InfoTopWrap = styled.div`
   color: var(--color-text-title);
@@ -13,14 +16,13 @@ const InfoTopWrap = styled.div`
     width: 58px;
     height: 58px;
     border-radius: 50%;
+    cursor: zoom-in;
   }
   .personalStatus {
     max-width: fit-content;
   }
 `;
-
-@connect()
-class InfoTop extends React.PureComponent {
+let InfoTop = class InfoTop extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -32,6 +34,7 @@ class InfoTop extends React.PureComponent {
     const { userInfo = {}, isMe, dispatch } = this.props;
     const { currentUserCard } = this.state;
     const { userCards = [] } = userInfo;
+
     const commonOrg = _.filter(userCards, card =>
       _.some(_.get(md, 'global.Account.projects', []), project => project.projectId === card.projectId),
     );
@@ -45,7 +48,18 @@ class InfoTop extends React.PureComponent {
         <div
           className={`flexRow alignItemsCenter ${_.get(userInfo, 'onStatusOption.durationOption') ? '' : 'mBottom30'}`}
         >
-          <img src={userInfo.avatar} className="userAvatar" />
+          <img
+            src={userInfo.avatar}
+            className="userAvatar"
+            onClick={async () => {
+              const accountInfo = await userAjax
+                .getAccountBaseInfo({ accountId: userInfo.accountId, refresh: false })
+                .catch(() => ({}));
+              openEnlargeImage({
+                url: accountInfo.avatar || userInfo.avatar,
+              });
+            }}
+          />
           <div className="flex mLeft12" title={userInfo.fullname}>
             <div className="bold">{userInfo.fullname}</div>
             {userInfo.accountId !== md.global.Account.accountId && commonOrg.length > 0 ? (
@@ -64,28 +78,32 @@ class InfoTop extends React.PureComponent {
                 alert(_l('复制成功'));
               }}
             >
-              <span className="mLeft10 TxtMiddle icon-ID Font18 ThemeColor4" title={_l('复制用户ID')} />
-              <span className="TxtMiddle Font12 ThemeColor4 pLeft5 mRight30">{_l('复制用户ID')}</span>
+              <span className="mLeft10 TxtMiddle icon-ID Font18 ThemeColor4" title={_l('复制ID')} />
+              <span className="TxtMiddle Font12 ThemeColor4 pLeft5 mRight30">{_l('复制ID')}</span>
             </span>
           </div>
           {isMe ? (
-            <a className="Right ThemeColor4 Font12" href="/personal?type=information" target="_blank">
+            <a
+              className="Right colorPrimaryLight Font12"
+              href={pathCompletion('/personal?type=information')}
+              target="_blank"
+            >
               {_l('修改个人设置')}
             </a>
           ) : (
             <React.Fragment>
               <div className="Left">
                 <a href="javascript:void(0);" className="NoUnderline">
-                  <span className="TxtMiddle icon-replyto Font18 ThemeColor4" title={_l('发送私信')} />
-                  <span className="TxtMiddle Font12 ThemeColor4 pLeft5" onClick={sendMessage}>
+                  <span className="TxtMiddle icon-replyto Font18 colorPrimaryLight" title={_l('发送私信')} />
+                  <span className="TxtMiddle Font12 colorPrimaryLight pLeft5" onClick={sendMessage}>
                     {_l('发送私信')}
                   </span>
                 </a>
               </div>
               <div className="Left">
                 <a href={`mailto:${userInfo.email}`} className="NoUnderline">
-                  <span className="mLeft30 TxtMiddle icon-message Font18 ThemeColor4" title={_l('发送 E-mail')} />
-                  <span className="TxtMiddle Font12 ThemeColor4 pLeft5">{_l('发送 E-mail')}</span>
+                  <span className="mLeft30 TxtMiddle icon-message Font18 colorPrimaryLight" title={_l('发送 E-mail')} />
+                  <span className="TxtMiddle Font12 colorPrimaryLight pLeft5">{_l('发送 E-mail')}</span>
                 </a>
               </div>
             </React.Fragment>
@@ -104,6 +122,6 @@ class InfoTop extends React.PureComponent {
       </InfoTopWrap>
     );
   }
-}
-
+};
+InfoTop = connect()(InfoTop);
 export default InfoTop;

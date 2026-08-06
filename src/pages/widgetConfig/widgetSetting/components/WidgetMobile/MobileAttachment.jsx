@@ -129,7 +129,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                     {currentWaterMark && (
                       <Tooltip placement="bottom" title={_l('设置水印内容')}>
                         <i
-                          className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
+                          className="icon-settings textTertiary Font16 Hand Right hoverColorPrimary"
                           onClick={() => {
                             setVisible(true);
                             setWatermark(currentWaterMark);

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import discussionAjax from 'src/api/discussion';
 import DiscussInfo from 'mobile/Discuss';
-import { compatibleMDJS, handlePushState } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/project';
 
 const ChartCountWrap = styled.div`
   padding: 0 10px;
@@ -105,7 +105,6 @@ export default class ChatCount extends Component {
                 },
               },
               () => {
-                handlePushState('page', 'discussInfos');
                 this.setState({ visible: true });
                 onClick();
               },

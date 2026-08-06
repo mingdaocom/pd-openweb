@@ -178,12 +178,12 @@ export default class OutputList extends Component {
             <div className="width50">
               <Icon
                 type="trash"
-                className="Font16 mRight10 pointer textSecondary ThemeHoverColor3"
+                className="Font16 mRight10 pointer textSecondary hoverColorPrimary"
                 onClick={() => this.removeParameters(item.controlId)}
               />
               <Icon
                 type="add"
-                className="Font16 pointer textSecondary ThemeHoverColor3"
+                className="Font16 pointer textSecondary hoverColorPrimary"
                 onClick={() => this.addParameters(item)}
               />
             </div>
@@ -193,7 +193,7 @@ export default class OutputList extends Component {
             <div className={cx('mBottom10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
               <input
                 type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                 placeholder={_l('说明')}
                 value={item.desc}
                 onChange={evt => this.updateOutputParameters('desc', evt.target.value, item)}
@@ -313,7 +313,7 @@ export default class OutputList extends Component {
         {data.outputs && !!data.outputs.length && this.renderOutputList()}
         <div className="mTop15">
           <div
-            className="InlineBlock pointer ThemeColor3 ThemeHoverColor2 Font13"
+            className="InlineBlock pointer colorPrimary hoverColorPrimaryDark Font13"
             onClick={() =>
               updateSource({
                 outputs: (data.outputs || []).concat([getDefaultParameters()]),

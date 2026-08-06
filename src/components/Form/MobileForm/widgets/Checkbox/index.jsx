@@ -119,7 +119,7 @@ const CheckboxWidget = props => {
 
     return (
       <Select.Option value="select-all" key="select-all">
-        <span className="ellipsis ThemeColor3">{_l('全选')}</span>
+        <span className="ellipsis colorPrimary">{_l('全选')}</span>
       </Select.Option>
     );
   };

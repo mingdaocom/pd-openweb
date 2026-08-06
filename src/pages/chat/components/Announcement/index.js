@@ -14,13 +14,16 @@ export default class Announcement extends Component {
       compile: false,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    const { session } = nextProps;
 
-    if (session.about !== this.state.value) {
-      this.setState({
-        value: session.about,
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { session } = this.props;
+
+      if (session.about !== this.state.value) {
+        this.setState({
+          value: session.about,
+        });
+      }
     }
   }
   handleChange(value) {

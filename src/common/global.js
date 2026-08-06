@@ -1,4 +1,4 @@
-﻿import baseAxios from 'axios';
+import baseAxios from 'axios';
 import CryptoJS from 'crypto-js';
 import localForage from 'localforage';
 import _, { get, isFunction, isObject, replace, some } from 'lodash';
@@ -8,9 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
 import loginApi from 'src/api/login';
 import versionApi from 'src/api/version';
+import { browserIsMobile, getPathWithoutSubPath } from 'src/utils/common';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
-import './cookies';
 import langConfig from './langConfig';
 
 const axios = baseAxios.create();
@@ -71,53 +71,32 @@ axios.interceptors.request.use(
 /**
  * 获取当前语言
  */
-window.getCurrentLang = (hasDefault = true) => {
-  if (window.defaultLang) {
-    return window.defaultLang;
-  }
-
-  const currentLang = getCookie('i18n_langtag');
-
-  if (currentLang) {
-    return currentLang;
-  }
-
-  let langKey;
-
-  switch (navigator.language) {
-    case 'zh-CN':
-    case 'zh_cn':
-    case 'zh-cn':
-    case 'zh-SG':
-    case 'zh_sg':
-      langKey = 'zh-Hans';
-      break;
-    case 'zh-TW':
-    case 'zh-HK':
-    case 'zh-Hant':
-      langKey = 'zh-Hant';
-      break;
-    case 'ja':
-      langKey = 'ja';
-      break;
-    default:
-      langKey = hasDefault ? 'en' : '';
-  }
-
-  langKey && setCookie('i18n_langtag', langKey);
-
-  return langKey;
+window.getCurrentLang = () => {
+  const defaultLang = new URL(location.href).searchParams.get('sys_lang');
+  return defaultLang || getCookie('i18n_langtag');
 };
 
 /**
  * 获取当前语言code
  */
 window.getCurrentLangCode = lang => {
-  if (!lang) {
-    lang = getCurrentLang(false);
-  }
+  return (_.find(langConfig, o => o.key === (lang || getCurrentLang())) || {}).code;
+};
 
-  return (_.find(langConfig, o => o.key === lang) || {}).code;
+//获取默认语言
+window.getDefaultLangKey = () => {
+  return (_.find(langConfig, item => item.code === get(md, 'global.SysSettings.defaultLang')) || {}).key || 'zh-Hans';
+};
+
+//获取可设置的语言列表
+window.getAllowLangConfig = () => {
+  const defaultAllowLangs = get(md, 'global.SysSettings.defaultAllowLangs') || '';
+  const allowLangCodes = defaultAllowLangs
+    .split('|')
+    .filter(lang => lang !== '')
+    .map(Number);
+
+  return allowLangCodes.length ? langConfig.filter(item => allowLangCodes.includes(item.code)) : langConfig;
 };
 
 /**
@@ -162,7 +141,7 @@ window._l = function (key, ...args) {
     '/sso/workweixin',
   ];
 
-  if (pages.includes(location.pathname)) {
+  if (pages.includes(getPathWithoutSubPath(location.pathname))) {
     return;
   }
 
@@ -389,7 +368,7 @@ window.addEventListener('beforeunload', () => {
  * 获取错误信息
  * @returns {Object}
  */
-const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
+const getErrorMessage = (jqXHR = {}, textStatus, exception, silent = false) => {
   let errorMessage;
 
   switch (jqXHR.status) {
@@ -441,7 +420,7 @@ const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
   }
 
   // 火狐在用户跳走时会弹 "请求服务器失败"
-  if (errorMessage && textStatus !== 'abort' && jqXHR.status !== 0 && !window.isFirefox) {
+  if (errorMessage && !silent && textStatus !== 'abort' && jqXHR.status !== 0 && !window.isFirefox) {
     alert({ msg: errorMessage, type: 2, key: _.includes([401, 412], jqXHR.status) ? 'failure' : '' });
   }
 
@@ -486,6 +465,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
   ];
 
   if (
+    (/^\/printForm(?:\/|$)/.test(getPathWithoutSubPath(location.pathname)) && browserIsMobile() && !getPssId()) ||
     (location.href.indexOf('/public/') > -1 && clientId && _.includes(needClientIdControllerNames, controllerName)) ||
     ((location.href.indexOf('/portal/network') > -1 ||
       location.href.indexOf('/portal/login') > -1 ||
@@ -517,7 +497,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
   }
 
   if (window.isMingDaoApp && window.access_token && !getPssId()) {
-    headers.Authorization = `access_token ${window.access_token}`;
+    headers.Authorization = ajaxOptions.agent ? window.access_token : `access_token ${window.access_token}`;
   }
 
   // 应用库
@@ -527,7 +507,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
       !/#isPrivateBuild/.test(location.hash) &&
       _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2'
     ) {
-      serverPath = 'https://www.mingdao.com/api/';
+      serverPath = window.platformENV.isOverseas ? 'https://pd.nocoly.com/wwwapi/' : 'https://www.mingdao.com/api/';
     }
 
     headers.shareAuthor = window.publicAppAuthorization;
@@ -598,7 +578,7 @@ const generateLocalizationParams = (requestData = {}) => {
     },
     Worksheet_GetQueryBySheetId: {
       moduleType: 4,
-      sourceId: `${requestData.worksheetId}`,
+      sourceId: `${requestData.worksheetId}_${lang}`,
       clearInterface: [],
     },
     Worksheet_GetWorksheetBaseInfo: {
@@ -750,13 +730,17 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   const isSync = ajaxOptions.sync;
   const customParseResponse = options.customParseResponse; // 自定义解析返回内容
   const isReadableStream = options.isReadableStream; // 流式响应
+  // Agent 服务：不走 {state,data,exception} 契约，鉴权头为裸 pss_id，限流(429)单独提示（详见 window.agentAPI）
+  const isAgent = options.agent;
   const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, {
     ...ajaxOptions,
     noAccountIdHeader: options.noAccountIdHeader,
+    agent: isAgent,
   });
 
-  // 私有部署 非主站接口 5分钟自动延期登录状态
+  // 私有部署 非主站接口 5分钟自动延期登录状态（Agent 服务不参与）
   if (
+    !isAgent &&
     (window.platformENV.isOverseas || window.platformENV.isLocal) &&
     url.indexOf('wwwapi') === -1 &&
     _.get(md, 'global.Account.accountId')
@@ -792,12 +776,29 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
 
   // 流式接口
   if (isReadableStream) {
-    return fetch(url, {
+    const streamResponse = fetch(url, {
       signal: controller.signal,
       method,
       headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: method === 'GET' ? undefined : JSON.stringify(data),
     });
+
+    // Agent 限流必须告知用户，不受 silent 控制
+    if (isAgent) {
+      return streamResponse.then(async response => {
+        if (response.status === 429) {
+          const limitData = await response
+            .clone()
+            .json()
+            .catch(() => null);
+          limitData?.errorMessage && alert(limitData.errorMessage, 2);
+        }
+
+        return response;
+      });
+    }
+
+    return streamResponse;
   }
 
   const promise = new Promise(async (resolve, reject) => {
@@ -825,7 +826,9 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       }
     }
 
-    window.clearLocalDataTime({ controllerName, actionName, requestData });
+    if (!isAgent) {
+      window.clearLocalDataTime({ controllerName, actionName, requestData });
+    }
 
     axios({
       method,
@@ -838,7 +841,8 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       responseType,
     })
       .then(response => {
-        if (customParseResponse) {
+        // Agent 服务不走标准契约，直接返回后端响应体（与 customParseResponse 一致）
+        if (customParseResponse || isAgent) {
           resolve(response.data);
           return;
         }
@@ -867,6 +871,25 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
             navigateToLogin({ needSecondCheck: true });
           });
           reject(error.response);
+          return;
+        }
+
+        if (isAgent) {
+          const status = get(error, 'response.status');
+          const respData = get(error, 'response.data');
+
+          if (status === 429 && respData?.errorMessage) {
+            alert(respData.errorMessage, 2);
+          } else {
+            getErrorMessage(
+              error.response,
+              baseAxios.isCancel(error) ? 'abort' : '',
+              respData?.exception,
+              options.silent,
+            );
+          }
+
+          reject(error.response || error);
           return;
         }
 
@@ -900,6 +923,48 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   };
 
   return promise;
+};
+
+/**
+ * Agent 服务薄客户端
+ * @param  {Object}  args                请求参数（POST body 或 GET query）
+ * @param  {Object}  options
+ * @param  {String}  options.url         接口路径，如 /api/agent/execute
+ * @param  {String}  options.method      'GET' | 'POST'，默认 'POST'
+ * @param  {Boolean} options.isStream    SSE 流式：直接返回 fetch Response
+ * @param  {Boolean} options.silent      错误不弹层
+ * @param  {Object}  options.header      额外请求头
+ * @param  {AbortController} options.abortController
+ * @return {Promise}                     非流式 resolve 后端响应体（axios response.data）
+ */
+window.agentAPI = (args = {}, options = {}) => {
+  const { url, method = 'POST', isStream, silent, header, abortController } = options;
+
+  const agentHost = (_.get(md, 'global.Config.AgentUrl') || '').replace(/\/$/, '');
+  const fullUrl = window.isProduction && agentHost && url && url.startsWith('/') ? agentHost + url : url;
+
+  // 所有 agent execute / execute-stream 统一在接口层补当前组织 projectId 到「顶层」（非 context）：
+  // 后端口径 query ?projectId= → 顶层 projectId → context.projectId，顶层即可解析组织/计费。
+  // 优先取调用方已给的顶层 projectId，其次 context.projectId，最后回落 currentProjectId / 首个组织。
+  let requestArgs = args;
+
+  if (/\/agent\/execute/.test(url || '')) {
+    const currentProjectId =
+      localStorage.getItem('currentProjectId') || _.get(md, 'global.Account.projects[0].projectId');
+    const projectId = args.projectId || _.get(args, 'context.projectId') || currentProjectId;
+
+    if (projectId) {
+      requestArgs = { ...args, projectId: String(projectId) };
+    }
+  }
+
+  return window.mdyAPI(null, null, requestArgs, {
+    agent: true,
+    silent,
+    abortController,
+    isReadableStream: isStream,
+    ajaxOptions: { url: fullUrl, type: method, header },
+  });
 };
 
 /**

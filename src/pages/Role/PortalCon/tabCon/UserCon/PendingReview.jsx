@@ -228,7 +228,7 @@ function PendingReview(props) {
         return (
           <React.Fragment>
             <div
-              className="addUser InlineBlock Hand ThemeColor3 Bold"
+              className="addUser InlineBlock Hand colorPrimary Bold"
               onClick={e => {
                 setSelectedIds([data.rowid]);
                 setShowPassDrop(true);
@@ -382,6 +382,7 @@ function PendingReview(props) {
       {showPassDrop && (
         <ChangeRoleDialog
           title={_l('选择角色')}
+          appId={appId}
           roleList={roleList}
           setChangeRoleDialog={setShowPassDrop}
           changeRoleDialog={showPassDrop}

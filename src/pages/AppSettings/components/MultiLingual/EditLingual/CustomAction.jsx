@@ -2,35 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
-
-const Wrap = styled.div`
-  .customActionNav {
-    width: 180px;
-    .customAction {
-      height: 36px;
-      border-radius: 4px;
-      padding: 0 10px;
-      margin-right: 12px;
-      &:hover {
-        background-color: var(--color-background-hover);
-      }
-    }
-  }
-  .customActionWrap {
-    .customActionName {
-      padding: 3px;
-    }
-    .nodeItem {
-      padding: 0 3px;
-    }
-  }
-`;
 
 export default function CustomAction(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -68,10 +44,10 @@ export default function CustomAction(props) {
     );
   }
 
-  const handlePositionBtn = item => {
-    const el = document.querySelector(`.customAction-${item.btnId}`);
+  const handlePositionItem = item => {
+    const el = document.querySelector(`.navItem-${item.btnId}`);
     const className = 'highlight';
-    const highlightEl = el.querySelector('.customActionName');
+    const highlightEl = el.querySelector('.itemName');
     $(highlightEl)
       .addClass(className)
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
@@ -82,21 +58,21 @@ export default function CustomAction(props) {
     }
   };
 
-  const renderBtnNav = btn => {
-    const data = _.find(translateData, { correlationId: btn.btnId }) || {};
+  const renderNav = item => {
+    const data = _.find(translateData, { correlationId: item.btnId }) || {};
     const translateInfo = data.data || {};
     return (
       <div
-        className="customAction flexRow alignItemsCenter pointer"
-        key={btn.btnId}
-        onClick={() => handlePositionBtn(btn)}
+        className="navItem flexRow alignItemsCenter pointer"
+        key={item.btnId}
+        onClick={() => handlePositionItem(item)}
       >
-        <span className="mLeft5 Font13 ellipsis">{translateInfo.name || btn.name}</span>
+        <span className="mLeft5 Font13 ellipsis">{translateInfo.name || item.name}</span>
       </div>
     );
   };
 
-  const renderBtnContent = btn => {
+  const renderContent = btn => {
     const data = _.find(translateData, { correlationId: btn.btnId }) || {};
     const translateInfo = data.data || {};
     const comparisonLangInfo = getTranslateInfo(app.id, null, btn.btnId, comparisonLangData);
@@ -128,8 +104,8 @@ export default function CustomAction(props) {
     };
 
     return (
-      <div className={cx('flexColumn mBottom30 customActionWrap', `customAction-${btn.btnId}`)} key={btn.btnId}>
-        <div className="flexRow alignItemsCenter mBottom15 customActionName">
+      <div className={cx('flexColumn mBottom30', `navItem-${btn.btnId}`)} key={btn.btnId}>
+        <div className="flexRow alignItemsCenter mBottom15 itemName">
           <span className="flex Font14 bold ellipsis">{translateInfo.name || btn.name}</span>
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
@@ -283,8 +259,8 @@ export default function CustomAction(props) {
   };
 
   return (
-    <Wrap className="flexRow pAll10 h100">
-      <div className="customActionNav flexColumn">
+    <div className="flexRow pAll10 h100">
+      <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
@@ -300,12 +276,12 @@ export default function CustomAction(props) {
           )}
         </div>
         <ScrollView className="h100">
-          {sheetBtns.filter(btn => btn.name.includes(searchValue)).map(btn => renderBtnNav(btn))}
+          {sheetBtns.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="h100" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">{sheetBtns.map(btn => renderBtnContent(btn))}</div>
+        <div className="pLeft20 pRight20">{sheetBtns.map(item => renderContent(item))}</div>
       </ScrollView>
-    </Wrap>
+    </div>
   );
 }

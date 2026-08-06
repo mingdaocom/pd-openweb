@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import JsonView from 'react-json-view';
 import { Select } from 'antd';
+import JsonView from '@mingdaocom/json-view';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
@@ -39,61 +39,60 @@ const Wrapper = styled.div`
   }
 `;
 
+const formatConditionsValue = conditions => {
+  const formatValue = conditions.map(item => {
+    if (item.isGroup) {
+      return {
+        ...item,
+        groupFilters: item.groupFilters.map(groupItem =>
+          Object.fromEntries(Object.entries(groupItem).filter(([, v]) => v !== undefined)),
+        ),
+      };
+    }
+
+    return Object.fromEntries(Object.entries(item).filter(([, v]) => v !== undefined));
+  });
+  return formatValue;
+};
+const normalizeValues = values => {
+  return _.isArray(values)
+    ? values.map(v => {
+        const parsed = safeParse(v);
+        return parsed?.id ?? v;
+      })
+    : values;
+};
+
+const formatFilter = filter => {
+  if (filter.dataType === 29) {
+    return {
+      ...filter,
+      values: normalizeValues(filter.values),
+    };
+  }
+
+  return filter;
+};
+
+const formatFiltersValue = (filters = []) => {
+  return filters.map(filter => {
+    if (filter.isGroup) {
+      return {
+        ...filter,
+        groupFilters: _.isArray(filter.groupFilters) ? filter.groupFilters.map(formatFilter) : filter.groupFilters,
+      };
+    }
+
+    return formatFilter(filter);
+  });
+};
+
 export default function FiltersGenerate(props) {
   const { controls = [], projectId, appId, sheetSwitchPermit = [] } = props;
   const [visible, setVisible] = useState(false);
   const [filters, setFilters] = useState([]);
   const [apiVersion, setApiVersion] = useState('apiV2');
   const [apiV3Filters, setApiV3Filters] = useState({});
-
-  const formatConditionsValue = conditions => {
-    const formatValue = conditions.map(item => {
-      if (item.isGroup) {
-        return {
-          ...item,
-          groupFilters: item.groupFilters.map(groupItem =>
-            Object.fromEntries(Object.entries(groupItem).filter(([, v]) => v !== undefined)),
-          ),
-        };
-      }
-
-      return Object.fromEntries(Object.entries(item).filter(([, v]) => v !== undefined));
-    });
-    return formatValue;
-  };
-
-  const normalizeValues = values => {
-    return _.isArray(values)
-      ? values.map(v => {
-          const parsed = safeParse(v);
-          return parsed?.id ?? v;
-        })
-      : values;
-  };
-
-  const formatFilter = filter => {
-    if (filter.dataType === 29) {
-      return {
-        ...filter,
-        values: normalizeValues(filter.values),
-      };
-    }
-
-    return filter;
-  };
-
-  const formatFiltersValue = (filters = []) => {
-    return filters.map(filter => {
-      if (filter.isGroup) {
-        return {
-          ...filter,
-          groupFilters: _.isArray(filter.groupFilters) ? filter.groupFilters.map(formatFilter) : filter.groupFilters,
-        };
-      }
-
-      return formatFilter(filter);
-    });
-  };
 
   useEffect(() => {
     if (apiVersion === 'apiV3') {
@@ -166,13 +165,7 @@ export default function FiltersGenerate(props) {
                 </Select>
               </div>
               <div className="jsonViewWrapper">
-                <JsonView
-                  theme={window.themeMode === 'dark' ? 'monokai' : 'rjv-default'}
-                  src={apiVersion === 'apiV3' ? apiV3Filters : filters}
-                  displayDataTypes={false}
-                  displayObjectSize={false}
-                  name={null}
-                />
+                <JsonView theme="light" data={apiVersion === 'apiV3' ? apiV3Filters : filters} />
               </div>
             </div>
           </Wrapper>

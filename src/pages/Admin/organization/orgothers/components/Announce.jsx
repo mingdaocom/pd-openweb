@@ -252,9 +252,9 @@ export default class Announce extends Component {
   renderAttachmentList = () => {
     return (
       <AttachmentList>
-        <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 textSecondary">
+        <div className="hoverColorPrimary pointer mTop5 mBottom10 Font13 textSecondary">
           <span
-            className="InlineBlock ThemeColor3 Hand adminHoverColor"
+            className="InlineBlock colorPrimary Hand adminHoverColor"
             id="uploadAttachment"
             onClick={() => {
               $('.noticeOrgWrap .triggerTraget').click();
@@ -296,7 +296,7 @@ export default class Announce extends Component {
     return (
       <Fragment>
         <div className="orgManagementHeader">
-          <i className="icon-backspace Hand mRight10 TxtMiddle Font22 ThemeHoverColor3" onClick={this.props.onClose} />
+          <i className="icon-backspace Hand mRight10 TxtMiddle Font22 hoverColorPrimary" onClick={this.props.onClose} />
           {_l('群发通告')}
           <div className="flex"></div>
         </div>
@@ -367,7 +367,7 @@ export default class Announce extends Component {
               <div className="mLeft20 mTop10">
                 <button
                   type="button"
-                  className="ming Button Button--link ThemeColor3 adminHoverColor"
+                  className="ming Button Button--link colorPrimary adminHoverColor"
                   onClick={this.selectUser}
                 >
                   {_l('选择具体成员')}

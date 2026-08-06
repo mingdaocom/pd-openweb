@@ -49,11 +49,13 @@ class FolderChart extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.taskConfig.folderId && nextProps.taskConfig.folderId !== this.props.taskConfig.folderId) {
-      setTimeout(() => {
-        this.init();
-      }, 0);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.taskConfig.folderId && this.props.taskConfig.folderId !== prevProps.taskConfig.folderId) {
+        setTimeout(() => {
+          this.init();
+        }, 0);
+      }
     }
   }
 
@@ -118,15 +120,15 @@ class FolderChart extends Component {
     $('#taskList').on(
       {
         mouseover() {
-          $(this).addClass('ThemeColor3 ThemeBorderColor3');
+          $(this).addClass('colorPrimary borderColorPrimary');
         },
         mouseout() {
-          $(this).removeClass('ThemeColor3 ThemeBorderColor3');
+          $(this).removeClass('colorPrimary borderColorPrimary');
         },
         click() {
           const $folderChartTime = $('.folderChartNavBox .folderChartTime');
           const $folderChartChargeBox = $('.folderChartNavBox .folderChartChargeBox');
-          $(this).addClass('active ThemeColor3 ThemeBorderColor3').siblings().removeClass();
+          $(this).addClass('active colorPrimary borderColorPrimary').siblings().removeClass();
 
           folderChartSettings.type = $(this).index() + 1;
           $('#taskList .folderChartBox').html(
@@ -163,7 +165,7 @@ class FolderChart extends Component {
       const date = $(this).data('type');
       const isDialog = $(this).closest('.folderChartMaxView').length;
 
-      $(this).addClass('activeClass ThemeBorderColor3 ThemeBGColor3').siblings('li').removeClass();
+      $(this).addClass('activeClass borderColorPrimary bgColorPrimary').siblings('li').removeClass();
 
       $(this)
         .siblings('.folderChartTimeTxt')
@@ -201,31 +203,31 @@ class FolderChart extends Component {
 
     // 负责人全选
     $('body').on('click.folderChart', '.folderChartSelectAll', function () {
-      $(this).toggleClass('ThemeBorderColor3 ThemeBGColor3');
-      if ($(this).hasClass('ThemeBGColor3')) {
+      $(this).toggleClass('borderColorPrimary bgColorPrimary');
+      if ($(this).hasClass('bgColorPrimary')) {
         $(this)
           .closest('.folderChartChargeList')
           .find('.folderChartSelect')
-          .addClass('ThemeBorderColor3 ThemeBGColor3');
+          .addClass('borderColorPrimary bgColorPrimary');
       } else {
         $(this)
           .closest('.folderChartChargeList')
           .find('.folderChartSelect')
-          .removeClass('ThemeBorderColor3 ThemeBGColor3');
+          .removeClass('borderColorPrimary bgColorPrimary');
       }
     });
 
     // 负责人选中和取消选中
     $('body').on('click.folderChart', '.folderChartChargeLists .folderChartSelectBtn', function () {
-      $(this).toggleClass('ThemeBorderColor3 ThemeBGColor3');
+      $(this).toggleClass('borderColorPrimary bgColorPrimary');
       const $List = $(this).closest('.folderChartChargeList');
 
       if (
-        $List.find('.folderChartChargeLists .ThemeBGColor3').length === $List.find('.folderChartChargeLists li').length
+        $List.find('.folderChartChargeLists .bgColorPrimary').length === $List.find('.folderChartChargeLists li').length
       ) {
-        $List.find('.folderChartSelectAll').addClass('ThemeBorderColor3 ThemeBGColor3');
+        $List.find('.folderChartSelectAll').addClass('borderColorPrimary bgColorPrimary');
       } else {
-        $List.find('.folderChartSelectAll').removeClass('ThemeBorderColor3 ThemeBGColor3');
+        $List.find('.folderChartSelectAll').removeClass('borderColorPrimary bgColorPrimary');
       }
     });
 
@@ -241,7 +243,7 @@ class FolderChart extends Component {
       const chargeAccountIDs = [];
       const isDialog = $(this).closest('.folderChartMaxView').length;
 
-      if (!$folderChartChargeList.find('.folderChartSelect.ThemeBGColor3').length) {
+      if (!$folderChartChargeList.find('.folderChartSelect.bgColorPrimary').length) {
         alert(_l('请选择负责人!'), 3);
         return false;
       }
@@ -249,10 +251,10 @@ class FolderChart extends Component {
       $folderChartChargeList.addClass('Hidden');
 
       // 全选选中
-      if ($folderChartChargeList.find('.folderChartSelectAll.ThemeBGColor3').length) {
+      if ($folderChartChargeList.find('.folderChartSelectAll.bgColorPrimary').length) {
         isAuto = true;
       } else {
-        $folderChartChargeList.find('.folderChartSelect.ThemeBGColor3').each((i, item) => {
+        $folderChartChargeList.find('.folderChartSelect.bgColorPrimary').each((i, item) => {
           chargeAccountIDs.push($(item).attr('data-id'));
         });
       }
@@ -1213,22 +1215,24 @@ class FolderChart extends Component {
 
     if (isDialog) {
       $('.folderChartMaxView .folderChartSelect').toggleClass(
-        'ThemeBorderColor3 ThemeBGColor3',
+        'borderColorPrimary bgColorPrimary',
         folderChartSettings.isAutoMax,
       );
       if (!folderChartSettings.isAutoMax) {
         for (ids of folderChartSettings.chargeAccountIDsMax) {
-          $('.folderChartMaxView .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');
+          $('.folderChartMaxView .folderChartSelect[data-id=' + ids + ']').addClass(
+            'borderColorPrimary bgColorPrimary',
+          );
         }
       }
     } else {
       $('.folderChartNavBox .folderChartSelect').toggleClass(
-        'ThemeBorderColor3 ThemeBGColor3',
+        'borderColorPrimary bgColorPrimary',
         folderChartSettings.isAuto,
       );
       if (!folderChartSettings.isAuto) {
         for (ids of folderChartSettings.chargeAccountIDs) {
-          $('.folderChartNavBox .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');
+          $('.folderChartNavBox .folderChartSelect[data-id=' + ids + ']').addClass('borderColorPrimary bgColorPrimary');
         }
       }
     }

@@ -3,9 +3,11 @@ import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { addBehaviorLog } from 'src/utils/project';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
 import { fromType, typeForCon } from '../../core/config';
+import { getPrintLayoutConfig } from '../../core/layout';
+import { openPrintPageInBrowser } from './CopyPrintLinkPopup';
+import { isThirdPartyBrowser, requestExportWord } from './utils';
 import './index.less';
 
 class Header extends React.Component {
@@ -38,6 +40,7 @@ class Header extends React.Component {
     try {
       this.richTextImgHandle();
       const { printData } = this.props;
+      const { layout } = getPrintLayoutConfig(printData.advanceSettings);
       let contentNode = document.getElementById('printItemsBox').cloneNode(true);
       // 移除分隔节点
       const separators = contentNode.querySelectorAll('.printItemSeparator');
@@ -115,7 +118,7 @@ class Header extends React.Component {
                         <meta charset="UTF-8">
                         <title>Document</title>
                       </head>
-                      <body class='printTem' id='wordPrintCon' style="width: 800px;color: #151515;margin: 0px;padding: 0px;background-attachment: fixed;-webkit-text-size-adjust: none;line-height: 1.5;">
+                      <body class='printTem' id='wordPrintCon' style="width: ${layout.previewPageWidth}px;color: #151515;margin: 0px;padding: 0px;background-attachment: fixed;-webkit-text-size-adjust: none;line-height: 1.5;">
                         <div style="margin: 0; padding: 0;">${
                           noPrint ? content.replace(noPrint.outerHTML, '') : content
                         }</div>
@@ -127,19 +130,11 @@ class Header extends React.Component {
           html: str || '',
         };
 
-        window
-          .mdyAPI('', '', param, {
-            ajaxOptions: {
-              url: `${md.global.Config.WorksheetDownUrl}/ExportWord/ToWord`,
-              responseType: 'blob',
-            },
-            customParseResponse: true,
-          })
-          .then(data => {
-            this.setState({ exportLoading: false });
-            const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}.docx`;
-            saveAs(data, fileName);
-          });
+        requestExportWord(param).then(data => {
+          this.setState({ exportLoading: false });
+          const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}.docx`;
+          saveAs(data, fileName);
+        });
       });
     } catch (error) {
       console.error(error);
@@ -149,12 +144,27 @@ class Header extends React.Component {
   };
 
   handlePrint = () => {
-    const { params } = this.props;
-    const { printId, worksheetId, rowIds } = params;
+    const { params, isMobile } = this.props;
+    const { printId, projectId, worksheetId, rowIds } = params;
+
+    if (window.isMingDaoApp) {
+      compatibleMDJS('openNativePage', {
+        type: 'url',
+        url: window.location.href,
+        openInBrowser: true,
+        success: () => {},
+      });
+      return false;
+    }
+
+    if (isThirdPartyBrowser()) {
+      openPrintPageInBrowser(projectId);
+      return false;
+    }
 
     addBehaviorLog('printRecord', worksheetId, { printId, rowId: rowIds?.join(',') }); // 埋点
 
-    if (window.isSafari) {
+    if (window.isSafari && !isMobile) {
       const printContentHtml = document.querySelector('.printItemsBox').outerHTML;
       const printFrame = document.createElement('iframe');
       printFrame.name = 'printFrame';
@@ -191,10 +201,6 @@ class Header extends React.Component {
     window.print();
   };
 
-  changeToOldPrint = () => {
-    window.location.href = window.location.href.replace('printForm', 'printFormOld');
-  };
-
   render() {
     const {
       params,
@@ -207,93 +213,103 @@ class Header extends React.Component {
       isHaveCharge,
       pagesInfo,
       showPrintAndSaveButtons,
-      rowIds,
+      isMobile,
     } = this.props;
     const { type, from, isDefault, fileTypeNum } = params;
     const { isEdit, exportLoading } = this.state;
     const allowDown = isHaveCharge || !printData.allowDownloadPermission;
-    const hasPrintFormBatch = window.location.pathname.includes('printForm');
+    const hideExportWord =
+      isMobile && (window.isWxWork || window.isDingTalk || window.isFeiShu || window.isWeiXin || window.isMingDaoApp);
+    const showExportWord = !hideExportWord && type === typeForCon.PREVIEW && isDefault && allowDown;
 
     return (
-      <div className={cx('headerBox textPrimary', { flexCenter: type === typeForCon.PREVIEW })}>
+      <div
+        className={cx('headerBox textPrimary', {
+          flexCenter: type === typeForCon.PREVIEW,
+          mobileHeader: isMobile,
+        })}
+      >
         <React.Fragment>
-          {from === fromType.FORM_SET && (
-            <Icon
-              icon="backspace"
-              className="mRight12 Font16"
-              onClick={() => {
-                this.props.onCloseFn();
-              }}
-            />
-          )}
-          {type === typeForCon.PREVIEW && (
-            <span className="Font17 Bold flex overflow_ellipsis">{_l('预览: %0', printData.name)}</span>
-          )}
-          {from === fromType.PRINT && type === typeForCon.NEW && (
-            <span className="Font17 Bold flex">{_l('系统打印')}</span>
-          )}
-          {from === fromType.PRINT && pagesInfo && <div className="pageIndicator">{pagesInfo}</div>}
-          {from === fromType.FORM_SET ? (
-            // 字段编辑=》打印模板
-            <React.Fragment>
-              {type === typeForCon.NEW && <span className="Font17 Bold">{_l('新建模板')}</span>}
-              {type === typeForCon.EDIT && <span className="Font17 Bold">{_l('编辑模板')}</span>}
-              {type !== typeForCon.PREVIEW && (
-                <React.Fragment>
-                  {isEdit ? (
-                    <input
-                      type="text"
-                      placeholder={_l('请输入模板名称')}
-                      className="tepName"
-                      value={printData.name}
-                      autoFocus
-                      onChange={e => {
-                        handChange({
-                          name: e.target.value,
-                        });
-                      }}
-                      onBlur={() => {
-                        this.setState({
-                          isEdit: false,
-                        });
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className={cx('tepName InlineBlock', { noName: !printData.name })}
-                      onClick={() => {
-                        this.setState({
-                          isEdit: true,
-                        });
-                      }}
-                    >
-                      {printData.name || _l('请输入模板名称')}
-                    </div>
-                  )}
-                </React.Fragment>
-              )}
-              <div className="Right">
+          <div className="headerTitleRow">
+            {from === fromType.FORM_SET && (
+              <React.Fragment>
+                <Icon
+                  icon="backspace"
+                  className="mRight12 Font16"
+                  onClick={() => {
+                    this.props.onCloseFn();
+                  }}
+                />
+                {type === typeForCon.NEW && <span className="Font17 Bold">{_l('新建模板')}</span>}
+                {type === typeForCon.EDIT && <span className="Font17 Bold">{_l('编辑模板')}</span>}
                 {type !== typeForCon.PREVIEW && (
                   <React.Fragment>
-                    <div
-                      className="saveButton InlineBlock Hand Bold"
-                      onClick={() => {
-                        // saveTem();
-                        if (!printData.name) {
-                          alert(_l('请输入模板名称'), 3);
-                          return;
-                        }
-
-                        saveFn();
-                      }}
-                    >
-                      {_l('保存')}
-                    </div>
+                    {isEdit ? (
+                      <input
+                        type="text"
+                        placeholder={_l('请输入模板名称')}
+                        className="tepName"
+                        value={printData.name}
+                        autoFocus
+                        onChange={e => {
+                          handChange({
+                            name: e.target.value,
+                          });
+                        }}
+                        onBlur={() => {
+                          this.setState({
+                            isEdit: false,
+                          });
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={cx('tepName InlineBlock', { noName: !printData.name })}
+                        onClick={() => {
+                          this.setState({
+                            isEdit: true,
+                          });
+                        }}
+                      >
+                        {printData.name || _l('请输入模板名称')}
+                      </div>
+                    )}
                   </React.Fragment>
                 )}
-              </div>
-            </React.Fragment>
-          ) : (
+                <div className="Right headerActions">
+                  {type !== typeForCon.PREVIEW && (
+                    <React.Fragment>
+                      <div
+                        className="saveButton InlineBlock Hand Bold"
+                        onClick={() => {
+                          // saveTem();
+                          if (!printData.name) {
+                            alert(_l('请输入模板名称'), 3);
+                            return;
+                          }
+
+                          saveFn();
+                        }}
+                      >
+                        {_l('保存')}
+                      </div>
+                    </React.Fragment>
+                  )}
+                </div>
+              </React.Fragment>
+            )}
+            {type === typeForCon.PREVIEW && (
+              <span className="Font17 Bold flex overflow_ellipsis">
+                {/* 兼容H5批量系统打印显示 */}
+                {isMobile && !printData.name ? _l('系统打印') : _l('预览: %0', printData.name)}
+              </span>
+            )}
+            {from === fromType.PRINT && type === typeForCon.NEW && (
+              <span className="Font17 Bold flex overflow_ellipsis">{_l('系统打印')}</span>
+            )}
+            {from === fromType.PRINT && pagesInfo && <div className="pageIndicator">{pagesInfo}</div>}
+          </div>
+          {from !== fromType.FORM_SET && (
             <React.Fragment>
               {showPdf && (
                 <span
@@ -307,27 +323,8 @@ class Header extends React.Component {
                 </span>
               )}
               {showPrintAndSaveButtons && (
-                <div className="Right">
-                  {rowIds.length === 1 && hasPrintFormBatch && (
-                    <div className="InlineBlock textSecondary">
-                      <span className="Hand" onClick={this.changeToOldPrint}>
-                        {_l('切换旧版')}
-                      </span>
-                      <Tooltip
-                        title={
-                          <div>
-                            <div>{_l('本次更新优化了打印模板的数据获取方式。')}</div>
-                            <div>{_l('如遇异常，可切换到旧版继续使用。')}</div>
-                          </div>
-                        }
-                      >
-                        <Icon icon="help" className="Font15 mLeft5 textTertiary ThemeHoverColor3" />
-                      </Tooltip>
-                    </div>
-                  )}
-                  {type === typeForCon.PREVIEW &&
-                    isDefault &&
-                    allowDown &&
+                <div className="Right headerActions">
+                  {showExportWord &&
                     (exportLoading ? (
                       <div className="InlineBlock textSecondary mLeft10">
                         <LoadDiv size="small" className="mRight5 InlineBlock" />
@@ -343,7 +340,7 @@ class Header extends React.Component {
                       </div>
                     ))}
 
-                  {from === fromType.PRINT && type === typeForCon.NEW && this.props.isUserAdmin && (
+                  {!isMobile && from === fromType.PRINT && type === typeForCon.NEW && this.props.isUserAdmin && (
                     <span
                       className="btn textPrimary Hand mLeft20"
                       onClick={() => {

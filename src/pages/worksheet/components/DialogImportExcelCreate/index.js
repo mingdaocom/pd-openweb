@@ -11,7 +11,6 @@ import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import {
   changeCreateAppLoading,
   changeDialogCreateAppVisible,
@@ -27,20 +26,6 @@ import { getFeatureStatus } from 'src/utils/project';
 import DialogCreateApp from './DialogCreateApp';
 import DialogUpload from './DialogUpload';
 import SetImportExcelCreateWorksheetOrApp from './SetImportExcelCreateWorksheetOrApp';
-
-export const wsexcelbatchSocketInit = () => {
-  IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, errorCount }) => {
-    antNotification.close(id);
-    antNotification.success({
-      message: _l('表数据导入完成'),
-      description: _l('共导入%0张表，总计%1行数据', sheetCount, addCount),
-      btnText: errorCount ? _l('查看错误报告') : '',
-      onBtnClick: () => {
-        new ErrorDialog({ fileKey: id, isBatch: true });
-      },
-    });
-  });
-};
 
 class DialogImportExcelCreate extends Component {
   static propTypes = {

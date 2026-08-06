@@ -97,7 +97,7 @@ function ChooseControl(props) {
       <React.Fragment>
         <div className="title Bold textSecondary Font13 WordBreak overflow_ellipsis">
           {parentName ? `>${parentName}` : title}
-          {parentName && <span className="ThemeColor3 pLeft5">{title}</span>}
+          {parentName && <span className="colorPrimary pLeft5">{title}</span>}
         </div>
         <div className="search mTop8 mBottom6">
           <i className="icon-search textTertiary" />
@@ -152,12 +152,12 @@ function ChooseControl(props) {
                   <div className={cx('flex flexRow alignItemsCenter', disable ? 'disable' : 'Hand')}>
                     <Icon
                       icon={o.controlId === 'rowscount' ? 'calculate' : getIconByType(o.type)}
-                      className={cx('Font16', hs ? 'ThemeColor3' : disable ? 'textDisabled' : 'Hand textTertiary')}
+                      className={cx('Font16', hs ? 'colorPrimary' : disable ? 'textDisabled' : 'Hand textTertiary')}
                     />
                     <div
                       className={cx(
                         'flex mLeft8 WordBreak overflow_ellipsis',
-                        hs ? 'ThemeColor3' : disable ? 'textDisabled' : 'textPrimary',
+                        hs ? 'colorPrimary' : disable ? 'textDisabled' : 'textPrimary',
                       )}
                     >
                       {o.controlName}

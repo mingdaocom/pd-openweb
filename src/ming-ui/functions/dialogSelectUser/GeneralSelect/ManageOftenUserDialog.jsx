@@ -215,7 +215,7 @@ function ManageOftenUserDialog(props) {
         {type === 1 && (
           <Fragment>
             <div className="Font14 valignWrapper actionWrap">
-              <span className="colorPrimary hoverBgPrimaryDark flex Hand" onClick={onAdd}>
+              <span className="colorPrimary hoverBgColorPrimaryDark flex Hand" onClick={onAdd}>
                 <Icon icon="add" className="mRight6" />
                 {_l('添加人员')}
               </span>

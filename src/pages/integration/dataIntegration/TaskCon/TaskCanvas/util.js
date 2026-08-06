@@ -307,7 +307,7 @@ export const getFields = async ({
       return [];
     } else {
       const ress = await dataSourceApi.fillJdbcType({ worksheetId: workSheetId, fields: fieldsParams });
-      return ress;
+      return Array.isArray(ress) ? ress : [];
     }
   } else {
     if (!tableName) {
@@ -323,7 +323,7 @@ export const getFields = async ({
       schema: dsType === DATABASE_TYPE.HANA ? dbName : schema,
     };
     const res = await dataSourceApi.getTableFields(params);
-    return res;
+    return Array.isArray(res) ? res : [];
   }
 };
 

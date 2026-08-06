@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useSetState } from 'react-use';
 import { LoadDiv } from 'ming-ui';
 import loginController from 'src/api/login';
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
-import { getDataByFilterXSS } from 'src/pages/AuthService/util.js';
+import { getDataByFilterXSS, getMingoAnonymousReturnUrl } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 import { checkLogin } from 'src/utils/sso';
 import { Wrap } from './style';
@@ -36,22 +36,7 @@ function Container() {
     },
   );
 
-  useEffect(() => {
-    if ((unionId && state && tpType) || (account && password)) {
-      const isApp = window.isDingTalk || window.isWxWork || window.isWeLink || window.isFeiShu;
-
-      if (isApp && checkLogin()) {
-        const redirectUrl = returnUrl ? getDataByFilterXSS(returnUrl) : '/dashboard';
-        window.location.replace(redirectUrl);
-      } else {
-        login();
-      }
-    } else {
-      window.location.href = '/login';
-    }
-  }, []);
-
-  const login = () => {
+  const login = useCallback(() => {
     let loginAjax = null;
 
     if (account && password) {
@@ -70,7 +55,7 @@ function Container() {
     loginAjax.then(data => {
       if (!data) {
         // 没有对应的unionid记录
-        window.location.replace('/login');
+        window.location.replace(pathCompletion('/login'));
       } else {
         if (!data.accountId) {
           // 没有绑定过账号
@@ -78,7 +63,11 @@ function Container() {
           if (tpType == TPTYPES.sso) {
             alert(_l('登录失败'), 2);
           } else {
-            const params = `?state=${state}&tpType=${tpType}&unionId=${unionId}`;
+            const registerReturnUrl = getMingoAnonymousReturnUrl();
+            const params = `?state=${state}&tpType=${tpType}&unionId=${unionId}${
+              registerReturnUrl ? `&ReturnUrl=${encodeURIComponent(registerReturnUrl)}` : ''
+            }`;
+
             navigateTo(`/register${params}`);
           }
         } else {
@@ -108,7 +97,9 @@ function Container() {
                   }
                 }, 2000);
               } else {
-                const redirectUrl = returnUrl ? getDataByFilterXSS(returnUrl) : '/dashboard';
+                const redirectUrl =
+                  getMingoAnonymousReturnUrl() ||
+                  (returnUrl ? getDataByFilterXSS(returnUrl) : pathCompletion('/dashboard'));
                 window.location.replace(redirectUrl);
               }
             });
@@ -119,7 +110,23 @@ function Container() {
         }
       }
     });
-  };
+  }, [account, autoLogin, password, returnUrl, setState, state, tpType, unionId]);
+
+  useEffect(() => {
+    if ((unionId && state && tpType) || (account && password)) {
+      const isApp = window.isDingTalk || window.isWxWork || window.isWeLink || window.isFeiShu;
+
+      if (isApp && checkLogin()) {
+        const redirectUrl =
+          getMingoAnonymousReturnUrl() || (returnUrl ? getDataByFilterXSS(returnUrl) : pathCompletion('/dashboard'));
+        window.location.replace(redirectUrl);
+      } else {
+        login();
+      }
+    } else {
+      window.location.href = pathCompletion('/login');
+    }
+  }, [account, login, password, returnUrl, state, tpType, unionId]);
 
   return (
     <Wrap>

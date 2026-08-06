@@ -26,8 +26,9 @@ const AppLogWrap = styled.div`
 export default class AppLog extends Component {
   constructor(props) {
     super(props);
+    const globalLogTab = localStorage.getItem('globalLogTab');
     this.state = {
-      currentTab: localStorage.getItem('globalLogTab') ? +localStorage.getItem('globalLogTab') : 0,
+      currentTab: globalLogTab ? +globalLogTab : 0,
       disabledExportBtn: false,
     };
   }

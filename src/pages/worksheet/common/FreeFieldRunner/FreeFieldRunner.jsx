@@ -65,6 +65,7 @@ export default function FreeFieldRunner({
   const cache = useRef({});
   cache.current.formData = widgetParams.formData;
   cache.current.onChange = widgetParams.onChange;
+  const pluginRuntimeUrl = get(md, 'global.Config.PluginRuntimeUrl');
   const [loadingForMask, setLoadingForMask] = useState(false);
   const formData = useMemo(() => formatFormData(widgetParams.formData || []), [widgetParams.formData]);
   const currentControl = useMemo(() => {
@@ -72,6 +73,7 @@ export default function FreeFieldRunner({
     return targetControl;
   }, [widgetParams.formData, currentControlId]);
   const postToIframe = useCallback(payload => {
+    if (!iframeRef.current || !iframeRef.current.contentWindow) return;
     iframeRef.current.contentWindow.postMessage({ source: 'main_web', payload }, '*');
   }, []);
   const showMask = useCallback((delay = 100) => {
@@ -166,8 +168,8 @@ export default function FreeFieldRunner({
         allow="fullscreen"
         className="previewIframe"
         ref={iframeRef}
-        src={`${(get(md, 'global.Config.PluginRuntimeUrl') || '').replace(
-          /\/$/,
+        src={`${(pluginRuntimeUrl || window.__customSubPath__ || '').replace(
+          /\/+$/,
           '',
         )}/freefield?id=${iframeId}&type=${type}`}
         frameborder="0"

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import mingoApi from 'src/api/mingo';
+import { generateAppOrWorksheetDescription } from 'src/utils/app';
 
 const Wrapper = styled.div`
   input,
@@ -52,15 +52,14 @@ const CreateAppDialog = props => {
   const handleCreateAi = () => {
     setLoading(true);
     setAppInfo(values => ({ ...values, shortdesc: '' }));
-    mingoApi
-      .generateAppOrWorksheetDescription({
-        name: appInfo.name,
-        desc: appInfo.shortdesc,
-        type: 1,
-        langType: getCurrentLangCode(),
-      })
-      .then(data => {
-        const { isSuccess, content, errorMsg } = data;
+    generateAppOrWorksheetDescription({
+      name: appInfo.name,
+      description: appInfo.shortdesc,
+      data: appInfo,
+      isApp: true,
+    })
+      .then(res => {
+        const { isSuccess, content, errorMsg } = res.data || {};
 
         if (isSuccess) {
           setAppInfo(values => ({ ...values, sourceAi: true, shortdesc: content.value }));

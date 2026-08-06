@@ -1,27 +1,32 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import RecordFav from 'src/pages/AppHomepage/RecordFav';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { emitter, getToken } from 'src/utils/common';
+import { getRgbaByColor } from 'src/utils/controlCommon';
 import { CreateActions, initialState, reducer } from '../AppCenter/appHomeReducer';
 import AppGrid from '../AppCenter/components/AppGrid';
 import NoProjectsStatus from '../AppCenter/components/NoProjectsStatus';
-import { getFilterApps } from '../AppCenter/utils';
+import { getAdvancedThemeBulletinPicExt, getFilterApps } from '../AppCenter/utils';
 import BulletinBoard from './BulletinBoard';
 import CollectionApps from './CollectionApps';
 import CollectionCharts from './CollectionCharts';
-import DashboardSetting from './DashboardSetting';
 import Process from './Process';
 import RecentApps from './RecentApps';
-import { CardItem, getGreetingText, MODULE_TYPES, urlToBase64 } from './utils';
+import {
+  CardItem,
+  getGreetingText,
+  getImageBase64UploadData,
+  getUrlWithRandomQuery,
+  MODULE_TYPES,
+  urlToBase64,
+} from './utils';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -94,7 +99,6 @@ const Wrapper = styled.div`
     }
   }
 `;
-
 const NewThemeSet = styled.div`
   display: flex;
   align-items: center;
@@ -112,6 +116,9 @@ const NewThemeSet = styled.div`
     background-repeat: no-repeat;
   }
 `;
+const LoadableRecordFav = lazy(() => import('src/pages/AppHomepage/RecordFav'));
+
+const LoadableDashboardSetting = lazy(() => import('./DashboardSetting'));
 
 export default function Dashboard(props) {
   const {
@@ -127,10 +134,19 @@ export default function Dashboard(props) {
     advancedThemes = [],
     currentTheme = {},
   } = props;
+
   const projects = _.get(md, 'global.Account.projects');
+
   const isExternal = projectId === 'external';
   const [state, dispatch] = useReducer(reducer, initialState);
-  const actions = useMemo(() => new CreateActions({ dispatch, state }), [state]);
+  const actions = useMemo(
+    () =>
+      new CreateActions({
+        dispatch,
+        state,
+      }),
+    [state],
+  );
   const [flag, setFlag] = useState(null);
   const [settingVisible, setSettingVisible] = useState(false);
   const {
@@ -150,13 +166,20 @@ export default function Dashboard(props) {
   } = state;
   const { logo, logoSwitch, slogan, boardSwitch, logoHeight, bulletinBoards = [] } = platformSetting;
   const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
-
   const hasNewTheme = !window.platformENV.isOverseas && !window.platformENV.isLocal && !!advancedThemes.length;
   const newTheme = advancedThemes[0] || {};
   const hasProjectSetting = hasPermission(myPermissions, PERMISSION_ENUM.DASHBOARD_SETTING);
 
   const fetchData = ({ noCache } = {}) => {
-    !isExternal ? actions.loadDashboardInfo({ projectId, noCache }) : actions.loadAppAndGroups({ projectId, noCache });
+    !isExternal
+      ? actions.loadDashboardInfo({
+          projectId,
+          noCache,
+        })
+      : actions.loadAppAndGroups({
+          projectId,
+          noCache,
+        });
   };
 
   const handlerMaskColor = useCallback(
@@ -171,16 +194,13 @@ export default function Dashboard(props) {
     },
     [dashboardColor],
   );
-
   useEffect(() => {
     emitter.addListener('CHANGE_THEME_MODE', handlerMaskColor);
     return () => {
       emitter.removeListener('CHANGE_THEME_MODE', handlerMaskColor);
     };
   }, [handlerMaskColor]);
-
   useEffect(fetchData, [projectId]);
-
   useEffect(() => {
     handlerMaskColor(window.themeMode);
     return () => {
@@ -189,6 +209,7 @@ export default function Dashboard(props) {
   }, [dashboardColor]);
 
   const onSetAdvancedTheme = theme => {
+    const bulletinPicExt = getAdvancedThemeBulletinPicExt(theme);
     const hasThemePic = !!bulletinBoards.filter(item => item.themeKey === theme.themeKey).length;
     hasThemePic
       ? updatePlatformSetting({
@@ -196,14 +217,22 @@ export default function Dashboard(props) {
           boardSwitch: true,
           advancedSetting: _.pick(theme, 'themeKey'),
         })
-      : getToken([{ bucket: 4, ext: '.jpg' }], 4).then(res => {
+      : getToken(
+          [
+            {
+              bucket: 4,
+              ext: `.${bulletinPicExt}`,
+            },
+          ],
+          4,
+        ).then(res => {
           if (res.error) {
             alert(res.error);
           } else {
             const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
-            urlToBase64(theme.bulletinPic).then(base64 => {
+            urlToBase64(getUrlWithRandomQuery(theme.bulletinPic)).then(base64 => {
               axios
-                .post(url, base64.replace('data:image/jpeg;base64,', ''), {
+                .post(url, getImageBase64UploadData(base64, bulletinPicExt), {
                   headers: {
                     'Content-Type': 'application/octet-stream',
                     Authorization: `UpToken ${res[0].uptoken}`,
@@ -240,7 +269,6 @@ export default function Dashboard(props) {
       ) === 1 &&
       displayCommonApp &&
       rowCollect;
-
     return (
       <div className="sortableCardsWrap">
         {sortModuleIds.map((type, index) => {
@@ -263,9 +291,15 @@ export default function Dashboard(props) {
                   />
                 </CardItem>
               ) : null;
+
             case MODULE_TYPES.RECENT:
               return displayCommonApp ? (
-                <CardItem key={index} className={cx('sortItem recentCard', { halfWidth })}>
+                <CardItem
+                  key={index}
+                  className={cx('sortItem recentCard', {
+                    halfWidth,
+                  })}
+                >
                   <RecentApps
                     loading={dashboardLoading}
                     projectId={projectId}
@@ -278,9 +312,15 @@ export default function Dashboard(props) {
                   />
                 </CardItem>
               ) : null;
+
             case MODULE_TYPES.ROW_COLLECTION:
               return rowCollect ? (
-                <CardItem key={index} className={cx('sortItem rowCollectCard', { halfWidth })}>
+                <CardItem
+                  key={index}
+                  className={cx('sortItem rowCollectCard', {
+                    halfWidth,
+                  })}
+                >
                   <div className="cardTitle pointer">
                     <div className="titleText">
                       {currentTheme.recordFavIcon && <img src={currentTheme.recordFavIcon} />}
@@ -297,14 +337,17 @@ export default function Dashboard(props) {
                       <Icon icon="arrow-right-border" className="mLeft5 Font16" />
                     </div>
                   </div>
-                  <RecordFav
-                    className="overflowHidden pLeft5 pRight5"
-                    projectId={projectId}
-                    forCard
-                    loading={dashboardLoading}
-                  />
+                  <Suspense fallback={<LoadDiv className="mTop10" />}>
+                    <LoadableRecordFav
+                      className="overflowHidden pLeft5 pRight5"
+                      projectId={projectId}
+                      forCard
+                      loading={dashboardLoading}
+                    />
+                  </Suspense>
                 </CardItem>
               ) : null;
+
             default:
               return displayChart ? (
                 <CollectionCharts key={index} projectId={projectId} flag={flag} currentTheme={currentTheme} />
@@ -318,7 +361,9 @@ export default function Dashboard(props) {
   return (
     <Wrapper
       className="dashboardWrapper"
-      style={{ backgroundColor: hasBgImg ? 'unset' : 'var(--color-background-primary)' }}
+      style={{
+        backgroundColor: hasBgImg ? 'unset' : 'var(--color-background-primary)',
+      }}
       logoHeight={logoHeight || 40}
     >
       <div className="dashboardMask" />
@@ -370,7 +415,9 @@ export default function Dashboard(props) {
                 <div
                   className="headerIcon"
                   onClick={() => {
-                    fetchData({ noCache: true });
+                    fetchData({
+                      noCache: true,
+                    });
                     setFlag(+new Date());
                   }}
                 >
@@ -385,25 +432,27 @@ export default function Dashboard(props) {
                 </Tooltip>
               )}
               {settingVisible && (
-                <DashboardSetting
-                  currentProject={currentProject}
-                  platformSetting={platformSetting}
-                  homeSetting={origin.homeSetting}
-                  updatePlatformSetting={updatePlatformSetting}
-                  updateHomeSetting={(updateObj, editingKey) => {
-                    actions.editHomeSetting({
-                      projectId,
-                      setting: { ...origin.homeSetting, ...updateObj },
-                      editingKey,
-                    });
-                  }}
-                  onClose={() => setSettingVisible(false)}
-                  currentTheme={currentTheme}
-                  onSetAdvancedTheme={onSetAdvancedTheme}
-                  advancedThemes={advancedThemes}
-                  hasProjectSetting={hasProjectSetting}
-                  hasBasicSettingAuth={hasPermission(myPermissions, PERMISSION_ENUM.BASIC_SETTING)}
-                />
+                <Suspense fallback={null}>
+                  <LoadableDashboardSetting
+                    currentProject={currentProject}
+                    platformSetting={platformSetting}
+                    homeSetting={origin.homeSetting}
+                    updatePlatformSetting={updatePlatformSetting}
+                    updateHomeSetting={(updateObj, editingKey) => {
+                      actions.editHomeSetting({
+                        projectId,
+                        setting: { ...origin.homeSetting, ...updateObj },
+                        editingKey,
+                      });
+                    }}
+                    onClose={() => setSettingVisible(false)}
+                    currentTheme={currentTheme}
+                    onSetAdvancedTheme={onSetAdvancedTheme}
+                    advancedThemes={advancedThemes}
+                    hasProjectSetting={hasProjectSetting}
+                    hasBasicSettingAuth={hasPermission(myPermissions, PERMISSION_ENUM.BASIC_SETTING)}
+                  />
+                </Suspense>
               )}
             </div>
           </div>

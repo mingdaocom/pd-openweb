@@ -5,11 +5,8 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Slider } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import { FROM } from './enum';
-
-const ClickAway = createDecoratedComponent(withClickAway);
 
 const Con = styled.div`
   ${({ isCard }) =>
@@ -64,6 +61,7 @@ export default class NumberSlider extends React.Component {
     isediting: PropTypes.bool,
     cell: PropTypes.shape({}),
     updateCell: PropTypes.func,
+    onValidate: PropTypes.func,
     onClick: PropTypes.func,
     updateEditingStatus: PropTypes.func,
     popupContainer: PropTypes.func,
@@ -76,9 +74,13 @@ export default class NumberSlider extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: levelSafeParse(nextProps.cell.value) });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: levelSafeParse(this.props.cell.value),
+        });
+      }
     }
   }
 
@@ -88,7 +90,7 @@ export default class NumberSlider extends React.Component {
   }
 
   handleTableKeyDown = e => {
-    const { cell, isediting, editable, updateEditingStatus, updateCell } = this.props;
+    const { cell, isediting, editable, updateEditingStatus, updateCell, onValidate } = this.props;
     const { min, max, numinterval } = cell.advancedSetting || {};
     const minNumber = levelSafeParse(min);
     const maxNumber = levelSafeParse(max);
@@ -141,27 +143,41 @@ export default class NumberSlider extends React.Component {
         updateCell({
           value: inputValue,
         });
+
+        if (_.isFunction(onValidate)) {
+          onValidate(inputValue);
+        }
       }
     }
   };
 
   handleChange = value => {
-    const { updateCell, updateEditingStatus, onFocusCell = _.noop } = this.props;
+    const { updateCell, updateEditingStatus, onValidate, onFocusCell = _.noop } = this.props;
     this.setState({ value });
     updateEditingStatus(false);
     updateCell({
       value,
     });
+    // 滑块通过拖动即时提交，不走输入/失焦校验流程；必填报错后重新拖动需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (_.isFunction(onValidate)) {
+      onValidate(value);
+    }
+
     onFocusCell();
   };
 
   handleExit = () => {
-    const { updateEditingStatus, updateCell } = this.props;
+    const { updateEditingStatus, updateCell, onValidate } = this.props;
     const { value } = this.state;
     updateEditingStatus(false);
     this.setState({ changed: false });
     if (value !== this.props.cell.value) {
       updateCell({ value: this.state.value });
+
+      if (_.isFunction(onValidate)) {
+        onValidate(this.state.value);
+      }
     }
   };
 
@@ -179,6 +195,7 @@ export default class NumberSlider extends React.Component {
       onClick,
       popupContainer,
       updateEditingStatus,
+      onFocusCell = _.noop,
     } = this.props;
     const { numinterval, min, max, itemcolor, itemnames, numshow } = cell.advancedSetting || {};
     const { value } = this.state;
@@ -238,9 +255,13 @@ export default class NumberSlider extends React.Component {
         {editable && (
           <OperateIcon className="OperateIcon editIcon">
             <i
-              className="ThemeHoverColor3 icon icon-edit"
+              className="hoverColorPrimary icon icon-edit"
               onClick={e => {
                 e.stopPropagation();
+                // 编辑图标点击阻止了冒泡，不会走 clickHandle 的 onFocusCell，
+                // simple 表格下 enterEditing 又不会调 focusCell，导致上一个拖拽聚焦的单元格 focus 不清除。
+                // 这里先把焦点切到当前单元格（与普通点击一致），保证上一格正常失焦。
+                onFocusCell();
                 updateEditingStatus(true);
               }}
             />

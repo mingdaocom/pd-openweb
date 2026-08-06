@@ -100,20 +100,19 @@ class Map extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const prevProps = this.props;
-    this.loader.then(() => {
-      if (this.map) {
-        this.updateMapProps(prevProps, nextProps);
-      }
-    });
-  }
-
   componentDidMount() {
     this.loadMap();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.loader.then(() => {
+        if (this.map) {
+          this.updateMapProps(prevProps, this.props);
+        }
+      });
+    }
+
     this.loadMap();
   }
 
@@ -211,12 +210,21 @@ class Map extends Component {
       this.map.on('dragstart', this.handleResetAddRecordBtn);
 
       this.map.on('zoomstart', this.handleResetAddRecordBtn);
+      this.map.on('zoomend', this.handleZoomChange);
     }
   }
 
   handleResetAddRecordBtn = () => {
     const { resetAddRecordBtn = () => {} } = this.props;
     resetAddRecordBtn();
+  };
+
+  handleZoomChange = () => {
+    const { onZoomChange } = this.props;
+
+    if (this.map && onZoomChange) {
+      onZoomChange(this.map.getZoom());
+    }
   };
 
   compareDistance(lng, lat) {
@@ -510,6 +518,7 @@ class Map extends Component {
     if (this.map && this.handleResetAddRecordBtn) {
       this.map.off('dragstart', this.handleResetAddRecordBtn);
       this.map.off('zoomstart', this.handleResetAddRecordBtn);
+      this.map.off('zoomend', this.handleZoomChange);
     }
 
     this.destroyMap();

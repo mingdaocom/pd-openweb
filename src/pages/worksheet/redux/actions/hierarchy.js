@@ -732,13 +732,13 @@ export function initHierarchyRelateSheetControls(payload) {
 export function getDefaultHierarchyData(view, { changeFilters } = {}) {
   return (dispatch, getState) => {
     const { sheet } = getState();
+    const { viewId, viewControl, viewControls, childType } = isEmpty(view) ? getCurrentView(sheet) : view;
     const pageSize =
       Number(childType) === 2
         ? 50
         : _.get(sheet, 'hierarchyView.hierarchyTopLevelDataCount')
           ? _.get(sheet, 'hierarchyView.hierarchyDataStatus.pageSize')
           : 1000;
-    const { viewId, viewControl, viewControls, childType } = isEmpty(view) ? getCurrentView(sheet) : view;
     if (!viewControl && isEmpty(viewControls)) return;
     // 层级视图刷新(本表小于1000条加载全量数据)
     dispatch({

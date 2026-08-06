@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Slider } from 'ming-ui';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
+import { getAdvanceSetting } from 'src/utils/controlCommon';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 import Number from './number';
 

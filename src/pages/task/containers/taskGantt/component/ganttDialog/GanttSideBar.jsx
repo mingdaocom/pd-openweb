@@ -36,7 +36,7 @@ export default class GanttSideBar extends Component {
             >
               <div
                 className={cx(
-                  'toggleTask ThemeColor3',
+                  'toggleTask colorPrimary',
                   {
                     haveChildren: item.child && item.child.length,
                     childrenVisible: item.childrenVisible,

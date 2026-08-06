@@ -48,19 +48,22 @@ export default class Con extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { roleList = [], roleId } = this.props;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { roleList = [], roleId } = prevProps;
 
-    if (!_.isEqual(nextProps.roleList, roleList) || nextProps.roleId !== roleId) {
-      this.setState({
-        roleList: nextProps.roleList,
-        dataList: nextProps.dataList,
-        roleListClone: nextProps.roleList,
-      });
-      if (nextProps.roleList.length < roleList.length) {
+      if (!_.isEqual(this.props.roleList, roleList) || this.props.roleId !== roleId) {
         this.setState({
-          roleId: nextProps.roleId,
+          roleList: this.props.roleList,
+          dataList: this.props.dataList,
+          roleListClone: this.props.roleList,
         });
+
+        if (this.props.roleList.length < roleList.length) {
+          this.setState({
+            roleId: this.props.roleId,
+          });
+        }
       }
     }
   }

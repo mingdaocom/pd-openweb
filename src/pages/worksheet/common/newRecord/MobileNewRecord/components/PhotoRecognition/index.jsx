@@ -21,6 +21,11 @@ const PhotoRecognition = forwardRef((props, ref) => {
     existingFilesRef.current = files;
   };
 
+  const clearUploadFiles = () => {
+    existingFilesRef.current = [];
+    uploadFilesRef.current?.clearUploadFiles?.();
+  };
+
   const handleAppUpload = () => {
     compatibleMDJS('chooseImage', {
       sessionId: uploadSessionId,
@@ -48,13 +53,14 @@ const PhotoRecognition = forwardRef((props, ref) => {
     up.disableBrowse(false);
     // 更新 ref 中的文件列表
     existingFilesRef.current = existingFilesRef.current.map(f =>
-      f.id === file.id ? { ...f, status: 'uploaded', file, url: file.url } : f,
+      f.id === file.id ? { ...f, status: 'uploaded', url: file.url, file: { id: file.id, url: file.url } } : f,
     );
 
     const allHaveUrl = existingFilesRef.current.every(f => !!f.url);
 
     if (existingFilesRef.current.length && allHaveUrl) {
       onGenerateRecord({ filesList: existingFilesRef.current });
+      clearUploadFiles();
     }
   };
 
@@ -81,6 +87,7 @@ const PhotoRecognition = forwardRef((props, ref) => {
 
   useEffect(() => {
     return () => {
+      clearUploadFiles();
       onAbort();
     };
   }, []);
@@ -110,6 +117,7 @@ const PhotoRecognition = forwardRef((props, ref) => {
           }}
           onUploaded={handleUploaded}
           onError={() => {
+            clearUploadFiles();
             setAiToastVisible(false);
           }}
         >

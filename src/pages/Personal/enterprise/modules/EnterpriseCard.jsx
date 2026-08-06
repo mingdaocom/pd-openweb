@@ -9,6 +9,7 @@ import projectAjax from 'src/api/project';
 import roleAjax from 'src/api/role';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { pathCompletion } from 'src/utils/common';
 import common from '../../common';
 import EditCardInfo from './EditCardInfo';
 import ExitDialog from './ExitDialog';
@@ -273,7 +274,7 @@ export default class EnterpriseCard extends Component {
 
   //管理后台
   handleGoAdmin(item) {
-    window.location.href = '/admin/home/' + item.projectId;
+    window.location.href = pathCompletion('/admin/home/' + item.projectId);
   }
 
   //获取部门，工作
@@ -314,14 +315,15 @@ export default class EnterpriseCard extends Component {
         } else {
           return;
         }
+
       case 'review':
         return (
           <span>
-            <span className="ThemeColor3 hoverTextPrimaryLight Hand" onClick={() => this.handleReview(card)}>
+            <span className="colorPrimary hoverColorPrimaryLight Hand" onClick={() => this.handleReview(card)}>
               {_l('待审核')}
             </span>
             <span
-              className="cancelApplication hoverTextPrimaryLight Hand mLeft24"
+              className="cancelApplication hoverColorPrimaryLight Hand mLeft24"
               onClick={() => this.cancelApplication(card)}
             >
               {_l('取消申请')}

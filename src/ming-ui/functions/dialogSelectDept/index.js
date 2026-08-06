@@ -40,9 +40,6 @@ class DialogSelectDept extends React.Component {
 
   componentDidMount() {
     document.body.addEventListener('keydown', this.handleKeydown);
-  }
-
-  componentWillMount() {
     this.fetchData();
   }
 

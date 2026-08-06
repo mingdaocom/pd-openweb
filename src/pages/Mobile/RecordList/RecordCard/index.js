@@ -15,12 +15,14 @@ import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { controlState, getTitleTextFromControls } from 'src/utils/control';
+import { getClassNameByExt } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { checkCellIsEmpty, getControlStyles } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import OperateButtons from './components/OperateButtons';
+import { getMobileCardTitle } from './util';
 import './index.less';
 
 const Con = styled.div`
@@ -29,12 +31,14 @@ const Con = styled.div`
 `;
 
 function getCoverControlData(data) {
-  return _.find(
-    data,
-    file =>
-      RegExpValidator.fileIsPicture(file.ext) ||
-      RegExpValidator.isVideo(file.ext) ||
-      (isDocument(file.ext) && file.previewUrl),
+  return (
+    _.find(
+      data,
+      file =>
+        RegExpValidator.fileIsPicture(file.ext) ||
+        RegExpValidator.isVideo(file.ext) ||
+        (isDocument(file.ext) && file.previewUrl),
+    ) || _.find(data, file => !!file.ext)
   );
 }
 
@@ -69,6 +73,15 @@ export default class RecordCard extends Component {
       }
     }
   }
+  componentDidUpdate(prevProps) {
+    const { data, view } = this.props;
+    const prevCoverCid = prevProps.view.coverCid;
+    const coverCid = view.coverCid;
+
+    if (this.state.coverError && (prevCoverCid !== coverCid || prevProps.data[prevCoverCid] !== data[coverCid])) {
+      this.setState({ coverError: false });
+    }
+  }
   get cover() {
     const { view, data } = this.props;
     const { coverCid } = view;
@@ -80,7 +93,7 @@ export default class RecordCard extends Component {
     let coverControlData;
 
     try {
-      coverControlData = getCoverControlData(data[coverCid] ? JSON.parse(data[coverCid]) : []);
+      coverControlData = getCoverControlData(data[coverCid] ? safeParse(data[coverCid], 'array') : []);
     } catch (err) {
       console.log(err);
       return null;
@@ -99,32 +112,22 @@ export default class RecordCard extends Component {
     ].concat(controls.filter(l => controlState(l).visible));
     return showControls.map(scid => _.find(allControls, c => c.controlId === scid));
   }
-  get url() {
-    const { coverError } = this.state;
+  get coverUrl() {
     const { coverType, coverFillType = 0 } = getCoverStyle(this.props.view);
     const { cover } = this;
     const imageView2 = coverType === 0 && coverFillType === 1 ? `imageView2/2/w/750` : `imageView2/1/w/750/h/750`;
-    const url =
-      cover && cover.previewUrl
-        ? cover.previewUrl.indexOf('imageView2') > -1
-          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
-          : `${cover.previewUrl}&${imageView2}`
-        : null;
 
-    if (url && !coverError) {
-      const image = new Image();
-
-      image.onload = () => {};
-
-      image.onerror = () => {
-        this.setState({ coverError: true });
-      };
-
-      image.src = url;
-    }
-
-    return url;
+    return cover && cover.previewUrl
+      ? cover.previewUrl.indexOf('imageView2') > -1
+        ? cover.previewUrl.replace(/imageView2\/\d(\/w\/\d+)?(\/h\/\d+)?(\/q\/\d+)?/, imageView2)
+        : `${cover.previewUrl}&${imageView2}`
+      : null;
   }
+  handleCoverError = () => {
+    if (!this.state.coverError) {
+      this.setState({ coverError: true });
+    }
+  };
   previewAttachment(attachments, index) {
     const { data, view, controls, projectId } = this.props;
     const coverCidControl = _.find(controls, { controlId: view.coverCid }) || {};
@@ -182,11 +185,13 @@ export default class RecordCard extends Component {
     let coverControlData;
 
     try {
-      coverControlData = JSON.parse(data[view.coverCid]);
+      coverControlData = safeParse(data[view.coverCid], 'array');
     } catch (err) {
       console.log(err);
       return;
     }
+
+    if (!coverControlData.length) return;
 
     this.previewAttachment(
       coverControlData,
@@ -242,11 +247,13 @@ export default class RecordCard extends Component {
     const { view, controls, data, appId } = this.props;
     const { coverType, coverFillType, coverPosition } = getCoverStyle(this.props.view);
     const { coverError, appshowtype } = this.state;
-    const { url } = this;
+    const url = this.coverUrl;
     const { coverCid, worksheetId, viewId } = view;
     const coverCidControl = _.find(controls, { controlId: coverCid }) || {};
     const { type } = coverCidControl;
     const isIframeCover = isIframeControl(coverCidControl);
+    const { cover } = this;
+    const allAttachments = cover ? safeParse(data[coverCid], 'array') : [];
 
     return (
       <div
@@ -270,14 +277,28 @@ export default class RecordCard extends Component {
           />
         ) : url && !coverError ? (
           coverType ? (
-            <img onClick={this.handleCoverClick} className={cx('img')} src={url} role="presentation" />
+            <img
+              onClick={this.handleCoverClick}
+              onError={this.handleCoverError}
+              className={cx('img')}
+              src={url}
+              role="presentation"
+            />
           ) : (
-            <div
+            <img
               onClick={this.handleCoverClick}
               className="img cover"
-              style={{ backgroundImage: `url(${url})`, backgroundSize: coverFillType === 1 ? 'contain' : 'cover' }}
-            ></div>
+              src={url}
+              style={{ objectFit: coverFillType === 1 ? 'contain' : 'cover' }}
+              onError={this.handleCoverError}
+              role="presentation"
+            />
           )
+        ) : cover && cover.ext ? (
+          <div className="withoutImg img flexRow valignWrapper" onClick={this.handleCoverClick}>
+            <div className={cx('fileIcon', getClassNameByExt(cover.ext))} />
+            {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
+          </div>
         ) : (
           <div className="withoutImg img flexRow valignWrapper">
             <Icon className="icon-file-post Font30" />
@@ -353,8 +374,7 @@ export default class RecordCard extends Component {
     const { data, view, controls, sheetSwitchPermit, mark } = this.props;
     const { advancedSetting, showControlName, viewId } = view;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-    let titleControl = _.find(controls, control => control.attribute === 1) || {};
-    const titleText = getTitleTextFromControls(controls, data);
+    const { titleControl, titleText } = getMobileCardTitle(data, controls, view);
     const { checked, appshowtype } = this.state;
     const displayControls = view.displayControls.filter(id => {
       const itControl = controls.find(l => l.controlId === id);

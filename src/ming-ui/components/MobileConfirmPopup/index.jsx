@@ -128,7 +128,7 @@ ConfirmPopup.propTypes = {
   visible: PropTypes.bool.isRequired,
   descIcon: PropTypes.node,
   title: PropTypes.string.isRequired,
-  subDesc: PropTypes.string,
+  subDesc: PropTypes.node,
   cancelText: PropTypes.string,
   confirmText: PropTypes.string,
   removeCancelBtn: PropTypes.bool,

@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, memo, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -19,10 +19,16 @@ function DepartmentSelect(props) {
     value,
     onChange = () => {},
   } = props;
-  const selectDepartments = dealRenderValue(value, advancedSetting);
+  const rawDepartments = useMemo(() => safeParse(value || '[]', 'array'), [value]);
+  const selectDepartments = useMemo(
+    () => dealRenderValue(rawDepartments, advancedSetting),
+    [rawDepartments, advancedSetting],
+  );
   const [showSelectDepartment, setShowSelectDepartment] = useState(false);
   const deptRange = dealUserRange(props, formData, masterData);
   const isUnique = enumDefault === 0;
+  const hasSelectedDepartments = selectDepartments.length > 0;
+  const firstSelectedDepartment = selectDepartments[0];
 
   const pickDepartment = () => {
     if (formDisabled || disabled) return;
@@ -36,8 +42,7 @@ function DepartmentSelect(props) {
   };
 
   const onSave = data => {
-    const valueArr = JSON.parse(value || '[]');
-    const lastIds = _.sortedUniq(valueArr.map(l => l.departmentId));
+    const lastIds = _.sortedUniq(rawDepartments.map(l => l.departmentId));
     const newIds = _.sortedUniq(data.map(l => l.departmentId));
 
     if (_.isEqual(lastIds, newIds)) return;
@@ -49,8 +54,8 @@ function DepartmentSelect(props) {
 
   const removeDepartment = departmentId => {
     const newValue = departmentId
-      ? JSON.parse(value || '[]').filter(item => item.departmentId !== departmentId)
-      : JSON.parse(value || '[]').filter(i => !i.isDelete);
+      ? rawDepartments.filter(item => item.departmentId !== departmentId)
+      : rawDepartments.filter(i => !i.isDelete);
 
     onChange(JSON.stringify(newValue));
   };
@@ -75,7 +80,7 @@ function DepartmentSelect(props) {
   return (
     <div
       className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
-        controlEditReadonly: !formDisabled && !_.isEmpty(selectDepartments) && disabled,
+        controlEditReadonly: !formDisabled && hasSelectedDepartments && disabled,
         controlDisabled: formDisabled,
         customFormControlNoBorder: !isUnique,
       })}
@@ -83,8 +88,8 @@ function DepartmentSelect(props) {
     >
       {isUnique ? (
         <div className="flexRow alignItemsCenter" style={{ width: '100%' }}>
-          {!_.isEmpty(selectDepartments) ? (
-            <div className="flex">{renderItem(selectDepartments[0])}</div>
+          {hasSelectedDepartments ? (
+            <div className="flex">{renderItem(firstSelectedDepartment)}</div>
           ) : (
             <div className="flex textDisabled">{_l('请选择')}</div>
           )}

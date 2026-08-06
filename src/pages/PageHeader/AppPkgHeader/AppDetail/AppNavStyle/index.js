@@ -12,12 +12,12 @@ const mobileNavList = [
   {
     name: _l('宫格'),
     value: 1,
-    icon: 'Application_Bottom',
+    icon: 'Application_Grid',
   },
   {
     name: _l('底部导航'),
     value: 2,
-    icon: 'Application_Grid',
+    icon: 'Application_Bottom',
   },
 ];
 

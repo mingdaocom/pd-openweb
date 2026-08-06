@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import CalendarFooter from './CalendarFooter';
 import CalendarHeader from './CalendarHeader';
 import DateTable from './DateTable';
@@ -43,8 +43,7 @@ function getNowByCurrentStateValue(value) {
   return ret;
 }
 
-@withClickAway
-class Calendar extends Component {
+let Calendar = class Calendar extends Component {
   static propTypes = {
     value: PropTypes.object,
     selectedValue: PropTypes.object,
@@ -55,6 +54,7 @@ class Calendar extends Component {
     className: PropTypes.string,
     prefixCls: PropTypes.string,
     timePicker: PropTypes.bool,
+
     /**
      * 选择模式
      */
@@ -82,7 +82,6 @@ class Calendar extends Component {
     disabledDate: PropTypes.func,
     popupParentNode: PropTypes.func,
   };
-
   static defaultProps = {
     timePicker: false,
     prefixCls: 'Calendar',
@@ -96,7 +95,6 @@ class Calendar extends Component {
 
   constructor(props) {
     super(props);
-
     const value = props.value || props.defaultValue || getNow();
     let view = 'date';
 
@@ -109,11 +107,13 @@ class Calendar extends Component {
     this.state = {
       value,
       selectedValue: props.selectedValue || value,
+
       /**
        * 年份表格页面
        */
       yearPage:
         value.year() % 16 ? 16 * Math.floor(value.year() / 16) + 1 : 16 * (Math.floor(value.year() / 16) - 1) + 1,
+
       /**
        * 当前表格
        * date - 日
@@ -124,21 +124,23 @@ class Calendar extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    let { value } = nextProps;
-    const { selectedValue } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      let { value } = this.props;
+      const { selectedValue } = this.props;
 
-    if ('value' in nextProps) {
-      value = value || nextProps.defaultValue || getNowByCurrentStateValue(this.state.value);
-      this.setState({
-        value,
-      });
-    }
+      if ('value' in this.props) {
+        value = value || this.props.defaultValue || getNowByCurrentStateValue(this.state.value);
+        this.setState({
+          value,
+        });
+      }
 
-    if ('selectedValue' in nextProps) {
-      this.setState({
-        selectedValue,
-      });
+      if ('selectedValue' in this.props) {
+        this.setState({
+          selectedValue,
+        });
+      }
     }
   }
 
@@ -149,25 +151,26 @@ class Calendar extends Component {
 
     this.setSelectedValue(value, cause);
   };
-
   onClear = () => {
-    this.onSelect(null, { source: 'clearButton' });
+    this.onSelect(null, {
+      source: 'clearButton',
+    });
     this.props.onClear();
   };
-
   onOk = () => {
     const { value } = this.state;
     this.props.onOk(value);
   };
-
   onDateTableSelect = value => {
-    this.onSelect(value, { source: 'dateTable' });
+    this.onSelect(value, {
+      source: 'dateTable',
+    });
   };
-
   onSelectTime = value => {
-    this.onSelect(value, { source: 'timePicker' });
+    this.onSelect(value, {
+      source: 'timePicker',
+    });
   };
-
   onToday = () => {
     const { value } = this.state;
     const now = getTodayTime(value);
@@ -175,7 +178,6 @@ class Calendar extends Component {
       source: 'todayButton',
     });
   };
-
   onToMorrow = () => {
     const { value } = this.state;
     const tomorrow = getMorrowTime(value);
@@ -183,7 +185,6 @@ class Calendar extends Component {
       source: 'tomorrowButton',
     });
   };
-
   setValue = value => {
     const originalValue = this.state.value;
 
@@ -197,7 +198,6 @@ class Calendar extends Component {
       this.props.onChange(value);
     }
   };
-
   setSelectedValue = (selectedValue, cause) => {
     if (!('selectedValue' in this.props)) {
       this.setState({
@@ -207,33 +207,31 @@ class Calendar extends Component {
 
     this.props.onSelect(selectedValue, cause);
   };
-
   renderRoot = newProps => {
     const { prefixCls, className, style } = this.props;
     const classes = {
       [prefixCls]: 1,
       [className]: !!className,
     };
-
     return (
       <div style={style} className={`${classNames(classes)}`}>
         {newProps.children}
       </div>
     );
   };
-
   /**
    * 切换当前视图
    */
+
   setCurrentView = view => {
     this.setState({
       view,
     });
   };
-
   /**
    * 后退
    */
+
   goBack = () => {
     if (this.state.view === 'year') {
       // year view: year table flip back
@@ -253,10 +251,10 @@ class Calendar extends Component {
       });
     }
   };
-
   /**
    * 前进
    */
+
   goForward = () => {
     if (this.state.view === 'year') {
       // year view: year table flip foward
@@ -276,7 +274,6 @@ class Calendar extends Component {
       });
     }
   };
-
   yearChanged = (event, value) => {
     let view = 'year';
 
@@ -293,7 +290,6 @@ class Calendar extends Component {
       source: 'yearTable',
     });
   };
-
   monthChanged = (event, value) => {
     let view = 'month';
 
@@ -314,7 +310,6 @@ class Calendar extends Component {
     const { locale, prefixCls, timePicker, disabledDate, showMinute = true, showSecond = false } = props;
     const state = this.state;
     const { value, selectedValue } = state;
-
     let table = null;
 
     if (this.state.view === 'date') {
@@ -330,7 +325,6 @@ class Calendar extends Component {
       );
     } else if (this.state.view === 'month') {
       const month = this.state.value.month() + 1;
-
       table = (
         <MonthTable
           value={month}
@@ -342,7 +336,6 @@ class Calendar extends Component {
     } else if (this.state.view === 'year') {
       // current year
       const year = this.state.value.year();
-
       table = (
         <YearTable
           value={year}
@@ -398,11 +391,10 @@ class Calendar extends Component {
         </div>
       </div>
     );
-
     return this.renderRoot({
       children,
     });
   }
-}
-
+};
+Calendar = ClickAway.wrap(Calendar);
 export default Calendar;

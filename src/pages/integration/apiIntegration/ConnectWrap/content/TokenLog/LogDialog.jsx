@@ -1,6 +1,6 @@
 import React from 'react';
-import JsonView from 'react-json-view';
 import { useSetState } from 'react-use';
+import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -95,12 +95,7 @@ export default function LogDialog(props) {
       <Wrap className="">
         {!logInfo.requestCatch ? (
           <div className="con mTop16">
-            <JsonView
-              theme={window.themeMode === 'dark' ? 'monokai' : 'rjv-default'}
-              src={logInfo.msg || {}}
-              displayDataTypes={false}
-              displayObjectSize={false}
-            />
+            <JsonView theme={window.themeMode} data={logInfo.msg || {}} />
           </div>
         ) : (
           <React.Fragment>
@@ -143,15 +138,13 @@ export default function LogDialog(props) {
             </p>
             <div className="con mTop16">
               <JsonView
-                src={
+                data={
                   tab !== 0
                     ? getInfo(_.get(data, 'json.result'))
                     : [1, 4, 5].includes(data.contentType)
                       ? data.requests
                       : getInfo(data.body)
                 }
-                displayDataTypes={false}
-                displayObjectSize={false}
               />
             </div>
           </React.Fragment>

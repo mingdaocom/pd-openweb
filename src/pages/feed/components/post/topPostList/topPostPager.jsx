@@ -9,14 +9,14 @@ import PropTypes from 'prop-types';
 function TopPostPager(props) {
   return (
     <div className="postHeader topPostPager">
-      <div className="InlineBlock ThemeColor3">{_l('置顶动态') /* 置顶动态*/}</div>
+      <div className="InlineBlock colorPrimary">{_l('置顶动态') /* 置顶动态*/}</div>
       <ul className="InlineBlock">
         {_.chain(props.pageCount)
           .times()
           .map(n => (
             <li
               className={cx('InlineBlock', {
-                ThemeColor3: n === props.pageIndex,
+                colorPrimary: n === props.pageIndex,
                 Bold: n === props.pageIndex,
               })}
               key={n}

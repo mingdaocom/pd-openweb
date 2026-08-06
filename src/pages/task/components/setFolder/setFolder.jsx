@@ -12,7 +12,7 @@ export default class SetFolder extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     ajaxRequest
       .getFolderConfig({
         folderId: this.props.folderId,

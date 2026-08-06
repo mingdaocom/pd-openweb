@@ -3,12 +3,11 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import ClickAway from 'ming-ui/components/ClickAway';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 
-const ClickAwayable = createDecoratedComponent(withClickAway); //
+const ClickAwayable = ClickAway;
 
 const Popup = styled.div`
   background: var(--color-background-card);

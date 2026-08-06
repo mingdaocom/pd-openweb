@@ -15,6 +15,10 @@ const IDWrap = styled.div`
   z-index: ${props => (props.isEditing ? 2 : -1)};
 `;
 
+const formatValue = val => {
+  return (val || '').toUpperCase();
+};
+
 const IDWidget = props => {
   const {
     hint,
@@ -35,10 +39,6 @@ const IDWidget = props => {
   const [isEditing, setIsEditing] = useState(false);
 
   const textRef = useRef(null);
-
-  const formatValue = val => {
-    return (val || '').toUpperCase();
-  };
 
   useEffect(() => {
     if (textRef.current && value !== textRef.current.value) {

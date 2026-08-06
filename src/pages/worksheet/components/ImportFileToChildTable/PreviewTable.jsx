@@ -6,7 +6,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { FixedTable } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';

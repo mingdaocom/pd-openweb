@@ -8,7 +8,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRecordCards/RecordCoverCard';
 import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import * as actions from './redux/actions';
 import './index.less';
 
@@ -24,26 +24,22 @@ class RelationList extends Component {
     if (location.search.indexOf('relateRecord') === -1) {
       localStorage.removeItem('openRecordDetailIds');
     }
-
-    window.addEventListener('popstate', this.onQueryChange);
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.controlId !== nextProps.controlId) {
-      nextProps.reset && nextProps.reset();
-      this.setState({ keywords: '' });
-      this.loadData(nextProps);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (prevProps.controlId !== this.props.controlId) {
+        this.props.reset && this.props.reset();
+        this.setState({
+          keywords: '',
+        });
+        this.loadData(this.props);
+      }
     }
   }
   componentWillUnmount() {
     this.props.reset && this.props.reset();
-    window.removeEventListener('popstate', this.onQueryChange);
   }
-
-  onQueryChange = () => {
-    const { previewRecordId } = this.state;
-    if (!previewRecordId) return;
-    handleReplaceState('page', `relateRecord-${previewRecordId}`, () => this.setState({ previewRecordId: undefined }));
-  };
 
   loadData = props => {
     const { controlId, control, instanceId, workId, worksheetId, recordId, rowId, from, formData } = props;
@@ -85,7 +81,6 @@ class RelationList extends Component {
     } else {
       if (permissionInfo.allowLink) {
         addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
-        handlePushState('page', `relateRecord-${record.rowid}`);
         this.setState({
           previewRecordId: record.rowid,
         });

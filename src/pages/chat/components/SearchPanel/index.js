@@ -48,9 +48,12 @@ export default class SearchPanel extends Component {
   componentDidMount() {
     this.updateTabCount(this.props.searchText);
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.searchText) {
-      this.updateTabCount(nextProps.searchText);
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.searchText) {
+        this.updateTabCount(this.props.searchText);
+      }
     }
   }
   updateTabCount(searchText) {
@@ -81,7 +84,7 @@ export default class SearchPanel extends Component {
       <div className="ChatPanel-SearchPanelTab">
         {tab.map((item, index) => (
           <div className="item-box" key={index} onClick={this.handleSetTab.bind(this, item, index)}>
-            <span className={cx('item', { ThemeBorderColor3: index === tabIndex, ThemeColor3: index === tabIndex })}>
+            <span className={cx('item', { borderColorPrimary: index === tabIndex, colorPrimary: index === tabIndex })}>
               {item.title}
               {`(${item.count >= 99 ? '99+' : item.count})`}
             </span>

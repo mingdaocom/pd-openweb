@@ -2,7 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
 import { INBOXTYPES } from 'src/pages/chat/components/Inbox/constants';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg, pathCompletion } from 'src/utils/common';
 import { dateConvertToUserZone } from 'src/utils/project';
 import Constant from './constant';
 
@@ -113,6 +113,11 @@ export const formatSessionList = sessionList => {
 };
 
 const formatSession = item => {
+  item.type = Number(item.type);
+  if (item.type === Constant.SESSIONTYPE_USER || item.type === Constant.SESSIONTYPE_GROUP) {
+    item.isGroup = item.type === Constant.SESSIONTYPE_GROUP;
+  }
+
   if (item.from && !item.sysType) {
     const { iswd } = item;
     const isSelf = item.from.id === md.global.Account.accountId;
@@ -188,7 +193,6 @@ const formatSession = item => {
 
   item._time = item.time;
   item.time = formatMsgDate(dateConvertToUserZone(item.time), false);
-  item.type = Number(item.type);
   item.messageAtlist = item.atlist;
   item.sendMsg = localStorage.getItem(`textareaValue${item.value}`);
   item.msg.con = htmlDecodeReg(item.msg.con);
@@ -571,7 +575,7 @@ export const windowOpen = (id, name, isGroup) => {
   const iTop = (window.screen.availHeight - 660) / 2; // 获得窗口的垂直位置;
   const iLeft = (window.screen.availWidth - 930) / 2; // 获得窗口的水平位置;
   const options = 'width=930,height=598,toolbar=no,menubar=no,location=no,status=no,top=' + iTop + ',left=' + iLeft;
-  window.open(`/chat_window?id=${id}&name=${name}&type=${type}`, '_blank', options);
+  window.open(pathCompletion(`/chat_window?id=${id}&name=${name}&type=${type}`), '_blank', options);
 };
 
 /**

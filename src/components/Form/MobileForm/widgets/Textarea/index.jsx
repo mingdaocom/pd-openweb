@@ -1,4 +1,4 @@
-﻿import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,8 +7,11 @@ import { Linkify } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import TextMarkdown from '../../../components/TextMarkdown';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
+import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
 import { getIsScanQR } from '../../components/ScanQRCode';
 import TextScanQRCode from '../../components/TextScanQRCode';
+import { FIELD_SIZE_OPTIONS } from '../../tools/config';
+import { fixWeixinInputBlurScroll } from '../../tools/utils';
 
 const isScanQR = getIsScanQR();
 
@@ -89,10 +92,13 @@ const Textarea = props => {
   };
 
   const textareaRef = useRef(null);
+  const textareaViewRef = useRef(null);
   const isOnComposition = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
   const [currentValue, setCurrentValue] = useState(getEditValue());
+  const showClear = isEditing && !!currentValue;
+  const fieldSize = FIELD_SIZE_OPTIONS[advancedSetting.valuesize || '0'];
 
   const onFocus = event => {
     setOriginValue(event.target.value.trim());
@@ -112,33 +118,37 @@ const Textarea = props => {
 
     setIsEditing(false);
     handleMaskClick();
-    if (window.isWeiXin) {
-      // 处理微信webview键盘收起 网页未撑开
-      window.scrollTo(0, 0);
-    }
+    fixWeixinInputBlurScroll();
 
     props.onBlur(originValue, event.target.value);
   };
 
-  const getShowValue = () => {
-    const isUnLink = advancedSetting.analysislink !== '1';
-    const value = getEditValue();
+  const clearTextareaValue = () => {
+    setCurrentValue('');
 
-    if (value) {
-      if (showMaskValue) {
-        return dealMaskValue({ ...props, value });
-      }
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
 
-      return isUnLink ? (
-        value
-      ) : (
+  const getDisplayValue = () => {
+    const editValue = getEditValue();
+
+    if (!editValue) return hint;
+
+    if (showMaskValue) {
+      return dealMaskValue({ ...props, value: editValue });
+    }
+
+    if (advancedSetting.analysislink === '1') {
+      return (
         <Linkify properties={{ target: '_blank' }} unLimit={true}>
-          {value}
+          {editValue}
         </Linkify>
       );
-    } else {
-      return hint;
     }
+
+    return editValue;
   };
 
   /**
@@ -166,8 +176,9 @@ const Textarea = props => {
 
   // 穿透pointer-events：none;禁用滚动事件
   const syncScroll = event => {
-    const coverLayer = document.querySelector(`#textareaPointEvents-${controlId} .customFormTextareaView`);
-    coverLayer.scrollTop = event.target.scrollTop;
+    if (textareaViewRef.current) {
+      textareaViewRef.current.scrollTop = event.target.scrollTop;
+    }
   };
 
   useEffect(() => {
@@ -189,7 +200,7 @@ const Textarea = props => {
       textareaRef.current.style.height = 0;
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 3}px`;
     }
-  }, [isEditing, currentValue, disabled, formDisabled, advancedSetting.valuesize]);
+  }, [isEditing, currentValue, disabled, formDisabled]);
 
   useEffect(() => {
     setCurrentValue(getEditValue());
@@ -202,8 +213,7 @@ const Textarea = props => {
   return (
     <Fragment>
       <TextareaWrap
-        className="customFormTextareaWrap"
-        id={`textareaPointEvents-${controlId}`}
+        className={cx('customFormTextareaWrap', { [CLEAR_ICON_SAFE_CLASS]: showClear })}
         startTextScanCode={startTextScanCode}
         disabled={disabled}
         isMask={showMaskValue}
@@ -211,6 +221,7 @@ const Textarea = props => {
         enumDefault={enumDefault}
       >
         <div
+          ref={textareaViewRef}
           className={cx('customFormControlBox customFormTextareaView customFormFocusControl', {
             controlEditReadonly: (!formDisabled && currentValue && disabled) || disableInput,
             controlDisabled: formDisabled,
@@ -222,13 +233,13 @@ const Textarea = props => {
           onClick={joinTextareaEdit}
         >
           <span onClick={handleMaskClick}>
-            {getShowValue()}
+            {getDisplayValue()}
             {renderMaskContent()}
           </span>
         </div>
         {!disabled && !disableInput && (
           <textarea
-            className={cx('customFormTextarea', className)}
+            className={cx('customFormTextarea', className, { isEditing })}
             value={currentValue}
             ref={textareaRef}
             style={{
@@ -257,6 +268,7 @@ const Textarea = props => {
             }}
           />
         )}
+        {showClear && <ClearValueIcon size={fieldSize} onClear={clearTextareaValue} />}
       </TextareaWrap>
 
       {startTextScanCode && (
@@ -295,7 +307,7 @@ Textarea.propTypes = {
 
 export default memo(Textarea, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue', 'advancedSetting.valuesize']),
-    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue', 'advancedSetting.valuesize']),
+    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
+    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
   );
 });

@@ -19,10 +19,12 @@ import './index.less';
 
 // 导入职位模版
 const positionTemplatePaths = {
-  0: '/staticfiles/template/职位导入模板.xlsx',
-  1: '/staticfiles/template/Position Import Template.xlsx',
-  2: '/staticfiles/template/ポジションインポートテンプレート.xlsx',
-  3: '/staticfiles/template/職位導入模板.xlsx',
+  0: '/staticfiles/template/positionImportTemplate/职位导入模板.xlsx',
+  1: '/staticfiles/template/positionImportTemplate/Position Import Template.xlsx',
+  2: '/staticfiles/template/positionImportTemplate/ポジションインポートテンプレート.xlsx',
+  3: '/staticfiles/template/positionImportTemplate/職位導入模板.xlsx',
+  4: '/staticfiles/template/positionImportTemplate/แม่แบบนำเข้าตำแหน่งงาน.xlsx',
+  5: '/staticfiles/template/positionImportTemplate/Templat Import Jawatan.xlsx',
 };
 
 class PositionInfo extends Component {
@@ -137,7 +139,7 @@ class PositionInfo extends Component {
           <div className="itemMain positionContent">
             <div className="PositionL">
               <div className="searchContainer">
-                <Icon icon="search" className=" btnSearch ThemeColor9" />
+                <Icon icon="search" className=" btnSearch textSecondary" />
                 <input
                   defaultValue={searchValue}
                   ref={input => (this.input = input)}
@@ -155,7 +157,7 @@ class PositionInfo extends Component {
                     this.props.updatePositionPageInfo({ ...this.props.positionPageInfo, pageIndex: 1 });
                   }}
                   type="text"
-                  className="searchInput ThemeColor10 w100"
+                  className="searchInput textPrimary w100"
                   placeholder={_l('搜索')}
                 />
                 {searchValue ? (

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
-import TodoEntrustList from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustList';
 import DelegationConfigModal from './DelegationConfigModal';
+import TodoEntrustList from './TodoEntrustList';
 import './index.less';
 
 export default function ProcessDelegation(props) {
@@ -15,13 +15,13 @@ export default function ProcessDelegation(props) {
   const [delegationList, setDelegationList] = useState([]);
   const [configVisible, setConfigVisible] = useState(false);
 
-  useEffect(() => {
-    getList();
+  const getList = useCallback(() => {
+    delegationApi.getList().then(res => res && setDelegationList(res));
   }, []);
 
-  const getList = () => {
-    delegationApi.getList().then(res => res && setDelegationList(res));
-  };
+  useEffect(() => {
+    getList();
+  }, [getList]);
 
   const handleClickDelegation = () => {
     !_.isEmpty(delegationList) ? setCardListVisible(true) : setConfigVisible(true);
@@ -64,8 +64,8 @@ export default function ProcessDelegation(props) {
           visible={cardListVisible}
           onClose={() => setCardListVisible(!cardListVisible)}
         >
-          <div className="flexColumn h100">
-            <div className="pTop10 pBottom10 pRight16 TxtRight">
+          <div className="flexColumn h100 pLeft16 pRight16 bgSecondary">
+            <div className="pTop10 pBottom10 TxtRight">
               <Icon
                 icon="cancel"
                 className="Font22 textTertiary"
@@ -74,9 +74,8 @@ export default function ProcessDelegation(props) {
                 }}
               />
             </div>
-            <div className="flex minHeight0 pBottom20">
+            <div className="flex minHeight0">
               <TodoEntrustList
-                visible={cardListVisible}
                 delegationList={delegationList}
                 setDelegationList={setDelegationList}
                 onClose={() => setCardListVisible(false)}

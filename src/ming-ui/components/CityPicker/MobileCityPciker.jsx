@@ -1,10 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, LoadDiv, PopupWrapper, Radio } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, PopupWrapper, Radio } from 'ming-ui';
 import '../less/MobileCityPicker.less';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
+
+export const getConfirmDisable = ({ select = [], mustLast, level = 3 }) => {
+  const last = _.last(select);
+  const index = _.get(last, 'path') ? last.path.split('/').length : select.length;
+
+  return !select.length || (mustLast && last && !last.last && index < level);
+};
 
 export default class MobileCityPicker extends Component {
   static propTypes = {
@@ -12,6 +19,7 @@ export default class MobileCityPicker extends Component {
     placeholder: PropTypes.string,
     defaultValue: PropTypes.any,
     level: PropTypes.number,
+    mustLast: PropTypes.bool,
     callback: PropTypes.func,
     onClear: PropTypes.func,
   };
@@ -21,6 +29,7 @@ export default class MobileCityPicker extends Component {
     placeholder: _l('选择地区'),
     defaultValue: '',
     level: 3,
+    mustLast: false,
     data: [],
     callback: () => {},
     onClear: () => {},
@@ -35,16 +44,12 @@ export default class MobileCityPicker extends Component {
       visible: false,
       loading: false,
       indexLevel: 1,
-      keywords: '',
     };
 
     this.handleClose = this.handleClose.bind(this);
     this.handleBack = this.handleBack.bind(this);
     this.handleClear = this.handleClear.bind(this);
     this.handleSave = this.handleSave.bind(this);
-    this.debounceSearch = _.debounce(keywords => {
-      this.props.getCitys({ keywords });
-    }, 500);
   }
 
   onNext(item) {
@@ -74,16 +79,8 @@ export default class MobileCityPicker extends Component {
     });
   }
 
-  handleSearch() {
-    const { keywords } = this.state;
-
+  handleSearch(keywords) {
     this.props.getCitys({ keywords });
-  }
-
-  handleChange(e) {
-    const keywords = e.target.value;
-    this.setState({ keywords });
-    this.debounceSearch(keywords);
   }
 
   handleClose() {
@@ -115,44 +112,21 @@ export default class MobileCityPicker extends Component {
   }
 
   renderSearch() {
-    const { keywords } = this.state;
-
-    return (
-      <div className="searchWrapper">
-        <Icon icon="h5_search" />
-        <form
-          action="#"
-          className="flex"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-        >
-          <input
-            type="search"
-            placeholder={_l('搜索')}
-            className="Font14"
-            value={keywords}
-            onChange={e => this.handleChange(e)}
-            onKeyDown={event => {
-              event.which === 13 && this.handleSearch();
-            }}
-            onBlur={() => this.handleSearch()}
-          />
-        </form>
-        {keywords ? (
-          <Icon
-            icon="workflow_cancel"
-            onClick={() => {
-              this.setState({ keywords: '' }, this.handleSearch);
-            }}
-          />
-        ) : null}
-      </div>
-    );
+    return <MobileSearch onSearch={keywords => this.handleSearch(keywords)} />;
   }
 
   render() {
-    const { disabled, children, placeholder, showConfirmBtn, defaultValue, data = [], select = [], level } = this.props;
+    const {
+      disabled,
+      children,
+      placeholder,
+      showConfirmBtn,
+      defaultValue,
+      data = [],
+      select = [],
+      level,
+      mustLast,
+    } = this.props;
     const { visible, loading, indexLevel } = this.state;
     const last = _.last(select);
     const listData = data.length ? (_.isArray(data[0]) ? data[data.length - 1] : data) : [];
@@ -168,7 +142,7 @@ export default class MobileCityPicker extends Component {
           bodyClassName="heightPopupBody40"
           visible={visible}
           title={_l('选择地区')}
-          confirmDisable={!select.length}
+          confirmDisable={getConfirmDisable({ select, mustLast, level, indexLevel })}
           clearDisable={!defaultValue}
           onClose={this.handleClose}
           onBack={select.length > 0 && this.handleBack}

@@ -1,4 +1,3 @@
-@import '/src/common/mdcss/Themes/themeVariables.less';
 .ming.RadioGroup {
   display: flex;
   flex-wrap: wrap;
@@ -33,7 +32,7 @@
       position: absolute;
       display: inline-block;
       transition: all 0.2s;
-      background-color: @themeColor3;
+      background-color: var(--color-primary);
     }
     &--middle {
       width: 16px;
@@ -55,7 +54,7 @@
     }
   }
   &.checked .Radio-box {
-    border-color: @themeColor3;
+    border-color: var(--color-primary);
   }
   &:not(.checked) .Radio-box {
     border-color: var(--color-border-tertiary);

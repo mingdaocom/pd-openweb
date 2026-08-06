@@ -5,10 +5,11 @@ import _ from 'lodash';
 import bg from 'staticfiles/images/query.png';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import CustomLibrary from './CustomLibrary';
@@ -99,14 +100,19 @@ function APILibraryCon(props) {
         DomId: 'containerApiLib',
         featureType: getFeatureStatus(currentProjectId, VersionProductType.apiIntergration),
         installCallBack: id => {
-          window.open(`/integrationConnect/${id}`);
+          window.open(pathCompletion(`/integrationConnect/${id}`));
         },
         buriedUpgradeVersionDialog: () => {
           buriedUpgradeVersionDialog(currentProjectId, VersionProductType.apiIntergration);
         },
         manageAllConnects: hasPermission(myPermissions, [PERMISSION_ENUM.MANAGE_API_CONNECTS]),
         currentProjectId: currentProjectId,
-        getUrl: 'https://pd.mingdao.com/integration',
+        getUrl:
+          !window.platformENV.isLocal && !window.platformENV.isOverseas
+            ? __api_server__.integration || md.global.Config.IntegrationAPIUrl
+            : window.platformENV.isOverseas
+              ? 'https://pd.nocoly.com/api/integration'
+              : 'https://pd.mingdao.com/integration',
         installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
       });
   };
@@ -116,7 +122,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v6.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v7.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }
@@ -187,9 +193,10 @@ function APILibraryCon(props) {
   );
 }
 
+const AutoSizeAPILibrary = autoSize(APILibraryCon);
+
 function APILibrary(props) {
-  const AutoSizeLib = autoSize(APILibraryCon);
-  return <AutoSizeLib {...props} />;
+  return <AutoSizeAPILibrary {...props} />;
 }
 
 export default APILibrary;

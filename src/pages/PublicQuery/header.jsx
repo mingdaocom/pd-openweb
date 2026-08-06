@@ -4,14 +4,16 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import { browserIsMobile } from 'src/utils/common';
 
 const PublicqueryHeader = styled.div`
   width: 100%;
   height: 54px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
   .btn {
-    margin-top: 9px;
     height: 36px;
     opacity: 1;
     background: var(--color-primary);
@@ -21,21 +23,9 @@ const PublicqueryHeader = styled.div`
     color: var(--color-white);
     line-height: 36px;
     width: 103px;
-    vertical-align: top;
-    float: right;
     &:hover {
       background: var(--color-link-hover);
     }
-  }
-  .download {
-    float: right;
-    width: 40px;
-    font-size: 20px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-title);
   }
 `;
 class WorksheetShareHeader extends React.Component {
@@ -105,25 +95,24 @@ class WorksheetShareHeader extends React.Component {
   };
 
   render() {
-    const { publicqueryRes = {}, exported = false, switchSearch } = this.props;
+    const { publicqueryRes = {}, exported = false, switchSearch, appId, projectId } = this.props;
 
     return (
       <div className="WorksheetShareHeaderBox">
         <div className="HeaderBox">
           <PublicqueryHeader>
-            <span className="Font17">{publicqueryRes.title || _l('公开查询')}</span>
+            <span className="Font17 flex ellipsis">{publicqueryRes.title || _l('公开查询')}</span>
+            <PublicAppLangDropdown className="mRight12" appId={appId} projectId={projectId} />
+            {exported && !browserIsMobile() && (
+              <Icon
+                onClick={() => this.exportExcel()}
+                className="Font20 textTertiary hoverColorPrimary pointer mRight16"
+                icon="worksheet_export"
+              />
+            )}
             <div className="btn" onClick={switchSearch}>
               {_l('继续查询')}
             </div>
-            {exported && !browserIsMobile() && (
-              <div className="download" onClick={() => this.exportExcel()}>
-                <Icon
-                  style={{ float: 'right', lineHeight: '100%' }}
-                  className="textTertiary ThemeHoverColor3 pointer"
-                  icon="worksheet_export"
-                ></Icon>
-              </div>
-            )}
           </PublicqueryHeader>
         </div>
       </div>

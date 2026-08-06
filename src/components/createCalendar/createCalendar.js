@@ -10,7 +10,7 @@ import ajaxRequest from 'src/api/calendar';
 import 'src/components/autoTextarea/autoTextarea';
 import createShare from 'src/components/createShare/createShare';
 import UploadFiles from 'src/components/UploadFiles';
-import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import { htmlDecodeReg, htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import SelectTimezone from './component/SelectTimezone';
 import timezone from './timezone';
 import taskHtml from './tpl/createCalendar.html';
@@ -241,10 +241,10 @@ $.extend(CreateCalendar.prototype, {
     // 创建hover变色
     $('#calendarSubmitBtn').hover(
       function () {
-        $(this).removeClass('ThemeBGColor3').addClass('ThemeBGColor2');
+        $(this).removeClass('bgColorPrimary').addClass('bgColorPrimaryDark');
       },
       function () {
-        $(this).removeClass('ThemeBGColor2').addClass('ThemeBGColor3');
+        $(this).removeClass('bgColorPrimaryDark').addClass('bgColorPrimary');
       },
     );
 
@@ -311,6 +311,7 @@ $.extend(CreateCalendar.prototype, {
       },
       autoFillEndTime: 1,
     };
+
     if (!this._calendarDateRoot) {
       const calendarDateEl = document.getElementById('calendarDate');
       if (!calendarDateEl) return;
@@ -401,7 +402,7 @@ $.extend(CreateCalendar.prototype, {
 
     // 增加字体hover色
     $('.calendarRemind').on('mouseover', '.customSelect', function () {
-      $(this).find('span').addClass('ThemeColor3');
+      $(this).find('span').addClass('colorPrimary');
     });
 
     // 提醒失去焦点
@@ -525,7 +526,7 @@ $.extend(CreateCalendar.prototype, {
 
     // 点击按钮
     $('.repeatDialogConfirm #repeatTypeGroup .repeatTypeGroupBtn').on('click', function () {
-      $(this).toggleClass('ThemeBGColor3');
+      $(this).toggleClass('bgColorPrimary');
       CreateCalendar.methods.repeatResult();
     });
 
@@ -1014,14 +1015,14 @@ CreateCalendar.methods = {
       // 每周
       messages += _l('每') + (day == 1 ? '' : ' ' + day + ' ') + _l('周') + ' ';
 
-      for (var i = 0; i < $('.repeatDialogConfirm #repeatTypeGroup .ThemeBGColor3').length; i++) {
-        weeks = $('.repeatDialogConfirm #repeatTypeGroup .ThemeBGColor3').eq(i).attr('index');
+      for (var i = 0; i < $('.repeatDialogConfirm #repeatTypeGroup .bgColorPrimary').length; i++) {
+        weeks = $('.repeatDialogConfirm #repeatTypeGroup .bgColorPrimary').eq(i).attr('index');
         weeks = weeks == 7 ? 0 : weeks;
         weekDay.push(weeks);
       }
 
       // 无选中 取今天
-      if ($('.repeatDialogConfirm #repeatTypeGroup .ThemeBGColor3').length === 0) {
+      if ($('.repeatDialogConfirm #repeatTypeGroup .bgColorPrimary').length === 0) {
         weeks = $('.repeatDialogConfirm #repeatTypeGroup .today').attr('index');
         weeks = weeks == 7 ? 0 : weeks;
         weekDay.push(weeks);
@@ -1067,7 +1068,7 @@ CreateCalendar.methods = {
         if (source.code === 1) {
           var categorys = source.data || [];
           var listHtml =
-            '<li class="ThemeBGColor3 selected" data-catid="1"><i class="icon-ok selectIcon"></i><i class="calendarColorBlue"></i><span class="ThemeColor3">' +
+            '<li class="bgColorPrimary selected" data-catid="1"><i class="icon-ok selectIcon"></i><i class="calendarColorBlue"></i><span class="colorPrimary">' +
             _l('工作日程') +
             '</span></li>';
 
@@ -1174,7 +1175,7 @@ CreateCalendar.methods = {
                               <a
                                 className="overflow_ellipsis"
                                 target="_blank"
-                                href={`/apps/calendar/detail_${calendar.calendarID}`}
+                                href={pathCompletion(`/apps/calendar/detail_${calendar.calendarID}`)}
                               >
                                 {htmlEncodeReg(calendar.calendarName)}
                               </a>
@@ -1187,7 +1188,7 @@ CreateCalendar.methods = {
                       <a
                         className="lookAllCalendars"
                         target="_blank"
-                        href={`/apps/calendar/home?userID=${accountId}&date=${start}&view=agendaWeek`}
+                        href={pathCompletion(`/apps/calendar/home?userID=${accountId}&date=${start}&view=agendaWeek`)}
                       >
                         {_l('查看他的空闲时间 >')}
                       </a>
@@ -1221,12 +1222,12 @@ CreateCalendar.methods = {
   // 是否查看创建的日程
   yesSelCalendar: function (data) {
     createShare({
-      linkURL: md.global.Config.WebUrl + 'apps/calendar/detail_' + data.calendarID,
+      linkURL: pathCompletion('/apps/calendar/detail_' + data.calendarID),
       content: _l('日程创建成功'),
       isCalendar: true,
       calendarOpt: {
         title: _l('分享日程'),
-        openURL: md.global.Config.WebUrl + 'm/detail/calendar/',
+        openURL: pathCompletion('/m/detail/calendar/'),
         isAdmin: true,
         keyStatus: true,
         name: data.name,
@@ -1296,7 +1297,7 @@ CreateCalendar.methods = {
       // 重复为周
       if (frequency === 2) {
         var weekCount = 0;
-        var $weekThis = $('#repeatTypeGroup .ThemeBGColor3');
+        var $weekThis = $('#repeatTypeGroup .bgColorPrimary');
         for (var i = 0; i < $weekThis.length; i++) {
           weekCount += parseInt($weekThis.eq(i).attr('week'), 10);
         }
@@ -1428,27 +1429,3 @@ CreateCalendar.methods = {
 export default function (opts) {
   return new CreateCalendar(opts);
 }
-
-// 加载时 执行 绑定 jquery
-(function ($) {
-  // 是否绑定过
-  if (!$.CreateCalendar) {
-    /**
-     * 创建日程方法
-     * @function external:$.CreateCalendar
-     * @param {object} [opts] 传入参数
-     * @param {string} opts.start 日程开始时间 '2016-08-24 13:13:13'
-     * @param {string} opts.end 日程结束时间 '2016-08-24 13:13:13'
-     * @param {string} opts.Message 日程摘要
-     * @param {object[]} opts.MemberArray 日程成员
-     * @param {string} opts.MemberArray[].accountId 日程成员id
-     * @param {string} opts.MemberArray[].avatar 日程成员头像地址
-     * @param {string} opts.MemberArray[].fullname 日程成员名字
-     * @param {boolean} opts.AllDay 是否全天
-     * @param {requestCallback} opts.callback 创建完成后的回调
-     */
-    $.CreateCalendar = function (opts) {
-      return new CreateCalendar(opts);
-    };
-  }
-})(jQuery);

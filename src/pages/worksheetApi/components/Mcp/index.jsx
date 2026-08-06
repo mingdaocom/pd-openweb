@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
-import JsonView from 'react-json-view';
 import { Empty, Select } from 'antd';
-import copy from 'copy-to-clipboard';
+import JsonView from '@mingdaocom/json-view';
 import { Support } from 'ming-ui';
 
 const maskString = (str, startW, endW, middleW) => {
@@ -15,6 +14,14 @@ const maskString = (str, startW, endW, middleW) => {
 const formatMcpData = ({ appKey, sign, appName }) => {
   const url = appKey
     ? `${md.global.Config.MCPUrl}?HAP-Appkey=${maskString(appKey, 4, 4, 8)}&HAP-Sign=${maskString(sign, 6, 4, 78)}`
+    : `${md.global.Config.MCPUrl}?HAP-Appkey=YOUR_APP_KEY&HAP-Sign=YOUR_SIGN`;
+
+  return { [`hap-mcp-${appName}`]: { url } };
+};
+
+const formatRealMcpData = ({ appKey, sign, appName }) => {
+  const url = appKey
+    ? `${md.global.Config.MCPUrl}?HAP-Appkey=${appKey}&HAP-Sign=${sign}`
     : `${md.global.Config.MCPUrl}?HAP-Appkey=YOUR_APP_KEY&HAP-Sign=YOUR_SIGN`;
 
   return { [`hap-mcp-${appName}`]: { url } };
@@ -65,33 +72,7 @@ const Mcp = ({ authorizes = [] }) => {
           </div>
         </div>
         <div className="worksheetApiContentJsonViewBox mTop15">
-          <JsonView
-            src={formatMcpData(appItem)}
-            theme="brewer"
-            displayDataTypes={false}
-            displayObjectSize={false}
-            name={null}
-            enableClipboard={({ namespace = [] }) => {
-              let copyData = null;
-              const { appKey = 'YOUR_APP_KEY', sign = 'YOUR_SIGN', appName } = appItem;
-              let realUrl = `${md.global.Config.MCPUrl}?HAP-Appkey=${appKey}&HAP-Sign=${sign}`;
-
-              switch (namespace.length) {
-                case 2:
-                  copyData = JSON.stringify({ url: realUrl });
-                  break;
-                case 3:
-                  copyData = realUrl;
-                  break;
-                default:
-                  copyData = JSON.stringify({ [`hap-mcp-${appName}`]: { url: realUrl } });
-                  break;
-              }
-
-              copy(copyData);
-              alert(_l('已复制'));
-            }}
-          />
+          <JsonView bodyClassName="pAll15" data={formatMcpData(appItem)} copyData={formatRealMcpData(appItem)} />
         </div>
       </div>
     </div>

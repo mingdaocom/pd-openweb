@@ -163,13 +163,13 @@ export const EXECUTE_RESULT = {
 };
 
 export const EXECUTE_ERROR_MESSAGE = {
-  fail: '操作失败，请稍后重试！',
-  success: '操作成功',
-  noRight: '操作成功（部分文件您无权操作）',
-  existName: '操作失败，目标位置存在同名文件夹',
-  noExistPath: '目标位置不存在',
-  noExistNode: '操作失败，您选中的文件不存在',
-  error: '发生多种错误，如需确认，请逐条操作',
+  fail: _l('操作失败，请稍后重试！'),
+  success: _l('操作成功'),
+  noRight: _l('操作成功（部分文件您无权操作）'),
+  existName: _l('操作失败，目标位置存在同名文件夹'),
+  noExistPath: _l('目标位置不存在'),
+  noExistNode: _l('操作失败，您选中的文件不存在'),
+  error: _l('发生多种错误，如需确认，请逐条操作'),
 };
 
 export const MAX_FILE_COUNT = 300;

@@ -11,7 +11,7 @@ import certificationApi from 'src/api/certification';
 import sseAjax from 'src/api/sse';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import HelpCollection from 'src/pages/PageHeader/components/CommonUserHandle/HelpCollection';
-import { getRequest } from 'src/utils/common';
+import { getRequest, pathCompletion } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import EnterpriseForm from './components/EnterpriseForm';
 import { CERT_PAGE_TITLE, CERT_STATUS, ENTERPRISE_TYPE, RESULT_TYPES, SOURCE_TYPE, TYPES } from './constant';
@@ -145,6 +145,10 @@ const TypeCard = styled.div`
   }
 `;
 
+const maskIdNumber = data => {
+  return data ? data.slice(0, 2) + '*'.repeat(data.length - 4) + data.slice(-2) : '';
+};
+
 export default function Certification(props) {
   const { certSource, projectId } = _.get(props, 'match.params');
   const { type, returnUrl } = getRequest();
@@ -267,10 +271,6 @@ export default function Certification(props) {
         setFormData(defaultValues);
       }
     });
-  };
-
-  const maskIdNumber = data => {
-    return data ? data.slice(0, 2) + '*'.repeat(data.length - 4) + data.slice(-2) : '';
   };
 
   const onSubmit = () => {
@@ -438,11 +438,7 @@ export default function Certification(props) {
                           <LoadDiv />
                         </div>
                       ) : (
-                        <Qr
-                          content={`${md.global.Config.WebUrl}identityAuth?certState=${certState}`}
-                          width={170}
-                          height={170}
-                        />
+                        <Qr content={pathCompletion(`/identityAuth?certState=${certState}`)} width={170} height={170} />
                       )}
 
                       {certStatus !== CERT_STATUS.NORMAL && (

@@ -31,9 +31,13 @@ export default class Signature extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.cell.value !== prevProps.cell.value) {
+        this.setState({
+          value: this.props.cell.value,
+        });
+      }
     }
   }
 
@@ -59,10 +63,16 @@ export default class Signature extends React.Component {
   };
 
   handleChange = value => {
-    const { updateCell, updateEditingStatus } = this.props;
+    const { updateCell, updateEditingStatus, onValidate } = this.props;
 
     updateCell({ value });
     this.setState({ value });
+    // 签名通过浮层即时提交，不走输入/失焦校验流程；必填报错后重新签名需主动重新校验，
+    // 以清掉持久化在 cellErrors 中的旧错误，否则错误状态不会重置。
+    if (_.isFunction(onValidate)) {
+      onValidate(value);
+    }
+
     updateEditingStatus(false);
   };
 

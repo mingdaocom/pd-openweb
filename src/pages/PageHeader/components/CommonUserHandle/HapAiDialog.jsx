@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
+import { pathCompletion } from 'src/utils/common';
 
 const DialogWrap = styled(Dialog)`
   position: fixed !important;
@@ -72,7 +73,15 @@ export default function HapAiDialog({ visible, onCancel = () => {} }) {
       overlayClosable={false}
     >
       {iframeLoaded && <div className="mask"></div>}
-      <iframe ref={iframeRef} className="aiWrap" src={`${md.global.Config.WebUrl}hapai`}></iframe>
+      {window.platformENV.isOverseas ? (
+        <iframe
+          ref={iframeRef}
+          className="aiWrap"
+          src="https://share.fastgpt.in/chat/share?shareId=gzldqge7rdzwiopvdnrzqx75"
+        ></iframe>
+      ) : (
+        <iframe ref={iframeRef} className="aiWrap" src={pathCompletion('/hapai')}></iframe>
+      )}
     </DialogWrap>
   );
 }

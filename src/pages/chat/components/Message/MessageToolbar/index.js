@@ -28,6 +28,7 @@ const getImageContextIndex = (id, list) => {
 };
 
 const formatMessage = (id, res) => {
+  res = res.filter(item => item.msg && item.msg.files);
   const index = getImageContextIndex(id, res);
   res = res.map(item => {
     const { files } = item.msg;
@@ -312,7 +313,7 @@ export default class MessageToolbar extends Component {
     return (
       <div className="Message-toolbarItem" onClick={toolbarConfig.fn}>
         <Tooltip title={toolbarConfig.name}>
-          <span className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)}>
+          <span className={cx('Message-toolbarItemBtn colorPrimary', toolbarConfig.className)}>
             <i className={toolbarConfig.icon} />
           </span>
         </Tooltip>

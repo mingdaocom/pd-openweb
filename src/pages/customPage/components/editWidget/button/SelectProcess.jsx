@@ -8,6 +8,14 @@ import customApi from 'statistics/api/custom';
 import selectPBPDialog from 'src/pages/workflow/components/selectPBPDialog';
 import ProcessInput from './ProcessInput';
 
+const otherPBC = [
+  {
+    text: _l('其它应用下的封装业务流程'),
+    value: 'other',
+    className: 'textSecondary',
+  },
+];
+
 export default function SelectProcess(props) {
   const { appId, projectId, btnSetting, setBtnSetting } = props;
   const { processId, config = {} } = btnSetting;
@@ -137,14 +145,6 @@ export default function SelectProcess(props) {
       },
     });
   };
-
-  const otherPBC = [
-    {
-      text: _l('其它应用下的封装业务流程'),
-      value: 'other',
-      className: 'textSecondary',
-    },
-  ];
 
   return (
     <Fragment>

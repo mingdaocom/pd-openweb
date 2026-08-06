@@ -6,6 +6,7 @@ import { Checkbox, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersion from '../../../api/instanceVersion';
 import process from '../../../api/process';
+import { pathCompletion } from 'src/utils/common';
 import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from '../config';
 import HistoryStatus from './HistoryStatus';
 
@@ -121,7 +122,7 @@ export default ({
               }}
             >
               <Icon
-                className="Font16 pointer ThemeHoverColor3 Block textSecondary"
+                className="Font16 pointer hoverColorPrimary Block textSecondary"
                 icon={isDelete || showRetry ? 'rotate' : 'delete'}
               />
             </span>
@@ -155,10 +156,10 @@ export default ({
 
               if (!currentWorkflowId) return;
 
-              window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${currentWorkflowId}`);
+              window.open(pathCompletion(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${currentWorkflowId}`));
             }}
           >
-            <Icon className="Font16 ThemeHoverColor3 Block textSecondary" icon="info_outline" />
+            <Icon className="Font16 hoverColorPrimary Block textSecondary" icon="info_outline" />
           </span>
         </Tooltip>
       </div>

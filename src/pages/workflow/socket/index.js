@@ -7,7 +7,7 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import { emitter } from 'src/utils/common';
-import { equalToLocalPushUniqueId } from 'src/utils/common';
+import { equalToLocalPushUniqueId, pathCompletion } from 'src/utils/common';
 import { PUSH_TYPE } from '../WorkflowSettings/enum';
 
 const getWorksheetInfo = worksheetId => {
@@ -105,6 +105,10 @@ export default () => {
               from: 21,
               worksheetInfo: data,
               allowAdd: data.allowAdd,
+              // 草稿点击“提交”转为正式记录后，将记录加为当前表的最新记录
+              addNewRecord: record => {
+                emitter.emit('ADD_RECORD_TO_SHEETVIEW', { worksheetId, record });
+              },
             });
           });
         } else {
@@ -112,6 +116,9 @@ export default () => {
             worksheetId: worksheetId,
             onAdd: data => {
               alert(data ? _l('添加成功') : _l('添加失败'));
+              if (data) {
+                emitter.emit('ADD_RECORD_TO_SHEETVIEW', { worksheetId, record: data });
+              }
             },
           });
         }
@@ -121,7 +128,7 @@ export default () => {
         getWorksheetInfo(worksheetId).then(({ appId }) => {
           if (appId) {
             if (openMode === 2) {
-              window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
+              window.open(pathCompletion(`/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`));
             } else {
               // 已经打开记录的直接刷新
               if ($(`.recordInfoCon[data-record-id="${rowId}"][data-view-id="${viewId}"]`).length) {
@@ -146,7 +153,7 @@ export default () => {
       if (_.includes([PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], pushType)) {
         getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
           if (appId && appSectionId) {
-            const url = `${window.subPath || ''}/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+            const url = pathCompletion(`/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`);
 
             if (openMode === 1) {
               location.href = url;

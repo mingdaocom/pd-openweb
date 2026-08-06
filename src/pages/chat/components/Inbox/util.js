@@ -1,7 +1,6 @@
-import LinkifyIt from 'linkify-it';
+﻿import LinkifyIt from 'linkify-it';
 import moment from 'moment';
-import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, pathCompletion } from 'src/utils/common';
 import { MSGTYPES, SOURCE_TYPE } from './constants';
 
 export const formatInboxItem = function (inboxItem) {
@@ -251,7 +250,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
           linkUrl = `/worksheet/${sourceId}/row/${childId}?inboxId=${inboxId}`;
         } else {
           linkUrl = !browserIsMobile()
-            ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?inboxId=${inboxId}`)
+            ? `/app/${appId}/${sourceId}/${viewId}/row/${childId}?inboxId=${inboxId}`
             : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?inboxId=${inboxId}`; //h5跳到记录详情
         }
       } else {
@@ -263,7 +262,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
       break;
   }
 
-  return `${window.subPath || ''}${linkUrl}`;
+  return pathCompletion(linkUrl);
 };
 
 export function isWithinOneHour(timestamp) {
@@ -274,7 +273,7 @@ export function isWithinOneHour(timestamp) {
 
 function makeAnchor(doc, url, text, opts) {
   const a = doc.createElement('a');
-  a.href = url;
+  a.setAttribute('href', pathCompletion(url));
   a.textContent = text;
 
   if (opts.target) a.target = opts.target;
@@ -297,6 +296,10 @@ export function linkifySanitizedHtml(sanitizedHtml, options = {}) {
   const linkify = new LinkifyIt();
 
   const doc = new DOMParser().parseFromString(sanitizedHtml, 'text/html');
+
+  Array.from(doc.body.querySelectorAll('a[href]')).forEach(a => {
+    a.setAttribute('href', pathCompletion(a.getAttribute('href')));
+  });
 
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {

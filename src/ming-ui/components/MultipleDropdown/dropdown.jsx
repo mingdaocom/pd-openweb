@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
@@ -28,6 +27,7 @@ class MultipleDropdown extends Component {
     };
 
     this.button = null;
+    this.root = null;
   }
 
   /**
@@ -35,9 +35,9 @@ class MultipleDropdown extends Component {
    * 点击外部区域时，隐藏当前菜单
    */
   clickListener = e => {
-    const node = ReactDOM.findDOMNode(this);
+    const node = this.root;
 
-    if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
+    if (node && (node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
     }
   };
@@ -67,19 +67,33 @@ class MultipleDropdown extends Component {
     window.removeEventListener('keydown', this.keyDownListener, false);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.state.value) {
-      this.setState({
-        value: nextProps.value,
-      });
-    }
+  /**
+   * 选中的值发生变化
+   * e: MouseEvent - 点击事件
+   * value: value|value[] - 选中的值（单选为一个值；多选为多个值）
+   * label: label|label[] - 选中选项的 label（单级单选为一个值；多级数据单选为所有层级的 label；多选为多个 label）
+   */
+  /**
+   * 选中的值发生变化
+   * e: MouseEvent - 点击事件
+   * value: value|value[] - 选中的值（单选为一个值；多选为多个值）
+   * label: label|label[] - 选中选项的 label（单级单选为一个值；多级数据单选为所有层级的 label；多选为多个 label）
+   */
 
-    if (nextProps.label !== this.state.label) {
-      const label = nextProps.label && nextProps.label.length ? nextProps.label.toString() : '请选择';
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.value !== this.state.value) {
+        this.setState({
+          value: this.props.value,
+        });
+      }
 
-      this.setState({
-        label,
-      });
+      if (this.props.label !== this.state.label) {
+        const label = this.props.label && this.props.label.length ? this.props.label.toString() : '请选择';
+        this.setState({
+          label,
+        });
+      }
     }
   }
 
@@ -155,7 +169,7 @@ class MultipleDropdown extends Component {
     const classNames = classList.join(' ');
 
     return (
-      <div className={cx(classNames, this.props.className || '')}>
+      <div className={cx(classNames, this.props.className || '')} ref={root => (this.root = root)}>
         <button
           ref={button => {
             this.button = button;
@@ -246,7 +260,7 @@ MultipleDropdown.propTypes = {
 
 MultipleDropdown.defaultProp = {
   value: null,
-  label: '请选择',
+  label: _l('请选择'),
   options: [],
   emptyHint: '',
   multipleLevel: false,

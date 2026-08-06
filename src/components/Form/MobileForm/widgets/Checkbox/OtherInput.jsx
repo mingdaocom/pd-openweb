@@ -14,6 +14,13 @@ const OtherInputWrap = styled.div`
   }
 `;
 
+const handleChange = (props, checkIds, value) => {
+  const { onChange, changeValue = () => {} } = props;
+  const newValues = checkIds.map(i => (i === 'other' && value ? `other:${value}` : i));
+  onChange(JSON.stringify(newValues));
+  changeValue(value);
+};
+
 const OtherInput = props => {
   const { advancedSetting = {}, value, options = {}, className, disabled, fromFilter } = props;
   const { checkIds, otherValue } = getCheckAndOther(value);
@@ -23,13 +30,6 @@ const OtherInput = props => {
   const [currentValue, setCurrentValue] = useState('');
 
   const noDelOptions = options.filter(i => !i.isDeleted);
-
-  const handleChange = (props, checkIds, value) => {
-    const { onChange, changeValue = () => {} } = props;
-    const newValues = checkIds.map(i => (i === 'other' && value ? `other:${value}` : i));
-    onChange(JSON.stringify(newValues));
-    changeValue(value);
-  };
 
   const debouncedOnChange = useRef(
     _.debounce((props, checkIds, value) => {
@@ -53,7 +53,7 @@ const OtherInput = props => {
 
   if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other')) {
     return (
-      <OtherInputWrap className={`mTop10 ${className ? className : ''}`}>
+      <OtherInputWrap className={`mTop10 ${className || ''}`}>
         <textarea
           ref={textareaRef}
           maxLength={200}

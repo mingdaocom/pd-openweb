@@ -1,5 +1,4 @@
 ﻿import React from 'react';
-import ReactDOM from 'react-dom';
 import { Motion, spring } from 'react-motion';
 import cx from 'classnames';
 import { assign, min } from 'lodash';
@@ -143,7 +142,9 @@ class ImageViewer extends React.Component {
       const { width, height } = img;
 
       if (!this.state.originSize) {
-        const container = this.props.con ? this.props.con : ReactDOM.findDOMNode(this).parentNode;
+        const container = this.props.con ? this.props.con : this.root && this.root.parentNode;
+        if (!container) return;
+
         const rect = container.getBoundingClientRect();
 
         if (rect.width && rect.height) {
@@ -206,7 +207,9 @@ class ImageViewer extends React.Component {
       return;
     }
 
-    const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    if (!this.root) return;
+
+    const rect = this.root.getBoundingClientRect();
     const { width, height } = this.imageEle.getBoundingClientRect();
 
     if (width < rect.width && height < rect.height) {
@@ -305,7 +308,9 @@ class ImageViewer extends React.Component {
       this.setState({ scale: 1 }, this.positionCenter);
     } else {
       if (!this.state.originSize) return;
-      const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
+      if (!this.root) return;
+
+      const rect = this.root.getBoundingClientRect();
       const { width, height } = this.state.originSize;
       const scale = min([(rect.width * 0.95) / width, (rect.height * 0.95) / height]);
       this.setState({ scale }, this.positionCenter);
@@ -354,7 +359,9 @@ class ImageViewer extends React.Component {
 
   outViewerArea() {
     if (!this.state.originSize) return false;
-    const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    if (!this.root) return false;
+
+    const rect = this.root.getBoundingClientRect();
     const { width, height } = this.state.originSize;
     const scale = this.state.scale;
     return height * scale > rect.height || width * scale > rect.width;
@@ -370,7 +377,11 @@ class ImageViewer extends React.Component {
         style={{ left: dragStart ? left : spring(left), top: dragStart ? top : spring(top), rotate: spring(rotate) }}
       >
         {motionState => (
-          <div className={cx('dragAbleContainer', this.props.className)} onMouseDown={this.onConClose}>
+          <div
+            className={cx('dragAbleContainer', this.props.className)}
+            ref={root => (this.root = root)}
+            onMouseDown={this.onConClose}
+          >
             {this.state.loading && <LoadDiv size="big" className="dragAbleLoadDiv" />}
             {this.state.src && (
               <img

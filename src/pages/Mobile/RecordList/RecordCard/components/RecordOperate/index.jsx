@@ -71,7 +71,7 @@ export const handleShareRecord = ({ switchPermit, recordBase, controls, rowData 
     },
     {
       key: 'publicShare',
-      name: _l('对外公开分享'),
+      name: _l('公开分享'),
       info: _l('获得链接的所有人都可以查看'),
       icon: 'trash',
       iconClass: 'Font22 Red',

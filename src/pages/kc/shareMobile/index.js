@@ -3,7 +3,7 @@ import MobileSharePreview from './shareMobile';
 
 md.global.Config.disableKf5 = true;
 
-export default function () {
+export default function (projectId) {
   preall({ type: 'function' }, { allowNotLogin: true });
-  window.hello = new MobileSharePreview();
+  window.hello = new MobileSharePreview({ projectId });
 }

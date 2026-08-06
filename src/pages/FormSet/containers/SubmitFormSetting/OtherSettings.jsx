@@ -106,7 +106,7 @@ export default function (props) {
               </span>
               <Icon
                 icon={'close'}
-                className="Hand mLeft3 ThemeHoverColor3"
+                className="Hand mLeft3 hoverColorPrimary"
                 onClick={e => {
                   e.stopPropagation();
                   let data = reservecontrols.filter(a => a !== it);

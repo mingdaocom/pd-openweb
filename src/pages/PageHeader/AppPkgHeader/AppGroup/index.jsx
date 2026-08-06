@@ -10,7 +10,7 @@ import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import { navigateTo } from '../../../../router/navigateTo';
 import { updateAppGroup } from '../../redux/action';
 import { compareProps, getIds } from '../../util';
@@ -22,14 +22,14 @@ import SortableAppList from './SortableAppList';
 import './index.less';
 
 const mapStateToProps = () => ({});
+
 const mapDispatchToProps = dispatch => ({
   updateAppGroup: appGroups => dispatch(updateAppGroup(appGroups)),
   updateIsCharge: value => dispatch(updateIsCharge(value)),
   updateAppPkgData: value => dispatch(updateAppPkgData(value)),
 });
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class extends Component {
+let DecoratedComponent = class DecoratedComponent extends Component {
   static propTypes = {
     permissionType: oneOf([0, 1, 2, 3, 100, 200, 300]),
     appStatus: oneOf([0, 1, 2, 3, 4, 5]),
@@ -38,6 +38,7 @@ export default class extends Component {
   static defaultProps = {
     updateAppGroup: _.noop,
   };
+
   constructor(props) {
     super(props);
     this.ids = getIds(props);
@@ -60,22 +61,23 @@ export default class extends Component {
     this.removeEventBind = this.bindEvent();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.ids = getIds(nextProps);
-    if (
-      compareProps(nextProps.appPkg, this.props.appPkg, ['id']) ||
-      compareProps(nextProps.appPkg, this.props.appPkg, ['needUpdate'])
-    ) {
-      this.getData(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.ids = getIds(this.props);
+      if (
+        compareProps(this.props.appPkg, prevProps.appPkg, ['id']) ||
+        compareProps(this.props.appPkg, prevProps.appPkg, ['needUpdate'])
+      ) {
+        this.getData(this.props);
+      }
     }
   }
 
   componentWillUnmount() {
     this.removeEventBind && this.removeEventBind();
-  }
-  // 当前处理的分组id
-  handledAppItemId = '';
+  } // 当前处理的分组id
 
+  handledAppItemId = '';
   getData = (props = this.props) => {
     let { appId } = this.ids;
 
@@ -88,7 +90,10 @@ export default class extends Component {
     const { sections, permissionType, isLock } = appPkg;
     const isCharge = canEditApp(permissionType, isLock);
     this.props.updateIsCharge(isCharge);
-    this.props.updateAppPkgData({ appRoleType: permissionType, isLock });
+    this.props.updateAppPkgData({
+      appRoleType: permissionType,
+      isLock,
+    });
     const filterSections = isCharge
       ? sections
       : (sections || [])
@@ -112,12 +117,10 @@ export default class extends Component {
         }, 500);
       },
     );
-  };
+  }; // 函数节流
 
-  // 函数节流
-  throttleFunc = fn => _.throttle(fn);
+  throttleFunc = fn => _.throttle(fn); // 绑定事件
 
-  // 绑定事件
   bindEvent = () => {
     const throttledEnsurePointerVisible = this.throttleFunc(this.ensurePointerVisible);
     window.addEventListener('resize', throttledEnsurePointerVisible);
@@ -126,19 +129,16 @@ export default class extends Component {
       window.removeEventListener('resize', throttledEnsurePointerVisible);
       document.removeEventListener('readystatechange', this.ensurePointerVisibleWhenLoaded);
     };
-  };
+  }; // 当资源加载完再计算滚动指示器的状态,防止取到的位置是css加载之前的
 
-  // 当资源加载完再计算滚动指示器的状态,防止取到的位置是css加载之前的
   ensurePointerVisibleWhenLoaded = () => {
     if (document.readyState === 'complete') {
       this.ensurePointerVisible();
     }
   };
-
   switchVisible = (obj, cb) => {
     this.setState(obj, cb);
   };
-
   onSortEnd = newList => {
     this.setState(
       {
@@ -149,17 +149,18 @@ export default class extends Component {
         this.updateAppGroupSort();
       },
     );
-  };
+  }; // 更新应用分组排序
 
-  // 更新应用分组排序
   updateAppGroupSort = () => {
     const { appId } = this.ids;
     const { data } = this.state;
     const sortedAppGroupIds = data.map(({ appSectionId }) => appSectionId);
-    api.updateAppSectionSort({ appId, appSectionIds: sortedAppGroupIds });
-  };
+    api.updateAppSectionSort({
+      appId,
+      appSectionIds: sortedAppGroupIds,
+    });
+  }; // 确认滚动指示器状态
 
-  // 确认滚动指示器状态
   ensurePointerStatus = () => {
     const $ele = document.querySelector('.appItemsInnerWrap');
     if (!$ele) return;
@@ -168,39 +169,46 @@ export default class extends Component {
     const actualWidth = scrollLeft + offsetWidth;
 
     if (!scrollLeft && disabledPointer !== 'left') {
-      this.setState({ disabledPointer: 'left' });
+      this.setState({
+        disabledPointer: 'left',
+      });
       return;
     }
 
     if (actualWidth === scrollWidth && disabledPointer !== 'right') {
-      this.setState({ disabledPointer: 'right' });
+      this.setState({
+        disabledPointer: 'right',
+      });
       return;
     }
 
     if (scrollLeft && actualWidth < scrollWidth && disabledPointer !== null) {
-      this.setState({ disabledPointer: null });
+      this.setState({
+        disabledPointer: null,
+      });
     }
-  };
+  }; // 确认滚动指示器是否显示
 
-  // 确认滚动指示器是否显示
   ensurePointerVisible = () => {
     const $ele = document.querySelector('.appItemsInnerWrap');
 
     if (!$ele) {
-      this.setState({ isAppItemOverflow: false });
+      this.setState({
+        isAppItemOverflow: false,
+      });
       return;
     }
 
     const { offsetWidth, scrollWidth } = $ele;
-    this.setState({ isAppItemOverflow: offsetWidth < scrollWidth });
+    this.setState({
+      isAppItemOverflow: offsetWidth < scrollWidth,
+    });
   };
-
   scrollEle = ($ele, distance) => {
     if (!$ele) return;
     $ele.scrollLeft = distance;
-  };
+  }; // 滚动指示器点击
 
-  // 滚动指示器点击
   handlePointerClick = e => {
     const $ele = e.target;
     const $wrap = document.querySelector('.appItemsInnerWrap');
@@ -218,125 +226,182 @@ export default class extends Component {
     }
 
     this.ensurePointerStatus();
-  };
+  }; // 分组配置点击
 
-  // 分组配置点击
   handleAppItemConfigClick = ({ id, type, appSectionId }) => {
     const { data } = this.state;
     const { appId } = this.ids;
     this.handledAppItemId = appSectionId;
+
     switch (id) {
       case 'rename':
-        this.setState({ focusGroupId: appSectionId });
+        this.setState({
+          focusGroupId: appSectionId,
+        });
         return;
+
       case 'addAfter':
-        this.handleAddAppGroup({ type, appSectionId });
+        this.handleAddAppGroup({
+          type,
+          appSectionId,
+        });
         return;
+
       case 'del':
         if (data.length <= 1) {
           this.delLastAppGroup();
         } else {
-          api.getAppSectionDetail({ appSectionId, appId }).then(({ workSheetInfo = [] }) => {
-            if (workSheetInfo.length < 1) {
-              this.handleDelAppSection();
-            } else {
-              this.setState({ delAppItemVisible: true });
-            }
-          });
+          api
+            .getAppSectionDetail({
+              appSectionId,
+              appId,
+            })
+            .then(({ workSheetInfo = [] }) => {
+              if (workSheetInfo.length < 1) {
+                this.handleDelAppSection();
+              } else {
+                this.setState({
+                  delAppItemVisible: true,
+                });
+              }
+            });
         }
 
         return;
     }
   };
-
   delLastAppGroup = () => {
     const { data } = this.state;
     const { appSectionId } = data[0];
-    this.handleRenameAppGroup(appSectionId, { name: '' });
-  };
+    this.handleRenameAppGroup(appSectionId, {
+      name: '',
+    });
+  }; // 删除分组
 
-  // 删除分组
   handleDelAppSection = sourceAppSectionId => {
     const { appId } = this.ids;
+    api
+      .deleteAppSection({
+        appId,
+        appSectionId: this.handledAppItemId,
+        sourceAppSectionId,
+      })
+      .then(res => {
+        if (res.data) {
+          const temp = _.clone(this.state.data);
 
-    api.deleteAppSection({ appId, appSectionId: this.handledAppItemId, sourceAppSectionId }).then(res => {
-      if (res.data) {
-        const temp = _.clone(this.state.data);
-        const deletedAppIndex = _.findIndex(temp, ({ appSectionId }) => appSectionId === this.handledAppItemId);
-        temp.splice(deletedAppIndex, 1);
-        this.setState({ data: temp });
-        this.props.updateAppGroup(temp);
-        navigateTo(`/app/${appId}/${sourceAppSectionId || ''}`);
-      }
+          const deletedAppIndex = _.findIndex(temp, ({ appSectionId }) => appSectionId === this.handledAppItemId);
+
+          temp.splice(deletedAppIndex, 1);
+          this.setState({
+            data: temp,
+          });
+          this.props.updateAppGroup(temp);
+          navigateTo(`/app/${appId}/${sourceAppSectionId || ''}`);
+        }
+      });
+    this.setState({
+      delAppItemVisible: false,
     });
-    this.setState({ delAppItemVisible: false });
-  };
+  }; // 从空白创建分组，应用创建时会默认创建一个名字为空的分组。则第一次创建分组实质上是为默认创建的空分组改名字
 
-  // 从空白创建分组，应用创建时会默认创建一个名字为空的分组。则第一次创建分组实质上是为默认创建的空分组改名字
   handleAddAppGroupFromEmpty = () => {
-    this.switchVisible({ appItemIntroVisible: false });
+    this.switchVisible({
+      appItemIntroVisible: false,
+    });
     const { data } = this.state;
     const { appSectionId } = data[0] || {};
-    const temp = _.cloneDeep(data);
-    temp[0] = { ...temp[0], name: _l('未命名分组'), type: DEFAULT_CREATE };
-    this.setState({ focusGroupId: appSectionId, data: temp });
-    this.props.updateAppGroup(temp);
-  };
 
-  // 添加分组
+    const temp = _.cloneDeep(data);
+
+    temp[0] = { ...temp[0], name: _l('未命名分组'), type: DEFAULT_CREATE };
+    this.setState({
+      focusGroupId: appSectionId,
+      data: temp,
+    });
+    this.props.updateAppGroup(temp);
+  }; // 添加分组
+
   handleAddAppGroup = obj => {
     let sourceAppSectionId = obj ? obj.appSectionId : '';
     const { data } = this.state;
     const { appId } = this.ids;
-    const defaultAppGroup = { name: _l('未命名分组') };
+    const defaultAppGroup = {
+      name: _l('未命名分组'),
+    };
     api
-      .addAppSection({ appId, sourceAppSectionId, ...defaultAppGroup })
+      .addAppSection({
+        appId,
+        sourceAppSectionId,
+        ...defaultAppGroup,
+      })
       .then(({ data: appSectionId }) => {
-        const appGroupItem = { appSectionId, ...defaultAppGroup };
+        const appGroupItem = {
+          appSectionId,
+          ...defaultAppGroup,
+        };
 
         if (sourceAppSectionId) {
           const temp = _.cloneDeep(data);
+
           const baseIndex = temp.findIndex(item => item.appSectionId === sourceAppSectionId);
           temp.splice(baseIndex + 1, 0, appGroupItem);
           this.props.updateAppGroup(temp);
-          this.setState({ data: temp, focusGroupId: appSectionId });
+          this.setState({
+            data: temp,
+            focusGroupId: appSectionId,
+          });
         } else {
           this.props.updateAppGroup(data.concat(appGroupItem));
-          this.setState({ data: data.concat(appGroupItem), focusGroupId: appSectionId });
+          this.setState({
+            data: data.concat(appGroupItem),
+            focusGroupId: appSectionId,
+          });
         }
 
         navigateTo(`/app/${appId}/${appSectionId}`, true);
         this.ensurePointerVisible();
       })
       .catch(() => {
-        this.setState({ focusGroupId: null });
+        this.setState({
+          focusGroupId: null,
+        });
       });
   };
-
   /**
    *  分组更名
    * @param {String} appSectionId
    * @param {Object} obj
    * @param {Boolean} isNeedModify 是否需要更新
    */
+
   handleRenameAppGroup = (appSectionId, obj, isNeedModify = true) => {
     const { appId } = this.ids;
 
     if (isNeedModify) {
-      api.updateAppSectionName({ appSectionId, appId, ...obj }).then(({ data }) => {
-        if (data) {
-          this.updateSingleAppGroup(appSectionId, obj);
-        }
-      });
+      api
+        .updateAppSectionName({
+          appSectionId,
+          appId,
+          ...obj,
+        })
+        .then(({ data }) => {
+          if (data) {
+            this.updateSingleAppGroup(appSectionId, obj);
+          }
+        });
     }
 
     this.ensurePointerVisible();
-    this.setState({ focusGroupId: null, activeAppItemId: '' });
-  };
+    this.setState({
+      focusGroupId: null,
+      activeAppItemId: '',
+    });
+  }; // 更新单个应用分组数据
 
-  // 更新单个应用分组数据
   updateSingleAppGroup = (appSectionId, obj) => {
     const { data } = this.state;
+
     const temp = _.cloneDeep(data);
 
     for (let i = 0; i < temp.length; i++) {
@@ -348,15 +413,19 @@ export default class extends Component {
       }
     }
 
-    this.setState({ data: temp });
+    this.setState({
+      data: temp,
+    });
     this.props.updateAppGroup(temp);
-  };
+  }; // 要移入的分组下拉列表数据转换
 
-  // 要移入的分组下拉列表数据转换
   formatDataToDropdownItems = data =>
     data
       .filter(({ appSectionId, name }) => !!name && appSectionId !== this.handledAppItemId)
-      .map(({ appSectionId, name }) => ({ value: appSectionId, text: name }));
+      .map(({ appSectionId, name }) => ({
+        value: appSectionId,
+        text: name,
+      }));
 
   render() {
     const {
@@ -396,7 +465,9 @@ export default class extends Component {
             icon="task_alt"
             iconSize={20}
             textSize={14}
-            iconStyle={{ margin: 0 }}
+            iconStyle={{
+              margin: 0,
+            }}
             text={
               <Fragment>
                 {!!count && (
@@ -410,10 +481,12 @@ export default class extends Component {
           />
         </Tooltip>
       );
-    };
+    }; // 获取url参数
 
-    // 获取url参数
     const { tb, tr, td } = getAppFeaturesVisible();
+    // AI 实时预览（previewMode=ai，见 src/components/Agent/AppBuilder/PreviewFrame.jsx）：
+    // 搭建预览态只呈现应用本身，隐藏待办等入口（首页/超级搜索在 AppDetail 已隐藏）。
+    const isAIPreview = /[?&]previewMode=ai(?:&|$)/.test(_.get(window, 'location.search') || '');
     return (
       <Fragment>
         {otherAllShow ? (
@@ -426,20 +499,34 @@ export default class extends Component {
                       className={cx('emptyAppItem active')}
                       style={
                         ['light'].includes(appPkg.themeType)
-                          ? { backgroundColor: convertColor(appPkg.iconColor) }
+                          ? {
+                              backgroundColor: convertColor(appPkg.iconColor),
+                            }
                           : null
                       }
                       onClick={() => {
-                        this.switchVisible({ appItemIntroVisible: true });
+                        this.switchVisible({
+                          appItemIntroVisible: true,
+                        });
                       }}
                     >
                       <Icon className="emptyGroupIcon" icon="group_inactive" />
                     </div>
                     <AppGroupIntro
-                      className={cx({ appItemIntroVisible })}
+                      className={cx({
+                        appItemIntroVisible,
+                      })}
                       addAppGroup={this.handleAddAppGroupFromEmpty}
-                      onClickAway={() => this.switchVisible({ appItemIntroVisible: false })}
-                      onClose={() => this.switchVisible({ appItemIntroVisible: false })}
+                      onClickAway={() =>
+                        this.switchVisible({
+                          appItemIntroVisible: false,
+                        })
+                      }
+                      onClose={() =>
+                        this.switchVisible({
+                          appItemIntroVisible: false,
+                        })
+                      }
                     />
                   </Fragment>
                 )}
@@ -457,7 +544,9 @@ export default class extends Component {
                       activeAppItemId={activeAppItemId}
                       onClickAway={() => {
                         if (activeAppItemId !== '') {
-                          this.setState({ activeAppItemId: '' });
+                          this.setState({
+                            activeAppItemId: '',
+                          });
                         }
                       }}
                       ensurePointerVisible={this.ensurePointerVisible}
@@ -480,15 +569,26 @@ export default class extends Component {
         {tr && (
           <Fragment>
             <div
-              className={cx('appItemPointerWrap pointer', { visible: isAppItemOverflow })}
+              className={cx('appItemPointerWrap pointer', {
+                visible: isAppItemOverflow,
+              })}
               onClick={this.handlePointerClick}
             >
-              <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
-              <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
+              <div
+                className={cx('leftPointer appItemPointer', {
+                  disable: disabledPointer === 'left',
+                })}
+              />
+              <div
+                className={cx('rightPointer appItemPointer', {
+                  disable: disabledPointer === 'right',
+                })}
+              />
             </div>
             {td &&
               !md.global.Account.isPortal &&
               !window.isPublicApp &&
+              !isAIPreview &&
               appPkg.appStatus !== 4 &&
               appStatus !== 300016 && (
                 <div className="appExtensionWrap">
@@ -510,7 +610,11 @@ export default class extends Component {
               <DelAppGroup
                 data={data.filter(data => data.appSectionId !== this.handledAppItemId)}
                 onOk={id => this.handleDelAppSection(id)}
-                onCancel={() => this.switchVisible({ delAppItemVisible: false })}
+                onCancel={() =>
+                  this.switchVisible({
+                    delAppItemVisible: false,
+                  })
+                }
               />
             )}
           </Fragment>
@@ -518,4 +622,6 @@ export default class extends Component {
       </Fragment>
     );
   }
-}
+};
+DecoratedComponent = connect(mapStateToProps, mapDispatchToProps)(DecoratedComponent);
+export default DecoratedComponent;

@@ -1,4 +1,5 @@
 import globalApi from 'src/api/global';
+import { pathCompletion } from 'src/utils/common';
 
 globalApi.getGlobalMeta().then(res => {
   try {
@@ -11,6 +12,6 @@ globalApi.getGlobalMeta().then(res => {
     console.log(res['md.global'].Account);
   } catch (err) {
     console.log(err);
-    location.href = '/login?ReturnUrl=' + encodeURIComponent(location.href);
+    location.href = pathCompletion('/login?ReturnUrl=' + encodeURIComponent(location.href));
   }
 });

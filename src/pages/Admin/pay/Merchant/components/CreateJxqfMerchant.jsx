@@ -90,9 +90,13 @@ export default class CreateJxqfMerchant extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.createStep !== this.props.createStep) {
-      this.setState({ step: nextProps.createStep });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.createStep !== prevProps.createStep) {
+        this.setState({
+          step: this.props.createStep,
+        });
+      }
     }
   }
 
@@ -295,7 +299,7 @@ export default class CreateJxqfMerchant extends Component {
       <Fragment>
         <div className="orgManagementHeader">
           <div className="createMerchantHeader bold Font17">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer mRight10" onClick={onClose} />
+            <Icon icon="backspace" className="Font22 hoverColorPrimary pointer mRight10" onClick={onClose} />
             {_l('聚合支付')}
           </div>
         </div>

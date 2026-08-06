@@ -23,7 +23,7 @@ class TaskHeader extends Component {
               this.toggle('start', !this.props.startChecked);
             }}
           >
-            开始时间
+            {_l('开始时间')}
           </Checkbox>
         </div>
         <div className="calender-task-header-col">
@@ -34,7 +34,7 @@ class TaskHeader extends Component {
               this.toggle('end', !this.props.endChecked);
             }}
           >
-            结束时间
+            {_l('结束时间')}
           </Checkbox>
         </div>
       </div>

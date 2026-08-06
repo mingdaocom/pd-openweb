@@ -41,16 +41,16 @@
       box-sizing: border-box;
       vertical-align: top;
       cursor: pointer;
-      &:not(.ThemeColor3) {
+      &:not(.colorPrimary) {
         i {
           color: var(--color-text-tertiary);
         }
       }
       &:not(:hover),
-      &.ThemeColor3 {
+      &.colorPrimary {
         background: var(--color-background-card) !important;
       }
-      &:hover:not(.ThemeColor3) {
+      &:hover:not(.colorPrimary) {
         color: var(--color-white);
         i {
           color: var(--color-white);
@@ -136,7 +136,7 @@
       &:first-child {
         border-bottom: 1px solid var(--color-text-disabled);
       }
-      &.ThemeColor3 {
+      &.colorPrimary {
         background: var(--color-background-card) !important;
       }
       &:not(:hover) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
@@ -14,9 +14,14 @@ import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import Dashboard from '../Dashboard';
 import { getDashboardColor } from '../Dashboard/utils';
-import RecordFav from '../RecordFav';
 import AppGroups from './AppGroups';
 import SideNav from './SideNav';
+import {
+  DASHBOARD_THEME_ASSET_URL_PREFIX,
+  formatAdvancedThemes,
+  getAdvancedThemeAssetUrls,
+  getAdvancedThemeChannel,
+} from './utils';
 
 const Con = styled.div`
   display: flex;
@@ -27,68 +32,84 @@ const Con = styled.div`
   background-position: bottom;
   background-blend-mode: normal;
 `;
-
 const AppLibCon = styled.div`
   flex: 1;
   overflow: hidden;
 `;
 const list = [
-  { str: '/app/lib', key: 'lib' },
-  { str: '/dashboard', key: 'dashboard' },
-  { str: '/favorite', key: 'favorite' },
+  {
+    str: '/app/lib',
+    key: 'lib',
+  },
+  {
+    str: '/dashboard',
+    key: 'dashboard',
+  },
+  {
+    str: '/favorite',
+    key: 'favorite',
+  },
 ];
+const LoadableRecordFav = lazy(() => import('../RecordFav'));
+
+const getKey = () => {
+  let key = 'app';
+  list.forEach(o => {
+    if (location.pathname.includes(o.str)) {
+      key = o.key;
+    }
+  });
+  return key;
+};
 
 function AppCenter(props) {
   const projectId = _.get(props, 'match.params.projectId');
+
   const projects = _.get(md, 'global.Account.projects');
+
   const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
   const [currentProject, setCurrentProject] = useState(
-    !_.isEmpty(project) ? project : projects[0] || { companyName: _l('外部协作'), projectId: 'external' },
+    !_.isEmpty(project)
+      ? project
+      : projects[0] || {
+          companyName: _l('外部协作'),
+          projectId: 'external',
+        },
   );
   const [countData, setCountData] = useState({});
   const [platformSetting, setPlatformSetting] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [myPermissions, setMyPermissions] = useState([]);
   const [advancedThemes, setAdvancedThemes] = useState([]);
-
-  const isWWW = location.host.includes('www.mingdao.com');
-  const themeFileUrlPrefix = `https://fp1.mingdaoyun.cn/dashboard/${isWWW ? 'www' : 'meihua'}`;
+  const themeChannel = getAdvancedThemeChannel(location.host);
+  const themeAssetUrlPrefix = DASHBOARD_THEME_ASSET_URL_PREFIX;
 
   const currentThemeKey = _.get(platformSetting, 'advancedSetting.themeKey');
+
   const currentTheme = currentThemeKey
     ? _.get(platformSetting, 'advancedSetting.appIcon')
       ? platformSetting.advancedSetting
       : {
           themeKey: currentThemeKey,
-          appIcon: `${themeFileUrlPrefix}/${currentThemeKey}/app.png`,
-          appCollectIcon: `${themeFileUrlPrefix}/${currentThemeKey}/app_collect.png`,
-          chartCollectIcon: `${themeFileUrlPrefix}/${currentThemeKey}/chart.png`,
-          recordFavIcon: `${themeFileUrlPrefix}/${currentThemeKey}/record.png`,
-          processIcon: `${themeFileUrlPrefix}/${currentThemeKey}/process.png`,
-          recentIcon: `${themeFileUrlPrefix}/${currentThemeKey}/recent.png`,
-          bgImg: `${themeFileUrlPrefix}/${currentThemeKey}/background.png`,
+          ...getAdvancedThemeAssetUrls(currentThemeKey, themeAssetUrlPrefix),
         }
     : {};
   const dashboardColor = getDashboardColor((platformSetting || {}).color);
-
   useEffect(() => {
     emitter.addListener('CHANGE_CURRENT_PROJECT', changeProject);
     loadPlatformSetting(currentProject.projectId);
     getTodoCount().then(data => setCountData(data));
     currentProject.project !== 'external' &&
       getMyPermissions(currentProject.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
-
     !window.platformENV.isOverseas &&
       !window.platformENV.isLocal &&
-      fetch(`${themeFileUrlPrefix}/themes.js?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 24)}`)
-        .then(res => res.text())
+      fetch(`${themeAssetUrlPrefix}/themes.json?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 24)}`)
+        .then(res => res.json())
         .then(res => {
-          const data = eval(res) || [];
-          const themes = data.map(item => ({
-            ...item,
-            themeIcon: `${themeFileUrlPrefix}/${item.themeKey}/main.png`,
-            bulletinPic: `${themeFileUrlPrefix}/${item.themeKey}/banner.jpg`,
-          }));
+          const themes = formatAdvancedThemes(res, {
+            channel: themeChannel,
+            assetUrlPrefix: themeAssetUrlPrefix,
+          });
           setAdvancedThemes(themes);
         })
         .catch(_.noop);
@@ -97,16 +118,6 @@ function AppCenter(props) {
       emitter.removeListener('CHANGE_CURRENT_PROJECT', changeProject);
     };
   }, []);
-
-  const getKey = () => {
-    let key = 'app';
-    list.forEach(o => {
-      if (location.pathname.startsWith(o.str)) {
-        key = o.key;
-      }
-    });
-    return key;
-  };
 
   const keyStr = getKey();
 
@@ -127,7 +138,9 @@ function AppCenter(props) {
 
     setIsLoading(true);
     homeAppAjax
-      .getHomePlatformSetting({ projectId })
+      .getHomePlatformSetting({
+        projectId,
+      })
       .then(res => {
         if (res) {
           setPlatformSetting(res);
@@ -166,11 +179,14 @@ function AppCenter(props) {
             <AppLib />
           </AppLibCon>
         );
+
       case 'favorite':
         return (
           <React.Fragment>
             <DocumentTitle title={_l('收藏')} />
-            <RecordFav currentProject={currentProject} projectId={currentProject.projectId} />
+            <Suspense fallback={<LoadDiv className="mTop10" />}>
+              <LoadableRecordFav currentProject={currentProject} projectId={currentProject.projectId} />
+            </Suspense>
           </React.Fragment>
         );
 
@@ -193,6 +209,7 @@ function AppCenter(props) {
             />
           </React.Fragment>
         );
+
       default:
         return (
           <React.Fragment>
@@ -217,8 +234,7 @@ function AppCenter(props) {
       <Con
         className="containerImage"
         style={{
-          backgroundImage: keyStr === 'dashboard' && currentThemeKey ? `url(${currentTheme.bgImg})` : 'unset',
-          // backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
+          backgroundImage: keyStr === 'dashboard' && currentThemeKey ? `url(${currentTheme.bgImg})` : 'unset', // backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
         }}
       >
         {!(keyStr === 'lib' && !window.platformENV.isOverseas && !window.platformENV.isLocal) && (

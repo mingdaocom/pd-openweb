@@ -130,6 +130,24 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
                 componentsWrap.scrollTop = componentsWrap.scrollHeight;
               });
             }
+          } else if (key === 'subsection') {
+            addWidget({
+              type,
+              edit: true,
+              componentConfig: {
+                name: _l('分段') + (components.filter(c => [12, 'subsection'].includes(c.type)).length || ''),
+              },
+              sectionId: activeContainerInfo.sectionId || undefined,
+              tabId: activeContainerInfo.tabId || undefined,
+            });
+            const containerId = activeContainerInfo.sectionId || activeContainerInfo.tabId;
+
+            if (!containerId) {
+              setTimeout(() => {
+                const componentsWrap = document.querySelector('#componentsWrap');
+                componentsWrap.scrollTop = componentsWrap.scrollHeight;
+              });
+            }
           } else {
             setWidget({ type: key });
           }

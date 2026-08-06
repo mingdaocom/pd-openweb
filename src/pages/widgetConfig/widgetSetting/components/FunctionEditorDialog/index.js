@@ -1,12 +1,8 @@
-import React, { useRef } from 'react';
-import Loadable from 'react-loadable';
+import React, { lazy, Suspense, useRef } from 'react';
 import { func } from 'prop-types';
 import { Dialog, Modal } from 'ming-ui';
 
-const LoadableFunction = Loadable({
-  loader: () => import('./Func'),
-  loading: () => null,
-});
+const LoadableFunction = lazy(() => import('./Func'));
 
 export default function FunctionEditorDialog(props) {
   const { onClose } = props;
@@ -47,16 +43,25 @@ export default function FunctionEditorDialog(props) {
           onClose();
         }
       }}
-      style={{ minWidth: width }}
-      bodyStyle={{ padding: 0, position: 'relative', height, flex: 'none' }}
+      style={{
+        minWidth: width,
+      }}
+      bodyStyle={{
+        padding: 0,
+        position: 'relative',
+        height,
+        flex: 'none',
+      }}
     >
-      <LoadableFunction
-        {...props}
-        dialogWidth={width}
-        dialogHeight={height}
-        setRef={(key, value) => (editor.current[key] = value)}
-        onChange={() => (cache.current.changed = true)}
-      />
+      <Suspense fallback={null}>
+        <LoadableFunction
+          {...props}
+          dialogWidth={width}
+          dialogHeight={height}
+          setRef={(key, value) => (editor.current[key] = value)}
+          onChange={() => (cache.current.changed = true)}
+        />
+      </Suspense>
     </Modal>
   );
 }

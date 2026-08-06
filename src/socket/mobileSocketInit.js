@@ -1,11 +1,11 @@
-import io from 'socket.io-client';
+﻿import io from 'socket.io-client';
 import { getPssId } from 'src/utils/pssId';
 
 export const socketInit = () => {
   if (window.IM === undefined) {
     window.IM = {};
     const socket = io.connect(window.config.SERVER_NAME, {
-      path: '/mds2',
+      path: `${window.__customSubPath__}/mds2`,
       reconnectionAttempts: 100,
       timeout: 15000,
       query:

@@ -5,7 +5,7 @@ import { antNotification, Icon } from 'ming-ui';
 import { renderBtnList } from 'ming-ui/functions/mdNotification';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { navigateTo } from 'src/router/navigateTo';
-import { downloadFile, emitter } from 'src/utils/common';
+import { downloadFile, emitter, getPathWithoutSubPath } from 'src/utils/common';
 
 const integrationParams = match('/integrationConnect/:id?/:tab?');
 
@@ -48,14 +48,14 @@ export default function customNotice() {
         if (href.indexOf('excelerrorpage') > -1) {
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
 
-          new ErrorDialog({ fileKey: id[0] });
+          ErrorDialog({ fileKey: id[0] });
           stop();
         }
 
         if (href.indexOf('excelbatcherrorpage') > -1) {
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
 
-          new ErrorDialog({ fileKey: id[1], isBatch: true });
+          ErrorDialog({ fileKey: id[1], isBatch: true });
           stop();
         }
 
@@ -68,7 +68,7 @@ export default function customNotice() {
         if (href.indexOf('importattachmentserrorpage') > -1) {
           const arr = href.split('/');
 
-          new ErrorDialog({ fileKey: arr[arr.length - 1], isAttachment: true });
+          ErrorDialog({ fileKey: arr[arr.length - 1], isAttachment: true });
           stop();
         }
       }
@@ -76,7 +76,7 @@ export default function customNotice() {
 
     socket.on('custom', data => {
       const { id, status, title, msg, link, linkText, color, type } = data;
-      const { params } = integrationParams(location.pathname) || {};
+      const { params } = integrationParams(getPathWithoutSubPath(location.pathname)) || {};
       let action = '';
       const formatMsg = addWebUrlForWorksheetHref(msg);
       const linkBtn = {
@@ -111,7 +111,7 @@ export default function customNotice() {
       antNotification[action]({
         key: id,
         className: 'customNotification',
-        closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
+        closeIcon: <Icon icon="close" className="Font20 textTertiary hoverColorPrimary" />,
         duration: 5,
         message: title,
         description: <div dangerouslySetInnerHTML={{ __html: formatMsg }} />,

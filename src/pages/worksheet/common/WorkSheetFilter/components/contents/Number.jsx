@@ -20,19 +20,22 @@ export default class Number extends Component {
       maxValue: props.maxValue,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.value !== this.props.value ||
-      nextProps.minValue !== this.props.minValue ||
-      nextProps.maxValue !== this.props.maxValue
-    ) {
-      this.setState(
-        Object.assign(this.state, {
-          value: nextProps.value,
-          minValue: nextProps.minValue,
-          maxValue: nextProps.maxValue,
-        }),
-      );
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        this.props.value !== prevProps.value ||
+        this.props.minValue !== prevProps.minValue ||
+        this.props.maxValue !== prevProps.maxValue
+      ) {
+        this.setState(
+          Object.assign(this.state, {
+            value: this.props.value,
+            minValue: this.props.minValue,
+            maxValue: this.props.maxValue,
+          }),
+        );
+      }
     }
   }
 

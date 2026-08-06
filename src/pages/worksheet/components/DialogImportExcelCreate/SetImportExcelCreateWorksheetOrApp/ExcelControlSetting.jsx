@@ -70,11 +70,13 @@ export default class ExcelControlSetting extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { data: { type, dataSource } = {} } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { data: { type, dataSource } = {} } = this.props;
 
-    if (type === 29 && dataSource && dataSource !== (this.props.data || {}).dataSource) {
-      this.getControls(dataSource);
+      if (type === 29 && dataSource && dataSource !== (prevProps.data || {}).dataSource) {
+        this.getControls(dataSource);
+      }
     }
   }
 
@@ -160,7 +162,7 @@ export default class ExcelControlSetting extends Component {
                   <div className="ellipsis InlineBlock Font14">
                     {type === 29 ? _l('关联到') : _.get(this.getSelectControl(), 'text')}
                     {type === 29 && (
-                      <span className="ThemeColor3 mLeft3">{_.get(this.getSelectControl(), 'text')}</span>
+                      <span className="colorPrimary mLeft3">{_.get(this.getSelectControl(), 'text')}</span>
                     )}
                   </div>
                 </div>

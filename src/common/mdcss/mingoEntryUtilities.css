@@ -1,0 +1,175 @@
+.overflowHidden {
+  overflow: hidden !important;
+  zoom: 1;
+}
+
+.overflow_ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.WordBreak {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.breakAll {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.Hand,
+.pointer {
+  cursor: pointer;
+}
+
+.InlineBlock {
+  display: inline-block !important;
+}
+
+.Relative,
+.relative {
+  position: relative !important;
+}
+
+.w100 {
+  width: 100% !important;
+}
+
+.mTop6 {
+  margin-top: 6px !important;
+}
+
+.mTop10 {
+  margin-top: 10px !important;
+}
+
+.mBottom6 {
+  margin-bottom: 6px !important;
+}
+
+.mBottom10 {
+  margin-bottom: 10px !important;
+}
+
+.mLeft5 {
+  margin-left: 5px !important;
+}
+
+.mLeft10 {
+  margin-left: 10px !important;
+}
+
+.Font12 {
+  font-size: 12px !important;
+}
+
+.Font18 {
+  font-size: 18px !important;
+}
+
+.flexColumn {
+  display: -ms-flexbox;
+  display: flex;
+  display: -webkit-flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+.flexRow {
+  display: flex;
+  min-width: 0;
+}
+
+.flexCenter {
+  display: flex;
+  align-items: center;
+}
+
+.inlineFlexRow {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.flex {
+  -webkit-flex: 1;
+  flex: 1;
+  -ms-flex: 1;
+}
+
+.alignItemsCenter {
+  align-items: center;
+}
+
+.justifyContentCenter {
+  justify-content: center;
+}
+
+.justifyContentBetween {
+  justify-content: space-between !important;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.t-flex {
+  display: flex;
+}
+
+.t-inline-flex {
+  display: inline-flex;
+}
+
+.t-flex-1 {
+  flex: 1;
+}
+
+.t-flex-col {
+  flex-direction: column;
+}
+
+.t-flex-row {
+  flex-direction: row;
+}
+
+.t-space-between {
+  justify-content: space-between;
+}
+
+.t-content-center {
+  justify-content: center;
+}
+
+.t-justify-center {
+  justify-content: center;
+}
+
+.t-justify-between {
+  justify-content: space-between;
+}
+
+.t-justify-end {
+  justify-content: flex-end;
+}
+
+.t-items-center {
+  align-items: center;
+}
+
+.t-items-end {
+  align-items: flex-end;
+}
+
+.t-overflow-hidden {
+  overflow: hidden;
+}

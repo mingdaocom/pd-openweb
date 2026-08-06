@@ -1,4 +1,4 @@
-﻿@import './layer/global.less';
+@import './themes/global.less';
 
 :root {
   --app-primary-color: var(--color-primary);
@@ -104,10 +104,6 @@ textarea {
   }
 }
 
-.ThemeBGColor9 {
-  box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.24);
-}
-
 #app {
   height: 100%;
 }
@@ -176,10 +172,6 @@ textarea {
 
 .InlineBlock {
   display: inline-block !important;
-  display: -moz-inline-stack;
-  display: inline-block;
-  /* zoom:1; */
-  *display: inline;
 }
 
 .Block {
@@ -2227,6 +2219,8 @@ body > object {
   animation: rotate 2s linear infinite;
   transform-origin: 50% 50%;
   display: inline-block;
+  position: relative;
+  margin: 0px auto;
 }
 
 .nowrap {
@@ -2378,6 +2372,56 @@ nav,
   background: transparent !important;
   animation: clipLoader 0.75s 0s infinite linear;
   animation-fill-mode: both;
+}
+
+@keyframes mdLoaderRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mdLoaderDash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}
+
+.MdLoader:before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.MdLoader-circular {
+  animation: mdLoaderRotate 2s linear infinite;
+  height: 100%;
+  transform-origin: center center;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.MdLoader-path {
+  stroke: var(--color-primary);
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+  fill: none;
+  animation: mdLoaderDash 1.5s ease-in-out infinite;
 }
 
 .fileIcon-folder {
@@ -2945,6 +2989,11 @@ input::-webkit-contacts-auto-fill-button {
 .ant-modal .ant-modal-content,
 .ant-modal .ant-modal-body {
   font-size: 13px;
+}
+
+.iti__flag-box,
+.iti__flag {
+  display: none !important;
 }
 
 .ant-modal .ant-input-number,

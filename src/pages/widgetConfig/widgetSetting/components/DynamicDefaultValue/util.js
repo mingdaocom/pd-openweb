@@ -25,11 +25,10 @@ import {
   CUR_TIME_TYPES,
   CURRENT_TYPES,
   DATE_TYPES,
+  DYNAMIC_FROM_MODE,
   EMEBD_FIELDS,
-  FIELD_REG_EXP,
   TIME_TYPES,
 } from './config';
-import { DYNAMIC_FROM_MODE } from './config';
 
 // 新建子表并配置成员、部门等默认值，后端relationControls不处理，没有补全配置返回
 export const dealIds = (type, dynamicValue) => {
@@ -40,7 +39,7 @@ export const dealIds = (type, dynamicValue) => {
       _.includes(['user-self', 'user-departments', 'user-role'], item.staticValue)
     ) {
       const name = _.get(
-        _.find(CURRENT_TYPES, i => i.id === item.staticValue),
+        _.find(CURRENT_TYPES[type] || [], i => i.id === item.staticValue),
         'text',
       );
       const id =
@@ -322,21 +321,7 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   return controls;
 };
 
-export const transferValue = (value = '') => {
-  const controlFields = value.match(FIELD_REG_EXP) || [];
-  const defaultValue = _.filter(value.split('$'), v => !_.isEmpty(v));
-  const defsource = defaultValue.map(item => {
-    const defaultData = { cid: '', rcid: '', staticValue: '' };
-
-    if (_.includes(controlFields, `$${item}$`)) {
-      const [cid = '', rcid = ''] = item.split('~');
-      return { ...defaultData, cid, rcid };
-    } else {
-      return { ...defaultData, staticValue: item };
-    }
-  });
-  return defsource;
-};
+export { transferValue } from 'src/utils/controlCommon';
 
 export const isIframeControl = item => {
   return item && item.type === 45 && item.enumDefault === 1;

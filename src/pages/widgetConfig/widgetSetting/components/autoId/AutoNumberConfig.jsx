@@ -93,6 +93,13 @@ const TYPE_TO_TEXT = {
   4: _l('每年第一天的00:00, 自动从初始值开始编号'),
 };
 
+const handleValueChange = ({ value, min = 2, max = 8 }) => {
+  if (value === '') return value;
+  const parsedValue = parseInt(value).toFixed(0);
+  if (isNaN(parsedValue)) return '';
+  return Math.min(max, Math.max(min, parsedValue));
+};
+
 export default function AutoNumberConfig(props) {
   const { rule, controlId, onClose, onOk } = props;
   const [data, setData] = useSetState(rule);
@@ -102,15 +109,15 @@ export default function AutoNumberConfig(props) {
   // data.length 为0 代表自然数编号
   const type = data.length ? 'assign' : 'nature';
 
-  const handleValueChange = ({ value, min = 2, max = 8 }) => {
-    if (value === '') return value;
-    const parsedValue = parseInt(value).toFixed(0);
-    if (isNaN(parsedValue)) return '';
-    return Math.min(max, Math.max(min, parsedValue));
-  };
-
   return (
-    <Dialog style={{ width: '560px' }} visible title={_l('编号设置')} footer={null} onCancel={onClose}>
+    <Dialog
+      style={{ width: '560px' }}
+      visible
+      title={_l('编号设置')}
+      footer={null}
+      onCancel={onClose}
+      description={_l('修改周期重置规则后，当前编号将立即重置，并从下一条记录开始重新计数。')}
+    >
       <NumberConfigWrap>
         <SettingItem className="settingItem">
           <div className="title">{_l('编号方式%04017')}</div>

@@ -24,11 +24,16 @@ export default class BranchItem extends Component {
     this.mounted = true;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.index !== this.props.index && this.state.isMove) {
-      setTimeout(() => {
-        this.mounted && this.setState({ isMove: false });
-      }, 200);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.index !== prevProps.index && this.state.isMove) {
+        setTimeout(() => {
+          this.mounted &&
+            this.setState({
+              isMove: false,
+            });
+        }, 200);
+      }
     }
   }
 

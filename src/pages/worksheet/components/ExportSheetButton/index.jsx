@@ -39,7 +39,7 @@ export default function ExportSheetButton(props) {
       >
         {loading ? (
           <i
-            className="icon icon-loading_button ThemeColor3"
+            className="icon icon-loading_button colorPrimary"
             style={{
               fontSize: 16,
               margin: 5,
@@ -48,7 +48,7 @@ export default function ExportSheetButton(props) {
             }}
           ></i>
         ) : (
-          <IconBtn className="Hand ThemeHoverColor3">
+          <IconBtn className="Hand hoverColorPrimary">
             <i className="icon icon-worksheet_export" />
           </IconBtn>
         )}

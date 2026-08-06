@@ -25,6 +25,10 @@ const USER_RANGE = [
   { id: 'assignOrg', type: 3, value: '', text: _l('指定组织角色') },
 ];
 
+const getId = item => {
+  return item.type === 1 ? 'accountId' : item.type === 2 ? 'departmentId' : 'organizeId';
+};
+
 export default function UserConfig(props) {
   const { globalSheetInfo, data, onChange } = props;
   const { enumDefault2 = 0 } = data;
@@ -127,10 +131,6 @@ export default function UserConfig(props) {
         : true;
     });
     onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(newValue) }));
-  };
-
-  const getId = item => {
-    return item.type === 1 ? 'accountId' : item.type === 2 ? 'departmentId' : 'organizeId';
   };
 
   const existIndex = item =>

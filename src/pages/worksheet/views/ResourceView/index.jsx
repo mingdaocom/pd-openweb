@@ -6,7 +6,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { RadioGroup } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import * as baseAction from 'src/pages/worksheet/redux/actions';

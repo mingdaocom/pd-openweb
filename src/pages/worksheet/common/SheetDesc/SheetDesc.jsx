@@ -14,9 +14,14 @@ export default class SheetDesc extends Component {
       remark,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.desc !== this.props.desc) {
-      this.setState({ desc: nextProps.desc });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.desc !== prevProps.desc) {
+        this.setState({
+          desc: this.props.desc,
+        });
+      }
     }
   }
   handleSave = () => {

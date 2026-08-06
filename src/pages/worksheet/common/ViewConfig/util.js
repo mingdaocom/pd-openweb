@@ -21,6 +21,15 @@ export const updateAdvancedSetting = (view, obj) => {
   return update(advancedSetting, { $apply: item => ({ ...item, ...obj }) });
 };
 
+const getNavfilterValueId = info => {
+  if (!_.isString(info) || !['{', '['].includes(info.trim().slice(0, 1))) {
+    return `${info}`;
+  }
+
+  const data = safeParse(info);
+  return `${_.isEmpty(data) ? info : data.id || data}`;
+};
+
 //格式化advancedSetting的navfilters
 export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
   const { navfilters } = newValue;
@@ -37,23 +46,7 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
       navfilters:
         navshow === '3'
           ? JSON.stringify(navfiltersData.map(handleCondition))
-          : JSON.stringify(
-              navfiltersData.map(info => {
-                let id = info;
-                let data = null;
-
-                try {
-                  data = JSON.parse(info);
-                  id = data.id || data;
-                } catch (error) {
-                  console.log(error);
-                  id = info;
-                  console.log(error);
-                }
-
-                return id + '';
-              }),
-            ),
+          : JSON.stringify(navfiltersData.map(getNavfilterValueId)),
     });
   }
 };

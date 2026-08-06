@@ -9,15 +9,15 @@ import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
 import { getRequest } from 'src/utils/common';
 
 const data = getRequest();
-
-@connect(state => ({ ...state.sheet }), dispatch => bindActionCreators(actions, dispatch))
-export default class MobileContainer extends Component {
+let MobileContainer = class MobileContainer extends Component {
   constructor(props) {
     super(props);
   }
+
   componentDidMount() {
     this.props.initMobileGunter(data);
   }
+
   render() {
     const { loading, base = {}, views } = this.props;
     const { appId, worksheetId, viewId } = base;
@@ -30,11 +30,18 @@ export default class MobileContainer extends Component {
       );
     }
 
-    const view = _.find(views, { viewId: data.viewId });
+    const view = _.find(views, {
+      viewId: data.viewId,
+    });
+
     return <CustomWidgetView appId={appId} worksheetId={worksheetId} viewId={viewId} view={view} />;
   }
-}
-
+};
+MobileContainer = connect(
+  state => ({ ...state.sheet }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(MobileContainer);
+export default MobileContainer;
 MobileContainer.propTypes = {
   loading: bool,
   base: shape({}),

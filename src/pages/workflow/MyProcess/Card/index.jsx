@@ -176,6 +176,10 @@ export default class Card extends Component {
       }
     }
 
+    if (!RenderRightHander) {
+      RenderRightHander = this.renderTime();
+    }
+
     return (
       <div className="cardHeader valignWrapper">
         <div className="stateWrapper valignWrapper">
@@ -185,7 +189,7 @@ export default class Card extends Component {
           {!alreadyDisposeOrExamine && this.renderTimeConsuming()}
           {this.renderSurplusTime()}
         </div>
-        <div className="Red">{RenderRightHander}</div>
+        <div>{RenderRightHander}</div>
       </div>
     );
   }
@@ -220,7 +224,7 @@ export default class Card extends Component {
   renderTimeConsuming() {
     const { workItem = {} } = this.props.item;
 
-    const workItems = (workItem.workId ? [workItem] : []).filter(
+    const workItems = (workItem?.workId ? [workItem] : []).filter(
       item => _.includes([3, 4], item.type) && item.operationTime,
     );
     const timeConsuming = [];
@@ -279,7 +283,7 @@ export default class Card extends Component {
   renderSurplusTime() {
     const { workItem = {} } = this.props.item;
     let currentAccountNotified = false;
-    const workItems = (workItem.workId ? [workItem] : []).filter(item => {
+    const workItems = (workItem?.workId ? [workItem] : []).filter(item => {
       if (item.executeTime) {
         currentAccountNotified = true;
       }
@@ -329,7 +333,7 @@ export default class Card extends Component {
           {stateTab === TABS.MY_SPONSOR || (type === 0 && stateTab === TABS.COMPLETE) ? (
             <span>{createTimeSpan(dateConvertToUserZone(createDate))}</span>
           ) : (
-            <span>{createTimeSpan(dateConvertToUserZone(workItem.receiveTime))}</span>
+            <span>{createTimeSpan(dateConvertToUserZone(workItem?.receiveTime || createDate))}</span>
           )}
         </div>
       </div>

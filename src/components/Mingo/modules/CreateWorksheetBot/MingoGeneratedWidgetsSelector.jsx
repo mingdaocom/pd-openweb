@@ -603,6 +603,7 @@ export default function MingoGeneratedWidgetsSelector({
                     controlData,
                     control => control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && control.dataSource,
                   );
+
                   // 查看表详情，如果表字段存在关联到当前表的关联字段，把当前关联字段的 sourceControlId 设置为对应字段的 controlId
                   if (!isEmpty(relateControlsWithExistWorksheet)) {
                     try {
@@ -639,6 +640,7 @@ export default function MingoGeneratedWidgetsSelector({
                           };
                         })
                         .filter(Boolean);
+
                       if (!isEmpty(needUpdateWidgets)) {
                         await new Promise(resolve => {
                           emitter.emit('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', { needUpdateWidgets }, () =>
@@ -648,6 +650,7 @@ export default function MingoGeneratedWidgetsSelector({
                       }
                     } catch (e) {}
                   }
+
                   const hasRelatedTableNoWorksheet = !!relateControlsNoWorksheet.length;
 
                   if (hasRelatedTableNoWorksheet) {

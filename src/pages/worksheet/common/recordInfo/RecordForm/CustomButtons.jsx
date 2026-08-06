@@ -22,7 +22,7 @@ import { handleRecordError } from 'src/utils/record';
 import FillRecordControls from '../FillRecordControls';
 import CustomButtonConfirm from './CustomButtonConfirm';
 
-const MenuItemWrap = styled(MenuItem)`
+export const MenuItemWrap = styled(MenuItem)`
   .btnName {
     max-width: calc(100% - 34px);
     display: inline-block;
@@ -48,7 +48,7 @@ const MenuItemWrap = styled(MenuItem)`
   }
 `;
 
-const HoverButton = styled(Button)`
+export const HoverButton = styled(Button)`
   &.showAsOutline {
     &:hover {
       color: ${props => props.isOperates && `${props.primaryColor} !important;`};
@@ -191,9 +191,10 @@ export default class CustomButtons extends React.Component {
   get tipConfig() {
     const { appId, worksheetId } = this.props;
     const translateInfo = getTranslateInfo(appId, worksheetId, this.activeBtn.btnId);
+    const tiptext = get(this.activeBtn, 'advancedSetting.tiptext');
     return {
       enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
-      tipText: translateInfo.completeText || get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
+      tipText: tiptext ? translateInfo.completeText || tiptext || _l('操作完成') : _l('操作完成'),
     };
   }
 
@@ -286,13 +287,16 @@ export default class CustomButtons extends React.Component {
 
       function confirm({ onOk, onClose = () => {} } = {}) {
         const translateInfo = getTranslateInfo(appId, worksheetId, btn.btnId);
+        const advancedSetting = _.get(btn, 'advancedSetting') || {};
         confirmClick({
           projectId,
-          title: translateInfo.confirmMsg || btn.confirmMsg,
-          description: translateInfo.confirmContent || _.get(btn, 'advancedSetting.confirmcontent'),
-          enableRemark: _.get(btn, 'advancedSetting.enableremark'),
-          remarkName: translateInfo.remark || _.get(btn, 'advancedSetting.remarkname'),
-          remarkHint: translateInfo.hintText || _.get(btn, 'advancedSetting.remarkhint'),
+          title: btn.confirmMsg ? translateInfo.confirmMsg || btn.confirmMsg : '',
+          description: advancedSetting.confirmcontent
+            ? translateInfo.confirmContent || advancedSetting.confirmcontent
+            : '',
+          enableRemark: advancedSetting.enableremark,
+          remarkName: advancedSetting.remarkname ? translateInfo.remark || advancedSetting.remarkname : '',
+          remarkHint: advancedSetting.remarkhint ? translateInfo.hintText || advancedSetting.remarkhint : '',
           remarkRequired: _.get(btn, 'advancedSetting.remarkrequired'),
           remarkoptions: (() => {
             const remarkoptions = safeParse(_.get(btn, 'advancedSetting.remarkoptions'));
@@ -302,15 +306,15 @@ export default class CustomButtons extends React.Component {
               template: template.map((item, index) => {
                 return {
                   ...item,
-                  value: translateInfo[`templateName_${index}`] || item.value,
+                  value: item.value ? translateInfo[`templateName_${index}`] || item.value : '',
                 };
               }),
             });
           })(),
-          remarktype: _.get(btn, 'advancedSetting.remarktype'),
+          remarktype: advancedSetting.remarktype,
           verifyPwd: btn.verifyPwd,
-          okText: translateInfo.sureName || btn.sureName,
-          cancelText: translateInfo.cancelName || btn.cancelName,
+          okText: btn.sureName ? translateInfo.sureName || btn.sureName : '',
+          cancelText: btn.cancelName ? translateInfo.cancelName || btn.cancelName : '',
           onOk: onOk || run,
           onClose,
         });

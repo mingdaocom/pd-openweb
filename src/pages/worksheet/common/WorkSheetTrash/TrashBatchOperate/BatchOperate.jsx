@@ -43,7 +43,7 @@ export default function BatchOperate(props) {
           }}
         />
         {isCharge && <IconText className="delete" icon="trash" text={_l('彻底删除')} onClick={onHardDelete} />}
-        <span className="Right cancelSelect ThemeColor3 Hand Font14" onClick={onCancel}>
+        <span className="Right cancelSelect colorPrimary Hand Font14" onClick={onCancel}>
           {_l('取消')}
         </span>
       </div>

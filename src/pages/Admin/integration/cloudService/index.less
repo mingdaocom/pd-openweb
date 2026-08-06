@@ -1,0 +1,107 @@
+.cloudServiceWrap {
+  .cloudServiceContent {
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .serviceTip {
+    background: var(--color-primary-transparent);
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 20px;
+    margin-bottom: 16px;
+  }
+
+  .toolBar {
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .createButton {
+    padding: 0 16px;
+  }
+
+  .tableWrap {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .cloudServiceTable {
+    height: 100%;
+
+    .tableHeader {
+      padding: 14px 10px;
+      color: var(--color-text-tertiary);
+    }
+
+    .tableContent {
+      height: calc(~'100% - 62px');
+    }
+
+    .colSecretName {
+      width: 12%;
+    }
+    .colSecretKey {
+      width: 15%;
+    }
+    .colAuthService {
+      width: 10%;
+    }
+    .colCreatorName {
+      width: 8%;
+      min-width: 0;
+    }
+    .colCreateTime {
+      width: 13%;
+    }
+    .colLastUsedTime {
+      width: 13%;
+    }
+    .colCreditPoint {
+      width: 10%;
+    }
+    .colStatus {
+      width: 7%;
+    }
+    .colAction {
+      width: 12%;
+    }
+
+    .row {
+      min-height: 48px;
+      padding: 0 10px;
+    }
+
+    .colCreatorName {
+      .circle {
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .statusWrap {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-secondary);
+  }
+
+  .statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: var(--color-text-disabled);
+
+    &.enabled {
+      background: var(--color-success);
+    }
+  }
+
+  .emptyWrap {
+    .iconWrap {
+      display: none;
+    }
+  }
+}

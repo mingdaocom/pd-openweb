@@ -1,112 +1,234 @@
-import React, { useState } from 'react';
-import { Button, Popup } from 'antd-mobile';
+import React, { Fragment, lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Button, Dialog, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import delegationApi from '../../api/delegation';
-import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
-import { browserIsMobile } from 'src/utils/common';
+import delegationtodoApi from '../../api/delegationtodo';
+import Card from '../Card';
 import TodoEntrustModal from './TodoEntrustModal';
 import './index.less';
 
+const PAGE_SIZE = 10;
+const DEFAULT_TODO_PAGE_INFO = {
+  pageIndex: 1,
+  hasMore: true,
+  moreLoading: false,
+};
+
+const getDefaultTodoPageInfo = hasMore => ({
+  ...DEFAULT_TODO_PAGE_INFO,
+  hasMore,
+});
+
+const getTodoCount = (data, delegationId) => {
+  const todoCount = (Array.isArray(data) ? data : []).find(item => item.id === delegationId);
+
+  return todoCount ? todoCount.count : 0;
+};
+
 const CardWrapper = styled.div`
   width: 100%;
-  padding: 20px;
-  margin-bottom: 15px;
+  padding: 12px;
+  margin-bottom: 12px;
   box-sizing: border-box;
   background-color: var(--color-background-primary);
   border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  &:hover {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border-secondary);
+
+  &.active {
+    border-color: var(--color-primary-transparent);
+    background-color: var(--color-primary-transparent) !important;
   }
-`;
-
-const CardTitle = styled.div`
-  margin-bottom: 20px;
-  color: var(--color-text-title);
-  font-size: 15px;
-  font-weight: bold;
-`;
-
-const FlexRow = styled.div`
-  display: flex;
-  margin-bottom: 15px;
-`;
-
-const RowLabelText = styled.div`
-  flex: 1;
-  color: var(--color-text-secondary);
-`;
-
-const RowValue = styled.div`
-  flex: 4;
-  color: var(--color-text-title);
-  overflow: hidden;
-`;
-
-const EntrustButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  line-height: 36px;
-  border: 0;
-  border-radius: 4px;
-  background-color: var(--color-background-secondary);
-  color: var(--color-primary);
-  font-size: 14px;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--color-white);
-    background-color: var(--color-primary);
+  &:hover:not(.active) {
+    border-color: var(--color-primary);
   }
 
-  &.isAdd {
-    background-color: var(--color-background-secondary);
-    &:hover {
-      color: var(--color-primary);
-      background-color: var(--color-background-primary);
-    }
-  }
-
-  &.isMobile {
+  .title {
+    margin-bottom: 6;
+    color: var(--color-text-title);
     font-size: 13px;
-    height: 32px;
-    line-height: 32px;
-    border-radius: 5px;
+    font-weight: bold;
+  }
+
+  .entrustRow {
+    display: flex;
+    margin-bottom: 6px;
+  }
+
+  .rowLabelText {
+    width: 60px;
+    margin-right: 10px;
+    color: var(--color-text-secondary);
+  }
+
+  .rowValue {
+    flex: 1;
+    color: var(--color-text-primary);
+    overflow: hidden;
+  }
+
+  .todoCountTag {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 12px;
     color: var(--color-white);
     background-color: var(--color-primary);
-    &.isAdd {
-      color: var(--color-primary);
-      background-color: var(--color-background-primary);
+    font-weight: normal;
+    line-height: 24px;
+    white-space: nowrap;
+
+    &.notStart {
+      color: var(--color-text-secondary);
+      border-color: var(--color-border-primary);
+      background-color: var(--color-background-disabled);
     }
   }
 `;
+const LoadableExecDialog = lazy(() => import('src/pages/workflow/components/ExecDialog'));
 
-const Btn = styled(Button)`
-  border: 1px solid var(--color-border-secondary) !important;
-  background-color: var(--color-background-primary) !important;
-  &.delete {
-    background-color: var(--color-error) !important;
-    border: 1px solid var(--color-error);
-    color: var(--color-white);
-  }
-`;
+const isShowStartDate = startDate => {
+  return startDate && moment(startDate).diff(moment(), 'minutes') > 0;
+};
 
 function TodoEntrustList(props) {
-  const { posX, visible, delegationList, onClose, setDelegationList, finishDelegation = () => {} } = props;
+  const { visible, delegationList, onUpdate } = props;
   const [modalVisible, setModalVisible] = useState(false);
+  const [todoState, setTodoState] = useState({
+    delegationId: '',
+    loading: false,
+    list: [],
+    pageInfo: getDefaultTodoPageInfo(false),
+  });
   const [entrustData, setEntrustData] = useState({});
-  const [mobileConfigVisible, setMobileConfigVisble] = useState(false);
-  const [mobileFinishInfo, setMobileFinishInfo] = useState({ mobileModalVisible: false, finishItem: {} });
-  const isMobile = browserIsMobile();
+  const [todoCountList, setTodoCountList] = useState([]);
+  const [selectedEntrustId, setSelectedEntrustId] = useState('');
+  const [selectCard, setSelectCard] = useState(null);
+  const requestIndexRef = useRef(0);
 
-  const getList = () => delegationApi.getList().then(result => setDelegationList(result));
+  const selectedEntrust =
+    visible && delegationList.length
+      ? delegationList.find(item => item.id === selectedEntrustId) || delegationList[0]
+      : null;
+  const activeEntrustId = selectedEntrust ? selectedEntrust.id : '';
+
+  const getTodoList = useCallback((delegationId, pageIndex = 1) => {
+    const isFirstPage = pageIndex === 1;
+    const requestIndex = requestIndexRef.current + 1;
+
+    requestIndexRef.current = requestIndex;
+
+    const params = {
+      pageIndex,
+      pageSize: PAGE_SIZE,
+      delegationId,
+    };
+
+    Promise.all([delegationtodoApi.getTodoList(params), delegationtodoApi.getCount()])
+      .then(([data, countData]) => {
+        if (requestIndex !== requestIndexRef.current) return;
+        const newList = Array.isArray(data) ? data : [];
+
+        setTodoCountList(Array.isArray(countData) ? countData : []);
+        setTodoState(data => {
+          const oldList = data.delegationId === delegationId ? data.list : [];
+
+          return {
+            delegationId,
+            loading: false,
+            list: isFirstPage ? newList : oldList.concat(newList),
+            pageInfo: {
+              ...(isFirstPage ? DEFAULT_TODO_PAGE_INFO : data.pageInfo),
+              pageIndex: pageIndex + 1,
+              hasMore: newList.length === PAGE_SIZE,
+              moreLoading: false,
+            },
+          };
+        });
+      })
+      .catch(() => {
+        if (requestIndex !== requestIndexRef.current) return;
+
+        setTodoState(data => ({
+          delegationId,
+          loading: false,
+          list: isFirstPage ? [] : data.list,
+          pageInfo: isFirstPage
+            ? getDefaultTodoPageInfo(false)
+            : {
+                ...data.pageInfo,
+                hasMore: false,
+                moreLoading: false,
+              },
+        }));
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!visible || !activeEntrustId) {
+      requestIndexRef.current += 1;
+      return;
+    }
+
+    getTodoList(activeEntrustId);
+  }, [visible, activeEntrustId, getTodoList]);
+
+  const refreshTodoList = useCallback(
+    delegationId => {
+      if (!delegationId) return;
+
+      setTodoState({
+        delegationId,
+        loading: true,
+        list: [],
+        pageInfo: getDefaultTodoPageInfo(true),
+      });
+      getTodoList(delegationId);
+    },
+    [getTodoList],
+  );
+
+  const onSelectEntrust = useCallback(
+    item => {
+      if (!item) return;
+
+      if (item.id === activeEntrustId) {
+        refreshTodoList(item.id);
+        return;
+      }
+
+      setSelectedEntrustId(item.id);
+    },
+    [activeEntrustId, refreshTodoList],
+  );
+
+  const isCurrentEntrust = todoState.delegationId === activeEntrustId;
+  const todoLoadoing = Boolean(activeEntrustId) && (!isCurrentEntrust || todoState.loading);
+  const todoList = isCurrentEntrust ? todoState.list : [];
+  const todoPageInfo = isCurrentEntrust ? todoState.pageInfo : getDefaultTodoPageInfo(Boolean(activeEntrustId));
+  const visibleTodoCountList = delegationList.length ? todoCountList : [];
+
+  const handleTodoScrollEnd = () => {
+    const { moreLoading, hasMore, pageIndex } = todoPageInfo;
+
+    if (todoLoadoing || moreLoading || !hasMore || !activeEntrustId) return;
+
+    setTodoState(data => {
+      if (data.delegationId !== activeEntrustId) return data;
+
+      return {
+        ...data,
+        pageInfo: {
+          ...data.pageInfo,
+          moreLoading: true,
+        },
+      };
+    });
+    getTodoList(activeEntrustId, pageIndex);
+  };
 
   const onCardItemClick = item => {
     const data = Object.assign({}, item, {
@@ -114,21 +236,10 @@ function TodoEntrustList(props) {
       endDate: moment(item.endDate),
     });
     setEntrustData(data);
-    if (isMobile) {
-      setMobileConfigVisble(true);
-      return;
-    }
-
     setModalVisible(true);
   };
 
-  const onFinishEntrust = (e, item) => {
-    e.stopPropagation();
-    if (isMobile) {
-      setMobileFinishInfo({ mobileModalVisible: true, finishItem: item });
-      return;
-    }
-
+  const onFinishEntrust = item => {
     Dialog.confirm({
       title: _l('结束委托'),
       description: _l('确定结束该委托吗?'),
@@ -145,200 +256,257 @@ function TodoEntrustList(props) {
         delegationApi.update(params).then(res => {
           if (res) {
             alert(_l('结束委托成功'));
-            getList();
+            onUpdate();
           }
         });
       },
     });
   };
 
-  const isShowStartDate = startDate => {
-    return startDate && moment(startDate).diff(moment(), 'minutes') > 0;
+  const createEntrust = () => {
+    setEntrustData({});
+    setModalVisible(true);
   };
 
   return (
-    <React.Fragment>
-      {visible ? (
-        <div
-          className={cx('todoEntrustWrapper', { mobileCarListWrapper: isMobile })}
-          style={{ transform: `translate3d(${posX}px,0,0)` }}
-        >
-          {!isMobile && (
-            <div className="todoEntrustHeaderWrapper">
-              <div className="flexRow alignItemsCenter">
-                <span className="bold">{_l('待办委托')}</span>
-                <Tooltip
-                  placement="bottom"
-                  title={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
-                >
-                  <Icon icon="info_outline" className="pointer Font16 textDisabled mLeft5" />
-                </Tooltip>
-              </div>
-              <Icon icon="close" className="pointer Font24 textTertiary ThemeHoverColor3" onClick={onClose} />
-            </div>
+    <Fragment>
+      {visible && (
+        <div className="todoEntrustWrapper flexRow">
+          {!!delegationList.length && (
+            <ScrollView className="listWrapper">
+              <div className="bold Font20">{_l('我的委托')}</div>
+              <Button
+                type="ghost"
+                className="w100 mTop20 mBottom10"
+                onClick={event => {
+                  event.stopPropagation();
+                  createEntrust();
+                }}
+              >
+                <div className="flexRow alignItemsCenter justifyContentCenter">
+                  <Icon icon="add" className="Font20" />
+                  <span className="mLeft5">{_l('新建委托')}</span>
+                </div>
+              </Button>
+              {delegationList.map(item => {
+                const count = getTodoCount(visibleTodoCountList, item.id);
+                const isStartDate = isShowStartDate(item.startDate);
+
+                return (
+                  <CardWrapper
+                    key={item.id}
+                    className={cx('pointer', {
+                      active: item.id === activeEntrustId,
+                      bgTertiary: isStartDate,
+                    })}
+                    onClick={() => onSelectEntrust(item)}
+                  >
+                    <div className="title flexRow alignItemsCenter mBottom5">
+                      <div className="ellipsis flex">{item.companyName}</div>
+                      <div
+                        className={cx('todoCountTag Font12 mLeft8 mRight5', {
+                          notStart: isStartDate,
+                        })}
+                      >
+                        {isStartDate ? _l('未开始') : _l('生效中')} {count || 0}
+                      </div>
+                      <Dropdown
+                        trigger={['click']}
+                        placement="bottomRight"
+                        overlay={
+                          <Menu
+                            expandIcon={<Icon icon="arrow-right-tip" />}
+                            style={{
+                              width: 180,
+                            }}
+                          >
+                            <Menu.Item
+                              data-event="edit"
+                              className="pLeft10"
+                              style={{
+                                padding: '7px 12px',
+                              }}
+                              onClick={({ domEvent }) => {
+                                domEvent.stopPropagation();
+                                onCardItemClick(item);
+                              }}
+                            >
+                              <div className="flexRow valignWrapper">
+                                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="edit" />
+                                <div className="flex">{_l('编辑委托')}</div>
+                              </div>
+                            </Menu.Item>
+                            <Menu.Item
+                              data-event="cancel"
+                              className="pLeft10"
+                              style={{
+                                padding: '7px 12px',
+                              }}
+                              onClick={({ domEvent }) => {
+                                domEvent.stopPropagation();
+                                onFinishEntrust(item);
+                              }}
+                            >
+                              <div className="flexRow valignWrapper">
+                                <Icon
+                                  className="textTertiary Font18 mLeft5 mRight5"
+                                  icon={isStartDate ? 'back' : 'finish_delegate'}
+                                />
+                                <div className="flex">{isStartDate ? _l('取消委托') : _l('结束委托')}</div>
+                              </div>
+                            </Menu.Item>
+                          </Menu>
+                        }
+                      >
+                        <Icon
+                          icon="more_horiz"
+                          className="textSecondary hoverColorPrimary pointer Font20"
+                          onClick={event => event.stopPropagation()}
+                        />
+                      </Dropdown>
+                    </div>
+                    <div className="entrustRow">
+                      <div className="flexRow">
+                        <div className="trusteeAvatarWrapper valignWrapper mRight10">
+                          <UserHead
+                            projectId={item.companyId}
+                            className="circle"
+                            user={{
+                              userHead: item.trustee.avatar,
+                              accountId: item.trustee.accountId,
+                            }}
+                            size={24}
+                            chatButton={false}
+                          />
+                          <span className="mLeft10 bold">{item.trustee.fullName}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="entrustRow">
+                      <div
+                        className="rowLabelText Font13 ellipsis"
+                        title={isStartDate ? _l('开始时间') : _l('结束时间')}
+                      >
+                        {isStartDate ? _l('开始时间') : _l('结束时间')}
+                      </div>
+                      <div className="rowValue Font13">
+                        {isStartDate ? (
+                          <React.Fragment>
+                            {moment(item.startDate).format('YYYY-MM-DD HH:mm')}
+                            <span className="textSecondary">{` ~ `}</span>
+                          </React.Fragment>
+                        ) : (
+                          ''
+                        )}
+                        {moment(item.endDate).format('YYYY-MM-DD HH:mm')}
+                      </div>
+                    </div>
+                    <div className="entrustRow">
+                      <div className="rowLabelText Font13 ellipsis" title={_l('委托范围')}>
+                        {_l('委托范围')}
+                      </div>
+                      <div className="rowValue Font13">
+                        {!item.apks ? _l('所有工作流') : _l('%0个应用', item.apks.length)}
+                      </div>
+                    </div>
+                  </CardWrapper>
+                );
+              })}
+            </ScrollView>
           )}
 
-          <div className="listWrapper">
-            {delegationList.map(item => {
-              return (
-                <CardWrapper key={item.id} className="pointer" onClick={() => onCardItemClick(item)}>
-                  <CardTitle>{item.companyName}</CardTitle>
-                  <FlexRow>
-                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>{_l('委托给')}</RowLabelText>
-                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
-                      <div className="flexRow">
-                        {isMobile ? (
-                          <div className="trusteeAvatarWrapper valignWrapper mRight10">
-                            <div className="pointer circle">
-                              <img
-                                style={{
-                                  backgroundColor: 'var(--color-background-secondary)',
-                                  borderRadius: '50%',
-                                  width: '22px',
-                                  height: '22px',
-                                }}
-                                placeholder={`${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
-                                className="circle"
-                                src={
-                                  item.trustee.avatar
-                                    ? item.trustee.avatar.indexOf('?') > 0
-                                      ? item.trustee.avatar.replace(
-                                          /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                                          'imageView2/2/w/100/h/100/q/90',
-                                        )
-                                      : `${item.trustee.avatar}?imageView2/2/w/100/h/100/q/90`
-                                    : ''
-                                }
-                              />
-                            </div>
-                            <div className="textPrimary Font13 pLeft5 pRight10 pTop1 ellipsis">
-                              {item.trustee.fullName}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="trusteeAvatarWrapper valignWrapper mRight10">
-                            <UserHead
-                              projectId={item.companyId}
-                              className="circle"
-                              user={{ userHead: item.trustee.avatar, accountId: item.trustee.accountId }}
-                              size={22}
-                              chatButton={false}
-                            />
-                            <UserName
-                              projectId={item.companyId}
-                              className="textPrimary Font13 pLeft5 pRight10 pTop1"
-                              user={{ userName: item.trustee.fullName, accountId: item.trustee.accountId }}
-                              chatButton={false}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </RowValue>
-                  </FlexRow>
-                  <FlexRow>
-                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>
-                      {isShowStartDate(item.startDate) ? _l('委托时间') : _l('截止时间')}
-                    </RowLabelText>
-                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
-                      {isShowStartDate(item.startDate) ? (
-                        <React.Fragment>
-                          {moment(item.startDate).format('YYYY-MM-DD HH:mm')}
-                          <span className="textSecondary">{` ~ `}</span>
-                        </React.Fragment>
-                      ) : (
-                        ''
-                      )}
-                      {moment(item.endDate).format('YYYY-MM-DD HH:mm')}
-                    </RowValue>
-                  </FlexRow>
-                  <FlexRow>
-                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>{_l('委托范围')}</RowLabelText>
-                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
-                      {!item.apks ? _l('所有工作流') : _l('%0个应用', item.apks.length)}
-                    </RowValue>
-                  </FlexRow>
-                  <EntrustButton className={cx('w100', { isMobile })} onClick={e => onFinishEntrust(e, item)}>
-                    {_l('结束委托')}
-                  </EntrustButton>
-                </CardWrapper>
-              );
-            })}
-
-            <EntrustButton
-              className={cx({ isMobile, isAdd: true })}
-              onClick={() => {
-                setEntrustData({});
-                if (isMobile) {
-                  setMobileConfigVisble(true);
-                  return;
-                }
-
-                setModalVisible(true);
-              }}
-            >
-              <Icon icon="add" className="Font24" />
-              {_l('发起委托')}
-            </EntrustButton>
-          </div>
+          {delegationList.length ? (
+            <ScrollView className="contentWrapper pTop10 flex" onScrollEnd={handleTodoScrollEnd}>
+              {todoLoadoing ? (
+                <div className="h100 flexColumn alignItemsCenter justifyContentCenter">
+                  <LoadDiv />
+                </div>
+              ) : todoList.length ? (
+                <Fragment>
+                  {todoList.map(item => (
+                    <Card
+                      key={item.workId}
+                      item={item}
+                      type={null}
+                      stateTab={
+                        {
+                          3: 1,
+                          4: 0,
+                        }[item.flowNodeType]
+                      }
+                      showApproveChecked={false}
+                      onClick={() => {
+                        setSelectCard(item);
+                      }}
+                    />
+                  ))}
+                  {todoPageInfo.moreLoading && (
+                    <div className="pTop5 pBottom10">
+                      <LoadDiv size="middle" />
+                    </div>
+                  )}
+                </Fragment>
+              ) : (
+                <div className="withoutData h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
+                  <div className="Font18 mBottom8">{_l('当前暂无待办')}</div>
+                  <div className="Font15">{_l('委托开始后，相关待办会显示在这里')}</div>
+                </div>
+              )}
+            </ScrollView>
+          ) : (
+            <div className="contentWrapper flex pAll20">
+              <Fragment>
+                <div className="bold Font20">{_l('我的委托')}</div>
+                <div
+                  className="withoutData flexColumn alignItemsCenter justifyContentCenter textTertiary"
+                  style={{
+                    height: 500,
+                  }}
+                >
+                  <div className="liftIcon flexRow alignItemsCenter justifyContentCenter">
+                    <Icon icon="lift" className="Font50 textTertiary" />
+                  </div>
+                  <div className="Font18 mTop20 mBottom3">{_l('您还没有发起委托')}</div>
+                  <Button type="ghostgray" className="mTop20 mBottom10" onClick={createEntrust}>
+                    <div className="flexRow alignItemsCenter justifyContentCenter">
+                      <Icon icon="add" className="Font20" />
+                      <span className="mLeft5">{_l('新建委托')}</span>
+                    </div>
+                  </Button>
+                </div>
+              </Fragment>
+            </div>
+          )}
 
           {modalVisible && (
             <TodoEntrustModal
               setTodoEntrustModalVisible={setModalVisible}
               editEntrustData={entrustData}
-              onUpdate={getList}
+              onUpdate={onUpdate}
             />
           )}
 
-          {mobileConfigVisible && (
-            <DelegationConfigModal
-              configVisible={mobileConfigVisible}
-              onCancel={() => setMobileConfigVisble(false)}
-              getList={props.getList}
-              entrustData={entrustData}
-              setEntrustData={setEntrustData}
-              delegationList={delegationList}
-            />
-          )}
-
-          {mobileFinishInfo.mobileModalVisible && (
-            <Popup
-              closeOnMaskClick
-              visible={mobileFinishInfo.mobileModalVisible}
-              position="bottom"
-              className="mobileModal topRadius"
-              bodyClassName="pTop10 pBottom10 pLeft15 pRight15"
-              bodyStyle={{
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
-            >
-              <div className="Font16 bold mBottom10">{_l('确认结束委托?')}</div>
-              <div className="flexRow mBottom10">
-                <Btn
-                  radius
-                  className="flex mRight6 bold textSecondary Font13"
-                  onClick={() => setMobileFinishInfo({ mobileConfigVisible: false, finishItem: undefined })}
-                >
-                  {_l('取消')}
-                </Btn>
-                <Btn
-                  radius
-                  className="flex mLeft6 bold Font13 delete"
-                  onClick={() => {
-                    finishDelegation(mobileFinishInfo.finishItem);
-                    setMobileFinishInfo({ mobileConfigVisible: false, finishItem: undefined });
-                    onClose();
-                  }}
-                >
-                  {_l('确定')}
-                </Btn>
-              </div>
-            </Popup>
+          {selectCard && (
+            <Suspense fallback={null}>
+              <LoadableExecDialog
+                id={selectCard.id}
+                workId={selectCard.workId}
+                onClose={() => {
+                  setSelectCard(null);
+                }}
+                onLoad={() => {
+                  refreshTodoList(activeEntrustId);
+                }}
+                onError={() => {
+                  setSelectCard(null);
+                }}
+              />
+            </Suspense>
           )}
         </div>
-      ) : null}
-    </React.Fragment>
+      )}
+    </Fragment>
   );
 }
 
-export default withClickAway(TodoEntrustList);
+export default TodoEntrustList;

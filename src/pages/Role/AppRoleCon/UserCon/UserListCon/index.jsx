@@ -9,6 +9,7 @@ import { getColor, getIcon, getTxtColor, userStatusList } from 'src/pages/Role/A
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { WrapTableCon } from 'src/pages/Role/style';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getTranslateInfo } from 'src/utils/app';
 import { getCurrentProject } from 'src/utils/project';
 import Apply from './Apply';
 import Outsourcing from './Outsourcing';
@@ -368,7 +369,7 @@ export default class UserListCon extends React.Component {
   };
 
   renderCon = () => {
-    const { roleId = 'all', loading, appRole = {}, projectId, freshNum, isExternal } = this.props;
+    const { appId, roleId = 'all', loading, appRole = {}, projectId, freshNum, isExternal } = this.props;
     const { roleInfos = [] } = appRole;
 
     if (loading) {
@@ -420,7 +421,7 @@ export default class UserListCon extends React.Component {
                 ? _l('管理用户')
                 : roleId === 'all'
                   ? _l('全部')
-                  : (roleInfos.find(o => o.roleId === roleId) || {}).name
+                  : getTranslateInfo(appId, null, roleId).name || (roleInfos.find(o => o.roleId === roleId) || {}).name
             }
             // des={roleId === 'all' ? '' : (roleInfos.find(o => o.roleId === roleId) || {}).description}
             isMyRole={

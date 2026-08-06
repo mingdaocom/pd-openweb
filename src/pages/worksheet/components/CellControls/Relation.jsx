@@ -43,7 +43,7 @@ function Relation(props) {
                       e.stopPropagation();
                     }}
                   >
-                    <span className="relatioName ThemeHoverColor3">
+                    <span className="relatioName hoverColorPrimary">
                       {`[${RELATION_TYPE_NAME[relation.type]}]` +
                         relation.name +
                         (relation.type === 4 ? relation.ext1 : '')}
@@ -65,7 +65,7 @@ function Relation(props) {
               </div>
               {relation.name ? (
                 <a
-                  className="relationName ThemeHoverColor3"
+                  className="relationName hoverColorPrimary"
                   href={relation.link}
                   target="_blank"
                   rel="noopener noreferrer"

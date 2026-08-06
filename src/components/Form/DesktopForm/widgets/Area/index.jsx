@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { CityPicker, Icon, Input } from 'ming-ui';
-import { getAreaHintText } from 'src/pages/widgetConfig/util/setting';
+import { getAreaHintText } from 'src/utils/controlCommon';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 export default function AreaWidgets(props) {

@@ -117,7 +117,7 @@ function RefundConfirm(props) {
     }
 
     if (Number(amount) > max) {
-      alert('金额大于可退款额，请重新输入', 2);
+      alert(_l('金额大于可退款额，请重新输入'), 2);
       return;
     }
 

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import filterXSS from 'xss';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import attachmentAjax from 'src/api/attachment';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
 import { cutStringWithHtml } from 'src/utils/common';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 import * as Actions from '../actions/action';
@@ -33,10 +33,12 @@ class attachmentInfo extends React.Component {
     showDetailLink: true,
   };
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      visible: nextProps.visible,
-    });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      this.setState({
+        visible: this.props.visible,
+      });
+    }
   }
 
   toggleVisible = flag => {
@@ -85,7 +87,7 @@ class attachmentInfo extends React.Component {
           postDetails,
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   toggleInfo = () => {
@@ -162,7 +164,7 @@ class attachmentInfo extends React.Component {
         </div>
         <div className="attDetails">
           <div className="attCreator">
-            <a href={'/user_' + accountId} target="_blank">
+            <a href={pathCompletion('/user_' + accountId)} target="_blank">
               <img className="attAvater" src={createUserAvatar} alt="" />
             </a>
             <span className="attCreatorName ellipsis">{htmlEncodeReg(createUserName)}</span>

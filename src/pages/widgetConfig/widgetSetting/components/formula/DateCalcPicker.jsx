@@ -173,7 +173,7 @@ export default class DateCalcPicker extends Component {
           {!pickDate && value && this.renderSelected(selected)}
           <Tooltip title={_l('选择字段')} placement="bottom">
             <span
-              className="rightIcon Right Hand ThemeHoverColor3"
+              className="rightIcon Right Hand hoverColorPrimary"
               ref={btn => (this.btn = btn)}
               onClick={() => {
                 this.setState({ showMenu: true });

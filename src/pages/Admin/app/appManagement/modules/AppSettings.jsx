@@ -29,11 +29,13 @@ export default class AppSettings extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.list !== this.props.list) {
-      this.setState({
-        list: nextProps.list.map(item => ({ ...item, isCustom: false, isAll: false })),
-      });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.list !== prevProps.list) {
+        this.setState({
+          list: this.props.list.map(item => ({ ...item, isCustom: false, isAll: false })),
+        });
+      }
     }
   }
 
@@ -208,7 +210,7 @@ export default class AppSettings extends React.Component {
                   </span>
                   {activeId !== item.appId && item.exampleType === 2 ? (
                     <span
-                      className="ThemeColor3 mLeft15 hoverTextPrimaryLight Hand"
+                      className="colorPrimary mLeft15 hoverColorPrimaryLight Hand"
                       onClick={() => this.setState({ activeId: item.appId })}
                     >
                       {_l('设置')}

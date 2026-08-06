@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID } from '../../enum';
 import { LoopProcessParameters } from '../components';
 
@@ -41,8 +42,8 @@ export default props => {
             <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
               <div className="Font13">
                 <span
-                  className="ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
-                  onClick={() => window.open(`/workflowedit/${item.processId}`)}
+                  className="colorPrimary hoverColorPrimaryDark pointer pointerEventsAuto"
+                  onClick={() => window.open(pathCompletion(`/workflowedit/${item.processId}`))}
                 >
                   {_l('工作流：') + item.processName}
                 </span>

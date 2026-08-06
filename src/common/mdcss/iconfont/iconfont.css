@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1780988248804') format('woff2'),
-       url('iconfont.woff?t=1780988248804') format('woff'),
-       url('iconfont.ttf?t=1780988248804') format('truetype');
+  src: url('iconfont.woff2?t=1784860492040') format('woff2'),
+       url('iconfont.woff?t=1784860492040') format('woff'),
+       url('iconfont.ttf?t=1784860492040') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-zcode:before {
+  content: "\ed2a";
+}
+
+.icon-goto:before {
+  content: "\ed29";
+}
+
+.icon-counting:before {
+  content: "\e6ab";
+}
+
+.icon-chat-message:before {
+  content: "\ed28";
+}
+
+.icon-workbuddy:before {
+  content: "\ed27";
+}
+
+.icon-live_help:before {
+  content: "\ed26";
 }
 
 .icon-Thinking:before {

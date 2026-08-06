@@ -250,7 +250,7 @@ function Upgrade(props) {
             {(analyzeLoading || compareLoading) && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
-                  <i className="icon-loading_button Font20 ThemeColor3"></i>
+                  <i className="icon-loading_button Font20 colorPrimary"></i>
                 </div>
                 <span className="textSecondary mLeft10">
                   {compareLoading ? _l('正在校验升级内容...') : _l('正在解析文件...')}
@@ -360,7 +360,7 @@ function Upgrade(props) {
         <div className="headerCon flexRow alignItemsCenter pLeft30">
           <div className="flex">
             <Tooltip title={_l('返回上一步')} placement="bottom">
-              <Icon icon="backspace mRight8 Hand ThemeHoverColor3 Font18" onClick={() => onClose()} />
+              <Icon icon="backspace mRight8 Hand hoverColorPrimary Font18" onClick={() => onClose()} />
             </Tooltip>
             <span className="Font18 Bold mLeft10">{_l('导入升级')}</span>
           </div>

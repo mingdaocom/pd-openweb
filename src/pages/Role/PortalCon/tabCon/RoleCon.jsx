@@ -56,15 +56,17 @@ class Con extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { portal = {} } = this.props;
-    const { roleList = [] } = portal;
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { portal = {} } = prevProps;
+      const { roleList = [] } = portal;
 
-    if (!_.isEqual(nextProps.portal.roleList, roleList)) {
-      this.setState({
-        roleList: nextProps.portal.roleList,
-        defaultRoleId: (nextProps.portal.roleList.find(o => o.isDefault) || {}).roleId,
-      });
+      if (!_.isEqual(this.props.portal.roleList, roleList)) {
+        this.setState({
+          roleList: this.props.portal.roleList,
+          defaultRoleId: (this.props.portal.roleList.find(o => o.isDefault) || {}).roleId,
+        });
+      }
     }
   }
 

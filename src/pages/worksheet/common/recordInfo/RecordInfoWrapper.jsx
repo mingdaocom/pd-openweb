@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _, { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
+import autoSize from 'ming-ui/components/AutoSize';
 import worksheetAjax from 'src/api/worksheet';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import { emitter } from 'src/utils/common';

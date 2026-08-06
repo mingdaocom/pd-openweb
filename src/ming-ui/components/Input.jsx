@@ -38,13 +38,7 @@ class Input extends Component {
       value,
     };
   }
-  componentWillReceiveProps(nextProps) {
-    if ('value' in nextProps) {
-      this.setState({
-        value: nextProps.value,
-      });
-    }
-  }
+
   onChange(event) {
     let value = event.target.value;
 
@@ -68,13 +62,15 @@ class Input extends Component {
   }
 
   render() {
-    const { size, type, manualRef, ...others } = this.props;
+    const { size, type, manualRef, value, ...others } = this.props;
+    const inputValue = value === undefined ? this.state.value : value;
+
     return (
       <input
         {...others}
         type={type}
         ref={manualRef}
-        value={this.state.value}
+        value={inputValue}
         className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Input--' + size : '', 'ming Input', this.props.className)}
         onChange={event => this.onChange(event)}
       />

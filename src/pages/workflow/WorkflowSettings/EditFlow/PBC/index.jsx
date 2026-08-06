@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { pathCompletion } from 'src/utils/common';
 import { ACTION_ID } from '../../enum';
 import { CreateNode, NodeOperate, WhiteNode } from '../components';
 
@@ -38,7 +39,10 @@ export default class PBC extends Component {
           <span className="textSecondary">{_l('调用封装业务流程：')}</span>
           {item.appName}
         </div>
-        <i className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2" onMouseDown={this.openProcess} />
+        <i
+          className="mLeft5 icon-task-new-detail Font12 colorPrimary hoverColorPrimaryDark"
+          onMouseDown={this.openProcess}
+        />
         <div className="flex" />
       </div>
     );
@@ -48,7 +52,7 @@ export default class PBC extends Component {
     const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/workflowedit/${item.appId}`);
+    window.open(pathCompletion(`/workflowedit/${item.appId}`));
   };
 
   render() {

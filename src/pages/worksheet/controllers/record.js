@@ -6,7 +6,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { emitter } from 'src/utils/common';
+import { emitter, pathCompletion } from 'src/utils/common';
 import { checkCellIsEmpty, updateOptionsOfControls } from 'src/utils/control';
 import { handleRecordError } from 'src/utils/record';
 import { updateRecord } from '../common/recordInfo/crtl';
@@ -353,6 +353,7 @@ export async function openControlAttachmentInNewTab({
   appId,
   controlId,
   fileId,
+  projectId,
   recordId,
   viewId,
   worksheetId,
@@ -379,8 +380,10 @@ export async function openControlAttachmentInNewTab({
   });
 
   if (shareId) {
-    // const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;
-    const url = `${window.subPath ? window.subPath : ''}/rowfiles/${worksheetId}/${recordId}/${controlId}/${fileId || ''}/${getType || ''}`;
+    const query = projectId ? `?${qs.stringify({ projectId })}` : '';
+    const url = pathCompletion(
+      `/rowfiles/${worksheetId}/${recordId}/${controlId}/${fileId || ''}/${getType || ''}${query}`,
+    );
 
     if (!openAsPopup) {
       window.open(url);

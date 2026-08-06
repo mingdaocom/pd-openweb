@@ -54,9 +54,11 @@ const Wrap = styled.div`
 `;
 
 class Sidenav extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    const { params = {} } = nextProps.match;
-    !params.type ? localStorage.removeItem('integrationUrl') : safeLocalStorageSetItem(`integrationUrl`, params.type);
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const { params = {} } = this.props.match;
+      !params.type ? localStorage.removeItem('integrationUrl') : safeLocalStorageSetItem(`integrationUrl`, params.type);
+    }
   }
   render() {
     const { match = { params: {} }, myPermissions = [], menuAuth = {}, currentProjectId } = this.props;

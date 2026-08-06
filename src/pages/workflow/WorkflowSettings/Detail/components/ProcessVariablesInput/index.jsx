@@ -49,7 +49,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectPr
         <div className="flex bold">{_l('流程参数')}</div>
         {!!selectProcessId && (
           <div
-            className="pointer ThemeColor3 ThemeHoverColor2"
+            className="pointer colorPrimary hoverColorPrimaryDark"
             onClick={() => {
               setProcessVariables(data.subProcessVariables);
               setShowDialog(true);

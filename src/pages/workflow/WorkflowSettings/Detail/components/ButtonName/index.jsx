@@ -24,7 +24,14 @@ export default ({ buttons = [], data, updateSource }) => {
     const obj = {};
 
     buttons.forEach(o => {
-      obj[o.key] = isEmpty ? '' : data[o.key];
+      const nameKey = o.nameKey || o.key;
+      const descKey = o.descKey;
+
+      obj[nameKey] = isEmpty ? '' : data[nameKey];
+
+      if (descKey) {
+        obj[descKey] = isEmpty ? '' : data[descKey];
+      }
     });
 
     return obj;
@@ -59,7 +66,7 @@ export default ({ buttons = [], data, updateSource }) => {
           <span>
             <Icon
               type="edit"
-              className="textSecondary ThemeHoverColor3 Font14 pointer"
+              className="textSecondary hoverColorPrimary Font14 pointer"
               onClick={() => {
                 setCacheData(generateData());
                 setVisible(true);
@@ -86,17 +93,44 @@ export default ({ buttons = [], data, updateSource }) => {
         >
           {buttons.map((o, i) => (
             <Fragment key={i}>
-              <div className={cx('Font13 textSecondary', { mTop20: i !== 0 })}>{o.title}</div>
+              <div className={cx('Font13 textSecondary bold', { mTop20: i !== 0 })}>{o.title}</div>
+              <div className="mTop10 Font13 textSecondary">{_l('名称')}</div>
               <div className="flexRow">
                 <input
                   type="text"
-                  className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10"
-                  placeholder={o.placeholder}
-                  defaultValue={cacheData[o.key]}
-                  onChange={evt => setCacheData({ ...cacheData, [o.key]: evt.currentTarget.value })}
-                  onBlur={evt => setCacheData({ ...cacheData, [o.key]: evt.currentTarget.value.trim() })}
+                  className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10"
+                  placeholder={o.namePlaceholder || o.placeholder}
+                  defaultValue={cacheData[o.nameKey || o.key]}
+                  onChange={evt => setCacheData({ ...cacheData, [o.nameKey || o.key]: evt.currentTarget.value })}
+                  onBlur={evt =>
+                    setCacheData({
+                      ...cacheData,
+                      [o.nameKey || o.key]: evt.currentTarget.value.trim(),
+                    })
+                  }
                 />
               </div>
+
+              {!!o.descKey && (
+                <Fragment>
+                  <div className="mTop10 Font13 textSecondary">{_l('说明')}</div>
+                  <div className="flexRow">
+                    <input
+                      type="text"
+                      className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10"
+                      placeholder={o.descPlaceholder || _l('请输入按钮说明')}
+                      defaultValue={cacheData[o.descKey]}
+                      onChange={evt => setCacheData({ ...cacheData, [o.descKey]: evt.currentTarget.value })}
+                      onBlur={evt =>
+                        setCacheData({
+                          ...cacheData,
+                          [o.descKey]: evt.currentTarget.value.trim(),
+                        })
+                      }
+                    />
+                  </div>
+                </Fragment>
+              )}
             </Fragment>
           ))}
         </Dialog>

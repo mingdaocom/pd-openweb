@@ -353,7 +353,7 @@ export default class SearchWorksheetDialog extends Component {
                   })
                 }
               >
-                <i className="icon-trash Font17 textTertiary ThemeHoverColor3"></i>
+                <i className="icon-trash Font17 textTertiary hoverColorPrimary"></i>
               </span>
             </div>
           );
@@ -611,6 +611,7 @@ export default class SearchWorksheetDialog extends Component {
                       <Dropdown
                         className="mLeft12 mRight12 Width250"
                         border
+                        openSearch
                         isAppendToBody
                         placeholder={
                           isDelete ? (

@@ -10,7 +10,7 @@ export const isOpenPermit = (type, list = [], viewId) => {
       return false;
     }
 
-    if (type < 20 || [40, 50, 51].includes(type)) {
+    if (type < 20 || [40, 50, 51, 1001, 1002].includes(type)) {
       //无需设置权限范围的项
       return data.state;
     } else if (!viewId) {

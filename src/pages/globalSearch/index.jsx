@@ -4,7 +4,7 @@ import { Skeleton } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, LoadDiv, ScrollView, WaterMark } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import smartSearchAjax from 'src/api/smartSearch';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
@@ -25,9 +25,7 @@ import { NEED_ALL_ORG_TAB, SEARCH_APP_SEARCH_TYPE } from './enum';
 import { getCurrentProjectId } from './utils';
 import './index.less';
 
-@withRouter
-@errorBoundary
-export default class GlobalSearch extends Component {
+class GlobalSearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -224,7 +222,11 @@ export default class GlobalSearch extends Component {
         const _state = {
           loading: false,
           otherLoading: false,
-          total: _.has(SEARCH_APP_SEARCH_TYPE, searchType) ? _data.total || 0 : _data[0] ? _data[0].count || 0 : 0,
+          total: _.has(SEARCH_APP_SEARCH_TYPE, searchType)
+            ? _data.total || 0
+            : _data && _data[0]
+              ? _data[0].count || 0
+              : 0,
           searchAppResCode: res.resultCode,
         };
 
@@ -247,10 +249,10 @@ export default class GlobalSearch extends Component {
         } else {
           _state.data = _data;
           if (pageIndex !== 1) {
-            _state.data[0][searchType + 'List'] = (data[0][searchType + 'List'] || []).concat(
-              _data[0][searchType + 'List'] || [],
+            _state.data[0][searchType + 'List'] = (data && data[0] ? data[0][searchType + 'List'] || [] : []).concat(
+              _data && _data[0] ? _data[0][searchType + 'List'] || [] : [],
             );
-            _state.loadEnd = !(_state.total > _state.data[0][searchType + 'List'].length);
+            _state.loadEnd = !(_state.total > (_state.data[0] ? _state.data[0][searchType + 'List'].length : 0));
           }
         }
 
@@ -419,9 +421,9 @@ export default class GlobalSearch extends Component {
           loadMore={true}
           sortTime={sort < 3 ? 'updateTime' : 'createTime'}
           getNextPage={() => {
-            if (searchType === 'app') return;
-
             const { searchType, loadEnd } = this.state;
+
+            if (searchType === 'app') return;
 
             if (loadEnd) return;
 
@@ -746,3 +748,5 @@ export default class GlobalSearch extends Component {
     );
   }
 }
+
+export default withRouter(ErrorBoundary.wrap(GlobalSearch));

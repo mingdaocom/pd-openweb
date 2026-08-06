@@ -260,7 +260,6 @@ export default function Conditions(props) {
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(
     () => {
-      setValues({});
       return filters
         .map(filter => {
           const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
@@ -286,11 +285,17 @@ export default function Conditions(props) {
       _.get(view, 'advancedSetting.requiredcids'),
     ],
   );
+  const [prevItems, setPrevItems] = useState(items);
 
-  function update(newValues, { noDebounce } = {}) {
+  if (items !== prevItems) {
+    setPrevItems(items);
+    setValues({});
+  }
+
+  function update(newValues, { noDebounce, skipRequiredCheck } = {}) {
     didMount.current = true;
     const valuesToUpdate = newValues || values;
-    const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
+    const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1' && !skipRequiredCheck;
     const itemsWithValues = items.map((item, i) => ({
       ...item,
       filterType: item.dataType === 36 ? item.filterType : item.filterType || (item.dataType === 29 ? 24 : 2),
@@ -374,7 +379,9 @@ export default function Conditions(props) {
   useEffect(() => {
     didMount.current = true;
     if (defaultTriggerUpdate) {
-      update();
+      // 自动触发(自定义页面筛选器进入即筛选)时不校验必填：必填未配默认值不应拦截首次自动筛选，
+      // 空必填字段由下方 validate 过滤自然忽略、照常筛选，与工作表快速筛选行为一致。
+      update(undefined, { skipRequiredCheck: true });
     }
   }, []);
   const visibleItems = items.slice(0, _.isNumber(hideStartIndex) ? hideStartIndex : undefined);

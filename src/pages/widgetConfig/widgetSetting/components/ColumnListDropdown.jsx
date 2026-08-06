@@ -1,5 +1,4 @@
 import React from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -96,6 +95,7 @@ export default class ColumnListDropdown extends React.Component {
       }),
     ),
     onClickAway: PropTypes.func,
+    onClickAwayExceptions: PropTypes.array,
     emptyText: PropTypes.string,
   };
   static defaultProps = {
@@ -103,6 +103,7 @@ export default class ColumnListDropdown extends React.Component {
     showSearch: false,
     list: [],
     onClickAway: () => {},
+    onClickAwayExceptions: [],
   };
   constructor(props) {
     super(props);
@@ -111,9 +112,13 @@ export default class ColumnListDropdown extends React.Component {
     };
   }
   render() {
-    const { visible, onClickAway, emptyText, showSearch } = this.props;
+    const { visible, onClickAway, onClickAwayExceptions, emptyText, showSearch } = this.props;
     let { list } = this.props;
     const { keywords } = this.state;
+
+    if (!visible) {
+      return null;
+    }
 
     if (showSearch && keywords) {
       list = list.filter(
@@ -126,9 +131,10 @@ export default class ColumnListDropdown extends React.Component {
 
     return (
       <ColumnListWrap
-        className={cx('columnListDropdown', {
-          hide: !visible,
-        })}
+        ref={con => {
+          this.wrapRef = con;
+        }}
+        className="columnListDropdown"
       >
         {showSearch && (
           <div className="header search flexRow">
@@ -149,7 +155,7 @@ export default class ColumnListDropdown extends React.Component {
         <div className="body columnlistCon">
           <Menu
             className="columnlist"
-            onClickAwayExceptions={[document.querySelector('.columnListDropdown')]}
+            onClickAwayExceptions={[this.wrapRef, ...onClickAwayExceptions].filter(Boolean)}
             onClickAway={onClickAway}
           >
             {list.length ? (

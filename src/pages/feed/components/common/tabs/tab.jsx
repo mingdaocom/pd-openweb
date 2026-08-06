@@ -7,12 +7,13 @@ class Tab extends React.Component {
     focused: PropTypes.bool,
     className: PropTypes.string,
     children: PropTypes.any,
+    setRef: PropTypes.func,
   };
 
   render() {
-    const { focused, className, children, ...rest } = this.props;
+    const { focused, className, children, setRef, ...rest } = this.props;
     return (
-      <li {...rest} className={cx('InlineBlock', { 'current ThemeColor3': focused }, className)}>
+      <li {...rest} ref={setRef} className={cx('InlineBlock', { 'current colorPrimary': focused }, className)}>
         {children}
       </li>
     );

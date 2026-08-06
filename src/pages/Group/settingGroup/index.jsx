@@ -752,7 +752,7 @@ function SettingGroup(props) {
                       />
                       <span className="mRight8">{_l('关联部门')}</span>
                       {groupInfo.isVerified && groupInfo.mapDepartmentName && (
-                        <span className="ThemeColor3 Hand bold" onClick={onClickDepartment}>
+                        <span className="colorPrimary Hand bold" onClick={onClickDepartment}>
                           {groupInfo.mapDepartmentName}
                         </span>
                       )}

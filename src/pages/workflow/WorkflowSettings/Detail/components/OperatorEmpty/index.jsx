@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
+import { pathCompletion } from 'src/utils/common';
 import { USER_TYPE } from '../../../enum';
 import Member from '../Member';
 
@@ -101,8 +102,8 @@ export default ({
             _l('，请在 流程发起节点 中配置')
           ) : (
             <span
-              className="ThemeColor3 ThemeHoverColor2 pointer mLeft5"
-              onClick={() => window.open(`/workflowedit/${processId}/3`)}
+              className="colorPrimary hoverColorPrimaryDark pointer mLeft5"
+              onClick={() => window.open(pathCompletion(`/workflowedit/${processId}/3`))}
             >
               {_l('前往设置')}
             </span>
@@ -115,7 +116,7 @@ export default ({
           <div className="mRight10 mTop12">{_l('代理人')}</div>
           <Member companyId={projectId} appId={appId} leastOne accounts={userTaskNullMap[userTaskNullType]} />
           <div
-            className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
+            className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
               mLeft8: userTaskNullMap[userTaskNullType].length,
             })}
             onClick={selectCharge}

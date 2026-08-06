@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import 'ming-ui';
+import { LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 import projectSettingController from 'src/api/projectSetting';
@@ -20,13 +20,18 @@ class Root extends Component {
       authForAll: false,
       searchUser: undefined,
       nodeDialogVisible: false,
+      rootLoading: true,
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { dispatch } = this.props;
     dispatch(initRoot());
-    dispatch(fetchRootSubordinates(''));
+    dispatch(fetchRootSubordinates('')).finally(() => {
+      if (!this.isUnmounted) {
+        this.setState({ rootLoading: false });
+      }
+    });
     dispatch(updateCollapse());
 
     projectSettingController
@@ -39,6 +44,10 @@ class Root extends Component {
           allowStructureSelfEdit: auth.allowStructureSelfEdit,
         });
       });
+  }
+
+  componentWillUnmount() {
+    this.isUnmounted = true;
   }
 
   changeSubordinate = checked => {
@@ -62,7 +71,7 @@ class Root extends Component {
   };
 
   render() {
-    const { auth, authForAll, allowStructureSelfEdit, searchUser, nodeDialogVisible } = this.state;
+    const { auth, authForAll, allowStructureSelfEdit, searchUser, nodeDialogVisible, rootLoading } = this.state;
 
     return (
       <Fragment>
@@ -128,7 +137,11 @@ class Root extends Component {
                 this.wrapper = el;
               }}
             >
-              <Node auth={auth} projectId={Config.projectId} />
+              {rootLoading ? (
+                <LoadDiv className="reportRelationRootLoading" />
+              ) : (
+                <Node auth={auth} projectId={Config.projectId} />
+              )}
             </div>
           </div>
         </div>

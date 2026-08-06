@@ -5,11 +5,17 @@ import _ from 'lodash';
 import { Checkbox, LoadDiv } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
-import ChangeLang from 'src/components/ChangeLang';
 import { maskValue } from 'src/pages/Admin/security/account/utils';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { loginCallback } from 'src/pages/AuthService/login/util.js';
-import { getAccountTypes, getDataByFilterXSS, hasCaptcha, isTel, validation } from 'src/pages/AuthService/util.js';
+import {
+  getAccountTypes,
+  getDataByFilterXSS,
+  getMingoAnonymousReturnUrl,
+  hasCaptcha,
+  isTel,
+  validation,
+} from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { encrypt } from 'src/utils/common';
@@ -223,6 +229,16 @@ export default function (props) {
                 {modeType === 2 && openLDAP ? ldapName || _l('LDAP登录') : _l('登录%14002')}
               </div>
             </div>
+            {!window.isMiniProgram &&
+              !_.get(md, 'global.SysSettings.hideRegister') &&
+              !['verifyCode', 'integrationLogin'].includes(step) && (
+                <div className="authSwitchEntry">
+                  {_l('还没有账号?')}
+                  <span className="authSwitchLink Hand mLeft5" onClick={toRegist}>
+                    {_l('免费注册')}
+                  </span>
+                </div>
+              )}
             {(openLDAP || isOpenSystemLogin) && (
               <React.Fragment>
                 {unionId && state && tpType && <AccountInfo />}
@@ -282,13 +298,13 @@ export default function (props) {
     onChange({ warnList: [] });
     if (window.platformENV.isPlatform) {
       // 平台版=>/register，链接上有 ReturnUrl 也带上（经 getDataByFilterXSS 过滤）
-      const returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+      const returnUrl = getMingoAnonymousReturnUrl() || getDataByFilterXSS(request.ReturnUrl || '');
       navigateTo(request.ReturnUrl ? '/register?ReturnUrl=' + encodeURIComponent(returnUrl) : '/register');
     } else if (linkInvite) {
       onChange({ isLink: true, projectId: projectId });
       navigateTo(linkInvite);
     } else {
-      let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+      let returnUrl = getMingoAnonymousReturnUrl() || getDataByFilterXSS(request.ReturnUrl || '');
 
       if (returnUrl.indexOf('type=privatekey') > -1) {
         navigateTo('/register?ReturnUrl=' + encodeURIComponent(returnUrl));
@@ -315,21 +331,6 @@ export default function (props) {
             {showProjectName && <p className="Font17 textPrimary mAll0 mTop8">{projectNameLang || companyName}</p>}
           </div>
           {renderCon()}
-          <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
-            {!window.isMiniProgram &&
-              !_.get(md, 'global.SysSettings.hideRegister') &&
-              !['verifyCode', 'integrationLogin'].includes(step) && (
-                <React.Fragment>
-                  <span className="changeBtn Hand TxtRight" onClick={toRegist}>
-                    {_l('注册新账号')}
-                  </span>
-                  <span className="lineCenter mLeft24"></span>
-                </React.Fragment>
-              )}
-            <div className="mLeft16 TxtLeft">
-              <ChangeLang className="justifyContentLeft" />
-            </div>
-          </div>
         </React.Fragment>
       )}
     </Wrap>

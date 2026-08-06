@@ -67,6 +67,7 @@ export default class SubList extends React.Component {
           'UPDATE_PAGINATION',
           'RESET_CHANGES',
           'UPDATE_SORT_CONFIG',
+          'UPDATE_FILTER_CONTROLS',
         ],
         lastAction.type,
       ) &&

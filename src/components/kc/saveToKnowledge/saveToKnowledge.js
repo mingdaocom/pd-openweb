@@ -2,6 +2,7 @@
 import kc from 'src/api/kc';
 import createShare from 'src/components/createShare/createShare';
 import kcUtil from 'src/pages/kc/util';
+import { pathCompletion } from 'src/utils/common';
 
 var copyNode = kc.copyNode;
 var addNode = kc.addNode;
@@ -38,16 +39,16 @@ SaveToKnowledge.prototype = {
     const createShareFunc = () => {
       if (SK.options.createShare) {
         createShare({
-          linkURL:
-            md.global.Config.WebUrl +
-            'apps/kc/' +
-            (path.type === 1
-              ? 'my'
-              : path.type === 2
-                ? path.node.id
-                : path.node.rootId
-                  ? path.node.position.slice(1)
-                  : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+          linkURL: pathCompletion(
+            '/apps/kc/' +
+              (path.type === 1
+                ? 'my'
+                : path.type === 2
+                  ? path.node.id
+                  : path.node.rootId
+                    ? path.node.position.slice(1)
+                    : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+          ),
           content: _l('保存成功'),
         });
       }

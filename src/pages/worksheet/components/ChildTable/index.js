@@ -44,11 +44,13 @@ export default class extends React.Component {
     this.bindSubscribe();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.control.store && nextProps.control.store !== this.store) {
-      this.store = nextProps.control.store;
-      this.store.init();
-      this.bindSubscribe();
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.control.store && this.props.control.store !== this.store) {
+        this.store = this.props.control.store;
+        this.store.init();
+        this.bindSubscribe();
+      }
     }
   }
 
@@ -70,6 +72,12 @@ export default class extends React.Component {
       if (get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
         this.store.waitListForLoadRows.forEach(fn => fn());
         this.store.waitListForLoadRows = [];
+        return;
+      }
+
+      // realCount 仅为内部统计（未筛选真实总数），rows 未变，不构成数据变更，
+      // 不向大表单上报，否则会被当成子表变更误触发记录详情进入编辑态。
+      if (get(state, 'lastAction.type') === 'SET_REAL_COUNT') {
         return;
       }
 

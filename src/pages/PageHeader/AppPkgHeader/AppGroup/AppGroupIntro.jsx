@@ -3,13 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
 import { Button, Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import withEscClose from 'ming-ui/decorators/withEscClose';
+import ClickAway from 'ming-ui/components/ClickAway';
 import appGroupIntroPic from './images/appGroupIntro.gif';
 
-@withClickAway
-@withEscClose
-export default class AppGroupIntro extends Component {
+let AppGroupIntro = class AppGroupIntro extends Component {
   static propTypes = {
     className: string,
     addAppGroup: func,
@@ -20,9 +17,24 @@ export default class AppGroupIntro extends Component {
     onClose: _.noop,
   };
   state = {};
+
+  componentDidMount() {
+    document.body.addEventListener('keydown', this.closeWhenPressEsc);
+  }
+
+  componentWillUnmount() {
+    document.body && document.body.removeEventListener('keydown', this.closeWhenPressEsc);
+  }
+
   shouldComponentUpdate(nextProps) {
     return this.props.className !== nextProps.className;
   }
+
+  closeWhenPressEsc = e => {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      this.props.onClose();
+    }
+  };
   handleCloseClick = e => {
     e.stopPropagation();
     this.props.onClose();
@@ -44,7 +56,10 @@ export default class AppGroupIntro extends Component {
         <div className="btnWrap">
           <Button
             size="small"
-            style={{ height: 36, padding: '0 24px' }}
+            style={{
+              height: 36,
+              padding: '0 24px',
+            }}
             onClick={e => {
               e.stopPropagation();
               addAppGroup();
@@ -57,4 +72,6 @@ export default class AppGroupIntro extends Component {
       </div>
     );
   }
-}
+};
+AppGroupIntro = ClickAway.wrap(AppGroupIntro);
+export default AppGroupIntro;

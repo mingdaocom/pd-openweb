@@ -13,7 +13,7 @@ import { themes } from 'src/pages/FormExtend/enum';
 import { getDisabledControls, overridePos } from 'src/pages/FormExtend/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
 import { formatAttachmentValue } from 'src/utils/control';
 import { setPssId } from 'src/utils/pssId';
 import {
@@ -71,8 +71,29 @@ function getThemeBgColor(themeIndex, themeBgColor) {
   }
 }
 
+async function replacePublicWorksheetTranslateInfo(data) {
+  if (data.appId && data.projectId) {
+    await shareGetAppLangDetail({
+      projectId: data.projectId,
+      appId: data.appId,
+    });
+  }
+
+  if (!data.appId || !data.worksheetId) {
+    return data;
+  }
+
+  return {
+    ...data,
+    name: getTranslateInfo(data.appId, null, data.worksheetId).name || data.name,
+    advancedSetting: replaceAdvancedSettingTranslateInfo(data.appId, data.worksheetId, data.advancedSetting || {}),
+    originalControls: replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls),
+  };
+}
+
 export function getPublicWorksheetInfo(worksheetId, cb) {
-  publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }).then(data => {
+  publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }).then(async data => {
+    data = await replacePublicWorksheetTranslateInfo(data);
     const controls = getVisibleControls(data);
     cb(false, {
       publicWorksheetInfo: {
@@ -246,10 +267,11 @@ async function getStatus(data, shareId) {
     if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
       return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
     } else {
-      return FILL_STATUS.COMPLETED;
+      return FILL_STATUS.FILL_TIMES_LIMIT;
     }
   } else {
-    return FILL_STATUS.NORMAL;
+    const checkResult = await publicWorksheetAjax.checkLimitWriteFrequency({});
+    return checkResult ? FILL_STATUS.FILL_TIMES_LIMIT : FILL_STATUS.NORMAL;
   }
 }
 
@@ -463,15 +485,21 @@ export async function getFormData(data, status) {
 
 export function getPublicWorksheet(params, cb = () => {}) {
   publicWorksheetAjax
-    .getPublicWorksheet(params)
+    .getPublicWorksheet({
+      ...params,
+      langType: getCurrentLangCode(),
+    })
     .then(async data => {
       if (data.clientId) {
         window.clientId = data.clientId;
         !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
       }
 
-      localStorage.setItem('currentProjectId', data.projectId);
+      safeLocalStorageSetItem('currentProjectId', data.projectId);
       preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId: data.projectId } });
+      if (window.isWaiting) {
+        return;
+      }
 
       const status = await getStatus(data, params.shareId);
 
@@ -502,7 +530,7 @@ export function getPublicWorksheet(params, cb = () => {}) {
           await loginApi.loginOut();
         }
 
-        location.href = `${window.subPath || ''}${url}ReturnUrl=${encodeURIComponent(location.href)}`;
+        location.href = pathCompletion(`${url}ReturnUrl=${encodeURIComponent(location.href)}`);
         return;
       }
 
@@ -517,20 +545,10 @@ export function getPublicWorksheet(params, cb = () => {}) {
         return;
       }
 
-      await shareGetAppLangDetail({
-        projectId: data.projectId,
-        appId: data.appId,
-      });
-
-      data.name = getTranslateInfo(data.appId, null, data.worksheetId).name || data.name;
-      data.advancedSetting = replaceAdvancedSettingTranslateInfo(
-        data.appId,
-        data.worksheetId,
-        data.advancedSetting || {},
-      );
-      data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
+      data = await replacePublicWorksheetTranslateInfo(data);
 
       window[`timeZone_${data.appId}`] = data.appTimeZone;
+      window.appInfo = { id: data.appId };
 
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       worksheetAjax

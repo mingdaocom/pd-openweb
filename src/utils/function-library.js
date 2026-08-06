@@ -10,41 +10,49 @@ function filterEmptyChildTableRows(rows = []) {
   }
 }
 
+const isCustomOptionKey = key => key.indexOf('other') > -1 || key.indexOf('add_') > -1;
+
 /** 获取选项 */
-export function getSelectedOptions(options, value, control) {
+function getSelectedOptions(options = [], value, control) {
   if (!value || value === '[]') {
     return [];
   }
 
-  let selectedKeys = [];
-
   try {
-    selectedKeys = JSON.parse(value);
-    return (
+    const selectedKeys = JSON.parse(value);
+    const optionList = options || [];
+    const optionMap = new Map();
+
+    optionList.forEach(option => {
+      if (!optionMap.has(option.key)) {
+        optionMap.set(option.key, option);
+      }
+    });
+
+    const selectedKeySet = new Set(selectedKeys.filter(key => !isCustomOptionKey(key)));
+    const customSelectedKeys = selectedKeys.filter(isCustomOptionKey);
+
+    const findOptionByKey = key => {
+      if (isCustomOptionKey(key)) {
+        return optionList.find(option => key.indexOf(option.key) > -1);
+      }
+
+      return optionMap.get(key);
+    };
+
+    const keys =
       _.get(control, 'advancedSetting.checktype') === '0'
-        ? _.filter(
-            options,
-            option =>
-              _.find(selectedKeys, selectedKey => {
-                if (selectedKey.indexOf('other') > -1 || selectedKey.indexOf('add_') > -1) {
-                  return selectedKey.indexOf(option.key) > -1;
-                }
+        ? optionList
+            .filter(
+              option =>
+                (selectedKeySet.has(option.key) ||
+                  customSelectedKeys.some(selectedKey => selectedKey.indexOf(option.key) > -1)) &&
+                !option.isDeleted,
+            )
+            .map(option => option.key)
+        : selectedKeys;
 
-                return selectedKey === option.key;
-              }) && !option.isDeleted,
-          ).map(option => option.key)
-        : selectedKeys
-    )
-      .map(key =>
-        _.find(options, option => {
-          if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {
-            return key.indexOf(option.key) > -1;
-          }
-
-          return key === option.key;
-        }),
-      )
-      .filter(_.identity);
+    return keys.map(findOptionByKey).filter(Boolean);
   } catch (err) {
     console.log(err);
     return [];
@@ -158,6 +166,11 @@ export function formatControlValue(cell, nullzero = '0') {
 
     if (type === 53) {
       type = cell.enumDefault2;
+    }
+
+    // 公式（数值）恒为数值；公式（日期）中"日期间的时长(1)/距离此刻的时长(3)"输出数值，"为日期加减时间(2)"输出日期
+    if (type === 31 || (type === 38 && (cell.enumDefault === 1 || cell.enumDefault === 3))) {
+      type = 6;
     }
 
     switch (type) {

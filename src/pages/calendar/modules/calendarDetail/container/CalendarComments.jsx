@@ -80,12 +80,12 @@ export default class CalendarComments extends Component {
           <li
             key={item.id}
             onClick={this.handleTabClick.bind(this, item)}
-            className={cx('calendarTab', { 'ThemeColor3 active': item.id === activeTab })}
+            className={cx('calendarTab', { 'colorPrimary active': item.id === activeTab })}
           >
             {item.value}
           </li>
         ))}
-        <i className="bottomLine ThemeBGColor3" />
+        <i className="bottomLine bgColorPrimary" />
       </ul>
     );
   }

@@ -211,7 +211,7 @@ export default function RecordCoverCard(props) {
         {coverComp}
         {DragHandle && (
           <DragHandle>
-            <i className="icon icon-drag dragger hoverShow textTertiary Font16 ThemeHoverColor3"></i>
+            <i className="icon icon-drag dragger hoverShow textTertiary Font16 hoverColorPrimary"></i>
           </DragHandle>
         )}
         <Content>
@@ -230,7 +230,7 @@ export default function RecordCoverCard(props) {
               {title}
               {titleMasked && !forceShowFullValue && (
                 <i
-                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
+                  className="icon icon-eye_off hoverColorPrimary Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
                   style={{ verticalAlign: 'middle' }}
                   onClick={e => {
                     e.stopPropagation();

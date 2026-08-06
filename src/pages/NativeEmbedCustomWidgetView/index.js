@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/iconfont/mdfont.css';
-import 'src/common/mdcss/Themes/theme.less';
 import preall from 'src/common/preall';
 import store from 'src/redux/configureStore';
 import MobileContainer from './MobileContainer';

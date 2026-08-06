@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { Icon, RichText } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Statistics from 'statistics';
-import { BatchOperate } from 'worksheet/common';
+import BatchOperate from 'worksheet/common/BatchOperate';
 import Discussion from 'worksheet/common/Discussion';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
@@ -36,7 +36,7 @@ import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkg
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/common';
 import { needHideViewFilters } from 'src/utils/filter';
 import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
 import { findSheet } from 'src/utils/worksheet';
@@ -47,7 +47,7 @@ const Con = styled.div`
   display: flex;
   padding-left: 10px;
   padding-right: 20px;
-  height: 38px;
+  height: 44px;
   background-color: var(--color-background-primary);
   align-items: center;
   position: relative;
@@ -156,6 +156,8 @@ function SheetHeader(props) {
       ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetId)
       : sheetSwitchPermit;
   const canNewRecord = isOpenPermit(permitList.createButtonSwitch, lastSheetSwitchPermit) && allowAdd;
+  const canFilter = isOpenPermit(permitList.filterSwitch, lastSheetSwitchPermit);
+  const canStats = isOpenPermit(permitList.statsSwitch, lastSheetSwitchPermit);
   const showPublic = isOpenPermit(permitList.statisticsSwitch, lastSheetSwitchPermit);
   const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, lastSheetSwitchPermit);
   const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && !window.isPublicApp;
@@ -313,7 +315,7 @@ function SheetHeader(props) {
                   style={{ maxHeight: (document.body?.clientHeight || window.innerHeight) / 2 }}
                 >
                   <RichText
-                    data={getTranslateInfo(appId, null, worksheetId).description || desc || ''}
+                    data={desc ? getTranslateInfo(appId, null, worksheetId).description || desc || '' : ''}
                     disabled={true}
                   />
                 </div>
@@ -341,7 +343,7 @@ function SheetHeader(props) {
             isEditing={descIsEditing}
             setDescIsEditing={setDescIsEditing}
             desc={
-              descIsEditing ? desc || '' : desc ? getTranslateInfo(appId, null, worksheetId).description || desc : desc
+              descIsEditing ? desc || '' : desc ? getTranslateInfo(appId, null, worksheetId).description || desc : ''
             }
             data={worksheetInfo}
             resume={resume}
@@ -413,17 +415,19 @@ function SheetHeader(props) {
                 {!(String(get(view, 'viewType')) === '2' && get(view, 'advancedSetting.hierarchyViewType') === '3') && (
                   <Fragment>
                     {chartId ? (
-                      <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active filterEntry')}>
+                      <span
+                        className={cx('worksheetFilterBtn colorPrimary bgColorPrimaryTransparent active filterEntry')}
+                      >
                         <i className="icon icon-worksheet_filter" />
                         <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
                         <i
-                          className="icon icon-close resetFilterBtn ThemeHoverColor2"
+                          className="icon icon-close resetFilterBtn hoverColorPrimaryDark"
                           onClick={() => {
                             location.search = '';
                           }}
                         />
                       </span>
-                    ) : (
+                    ) : canFilter ? (
                       <WorkSheetFilter
                         className="actionWrap filterEntry"
                         isSingleView={isSingleView}
@@ -444,17 +448,17 @@ function SheetHeader(props) {
                         }}
                         clearChartId={clearChartId}
                       />
-                    )}
+                    ) : null}
                   </Fragment>
                 )}
               </Fragment>
             )}
-            {!window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
+            {canStats && !window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
               <Tooltip placement="bottom" title={_l('统计')}>
                 <span className="actionWrap staticsEntry">
                   <Icon
                     className={cx('openStatisticsBtn textTertiary Font18 actionIcon', {
-                      ThemeColor3: statisticsVisible,
+                      colorPrimary: statisticsVisible,
                     })}
                     icon="worksheet_column_chart"
                     onClick={() => setStatisticsVisible(!statisticsVisible)}

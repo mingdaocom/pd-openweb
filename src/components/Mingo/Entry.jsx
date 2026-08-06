@@ -1,12 +1,13 @@
 ﻿import React from 'react';
+import Agent from 'src/components/Agent';
+// import CustomBot from './modules/CustomBot';
+import MingoWelcome from './ChatBot/components/MingoWelcome';
 import { MINGO_TASK_TYPE } from './ChatBot/enum';
 import CustomBot from './modules/AgentPromptGenBot';
 import AppInfoOptimizationBot from './modules/AppInfoOptimizationBot';
 import CreateRecordBot from './modules/CreateRecordBot';
 import CreateWorksheetBot from './modules/CreateWorksheetBot';
 import CreateWorksheetDataBot from './modules/CreateWorksheetDataBot';
-// import CustomBot from './modules/CustomBot';
-import HelpBot from './modules/HelpBot';
 
 export default function MingoEntry({
   taskType,
@@ -14,24 +15,19 @@ export default function MingoEntry({
   base,
   updateIsChatting = () => {},
   setTitle = () => {},
-  setCurrentChatId = () => {},
   onUpdateTaskType = () => {},
-  onUpdateBase = () => {},
   onClose = () => {},
   onBack = () => {},
 }) {
   if (taskType === MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT) {
-    const isLocal = window.platformENV.isLocal;
+    // 抽屉默认态：直接渲染新 mingo 首页 MingoWelcome（原由已下线的人工客服 HelpBot 托管）。
+    // 点击首页建议/输入提交时切到对应任务（如 CREATE_APP_ASSIGNMENT 走新 agent）。
     return (
-      <HelpBot
-        taskType={taskType}
-        updateIsChatting={updateIsChatting}
-        setCurrentChatId={setCurrentChatId}
-        onUpdateTaskType={onUpdateTaskType}
-        onUpdateBase={onUpdateBase}
-        onClose={onClose}
-        onBack={onBack}
-        disabled={isLocal}
+      <MingoWelcome
+        onStartTask={task => {
+          updateIsChatting(true);
+          onUpdateTaskType(task.type);
+        }}
       />
     );
   } else if (taskType === MINGO_TASK_TYPE.CREATE_WORKSHEET_ASSIGNMENT) {
@@ -54,6 +50,8 @@ export default function MingoEntry({
     return <AppInfoOptimizationBot base={base} onClose={onClose} onBack={onBack} />;
   } else if (taskType === MINGO_TASK_TYPE.CUSTOM_BOT) {
     return <CustomBot base={base} onClose={onClose} onBack={onBack} />;
+  } else if (taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT) {
+    return <Agent />;
   }
 
   return null;

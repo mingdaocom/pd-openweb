@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
@@ -10,6 +10,7 @@ import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, UserHead } from 'ming
 import { Tooltip } from 'ming-ui/antd-components';
 import AppManagement from 'src/api/appManagement.js';
 import departmentController from 'src/api/department';
+import { downloadFile } from 'src/pages/Admin/util';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { getColor, getIcon, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
@@ -18,6 +19,7 @@ import Table from 'src/pages/Role/component/Table';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getTranslateInfo } from 'src/utils/app';
 import { dateConvertToUserZone, getCurrentProject } from 'src/utils/project';
 
 const Wrap = styled.div`
@@ -102,6 +104,22 @@ const WrapBar = styled.div`
     border-radius: 3px;
     border: 1px solid var(--color-border-secondary);
   }
+  .exportAppRolesBtn {
+    height: 37px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    border-radius: 3px;
+    border: 1px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    line-height: 35px;
+    vertical-align: top;
+  }
+  .exportAppRolesBtn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
 `;
 
 const userChooseList = [
@@ -149,9 +167,57 @@ const getNumTxt = user => {
   return l.join('、');
 };
 
-let Ajax = null;
+const getTotalCountTxt = (total = 0, searchMemberType = 0) => {
+  if (total <= 0) {
+    return '';
+  }
+
+  switch (searchMemberType) {
+    case 20:
+      return _l('%0个部门', total);
+    case 30:
+      return _l('%0组织角色', total);
+    case 40:
+      return _l('%0个职位', total);
+    default:
+      return _l('%0名人员', total);
+  }
+};
+
+const sanitizeExportFileNameSegment = text =>
+  String(text || '')
+    .trim()
+    .replace(/[/\\:*?"<>|]/g, '_');
+
+const buildAppRoleExportFileName = appDetail => {
+  const appName = sanitizeExportFileNameSegment(appDetail.name || appDetail.appName || '');
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(
+    d.getMinutes(),
+  )}${pad(d.getSeconds())}`;
+  return `${_l('应用角色')}_${appName}_${timeStr}.xlsx`;
+};
+
+const getTranslatedRoleNames = (roleName = [], roleInfos = [], appId) => {
+  return roleName.map(name => {
+    const role = roleInfos.find(o => o.name === name);
+
+    return role ? getTranslateInfo(appId, null, role.roleId).name || role.name : name;
+  });
+};
+
+const builtinPlacements = {
+  topLeft: {
+    points: ['bl', 'tl'],
+  },
+  bottomLeft: {
+    points: ['tl', 'bl'],
+  },
+};
 
 function User(props) {
+  const ajaxRef = useRef(null);
   const {
     appRole = {},
     SetAppRolePagingModel,
@@ -372,10 +438,13 @@ function User(props) {
       className: 'nameWrapTr roleTr',
       minW: 240,
       render: (text, data) => {
+        const roleNames = getTranslatedRoleNames(data.roleName, roleInfos, appId);
+        const roleName = roleNames.join('；');
+
         return (
           <div className="flex flexRow">
-            <span className="roleName overflow_ellipsis breakAll" title={data.roleName.join('；')}>
-              {data.roleName.join('；')}
+            <span className="roleName overflow_ellipsis breakAll" title={roleName}>
+              {roleName}
             </span>
           </div>
         );
@@ -514,17 +583,14 @@ function User(props) {
 
   //取消或设置成为角色负责人
   const changeIsRoleManager = (param, isRoleCharger, cb) => {
-    if (Ajax) {
-      Ajax.abort();
+    if (ajaxRef.current) {
+      ajaxRef.current.abort();
     }
 
-    if (!isRoleCharger) {
-      Ajax = AppManagement.cancelRoleCharger(param);
-    } else {
-      Ajax = AppManagement.setRoleCharger(param);
-    }
+    const request = !isRoleCharger ? AppManagement.cancelRoleCharger(param) : AppManagement.setRoleCharger(param);
 
-    Ajax.then(() => {
+    ajaxRef.current = request;
+    request.then(() => {
       //取消当前用户的负责人，刷新页面
       if (param.memberId === md.global.Account.accountId && !isRoleCharger) {
         location.reload();
@@ -576,14 +642,6 @@ function User(props) {
     );
   };
 
-  const builtinPlacements = {
-    topLeft: {
-      points: ['bl', 'tl'],
-    },
-    bottomLeft: {
-      points: ['tl', 'bl'],
-    },
-  };
   const triggerProps = {
     popupClassName: 'Normal',
     action: ['click'],
@@ -620,6 +678,26 @@ function User(props) {
 
   const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
 
+  const canExportAppRoleList = roleId === 'all' && !isExternal && isAdmin; //仅管理员/超管可以导出全部角色
+  const titleCountTxt = countTxt || (!loading ? getTotalCountTxt(total, memberType) : '');
+
+  const handleExportAppRoles = () => {
+    if (!appId) {
+      return;
+    }
+
+    const url = `${md.global.Config.AjaxApiUrl}download/ExportAppRoleMembers`;
+
+    downloadFile({
+      url,
+      params: {
+        appId,
+        ..._.omit(appRolePagingModel || {}, ['pageIndex', 'pageSize']),
+      },
+      exportFileName: buildAppRoleExportFileName(appDetail),
+    });
+  };
+
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all', conExternal: isExternal })}>
       <div className="bar flexRow alignItemsCenter barActionCon">
@@ -629,9 +707,9 @@ function User(props) {
           </span>
           <span
             className="textTertiary mLeft15 TxtMiddle mRight8 overflow_ellipsis breakAll flex-shrink-0"
-            title={countTxt}
+            title={titleCountTxt}
           >
-            {countTxt}
+            {titleCountTxt}
           </span>
         </div>
         {selectedIds.length > 0 && (
@@ -687,6 +765,15 @@ function User(props) {
                 onChange={onSearch}
               />
             </div>
+            {canExportAppRoleList && (
+              <button
+                type="button"
+                className="exportAppRolesBtn Hand mLeft12 TxtTop Bold"
+                onClick={handleExportAppRoles}
+              >
+                {_l('导出')}
+              </button>
+            )}
             {roleId !== 'all' && canEditApp && !isExternal && (
               <div
                 className="toRole Hand mLeft20 TxtTop Bold"

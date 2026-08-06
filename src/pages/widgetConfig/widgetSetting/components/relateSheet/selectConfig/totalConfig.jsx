@@ -133,7 +133,7 @@ export default function ReportConfig(props) {
             })}
             onClick={item => {
               if (isDisabled) {
-                alert('最多添加10个', 3);
+                alert(_l('最多添加10个'), 3);
                 return;
               }
 

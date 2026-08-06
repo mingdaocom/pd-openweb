@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderTextCell } from 'src/utils/control';
 import '../WorksheetRecordLogValue.less';
+
+const LoadableRecordInfoWrapper = lazy(() => import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper'));
 
 const getTitle = (value, sourceControl) => {
   if (!sourceControl) return renderTextCell({ value });
@@ -18,8 +20,10 @@ const getTitle = (value, sourceControl) => {
         .map(m => m.departmentName || m.fullname || m.organizeName)
         .filter(m => m)
         .join('、');
+
     case 40:
       return data.address || `${_l('经度')}：${_.round(data.x, 6)} ${_l('纬度')}：${_.round(data.y, 6)}`;
+
     default:
       return renderTextCell({ ...sourceControl, value: value });
   }
@@ -43,7 +47,6 @@ function WorksheetRecordLogSelectTags(props) {
   const [recordInfo, setRecordInfo] = useState(undefined);
   const [showMaskData, setShowMaskData] = useState(false);
   const [maskList, setMaskList] = useState([]);
-  const [Components, setComponents] = useState(null);
   const advancedSetting = _.get(control, ['advancedSetting']) || {};
   const isdecrypt = advancedSetting.isdecrypt;
 
@@ -87,10 +90,6 @@ function WorksheetRecordLogSelectTags(props) {
 
       setRecordInfo(Record);
     }
-
-    import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper').then(res => {
-      setComponents(res);
-    });
   }, []);
 
   const renderText = item => {
@@ -113,6 +112,7 @@ function WorksheetRecordLogSelectTags(props) {
 
       if (type === 3) {
         let _value = enumDefault === 1 ? text.replace(/\+86/, '') : text;
+
         return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: _value }) : _value;
       }
 
@@ -134,13 +134,29 @@ function WorksheetRecordLogSelectTags(props) {
           key={`WorksheetRocordLogSelectTag-${listType}-${item}-${index}`}
           className={cx(
             'WorksheetRocordLogSelectTag',
-            { noneTextLineThrough: isChangeValue },
-            { hoverHighline: needPreview && !isMobile },
-            { oldValue: listType === 'old' },
-            { newValue: listType === 'new' },
-            { defaultValue: listType === 'default' },
+            {
+              noneTextLineThrough: isChangeValue,
+            },
+            {
+              hoverHighline: needPreview && !isMobile,
+            },
+            {
+              oldValue: listType === 'old',
+            },
+            {
+              newValue: listType === 'new',
+            },
+            {
+              defaultValue: listType === 'default',
+            },
           )}
-          style={type === 'circle' ? { borderRadius: '10px' } : {}}
+          style={
+            type === 'circle'
+              ? {
+                  borderRadius: '10px',
+                }
+              : {}
+          }
           onClick={() => {
             if (needPreview) {
               clickHandle(listType, index);
@@ -159,30 +175,36 @@ function WorksheetRecordLogSelectTags(props) {
 
   return (
     <React.Fragment>
-      <div className={cx('WorksheetRocordLogSelectTags paddingLeft27', { flexDirectionRever: isChangeValue })}>
+      <div
+        className={cx('WorksheetRocordLogSelectTags paddingLeft27', {
+          flexDirectionRever: isChangeValue,
+        })}
+      >
         {renderList(oldValue, 'old')}
         {renderList(newValue, 'new')}
         {renderList(defaultValue, 'default')}
       </div>
-      {preview !== false && preType && recordInfo && Components && (
-        <Components.default
-          visible
-          allowAdd={false}
-          appId={recordInfo.appId}
-          viewId={recordInfo.viewId}
-          from={1}
-          hideRecordInfo={() => {
-            setPreview(false);
-          }}
-          recordId={
-            preType.type === 'old'
-              ? recordInfo.delList[preview].recordId
-              : preType.type === 'new'
-                ? recordInfo.addList[preview].recordId
-                : recordInfo.defList[preview].recordId
-          }
-          worksheetId={recordInfo.worksheetId}
-        />
+      {preview !== false && preType && recordInfo && (
+        <Suspense fallback={null}>
+          <LoadableRecordInfoWrapper
+            visible
+            allowAdd={false}
+            appId={recordInfo.appId}
+            viewId={recordInfo.viewId}
+            from={1}
+            hideRecordInfo={() => {
+              setPreview(false);
+            }}
+            recordId={
+              preType.type === 'old'
+                ? recordInfo.delList[preview].recordId
+                : preType.type === 'new'
+                  ? recordInfo.addList[preview].recordId
+                  : recordInfo.defList[preview].recordId
+            }
+            worksheetId={recordInfo.worksheetId}
+          />
+        </Suspense>
       )}
     </React.Fragment>
   );

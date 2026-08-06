@@ -24,10 +24,6 @@ export default class Item extends Component {
       isEdit: false,
     };
   }
-  componentWillMount() {
-    clearTimeout(this.timer);
-  }
-
   isDelCustomize = () => {
     const { item } = this.props;
     const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]);

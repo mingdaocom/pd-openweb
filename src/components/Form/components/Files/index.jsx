@@ -502,7 +502,8 @@ const Files = props => {
   };
 
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
-    const { recordBaseInfo } = props;
+    const { projectId } = props;
+    const openOptions = _.omitBy(options, _.isUndefined);
 
     if (!recordBaseInfo) {
       return;
@@ -511,13 +512,14 @@ const Files = props => {
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId, rowId: recordBaseInfo.recordId });
     openControlAttachmentInNewTab(
       _.assign(
-        _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
+        _.pick(recordBaseInfo, ['appId', 'projectId', 'recordId', 'viewId', 'worksheetId']),
         {
           controlId,
           fileId,
+          projectId: _.get(recordBaseInfo, 'projectId') || projectId,
           getType: from === 21 ? from : undefined,
         },
-        options,
+        openOptions,
       ),
     );
   };

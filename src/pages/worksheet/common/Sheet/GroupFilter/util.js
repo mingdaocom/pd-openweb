@@ -64,7 +64,7 @@ export const renderTxt = (source, keywords, item, control, viewId, navGroup) => 
       if (text.indexOf(keywords) > -1) {
         return (
           <React.Fragment key={i}>
-            <span className="ThemeColor3">{text}</span>
+            <span className="colorPrimary">{text}</span>
             {!isLast && <span> / </span>}
           </React.Fragment>
         );

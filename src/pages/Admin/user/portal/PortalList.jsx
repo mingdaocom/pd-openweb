@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Checkbox, DatePicker, Dialog, Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Checkbox, DatePicker, Dialog, Dropdown, Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';
+import projectSetting from 'src/api/projectSetting';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../../components/PaginationWrap';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
@@ -74,6 +75,7 @@ export default class PortalList extends Component {
         () => {
           this.getPortalList();
           this.getApps();
+          this.getAutoOrderStatus();
         },
       );
     });
@@ -151,6 +153,49 @@ export default class PortalList extends Component {
       });
     });
   }
+
+  /**
+   * 获取自动订购
+   */
+  getAutoOrderStatus = () => {
+    const { projectId } = this.state;
+
+    projectSetting.getAutoPurchaseExternalUserExtPack({ projectId }).then(res => {
+      this.setState({ autoPurchaseExternalUserExtPack: res.autoPurchaseExternalUserExtPack, balance: res.balance });
+    });
+  };
+
+  /**
+   * 设置自动订购
+   */
+  setAutoOrderStatus = () => {
+    const { projectId, autoPurchaseExternalUserExtPack } = this.state;
+
+    Dialog.confirm({
+      width: autoPurchaseExternalUserExtPack ? 480 : 800,
+      title: autoPurchaseExternalUserExtPack ? _l('确认关闭自动订购？') : _l('是否开启自动订购？'),
+      buttonType: autoPurchaseExternalUserExtPack ? 'danger' : 'primary',
+      description: autoPurchaseExternalUserExtPack ? null : (
+        <div>
+          {_l('开启后，当外部用户额度剩余不足20人时，自动购买')}
+          <span class="Bold textPrimary mLeft3 mRight3">{_l('500信用点/100人')}</span>
+          {_l('的外部用户额度，从账户信用点中扣款')}
+        </div>
+      ),
+      onOk: () => {
+        projectSetting
+          .setAutoPurchaseExternalUserExtPack({
+            projectId,
+            autoPurchaseExternalUserExtPack: !autoPurchaseExternalUserExtPack,
+          })
+          .then(res => {
+            if (res) {
+              this.setState({ autoPurchaseExternalUserExtPack: !autoPurchaseExternalUserExtPack });
+            }
+          });
+      },
+    });
+  };
 
   /**
    * 渲染列表
@@ -279,6 +324,7 @@ export default class PortalList extends Component {
       total,
       allCount,
       currentLicense,
+      autoPurchaseExternalUserExtPack,
     } = this.state;
     const totalCount = (list || []).length;
     const isDevelopment = _.get(currentLicense || {}, 'version.versionIdV2') === 'Development';
@@ -299,7 +345,7 @@ export default class PortalList extends Component {
           {allowUpgradeExternalPortal && showOption && (
             <span className="mLeft20">
               <PurchaseExpandPack
-                className="ThemeHoverColor2"
+                className="hoverColorPrimaryDark"
                 text={_l('续费')}
                 type="portalupgrade"
                 projectId={this.props.projectId}
@@ -310,11 +356,18 @@ export default class PortalList extends Component {
 
           {showOption && !(window.platformENV.isOverseas && isDevelopment) && (
             <PurchaseExpandPack
-              className={cx('ThemeHoverColor2 NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
+              className={cx('hoverColorPrimaryDark NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
               text={_l('扩充')}
               type="portalexpand"
               projectId={this.props.projectId}
             />
+          )}
+          <div className="flex"></div>
+          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+            <div className="flexRow alignItemsCenter">
+              <Switch size="small" checked={autoPurchaseExternalUserExtPack} onClick={this.setAutoOrderStatus} />
+              <span className="textSecondary Hand mLeft5">{_l('自动订购')}</span>
+            </div>
           )}
         </div>
 
@@ -437,28 +490,28 @@ export default class PortalList extends Component {
           <div className="columnWidth flexRow">{_l('加入应用')}</div>
           <div className="columnWidth flexRow">
             <div
-              className="pointer ThemeHoverColor3 pRight12"
+              className="pointer hoverColorPrimary pRight12"
               style={{ zIndex: 1 }}
               onClick={() => this.updateState({ sortType: sortType === 11 ? 10 : 11 })}
             >
               {_l('注册时间')}
             </div>
             <div className="flexColumn manageListOrder">
-              <Icon icon="arrow-up" className={cx({ ThemeColor3: sortType === 10 })} />
-              <Icon icon="arrow-down" className={cx({ ThemeColor3: sortType === 11 })} />
+              <Icon icon="arrow-up" className={cx({ colorPrimary: sortType === 10 })} />
+              <Icon icon="arrow-down" className={cx({ colorPrimary: sortType === 11 })} />
             </div>
           </div>
           <div className="columnWidth flexRow">
             <div
-              className="pointer ThemeHoverColor3 pRight12"
+              className="pointer hoverColorPrimary pRight12"
               style={{ zIndex: 1 }}
               onClick={() => this.updateState({ sortType: sortType === 21 ? 20 : 21 })}
             >
               {_l('最近登录时间')}
             </div>
             <div className="flexColumn manageListOrder">
-              <Icon icon="arrow-up" className={cx({ ThemeColor3: sortType === 20 })} />
-              <Icon icon="arrow-down" className={cx({ ThemeColor3: sortType === 21 })} />
+              <Icon icon="arrow-up" className={cx({ colorPrimary: sortType === 20 })} />
+              <Icon icon="arrow-down" className={cx({ colorPrimary: sortType === 21 })} />
             </div>
           </div>
           <div className="w60 mRight20">{_l('操作')}</div>

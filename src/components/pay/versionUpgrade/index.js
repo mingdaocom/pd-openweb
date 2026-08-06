@@ -8,7 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import orderController from 'src/api/order';
 import upgradeController from 'src/api/upgrade';
 import preall from 'src/common/preall';
-import { addToken, getRequest } from 'src/utils/common';
+import { addToken, getRequest, pathCompletion } from 'src/utils/common';
 import { payDialogFunc } from '../payDialog';
 import PayHeader from '../payHeader';
 import { featureDataList, payMethodList, versionIntroduction } from './config';
@@ -100,7 +100,7 @@ export default class VersionUpgrade extends Component {
     });
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
-      payDialogFunc({ url: '/personal?type=enterprise' });
+      payDialogFunc({ url: pathCompletion('/personal?type=enterprise') });
     }, 1000);
   };
 
@@ -121,7 +121,7 @@ export default class VersionUpgrade extends Component {
       .then(res => {
         if (res) {
           if (bugMethod === 'wechartPay') {
-            window.open(`/wechatPay/${projectId}/${res.orderId}`, '_blanl');
+            window.open(pathCompletion(`/wechatPay/${projectId}/${res.orderId}`), '_blanl');
           } else {
             window.open(
               addToken(
@@ -131,7 +131,7 @@ export default class VersionUpgrade extends Component {
             );
           }
         } else {
-          alert('订单提交失败', 2);
+          alert(_l('订单提交失败'), 2);
         }
       });
   };
@@ -144,7 +144,7 @@ export default class VersionUpgrade extends Component {
     const isContractInfoIntact = address && companyName && email && mobilePhone && postcode && recipientName;
 
     if (!isContractInfoIntact) {
-      alert('请完善合同信息', 3);
+      alert(_l('请完善联系信息'), 3);
       return;
     }
 
@@ -154,7 +154,7 @@ export default class VersionUpgrade extends Component {
       let url = md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + projectId + '&orderNumber=' + orderId;
       window.open(addToken(url));
     } else if (bugMethod === 'wechartPay') {
-      window.open(`/wechatPay/${projectId}/${orderId}`);
+      window.open(pathCompletion(`/wechatPay/${projectId}/${orderId}`));
     }
 
     this.addPayLog();
@@ -172,13 +172,13 @@ export default class VersionUpgrade extends Component {
       .then(res => {
         if (res) {
           alert({
-            msg: '订单取消成功',
+            msg: _l('订单取消成功'),
             onClose: function () {
               window.location.reload();
             },
           });
         } else {
-          alert('订单取消失败', 2);
+          alert(_l('订单取消失败'), 2);
         }
       });
   };
@@ -197,7 +197,6 @@ export default class VersionUpgrade extends Component {
   };
 
   renderExistOrder = () => {
-    const { projectId } = getRequest(location.search);
     const { totalPrice, bugMethod } = this.state;
 
     return (
@@ -206,10 +205,7 @@ export default class VersionUpgrade extends Component {
         <div className="mTop20 LineHeight40">
           <span className="Width70 InlineBlock">{_l('支付总计:')}</span>
           <span className="newColor Font20 bold500 mLeft10 colorPrimary">{totalPrice}</span>
-          <span className="mLeft10 mRight30">{_l('元(人民币)')} </span>
-          <a href={`/upgrade/contract?projectId=${projectId}`} target="_blank" className="LineHeight35 Font14">
-            {_l('合同预览')}
-          </a>
+          <span className="mLeft10">{_l('元(人民币)')} </span>
         </div>
         <div className="flexRow">
           <span className="LineHeight20 Font12 Width70 InlineBlock">{_l('支付方式:')}</span>
@@ -508,14 +504,7 @@ export default class VersionUpgrade extends Component {
                 {userCount <= 750 ? (
                   <div className="flexRow Font16 mBottom16">
                     <a href="javascript:void 0;" onClick={() => this.setState({ editContractVisible: true })}>
-                      {isContractInfoIntact ? _l('修改合同信息') : _l('完善合同信息')}
-                    </a>
-                    <a
-                      href={`/upgrade/contract?projectId=${projectId}&versionId=${activeVersion}&userCount=${userCount}&selectYear=${selectYear}`}
-                      target="_blank"
-                      className="Font16 mLeft30"
-                    >
-                      {_l('合同预览')}
+                      {isContractInfoIntact ? _l('修改联系信息') : _l('完善联系信息')}
                     </a>
                   </div>
                 ) : (
@@ -529,7 +518,7 @@ export default class VersionUpgrade extends Component {
                 </div>
                 <div className="LineHeight30 textSecondary mTop12 Font14 TxtLeft">
                   {_l(
-                    '如需发票，请拨打400-665-6655联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。',
+                    '如需获取合同，请拨打400-665-6655，我们将尽快为您提供。如需获取发票，请在完成支付后前往 组织管理 -> 账务中心，自助申请。',
                   )}
                 </div>
                 <div className="payMethod">

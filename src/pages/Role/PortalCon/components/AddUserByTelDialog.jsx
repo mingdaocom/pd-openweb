@@ -6,6 +6,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown, Icon, PriceTip, Radio } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
+import { getTranslateInfo } from 'src/utils/app';
 import * as actions from '../redux/actions';
 import EmailInput from './Email';
 import Tel from './Tel';
@@ -260,7 +261,7 @@ function AddUserByTelDialog(props) {
                   border
                   isAppendToBody
                   data={roleList.map(o => {
-                    return { ...o, value: o.roleId, text: o.name };
+                    return { ...o, value: o.roleId, text: getTranslateInfo(appId, null, o.roleId).name || o.name };
                   })}
                   value={o.roleId || roleId} //成员
                   className={cx('flex role')}

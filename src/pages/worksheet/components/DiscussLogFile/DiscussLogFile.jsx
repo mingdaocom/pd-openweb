@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { getRequest } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
@@ -10,7 +10,6 @@ import PayLog from './PayLog';
 import WorkSheetComment from './WorkSheetComment';
 import './DiscussLogFile.less';
 
-@errorBoundary
 class DiscussLogFile extends Component {
   static propTypes = {
     workflow: PropTypes.element,
@@ -44,16 +43,19 @@ class DiscussLogFile extends Component {
     }, 1000);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.hiddenTabs !== this.props.hiddenTabs || nextProps.workflowStatus !== this.props.workflowStatus) {
-      this.getShowTabs(nextProps);
-      if (
-        (!this.showTabs.find(o => this.state.status === o.id) && this.state.status) ||
-        nextProps.workflowStatus !== this.props.workflowStatus
-      ) {
-        this.setState({
-          status: this.getActive(nextProps),
-        });
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (this.props.hiddenTabs !== prevProps.hiddenTabs || this.props.workflowStatus !== prevProps.workflowStatus) {
+        this.getShowTabs(this.props);
+
+        if (
+          (!this.showTabs.find(o => this.state.status === o.id) && this.state.status) ||
+          this.props.workflowStatus !== prevProps.workflowStatus
+        ) {
+          this.setState({
+            status: this.getActive(this.props),
+          });
+        }
       }
     }
   }
@@ -107,8 +109,8 @@ class DiscussLogFile extends Component {
             <span
               key={tab.id}
               className={cx('talk Font14 overflowHidden', `tab${tab.id}`, `tabsNum${this.showTabs.length}`, {
-                'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
-                'ThemeHoverColor3 ThemeHoverBorderColor3': !isWorksheetDiscuss,
+                'colorPrimary borderColorPrimary border2': this.state.status === tab.id && !isWorksheetDiscuss,
+                'hoverColorPrimary hoverBorderColorPrimary': !isWorksheetDiscuss,
                 isWorksheetDiscuss: isWorksheetDiscuss,
                 maxWidthFitContent: this.showTabs.length <= 3,
               })}
@@ -123,7 +125,7 @@ class DiscussLogFile extends Component {
             >
               <span
                 className={cx('txt InlineBlock overflow_ellipsis WordBreak w100', {
-                  'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
+                  'colorPrimary borderColorPrimary border2': this.state.status === tab.id && !isWorksheetDiscuss,
                   'textPrimary Font18': isWorksheetDiscuss,
                 })}
                 title={tab.text}
@@ -153,4 +155,4 @@ class DiscussLogFile extends Component {
   }
 }
 
-export default DiscussLogFile;
+export default ErrorBoundary.wrap(DiscussLogFile);

@@ -71,9 +71,11 @@ const FormSectionWrap = styled.div`
   }
 `;
 
-export const getDefaultIsUnfold = (value = true, widgetStyle = {}) => {
+const getSheetSectionIsUnfold = () => safeParse(localStorage.getItem('sheetSectionIsUnfold') || '{}') || {};
+
+export const getDefaultIsUnfold = (value = true, widgetStyle = {}, sheetSectionIsUnfold) => {
   let tempIsUnfold = value;
-  const localValue = JSON.parse(localStorage.getItem('sheetSectionIsUnfold') || '{}');
+  const localValue = sheetSectionIsUnfold || getSheetSectionIsUnfold();
   const showIcon = widgetStyle.showicon || '1';
 
   if (!_.isUndefined(_.get(localValue, [widgetStyle.tabposition]))) {
@@ -90,18 +92,18 @@ export const getDefaultIsUnfold = (value = true, widgetStyle = {}) => {
 function FormSection(props, ref) {
   const { tabControls = [], widgetStyle = {}, onClick, onUpdateFormSectionWidth = () => {}, from } = props;
   const [activeControlId, setActiveId] = useState();
-  const localValue = JSON.parse(localStorage.getItem('sheetSectionIsUnfold') || '{}');
+  const localValue = getSheetSectionIsUnfold();
   const showIcon = widgetStyle.showicon || '1';
 
   const activeControl = _.find(tabControls, i => i.controlId === activeControlId) || tabControls[0];
 
-  const [isUnfold, setUnfold] = useState(getDefaultIsUnfold(undefined, widgetStyle));
+  const [isUnfold, setUnfold] = useState(getDefaultIsUnfold(undefined, widgetStyle, localValue));
 
   useEffect(() => {
     const activeId = _.get(activeControl, 'controlId') || '';
     setActiveId(activeId);
     onClick(activeId);
-    const localIsUnfold = getDefaultIsUnfold(isUnfold, widgetStyle);
+    const localIsUnfold = getDefaultIsUnfold(isUnfold, widgetStyle, localValue);
     setUnfold(localIsUnfold);
     onUpdateFormSectionWidth(localIsUnfold ? 220 : 55);
   }, []);
