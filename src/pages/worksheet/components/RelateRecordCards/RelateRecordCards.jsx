@@ -541,7 +541,7 @@ class RelateRecordCards extends Component {
     const changes = {
       deletedIds: _.uniq(deletedIds.concat(recordIds)),
       records: [],
-      addedIds: addedIds.filter(r => !_.includes(recordIds, r.rowid)),
+      addedIds: addedIds.filter(id => !_.includes(recordIds, id)),
       count: 0,
     };
 
@@ -681,7 +681,7 @@ class RelateRecordCards extends Component {
     const { disabledManualWrite, isCard } = this;
     const isMobile = browserIsMobile();
     const selectedRowIds = records.map(r => r.rowid);
-    const mobileIgnoreRowIds = enumDefault === 2 ? _.uniq(deletedIds.concat(selectedRowIds)) : selectedRowIds;
+    const mobileIgnoreRowIds = _.uniq(deletedIds.concat(selectedRowIds));
     const selectOptions = {
       className: `mobileSelectRecordWrap-${controlId}`,
       control: control,

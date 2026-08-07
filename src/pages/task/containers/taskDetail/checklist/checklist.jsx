@@ -115,7 +115,10 @@ const checklistSource = {
   endDrag(props) {
     props.checklistDrop();
     clearInterval(config.setInterval);
-    root.unmount();
+    if (root) {
+      root.unmount();
+      root = null;
+    }
   },
 };
 const checklistTarget = {

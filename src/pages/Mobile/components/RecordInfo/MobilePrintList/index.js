@@ -14,7 +14,7 @@ import { pathCompletion } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { compatibleMDJS, getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import { sendCloudPrint } from 'src/utils/record';
-import { buildAppPrintParams } from './utils';
+import { buildAppPrintParams, getPrintCacheAppDetail, getPrintCacheWorksheetInfo } from './utils';
 
 const DEFAULT_TEMPLATE_TYPES = [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT];
 const CODE_TEMPLATE_TYPES = [PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT];
@@ -190,6 +190,13 @@ export default function MobilePrintList(props) {
     () => (isBatchOperate ? rowIds || [] : [rowId].filter(Boolean)),
     [isBatchOperate, rowId, rowIds],
   );
+  const printCacheContext = useMemo(
+    () => ({
+      worksheetInfo: getPrintCacheWorksheetInfo(worksheetInfo, viewId),
+      appDetail: getPrintCacheAppDetail(appDetail),
+    }),
+    [appDetail, viewId, worksheetInfo],
+  );
   const updatePrintListRef = useRef(updatePrintList);
 
   const closePrintList = () => setShowPrintListVisible(false);
@@ -215,8 +222,7 @@ export default function MobilePrintList(props) {
     workId,
     instanceId,
     rowIds: currentRowIds,
-    worksheetInfo: worksheetInfo,
-    appDetail: appDetail,
+    ...printCacheContext,
     printer: md.global.Account.fullname,
   });
 
@@ -232,8 +238,7 @@ export default function MobilePrintList(props) {
     workId,
     instanceId,
     rowIds: currentRowIds,
-    worksheetInfo: worksheetInfo,
-    appDetail: appDetail,
+    ...printCacheContext,
     printer: md.global.Account.fullname,
   });
 

@@ -13,7 +13,7 @@ function requireEsm(file) {
   return module.exports;
 }
 
-const { buildAppPrintParams } = requireEsm('./utils.js');
+const { buildAppPrintParams, getPrintCacheAppDetail, getPrintCacheWorksheetInfo } = requireEsm('./utils.js');
 
 const baseParams = {
   instanceId: '',
@@ -60,5 +60,58 @@ const singleQrCodeParams = buildAppPrintParams({
   },
 });
 assert.deepStrictEqual(singleQrCodeParams.rowIds, ['row-1']);
+
+const cacheAppDetail = getPrintCacheAppDetail({
+  detail: {
+    id: 'app-1',
+    projectId: 'project-1',
+    permissionType: 2,
+    isLock: false,
+    timeZone: 8,
+    langInfo: { appLangId: 'lang-1', version: 1 },
+    sections: [{ workSheetInfo: new Array(100).fill({}) }],
+  },
+});
+assert.deepStrictEqual(cacheAppDetail, {
+  id: 'app-1',
+  projectId: 'project-1',
+  permissionType: 2,
+  isLock: false,
+  timeZone: 8,
+  langInfo: { appLangId: 'lang-1', version: 1 },
+});
+
+const cacheWorksheetInfo = getPrintCacheWorksheetInfo(
+  {
+    appId: 'app-1',
+    worksheetId: 'worksheet-1',
+    projectId: 'project-1',
+    name: '订单',
+    entityName: '订单',
+    downLoadUrl: 'https://download.example.com',
+    switches: [{ type: 32, state: 1 }],
+    roleType: 2,
+    views: [
+      { viewId: 'view-1', name: '表格视图' },
+      { viewId: 'view-2', name: '看板视图' },
+    ],
+    template: { controls: new Array(100).fill({}) },
+    rules: new Array(100).fill({}),
+  },
+  'view-1',
+);
+assert.deepStrictEqual(cacheWorksheetInfo, {
+  appId: 'app-1',
+  worksheetId: 'worksheet-1',
+  projectId: 'project-1',
+  name: '订单',
+  entityName: '订单',
+  downLoadUrl: 'https://download.example.com',
+  switches: [{ type: 32, state: 1 }],
+  roleType: 2,
+  views: [{ viewId: 'view-1', name: '表格视图' }],
+});
+assert.deepStrictEqual(getPrintCacheAppDetail(null), {});
+assert.deepStrictEqual(getPrintCacheWorksheetInfo(null, 'view-1'), {});
 
 console.log('mobile print list utils tests passed');

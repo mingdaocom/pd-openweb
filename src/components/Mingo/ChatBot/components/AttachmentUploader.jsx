@@ -4,9 +4,23 @@ import { compatibleMDJS } from 'src/utils/project';
 import UploadFiles from './UploadFiles';
 
 const DEFAULT_APP_UPLOAD_FORMATS = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
+const APP_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic'];
+
+export function getAppUploadFormats(allowMimeTypes = []) {
+  const formats = allowMimeTypes
+    .reduce((result, item) => result.concat(String(item.extensions || '').split(',')), [])
+    .map(extension => extension.trim().replace(/^\./, '').toLowerCase())
+    .filter(Boolean);
+
+  return formats.length ? [...new Set(formats)] : DEFAULT_APP_UPLOAD_FORMATS;
+}
 
 function getAppFileType(file = {}) {
-  return ['.jpg', '.jpeg', '.png'].includes(file.fileExt) ? 'image' : file.type;
+  const extension = String(file.fileExt || '')
+    .replace(/^\./, '')
+    .toLowerCase();
+
+  return APP_IMAGE_EXTENSIONS.includes(extension) ? 'image' : file.type;
 }
 
 function normalizeAppFile(file = {}) {
@@ -75,7 +89,7 @@ export default function AttachmentUploader({
       sessionId: uploadSessionId,
       knowledge: false,
       count: allowMultiSelection ? remainingCount : 1,
-      format: DEFAULT_APP_UPLOAD_FORMATS,
+      format: getAppUploadFormats(allowMimeTypes),
       success: res => {
         const { sessionId, completed = [], error, uploading } = res || {};
 
