@@ -31,6 +31,17 @@ class DialogSelectUser extends Component {
     this.initDropList();
   }
 
+  componentWillUnmount() {
+    window.cancelAnimationFrame(this.focusSearchInputFrame);
+  }
+
+  focusSearchInput = () => {
+    window.cancelAnimationFrame(this.focusSearchInputFrame);
+    this.focusSearchInputFrame = window.requestAnimationFrame(() => {
+      this.generalSelect?.focusSearchInput();
+    });
+  };
+
   getSettings = (dropLists = []) => {
     const { SelectUserSettings: { filterAll, filterFriend } = {} } = this.props;
     let settings = {};
@@ -106,7 +117,7 @@ class DialogSelectUser extends Component {
     }
 
     this.getSettings(list);
-    this.setState({ list });
+    this.setState({ list }, this.focusSearchInput);
   };
 
   /**
@@ -129,10 +140,13 @@ class DialogSelectUser extends Component {
           onChange={value => {
             if (value === curValue) return;
             const isProjectId = !_.includes([dataRangeTypes.all, dataRangeTypes.friend], value);
-            this.setState({
-              dataRange: isProjectId ? dataRangeTypes.project : value,
-              projectId: isProjectId ? (_.find(md.global.Account.projects, { projectId: value }) ? value : '') : '',
-            });
+            this.setState(
+              {
+                dataRange: isProjectId ? dataRangeTypes.project : value,
+                projectId: isProjectId ? (_.find(md.global.Account.projects, { projectId: value }) ? value : '') : '',
+              },
+              this.focusSearchInput,
+            );
           }}
         />
       </div>
@@ -203,6 +217,9 @@ class DialogSelectUser extends Component {
 
     return (
       <GeneralSelect
+        ref={generalSelect => {
+          this.generalSelect = generalSelect;
+        }}
         chooseType={chooseType}
         commonSettings={commonSettings}
         userSettings={userSettings}

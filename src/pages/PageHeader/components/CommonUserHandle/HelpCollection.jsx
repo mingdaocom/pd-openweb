@@ -1,9 +1,9 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { openZendeskWidget } from 'src/utils/services/zendeskWidget';
+import { emitter } from 'src/utils/common';
 import HapAiDialog from './HapAiDialog';
 import hapAI from './images/hapAI.png';
 
@@ -19,7 +19,7 @@ const collections = () => {
         ? [
             { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.nocoly.com' },
             { id: 'helpDoc', text: _l('伙伴'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
-            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+            { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
           ]
         : [
             { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
@@ -159,10 +159,12 @@ export default function HelpCollection(props) {
                     key={v.id}
                     onClick={() => {
                       updatePopupVisible(false);
-                      if (window.platformENV.isOverseas) {
-                        openZendeskWidget();
-                      } else {
-                        window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
+                      if (v.id === 'partnerSupport') {
+                        if (window.platformENV.isOverseas) {
+                          emitter.emit('SET_MINGO_VISIBLE', { mingoVisible: true });
+                        } else {
+                          window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
+                        }
                       }
                     }}
                   >

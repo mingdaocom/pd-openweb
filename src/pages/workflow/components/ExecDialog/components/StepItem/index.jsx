@@ -681,7 +681,7 @@ export default class StepItem extends Component {
             )}
 
             {isCurrentWork && _.includes([3, 4], flowNode.type) && explain && (
-              <div className="mTop6 mLeft14 mRight14 breakAll">{explain}</div>
+              <div className="mTop6 mLeft14 mRight14 WordBreak">{explain}</div>
             )}
 
             {(isCC && workItems.length > 5 && !showMore ? workItems.slice(0, 5) : workItems).map((item, index) => {

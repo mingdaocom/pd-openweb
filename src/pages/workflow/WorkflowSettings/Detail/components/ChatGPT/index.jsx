@@ -478,6 +478,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
           )}
           <Textarea
             className="flex"
+            isFocus
             minHeight={0}
             style={{ paddingTop: 16, paddingBottom: 16 }}
             maxHeight={240}

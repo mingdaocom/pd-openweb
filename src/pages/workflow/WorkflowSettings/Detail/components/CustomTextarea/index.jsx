@@ -126,6 +126,7 @@ export default class CustomTextarea extends Component {
 
             return (
               <Tag
+                className="flowDetailFlexibleTag"
                 flowNodeType={nodeObj.type}
                 appType={nodeObj.appType}
                 actionId={nodeObj.actionId}

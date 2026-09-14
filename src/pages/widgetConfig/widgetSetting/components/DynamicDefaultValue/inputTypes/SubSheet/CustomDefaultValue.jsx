@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Dialog } from 'ming-ui';
 import ChildTable from 'worksheet/components/ChildTable';
@@ -28,6 +29,11 @@ export default class CustomDefaultValue extends Component {
       ...i,
       controlPermissions: i.controlPermissions || '111',
     }));
+    // 游离子表（含尚未保存、dataSource 仍是临时 id 的子表）没有可配置业务规则的真实工作表，
+    // 这里传入 controls 后 ChildTable 不会走 getWorksheetInfo 拿 rules，表格会自行请求 GetControlRules，
+    // 对游离子表属于无效请求，直接关闭规则加载。
+    const isBlankSubList =
+      _.get(data, 'advancedSetting.detailworksheettype') === '2' || _.includes(data.dataSource, '-');
     return (
       <Dialog
         visible={true}
@@ -61,6 +67,7 @@ export default class CustomDefaultValue extends Component {
         <div style={{ minHeight: 74, margin: '10px 0 12px' }}>
           <ChildTable
             initRowIsCreate={false}
+            enableRules={!isBlankSubList}
             disableValidate
             from={0}
             control={{

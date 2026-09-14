@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { emitter } from 'src/utils/common';
-import { openZendeskWidget } from 'src/utils/services/zendeskWidget';
 import { PopoverWrap } from '../ChatList/Avatar/styled';
 
 const collections = () => {
@@ -23,7 +22,7 @@ const collections = () => {
               href: 'https://nocoly.zendesk.com/hc/en-001',
             },
             { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
-            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+            { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
           ]
         : [
             { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
@@ -101,7 +100,7 @@ const renderProjectsPopover = ({ onClose = () => {}, onCloseHelpPopover = () => 
                         onClose(); // 再关闭侧边抽屉
 
                         if (window.platformENV.isOverseas) {
-                          openZendeskWidget();
+                          emitter.emit('SET_MINGO_VISIBLE', { mingoVisible: true });
                         } else {
                           setTimeout(() => {
                             window.mingoPendingStartTask = { callFromHelp: true };

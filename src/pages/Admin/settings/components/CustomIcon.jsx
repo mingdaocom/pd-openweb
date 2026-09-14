@@ -129,6 +129,11 @@ export default class CustomIcon extends Component {
                 ext_blacklist: [],
                 bucket: 2,
                 type: 5,
+                error_callback: errorType => {
+                  if (errorType === 2) {
+                    alert(_l('单次最多上传%0个图标', 100), 3);
+                  }
+                },
               }}
               getTokenParam={{
                 extend: preserveColor ? 'preserve' : '',

@@ -293,8 +293,11 @@ export default function Tools(props) {
             className={cx(type, { switchButton: isSwitchButton(type) })}
             key={type}
             onClick={() => {
-              onClick && onClick();
-              handleToolClick(type);
+              if (onClick) {
+                onClick();
+              } else {
+                handleToolClick(type);
+              }
             }}
           >
             <i className={`icon-${getIcon(type, icon)} Font18 current`}></i>

@@ -135,8 +135,13 @@ export default function PersonalAccessTokenDrawer(props) {
     dialogSelectApp({
       projectId: formData.projectIds[0],
       title: _l('选择授权应用'),
-      ajaxFun: 'getManagerApps',
+      ajaxFun: 'getMyApp',
       ajaxParam: { projectId: formData.projectIds[0] },
+      filterFun: app => {
+        // 将我加入的应用字段转换为选择弹窗使用的格式。
+        _.assign(app, { appId: app.id, appName: app.name, ctime: app.createTime, createAccountInfo: app.owner });
+        return true;
+      },
       onOk: apps => {
         const nextApps = _.uniqBy(selectedApps.concat(apps), 'appId');
         setSelectedApps(nextApps);

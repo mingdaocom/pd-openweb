@@ -139,8 +139,12 @@ export default option => {
     });
 
     if (validFiles.length > option.max_file_count) {
-      option.error_callback(UPLOAD_ERROR.TOO_MANY_FILES, files);
+      // 先清理超限文件，避免错误回调异常导致未获取 token 的文件残留在队列中。
       forEach(files, file => up.removeFile(file));
+      if (typeof option.error_callback === 'function') {
+        option.error_callback(UPLOAD_ERROR.TOO_MANY_FILES, files);
+      }
+
       return;
     }
 

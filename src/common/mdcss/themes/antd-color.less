@@ -252,6 +252,29 @@
 }
 
 .ant-picker-dropdown {
+  .ant-picker-date-panel {
+    /* Keep the 24px date target while tightening the gaps around and between dates. */
+    width: 238px;
+
+    .ant-picker-body {
+      padding: 4px 12px;
+    }
+
+    .ant-picker-content {
+      width: 210px;
+
+      th {
+        width: 30px;
+        height: 24px;
+        line-height: 24px;
+      }
+    }
+
+    .ant-picker-cell {
+      padding: 0;
+    }
+  }
+
   &,
   .ant-picker-header,
   td.ant-picker-cell-in-view:not(.ant-picker-cell-disabled),

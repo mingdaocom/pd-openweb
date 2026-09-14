@@ -80,4 +80,15 @@
       color: var(--color-white);
     }
   }
+  .flowDetailFlexibleTag {
+    max-width: 100%;
+    .flowDetailMemberNodeName,
+    .flowDetailMemberFieldName {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+    .flowDetailMemberFieldName {
+      max-width: none;
+    }
+  }
 }

@@ -7,7 +7,7 @@ import { formatShowTime } from '../common';
 import tpl from './template/postMessage.html';
 import './css/postMessage.less';
 
-export default function ({ members, address, description, allDay, start, end, title }) {
+export default function ({ id, recurTime, members, address, description, allDay, start, end, title }) {
   var data = _.map(members, m => ({
     ...m,
     name: m.memberName,
@@ -72,6 +72,8 @@ export default function ({ members, address, description, allDay, start, end, ti
             }
 
             ajaxRequest[op]({
+              calendarId: id,
+              recurTime,
               accountIds: ids,
               content: value,
               attachments: '',

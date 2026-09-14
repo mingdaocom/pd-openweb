@@ -14,6 +14,7 @@ import UnNormal from 'worksheet/views/components/UnNormal';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import ConversationList from 'src/components/Mingo/modules/WorkflowChatBot/ConversationList';
 import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile, pathCompletion, setAppThemeColor } from 'src/utils/common';
 import defaultProfile from './assets/profile.png';
 import Edit from './Edit';
@@ -67,16 +68,17 @@ const Wrap = styled.div`
 
 const Chatbot = props => {
   const { data, appPkg, navigateToConversation = () => {}, isEmbed = false } = props;
+  const { chatbotId, conversationId } = data;
   const [chatbotConfig, setChatbotConfig] = useState({});
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(localStorage.getItem(`chatbotNavVisible`) ? true : false);
-  const [editVisible, setEditVisible] = useState(sessionStorage.getItem(`chatbotNewCreate-${data.chatbotId}`));
+  const [editVisible, setEditVisible] = useState(sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`));
   const [chatbotAppItem, setChatbotAppItem] = useState({});
   const requestRef = useRef({});
   const isDark = _.get(chatbotConfig.config, 'isDark') || false;
   const isCharge = canEditApp(appPkg.permissionType);
-  const chatbotName = data.name || chatbotAppItem.workSheetName;
   const appId = appPkg.id || data.appId;
+  const chatbotName = getTranslateInfo(appId, null, chatbotId).name || data.name || chatbotAppItem.workSheetName;
 
   const handleNavVisible = value => {
     setNavVisible(value);
@@ -84,7 +86,6 @@ const Chatbot = props => {
   };
 
   useEffect(() => {
-    const { chatbotId } = data;
     const appItemRequest = homeAppApi.getItemDetailByAppId({
       appId,
       itemIds: [chatbotId],
@@ -109,7 +110,7 @@ const Chatbot = props => {
 
         if (browserIsMobile() && appItem[0].sectionId) {
           location.href = pathCompletion(
-            `/mobile/chatbot/${appId}/${appItem[0].sectionId}/${chatbotId}/${data.conversationId || ''}${location.search || ''}`,
+            `/mobile/chatbot/${appId}/${appItem[0].sectionId}/${chatbotId}/${conversationId || ''}${location.search || ''}`,
           );
           return;
         }
@@ -140,7 +141,7 @@ const Chatbot = props => {
         requestRef.current = {};
       }
     };
-  }, [appId, data.chatbotId]);
+  }, [appId, chatbotId, conversationId]);
 
   if (loading) {
     return (
@@ -314,7 +315,7 @@ const Chatbot = props => {
           }}
         />
       )}
-      {isEmbed && <DocumentTitle title={chatbotAppItem.workSheetName} />}
+      {isEmbed && <DocumentTitle title={chatbotName} />}
     </Wrap>
   );
 };

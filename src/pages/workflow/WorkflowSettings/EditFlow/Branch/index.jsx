@@ -25,15 +25,9 @@ export default class Branch extends Component {
 
     return (
       <div className="flexRow alignItemsCenter">
-        <Tooltip title={_l('添加分支')}>
-          <span
-            className="workflowBranchBtnSmall textSecondary hoverColorPrimary"
-            onClick={() => {
-              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
-              this.handleTipsPosition();
-            }}
-          >
-            <i className="icon-add" />
+        <Tooltip title={_l('收起')}>
+          <span className="workflowBranchBtnSmall textSecondary hoverColorPrimary" onClick={this.changeShrink}>
+            <i className={'icon-arrow-up-border'} />
           </span>
         </Tooltip>
 
@@ -47,9 +41,15 @@ export default class Branch extends Component {
           />
         </Tooltip>
 
-        <Tooltip title={_l('收起')}>
-          <span className="workflowBranchBtnSmall textSecondary hoverColorPrimary" onClick={this.changeShrink}>
-            <i className={'icon-arrow-up-border'} />
+        <Tooltip title={_l('添加分支')}>
+          <span
+            className="workflowBranchBtnSmall textSecondary hoverColorPrimary"
+            onClick={() => {
+              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
+              this.handleTipsPosition();
+            }}
+          >
+            <i className="icon-add" />
           </span>
         </Tooltip>
       </div>

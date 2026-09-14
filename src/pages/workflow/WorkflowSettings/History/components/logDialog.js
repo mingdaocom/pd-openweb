@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -46,6 +46,7 @@ const Nav = styled.div`
 
 const Content = styled.div`
   flex: 1;
+  min-width: 0;
   .scrollViewContainer {
     padding: 20px 24px 20px 21px;
     background: var(--color-background-secondary);
@@ -251,30 +252,34 @@ const LogDialog = props => {
     return diff <= 0 ? '' : showDesc ? _l('耗时：%0', formatTime(diff)) : formatTime(diff);
   };
 
-  const onScroll = _.debounce(() => {
-    const wrapper = document.querySelector('.logDialogWrapper');
-    if (!wrapper) return;
+  const onScroll = useMemo(
+    () =>
+      _.debounce(() => {
+        const wrapper = document.querySelector('.logDialogWrapper');
+        if (!wrapper) return;
 
-    const offsetTop = wrapper.offsetTop;
-    const sections = document.querySelectorAll('.workflowSectionName');
-    let sectionIndex = 0;
+        const offsetTop = wrapper.offsetTop;
+        const sections = document.querySelectorAll('.workflowSectionName');
+        let sectionIndex = 0;
 
-    sections.forEach((section, index) => {
-      const rect = section.getBoundingClientRect();
+        sections.forEach((section, index) => {
+          const rect = section.getBoundingClientRect();
 
-      if (rect.top <= offsetTop + 80) {
-        sectionIndex = index;
-      }
-    });
+          if (rect.top <= offsetTop + 80) {
+            sectionIndex = index;
+          }
+        });
 
-    setCurrentSectionIndex(sectionIndex);
-  }, 200);
+        setCurrentSectionIndex(sectionIndex);
+      }, 200),
+    [],
+  );
 
   useEffect(() => {
     return () => {
       onScroll.cancel();
     };
-  }, []);
+  }, [onScroll]);
 
   const convertObjectData = data => {
     try {
@@ -350,7 +355,7 @@ const LogDialog = props => {
         setList(false);
         setIsError(true);
       });
-  }, []);
+  }, [instanceId, nodeId, processId]);
 
   return (
     <DialogWrapper
