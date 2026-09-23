@@ -41,7 +41,7 @@ const Wrap = styled.div`
 const isMobile = browserIsMobile();
 const LoadableMobileCustomPage = lazy(() => import('src/pages/Mobile/CustomPage'));
 const LoadableCustomPageContent = lazy(() => import('src/pages/customPage/pageContent'));
-const SHARE_REFRESH_INTERVAL = 3 * 60 * 60 * 1000;
+const SHARE_REFRESH_INTERVAL = 58 * 60 * 1000;
 
 const Entry = () => {
   const { hideHeader } = getRequest();

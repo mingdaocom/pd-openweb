@@ -16,7 +16,7 @@ import './index.less';
 
 const { hideHeader } = getRequest();
 const LoadableChartDialog = lazy(() => import('../ChartDialog'));
-const SHARE_REFRESH_INTERVAL = 3 * 60 * 60 * 1000;
+const SHARE_REFRESH_INTERVAL = 58 * 60 * 1000;
 
 if (hideHeader === 'true') {
   setCookie('i18n_langtag', 'zh-Hans');

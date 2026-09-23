@@ -113,7 +113,7 @@ const normalizeUrls = obj => {
   return obj;
 };
 
-const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
+const getGlobalMeta = ({ allowNotLogin, requestParams, skipLanguageReload = false } = {}) => {
   // 处理location.href方法异步的问题
   window.isWaiting = false;
 
@@ -165,9 +165,15 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   // 设置默认语言
   if (!lang) {
-    window.isWaiting = true;
     const sysDefaultLang = window.getDefaultLangKey();
 
+    // SSO 回调由调用方跳转目标页，使语言生效，避免刷新后重复登录。
+    if (skipLanguageReload) {
+      setCookie('i18n_langtag', sysDefaultLang);
+      return;
+    }
+
+    window.isWaiting = true;
     if (
       (location.pathname.includes('/public/') && !isPublicMingoPlan()) ||
       location.pathname.includes('/recordfileupload')
@@ -247,6 +253,8 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   ) {
     setCookie('i18n_langtag', md.global.Account.lang);
 
+    if (skipLanguageReload) return;
+
     if (window.top !== window.self) {
       localStorage.setItem('i18n_reload', true);
     } else {
@@ -315,9 +323,9 @@ const wrapComponent = function (Comp, { allowNotLogin, requestParams } = {}) {
   return Pre;
 };
 
-export default function (Comp, { allowNotLogin, requestParams } = {}) {
+export default function (Comp, { allowNotLogin, requestParams, skipLanguageReload = false } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
-    getGlobalMeta({ allowNotLogin, requestParams });
+    getGlobalMeta({ allowNotLogin, requestParams, skipLanguageReload });
   } else {
     return wrapComponent(Comp, { allowNotLogin, requestParams });
   }

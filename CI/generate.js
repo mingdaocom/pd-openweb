@@ -114,8 +114,13 @@ async function generate() {
           }
         }
       </style>
-      <link rel="stylesheet" href="/pm/freestyle.css" />
-      <script src="/pm/freestyle.js"></script>
+      <script>
+        (function () {
+          var freestyleVersion = Math.floor(Date.now() / 3600000);
+          document.write('<link rel="stylesheet" href="/pm/freestyle.css?v=' + freestyleVersion + '" />');
+          document.write('<script src="/pm/freestyle.js?v=' + freestyleVersion + '"><\\/script>');
+        })();
+      </script>
       <script>
           window.MDPublishVersion = "${version}";
           window.FE_RELEASE_TIME = "${moment().format('YYYY/MM/DD HH:mm:SS')}";

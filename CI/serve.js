@@ -76,7 +76,7 @@ const proxyConfigs = [
     replace: '/api/artifacts/',
     server: publishConfig.apiServer,
   },
-  { name: 'api', path: '/api/', replace: '/', server: publishConfig.apiServer },
+  { name: 'api', path: '/api/', replace: '/wwwapi/', server: publishConfig.apiServer },
   { name: 'workflow_api', path: '/workflow_api/', replace: '', server: publishConfig.apiServer },
   { name: 'report_api', path: '/report_api/', replace: '', server: publishConfig.apiServer },
   { name: 'integration_api', path: '/integration_api/', replace: '', server: publishConfig.apiServer },

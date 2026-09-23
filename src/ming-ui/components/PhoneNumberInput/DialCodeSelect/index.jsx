@@ -26,6 +26,7 @@ export class DialCodeSelectInstance {
     this.preferredCountries = options.preferredCountries || [];
     this.onlyCountries = options.onlyCountries || [];
     this.locale = options.locale;
+    this.getCode = options.getCode;
     this.onSelectCode = options.onSelectCode || (() => {});
     this.code = parseDialCode({
       value: this.value,
@@ -200,7 +201,7 @@ export class DialCodeSelectInstance {
     if (!this.element || this.isOpen) return;
     this.isOpen = true;
     this._ensurePanel();
-    this._syncCodeByValue(this._getCurrentValue());
+    this._syncCodeByValue(this.getCode?.() || this._getCurrentValue());
     this._positionPanel();
     this._renderPanel();
     this._positionPanelAfterRender();
@@ -318,6 +319,8 @@ export class IntlTelInputAdapter {
       preferredCountries: this.preferredCountries,
       onlyCountries: this.onlyCountries,
       locale: this.locale,
+      // 展开时读取当前区号，避免初始化号码覆盖后续选择。
+      getCode: () => this.code,
       onSelectCode: nextCode => {
         const prevCode = this.code;
         this.code = nextCode;

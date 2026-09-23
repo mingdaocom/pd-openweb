@@ -76,7 +76,7 @@ function Container() {
             setPssId(data.sessionId, autoLogin);
 
             import('src/common/preall').then(preall => {
-              preall.default({ type: 'function' });
+              preall.default({ type: 'function' }, { skipLanguageReload: true });
 
               // preall 后 HttpOnly 等全局配置已刷新，再按完整策略补写一次登录态
               setPssId(data.sessionId, autoLogin);

@@ -247,7 +247,7 @@ export const fetchRows = ({
       args.pageSize = maxCount;
     }
 
-    if (forcePageSize && !groupControlId) {
+    if (forcePageSize && view?.viewType === 0 && !groupControlId) {
       savedPageSize = undefined;
       args.pageSize = forcePageSize;
       dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize: forcePageSize, pageIndex: args.pageIndex });

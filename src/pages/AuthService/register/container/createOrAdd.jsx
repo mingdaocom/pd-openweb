@@ -34,7 +34,6 @@ export default class CreateOrAdd extends React.Component {
 
   renderCon = () => {
     const { onChange = () => {} } = this.props;
-    const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
     return (
       <React.Fragment>
         <Wrap className="gNextBox mTop32" onClick={() => onChange({ step: 'add' })}>
@@ -45,16 +44,14 @@ export default class CreateOrAdd extends React.Component {
           </h5>
           <p className="textSecondary Font14 mTop12">{_l('同事已经在用，我要找到并加入组织')}</p>
         </Wrap>
-        {canCreateProject && (
-          <Wrap className="gNextBox mTop24 mBottom25" onClick={() => onChange({ step: 'create' })}>
-            <h5 className="textPrimary Font18 Bold">
-              {_l('创建')}
-              <span className="authPrimaryText mLeft3 mRight3">{_l('新的')}</span>
-              {_l('组织')}
-            </h5>
-            <p className="textSecondary Font14 mTop12">{_l('我想自己创建一个新组织')}</p>
-          </Wrap>
-        )}
+        <Wrap className="gNextBox mTop24 mBottom25" onClick={() => onChange({ step: 'create' })}>
+          <h5 className="textPrimary Font18 Bold">
+            {_l('创建')}
+            <span className="authPrimaryText mLeft3 mRight3">{_l('新的')}</span>
+            {_l('组织')}
+          </h5>
+          <p className="textSecondary Font14 mTop12">{_l('我想自己创建一个新组织')}</p>
+        </Wrap>
       </React.Fragment>
     );
   };
